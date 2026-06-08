@@ -1,0 +1,2 @@
+the external services
+example: Supabase, Firebase, payment gateway, API
