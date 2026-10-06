@@ -262,3 +262,22 @@ def test_pose_empty_scene_is_pose_not_detected(tmp_path):
 def test_pose_exercise_list():
     r = client.get("/pose/exercises", headers=DEV)
     assert r.status_code == 200 and len(r.json()["exercises"]) == 15
+
+
+def test_descent_time_runs_from_top_to_seated_not_to_rep_end():
+    # Stand at 180, sit back down to 90 over `down` seconds; the rep ends at the rest line (112),
+    # before the person is seated, so the old peak->rep end timing under-measured careful sits.
+    from types import SimpleNamespace
+    from app.pose.exercises import descent_seconds
+
+    def run(down):
+        n_down = int(down * FPS)
+        sig = np.concatenate([np.full(10, 90.0), np.linspace(90, 180, 10), np.full(5, 180.0),
+                              np.linspace(180, 90, n_down), np.full(15, 90.0)])
+        f = SimpleNamespace(t=np.arange(len(sig)) / FPS)
+        peak = 22
+        end = peak + 3 + int(np.argmax(sig[peak + 3:] < 112))
+        return descent_seconds(lambda _: sig, f, Rep(start=10, peak=peak, end=end))
+
+    assert run(2.0) == pytest.approx(1.7, abs=0.25)   # slow, controlled: well above the 0.7 s limit
+    assert run(0.5) < 0.7                             # dropping into the chair

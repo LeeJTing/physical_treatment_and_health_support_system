@@ -127,6 +127,22 @@ def bridge(f):           return f["bridge_line"]
 def hip_rise(f):         return f["hip_rise"]
 
 
+def descent_seconds(signal, f, r: Rep, margin: float = 5.0, look_ahead: float = 1.5) -> float:
+    """Time of the whole way down: from leaving the top of the rep to reaching the bottom
+    (within `margin` of the lowest value up to `look_ahead` s after the rep). The rep itself
+    ends when the signal crosses `rest`, before the person is fully seated, so timing only
+    to the rep end made careful sits look rushed (46% false alarms on Elwin's correct reps)."""
+    s = signal(f)
+    stop = int(np.searchsorted(f.t, f.t[r.end] + look_ahead))
+    seg = s[r.peak:max(stop, r.end + 1)]
+    if len(seg) < 2 or np.all(np.isnan(seg)):
+        return float("inf")
+    top, low = np.nanmax(s[r.slice()]), np.nanmin(seg)
+    i0 = r.peak + int(np.argmax(seg < top - margin))
+    i1 = r.peak + int(np.argmax(seg <= low + margin))
+    return float(f.t[i1] - f.t[i0]) if i1 > i0 else float("inf")
+
+
 def thigh_lift_seated(f):
     return {k: f[f"thigh_from_down_{k}"] - 90 for k in ("L", "R")}
 
@@ -166,8 +182,9 @@ add(ExerciseSpec(
           peak_of(knees), 160, False, "degrees"),
         M("no_forward_lean", "Lean your chest forward a little before you stand up.",
           lambda f, r: rep_max(f["lean_sagittal"], r), 12, False, "degrees"),
+        # Whole descent, top to seated: 100% of uncontrolled sits under 0.7 s, 3% of correct ones.
         M("uncontrolled_sit", "Sit down slowly and with control.",
-          lambda f, r: phase_seconds(f.t, r)[1], 1.0, False, "seconds"),
+          lambda f, r: descent_seconds(knees, f, r), 0.7, False, "seconds"),
         M("feet_forward", "Bring your feet back so your knees are above your ankles before you stand.",
           lambda f, r: float(f.both("shin_forward", "mean")[r.start]), 22, True, "degrees"),
     ]))
@@ -377,6 +394,8 @@ def apply_thresholds(path: Path = THRESHOLDS_FILE) -> dict:
     return data
 
 
+# The physiotherapy defaults written above, kept for comparison with the tuned limits (Chapter 5).
+DEFAULT_LIMITS = {f"{k}.{m.label}": m.limit for k, s in EXERCISES.items() for m in s.mistakes}
 TUNED = apply_thresholds()
 
 

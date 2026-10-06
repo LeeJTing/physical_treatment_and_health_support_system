@@ -1,23 +1,23 @@
 {
   "shoulder_abduction.low_range": {
-    "rule": "low_range: mistake when below 72 degrees",
+    "rule": "low_range: mistake when below 92.441 degrees",
     "n_correct": 132,
     "n_mistake": 25,
-    "current_limit": 72,
-    "current_balanced_accuracy": 0.58,
+    "current_limit": 92.441,
+    "current_balanced_accuracy": 0.996,
     "tuned_limit": 92.441,
     "tuned_balanced_accuracy": 0.996,
     "median_correct": 103.131,
     "median_mistake": 78.899,
     "unit": "degrees",
-    "status": "tuned"
+    "status": "kept"
   },
   "shoulder_abduction.bent_elbow": {
-    "rule": "bent_elbow: mistake when below 150 degrees",
+    "rule": "bent_elbow: mistake when below 165 degrees",
     "n_correct": 132,
     "n_mistake": 26,
-    "current_limit": 150,
-    "current_balanced_accuracy": 0.75,
+    "current_limit": 165.0,
+    "current_balanced_accuracy": 0.846,
     "tuned_limit": 170.349,
     "tuned_balanced_accuracy": 0.912,
     "median_correct": 173.815,
@@ -55,10 +55,12 @@
     "status": "kept"
   },
   "shoulder_abduction.shoulder_shrug": {
-    "rule": "shoulder_shrug: mistake when below 0.85 ratio",
+    "rule": "shoulder_shrug: mistake when below 0.75 ratio",
     "n_correct": 132,
     "n_mistake": 0,
-    "status": "skipped (needs 5 reps on each side)"
+    "status": "reviewed",
+    "used_limit": 0.75,
+    "reason": "correct reps p5 0.80 (arms to the side lift the shoulder blades); flexion shrug reps median 0.67; no abduction shrug clips yet"
   },
   "shoulder_flexion.low_range": {
     "rule": "low_range: mistake when below 72 degrees",
@@ -74,11 +76,11 @@
     "status": "kept"
   },
   "shoulder_flexion.bent_elbow": {
-    "rule": "bent_elbow: mistake when below 150 degrees",
+    "rule": "bent_elbow: mistake when below 160 degrees",
     "n_correct": 127,
     "n_mistake": 25,
-    "current_limit": 150,
-    "current_balanced_accuracy": 0.86,
+    "current_limit": 160.0,
+    "current_balanced_accuracy": 0.94,
     "tuned_limit": 162.113,
     "tuned_balanced_accuracy": 0.94,
     "median_correct": 172.116,
@@ -148,11 +150,11 @@
     "status": "kept"
   },
   "sit_to_stand.incomplete_stand": {
-    "rule": "incomplete_stand: mistake when below 160 degrees",
+    "rule": "incomplete_stand: mistake when below 170 degrees",
     "n_correct": 130,
     "n_mistake": 32,
-    "current_limit": 160,
-    "current_balanced_accuracy": 0.922,
+    "current_limit": 170.0,
+    "current_balanced_accuracy": 0.984,
     "tuned_limit": 174.091,
     "tuned_balanced_accuracy": 1.0,
     "median_correct": 177.935,
@@ -164,17 +166,17 @@
     "used_balanced_accuracy": 0.984
   },
   "sit_to_stand.no_forward_lean": {
-    "rule": "no_forward_lean: mistake when below 12 degrees",
+    "rule": "no_forward_lean: mistake when below 23.452 degrees",
     "n_correct": 130,
     "n_mistake": 31,
-    "current_limit": 12,
-    "current_balanced_accuracy": 0.661,
+    "current_limit": 23.452,
+    "current_balanced_accuracy": 0.988,
     "tuned_limit": 23.452,
     "tuned_balanced_accuracy": 0.988,
     "median_correct": 42.569,
     "median_mistake": 12.507,
     "unit": "degrees",
-    "status": "tuned"
+    "status": "kept"
   },
   "sit_to_stand.uncontrolled_sit": {
     "rule": "uncontrolled_sit: mistake when below 1 seconds",
@@ -190,16 +192,16 @@
     "status": "kept"
   },
   "sit_to_stand.feet_forward": {
-    "rule": "feet_forward: mistake when above 22 degrees",
+    "rule": "feet_forward: mistake when above -14.745 degrees",
     "n_correct": 130,
     "n_mistake": 20,
-    "current_limit": 22,
-    "current_balanced_accuracy": 0.525,
+    "current_limit": -14.745,
+    "current_balanced_accuracy": 0.95,
     "tuned_limit": -14.745,
     "tuned_balanced_accuracy": 0.95,
     "median_correct": -19.075,
     "median_mistake": 0.49,
     "unit": "degrees",
-    "status": "tuned"
+    "status": "kept"
   }
 }

@@ -1,0 +1,17 @@
+exercise,rule,unit,correct_reps,mistake_reps,default_limit,tuned_limit,default_detection,default_false_alarm,tuned_detection,tuned_false_alarm
+shoulder_abduction,low_range,degrees,132,25,72,92.441,0.16,0.0,1.0,0.008
+shoulder_abduction,bent_elbow,degrees,132,26,150,165.0,0.5,0.0,0.692,0.0
+shoulder_abduction,uneven_arms,degrees,132,25,15,15,1.0,0.0,1.0,0.0
+shoulder_abduction,trunk_lean,degrees,132,25,10,10,0.92,0.0,0.92,0.0
+shoulder_abduction,shoulder_shrug,ratio,132,0,0.85,0.75,,0.583,,0.0
+shoulder_flexion,low_range,degrees,127,25,72,72,1.0,0.0,1.0,0.0
+shoulder_flexion,bent_elbow,degrees,127,25,150,160.0,0.72,0.0,0.88,0.0
+shoulder_flexion,back_arch,degrees,127,26,-10,-10,1.0,0.0,1.0,0.0
+shoulder_flexion,swinging,seconds,127,0,0.6,0.6,,0.0,,0.0
+shoulder_flexion,trunk_forward,degrees,127,29,15,15,0.931,0.0,0.931,0.0
+shoulder_flexion,shoulder_shrug,ratio,127,27,0.85,0.85,0.926,0.008,0.926,0.008
+sit_to_stand,hands_used,torso lengths,130,25,0.25,0.25,1.0,0.0,1.0,0.0
+sit_to_stand,incomplete_stand,degrees,130,32,160,170.0,0.844,0.0,0.969,0.0
+sit_to_stand,no_forward_lean,degrees,130,31,12,23.452,0.323,0.0,1.0,0.023
+sit_to_stand,uncontrolled_sit,seconds,130,21,0.7,0.7,1.0,0.023,1.0,0.023
+sit_to_stand,feet_forward,degrees,130,20,22,-14.745,0.05,0.0,0.9,0.0

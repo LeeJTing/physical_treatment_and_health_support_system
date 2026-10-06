@@ -39,6 +39,11 @@ REVIEWED = {
                                            "normal arms; 165 scores 85%, the trained model handles the rest"),
     "shoulder_flexion.bent_elbow": (160, "94%, same as the tuned 162, rounder and with more margin"),
     "sit_to_stand.incomplete_stand": (170, "98% vs 100% at 174, which is 2 deg below Elwin's own correct reps"),
+    # No shrug clips for abduction: raising the arms to the side rotates the shoulder blades up,
+    # so correct reps sit at 0.80-0.85 (p5 0.80) and the default 0.85 fired on half of them.
+    # 0.75 is below every correct rep and above the shrug reps recorded for flexion (median 0.67).
+    "shoulder_abduction.shoulder_shrug": (0.75, "correct reps p5 0.80 (arms to the side lift the shoulder blades); "
+                                                "flexion shrug reps median 0.67; no abduction shrug clips yet"),
 }
 
 
@@ -105,7 +110,12 @@ def main():
             ok = np.array([m.value(f, r) for f, r, good, _ in items if good])
             bad = np.array([m.value(f, r) for f, r, good, mis in items if not good and mis in (m.label, "*")])
             row = {"rule": m.describe(), "n_correct": len(ok), "n_mistake": len(bad)}
-            if len(ok) < MIN_PER_CLASS or len(bad) < MIN_PER_CLASS:
+            name = f"{key}.{m.label}"
+            if name in REVIEWED and len(bad) < MIN_PER_CLASS:
+                limits[name] = REVIEWED[name][0]
+                row.update(status="reviewed", used_limit=REVIEWED[name][0], reason=REVIEWED[name][1])
+                print(f"   {m.label:22s} {m.limit:>7g} -> {REVIEWED[name][0]:>7g} reviewed: {REVIEWED[name][1]}")
+            elif len(ok) < MIN_PER_CLASS or len(bad) < MIN_PER_CLASS:
                 row["status"] = f"skipped (needs {MIN_PER_CLASS} reps on each side)"
                 print(f"   {m.label:22s} skipped: {len(ok)} correct / {len(bad)} mistake reps")
             else:
@@ -115,7 +125,6 @@ def main():
                            tuned_limit=round(limit, 3), tuned_balanced_accuracy=round(after, 3),
                            median_correct=round(float(np.median(ok)), 3), median_mistake=round(float(np.median(bad)), 3),
                            unit=m.unit)
-                name = f"{key}.{m.label}"
                 if name in REVIEWED:
                     limits[name] = REVIEWED[name][0]
                     row.update(status="reviewed", used_limit=REVIEWED[name][0], reason=REVIEWED[name][1],

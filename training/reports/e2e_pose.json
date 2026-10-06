@@ -1,0 +1,1366 @@
+[
+  {
+    "exercise": "shoulder_abduction",
+    "recorded": "ok",
+    "status": 200,
+    "seconds": 9.4,
+    "response": {
+      "exercise_key": "shoulder_abduction",
+      "accuracy": 70.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Relax your shoulders down, away from your ears."
+      ],
+      "mistakes": {
+        "shoulder_shrug": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.08,
+          "end_sec": 2.64,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 4.0,
+          "end_sec": 6.49,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 7.85,
+          "end_sec": 10.57,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 12.09,
+          "end_sec": 14.81,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 16.5,
+          "end_sec": 19.14,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_abduction",
+    "recorded": "bent_elbow",
+    "status": 200,
+    "seconds": 11.3,
+    "response": {
+      "exercise_key": "shoulder_abduction",
+      "accuracy": 58.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Relax your shoulders down, away from your ears.",
+        "Raise your arms higher, up to shoulder height.",
+        "Keep your elbows straight as you lift."
+      ],
+      "mistakes": {
+        "low_range": 2,
+        "bent_elbow": 2,
+        "shoulder_shrug": 3
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.33,
+          "end_sec": 3.5,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 4.75,
+          "end_sec": 7.5,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 8.5,
+          "end_sec": 10.92,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 12.33,
+          "end_sec": 14.67,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 15.75,
+          "end_sec": 18.42,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_abduction",
+    "recorded": "low_range",
+    "status": 200,
+    "seconds": 9.0,
+    "response": {
+      "exercise_key": "shoulder_abduction",
+      "accuracy": 70.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Raise your arms higher, up to shoulder height."
+      ],
+      "mistakes": {
+        "low_range": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.17,
+          "end_sec": 2.25,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 3.34,
+          "end_sec": 5.18,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 6.43,
+          "end_sec": 8.26,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 9.52,
+          "end_sec": 11.44,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 12.6,
+          "end_sec": 14.69,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_abduction",
+    "recorded": "trunk_lean",
+    "status": 200,
+    "seconds": 13.1,
+    "response": {
+      "exercise_key": "shoulder_abduction",
+      "accuracy": 38.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Lift both arms together to the same height.",
+        "Keep your body upright; do not lean to the side.",
+        "Relax your shoulders down, away from your ears.",
+        "Raise your arms higher, up to shoulder height."
+      ],
+      "mistakes": {
+        "uneven_arms": 4,
+        "shoulder_shrug": 2,
+        "low_range": 2,
+        "trunk_lean": 3
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.0,
+          "end_sec": 3.25,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "uneven_arms",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 4.67,
+          "end_sec": 7.84,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 9.34,
+          "end_sec": 13.17,
+          "side": null,
+          "rule_score": 0.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms",
+            "trunk_lean",
+            "shoulder_shrug"
+          ],
+          "score": 0.0
+        },
+        {
+          "start_sec": 14.43,
+          "end_sec": 18.26,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "trunk_lean"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 19.51,
+          "end_sec": 23.35,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "uneven_arms",
+            "trunk_lean"
+          ],
+          "score": 40.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_abduction",
+    "recorded": "uneven_arms",
+    "status": 200,
+    "seconds": 12.1,
+    "response": {
+      "exercise_key": "shoulder_abduction",
+      "accuracy": 40.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Raise your arms higher, up to shoulder height.",
+        "Lift both arms together to the same height."
+      ],
+      "mistakes": {
+        "low_range": 5,
+        "uneven_arms": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.17,
+          "end_sec": 3.0,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 4.92,
+          "end_sec": 7.75,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 9.08,
+          "end_sec": 11.66,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 13.5,
+          "end_sec": 16.0,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 17.66,
+          "end_sec": 20.33,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "uneven_arms"
+          ],
+          "score": 40.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_flexion",
+    "recorded": "ok",
+    "status": 200,
+    "seconds": 8.1,
+    "response": {
+      "exercise_key": "shoulder_flexion",
+      "accuracy": 100.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Good form. Keep it up!"
+      ],
+      "mistakes": {},
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.86,
+          "end_sec": 4.07,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 5.46,
+          "end_sec": 8.03,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 9.53,
+          "end_sec": 12.11,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 13.71,
+          "end_sec": 16.39,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 18.0,
+          "end_sec": 20.46,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_flexion",
+    "recorded": "back_arch",
+    "status": 200,
+    "seconds": 6.2,
+    "response": {
+      "exercise_key": "shoulder_flexion",
+      "accuracy": 70.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Keep your back still; do not lean backwards as your arms go up."
+      ],
+      "mistakes": {
+        "back_arch": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.0,
+          "end_sec": 2.36,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "back_arch"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 3.32,
+          "end_sec": 5.36,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "back_arch"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 6.0,
+          "end_sec": 7.93,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "back_arch"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 8.89,
+          "end_sec": 10.82,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "back_arch"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 11.68,
+          "end_sec": 13.5,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "back_arch"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_flexion",
+    "recorded": "bent_elbow",
+    "status": 200,
+    "seconds": 6.5,
+    "response": {
+      "exercise_key": "shoulder_flexion",
+      "accuracy": 40.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Raise your arms higher, up to shoulder height.",
+        "Keep your elbows straight as you lift."
+      ],
+      "mistakes": {
+        "low_range": 5,
+        "bent_elbow": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.11,
+          "end_sec": 2.25,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 3.86,
+          "end_sec": 6.0,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 7.28,
+          "end_sec": 9.43,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 10.61,
+          "end_sec": 12.53,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 13.93,
+          "end_sec": 16.07,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow"
+          ],
+          "score": 40.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_flexion",
+    "recorded": "low_range",
+    "status": 200,
+    "seconds": 6.9,
+    "response": {
+      "exercise_key": "shoulder_flexion",
+      "accuracy": 70.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Raise your arms higher, up to shoulder height."
+      ],
+      "mistakes": {
+        "low_range": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.32,
+          "end_sec": 2.25,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 3.43,
+          "end_sec": 5.46,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 6.75,
+          "end_sec": 9.0,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 10.39,
+          "end_sec": 12.43,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 13.71,
+          "end_sec": 16.18,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "low_range"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_flexion",
+    "recorded": "shoulder_shrug",
+    "status": 200,
+    "seconds": 9.3,
+    "response": {
+      "exercise_key": "shoulder_flexion",
+      "accuracy": 70.0,
+      "repetitions": 6,
+      "hold_seconds": null,
+      "feedback": [
+        "Relax your shoulders down, away from your ears."
+      ],
+      "mistakes": {
+        "shoulder_shrug": 6
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.0,
+          "end_sec": 3.54,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 4.39,
+          "end_sec": 7.61,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 8.57,
+          "end_sec": 12.0,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 12.75,
+          "end_sec": 16.28,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 17.03,
+          "end_sec": 20.57,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 20.89,
+          "end_sec": 23.89,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "shoulder_shrug"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "shoulder_flexion",
+    "recorded": "trunk_forward",
+    "status": 200,
+    "seconds": 8.0,
+    "response": {
+      "exercise_key": "shoulder_flexion",
+      "accuracy": 32.5,
+      "repetitions": 8,
+      "hold_seconds": null,
+      "feedback": [
+        "Stand tall; do not bend forward at the waist.",
+        "Relax your shoulders down, away from your ears.",
+        "Raise your arms higher, up to shoulder height.",
+        "Keep your elbows straight as you lift.",
+        "Lift slowly and pause at the top instead of swinging."
+      ],
+      "mistakes": {
+        "trunk_forward": 6,
+        "shoulder_shrug": 6,
+        "low_range": 2,
+        "bent_elbow": 2,
+        "swinging": 2
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.0,
+          "end_sec": 3.11,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "trunk_forward",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 3.96,
+          "end_sec": 6.21,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "trunk_forward",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 7.61,
+          "end_sec": 9.32,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "trunk_forward",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 11.03,
+          "end_sec": 12.86,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "trunk_forward",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 13.28,
+          "end_sec": 13.93,
+          "side": null,
+          "rule_score": 10.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow",
+            "swinging"
+          ],
+          "score": 10.0
+        },
+        {
+          "start_sec": 14.57,
+          "end_sec": 16.82,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "trunk_forward",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 17.14,
+          "end_sec": 17.89,
+          "side": null,
+          "rule_score": 10.0,
+          "mistakes": [
+            "low_range",
+            "bent_elbow",
+            "swinging"
+          ],
+          "score": 10.0
+        },
+        {
+          "start_sec": 18.96,
+          "end_sec": 21.0,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "trunk_forward",
+            "shoulder_shrug"
+          ],
+          "score": 40.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "sit_to_stand",
+    "recorded": "ok",
+    "status": 200,
+    "seconds": 13.6,
+    "response": {
+      "exercise_key": "sit_to_stand",
+      "accuracy": 88.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Sit down slowly and with control."
+      ],
+      "mistakes": {
+        "uncontrolled_sit": 2
+      },
+      "full_body_visible": true,
+      "visible_ratio": 0.976,
+      "rep_details": [
+        {
+          "start_sec": 0.83,
+          "end_sec": 2.67,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 5.17,
+          "end_sec": 7.25,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 9.92,
+          "end_sec": 11.92,
+          "side": null,
+          "rule_score": 100.0,
+          "mistakes": [],
+          "score": 100.0
+        },
+        {
+          "start_sec": 15.01,
+          "end_sec": 17.18,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 20.34,
+          "end_sec": 22.93,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "sit_to_stand",
+    "recorded": "feet_forward",
+    "status": 200,
+    "seconds": 7.6,
+    "response": {
+      "exercise_key": "sit_to_stand",
+      "accuracy": 6.7,
+      "repetitions": 3,
+      "hold_seconds": null,
+      "feedback": [
+        "Keep your arms crossed over your chest; try to stand up without pushing on your legs or the chair.",
+        "Stand up fully: straighten your hips and knees at the top.",
+        "Bring your feet back so your knees are above your ankles before you stand.",
+        "Sit down slowly and with control."
+      ],
+      "mistakes": {
+        "hands_used": 3,
+        "incomplete_stand": 3,
+        "feet_forward": 3,
+        "uncontrolled_sit": 1
+      },
+      "full_body_visible": true,
+      "visible_ratio": 0.824,
+      "rep_details": [
+        {
+          "start_sec": 0.0,
+          "end_sec": 5.93,
+          "side": null,
+          "rule_score": 10.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand",
+            "feet_forward"
+          ],
+          "score": 10.0
+        },
+        {
+          "start_sec": 7.26,
+          "end_sec": 8.93,
+          "side": null,
+          "rule_score": 0.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand",
+            "uncontrolled_sit",
+            "feet_forward"
+          ],
+          "score": 0.0
+        },
+        {
+          "start_sec": 10.18,
+          "end_sec": 13.52,
+          "side": null,
+          "rule_score": 10.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand",
+            "feet_forward"
+          ],
+          "score": 10.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "sit_to_stand",
+    "recorded": "hands_used",
+    "status": 200,
+    "seconds": 12.9,
+    "response": {
+      "exercise_key": "sit_to_stand",
+      "accuracy": 70.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Keep your arms crossed over your chest; try to stand up without pushing on your legs or the chair."
+      ],
+      "mistakes": {
+        "hands_used": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 1.67,
+          "end_sec": 4.84,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "hands_used"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 7.01,
+          "end_sec": 9.1,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "hands_used"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 10.85,
+          "end_sec": 12.94,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "hands_used"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 15.02,
+          "end_sec": 17.36,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "hands_used"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 19.7,
+          "end_sec": 22.28,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "hands_used"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "sit_to_stand",
+    "recorded": "incomplete_stand",
+    "status": 200,
+    "seconds": 13.6,
+    "response": {
+      "exercise_key": "sit_to_stand",
+      "accuracy": 40.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Keep your arms crossed over your chest; try to stand up without pushing on your legs or the chair.",
+        "Stand up fully: straighten your hips and knees at the top."
+      ],
+      "mistakes": {
+        "hands_used": 5,
+        "incomplete_stand": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 1.17,
+          "end_sec": 3.33,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 6.25,
+          "end_sec": 8.58,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 11.17,
+          "end_sec": 13.09,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 16.09,
+          "end_sec": 18.17,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 21.0,
+          "end_sec": 23.09,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "hands_used",
+            "incomplete_stand"
+          ],
+          "score": 40.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "sit_to_stand",
+    "recorded": "no_forward_lean",
+    "status": 200,
+    "seconds": 12.1,
+    "response": {
+      "exercise_key": "sit_to_stand",
+      "accuracy": 40.0,
+      "repetitions": 9,
+      "hold_seconds": null,
+      "feedback": [
+        "Lean your chest forward a little before you stand up.",
+        "Sit down slowly and with control."
+      ],
+      "mistakes": {
+        "no_forward_lean": 9,
+        "uncontrolled_sit": 9
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 0.17,
+          "end_sec": 1.34,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 1.92,
+          "end_sec": 3.17,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 3.93,
+          "end_sec": 5.18,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 6.01,
+          "end_sec": 7.18,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 8.1,
+          "end_sec": 9.35,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 13.78,
+          "end_sec": 14.95,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 15.95,
+          "end_sec": 17.2,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 18.12,
+          "end_sec": 19.29,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        },
+        {
+          "start_sec": 20.21,
+          "end_sec": 21.3,
+          "side": null,
+          "rule_score": 40.0,
+          "mistakes": [
+            "no_forward_lean",
+            "uncontrolled_sit"
+          ],
+          "score": 40.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  },
+  {
+    "exercise": "sit_to_stand",
+    "recorded": "uncontrolled_sit",
+    "status": 200,
+    "seconds": 8.4,
+    "response": {
+      "exercise_key": "sit_to_stand",
+      "accuracy": 70.0,
+      "repetitions": 5,
+      "hold_seconds": null,
+      "feedback": [
+        "Sit down slowly and with control."
+      ],
+      "mistakes": {
+        "uncontrolled_sit": 5
+      },
+      "full_body_visible": true,
+      "visible_ratio": 1.0,
+      "rep_details": [
+        {
+          "start_sec": 1.0,
+          "end_sec": 2.16,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 3.57,
+          "end_sec": 4.82,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 6.23,
+          "end_sec": 7.39,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 8.97,
+          "end_sec": 10.22,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        },
+        {
+          "start_sec": 11.96,
+          "end_sec": 13.21,
+          "side": null,
+          "rule_score": 70.0,
+          "mistakes": [
+            "uncontrolled_sit"
+          ],
+          "score": 70.0
+        }
+      ],
+      "model_version": "rules-1.0"
+    }
+  }
+]
