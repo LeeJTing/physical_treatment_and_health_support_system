@@ -4,7 +4,8 @@
     ai_server\\.venv\\Scripts\\python training\\train.py --synthetic          (pipeline smoke test)
 
 Splits by PERSON (nobody appears in both train and test), so the test score
-shows how the model does on people it has never seen. Writes
+shows how the model does on people it has never seen. With few people, also run
+cross_validate.py: one held-out pair of people is a noisy estimate. Writes
   ai_server/models/weights/<key>_v<N>.pt            (picked up by /pose automatically)
   training/reports/<key>_v<N>/metrics.json, confusion_matrix.png, loss.png   (for Chapter 5)
 """
@@ -94,6 +95,14 @@ def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_
         return loss
 
     best, best_state, patience, hist = 1e9, None, 0, {"train": [], "val": []}
+    # A validation set of only a few reps is too noisy to stop on (it stopped a REHAB24-6
+    # model at a useless point). Then train a fixed 150 epochs with stronger weight decay,
+    # the setting that scored F1 0.80 in leave-one-person-out cross-validation.
+    small = len(Xva) < 30
+    if small:
+        epochs = min(epochs, 150)
+        for g in opt.param_groups:
+            g["weight_decay"] = 1e-3
     t0 = time.time()
     for ep in range(epochs):
         model.train()
@@ -110,6 +119,9 @@ def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_
         with torch.no_grad():
             vl = loss_of(Xva, yva, mva).item() if len(Xva) else tot / len(Xtr)
         hist["train"].append(tot / len(Xtr)); hist["val"].append(vl)
+        if small:
+            best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+            continue
         if vl < best - 1e-4:
             best, patience = vl, 0
             best_state = {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
@@ -126,7 +138,7 @@ def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_
     res = metrics(y[te], p)
     known = (ym[te] >= 0)
     res["mistake_type_accuracy"] = float((m_pred[known] == ym[te][known]).mean()) if known.any() else None
-    res.update(split=split_kind, n_train=int(tr_mask.sum()), n_val=int(va_mask.sum()), n_test=int(te.sum()),
+    res.update(split=split_kind, stopping="fixed 150 epochs (small validation set)" if small else "early stopping", n_train=int(tr_mask.sum()), n_val=int(va_mask.sum()), n_test=int(te.sum()),
                people_test=sorted(set(groups[te].tolist())), epochs_run=len(hist["train"]),
                train_seconds=round(time.time() - t0, 1), device=dev)
 

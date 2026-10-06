@@ -1,0 +1,108 @@
+{
+  "Ex1": {
+    "accuracy": 0.6818181818181818,
+    "precision": 0.6792452830188679,
+    "recall": 0.7659574468085106,
+    "f1": 0.72,
+    "confusion_matrix": {
+      "labels": [
+        "incorrect",
+        "correct"
+      ],
+      "rows_true_cols_pred": [
+        [
+          24,
+          17
+        ],
+        [
+          11,
+          36
+        ]
+      ]
+    },
+    "exercise": "shoulder_abduction_1arm",
+    "videos": 9,
+    "labelled_reps": 88,
+    "rep_count_exact": "0/9",
+    "rep_count_within_1": "4/9",
+    "peak_signal_p10_p50_p90": {
+      "correct": [
+        111.6,
+        134.2,
+        169.0
+      ],
+      "incorrect": [
+        98.0,
+        138.3,
+        151.5
+      ]
+    },
+    "mistake_fired_on": {
+      "shoulder_shrug": {
+        "correct_reps": "11/47",
+        "incorrect_reps": "24/41"
+      },
+      "bent_elbow": {
+        "correct_reps": "2/47",
+        "incorrect_reps": "2/41"
+      }
+    }
+  },
+  "Ex4": {
+    "accuracy": 0.7586206896551724,
+    "precision": 0.7966101694915254,
+    "recall": 0.746031746031746,
+    "f1": 0.7704918032786885,
+    "confusion_matrix": {
+      "labels": [
+        "incorrect",
+        "correct"
+      ],
+      "rows_true_cols_pred": [
+        [
+          41,
+          12
+        ],
+        [
+          16,
+          47
+        ]
+      ]
+    },
+    "exercise": "hip_abduction",
+    "videos": 9,
+    "labelled_reps": 116,
+    "rep_count_exact": "3/9",
+    "rep_count_within_1": "3/9",
+    "peak_signal_p10_p50_p90": {
+      "correct": [
+        41.3,
+        56.4,
+        70.5
+      ],
+      "incorrect": [
+        47.3,
+        67.4,
+        80.5
+      ]
+    },
+    "mistake_fired_on": {
+      "trunk_lean": {
+        "correct_reps": "11/63",
+        "incorrect_reps": "40/53"
+      },
+      "leg_forward": {
+        "correct_reps": "5/63",
+        "incorrect_reps": "1/53"
+      },
+      "bent_knee": {
+        "correct_reps": "1/63",
+        "incorrect_reps": "8/53"
+      },
+      "low_range": {
+        "correct_reps": "0/63",
+        "incorrect_reps": "1/53"
+      }
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "limits": {
+    "hip_abduction.trunk_lean": 17.759
+  },
+  "tuned_at": "2026-10-07T01:30:06",
+  "sources": "hip_abduction.trunk_lean: REHAB24-6 leg abduction, 63 correct / 53 incorrect repetitions (balanced accuracy 68% -> 79%)"
+}

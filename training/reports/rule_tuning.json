@@ -1,0 +1,67 @@
+{
+  "hip_abduction.trunk_lean": {
+    "rule": "trunk_lean: mistake when above 10 degrees",
+    "n_correct": 63,
+    "n_mistake": 53,
+    "current_limit": 10,
+    "current_balanced_accuracy": 0.681,
+    "tuned_limit": 17.759,
+    "tuned_balanced_accuracy": 0.79,
+    "median_correct": 12.322,
+    "median_mistake": 20.777,
+    "unit": "degrees",
+    "status": "tuned"
+  },
+  "hip_abduction.low_range": {
+    "rule": "low_range: mistake when below 20 degrees",
+    "n_correct": 63,
+    "n_mistake": 53,
+    "current_limit": 20,
+    "current_balanced_accuracy": 0.509,
+    "tuned_limit": 27.959,
+    "tuned_balanced_accuracy": 0.511,
+    "median_correct": 56.434,
+    "median_mistake": 67.441,
+    "unit": "degrees",
+    "status": "kept"
+  },
+  "hip_abduction.leg_forward": {
+    "rule": "leg_forward: mistake when below 0.88 ratio",
+    "n_correct": 63,
+    "n_mistake": 53,
+    "current_limit": 0.88,
+    "current_balanced_accuracy": 0.47,
+    "tuned_limit": 0.999,
+    "tuned_balanced_accuracy": 0.642,
+    "median_correct": 1.013,
+    "median_mistake": 0.995,
+    "unit": "ratio",
+    "status": "tuned"
+  },
+  "hip_abduction.bent_knee": {
+    "rule": "bent_knee: mistake when below 160 degrees",
+    "n_correct": 63,
+    "n_mistake": 53,
+    "current_limit": 160,
+    "current_balanced_accuracy": 0.568,
+    "tuned_limit": 167.939,
+    "tuned_balanced_accuracy": 0.632,
+    "median_correct": 176.148,
+    "median_mistake": 173.192,
+    "unit": "degrees",
+    "status": "tuned"
+  },
+  "hip_abduction.toes_up": {
+    "rule": "toes_up: mistake when above 0.6 ratio",
+    "n_correct": 63,
+    "n_mistake": 53,
+    "current_limit": 0.6,
+    "current_balanced_accuracy": 0.5,
+    "tuned_limit": 0.344,
+    "tuned_balanced_accuracy": 0.554,
+    "median_correct": 0.318,
+    "median_mistake": 0.296,
+    "unit": "ratio",
+    "status": "tuned"
+  }
+}
