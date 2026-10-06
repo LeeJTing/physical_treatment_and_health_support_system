@@ -141,11 +141,28 @@ class Features:
         a, b = self.s[f"{name}_L"], self.s[f"{name}_R"]
         return np.maximum(a, b) if how == "max" else np.minimum(a, b) if how == "min" else (a + b) / 2
 
-    def visible(self, required: list[int], min_vis: float = 0.5, margin: float = 0.02) -> np.ndarray:
-        """Per frame: are all required landmarks detected and inside the picture? (FR300_17)"""
+    def visible(self, required: list[int], min_vis: float = 0.5, margin: float = 0.02,
+                either_side: bool = False) -> np.ndarray:
+        """Per frame: are all required landmarks detected and inside the picture? (FR300_17)
+
+        either_side: for exercises filmed from the side, the far arm and leg are hidden behind
+        the body, so a left/right pair counts as seen when either of the two is."""
         seq = self.seq
         w, h = seq.info.width or 1, seq.info.height or 1
         pts = seq.xy[:, required, :]
         inside = ((pts[..., 0] >= -margin * w) & (pts[..., 0] <= (1 + margin) * w)
                   & (pts[..., 1] >= -margin * h) & (pts[..., 1] <= (1 + margin) * h))
-        return np.all((seq.vis[:, required] >= min_vis) & inside & ~np.isnan(pts[..., 0]), axis=1)
+        ok = (seq.vis[:, required] >= min_vis) & inside & ~np.isnan(pts[..., 0])
+        if not either_side:
+            return np.all(ok, axis=1)
+        col = {lm: i for i, lm in enumerate(required)}
+        parts = []
+        for lm in required:
+            # MediaPipe numbers each left point (odd, from 11) one below its right partner.
+            partner = lm + 1 if lm >= 11 and lm % 2 == 1 else (lm - 1 if lm >= 12 else None)
+            if partner in col:
+                if lm < partner:
+                    parts.append(ok[:, col[lm]] | ok[:, col[partner]])
+            else:
+                parts.append(ok[:, col[lm]])
+        return np.all(np.stack(parts, axis=1), axis=1)

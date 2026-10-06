@@ -37,14 +37,14 @@ def check(clip) -> dict:
                fps=round(info.fps, 1), detected=round(seq.detected_ratio, 2))
     if min(info.width, info.height) < 720:
         problems.append("resolution below 720p")
-    if not portrait:
-        problems.append("landscape video: record with the phone upright (portrait)")
+    if not portrait:  # fine for training (angles do not depend on it); the guide asks for portrait
+        row["note"] = "landscape video"
     if info.duration_sec < 10:
         problems.append("shorter than 10 s")
     spec = EXERCISES.get(clip.key)
     if spec is not None and seq.detected_ratio > 0:
         f = Features(seq)
-        row["visible"] = round(float(np.mean(f.visible(spec.required))), 2)
+        row["visible"] = round(float(np.mean(f.visible(spec.required, either_side=spec.view == "side"))), 2)
         if spec.kind == "reps":
             reps = detect_reps(spec, f)
             row["reps_found"] = len(reps)
@@ -58,9 +58,9 @@ def check(clip) -> dict:
             row["accuracy"] = res["accuracy"]
             row["rule_mistakes"] = " ".join(f"{k}x{v}" for k, v in res["mistakes"].items())
             if clip.is_correct and res["mistakes"]:
-                row["note"] = "rules flagged a correct clip (thresholds to tune, or a real mistake)"
+                row["note"] = (row.get("note") + "; " if row.get("note") else "") + "rules flagged a correct clip (thresholds to tune, or a real mistake)"
             elif not clip.is_correct and clip.mistake and clip.mistake not in res["mistakes"]:
-                row["note"] = f"rules did not catch '{clip.mistake}' (threshold to tune)"
+                row["note"] = (row.get("note") + "; " if row.get("note") else "") + f"rules did not catch '{clip.mistake}' (threshold to tune)"
         except PoseError as e:
             problems.append(e.message)
     row["status"] = "FAIL" if any(p for p in problems if "threshold" not in p) else "OK"

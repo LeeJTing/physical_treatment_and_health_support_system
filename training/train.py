@@ -20,22 +20,32 @@ from common import DATA, REPORTS
 from app.pose.classifier import FEATURES, SEQ_LEN, WEIGHTS_DIR, build_model
 
 
-def person_split(groups: np.ndarray, y: np.ndarray, test_share: float, seed: int):
-    """Hold out whole people. Falls back to a stratified rep split when there are fewer than 3 people."""
+def person_split(groups: np.ndarray, y: np.ndarray, test_share: float, seed: int,
+                 clips: np.ndarray | None = None, aug: np.ndarray | None = None):
+    """Hold out whole people. With fewer than 3 people, hold out whole clips instead (stratified
+    by label). Either way a clip and its augmented variants stay on one side, and the held-out
+    side keeps only original footage, so the score is never inflated by recoloured copies."""
     rng = np.random.default_rng(seed)
+    clips = np.arange(len(y)).astype(str) if clips is None else clips
+    aug = np.zeros(len(y), int) if aug is None else aug
     people = np.unique(groups)
+    held, kind = None, ""
     if len(people) >= 3:
         for _ in range(200):
             test_people = rng.choice(people, size=max(1, round(len(people) * test_share)), replace=False)
             test = np.isin(groups, test_people)
             if 0 < y[test].sum() < test.sum() and 0 < y[~test].sum() < (~test).sum():
-                return ~test, test, "person"
-    idx = rng.permutation(len(y))
-    test = np.zeros(len(y), bool)
-    for cls in (0, 1):
-        c = idx[y[idx] == cls]
-        test[c[: max(1, round(len(c) * test_share))]] = True
-    return ~test, test, "repetition (fewer than 3 people)"
+                held, kind = test, "person"
+                break
+    if held is None:
+        names = np.unique(clips)
+        label = {c: int(round(y[clips == c].mean())) for c in names}
+        chosen = []
+        for cls in (0, 1):
+            c = rng.permutation([n for n in names if label[n] == cls])
+            chosen += list(c[: max(1, round(len(c) * test_share))]) if len(c) > 1 else []
+        held, kind = np.isin(clips, chosen), "clip (fewer than 3 people; variants stay with their clip)"
+    return ~held, held & (aug == 0), kind
 
 
 def metrics(y_true: np.ndarray, p: np.ndarray) -> dict:
@@ -62,19 +72,22 @@ def synthetic(n=400, seed=0):
     return X, y, ym, groups, ["m0", "m1", "m2"]
 
 
-def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_name: str | None = None):
+def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_name: str | None = None,
+          clips=None, aug=None):
     import torch
     from torch import nn
 
     torch.manual_seed(seed)
     dev = "cuda" if torch.cuda.is_available() else "cpu"
-    tr, te, split_kind = person_split(groups, y, 0.2, seed)
-    # Validation for early stopping: a further slice of the training people.
+    clips = np.arange(len(y)).astype(str) if clips is None else clips
+    aug = np.zeros(len(y), int) if aug is None else aug
+    tr, te, split_kind = person_split(groups, y, 0.2, seed, clips, aug)
+    # Validation for early stopping: a further slice of the training people (or clips).
     tr_idx = np.where(tr)[0]
     va_mask = np.zeros(len(y), bool)
-    tr2, va, _ = person_split(groups[tr_idx], y[tr_idx], 0.15, seed + 1)
+    tr2, va, _ = person_split(groups[tr_idx], y[tr_idx], 0.15, seed + 1, clips[tr_idx], aug[tr_idx])
     va_mask[tr_idx[va]] = True
-    tr_mask = tr & ~va_mask
+    tr_mask = tr & ~va_mask & np.isin(np.arange(len(y)), tr_idx[tr2])
 
     def T(a, dtype=torch.float32):
         return torch.as_tensor(a, dtype=dtype, device=dev)
@@ -138,7 +151,7 @@ def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_
     res = metrics(y[te], p)
     known = (ym[te] >= 0)
     res["mistake_type_accuracy"] = float((m_pred[known] == ym[te][known]).mean()) if known.any() else None
-    res.update(split=split_kind, stopping="fixed 150 epochs (small validation set)" if small else "early stopping", n_train=int(tr_mask.sum()), n_val=int(va_mask.sum()), n_test=int(te.sum()),
+    res.update(split=split_kind, stopping="fixed 150 epochs (small validation set)" if small else "early stopping", n_train=int(tr_mask.sum()), n_val=int(va_mask.sum()), n_test=int(te.sum()), n_train_augmented=int((tr_mask & (aug > 0)).sum()),
                people_test=sorted(set(groups[te].tolist())), epochs_run=len(hist["train"]),
                train_seconds=round(time.time() - t0, 1), device=dev)
 
@@ -189,7 +202,8 @@ def main():
         (WEIGHTS_DIR / f"{name}.pt").unlink()  # never shipped
     else:
         d = np.load(DATA / "datasets" / f"{a.key}.npz")
-        name, res = train(a.key, d["X"], d["y_correct"], d["y_mistake"], d["groups"], d["mistakes"].tolist(), a.epochs)
+        name, res = train(a.key, d["X"], d["y_correct"], d["y_mistake"], d["groups"], d["mistakes"].tolist(), a.epochs,
+                          clips=d["clip"] if "clip" in d else None, aug=d["aug"] if "aug" in d else None)
     print(json.dumps({k: v for k, v in res.items() if k != "confusion_matrix"}, indent=2))
     print("confusion matrix [true incorrect, true correct] x [pred incorrect, pred correct]:",
           res["confusion_matrix"]["rows_true_cols_pred"])

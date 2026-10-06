@@ -63,7 +63,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True) -> dict:
     if seq.detected_ratio < MIN_DETECTED:
         raise PoseError("pose_not_detected", "No body posture was detected in the video.")
     f = Features(seq)
-    visible = f.visible(spec.required)
+    visible = f.visible(spec.required, either_side=spec.view == "side")
     visible_ratio = float(np.mean(visible)) if len(visible) else 0.0
     if visible_ratio < MIN_VISIBLE:
         raise PoseError("full_body_not_visible", "The whole body was not visible for most of the video.")

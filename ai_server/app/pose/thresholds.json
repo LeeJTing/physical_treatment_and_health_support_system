@@ -1,7 +1,21 @@
 {
   "limits": {
-    "hip_abduction.trunk_lean": 17.759
+    "hip_abduction.trunk_lean": 17.759,
+    "shoulder_abduction.low_range": 92.441,
+    "shoulder_abduction.bent_elbow": 165,
+    "shoulder_flexion.bent_elbow": 160,
+    "sit_to_stand.incomplete_stand": 170,
+    "sit_to_stand.no_forward_lean": 23.452,
+    "sit_to_stand.feet_forward": -14.745
   },
-  "tuned_at": "2026-10-07T01:30:06",
-  "sources": "hip_abduction.trunk_lean: REHAB24-6 leg abduction, 63 correct / 53 incorrect repetitions (balanced accuracy 68% -> 79%)"
+  "tuned_at": "2026-10-07T03:02:58",
+  "sources": {
+    "hip_abduction.trunk_lean": "hip_abduction.trunk_lean: REHAB24-6 leg abduction, 63 correct / 53 incorrect repetitions (balanced accuracy 68% -> 79%)",
+    "shoulder_abduction.low_range": "own clips",
+    "shoulder_abduction.bent_elbow": "own clips; reviewed: classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag normal arms; 165 scores 85%, the trained model handles the rest",
+    "shoulder_flexion.bent_elbow": "own clips; reviewed: 94%, same as the tuned 162, rounder and with more margin",
+    "sit_to_stand.incomplete_stand": "own clips; reviewed: 98% vs 100% at 174, which is 2 deg below Elwin's own correct reps",
+    "sit_to_stand.no_forward_lean": "own clips",
+    "sit_to_stand.feet_forward": "own clips"
+  }
 }

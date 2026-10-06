@@ -156,7 +156,9 @@ def add(spec: ExerciseSpec):
 
 add(ExerciseSpec(
     key="sit_to_stand", name="Sit-to-Stand", view="side", required=WHOLE,
-    signal=knees, rest=115, active=150, target=165,
+    # rest/active from Elwin's 48 clips (7 Oct): 150 missed half-stands (peaks 125-150), so the
+    # incomplete_stand feedback never fired; 130 counts them.
+    signal=knees, rest=112, active=130, target=165,
     mistakes=[
         M("hands_used", "Keep your arms crossed over your chest; try to stand up without pushing on your legs or the chair.",
           lambda f, r: min(rep_min(f["wrist_thigh_L"], r), rep_min(f["wrist_thigh_R"], r)), 0.25, False, "torso lengths"),
@@ -187,7 +189,9 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="shoulder_flexion", name="Shoulder Flexion", view="side", required=UPPER,
-    signal=arm_elev_max, rest=30, active=55, target=80,
+    # From Elwin's 50 clips (7 Oct): low-range and bent-elbow lifts peak at 41-57 deg and were
+    # not counted at active=55; rest=20/active=35 gives 5 reps on 44 of 50 clips, none below 4.
+    signal=arm_elev_max, rest=20, active=35, target=80,
     mistakes=[
         M("low_range", "Raise your arms higher, up to shoulder height.", peak_of(arm_elev_max), 72, False, "degrees"),
         M("bent_elbow", "Keep your elbows straight as you lift.",
@@ -198,6 +202,9 @@ add(ExerciseSpec(
           lambda f, r: phase_seconds(f.t, r)[0], 0.6, False, "seconds"),
         M("trunk_forward", "Stand tall; do not bend forward at the waist.",
           lambda f, r: rep_max(f["lean_sagittal"], r), 15, True, "degrees"),
+        # Recorded by Elwin for flexion as well (7 Oct); same ratio as for abduction.
+        M("shoulder_shrug", "Relax your shoulders down, away from your ears.",
+          lambda f, r: at_peak(f["shrug"], r) / max(float(f["shrug"][r.start]), 1e-6), 0.85, False, "ratio"),
     ]))
 
 add(ExerciseSpec(

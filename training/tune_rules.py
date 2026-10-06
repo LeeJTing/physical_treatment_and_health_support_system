@@ -29,6 +29,17 @@ from app.pose.geometry import Features
 from app.pose.reps import Rep
 
 MIN_PER_CLASS = 5
+# A tuned limit replaces the physiotherapy default only if it gains this much balanced accuracy:
+# with clips from one person, a default that already scores 96-100% is safer for other people.
+MIN_GAIN = 0.05
+# Limits reviewed by hand after tuning on Elwin's clips (7 Oct): the tuned value sat at the edge
+# of the correct reps, so a value with more margin and nearly the same score is used.
+REVIEWED = {
+    "shoulder_abduction.bent_elbow": (165, "classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag "
+                                           "normal arms; 165 scores 85%, the trained model handles the rest"),
+    "shoulder_flexion.bent_elbow": (160, "94%, same as the tuned 162, rounder and with more margin"),
+    "sit_to_stand.incomplete_stand": (170, "98% vs 100% at 174, which is 2 deg below Elwin's own correct reps"),
+}
 
 
 def balanced_accuracy(ok: np.ndarray, bad: np.ndarray, limit: float, above: bool) -> float:
@@ -38,12 +49,21 @@ def balanced_accuracy(ok: np.ndarray, bad: np.ndarray, limit: float, above: bool
     return (tpr + tnr) / 2
 
 
-def best_limit(ok: np.ndarray, bad: np.ndarray, above: bool) -> tuple[float, float]:
+def best_limit(ok: np.ndarray, bad: np.ndarray, above: bool, slack: float = 0.01) -> tuple[float, float]:
+    """The limit in the MIDDLE of the best-scoring range (within `slack` of the top score):
+    a limit right at the edge of the training reps would fire on the next person's normal
+    movement, so keep the widest margin to both groups."""
     values = np.unique(np.concatenate([ok, bad]))
     candidates = (values[:-1] + values[1:]) / 2 if len(values) > 1 else values
-    scored = [(balanced_accuracy(ok, bad, c, above), c) for c in candidates]
-    score, limit = max(scored, key=lambda s: (s[0], -abs(s[1])))
-    return float(limit), float(score)
+    scores = np.array([balanced_accuracy(ok, bad, c, above) for c in candidates])
+    i = int(np.argmax(scores))
+    lo = hi = i
+    while lo > 0 and scores[lo - 1] >= scores[i] - slack:
+        lo -= 1
+    while hi < len(scores) - 1 and scores[hi + 1] >= scores[i] - slack:
+        hi += 1
+    limit = (candidates[lo] + candidates[hi]) / 2
+    return float(limit), balanced_accuracy(ok, bad, limit, above)
 
 
 def own_samples():
@@ -95,8 +115,13 @@ def main():
                            tuned_limit=round(limit, 3), tuned_balanced_accuracy=round(after, 3),
                            median_correct=round(float(np.median(ok)), 3), median_mistake=round(float(np.median(bad)), 3),
                            unit=m.unit)
-                if after > before + 0.01:
-                    limits[f"{key}.{m.label}"] = round(limit, 3)
+                name = f"{key}.{m.label}"
+                if name in REVIEWED:
+                    limits[name] = REVIEWED[name][0]
+                    row.update(status="reviewed", used_limit=REVIEWED[name][0], reason=REVIEWED[name][1],
+                               used_balanced_accuracy=round(balanced_accuracy(ok, bad, REVIEWED[name][0], m.above), 3))
+                elif after >= before + MIN_GAIN:
+                    limits[name] = round(limit, 3)
                     row["status"] = "tuned"
                 else:
                     row["status"] = "kept"
@@ -115,7 +140,10 @@ def main():
         THRESHOLDS_FILE.write_text(json.dumps({
             "limits": merged,
             "tuned_at": datetime.now().isoformat(timespec="seconds"),
-            "sources": "own clips" + (" + REHAB24-6" if "--rehab" in sys.argv else ""),
+            "sources": {**(old.get("sources") if isinstance(old.get("sources"), dict) else
+                           {k: old["sources"] for k in old.get("limits", {})} if old.get("sources") else {}),
+                        **{k: ("own clips" + (" + REHAB24-6" if "--rehab" in sys.argv else "")
+                               + (f"; reviewed: {REVIEWED[k][1]}" if k in REVIEWED else "")) for k in limits}},
         }, indent=2), encoding="utf-8")
         print(f"Wrote {len(limits)} tuned limits to {THRESHOLDS_FILE} (restart the AI server to use them)")
     else:

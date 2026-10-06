@@ -8,8 +8,13 @@ Sources
 
     ai_server\\.venv\\Scripts\\python training\\build_dataset.py shoulder_abduction [--no-public]
 
+Own clips also contribute their colour/camera variants from augment.py (cached under
+training/data/cache/<pose_key>/aug/), when present.
+
 Writes training/data/datasets/<pose_key>.npz with X (N, SEQ_LEN, F), y_correct, y_mistake
-(-1 = unknown or correct), groups (person, for a person-wise split) and source.
+(-1 = unknown or correct), groups (person, for a person-wise split), clip (the source video:
+a clip and all its variants must stay on the same side of a split), aug (0 = original,
+k = variant k; only originals are ever tested on) and source.
 """
 import argparse
 import csv
@@ -33,7 +38,7 @@ REHAB_MAP = {1: "shoulder_abduction", 4: "hip_abduction", 3: "wall_push_up"}
 def own_samples(key: str):
     spec = EXERCISES[key]
     mistakes = [m.label for m in spec.mistakes]
-    X, yc, ym, groups, src = [], [], [], [], []
+    X, yc, ym, groups, clips, aug, src = [], [], [], [], [], [], []
     for clip in own_clips([key]):
         if not clip.name_ok or clip.problems:
             print(f"  skip {clip.path.name}: {'; '.join(clip.problems) or 'bad name'}")
@@ -42,15 +47,21 @@ def own_samples(key: str):
         if seq.detected_ratio < 0.5:
             print(f"  skip {clip.path.name}: no person detected")
             continue
-        f = Features(seq)
-        reps = detect_reps(spec, f)
-        for r in reps:
-            X.append(rep_tensor(f, r))
-            yc.append(1 if clip.is_correct else 0)
-            ym.append(mistakes.index(clip.mistake) if (not clip.is_correct and clip.mistake in mistakes) else -1)
-            groups.append(f"own-{clip.person}")
-            src.append(f"{clip.path.name}#{r.start}")
-    return X, yc, ym, groups, src
+        versions = [(0, seq)] + [(int(p.stem.rsplit("__aug", 1)[1]), landmarks.load(p))
+                                 for p in sorted((CACHE / key / "aug").glob(f"{clip.path.stem}__aug*.npz"))]
+        for k, s in versions:
+            if s.detected_ratio < 0.5:
+                continue
+            f = Features(s)
+            for r in detect_reps(spec, f):
+                X.append(rep_tensor(f, r))
+                yc.append(1 if clip.is_correct else 0)
+                ym.append(mistakes.index(clip.mistake) if (not clip.is_correct and clip.mistake in mistakes) else -1)
+                groups.append(f"own-{clip.person}")
+                clips.append(clip.path.stem)
+                aug.append(k)
+                src.append(f"{clip.path.name}{f'~aug{k}' if k else ''}#{r.start}")
+    return X, yc, ym, groups, clips, aug, src
 
 
 def find_video(video_id: str, camera: str) -> Path | None:
@@ -64,10 +75,10 @@ def rehab_samples(key: str):
     ids = [i for i, k in REHAB_MAP.items() if k == key]
     seg = REHAB / "Segmentation.csv"
     if not ids or not seg.exists() or not (REHAB / "videos").exists():
-        return [], [], [], [], []
+        return [], [], [], [], [], [], []
     view = EXERCISES[key].view
     rows = [r for r in csv.DictReader(seg.open(encoding="utf-8"), delimiter=";") if int(r["exercise_id"]) in ids]
-    X, yc, ym, groups, src = [], [], [], [], []
+    X, yc, ym, groups, clips, aug, src = [], [], [], [], [], [], []
     by_video: dict[tuple[str, str], list[dict]] = {}
     for r in rows:
         o = r["cam17_orientation"]
@@ -103,23 +114,26 @@ def rehab_samples(key: str):
             yc.append(int(r["correctness"]))
             ym.append(-1)
             groups.append(f"rehab-{r['person_id']}")
+            clips.append(f"rehab-{vid}-{cam}")
+            aug.append(0)
             src.append(f"REHAB24-6/{vid}/{cam}#{r['repetition_number']}")
-    return X, yc, ym, groups, src
+    return X, yc, ym, groups, clips, aug, src
 
 
 def build(key: str, public: bool = True) -> Path:
     parts = [own_samples(key)] + ([rehab_samples(key)] if public else [])
-    X, yc, ym, groups, src = (sum((list(p[i]) for p in parts), []) for i in range(5))
+    X, yc, ym, groups, clips, aug, src = (sum((list(p[i]) for p in parts), []) for i in range(7))
     out = DATA / "datasets" / f"{key}.npz"
     out.parent.mkdir(parents=True, exist_ok=True)
     if not X:
         print(f"{key}: no samples yet")
         return out
     np.savez_compressed(out, X=np.stack(X), y_correct=np.array(yc), y_mistake=np.array(ym),
-                        groups=np.array(groups), source=np.array(src),
+                        groups=np.array(groups), clip=np.array(clips), aug=np.array(aug), source=np.array(src),
                         mistakes=np.array([m.label for m in EXERCISES[key].mistakes]))
     n_own = sum(g.startswith("own") for g in groups)
-    print(f"{key}: {len(X)} reps ({n_own} own, {len(X) - n_own} public), "
+    n_aug = sum(k > 0 for k in aug)
+    print(f"{key}: {len(X)} reps ({n_own} own of which {n_aug} augmented, {len(X) - n_own} public), "
           f"{sum(yc)} correct / {len(yc) - sum(yc)} incorrect, {len(set(groups))} people -> {out}")
     return out
 

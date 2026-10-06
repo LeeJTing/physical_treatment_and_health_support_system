@@ -4,7 +4,7 @@ Frames are sampled at `target_fps` (default 10) to keep a 30 s clip near
 10 s of processing on the CPU. Landmarks are returned in PIXELS (x, y) so
 angles are not distorted by the frame's aspect ratio, plus visibility.
 """
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 
 import cv2
@@ -92,20 +92,39 @@ def extract(
     model_path: Path = DEFAULT_MODEL,
     start_frame: int = 0,
     end_frame: int | None = None,
+    transform=None,
 ) -> PoseSequence:
     """Runs the pose landmarker on every n-th frame of the video.
 
     start_frame / end_frame (inclusive) limit the work to part of a long
     video, e.g. one labelled repetition of a public dataset.
+    transform(frame_bgr) -> frame_bgr is applied to every analysed frame before detection
+    (training-time augmentation: recoloured outfit, lighting, mirror...).
     """
+    batch = (lambda f: [transform(f)]) if transform is not None else None
+    return extract_many(path, 1, batch, target_fps, model_path, start_frame, end_frame)[0]
+
+
+def extract_many(
+    path: str | Path,
+    n: int,
+    transform_batch=None,
+    target_fps: float = 10.0,
+    model_path: Path = DEFAULT_MODEL,
+    start_frame: int = 0,
+    end_frame: int | None = None,
+) -> list[PoseSequence]:
+    """Like extract, but transform_batch(frame_bgr) -> n frames, each tracked by its own
+    landmarker: the video is decoded once for n augmented versions of it."""
     import mediapipe as mp
 
-    info = read_video_info(path)
-    src_fps = info.fps if info.fps > 0 else 30.0
+    base = read_video_info(path)
+    src_fps = base.fps if base.fps > 0 else 30.0
     step = max(1, round(src_fps / target_fps))
     cap = cv2.VideoCapture(str(path))
-    landmarker = _make_landmarker(model_path)
-    xs, vs, ts = [], [], []
+    landmarkers = [_make_landmarker(model_path) for _ in range(n)]
+    infos = [replace(base) for _ in range(n)]
+    out = [([], [], []) for _ in range(n)]
     try:
         if start_frame:
             cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
@@ -117,26 +136,30 @@ def extract(
             if not ok:
                 break
             if (idx - start_frame) % step == 0:
-                h, w = frame.shape[:2]
-                info.width, info.height = w, h  # the size actually analysed
-                rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+                frames = transform_batch(frame) if transform_batch is not None else [frame]
                 ts_ms = int(round(idx * 1000.0 / src_fps))
-                result = landmarker.detect_for_video(image, ts_ms)
-                if result.pose_landmarks:
-                    lm = result.pose_landmarks[0]
-                    xs.append([[p.x * w, p.y * h] for p in lm])
-                    vs.append([float(getattr(p, "visibility", 1.0) or 0.0) for p in lm])
-                else:
-                    xs.append(np.full((33, 2), np.nan).tolist())
-                    vs.append([0.0] * 33)
-                ts.append(idx / src_fps)
+                for k, (fr, lmk, info, (xs, vs, ts)) in enumerate(zip(frames, landmarkers, infos, out)):
+                    h, w = fr.shape[:2]
+                    info.width, info.height = w, h  # the size actually analysed
+                    rgb = np.ascontiguousarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB))
+                    result = lmk.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), ts_ms)
+                    if result.pose_landmarks:
+                        lm = result.pose_landmarks[0]
+                        xs.append([[p.x * w, p.y * h] for p in lm])
+                        vs.append([float(getattr(p, "visibility", 1.0) or 0.0) for p in lm])
+                    else:
+                        xs.append(np.full((33, 2), np.nan).tolist())
+                        vs.append([0.0] * 33)
+                    ts.append(idx / src_fps)
             idx += 1
     finally:
-        landmarker.close()
+        for lmk in landmarkers:
+            lmk.close()
         cap.release()
-    xy = np.asarray(xs, dtype=np.float32).reshape(-1, 33, 2)
-    return PoseSequence(xy=xy, vis=np.asarray(vs, dtype=np.float32).reshape(-1, 33), t=np.asarray(ts, dtype=np.float32), info=info)
+    return [PoseSequence(xy=np.asarray(xs, dtype=np.float32).reshape(-1, 33, 2),
+                         vis=np.asarray(vs, dtype=np.float32).reshape(-1, 33),
+                         t=np.asarray(ts, dtype=np.float32), info=info)
+            for info, (xs, vs, ts) in zip(infos, out)]
 
 
 def save(seq: PoseSequence, path: str | Path) -> None:

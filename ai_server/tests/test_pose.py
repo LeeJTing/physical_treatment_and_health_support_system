@@ -197,6 +197,19 @@ def test_body_outside_picture_is_full_body_not_visible():
     assert e.value.code == "full_body_not_visible"
 
 
+def test_side_view_with_far_limbs_hidden_is_still_analysed():
+    # Filmed from the side, the far arm and leg are behind the body (MediaPipe visibility ~0.06
+    # on real clips). That must not count as "whole body not visible".
+    seq = sequence([side_seated(k) for k in wave(4, 90, 175, hold_sec=2.0)])
+    seq.vis[:, [R_ELBOW, R_WRIST, R_KNEE, R_ANKLE]] = 0.06
+    assert analyse("knee_extension", seq, use_model=False)["repetitions"] >= 3
+    front = sequence([front_pose(a, a) for a in wave(4, 5, 88)])
+    front.vis[:, [R_ELBOW, R_WRIST]] = 0.06   # front view: both arms must be seen
+    with pytest.raises(PoseError) as e:
+        analyse("shoulder_abduction", front, use_model=False)
+    assert e.value.code == "full_body_not_visible"
+
+
 def test_standing_still_is_no_repetitions():
     with pytest.raises(PoseError) as e:
         analyse("shoulder_abduction", sequence([front_pose()] * 120), use_model=False)
