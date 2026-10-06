@@ -1,0 +1,813 @@
+{
+  "exercises": [
+    {
+      "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+      "exercise_name": "Sit-to-Stand",
+      "instruction_text": "Camera: side view, whole body in frame. Sit on a firm chair with feet flat and hip-width apart. Lean slightly forward and stand up fully without using your hands, then sit back down slowly. Safety: keep a stable chair against a wall; stop if you feel dizzy or knee pain.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 90,
+      "pose_key": "sit_to_stand"
+    },
+    {
+      "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+      "exercise_name": "Shoulder Abduction",
+      "instruction_text": "Camera: facing you, whole body in frame. Stand tall with arms by your sides. Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly. Safety: do not raise above a pain-free range.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 60,
+      "pose_key": "shoulder_abduction"
+    },
+    {
+      "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
+      "exercise_name": "Shoulder Flexion",
+      "instruction_text": "Camera: side view, whole body in frame. Stand with arms by your sides. Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly. Safety: do not arch the back.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 60,
+      "pose_key": "shoulder_flexion"
+    },
+    {
+      "exercise_id": "c70f199d-e077-5a20-bdd9-2423b7a85fe9",
+      "exercise_name": "Standing Hip Abduction",
+      "instruction_text": "Camera: facing you, whole body in frame. Stand beside a chair and hold it for support. Lift one leg out to the side keeping the toes forward and the body upright, then lower it. Repeat on the other side. Safety: do not lean the trunk.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 90,
+      "pose_key": "hip_abduction"
+    },
+    {
+      "exercise_id": "aa576b35-c58d-5790-a9fc-a9e5056e15f4",
+      "exercise_name": "Seated Knee Extension",
+      "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair. Straighten one knee until the leg is level with the hip, hold for two seconds, and lower slowly. Alternate legs. Safety: keep the back against the chair.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "LOW",
+      "default_repetitions": 12,
+      "default_duration_sec": 90,
+      "pose_key": "knee_extension"
+    },
+    {
+      "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+      "exercise_name": "Elbow Flexion",
+      "instruction_text": "Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, then lower slowly. Use a light bottle of water if comfortable.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "LOW",
+      "default_repetitions": 12,
+      "default_duration_sec": 60,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
+      "exercise_name": "Wall Push-Up",
+      "instruction_text": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "MODERATE",
+      "default_repetitions": 10,
+      "default_duration_sec": 90,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
+      "exercise_name": "Heel Raise",
+      "instruction_text": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "LOW",
+      "default_repetitions": 12,
+      "default_duration_sec": 60,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+      "exercise_name": "Mini Squat",
+      "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "MODERATE",
+      "default_repetitions": 10,
+      "default_duration_sec": 90,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
+      "exercise_name": "Seated Marching",
+      "instruction_text": "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "LOW",
+      "default_repetitions": 20,
+      "default_duration_sec": 90,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "e9b3e993-76be-5d62-aedd-f7800f28ed70",
+      "exercise_name": "Shoulder Pendulum",
+      "instruction_text": "Lean forward supporting yourself on a table with one hand. Let the other arm hang and swing it gently in small circles. Change arms halfway.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 60,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
+      "exercise_name": "Glute Bridge",
+      "instruction_text": "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body is straight from shoulders to knees, then lower slowly.",
+      "target_body_area": "CORE",
+      "intensity_level": "MODERATE",
+      "default_repetitions": 10,
+      "default_duration_sec": 90,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
+      "exercise_name": "Tandem Stance",
+      "instruction_text": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "LOW",
+      "default_repetitions": 4,
+      "default_duration_sec": 120,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "e20128ab-20d6-5d62-add3-ab559fc63778",
+      "exercise_name": "Pelvic Tilt",
+      "instruction_text": "Lie on your back with knees bent. Tighten the stomach and flatten the lower back into the floor, hold for five seconds, then relax.",
+      "target_body_area": "CORE",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 60,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+      "exercise_name": "Step-Up",
+      "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+      "target_body_area": "BOTH_LEGS",
+      "intensity_level": "MODERATE",
+      "default_repetitions": 10,
+      "default_duration_sec": 120,
+      "pose_key": null
+    },
+    {
+      "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
+      "exercise_name": "March in Place",
+      "instruction_text": "Stand tall and march on the spot, lifting the knees and swinging the arms at a comfortable pace.",
+      "target_body_area": "FULL_BODY",
+      "intensity_level": "MODERATE",
+      "default_repetitions": 30,
+      "default_duration_sec": 120,
+      "pose_key": null
+    }
+  ],
+  "plans": [
+    {
+      "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+      "plan_name": "Early Knee Recovery",
+      "aim": "Restore knee range of motion and reduce stiffness in the early stage of recovery.",
+      "target_body_area": "BOTH_LEGS",
+      "recovery_stage": "EARLY",
+      "mobility_level": "LOW",
+      "frequency_per_week": 3,
+      "goal": "MOBILITY",
+      "plan_exercise": [
+        {
+          "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+          "exercise_id": "aa576b35-c58d-5790-a9fc-a9e5056e15f4",
+          "sequence_order": 1,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "aa576b35-c58d-5790-a9fc-a9e5056e15f4",
+            "exercise_name": "Seated Knee Extension",
+            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair. Straighten one knee until the leg is level with the hip, hold for two seconds, and lower slowly. Alternate legs. Safety: keep the back against the chair.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 12,
+            "default_duration_sec": 90,
+            "pose_key": "knee_extension"
+          }
+        },
+        {
+          "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+          "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
+          "sequence_order": 2,
+          "prescribed_repetitions": 16,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
+            "exercise_name": "Seated Marching",
+            "instruction_text": "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 20,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+          "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
+          "sequence_order": 3,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
+            "exercise_name": "Heel Raise",
+            "instruction_text": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 12,
+            "default_duration_sec": 60,
+            "pose_key": null
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+      "plan_name": "Lower Limb Strength Builder",
+      "aim": "Build thigh and hip strength for standing up, walking and climbing stairs.",
+      "target_body_area": "BOTH_LEGS",
+      "recovery_stage": "INTERMEDIATE",
+      "mobility_level": "MODERATE",
+      "frequency_per_week": 3,
+      "goal": "STRENGTH",
+      "plan_exercise": [
+        {
+          "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+          "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+          "sequence_order": 1,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+            "exercise_name": "Sit-to-Stand",
+            "instruction_text": "Camera: side view, whole body in frame. Sit on a firm chair with feet flat and hip-width apart. Lean slightly forward and stand up fully without using your hands, then sit back down slowly. Safety: keep a stable chair against a wall; stop if you feel dizzy or knee pain.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": "sit_to_stand"
+          }
+        },
+        {
+          "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+          "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+          "sequence_order": 2,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+            "exercise_name": "Mini Squat",
+            "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+          "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+          "sequence_order": 3,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 120,
+          "exercise": {
+            "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+            "exercise_name": "Step-Up",
+            "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 120,
+            "pose_key": null
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+      "plan_name": "Shoulder Mobility Starter",
+      "aim": "Regain gentle shoulder movement after a period of reduced arm use.",
+      "target_body_area": "BOTH_ARMS",
+      "recovery_stage": "EARLY",
+      "mobility_level": "LOW",
+      "frequency_per_week": 5,
+      "goal": "MOBILITY",
+      "plan_exercise": [
+        {
+          "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+          "exercise_id": "e9b3e993-76be-5d62-aedd-f7800f28ed70",
+          "sequence_order": 1,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "e9b3e993-76be-5d62-aedd-f7800f28ed70",
+            "exercise_name": "Shoulder Pendulum",
+            "instruction_text": "Lean forward supporting yourself on a table with one hand. Let the other arm hang and swing it gently in small circles. Change arms halfway.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+          "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
+          "sequence_order": 2,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
+            "exercise_name": "Shoulder Flexion",
+            "instruction_text": "Camera: side view, whole body in frame. Stand with arms by your sides. Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly. Safety: do not arch the back.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "shoulder_flexion"
+          }
+        },
+        {
+          "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+          "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+          "sequence_order": 3,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+            "exercise_name": "Shoulder Abduction",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand tall with arms by your sides. Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly. Safety: do not raise above a pain-free range.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "shoulder_abduction"
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+      "plan_name": "Upper Limb Strength",
+      "aim": "Strengthen the arms and shoulders for daily tasks such as lifting and reaching.",
+      "target_body_area": "BOTH_ARMS",
+      "recovery_stage": "INTERMEDIATE",
+      "mobility_level": "MODERATE",
+      "frequency_per_week": 3,
+      "goal": "STRENGTH",
+      "plan_exercise": [
+        {
+          "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+          "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+          "sequence_order": 1,
+          "prescribed_repetitions": 12,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+            "exercise_name": "Elbow Flexion",
+            "instruction_text": "Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, then lower slowly. Use a light bottle of water if comfortable.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 12,
+            "default_duration_sec": 60,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+          "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
+          "sequence_order": 2,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
+            "exercise_name": "Shoulder Flexion",
+            "instruction_text": "Camera: side view, whole body in frame. Stand with arms by your sides. Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly. Safety: do not arch the back.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "shoulder_flexion"
+          }
+        },
+        {
+          "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+          "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+          "sequence_order": 3,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+            "exercise_name": "Shoulder Abduction",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand tall with arms by your sides. Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly. Safety: do not raise above a pain-free range.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "shoulder_abduction"
+          }
+        },
+        {
+          "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+          "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
+          "sequence_order": 4,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
+            "exercise_name": "Wall Push-Up",
+            "instruction_text": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+      "plan_name": "Hip Stability",
+      "aim": "Improve hip control and single-leg stability to support safer walking.",
+      "target_body_area": "BOTH_LEGS",
+      "recovery_stage": "INTERMEDIATE",
+      "mobility_level": "MODERATE",
+      "frequency_per_week": 3,
+      "goal": "BALANCE",
+      "plan_exercise": [
+        {
+          "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+          "exercise_id": "c70f199d-e077-5a20-bdd9-2423b7a85fe9",
+          "sequence_order": 1,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "c70f199d-e077-5a20-bdd9-2423b7a85fe9",
+            "exercise_name": "Standing Hip Abduction",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand beside a chair and hold it for support. Lift one leg out to the side keeping the toes forward and the body upright, then lower it. Repeat on the other side. Safety: do not lean the trunk.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": "hip_abduction"
+          }
+        },
+        {
+          "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+          "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
+          "sequence_order": 2,
+          "prescribed_repetitions": 4,
+          "prescribed_duration_sec": 120,
+          "exercise": {
+            "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
+            "exercise_name": "Tandem Stance",
+            "instruction_text": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 4,
+            "default_duration_sec": 120,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+          "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
+          "sequence_order": 3,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
+            "exercise_name": "Glute Bridge",
+            "instruction_text": "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body is straight from shoulders to knees, then lower slowly.",
+            "target_body_area": "CORE",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+      "plan_name": "Balance and Fall Prevention",
+      "aim": "Reduce the risk of falls by training balance and lower-limb control.",
+      "target_body_area": "FULL_BODY",
+      "recovery_stage": "EARLY",
+      "mobility_level": "LOW",
+      "frequency_per_week": 3,
+      "goal": "BALANCE",
+      "plan_exercise": [
+        {
+          "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+          "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
+          "sequence_order": 1,
+          "prescribed_repetitions": 4,
+          "prescribed_duration_sec": 120,
+          "exercise": {
+            "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
+            "exercise_name": "Tandem Stance",
+            "instruction_text": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 4,
+            "default_duration_sec": 120,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+          "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
+          "sequence_order": 2,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
+            "exercise_name": "Heel Raise",
+            "instruction_text": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 12,
+            "default_duration_sec": 60,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+          "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+          "sequence_order": 3,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+            "exercise_name": "Sit-to-Stand",
+            "instruction_text": "Camera: side view, whole body in frame. Sit on a firm chair with feet flat and hip-width apart. Lean slightly forward and stand up fully without using your hands, then sit back down slowly. Safety: keep a stable chair against a wall; stop if you feel dizzy or knee pain.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": "sit_to_stand"
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+      "plan_name": "Core and Back Care",
+      "aim": "Relieve lower back discomfort and activate the core muscles.",
+      "target_body_area": "CORE",
+      "recovery_stage": "EARLY",
+      "mobility_level": "LOW",
+      "frequency_per_week": 4,
+      "goal": "PAIN_RELIEF",
+      "plan_exercise": [
+        {
+          "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+          "exercise_id": "e20128ab-20d6-5d62-add3-ab559fc63778",
+          "sequence_order": 1,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "e20128ab-20d6-5d62-add3-ab559fc63778",
+            "exercise_name": "Pelvic Tilt",
+            "instruction_text": "Lie on your back with knees bent. Tighten the stomach and flatten the lower back into the floor, hold for five seconds, then relax.",
+            "target_body_area": "CORE",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+          "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
+          "sequence_order": 2,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
+            "exercise_name": "Glute Bridge",
+            "instruction_text": "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body is straight from shoulders to knees, then lower slowly.",
+            "target_body_area": "CORE",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+      "plan_name": "Disuse Atrophy Reconditioning",
+      "aim": "Rebuild general muscle activity after a long period of inactivity.",
+      "target_body_area": "FULL_BODY",
+      "recovery_stage": "EARLY",
+      "mobility_level": "LOW",
+      "frequency_per_week": 3,
+      "goal": "ENDURANCE",
+      "plan_exercise": [
+        {
+          "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+          "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
+          "sequence_order": 1,
+          "prescribed_repetitions": 20,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
+            "exercise_name": "Seated Marching",
+            "instruction_text": "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 20,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+          "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+          "sequence_order": 2,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "f8ecdf7a-f84e-5026-9756-ef9f74c62e6e",
+            "exercise_name": "Sit-to-Stand",
+            "instruction_text": "Camera: side view, whole body in frame. Sit on a firm chair with feet flat and hip-width apart. Lean slightly forward and stand up fully without using your hands, then sit back down slowly. Safety: keep a stable chair against a wall; stop if you feel dizzy or knee pain.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": "sit_to_stand"
+          }
+        },
+        {
+          "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+          "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+          "sequence_order": 3,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
+            "exercise_name": "Shoulder Abduction",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand tall with arms by your sides. Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly. Safety: do not raise above a pain-free range.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "shoulder_abduction"
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+      "plan_name": "Active Recovery Circuit",
+      "aim": "Increase endurance and whole-body fitness in the late stage of recovery.",
+      "target_body_area": "FULL_BODY",
+      "recovery_stage": "ADVANCED",
+      "mobility_level": "HIGH",
+      "frequency_per_week": 4,
+      "goal": "ENDURANCE",
+      "plan_exercise": [
+        {
+          "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+          "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
+          "sequence_order": 1,
+          "prescribed_repetitions": 30,
+          "prescribed_duration_sec": 120,
+          "exercise": {
+            "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
+            "exercise_name": "March in Place",
+            "instruction_text": "Stand tall and march on the spot, lifting the knees and swinging the arms at a comfortable pace.",
+            "target_body_area": "FULL_BODY",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 30,
+            "default_duration_sec": 120,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+          "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+          "sequence_order": 2,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 120,
+          "exercise": {
+            "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+            "exercise_name": "Step-Up",
+            "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 120,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+          "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+          "sequence_order": 3,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+            "exercise_name": "Mini Squat",
+            "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+          "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
+          "sequence_order": 4,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
+            "exercise_name": "Wall Push-Up",
+            "instruction_text": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+      "plan_name": "Advanced Leg Function",
+      "aim": "Restore full leg strength and control for an active daily routine.",
+      "target_body_area": "BOTH_LEGS",
+      "recovery_stage": "ADVANCED",
+      "mobility_level": "HIGH",
+      "frequency_per_week": 3,
+      "goal": "STRENGTH",
+      "plan_exercise": [
+        {
+          "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+          "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+          "sequence_order": 1,
+          "prescribed_repetitions": 12,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
+            "exercise_name": "Mini Squat",
+            "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+          "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+          "sequence_order": 2,
+          "prescribed_repetitions": 12,
+          "prescribed_duration_sec": 120,
+          "exercise": {
+            "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
+            "exercise_name": "Step-Up",
+            "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "MODERATE",
+            "default_repetitions": 10,
+            "default_duration_sec": 120,
+            "pose_key": null
+          }
+        },
+        {
+          "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+          "exercise_id": "c70f199d-e077-5a20-bdd9-2423b7a85fe9",
+          "sequence_order": 3,
+          "prescribed_repetitions": 12,
+          "prescribed_duration_sec": 90,
+          "exercise": {
+            "exercise_id": "c70f199d-e077-5a20-bdd9-2423b7a85fe9",
+            "exercise_name": "Standing Hip Abduction",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand beside a chair and hold it for support. Lift one leg out to the side keeping the toes forward and the body upright, then lower it. Repeat on the other side. Safety: do not lean the trunk.",
+            "target_body_area": "BOTH_LEGS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 90,
+            "pose_key": "hip_abduction"
+          }
+        }
+      ]
+    }
+  ]
+}

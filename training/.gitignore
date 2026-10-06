@@ -1,0 +1,7 @@
+data/
+runs/
+*.mp4
+*.mov
+*.pt
+*.onnx
+*.npz

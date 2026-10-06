@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.env
+.venv/
+models/weights/*
+!models/weights/.gitkeep
+.pytest_cache/

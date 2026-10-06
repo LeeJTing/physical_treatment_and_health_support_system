@@ -1,0 +1,30 @@
+import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
+import 'package:physical_treatment_and_health_support_system/data/models/account.dart';
+
+/// Contract for authentication, wrapping Supabase Auth (Table 4.54).
+abstract interface class IAuthRepository {
+  /// The signed-in account, or null when no session is stored (FR100_024/025).
+  Future<Result<Account?>> currentAccount();
+
+  /// Creates the unverified account and emails the 6-digit code (FR100_001, 012).
+  Future<Result<void>> register(String email, String password, String username);
+
+  /// Confirms the emailed code and activates the account (FR100_013, 014).
+  Future<Result<Account>> verify(String email, String code);
+
+  /// Issues a replacement verification code (FR100_015).
+  Future<Result<void>> resendCode(String email);
+
+  Future<Result<Account>> login(String email, String password);
+
+  /// Starts the Google OAuth flow (FR100_018). The session arrives through
+  /// the auth-state stream once the browser redirects back.
+  Future<Result<void>> signInWithGoogle();
+
+  /// Sends a 6-digit reset code; the same reply whether or not the address exists (FR100_037, 038).
+  Future<Result<void>> requestPasswordReset(String email);
+
+  Future<Result<void>> confirmPasswordReset(String email, String code, String newPassword);
+
+  Future<Result<void>> signOut();
+}
