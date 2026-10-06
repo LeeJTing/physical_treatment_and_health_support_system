@@ -20,6 +20,14 @@ class AppConstants {
     defaultValue: true,
   );
 
+  /// Google sign-in needs a Google OAuth client and the provider switched on in Supabase
+  /// (NEXT_STEPS Step 0 item 4). Until then the button explains instead of opening a
+  /// browser page that cannot work. Build with --dart-define=GOOGLE_SIGN_IN=true once set up.
+  static const bool googleSignInEnabled = bool.fromEnvironment(
+    'GOOGLE_SIGN_IN',
+    defaultValue: false,
+  );
+
   // Endpoint paths (Table 4.2.4) used by Elwin's modules.
   static const String recommendPath = '/recommend';
   static const String chatPath = '/chat';
@@ -112,6 +120,8 @@ class Messages {
       'Please verify your email address before logging in.';
   static const accountLocked =
       'Too many failed attempts. Your account is locked for 15 minutes.';
+  static const googleNotAvailable =
+      'Google sign-in is not available yet. Please log in with your email and password.'; // not a report message
 
   // UC300 Manage Profile
   static const valueOutOfRange =

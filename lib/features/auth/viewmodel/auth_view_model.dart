@@ -175,6 +175,11 @@ class AuthViewModel extends BaseViewModel {
   /// Opens the Google page in the browser (FR100_018). The session arrives when the
   /// browser returns to the app; the login screen then calls [checkSignedIn].
   Future<void> signInWithGoogle() async {
+    if (!AppConstants.googleSignInEnabled) {
+      googleState = const UiError(Messages.googleNotAvailable);
+      notifyListeners();
+      return;
+    }
     googleState = const Loading();
     notifyListeners();
     final res = await _auth.signInWithGoogle();

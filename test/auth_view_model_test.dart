@@ -159,4 +159,9 @@ void main() {
     expect(vm.loginState, isA<Idle<void>>());
     expect(vm.lastErrorCode, isNull);
   });
+
+  test('Google sign-in explains itself while it is not set up (no broken browser page)', () async {
+    await vm.signInWithGoogle();
+    expect((vm.googleState as UiError).message, Messages.googleNotAvailable);
+  });
 }
