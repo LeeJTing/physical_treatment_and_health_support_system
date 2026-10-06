@@ -202,34 +202,37 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                       SizedBox(
                         width: double.infinity,
                         child: Wrap(
-                        alignment: WrapAlignment.center,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          const Text(
-                            'New user?',
-                            style: TextStyle(
-                              color: AppTokens.inkMuted,
-                              fontSize: 16,
-                            ),
-                          ),
-                          TextButton(
-                            style: TextButton.styleFrom(
-                              minimumSize: const Size(48, AppTokens.minTarget),
-                            ),
-                            onPressed: () => Navigator.of(
-                              context,
-                            ).pushNamed(Routes.register),
-                            child: const Text(
-                              'Create account',
+                          alignment: WrapAlignment.center,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            const Text(
+                              'New user?',
                               style: TextStyle(
-                                color: AppTokens.cta,
+                                color: AppTokens.inkMuted,
                                 fontSize: 16,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                            TextButton(
+                              style: TextButton.styleFrom(
+                                minimumSize: const Size(
+                                  48,
+                                  AppTokens.minTarget,
+                                ),
+                              ),
+                              onPressed: () => Navigator.of(
+                                context,
+                              ).pushNamed(Routes.register),
+                              child: const Text(
+                                'Create account',
+                                style: TextStyle(
+                                  color: AppTokens.cta,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),

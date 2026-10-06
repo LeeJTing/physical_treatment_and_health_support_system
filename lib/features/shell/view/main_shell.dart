@@ -68,7 +68,9 @@ class _MainShellState extends State<MainShell> {
     return Scaffold(
       appBar: StatusBarStrip(
         // Treatment's header is the darker planning green (Figma Treatment screen).
-        color: _index == MainShell.treatmentTab ? AppTokens.primary : AppTokens.brandDeep,
+        color: _index == MainShell.treatmentTab
+            ? AppTokens.primary
+            : AppTokens.brandDeep,
       ),
       body: IndexedStack(
         index: _index,
