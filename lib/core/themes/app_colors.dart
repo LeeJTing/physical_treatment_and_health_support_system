@@ -16,4 +16,5 @@ class AppColors {
   // used in additional buttons, icons, and status indicators
   static const secondaryLight = Color.fromRGBO(163, 105, 253, 1.0);
   static const secondaryDark = Color.fromRGBO(191, 151, 255, 1.0);
+
 }

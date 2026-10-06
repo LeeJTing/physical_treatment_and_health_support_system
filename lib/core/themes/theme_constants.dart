@@ -3,15 +3,15 @@ import 'package:physical_treatment_and_health_support_system/core/themes/app_col
 import 'package:physical_treatment_and_health_support_system/core/themes/app_text_style.dart';
 
 final ThemeData lightTheme = ThemeData(
-  brightness: Brightness.light,
-  colorScheme: ColorScheme.light(
-    primary: AppColors.primaryLight,
-    secondary: AppColors.secondaryLight,
-    surface: AppColors.surfaceLight,
-    onSurface: AppColors.onSurfaceLight,
-    error: Colors.red,
-  ),
-  textTheme: AppTextStyle.lightTextStyle,
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.light(
+      primary: AppColors.primaryLight,
+      secondary: AppColors.secondaryLight,
+      surface: AppColors.surfaceLight,
+      onSurface: AppColors.onSurfaceLight,
+      error: Colors.red,
+    ),
+    textTheme: AppTextStyle.lightTextStyle
 );
 
 final ThemeData darkTheme = ThemeData(
