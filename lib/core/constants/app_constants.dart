@@ -4,15 +4,21 @@ class AppConstants {
 
   // ---- AI server (FastAPI) --------------------------------------------------
   /// Overridden at build time: flutter run --dart-define=AI_BASE_URL=https://xxx.trycloudflare.com
-  static const String aiBaseUrl =
-      String.fromEnvironment('AI_BASE_URL', defaultValue: 'http://10.0.2.2:8000');
+  static const String aiBaseUrl = String.fromEnvironment(
+    'AI_BASE_URL',
+    defaultValue: 'http://10.0.2.2:8000',
+  );
 
   static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-  static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+  static const String supabaseAnonKey = String.fromEnvironment(
+    'SUPABASE_ANON_KEY',
+  );
 
   /// Runs the app on in-memory fakes instead of Supabase (dev before Supabase is ready).
-  static const bool useFakes =
-      bool.fromEnvironment('USE_FAKES', defaultValue: true);
+  static const bool useFakes = bool.fromEnvironment(
+    'USE_FAKES',
+    defaultValue: true,
+  );
 
   // Endpoint paths (Table 4.2.4) used by Elwin's modules.
   static const String recommendPath = '/recommend';
@@ -21,7 +27,9 @@ class AppConstants {
   static const String posePath = '/pose';
 
   // Per-call timeouts.
-  static const Duration defaultTimeout = Duration(seconds: 30); // FR100_011, FR100_032
+  static const Duration defaultTimeout = Duration(
+    seconds: 30,
+  ); // FR100_011, FR100_032
   static const Duration recommendTimeout = Duration(seconds: 30); // NFR_08
   static const Duration poseTimeout = Duration(seconds: 60);
 
@@ -37,7 +45,9 @@ class AppConstants {
   static const int ageMin = 13, ageMax = 120;
   static const double weightMin = 20, weightMax = 300;
   static const double heightMin = 80, heightMax = 250;
-  static const Duration profileStaleAfter = Duration(days: 182); // UC1000 C3, TO CONFIRM
+  static const Duration profileStaleAfter = Duration(
+    days: 182,
+  ); // UC1000 C3, TO CONFIRM
 
   // ---- Exercise video (UC500 C4, C5) ---------------------------------------
   static const int minVideoSeconds = 10;
@@ -60,45 +70,67 @@ class Messages {
   Messages._();
 
   // UC100 Register Account
-  static const registrationUnavailable = 'Registration service is temporarily unavailable. Please try again later.';
-  static const usernameBlank = 'Username cannot be blank. Please enter your name.';
+  static const registrationUnavailable =
+      'Registration service is temporarily unavailable. Please try again later.';
+  static const usernameBlank =
+      'Username cannot be blank. Please enter your name.';
   static const emailInvalid = 'Email address is invalid.';
   static const passwordInvalid =
       'Password must be at least 8 characters and contain at least one letter and one number.';
-  static const passwordMismatch = 'Confirm password does not match your password. Please check both fields.';
-  static const emailExists = 'The entered email already has an account. Please log in instead.';
-  static const useGoogle = 'This email was registered with Google. Please continue with Google.';
+  static const passwordMismatch =
+      'Confirm password does not match your password. Please check both fields.';
+  static const emailExists =
+      'The entered email already has an account. Please log in instead.';
+  static const useGoogle =
+      'This email was registered with Google. Please continue with Google.';
   static const codeIncorrect = 'The verification code entered is incorrect.';
-  static const codeExpired = 'The verification code has expired. Please request a new code.';
+  static const codeExpired =
+      'The verification code has expired. Please request a new code.';
   static const verificationEmailFailed =
       'We could not send the verification email. Please check your address and try again.';
-  static const discardRegistration = 'Cancel registration? The information you have entered will not be saved.';
-  static const googleLinked = 'Your Google account has been linked to your existing account.';
-  static const registrationFailed = 'Unable to create your account. Please try again.';
+  static const discardRegistration =
+      'Cancel registration? The information you have entered will not be saved.';
+  static const googleLinked =
+      'Your Google account has been linked to your existing account.';
+  static const registrationFailed =
+      'Unable to create your account. Please try again.';
 
   // UC200 Login / reset password
-  static const loginUnavailable = 'Login service is temporarily unavailable. Please try again later.';
+  static const loginUnavailable =
+      'Login service is temporarily unavailable. Please try again later.';
   static const emailEmpty = 'Please fill in your email address.';
   static const passwordEmpty = 'Please fill in your password.';
-  static const resetCodeSent = 'If an account exists for this email, a 6-digit reset code has been sent to it.';
-  static const passwordResetDone = 'Your password has been reset. Please log in with your new password.';
-  static const googleOnlyAccount = 'This account signs in with Google. Please use Continue with Google.';
-  static const incorrectCredentials = 'The email or password you entered is incorrect.';
-  static const emailNotVerified = 'Please verify your email address before logging in.';
-  static const accountLocked = 'Too many failed attempts. Your account is locked for 15 minutes.';
+  static const resetCodeSent =
+      'If an account exists for this email, a 6-digit reset code has been sent to it.';
+  static const passwordResetDone =
+      'Your password has been reset. Please log in with your new password.';
+  static const googleOnlyAccount =
+      'This account signs in with Google. Please use Continue with Google.';
+  static const incorrectCredentials =
+      'The email or password you entered is incorrect.';
+  static const emailNotVerified =
+      'Please verify your email address before logging in.';
+  static const accountLocked =
+      'Too many failed attempts. Your account is locked for 15 minutes.';
 
   // UC300 Manage Profile
-  static const valueOutOfRange = 'The value entered is outside the accepted range. Please check your entry.';
-  static const requiredFieldsEmpty = 'Please complete every required field before saving.';
-  static const profileSaveFailed = 'Unable to save your profile. Please try again.';
+  static const valueOutOfRange =
+      'The value entered is outside the accepted range. Please check your entry.';
+  static const requiredFieldsEmpty =
+      'Please complete every required field before saving.';
+  static const profileSaveFailed =
+      'Unable to save your profile. Please try again.';
   static const profileSaved = 'Your health profile has been saved.';
   static const highRiskAdvisory =
       'Based on the conditions you declared, please consult a healthcare professional before starting any exercise programme.';
-  static const passwordChanged = 'Your password has been updated. You have been signed out of your other devices.';
-  static const currentPasswordIncorrect = 'The current password you entered is incorrect.';
+  static const passwordChanged =
+      'Your password has been updated. You have been signed out of your other devices.';
+  static const currentPasswordIncorrect =
+      'The current password you entered is incorrect.';
   static const confirmLogout = 'Log out of your account?';
   static const discardChanges = 'Discard your unsaved changes?';
-  static const profileLoadFailed = 'Unable to load your profile. Please try again.';
+  static const profileLoadFailed =
+      'Unable to load your profile. Please try again.';
 
   // UC400 (M500)
   static const conditionNotMet =
@@ -140,7 +172,8 @@ class Messages {
   // UC1000
   static const profileNotConfigured =
       'Please complete your health profile to receive personalised guidance.';
-  static const sessionExpired = 'Your session has expired. Please log in again.';
+  static const sessionExpired =
+      'Your session has expired. Please log in again.';
   static const profileStale =
       'Your health profile has not been updated for over 6 months. Please review it.';
   static const profileUnavailable =

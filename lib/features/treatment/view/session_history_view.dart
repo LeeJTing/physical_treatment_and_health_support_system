@@ -42,51 +42,93 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
       body: switch (vm.plan) {
         Loading() || Idle() => const Center(child: CircularProgressIndicator()),
         UiError(:final message) => _Message(message, onRetry: vm.loadPlan),
-        UiSuccess() when vm.activePlan == null =>
-          const _Message('You have no treatment plan yet. Choose one in AI-assisted treatment planning.'),
-        UiSuccess() when vm.history.isEmpty =>
-          const _Message('No sessions recorded yet. Your results appear here after your first exercise.'),
-        UiSuccess() => RefreshIndicator(onRefresh: vm.loadPlan, child: _list(vm)),
+        UiSuccess() when vm.activePlan == null => const _Message(
+          'You have no treatment plan yet. Choose one in AI-assisted treatment planning.',
+        ),
+        UiSuccess() when vm.history.isEmpty => const _Message(
+          'No sessions recorded yet. Your results appear here after your first exercise.',
+        ),
+        UiSuccess() => RefreshIndicator(
+          onRefresh: vm.loadPlan,
+          child: _list(vm),
+        ),
       },
     );
   }
 
   Widget _list(TreatmentViewModel vm) {
     final entries = vm.history;
-    final scored = [for (final e in entries.reversed) if (e.session.postureAccuracy != null) e.session.postureAccuracy!];
-    return ListView(padding: const EdgeInsets.all(AppTokens.gutter), children: [
-      Text(vm.activePlan!.plan.planName,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.text)),
-      const SizedBox(height: AppTokens.gap),
-      Row(children: [
-        Expanded(child: _Stat('Sessions', '${vm.completedSessionCount}')),
-        const SizedBox(width: AppTokens.gap),
-        Expanded(child: _Stat('Average', _pct(vm.averageAccuracy))),
-        const SizedBox(width: AppTokens.gap),
-        Expanded(child: _Stat('Best', _pct(vm.bestAccuracy))),
-      ]),
-      if (scored.length >= 2) ...[
-        const SizedBox(height: AppTokens.gap),
-        TreatmentCard(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            const Text('Posture accuracy over time',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.text)),
-            const SizedBox(height: 12),
-            Semantics(
-              label: 'Accuracy of the last ${scored.length} attempts, from ${_pct(scored.first)} to ${_pct(scored.last)}',
-              child: SizedBox(height: 120, width: double.infinity, child: CustomPaint(painter: _TrendPainter(scored))),
-            ),
-            const SizedBox(height: 6),
-            const Text('Dashed line: 80% pass mark',
-                style: TextStyle(fontSize: 13, color: AppTokens.textMuted)),
-          ]),
+    final scored = [
+      for (final e in entries.reversed)
+        if (e.session.postureAccuracy != null) e.session.postureAccuracy!,
+    ];
+    return ListView(
+      padding: const EdgeInsets.all(AppTokens.gutter),
+      children: [
+        Text(
+          vm.activePlan!.plan.planName,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppTokens.text,
+          ),
         ),
+        const SizedBox(height: AppTokens.gap),
+        Row(
+          children: [
+            Expanded(child: _Stat('Sessions', '${vm.completedSessionCount}')),
+            const SizedBox(width: AppTokens.gap),
+            Expanded(child: _Stat('Average', _pct(vm.averageAccuracy))),
+            const SizedBox(width: AppTokens.gap),
+            Expanded(child: _Stat('Best', _pct(vm.bestAccuracy))),
+          ],
+        ),
+        if (scored.length >= 2) ...[
+          const SizedBox(height: AppTokens.gap),
+          TreatmentCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Posture accuracy over time',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppTokens.text,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Semantics(
+                  label:
+                      'Accuracy of the last ${scored.length} attempts, from ${_pct(scored.first)} to ${_pct(scored.last)}',
+                  child: SizedBox(
+                    height: 120,
+                    width: double.infinity,
+                    child: CustomPaint(painter: _TrendPainter(scored)),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Dashed line: 80% pass mark',
+                  style: TextStyle(fontSize: 13, color: AppTokens.textMuted),
+                ),
+              ],
+            ),
+          ),
+        ],
+        const SizedBox(height: 20),
+        const Text(
+          'All attempts',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: AppTokens.text,
+          ),
+        ),
+        const SizedBox(height: AppTokens.gap),
+        for (final e in entries) ...[_EntryCard(e), const SizedBox(height: 10)],
       ],
-      const SizedBox(height: 20),
-      const Text('All attempts', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.text)),
-      const SizedBox(height: AppTokens.gap),
-      for (final e in entries) ...[_EntryCard(e), const SizedBox(height: 10)],
-    ]);
+    );
   }
 
   static String _pct(double? v) => v == null ? '-' : '${v.round()}%';
@@ -99,13 +141,25 @@ class _Stat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TreatmentCard(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
-        child: Column(children: [
-          Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppTokens.primary)),
-          const SizedBox(height: 2),
-          Text(label, style: const TextStyle(fontSize: 14, color: AppTokens.textMuted)),
-        ]),
-      );
+    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+    child: Column(
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: AppTokens.primary,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 14, color: AppTokens.textMuted),
+        ),
+      ],
+    ),
+  );
 }
 
 class _EntryCard extends StatelessWidget {
@@ -115,7 +169,20 @@ class _EntryCard extends StatelessWidget {
   static String _date(DateTime? t) {
     if (t == null) return 'Not finished';
     final l = t.toLocal();
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     final h = l.hour % 12 == 0 ? 12 : l.hour % 12;
     return '${l.day} ${months[l.month - 1]} ${l.year}, $h:${l.minute.toString().padLeft(2, '0')} ${l.hour < 12 ? 'AM' : 'PM'}';
   }
@@ -131,38 +198,63 @@ class _EntryCard extends StatelessWidget {
       CompletionStatus.abandoned => 'Stopped',
     };
     return TreatmentCard(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Expanded(
-            child: Text(entry.exerciseName,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTokens.text)),
-          ),
-          if (acc != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-              decoration: BoxDecoration(
-                color: pass ? AppTokens.goodContainer : AppTokens.cautionContainer,
-                borderRadius: BorderRadius.circular(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  entry.exerciseName,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: AppTokens.text,
+                  ),
+                ),
               ),
-              child: Text('${acc.round()}%',
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w700, color: pass ? AppTokens.good : AppTokens.caution)),
+              if (acc != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: pass
+                        ? AppTokens.goodContainer
+                        : AppTokens.cautionContainer,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '${acc.round()}%',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: pass ? AppTokens.good : AppTokens.caution,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            [
+              _date(s.completedAt),
+              status,
+              if (s.repetitionsCompleted != null)
+                '${s.repetitionsCompleted} reps',
+            ].join(' · '),
+            style: const TextStyle(fontSize: 14, color: AppTokens.textMuted),
+          ),
+          if ((s.postureFeedback ?? '').isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              s.postureFeedback!,
+              style: const TextStyle(fontSize: 15, color: AppTokens.textBody),
             ),
-        ]),
-        const SizedBox(height: 4),
-        Text(
-          [
-            _date(s.completedAt),
-            status,
-            if (s.repetitionsCompleted != null) '${s.repetitionsCompleted} reps',
-          ].join(' · '),
-          style: const TextStyle(fontSize: 14, color: AppTokens.textMuted),
-        ),
-        if ((s.postureFeedback ?? '').isNotEmpty) ...[
-          const SizedBox(height: 8),
-          Text(s.postureFeedback!, style: const TextStyle(fontSize: 15, color: AppTokens.textBody)),
+          ],
         ],
-      ]),
+      ),
     );
   }
 }
@@ -174,17 +266,24 @@ class _Message extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(text, textAlign: TextAlign.center, style: const TextStyle(fontSize: 17, color: AppTokens.text)),
-            if (onRetry != null) ...[
-              const SizedBox(height: 16),
-              OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
-            ],
-          ]),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            text,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 17, color: AppTokens.text),
+          ),
+          if (onRetry != null) ...[
+            const SizedBox(height: 16),
+            OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
+          ],
+        ],
+      ),
+    ),
+  );
 }
 
 /// Accuracy line (0-100 %) oldest to newest, with a dashed line at the pass mark.
@@ -202,7 +301,11 @@ class _TrendPainter extends CustomPainter {
       ..strokeWidth = 1;
     final passY = y(ExerciseSession.passMark);
     for (double x = 0; x < size.width; x += 10) {
-      canvas.drawLine(Offset(x, passY), Offset(math.min(x + 5, size.width), passY), dash);
+      canvas.drawLine(
+        Offset(x, passY),
+        Offset(math.min(x + 5, size.width), passY),
+        dash,
+      );
     }
 
     final path = Path()..moveTo(0, y(scores.first));
@@ -210,15 +313,22 @@ class _TrendPainter extends CustomPainter {
       path.lineTo(i * dx, y(scores[i]));
     }
     canvas.drawPath(
-        path,
-        Paint()
-          ..color = AppTokens.progress
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 3
-          ..strokeJoin = StrokeJoin.round);
+      path,
+      Paint()
+        ..color = AppTokens.progress
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..strokeJoin = StrokeJoin.round,
+    );
     for (var i = 0; i < scores.length; i++) {
-      canvas.drawCircle(Offset(i * dx, y(scores[i])), 4.5,
-          Paint()..color = scores[i] >= ExerciseSession.passMark ? AppTokens.progress : AppTokens.caution);
+      canvas.drawCircle(
+        Offset(i * dx, y(scores[i])),
+        4.5,
+        Paint()
+          ..color = scores[i] >= ExerciseSession.passMark
+              ? AppTokens.progress
+              : AppTokens.caution,
+      );
     }
   }
 

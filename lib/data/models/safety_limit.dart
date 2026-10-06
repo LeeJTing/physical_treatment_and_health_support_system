@@ -35,33 +35,35 @@ class SafetyLimit {
 
   /// Fail-safe default used when the profile cannot be read (UC1000 C5).
   static SafetyLimit mostRestrictive() => const SafetyLimit(
-        safetyLimitId: 'fail-safe',
-        maxExerciseIntensity: ExerciseIntensity.low,
-        maxSessionDurationMin: 15,
-        dailyCalorieTarget: 1600,
-        dailySodiumLimitMg: 1500,
-        dailySugarLimitG: 25,
-      );
+    safetyLimitId: 'fail-safe',
+    maxExerciseIntensity: ExerciseIntensity.low,
+    maxSessionDurationMin: 15,
+    dailyCalorieTarget: 1600,
+    dailySodiumLimitMg: 1500,
+    dailySugarLimitG: 25,
+  );
 
   factory SafetyLimit.fromJson(Map<String, dynamic> j) => SafetyLimit(
-        safetyLimitId: j['safety_limit_id'] as String,
-        profileId: j['profile_id'] as String?,
-        maxExerciseIntensity: ExerciseIntensity.fromDb(j['max_exercise_intensity'] as String?),
-        maxSessionDurationMin: (j['max_session_duration_min'] as num).toInt(),
-        dailyCalorieTarget: (j['daily_calorie_target'] as num).toInt(),
-        dailySodiumLimitMg: (j['daily_sodium_limit_mg'] as num).toInt(),
-        dailySugarLimitG: (j['daily_sugar_limit_g'] as num).toDouble(),
-        isCurrent: (j['is_current'] ?? true) as bool,
-      );
+    safetyLimitId: j['safety_limit_id'] as String,
+    profileId: j['profile_id'] as String?,
+    maxExerciseIntensity: ExerciseIntensity.fromDb(
+      j['max_exercise_intensity'] as String?,
+    ),
+    maxSessionDurationMin: (j['max_session_duration_min'] as num).toInt(),
+    dailyCalorieTarget: (j['daily_calorie_target'] as num).toInt(),
+    dailySodiumLimitMg: (j['daily_sodium_limit_mg'] as num).toInt(),
+    dailySugarLimitG: (j['daily_sugar_limit_g'] as num).toDouble(),
+    isCurrent: (j['is_current'] ?? true) as bool,
+  );
 
   Map<String, dynamic> toJson() => {
-        'safety_limit_id': safetyLimitId,
-        'profile_id': profileId,
-        'max_exercise_intensity': maxExerciseIntensity.db,
-        'max_session_duration_min': maxSessionDurationMin,
-        'daily_calorie_target': dailyCalorieTarget,
-        'daily_sodium_limit_mg': dailySodiumLimitMg,
-        'daily_sugar_limit_g': dailySugarLimitG,
-        'is_current': isCurrent,
-      };
+    'safety_limit_id': safetyLimitId,
+    'profile_id': profileId,
+    'max_exercise_intensity': maxExerciseIntensity.db,
+    'max_session_duration_min': maxSessionDurationMin,
+    'daily_calorie_target': dailyCalorieTarget,
+    'daily_sodium_limit_mg': dailySodiumLimitMg,
+    'daily_sugar_limit_g': dailySugarLimitG,
+    'is_current': isCurrent,
+  };
 }

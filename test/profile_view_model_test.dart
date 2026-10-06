@@ -23,7 +23,12 @@ void main() {
     await vm.loadProfile();
   });
 
-  void fillValid() => vm.updateDraft(age: 62, gender: Gender.male, weightKg: 71.2, heightCm: 168);
+  void fillValid() => vm.updateDraft(
+    age: 62,
+    gender: Gender.male,
+    weightKg: 71.2,
+    heightCm: 168,
+  );
 
   test('a new patient without a profile starts in edit mode', () {
     expect(vm.loadState, isA<UiSuccess<void>>());
@@ -34,12 +39,15 @@ void main() {
     expect(vm.limitations, hasLength(5));
   });
 
-  test('an empty field is refused with the required-fields message (FR100_049)', () async {
-    vm.updateDraft(age: 62, weightKg: 70, heightCm: 170); // no gender
-    expect(await vm.saveProfile(), isFalse);
-    expect((vm.saveState as UiError).message, Messages.requiredFieldsEmpty);
-    expect(vm.invalidFields, contains('gender'));
-  });
+  test(
+    'an empty field is refused with the required-fields message (FR100_049)',
+    () async {
+      vm.updateDraft(age: 62, weightKg: 70, heightCm: 170); // no gender
+      expect(await vm.saveProfile(), isFalse);
+      expect((vm.saveState as UiError).message, Messages.requiredFieldsEmpty);
+      expect(vm.invalidFields, contains('gender'));
+    },
+  );
 
   test('age 12 is out of range and the draft is kept (FR100_051)', () async {
     fillValid();
@@ -51,24 +59,30 @@ void main() {
     expect(vm.isEditing, isTrue);
   });
 
-  test('a valid save stores version 1 and a current safety limit (FR100_053, FR100_057)', () async {
-    fillValid();
-    expect(await vm.saveProfile(), isTrue);
-    expect(vm.isEditing, isFalse);
-    expect(vm.profile!.version, 1);
-    expect(vm.profile!.age, 62);
-    expect(vm.safetyLimit, isNotNull);
-    expect(vm.saveState, isA<UiSuccess<void>>());
-  });
+  test(
+    'a valid save stores version 1 and a current safety limit (FR100_053, FR100_057)',
+    () async {
+      fillValid();
+      expect(await vm.saveProfile(), isTrue);
+      expect(vm.isEditing, isFalse);
+      expect(vm.profile!.version, 1);
+      expect(vm.profile!.age, 62);
+      expect(vm.safetyLimit, isNotNull);
+      expect(vm.saveState, isA<UiSuccess<void>>());
+    },
+  );
 
-  test('declaring hypertension gives risk High and the strictest limits (Table 3.3)', () async {
-    fillValid();
-    vm.toggleCondition(1); // HYPERTENSION
-    expect(await vm.saveProfile(), isTrue);
-    expect(vm.profile!.assignRiskLevel(), RiskLevel.high);
-    expect(vm.safetyLimit!.maxExerciseIntensity, ExerciseIntensity.low);
-    expect(vm.safetyLimit!.dailySodiumLimitMg, 1500);
-  });
+  test(
+    'declaring hypertension gives risk High and the strictest limits (Table 3.3)',
+    () async {
+      fillValid();
+      vm.toggleCondition(1); // HYPERTENSION
+      expect(await vm.saveProfile(), isTrue);
+      expect(vm.profile!.assignRiskLevel(), RiskLevel.high);
+      expect(vm.safetyLimit!.maxExerciseIntensity, ExerciseIntensity.low);
+      expect(vm.safetyLimit!.dailySodiumLimitMg, 1500);
+    },
+  );
 
   test('Cancel restores the saved values (FR100_052)', () async {
     fillValid();
@@ -83,29 +97,38 @@ void main() {
     expect(vm.shown!.limitations, isEmpty);
   });
 
-  test('the None chip clears every limitation; chips do nothing outside edit mode', () async {
-    fillValid();
-    vm.toggleLimitation(1);
-    vm.toggleLimitation(5);
-    expect(vm.draft!.limitations, hasLength(2));
-    vm.clearLimitations();
-    expect(vm.draft!.limitations, isEmpty);
-    await vm.saveProfile();
-    vm.toggleCondition(2); // not editing any more
-    expect(vm.shown!.conditions, isEmpty);
-  });
+  test(
+    'the None chip clears every limitation; chips do nothing outside edit mode',
+    () async {
+      fillValid();
+      vm.toggleLimitation(1);
+      vm.toggleLimitation(5);
+      expect(vm.draft!.limitations, hasLength(2));
+      vm.clearLimitations();
+      expect(vm.draft!.limitations, isEmpty);
+      await vm.saveProfile();
+      vm.toggleCondition(2); // not editing any more
+      expect(vm.shown!.conditions, isEmpty);
+    },
+  );
 
-  test('a failed save keeps the draft and shows the save-failed message', () async {
-    fillValid();
-    await vm.saveProfile();
-    final failing = ProfileViewModel(_FailingSave(profiles), auth);
-    await failing.loadProfile();
-    failing.startEdit();
-    failing.updateDraft(weightKg: 75);
-    expect(await failing.saveProfile(), isFalse);
-    expect((failing.saveState as UiError).message, Messages.profileSaveFailed);
-    expect(failing.draft!.weightKg, 75);
-  });
+  test(
+    'a failed save keeps the draft and shows the save-failed message',
+    () async {
+      fillValid();
+      await vm.saveProfile();
+      final failing = ProfileViewModel(_FailingSave(profiles), auth);
+      await failing.loadProfile();
+      failing.startEdit();
+      failing.updateDraft(weightKg: 75);
+      expect(await failing.saveProfile(), isFalse);
+      expect(
+        (failing.saveState as UiError).message,
+        Messages.profileSaveFailed,
+      );
+      expect(failing.draft!.weightKg, 75);
+    },
+  );
 
   test('a load failure shows the load-failed message', () async {
     profiles.failNext = true;
@@ -139,8 +162,10 @@ class _FailingSave extends FakeProfileRepository {
   getProfile(String accountId) => inner.getProfile(accountId);
 
   @override
-  getCurrentSafetyLimit(String profileId) => inner.getCurrentSafetyLimit(profileId);
+  getCurrentSafetyLimit(String profileId) =>
+      inner.getCurrentSafetyLimit(profileId);
 
   @override
-  saveProfile(p, limit) async => const Failure<void>('lost connection', code: 'offline');
+  saveProfile(p, limit) async =>
+      const Failure<void>('lost connection', code: 'offline');
 }

@@ -14,8 +14,9 @@ class PatientTreatmentPlan {
 
   /// Number of pathway stages completed. Derived from progress so it is not
   /// stored twice.
-  int get completedStages =>
-      (progressPercentage / 100 * plan.exercises.length).round().clamp(0, plan.exercises.length);
+  int get completedStages => (progressPercentage / 100 * plan.exercises.length)
+      .round()
+      .clamp(0, plan.exercises.length);
 
   const PatientTreatmentPlan({
     required this.patientPlanId,
@@ -30,7 +31,9 @@ class PatientTreatmentPlan {
   /// The exercise at the patient's position in the pathway, or null when finished.
   Exercise? currentExercise() {
     final ordered = plan.orderedExercises();
-    return completedStages < ordered.length ? ordered[completedStages].exercise : null;
+    return completedStages < ordered.length
+        ? ordered[completedStages].exercise
+        : null;
   }
 
   PlanExercise? currentStage() {
@@ -60,20 +63,23 @@ class PatientTreatmentPlan {
 
   /// Row for patient_plan.
   Map<String, dynamic> toJson() => {
-        'patient_plan_id': patientPlanId,
-        'account_id': accountId,
-        'plan_id': plan.planId,
-        'suitability_score': suitabilityScore,
-        'progress_percentage': progressPercentage,
-        'status': status.db,
-        'selected_at': selectedAt.toIso8601String(),
-      };
+    'patient_plan_id': patientPlanId,
+    'account_id': accountId,
+    'plan_id': plan.planId,
+    'suitability_score': suitabilityScore,
+    'progress_percentage': progressPercentage,
+    'status': status.db,
+    'selected_at': selectedAt.toIso8601String(),
+  };
 
   /// Reads a patient_plan row joined with its treatment_plan.
-  factory PatientTreatmentPlan.fromJson(Map<String, dynamic> j) => PatientTreatmentPlan(
+  factory PatientTreatmentPlan.fromJson(Map<String, dynamic> j) =>
+      PatientTreatmentPlan(
         patientPlanId: j['patient_plan_id'] as String,
         accountId: j['account_id'] as String,
-        plan: TreatmentPlan.fromJson(j['treatment_plan'] as Map<String, dynamic>),
+        plan: TreatmentPlan.fromJson(
+          j['treatment_plan'] as Map<String, dynamic>,
+        ),
         suitabilityScore: (j['suitability_score'] as num?)?.toDouble(),
         progressPercentage: (j['progress_percentage'] as num?)?.toDouble() ?? 0,
         status: PlanStatus.fromDb(j['status'] as String?),

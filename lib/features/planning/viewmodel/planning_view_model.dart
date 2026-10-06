@@ -24,7 +24,13 @@ class PlanningViewModel extends BaseViewModel {
   final INotificationRepository _notifications;
   final ReminderService? _reminders;
 
-  PlanningViewModel(this._repo, this._recommender, this._profileInfo, this._notifications, [this._reminders]);
+  PlanningViewModel(
+    this._repo,
+    this._recommender,
+    this._profileInfo,
+    this._notifications, [
+    this._reminders,
+  ]);
 
   UiState<Recommendation> _recommendation = const Idle();
   UiState<Recommendation> get recommendation => _recommendation;
@@ -44,9 +50,9 @@ class PlanningViewModel extends BaseViewModel {
 
   /// The three highest-ranked plans (FR500_07).
   List<TreatmentPlan> get candidates => switch (_recommendation) {
-        UiSuccess(:final data) => data.plans,
-        _ => const [],
-      };
+    UiSuccess(:final data) => data.plans,
+    _ => const [],
+  };
 
   /// Scores the catalogue against the profile (FR500_02 to FR500_07).
   /// Errors map to UC400 E1 (M3), E2 (M4) and E3 (M5).
@@ -69,7 +75,8 @@ class PlanningViewModel extends BaseViewModel {
     }
     _snapshot = snapshot;
     _notice = switch (snapshot.status) {
-      ProfileStatus.notConfigured || ProfileStatus.incomplete => Messages.profileNotConfigured,
+      ProfileStatus.notConfigured ||
+      ProfileStatus.incomplete => Messages.profileNotConfigured,
       ProfileStatus.stale => Messages.profileStale,
       _ => null,
     };
@@ -80,7 +87,11 @@ class PlanningViewModel extends BaseViewModel {
       return;
     }
 
-    final result = await _recommender.topThree(snapshot, rehab, catalogue.dataOrNull!);
+    final result = await _recommender.topThree(
+      snapshot,
+      rehab,
+      catalogue.dataOrNull!,
+    );
     _recommendation = switch (result) {
       Success(:final data) => UiSuccess(data),
       Failure(:final message) => UiError(message),
@@ -131,10 +142,17 @@ class PlanningViewModel extends BaseViewModel {
 
     final previous = (await _repo.getActivePlan(accountId)).dataOrNull;
     final saved = await _repo.assignPlan(assignment);
-    final scheduled = saved.isSuccess ? await _notifications.saveReminder(reminder) : null;
+    final scheduled = saved.isSuccess
+        ? await _notifications.saveReminder(reminder)
+        : null;
     final ok = saved.isSuccess && (scheduled?.isSuccess ?? false);
     // FR500_11, M600.1: the new plan's reminder goes on the device; the old plan's are removed.
-    if (ok) await _reminders?.planSelected(reminder, previousPatientPlanId: previous?.patientPlanId);
+    if (ok) {
+      await _reminders?.planSelected(
+        reminder,
+        previousPatientPlanId: previous?.patientPlanId,
+      );
+    }
     _saving = ok ? UiSuccess(p) : const UiError(Messages.dbUnavailable);
     notifyListeners();
     return ok;

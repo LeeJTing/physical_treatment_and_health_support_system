@@ -39,7 +39,8 @@ class AuthViewModel extends BaseViewModel {
   Timer? _timer;
 
   /// Report message for a repository failure (UC100/UC200 MESSAGE rows).
-  static String messageFor(Failure<Object?> f, {bool registering = false}) => switch (f.code) {
+  static String messageFor(Failure<Object?> f, {bool registering = false}) =>
+      switch (f.code) {
         'invalid_credentials' => Messages.incorrectCredentials,
         'email_not_confirmed' => Messages.emailNotVerified,
         'locked' => Messages.accountLocked,
@@ -47,7 +48,9 @@ class AuthViewModel extends BaseViewModel {
         'use_google' => Messages.useGoogle,
         'otp_invalid' || 'invalid_code' => Messages.codeIncorrect,
         'offline' || 'timeout' || 'unknown' =>
-          registering ? Messages.registrationUnavailable : Messages.loginUnavailable,
+          registering
+              ? Messages.registrationUnavailable
+              : Messages.loginUnavailable,
         _ => f.message,
       };
 
@@ -57,7 +60,9 @@ class AuthViewModel extends BaseViewModel {
   Future<String> _routeAfterSignIn(Account a) async {
     final res = await _profiles.getProfile(a.accountId);
     if (res case Success(:final data)) {
-      return data != null && data.isComplete ? Routes.home : Routes.healthProfile;
+      return data != null && data.isComplete
+          ? Routes.home
+          : Routes.healthProfile;
     }
     return Routes.home;
   }
@@ -114,7 +119,11 @@ class AuthViewModel extends BaseViewModel {
     final res = await _auth.resendCode(email);
     resendState = switch (res) {
       Success() => const UiSuccess(null),
-      Failure f => UiError(f.code == 'offline' || f.code == 'timeout' ? Messages.verificationEmailFailed : f.message),
+      Failure f => UiError(
+        f.code == 'offline' || f.code == 'timeout'
+            ? Messages.verificationEmailFailed
+            : f.message,
+      ),
     };
     if (res.isSuccess) _startCooldown();
     notifyListeners();
@@ -124,7 +133,10 @@ class AuthViewModel extends BaseViewModel {
     _timer?.cancel();
     _secondsUntilResend = resendCooldownSeconds;
     _timer = Timer.periodic(const Duration(seconds: 1), (t) {
-      _secondsUntilResend = (_secondsUntilResend - 1).clamp(0, resendCooldownSeconds);
+      _secondsUntilResend = (_secondsUntilResend - 1).clamp(
+        0,
+        resendCooldownSeconds,
+      );
       if (_secondsUntilResend == 0) t.cancel();
       notifyListeners();
     });
@@ -144,7 +156,11 @@ class AuthViewModel extends BaseViewModel {
     return res.isSuccess;
   }
 
-  Future<bool> confirmReset(String email, String code, String newPassword) async {
+  Future<bool> confirmReset(
+    String email,
+    String code,
+    String newPassword,
+  ) async {
     resetConfirmState = const Loading();
     notifyListeners();
     final res = await _auth.confirmPasswordReset(email, code, newPassword);

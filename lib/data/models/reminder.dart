@@ -10,6 +10,7 @@ class Reminder {
   final String title;
   final int hour;
   final int minute;
+
   /// Seven characters, Monday to Sunday, '1' = fires that day (FR600_003).
   final String repeatDays;
   final bool isEnabled;
@@ -44,14 +45,15 @@ class Reminder {
 
   /// Weekdays (DateTime.monday..sunday) this reminder fires on.
   List<int> get weekdays => [
-        for (var i = 0; i < 7; i++)
-          if (repeatDays[i] == '1') i + 1,
-      ];
+    for (var i = 0; i < 7; i++)
+      if (repeatDays[i] == '1') i + 1,
+  ];
 
   bool firesOn(DateTime day) => repeatDays[day.weekday - 1] == '1';
 
   /// Only an exercise reminder is suppressed once the session is done (FR600_005).
-  bool shouldSuppress(bool exerciseDone) => reminderType == ReminderType.exercise && exerciseDone;
+  bool shouldSuppress(bool exerciseDone) =>
+      reminderType == ReminderType.exercise && exerciseDone;
 
   /// Next fire time strictly after [from], or null when no day is selected.
   DateTime? nextOccurrence([DateTime? from]) {
@@ -64,29 +66,34 @@ class Reminder {
     return null;
   }
 
-  Reminder copyWith({bool? isEnabled, int? hour, int? minute, String? repeatDays}) => Reminder(
-        reminderId: reminderId,
-        accountId: accountId,
-        patientPlanId: patientPlanId,
-        reminderType: reminderType,
-        title: title,
-        hour: hour ?? this.hour,
-        minute: minute ?? this.minute,
-        repeatDays: repeatDays ?? this.repeatDays,
-        isEnabled: isEnabled ?? this.isEnabled,
-      );
+  Reminder copyWith({
+    bool? isEnabled,
+    int? hour,
+    int? minute,
+    String? repeatDays,
+  }) => Reminder(
+    reminderId: reminderId,
+    accountId: accountId,
+    patientPlanId: patientPlanId,
+    reminderType: reminderType,
+    title: title,
+    hour: hour ?? this.hour,
+    minute: minute ?? this.minute,
+    repeatDays: repeatDays ?? this.repeatDays,
+    isEnabled: isEnabled ?? this.isEnabled,
+  );
 
   Map<String, dynamic> toJson() => {
-        'reminder_id': reminderId,
-        'account_id': accountId,
-        'patient_plan_id': patientPlanId,
-        'reminder_type': reminderType.db,
-        'title': title,
-        'scheduled_time':
-            '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:00',
-        'repeat_days': repeatDays,
-        'is_enabled': isEnabled,
-      };
+    'reminder_id': reminderId,
+    'account_id': accountId,
+    'patient_plan_id': patientPlanId,
+    'reminder_type': reminderType.db,
+    'title': title,
+    'scheduled_time':
+        '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:00',
+    'repeat_days': repeatDays,
+    'is_enabled': isEnabled,
+  };
 
   factory Reminder.fromJson(Map<String, dynamic> j) {
     final t = (j['scheduled_time'] as String).split(':');
@@ -127,24 +134,26 @@ class NotificationLog {
   });
 
   Map<String, dynamic> toJson() => {
-        'notification_id': notificationId,
-        'account_id': accountId,
-        'reminder_id': reminderId,
-        'notification_type': notificationType.db,
-        'message_body': messageBody,
-        'delivery_status': deliveryStatus.db,
-        'is_read': isRead,
-        'issued_at': issuedAt.toIso8601String(),
-      };
+    'notification_id': notificationId,
+    'account_id': accountId,
+    'reminder_id': reminderId,
+    'notification_type': notificationType.db,
+    'message_body': messageBody,
+    'delivery_status': deliveryStatus.db,
+    'is_read': isRead,
+    'issued_at': issuedAt.toIso8601String(),
+  };
 
   factory NotificationLog.fromJson(Map<String, dynamic> j) => NotificationLog(
-        notificationId: j['notification_id'] as String,
-        accountId: j['account_id'] as String,
-        reminderId: j['reminder_id'] as String?,
-        notificationType: NotificationType.fromDb(j['notification_type'] as String?),
-        messageBody: j['message_body'] as String,
-        deliveryStatus: DeliveryStatus.fromDb(j['delivery_status'] as String?),
-        isRead: (j['is_read'] ?? false) as bool,
-        issuedAt: DateTime.parse(j['issued_at'] as String),
-      );
+    notificationId: j['notification_id'] as String,
+    accountId: j['account_id'] as String,
+    reminderId: j['reminder_id'] as String?,
+    notificationType: NotificationType.fromDb(
+      j['notification_type'] as String?,
+    ),
+    messageBody: j['message_body'] as String,
+    deliveryStatus: DeliveryStatus.fromDb(j['delivery_status'] as String?),
+    isRead: (j['is_read'] ?? false) as bool,
+    issuedAt: DateTime.parse(j['issued_at'] as String),
+  );
 }

@@ -13,12 +13,15 @@ void main() {
     expect(FormValidators.email('a@@b.com'), isNotNull);
     expect(FormValidators.email('@b.com'), isNotNull);
   });
-  test('password: 8+ characters with a letter and a number (FR100_004, UC100 M4)', () {
-    expect(FormValidators.password('abc1234'), isNotNull);
-    expect(FormValidators.password('12345678'), isNotNull);
-    expect(FormValidators.password('abcdefgh'), isNotNull);
-    expect(FormValidators.password('abcd1234'), isNull);
-  });
+  test(
+    'password: 8+ characters with a letter and a number (FR100_004, UC100 M4)',
+    () {
+      expect(FormValidators.password('abc1234'), isNotNull);
+      expect(FormValidators.password('12345678'), isNotNull);
+      expect(FormValidators.password('abcdefgh'), isNotNull);
+      expect(FormValidators.password('abcd1234'), isNull);
+    },
+  );
   test('confirm must match (FR100_005)', () {
     expect(FormValidators.confirmPassword('abcdefgh', 'abcdefgx'), isNotNull);
     expect(FormValidators.confirmPassword('abcdefgh', 'abcdefgh'), isNull);

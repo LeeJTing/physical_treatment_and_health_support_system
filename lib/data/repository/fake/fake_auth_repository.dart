@@ -31,13 +31,25 @@ class FakeAuthRepository implements IAuthRepository {
   Future<Result<Account?>> currentAccount() async => Success(_current);
 
   @override
-  Future<Result<void>> register(String email, String password, String username) async {
+  Future<Result<void>> register(
+    String email,
+    String password,
+    String username,
+  ) async {
     final e = email.trim().toLowerCase();
     final existing = _accounts[e];
     if (existing != null && existing.isActivated()) {
-      return const Failure('This email address is already registered.', code: 'email_taken');
+      return const Failure(
+        'This email address is already registered.',
+        code: 'email_taken',
+      );
     }
-    _accounts[e] = Account(accountId: newId(), email: e, username: username, createdAt: DateTime.now());
+    _accounts[e] = Account(
+      accountId: newId(),
+      email: e,
+      username: username,
+      createdAt: DateTime.now(),
+    );
     _passwords[e] = password;
     return const Success(null);
   }
@@ -47,7 +59,10 @@ class FakeAuthRepository implements IAuthRepository {
     final e = email.trim().toLowerCase();
     final a = _accounts[e];
     if (a == null || code != devCode) {
-      return const Failure('The code is incorrect or has expired.', code: 'invalid_code');
+      return const Failure(
+        'The code is incorrect or has expired.',
+        code: 'invalid_code',
+      );
     }
     final verified = a.copyWith(isEmailVerified: true);
     _accounts[e] = verified;
@@ -63,30 +78,49 @@ class FakeAuthRepository implements IAuthRepository {
     final e = email.trim().toLowerCase();
     final a = _accounts[e];
     if (a == null || _passwords[e] != password) {
-      return const Failure('Incorrect email address or password.', code: 'invalid_credentials');
+      return const Failure(
+        'Incorrect email address or password.',
+        code: 'invalid_credentials',
+      );
     }
     if (a.authProvider == AuthProvider.google) {
-      return const Failure('This account uses Google Sign-In.', code: 'use_google');
+      return const Failure(
+        'This account uses Google Sign-In.',
+        code: 'use_google',
+      );
     }
     if (!a.isActivated()) {
-      return const Failure('Please verify your email address first.', code: 'email_not_confirmed');
+      return const Failure(
+        'Please verify your email address first.',
+        code: 'email_not_confirmed',
+      );
     }
     _current = a;
     return Success(a);
   }
 
   @override
-  Future<Result<void>> signInWithGoogle() async =>
-      const Failure('Google Sign-In is not available in offline demo mode.', code: 'unsupported');
+  Future<Result<void>> signInWithGoogle() async => const Failure(
+    'Google Sign-In is not available in offline demo mode.',
+    code: 'unsupported',
+  );
 
   @override
-  Future<Result<void>> requestPasswordReset(String email) async => const Success(null);
+  Future<Result<void>> requestPasswordReset(String email) async =>
+      const Success(null);
 
   @override
-  Future<Result<void>> confirmPasswordReset(String email, String code, String newPassword) async {
+  Future<Result<void>> confirmPasswordReset(
+    String email,
+    String code,
+    String newPassword,
+  ) async {
     final e = email.trim().toLowerCase();
     if (code != devCode || !_accounts.containsKey(e)) {
-      return const Failure('The code is incorrect or has expired.', code: 'invalid_code');
+      return const Failure(
+        'The code is incorrect or has expired.',
+        code: 'invalid_code',
+      );
     }
     _passwords[e] = newPassword;
     _current = null; // FR100_041: every session is invalidated

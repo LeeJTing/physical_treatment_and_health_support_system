@@ -8,6 +8,7 @@ class RehabInfo {
   final String affectedBodyArea;
   final RecoveryStage recoveryStage;
   final MobilityLevel mobilityLevel;
+
   /// One of STRENGTH, MOBILITY, BALANCE, PAIN_RELIEF, ENDURANCE.
   final String goal;
 
@@ -19,14 +20,27 @@ class RehabInfo {
   });
 
   Map<String, dynamic> toJson() => {
-        'affected_body_area': affectedBodyArea,
-        'recovery_stage': recoveryStage.db,
-        'mobility_level': mobilityLevel.db,
-        'goal': goal,
-      };
+    'affected_body_area': affectedBodyArea,
+    'recovery_stage': recoveryStage.db,
+    'mobility_level': mobilityLevel.db,
+    'goal': goal,
+  };
 
   static const bodyAreas = [
-    'LEFT_ARM', 'RIGHT_ARM', 'BOTH_ARMS', 'LEFT_LEG', 'RIGHT_LEG', 'BOTH_LEGS', 'CORE', 'FULL_BODY'
+    'LEFT_ARM',
+    'RIGHT_ARM',
+    'BOTH_ARMS',
+    'LEFT_LEG',
+    'RIGHT_LEG',
+    'BOTH_LEGS',
+    'CORE',
+    'FULL_BODY',
   ];
-  static const goals = ['STRENGTH', 'MOBILITY', 'BALANCE', 'PAIN_RELIEF', 'ENDURANCE'];
+  static const goals = [
+    'STRENGTH',
+    'MOBILITY',
+    'BALANCE',
+    'PAIN_RELIEF',
+    'ENDURANCE',
+  ];
 }

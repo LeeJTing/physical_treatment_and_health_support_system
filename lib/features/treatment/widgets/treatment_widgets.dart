@@ -24,15 +24,15 @@ class TreatmentCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: padding,
-        decoration: BoxDecoration(
-          color: AppTokens.surface,
-          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-          border: Border.all(color: border, width: borderWidth),
-        ),
-        child: child,
-      );
+    width: double.infinity,
+    padding: padding,
+    decoration: BoxDecoration(
+      color: AppTokens.surface,
+      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+      border: Border.all(color: border, width: borderWidth),
+    ),
+    child: child,
+  );
 }
 
 /// "Overall progress  2 of 3 done" with the green bar (Physical Treatment Page, Treatment Screen).
@@ -54,39 +54,70 @@ class ProgressBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => TreatmentCard(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Row(children: [
-              Expanded(
-                child: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppTokens.text)),
-              ),
-              Text('$done of $total done',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.text)),
-            ]),
-            const SizedBox(height: 10),
-            Semantics(
-              label: '$done of $total exercises done',
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: total == 0 ? 0 : done / total,
-                  minHeight: 8,
-                  color: AppTokens.progress,
-                  backgroundColor: AppTokens.goodContainer,
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                  color: AppTokens.text,
                 ),
               ),
             ),
-            if (footerLeft != null || footerRight != null) ...[
-              const SizedBox(height: 10),
-              Row(children: [
-                Expanded(child: Text(footerLeft ?? '', style: const TextStyle(fontSize: 14, color: AppTokens.textMuted))),
-                Text(footerRight ?? '', style: const TextStyle(fontSize: 14, color: AppTokens.textMuted)),
-              ]),
-            ],
+            Text(
+              '$done of $total done',
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: AppTokens.text,
+              ),
+            ),
           ],
         ),
-      );
+        const SizedBox(height: 10),
+        Semantics(
+          label: '$done of $total exercises done',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: total == 0 ? 0 : done / total,
+              minHeight: 8,
+              color: AppTokens.progress,
+              backgroundColor: AppTokens.goodContainer,
+            ),
+          ),
+        ),
+        if (footerLeft != null || footerRight != null) ...[
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  footerLeft ?? '',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppTokens.textMuted,
+                  ),
+                ),
+              ),
+              Text(
+                footerRight ?? '',
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: AppTokens.textMuted,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    ),
+  );
 }
 
 /// Status pill: "✓ 94% posture", "⚠ 61% posture", "Not started".
@@ -97,24 +128,66 @@ class StagePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final best = stage.bestAccuracy;
-    final (IconData? icon, String text, Color bg, Color fg) = switch (stage.status) {
-      StageStatus.done => (Icons.check, best == null ? 'Done' : '${best.round()}% posture', AppTokens.goodContainer, AppTokens.good),
+    final (
+      IconData? icon,
+      String text,
+      Color bg,
+      Color fg,
+    ) = switch (stage.status) {
+      StageStatus.done => (
+        Icons.check,
+        best == null ? 'Done' : '${best.round()}% posture',
+        AppTokens.goodContainer,
+        AppTokens.good,
+      ),
       StageStatus.attempted => (
-          best != null && best >= ExerciseSession.passMark ? Icons.check : Icons.warning_amber_rounded,
-          '${best?.round() ?? 0}% posture',
-          best != null && best >= ExerciseSession.passMark ? AppTokens.goodContainer : AppTokens.cautionContainer,
-          best != null && best >= ExerciseSession.passMark ? AppTokens.good : AppTokens.caution
-        ),
-      StageStatus.current => (null, 'Not started', AppTokens.accentContainer, AppTokens.accent),
-      StageStatus.upcoming => (Icons.lock_outline, 'Upcoming', AppTokens.background, AppTokens.textMuted),
+        best != null && best >= ExerciseSession.passMark
+            ? Icons.check
+            : Icons.warning_amber_rounded,
+        '${best?.round() ?? 0}% posture',
+        best != null && best >= ExerciseSession.passMark
+            ? AppTokens.goodContainer
+            : AppTokens.cautionContainer,
+        best != null && best >= ExerciseSession.passMark
+            ? AppTokens.good
+            : AppTokens.caution,
+      ),
+      StageStatus.current => (
+        null,
+        'Not started',
+        AppTokens.accentContainer,
+        AppTokens.accent,
+      ),
+      StageStatus.upcoming => (
+        Icons.lock_outline,
+        'Upcoming',
+        AppTokens.background,
+        AppTokens.textMuted,
+      ),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(8)),
-      child: Row(mainAxisSize: MainAxisSize.min, children: [
-        if (icon != null) ...[Icon(icon, size: 15, color: fg), const SizedBox(width: 4)],
-        Text(text, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: fg)),
-      ]),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, size: 15, color: fg),
+            const SizedBox(width: 4),
+          ],
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w600,
+              color: fg,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -125,14 +198,22 @@ class StageCard extends StatelessWidget {
   final VoidCallback onOpen;
   final VoidCallback? onStart;
 
-  const StageCard({super.key, required this.stage, required this.onOpen, this.onStart});
+  const StageCard({
+    super.key,
+    required this.stage,
+    required this.onOpen,
+    this.onStart,
+  });
 
-  bool get _isNext => stage.status == StageStatus.current || stage.status == StageStatus.attempted;
+  bool get _isNext =>
+      stage.status == StageStatus.current ||
+      stage.status == StageStatus.attempted;
 
   @override
   Widget build(BuildContext context) {
     final pe = stage.item;
-    final subtitle = '${RehabLabels.area(pe.exercise.targetBodyArea)} · ${pe.prescribedRepetitions} reps · '
+    final subtitle =
+        '${RehabLabels.area(pe.exercise.targetBodyArea)} · ${pe.prescribedRepetitions} reps · '
         '${RehabLabels.duration(pe.prescribedDurationSec)}';
     return Semantics(
       button: true,
@@ -146,18 +227,36 @@ class StageCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Expanded(
-                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text(pe.exercise.exerciseName,
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.text)),
-                    const SizedBox(height: 4),
-                    Text(subtitle, style: const TextStyle(fontSize: 14, color: AppTokens.accent)),
-                  ]),
-                ),
-                const SizedBox(width: 8),
-                StagePill(stage),
-              ]),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          pe.exercise.exerciseName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: AppTokens.text,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: AppTokens.accent,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  StagePill(stage),
+                ],
+              ),
               if (_isNext && onStart != null) ...[
                 const SizedBox(height: 14),
                 SizedBox(
@@ -168,10 +267,21 @@ class StageCard extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppTokens.action,
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTokens.radiusButton)),
-                      textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTokens.radiusButton,
+                        ),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                    child: Text(stage.status == StageStatus.attempted ? 'Try again' : 'Start exercise'),
+                    child: Text(
+                      stage.status == StageStatus.attempted
+                          ? 'Try again'
+                          : 'Start exercise',
+                    ),
                   ),
                 ),
               ],
@@ -190,23 +300,35 @@ class ScoreRing extends StatelessWidget {
   final Color track;
   final double size;
 
-  const ScoreRing({super.key, required this.percent, required this.color, required this.track, this.size = 150});
+  const ScoreRing({
+    super.key,
+    required this.percent,
+    required this.color,
+    required this.track,
+    this.size = 150,
+  });
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: 'Posture accuracy ${percent.round()} percent',
-        child: SizedBox(
-          width: size,
-          height: size,
-          child: CustomPaint(
-            painter: _RingPainter(percent / 100, color, track),
-            child: Center(
-              child: Text('${percent.round()}%',
-                  style: const TextStyle(fontSize: 34, fontWeight: FontWeight.w600, color: AppTokens.text)),
+    label: 'Posture accuracy ${percent.round()} percent',
+    child: SizedBox(
+      width: size,
+      height: size,
+      child: CustomPaint(
+        painter: _RingPainter(percent / 100, color, track),
+        child: Center(
+          child: Text(
+            '${percent.round()}%',
+            style: const TextStyle(
+              fontSize: 34,
+              fontWeight: FontWeight.w600,
+              color: AppTokens.text,
             ),
           ),
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _RingPainter extends CustomPainter {
@@ -230,9 +352,16 @@ class _RingPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.butt
       ..strokeWidth = stroke;
-    canvas.drawArc(arc, -math.pi / 2, 2 * math.pi * value.clamp(0.0, 1.0), false, fg);
+    canvas.drawArc(
+      arc,
+      -math.pi / 2,
+      2 * math.pi * value.clamp(0.0, 1.0),
+      false,
+      fg,
+    );
   }
 
   @override
-  bool shouldRepaint(_RingPainter old) => old.value != value || old.color != color;
+  bool shouldRepaint(_RingPainter old) =>
+      old.value != value || old.color != color;
 }

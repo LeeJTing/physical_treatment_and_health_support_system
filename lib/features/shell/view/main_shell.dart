@@ -32,9 +32,21 @@ class _MainShellState extends State<MainShell> {
     // The tab ViewModels live above the IndexedStack so switching tabs can refresh them.
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (c) => HomeViewModel(c.read(), c.read(), c.read(), c.read())),
-        ChangeNotifierProvider(create: (c) => TreatmentViewModel(c.read(), c.read(), c.read(), c.read(), c.read())),
-        ChangeNotifierProvider(create: (c) => ProfileViewModel(c.read(), c.read())..loadProfile()),
+        ChangeNotifierProvider(
+          create: (c) => HomeViewModel(c.read(), c.read(), c.read(), c.read()),
+        ),
+        ChangeNotifierProvider(
+          create: (c) => TreatmentViewModel(
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (c) => ProfileViewModel(c.read(), c.read())..loadProfile(),
+        ),
       ],
       child: Builder(builder: _scaffold),
     );
@@ -46,40 +58,69 @@ class _MainShellState extends State<MainShell> {
     if (i == _index) return;
     setState(() => _index = i);
     if (i == 0) context.read<HomeViewModel>().load();
-    if (i == MainShell.treatmentTab) context.read<TreatmentViewModel>().loadPlan();
+    if (i == MainShell.treatmentTab) {
+      context.read<TreatmentViewModel>().loadPlan();
+    }
   }
 
   Widget _scaffold(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: const [
-        HomeView(),
-        ComingSoonView('Tracking'),
-        TreatmentTabView(),
-        ComingSoonView('Diet'),
-        ProfileView(),
-      ]),
+      body: IndexedStack(
+        index: _index,
+        children: const [
+          HomeView(),
+          ComingSoonView('Tracking'),
+          TreatmentTabView(),
+          ComingSoonView('Diet'),
+          ProfileView(),
+        ],
+      ),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
           backgroundColor: AppTokens.surface,
           indicatorColor: AppTokens.tint,
           height: 72,
-          labelTextStyle: WidgetStateProperty.resolveWith((s) => TextStyle(
-                fontSize: 13,
-                fontWeight: s.contains(WidgetState.selected) ? FontWeight.w600 : FontWeight.w500,
-                color: s.contains(WidgetState.selected) ? AppTokens.brandDeep : AppTokens.inkMuted,
-              )),
-          iconTheme: WidgetStateProperty.resolveWith((s) =>
-              IconThemeData(size: 26, color: s.contains(WidgetState.selected) ? AppTokens.brandDeep : AppTokens.inkMuted)),
+          labelTextStyle: WidgetStateProperty.resolveWith(
+            (s) => TextStyle(
+              fontSize: 13,
+              fontWeight: s.contains(WidgetState.selected)
+                  ? FontWeight.w600
+                  : FontWeight.w500,
+              color: s.contains(WidgetState.selected)
+                  ? AppTokens.brandDeep
+                  : AppTokens.inkMuted,
+            ),
+          ),
+          iconTheme: WidgetStateProperty.resolveWith(
+            (s) => IconThemeData(
+              size: 26,
+              color: s.contains(WidgetState.selected)
+                  ? AppTokens.brandDeep
+                  : AppTokens.inkMuted,
+            ),
+          ),
         ),
         child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => _select(context, i),
           destinations: const [
-            NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
-            NavigationDestination(icon: Icon(Icons.show_chart), label: 'Tracking'),
-            NavigationDestination(icon: Icon(Icons.fitness_center), label: 'Treatment'),
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.show_chart),
+              label: 'Tracking',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.fitness_center),
+              label: 'Treatment',
+            ),
             NavigationDestination(icon: Icon(Icons.restaurant), label: 'Diet'),
-            NavigationDestination(icon: Icon(Icons.person_outline), label: 'Profile'),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline),
+              label: 'Profile',
+            ),
           ],
         ),
       ),

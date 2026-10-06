@@ -24,7 +24,11 @@ abstract interface class IAuthRepository {
   /// Sends a 6-digit reset code; the same reply whether or not the address exists (FR100_037, 038).
   Future<Result<void>> requestPasswordReset(String email);
 
-  Future<Result<void>> confirmPasswordReset(String email, String code, String newPassword);
+  Future<Result<void>> confirmPasswordReset(
+    String email,
+    String code,
+    String newPassword,
+  );
 
   Future<Result<void>> signOut();
 }

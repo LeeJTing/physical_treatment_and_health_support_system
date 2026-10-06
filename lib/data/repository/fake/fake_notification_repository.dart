@@ -33,10 +33,21 @@ class FakeNotificationRepository implements INotificationRepository {
       Success(log.where((n) => n.accountId == accountId && !n.isRead).length);
 
   @override
-  Future<Result<List<NotificationLog>>> getLog(String accountId, DateTime from, DateTime to) async => Success(log
-      .where((n) => n.accountId == accountId && !n.issuedAt.isBefore(from) && !n.issuedAt.isAfter(to))
-      .toList()
-    ..sort((a, b) => b.issuedAt.compareTo(a.issuedAt)));
+  Future<Result<List<NotificationLog>>> getLog(
+    String accountId,
+    DateTime from,
+    DateTime to,
+  ) async => Success(
+    log
+        .where(
+          (n) =>
+              n.accountId == accountId &&
+              !n.issuedAt.isBefore(from) &&
+              !n.issuedAt.isAfter(to),
+        )
+        .toList()
+      ..sort((a, b) => b.issuedAt.compareTo(a.issuedAt)),
+  );
 
   @override
   Future<Result<void>> markRead(String notificationId) async {

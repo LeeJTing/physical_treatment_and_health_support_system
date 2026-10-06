@@ -33,7 +33,8 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   }
 
   @override
-  Future<Result<List<TreatmentPlan>>> getCatalogue() async => Success(List<TreatmentPlan>.unmodifiable(_catalogue));
+  Future<Result<List<TreatmentPlan>>> getCatalogue() async =>
+      Success(List<TreatmentPlan>.unmodifiable(_catalogue));
 
   @override
   Future<Result<void>> assignPlan(PatientTreatmentPlan p) async {
@@ -42,14 +43,19 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   }
 
   @override
-  Future<Result<void>> saveSession(ExerciseSession s, {PatientTreatmentPlan? advancedPlan}) async {
+  Future<Result<void>> saveSession(
+    ExerciseSession s, {
+    PatientTreatmentPlan? advancedPlan,
+  }) async {
     sessions.add(s);
     if (advancedPlan != null) _assigned[advancedPlan.accountId] = advancedPlan;
     return const Success(null);
   }
 
   @override
-  Future<Result<List<ExerciseSession>>> getSessions(String patientPlanId) async =>
+  Future<Result<List<ExerciseSession>>> getSessions(
+    String patientPlanId,
+  ) async =>
       Success(sessions.where((s) => s.patientPlanId == patientPlanId).toList());
 
   @override
@@ -75,12 +81,14 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   /// Test helper: whether a COMPLETED session exists for today.
   bool completedToday(String accountId) {
     final now = DateTime.now();
-    return sessions.any((s) =>
-        s.accountId == accountId &&
-        s.completionStatus == CompletionStatus.completed &&
-        s.completedAt != null &&
-        s.completedAt!.year == now.year &&
-        s.completedAt!.month == now.month &&
-        s.completedAt!.day == now.day);
+    return sessions.any(
+      (s) =>
+          s.accountId == accountId &&
+          s.completionStatus == CompletionStatus.completed &&
+          s.completedAt != null &&
+          s.completedAt!.year == now.year &&
+          s.completedAt!.month == now.month &&
+          s.completedAt!.day == now.day,
+    );
   }
 }

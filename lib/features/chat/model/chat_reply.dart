@@ -5,7 +5,8 @@ class ChatCategory {
 
   const ChatCategory(this.key, this.title);
 
-  factory ChatCategory.fromJson(Map<String, dynamic> j) => ChatCategory(j['key'] as String, j['title'] as String);
+  factory ChatCategory.fromJson(Map<String, dynamic> j) =>
+      ChatCategory(j['key'] as String, j['title'] as String);
 
   @override
   bool operator ==(Object other) => other is ChatCategory && other.key == key;
@@ -18,11 +19,15 @@ class ChatReply {
   final String answer;
   final String? category;
   final String? title;
-  final bool isMatched;                 // false -> "Question not recognised" (FR500_22)
-  final String? matchedBy;              // red_flag | category | keyword | similar_question | keyword_overlap
-  final List<ChatCategory> followUps;   // decision-tree options, e.g. after a pain question
-  final List<String> notes;             // condition-specific lines, already part of [answer]
-  final List<ChatCategory> categories;  // shown again after every reply (FR500_21, FR500_22)
+  final bool isMatched; // false -> "Question not recognised" (FR500_22)
+  final String?
+  matchedBy; // red_flag | category | keyword | similar_question | keyword_overlap
+  final List<ChatCategory>
+  followUps; // decision-tree options, e.g. after a pain question
+  final List<String>
+  notes; // condition-specific lines, already part of [answer]
+  final List<ChatCategory>
+  categories; // shown again after every reply (FR500_21, FR500_22)
 
   const ChatReply({
     required this.answer,
@@ -44,17 +49,19 @@ class ChatReply {
     return cut < 0 ? answer : answer.substring(0, cut);
   }
 
-  static List<ChatCategory> _cats(Object? v) =>
-      [for (final c in (v as List? ?? const [])) ChatCategory.fromJson(c as Map<String, dynamic>)];
+  static List<ChatCategory> _cats(Object? v) => [
+    for (final c in (v as List? ?? const []))
+      ChatCategory.fromJson(c as Map<String, dynamic>),
+  ];
 
   factory ChatReply.fromJson(Map<String, dynamic> j) => ChatReply(
-        answer: j['answer'] as String,
-        category: j['category'] as String?,
-        title: j['title'] as String?,
-        isMatched: (j['is_matched'] ?? false) as bool,
-        matchedBy: j['matched_by'] as String?,
-        followUps: _cats(j['follow_ups']),
-        notes: [for (final n in (j['notes'] as List? ?? const [])) n as String],
-        categories: _cats(j['categories']),
-      );
+    answer: j['answer'] as String,
+    category: j['category'] as String?,
+    title: j['title'] as String?,
+    isMatched: (j['is_matched'] ?? false) as bool,
+    matchedBy: j['matched_by'] as String?,
+    followUps: _cats(j['follow_ups']),
+    notes: [for (final n in (j['notes'] as List? ?? const [])) n as String],
+    categories: _cats(j['categories']),
+  );
 }

@@ -23,7 +23,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<HomeViewModel>().load());
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => context.read<HomeViewModel>().load(),
+    );
   }
 
   /// Opens a screen and refreshes the dashboard when the patient comes back.
@@ -32,15 +34,22 @@ class _HomeViewState extends State<HomeView> {
     if (mounted) await context.read<HomeViewModel>().load();
   }
 
-  void _openChat() => Navigator.of(context).push(MaterialPageRoute<void>(
-        builder: (_) => ChangeNotifierProvider(
-          create: (c) => ChatViewModel(c.read(), c.read(), c.read()),
-          child: const ChatView(),
-        ),
-      ));
+  void _openChat() => Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => ChangeNotifierProvider(
+        create: (c) => ChatViewModel(c.read(), c.read(), c.read()),
+        child: const ChatView(),
+      ),
+    ),
+  );
 
-  void _notYet(String what) => ScaffoldMessenger.of(context)
-      .showSnackBar(SnackBar(content: Text('$what is part of the Health Monitoring and Diet modules (coming soon).')));
+  void _notYet(String what) => ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      content: Text(
+        '$what is part of the Health Monitoring and Diet modules (coming soon).',
+      ),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -49,8 +58,13 @@ class _HomeViewState extends State<HomeView> {
       color: AppTokens.screenBackground,
       child: switch (vm.state) {
         UiError(:final message) => _Retry(message, vm.load),
-        UiSuccess(:final data) => RefreshIndicator(onRefresh: vm.load, child: _content(vm, data)),
-        _ => const Center(child: CircularProgressIndicator(color: AppTokens.brandDeep)),
+        UiSuccess(:final data) => RefreshIndicator(
+          onRefresh: vm.load,
+          child: _content(vm, data),
+        ),
+        _ => const Center(
+          child: CircularProgressIndicator(color: AppTokens.brandDeep),
+        ),
       },
     );
   }
@@ -58,92 +72,162 @@ class _HomeViewState extends State<HomeView> {
   Widget _content(HomeViewModel vm, HomeData d) {
     final top = MediaQuery.paddingOf(context).top;
     final limit = d.profile.safetyLimit;
-    return ListView(padding: EdgeInsets.zero, children: [
-      // Header band with the greeting, the bell and the risk pill.
-      Stack(children: [
-        Container(
-          height: top + 230,
-          decoration: const BoxDecoration(
-            color: AppTokens.brandDeep,
-            borderRadius: BorderRadius.vertical(bottom: Radius.circular(32)),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(24, top + 24, 12, 0),
-          child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Expanded(
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(vm.greeting(), style: const TextStyle(color: AppTokens.onBrandMuted, fontSize: 17)),
-                Text(HomeViewModel.displayName(d.username),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700)),
-                const SizedBox(height: 14),
-                Material(
-                  color: AppTokens.tint,
-                  shape: const StadiumBorder(),
-                  child: InkWell(
-                    customBorder: const StadiumBorder(),
-                    onTap: () => _open(Routes.healthProfile),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
-                      child: Text(HomeViewModel.riskPill(d),
-                          style: const TextStyle(color: AppTokens.brandDeep, fontSize: 16, fontWeight: FontWeight.w500)),
+    return ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        // Header band with the greeting, the bell and the risk pill.
+        Stack(
+          children: [
+            Container(
+              height: top + 230,
+              decoration: const BoxDecoration(
+                color: AppTokens.brandDeep,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(32),
+                ),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(24, top + 24, 12, 0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vm.greeting(),
+                          style: const TextStyle(
+                            color: AppTokens.onBrandMuted,
+                            fontSize: 17,
+                          ),
+                        ),
+                        Text(
+                          HomeViewModel.displayName(d.username),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Material(
+                          color: AppTokens.tint,
+                          shape: const StadiumBorder(),
+                          child: InkWell(
+                            customBorder: const StadiumBorder(),
+                            onTap: () => _open(Routes.healthProfile),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 8,
+                              ),
+                              child: Text(
+                                HomeViewModel.riskPill(d),
+                                style: const TextStyle(
+                                  color: AppTokens.brandDeep,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ]),
+                  _Bell(unread: d.unread, onTap: () => _open(Routes.reminders)),
+                ],
+              ),
             ),
-            _Bell(unread: d.unread, onTap: () => _open(Routes.reminders)),
-          ]),
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                AppTokens.gutter,
+                top + 176,
+                AppTokens.gutter,
+                0,
+              ),
+              child: const _HealthScoreCard(),
+            ),
+          ],
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(AppTokens.gutter, top + 176, AppTokens.gutter, 0),
-          child: const _HealthScoreCard(),
+          padding: const EdgeInsets.fromLTRB(
+            AppTokens.gutter,
+            AppTokens.gap,
+            AppTokens.gutter,
+            28,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (d.profileNeedsAttention || d.profileStale) ...[
+                _Notice(
+                  d.profileStale
+                      ? Messages.profileStale
+                      : Messages.profileNotConfigured,
+                  onTap: () => _open(Routes.healthProfile),
+                ),
+                const SizedBox(height: AppTokens.gap),
+              ],
+              const Row(
+                children: [
+                  Expanded(child: _VitalCard('Blood\npressure', 'mmHg')),
+                  SizedBox(width: 10),
+                  Expanded(child: _VitalCard('Blood\nglucose', 'mmol/L')),
+                  SizedBox(width: 10),
+                  Expanded(child: _VitalCard('Body\nweight', 'kg')),
+                ],
+              ),
+              const SizedBox(height: AppTokens.gap),
+              _SessionCard(
+                data: d,
+                onStart: () => _open(Routes.physicalTreatment),
+                onGetPlan: () => _open(Routes.treatmentPlanning),
+              ),
+              const SizedBox(height: AppTokens.gap),
+              _LimitsCard(
+                calories: limit.dailyCalorieTarget,
+                sodiumMg: limit.dailySodiumLimitMg,
+                sugarG: limit.dailySugarLimitG,
+              ),
+              const SizedBox(height: 24),
+              const Text(
+                'Quick actions',
+                style: TextStyle(
+                  color: AppTokens.ink,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: AppTokens.gap),
+              Row(
+                children: [
+                  Expanded(
+                    child: _QuickAction(
+                      'Log Meal',
+                      () => _notYet('Logging a meal'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _QuickAction(
+                      'Add Reading',
+                      () => _notYet('Adding a reading'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(child: _QuickAction('Ask AI', _openChat)),
+                ],
+              ),
+            ],
+          ),
         ),
-      ]),
-      Padding(
-        padding: const EdgeInsets.fromLTRB(AppTokens.gutter, AppTokens.gap, AppTokens.gutter, 28),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (d.profileNeedsAttention || d.profileStale) ...[
-            _Notice(
-              d.profileStale ? Messages.profileStale : Messages.profileNotConfigured,
-              onTap: () => _open(Routes.healthProfile),
-            ),
-            const SizedBox(height: AppTokens.gap),
-          ],
-          const Row(children: [
-            Expanded(child: _VitalCard('Blood\npressure', 'mmHg')),
-            SizedBox(width: 10),
-            Expanded(child: _VitalCard('Blood\nglucose', 'mmol/L')),
-            SizedBox(width: 10),
-            Expanded(child: _VitalCard('Body\nweight', 'kg')),
-          ]),
-          const SizedBox(height: AppTokens.gap),
-          _SessionCard(
-            data: d,
-            onStart: () => _open(Routes.physicalTreatment),
-            onGetPlan: () => _open(Routes.treatmentPlanning),
-          ),
-          const SizedBox(height: AppTokens.gap),
-          _LimitsCard(
-            calories: limit.dailyCalorieTarget,
-            sodiumMg: limit.dailySodiumLimitMg,
-            sugarG: limit.dailySugarLimitG,
-          ),
-          const SizedBox(height: 24),
-          const Text('Quick actions', style: TextStyle(color: AppTokens.ink, fontSize: 20, fontWeight: FontWeight.w700)),
-          const SizedBox(height: AppTokens.gap),
-          Row(children: [
-            Expanded(child: _QuickAction('Log Meal', () => _notYet('Logging a meal'))),
-            const SizedBox(width: 10),
-            Expanded(child: _QuickAction('Add Reading', () => _notYet('Adding a reading'))),
-            const SizedBox(width: 10),
-            Expanded(child: _QuickAction('Ask AI', _openChat)),
-          ]),
-        ]),
-      ),
-    ]);
+      ],
+    );
   }
 }
 
@@ -154,16 +238,16 @@ class _Bell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => IconButton(
-        tooltip: unread == 0 ? 'Reminders' : 'Reminders, $unread unread',
-        iconSize: 30,
-        onPressed: onTap,
-        icon: Badge(
-          isLabelVisible: unread > 0,
-          backgroundColor: AppTokens.cta,
-          label: Text('$unread'),
-          child: const Icon(Icons.notifications_none, color: Colors.white),
-        ),
-      );
+    tooltip: unread == 0 ? 'Reminders' : 'Reminders, $unread unread',
+    iconSize: 30,
+    onPressed: onTap,
+    icon: Badge(
+      isLabelVisible: unread > 0,
+      backgroundColor: AppTokens.cta,
+      label: Text('$unread'),
+      child: const Icon(Icons.notifications_none, color: Colors.white),
+    ),
+  );
 }
 
 /// White card used by the dashboard.
@@ -174,14 +258,14 @@ class _Card extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: padding,
-        decoration: BoxDecoration(
-          color: AppTokens.surface,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: AppTokens.cardBorder),
-        ),
-        child: child,
-      );
+    padding: padding,
+    decoration: BoxDecoration(
+      color: AppTokens.surface,
+      borderRadius: BorderRadius.circular(22),
+      border: Border.all(color: AppTokens.cardBorder),
+    ),
+    child: child,
+  );
 }
 
 /// M400 (Predictive Health Analysis) computes the score; until it does, the card says so.
@@ -190,28 +274,56 @@ class _HealthScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _Card(
-        child: Row(children: [
-          const Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('Health Score', style: TextStyle(color: AppTokens.ink, fontSize: 22, fontWeight: FontWeight.w700)),
-              SizedBox(height: 6),
-              Text('Appears once your health readings are synced.',
-                  style: TextStyle(color: AppTokens.inkMuted, fontSize: 15)),
-            ]),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            width: 84,
-            height: 84,
-            child: Stack(alignment: Alignment.center, children: [
-              const SizedBox.expand(
-                child: CircularProgressIndicator(value: 0, strokeWidth: 12, backgroundColor: AppTokens.tint),
+    child: Row(
+      children: [
+        const Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Health Score',
+                style: TextStyle(
+                  color: AppTokens.ink,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-              Text('--', style: TextStyle(color: AppTokens.ink.withValues(alpha: 0.5), fontSize: 26, fontWeight: FontWeight.w700)),
-            ]),
+              SizedBox(height: 6),
+              Text(
+                'Appears once your health readings are synced.',
+                style: TextStyle(color: AppTokens.inkMuted, fontSize: 15),
+              ),
+            ],
           ),
-        ]),
-      );
+        ),
+        const SizedBox(width: 12),
+        SizedBox(
+          width: 84,
+          height: 84,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              const SizedBox.expand(
+                child: CircularProgressIndicator(
+                  value: 0,
+                  strokeWidth: 12,
+                  backgroundColor: AppTokens.tint,
+                ),
+              ),
+              Text(
+                '--',
+                style: TextStyle(
+                  color: AppTokens.ink.withValues(alpha: 0.5),
+                  fontSize: 26,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Blood pressure, glucose and weight come from M200 (Health Monitoring); empty until then.
@@ -222,14 +334,30 @@ class _VitalCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => _Card(
-        padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15)),
-          const SizedBox(height: 10),
-          const Text('--', style: TextStyle(color: AppTokens.ink, fontSize: 26, fontWeight: FontWeight.w600)),
-          Text(unit, style: const TextStyle(color: AppTokens.inkMuted, fontSize: 14)),
-        ]),
-      );
+    padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          '--',
+          style: TextStyle(
+            color: AppTokens.ink,
+            fontSize: 26,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        Text(
+          unit,
+          style: const TextStyle(color: AppTokens.inkMuted, fontSize: 14),
+        ),
+      ],
+    ),
+  );
 }
 
 /// "TODAY'S SESSION": the next exercise of the active plan, or a way to get a plan.
@@ -237,58 +365,122 @@ class _SessionCard extends StatelessWidget {
   final HomeData data;
   final VoidCallback onStart;
   final VoidCallback onGetPlan;
-  const _SessionCard({required this.data, required this.onStart, required this.onGetPlan});
+  const _SessionCard({
+    required this.data,
+    required this.onStart,
+    required this.onGetPlan,
+  });
 
   @override
   Widget build(BuildContext context) {
     final plan = data.plan;
     final next = data.nextStage;
-    final (String title, String subtitle, String? button, VoidCallback? action) = switch (plan) {
-      null => ('No treatment plan yet', 'Get a plan matched to your health profile.', 'Get a plan', onGetPlan),
-      final PatientTreatmentPlan p when next == null =>
-        (p.plan.planName, 'Plan completed. Well done!', 'View plan', onStart),
-      final PatientTreatmentPlan p when data.doneToday =>
-        (p.plan.planName, "Today's exercise is done. Come back for the next one.", 'View plan', onStart),
-      final PatientTreatmentPlan p =>
-        (p.plan.planName, HomeViewModel.sessionSummary(p.plan, RehabLabels.area), 'Start', onStart),
+    final (
+      String title,
+      String subtitle,
+      String button,
+      VoidCallback action,
+    ) = switch (plan) {
+      null => (
+        'No treatment plan yet',
+        'Get a plan matched to your health profile.',
+        'Get a plan',
+        onGetPlan,
+      ),
+      final PatientTreatmentPlan p when next == null => (
+        p.plan.planName,
+        'Plan completed. Well done!',
+        'View plan',
+        onStart,
+      ),
+      final PatientTreatmentPlan p when data.doneToday => (
+        p.plan.planName,
+        "Today's exercise is done. Come back for the next one.",
+        'View plan',
+        onStart,
+      ),
+      final PatientTreatmentPlan p => (
+        p.plan.planName,
+        HomeViewModel.sessionSummary(p.plan, RehabLabels.area),
+        'Start',
+        onStart,
+      ),
     };
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 22, 20, 22),
-      decoration: BoxDecoration(color: AppTokens.primary, borderRadius: BorderRadius.circular(22)),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Expanded(
-            child: Text("TODAY'S SESSION",
-                style: TextStyle(color: AppTokens.onPrimaryMuted, fontSize: 14, letterSpacing: 3, fontWeight: FontWeight.w600)),
-          ),
-          Icon(data.doneToday ? Icons.check_circle : Icons.fitness_center, color: AppTokens.highlight, size: 30),
-        ]),
-        const SizedBox(height: 6),
-        Text(title, style: const TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700)),
-        const SizedBox(height: 4),
-        Text(subtitle, style: const TextStyle(color: AppTokens.onPrimaryMuted, fontSize: 16)),
-        if (plan != null && next != null && !data.doneToday) ...[
-          const SizedBox(height: 4),
-          Text('Next: ${next.exercise.exerciseName}', style: const TextStyle(color: Colors.white, fontSize: 16)),
-        ],
-        if (button != null) ...[
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 52,
-            child: FilledButton(
-              onPressed: action,
-              style: FilledButton.styleFrom(
-                backgroundColor: AppTokens.cta,
-                foregroundColor: Colors.white,
-                shape: const StadiumBorder(),
-                padding: const EdgeInsets.symmetric(horizontal: 44),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+      decoration: BoxDecoration(
+        color: AppTokens.primary,
+        borderRadius: BorderRadius.circular(22),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  "TODAY'S SESSION",
+                  style: TextStyle(
+                    color: AppTokens.onPrimaryMuted,
+                    fontSize: 14,
+                    letterSpacing: 3,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-              child: Text(button),
+              Icon(
+                data.doneToday ? Icons.check_circle : Icons.fitness_center,
+                color: AppTokens.highlight,
+                size: 30,
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 24,
+              fontWeight: FontWeight.w700,
             ),
           ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(
+              color: AppTokens.onPrimaryMuted,
+              fontSize: 16,
+            ),
+          ),
+          if (plan != null && next != null && !data.doneToday) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Next: ${next.exercise.exerciseName}',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+          ],
+          ...[
+            const SizedBox(height: 16),
+            SizedBox(
+              height: 52,
+              child: FilledButton(
+                onPressed: action,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppTokens.cta,
+                  foregroundColor: Colors.white,
+                  shape: const StadiumBorder(),
+                  padding: const EdgeInsets.symmetric(horizontal: 44),
+                  textStyle: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                child: Text(button),
+              ),
+            ),
+          ],
         ],
-      ]),
+      ),
     );
   }
 }
@@ -298,7 +490,11 @@ class _LimitsCard extends StatelessWidget {
   final int calories;
   final int sodiumMg;
   final double sugarG;
-  const _LimitsCard({required this.calories, required this.sodiumMg, required this.sugarG});
+  const _LimitsCard({
+    required this.calories,
+    required this.sodiumMg,
+    required this.sugarG,
+  });
 
   static String _n(num v) {
     final s = v.round().toString();
@@ -308,35 +504,71 @@ class _LimitsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Widget bar() => ClipRRect(
-          borderRadius: BorderRadius.circular(6),
-          child: const LinearProgressIndicator(value: 0, minHeight: 10, backgroundColor: AppTokens.tint),
-        );
-    Widget limit(String label, String value) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(label, style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15)),
-          Text(value, style: const TextStyle(color: AppTokens.ink, fontSize: 17, fontWeight: FontWeight.w500)),
-          const SizedBox(height: 6),
-          bar(),
-        ]);
-    return _Card(
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Expanded(
-            child: Text('Energy today', style: TextStyle(color: AppTokens.ink, fontSize: 20, fontWeight: FontWeight.w700)),
+      borderRadius: BorderRadius.circular(6),
+      child: const LinearProgressIndicator(
+        value: 0,
+        minHeight: 10,
+        backgroundColor: AppTokens.tint,
+      ),
+    );
+    Widget limit(String label, String value) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            color: AppTokens.ink,
+            fontSize: 17,
+            fontWeight: FontWeight.w500,
           ),
-          Text('0 / ${_n(calories)} kcal', style: const TextStyle(color: AppTokens.inkMuted, fontSize: 16)),
-        ]),
-        const SizedBox(height: 12),
+        ),
+        const SizedBox(height: 6),
         bar(),
-        const SizedBox(height: 16),
-        Row(children: [
-          Expanded(child: limit('Sodium', '0 / ${_n(sodiumMg)} mg')),
-          const SizedBox(width: 24),
-          Expanded(child: limit('Free sugars', '0 / ${_n(sugarG)} g')),
-        ]),
-        const SizedBox(height: 10),
-        const Text('Your daily limits. Logged meals will count towards them.',
-            style: TextStyle(color: AppTokens.inkMuted, fontSize: 13)),
-      ]),
+      ],
+    );
+    return _Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Energy today',
+                  style: TextStyle(
+                    color: AppTokens.ink,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+              Text(
+                '0 / ${_n(calories)} kcal',
+                style: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          bar(),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(child: limit('Sodium', '0 / ${_n(sodiumMg)} mg')),
+              const SizedBox(width: 24),
+              Expanded(child: limit('Free sugars', '0 / ${_n(sugarG)} g')),
+            ],
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Your daily limits. Logged meals will count towards them.',
+            style: TextStyle(color: AppTokens.inkMuted, fontSize: 13),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -348,19 +580,19 @@ class _QuickAction extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 56,
-        child: FilledButton(
-          onPressed: onTap,
-          style: FilledButton.styleFrom(
-            backgroundColor: AppTokens.tint,
-            foregroundColor: AppTokens.brandDeep,
-            shape: const StadiumBorder(),
-            padding: const EdgeInsets.symmetric(horizontal: 8),
-            textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-          child: FittedBox(child: Text(label)),
-        ),
-      );
+    height: 56,
+    child: FilledButton(
+      onPressed: onTap,
+      style: FilledButton.styleFrom(
+        backgroundColor: AppTokens.tint,
+        foregroundColor: AppTokens.brandDeep,
+        shape: const StadiumBorder(),
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+      ),
+      child: FittedBox(child: Text(label)),
+    ),
+  );
 }
 
 class _Notice extends StatelessWidget {
@@ -370,22 +602,29 @@ class _Notice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Material(
-        color: AppTokens.warnContainer,
-        borderRadius: BorderRadius.circular(18),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(children: [
-              const Icon(Icons.info_outline, color: AppTokens.onWarn),
-              const SizedBox(width: 12),
-              Expanded(child: Text(text, style: const TextStyle(color: AppTokens.onWarn, fontSize: 16))),
-              const Icon(Icons.chevron_right, color: AppTokens.onWarn),
-            ]),
-          ),
+    color: AppTokens.warnContainer,
+    borderRadius: BorderRadius.circular(18),
+    child: InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.info_outline, color: AppTokens.onWarn),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                text,
+                style: const TextStyle(color: AppTokens.onWarn, fontSize: 16),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: AppTokens.onWarn),
+          ],
         ),
-      );
+      ),
+    ),
+  );
 }
 
 class _Retry extends StatelessWidget {
@@ -395,15 +634,22 @@ class _Retry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 17, color: AppTokens.ink)),
-            const SizedBox(height: 16),
-            OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
-          ]),
-        ),
-      );
+    child: Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 17, color: AppTokens.ink),
+          ),
+          const SizedBox(height: 16),
+          OutlinedButton(onPressed: onRetry, child: const Text('Try again')),
+        ],
+      ),
+    ),
+  );
 }
 
 /// Placeholder for a tab or route whose module is not built yet.
@@ -412,6 +658,8 @@ class ComingSoonView extends StatelessWidget {
   const ComingSoonView(this.title, {super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      Scaffold(appBar: AppBar(title: Text(title)), body: const Center(child: Text('Coming soon')));
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: const Center(child: Text('Coming soon')),
+  );
 }

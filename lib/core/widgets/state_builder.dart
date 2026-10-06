@@ -9,14 +9,26 @@ class StateBuilder<T> extends StatelessWidget {
   final Widget Function(String message)? onError;
   final Widget? idle;
 
-  const StateBuilder({super.key, required this.state, required this.onSuccess, this.onError, this.idle});
+  const StateBuilder({
+    super.key,
+    required this.state,
+    required this.onSuccess,
+    this.onError,
+    this.idle,
+  });
 
   @override
   Widget build(BuildContext context) => switch (state) {
-        Idle<T>() => idle ?? const SizedBox.shrink(),
-        Loading<T>() => const Center(child: CircularProgressIndicator()),
-        UiSuccess<T>(:final data) => onSuccess(data),
-        UiError<T>(:final message) => onError?.call(message) ??
-            Center(child: Padding(padding: const EdgeInsets.all(24), child: Text(message, textAlign: TextAlign.center))),
-      };
+    Idle<T>() => idle ?? const SizedBox.shrink(),
+    Loading<T>() => const Center(child: CircularProgressIndicator()),
+    UiSuccess<T>(:final data) => onSuccess(data),
+    UiError<T>(:final message) =>
+      onError?.call(message) ??
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(message, textAlign: TextAlign.center),
+            ),
+          ),
+  };
 }

@@ -8,35 +8,52 @@ class PlanningHeader extends StatelessWidget {
   final String subtitle;
   final VoidCallback onBack;
 
-  const PlanningHeader({super.key, required this.title, required this.subtitle, required this.onBack});
+  const PlanningHeader({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.onBack,
+  });
 
   @override
   Widget build(BuildContext context) => Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          IconButton(
-            onPressed: onBack,
-            tooltip: 'Back',
-            icon: const Icon(Icons.arrow_back, color: AppTokens.text),
-          ),
-          const SizedBox(width: 4),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTokens.text)),
-                  const SizedBox(height: 2),
-                  Text(subtitle,
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppTokens.accent)),
-                ],
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      IconButton(
+        onPressed: onBack,
+        tooltip: 'Back',
+        icon: const Icon(Icons.arrow_back, color: AppTokens.text),
+      ),
+      const SizedBox(width: 4),
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                  color: AppTokens.text,
+                ),
               ),
-            ),
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: AppTokens.accent,
+                ),
+              ),
+            ],
           ),
-        ],
-      );
+        ),
+      ),
+    ],
+  );
 }
 
 /// Large tappable card with an icon, title and one-line explanation.
@@ -67,7 +84,9 @@ class ActionCard extends StatelessWidget {
         color: filled ? AppTokens.primary : AppTokens.surface,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-          side: filled ? BorderSide.none : const BorderSide(color: AppTokens.primary, width: 1.5),
+          side: filled
+              ? BorderSide.none
+              : const BorderSide(color: AppTokens.primary, width: 1.5),
         ),
         child: InkWell(
           onTap: onTap,
@@ -82,9 +101,23 @@ class ActionCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: fg)),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: fg,
+                        ),
+                      ),
                       const SizedBox(height: 2),
-                      Text(subtitle, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: sub)),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: sub,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -106,31 +139,47 @@ class StepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppTokens.surface,
-          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-          border: Border.all(color: AppTokens.border),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 28,
-              height: 28,
-              alignment: Alignment.center,
-              decoration: const BoxDecoration(color: AppTokens.accentContainer, shape: BoxShape.circle),
-              child: Text('$number',
-                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTokens.accent)),
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppTokens.surface,
+      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+      border: Border.all(color: AppTokens.border),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: AppTokens.accentContainer,
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            '$number',
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AppTokens.accent,
             ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(text,
-                  style: const TextStyle(fontSize: 16, height: 1.4, fontWeight: FontWeight.w500, color: AppTokens.text)),
-            ),
-          ],
+          ),
         ),
-      );
+        const SizedBox(width: 14),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.4,
+              fontWeight: FontWeight.w500,
+              color: AppTokens.text,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 /// Mint pill with teal text: body area, exercise count, frequency.
@@ -140,10 +189,20 @@ class InfoChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        decoration: BoxDecoration(color: AppTokens.accentContainer, borderRadius: BorderRadius.circular(6)),
-        child: Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: AppTokens.accent)),
-      );
+    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    decoration: BoxDecoration(
+      color: AppTokens.accentContainer,
+      borderRadius: BorderRadius.circular(6),
+    ),
+    child: Text(
+      label,
+      style: const TextStyle(
+        fontSize: 13,
+        fontWeight: FontWeight.w500,
+        color: AppTokens.accent,
+      ),
+    ),
+  );
 }
 
 /// "92% match": green at 75% and above, amber below.
@@ -162,7 +221,11 @@ class MatchPill extends StatelessWidget {
       ),
       child: Text(
         '${(score * 100).round()}% match',
-        style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: good ? AppTokens.good : AppTokens.caution),
+        style: TextStyle(
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: good ? AppTokens.good : AppTokens.caution,
+        ),
       ),
     );
   }
@@ -176,26 +239,34 @@ class NoticeBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: warning ? AppTokens.cautionContainer : AppTokens.accentContainer,
-          borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+    width: double.infinity,
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: warning ? AppTokens.cautionContainer : AppTokens.accentContainer,
+      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(
+          warning ? Icons.info_outline : Icons.check_circle_outline,
+          size: 20,
+          color: warning ? AppTokens.caution : AppTokens.accent,
         ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(warning ? Icons.info_outline : Icons.check_circle_outline,
-                size: 20, color: warning ? AppTokens.caution : AppTokens.accent),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(message,
-                  style: TextStyle(
-                      fontSize: 14, height: 1.35, color: warning ? AppTokens.caution : AppTokens.accent)),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            message,
+            style: TextStyle(
+              fontSize: 14,
+              height: 1.35,
+              color: warning ? AppTokens.caution : AppTokens.accent,
             ),
-          ],
+          ),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 /// Full-width filled button with the 48 dp minimum touch target.
@@ -205,24 +276,39 @@ class TokenButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool busy;
 
-  const TokenButton({super.key, required this.label, required this.color, this.onPressed, this.busy = false});
+  const TokenButton({
+    super.key,
+    required this.label,
+    required this.color,
+    this.onPressed,
+    this.busy = false,
+  });
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: double.infinity,
-        height: AppTokens.minTarget,
-        child: FilledButton(
-          onPressed: busy ? null : onPressed,
-          style: FilledButton.styleFrom(
-            backgroundColor: color,
-            foregroundColor: Colors.white,
-            disabledBackgroundColor: color.withValues(alpha: 0.5),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppTokens.radiusButton)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          ),
-          child: busy
-              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.white))
-              : Text(label),
+    width: double.infinity,
+    height: AppTokens.minTarget,
+    child: FilledButton(
+      onPressed: busy ? null : onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        disabledBackgroundColor: color.withValues(alpha: 0.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppTokens.radiusButton),
         ),
-      );
+        textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+      ),
+      child: busy
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: Colors.white,
+              ),
+            )
+          : Text(label),
+    ),
+  );
 }

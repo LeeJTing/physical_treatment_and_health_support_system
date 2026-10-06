@@ -6,17 +6,26 @@ class PrimaryButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool busy;
 
-  const PrimaryButton({super.key, required this.label, this.onPressed, this.busy = false});
+  const PrimaryButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.busy = false,
+  });
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        width: double.infinity,
-        height: 52,
-        child: FilledButton(
-          onPressed: busy ? null : onPressed,
-          child: busy
-              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
-              : Text(label, style: const TextStyle(fontSize: 17)),
-        ),
-      );
+    width: double.infinity,
+    height: 52,
+    child: FilledButton(
+      onPressed: busy ? null : onPressed,
+      child: busy
+          ? const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(strokeWidth: 2.5),
+            )
+          : Text(label, style: const TextStyle(fontSize: 17)),
+    ),
+  );
 }

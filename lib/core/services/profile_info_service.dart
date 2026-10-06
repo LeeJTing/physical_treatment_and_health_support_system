@@ -28,23 +28,47 @@ class ProfileInfoService {
     final failSafe = SafetyLimit.mostRestrictive();
     final profileResult = await _profiles.getProfile(accountId);
     if (profileResult is Failure<HealthProfile?>) {
-      return Success(ProfileSnapshot(accountId: accountId, safetyLimit: failSafe, status: ProfileStatus.error));
+      return Success(
+        ProfileSnapshot(
+          accountId: accountId,
+          safetyLimit: failSafe,
+          status: ProfileStatus.error,
+        ),
+      );
     }
     final profile = profileResult.dataOrNull;
     if (profile == null) {
-      return Success(ProfileSnapshot(accountId: accountId, safetyLimit: failSafe, status: ProfileStatus.notConfigured));
+      return Success(
+        ProfileSnapshot(
+          accountId: accountId,
+          safetyLimit: failSafe,
+          status: ProfileStatus.notConfigured,
+        ),
+      );
     }
     if (!profile.isComplete) {
-      return Success(ProfileSnapshot(
-          accountId: accountId, profile: profile, safetyLimit: failSafe, status: ProfileStatus.incomplete));
+      return Success(
+        ProfileSnapshot(
+          accountId: accountId,
+          profile: profile,
+          safetyLimit: failSafe,
+          status: ProfileStatus.incomplete,
+        ),
+      );
     }
 
-    final stored = (await _profiles.getCurrentSafetyLimit(profile.profileId)).dataOrNull;
-    return Success(ProfileSnapshot(
-      accountId: accountId,
-      profile: profile,
-      safetyLimit: stored ?? profile.generateSafetyLimit(),
-      status: profile.isStale() ? ProfileStatus.stale : ProfileStatus.complete,
-    ));
+    final stored = (await _profiles.getCurrentSafetyLimit(
+      profile.profileId,
+    )).dataOrNull;
+    return Success(
+      ProfileSnapshot(
+        accountId: accountId,
+        profile: profile,
+        safetyLimit: stored ?? profile.generateSafetyLimit(),
+        status: profile.isStale()
+            ? ProfileStatus.stale
+            : ProfileStatus.complete,
+      ),
+    );
   }
 }

@@ -23,7 +23,7 @@ enum StageStatus { done, attempted, current, upcoming }
 class PathwayStage {
   final PlanExercise item;
   final StageStatus status;
-  final double? bestAccuracy;    // best posture score so far, if attempted
+  final double? bestAccuracy; // best posture score so far, if attempted
   const PathwayStage(this.item, this.status, this.bestAccuracy);
 }
 
@@ -42,7 +42,13 @@ class TreatmentViewModel extends BaseViewModel {
   final INotificationRepository? _notifications;
   final ReminderService? _reminders;
 
-  TreatmentViewModel(this._repo, this._pose, this._auth, [this._notifications, this._reminders]);
+  TreatmentViewModel(
+    this._repo,
+    this._pose,
+    this._auth, [
+    this._notifications,
+    this._reminders,
+  ]);
 
   /// The next exercise reminder for the active plan, for the Treatment screen card.
   DateTime? _nextReminderAt;
@@ -52,7 +58,8 @@ class TreatmentViewModel extends BaseViewModel {
   UiState<PatientTreatmentPlan?> get plan => _plan;
 
   /// The plan being followed.
-  PatientTreatmentPlan? get activePlan => _plan is UiSuccess<PatientTreatmentPlan?>
+  PatientTreatmentPlan? get activePlan =>
+      _plan is UiSuccess<PatientTreatmentPlan?>
       ? (_plan as UiSuccess<PatientTreatmentPlan?>).data
       : null;
 
@@ -62,8 +69,10 @@ class TreatmentViewModel extends BaseViewModel {
   /// The exercise being recorded.
   Exercise? _current;
   Exercise? get current => _current;
-  PlanExercise? get currentItem =>
-      activePlan?.plan.orderedExercises().where((pe) => pe.exercise.exerciseId == _current?.exerciseId).firstOrNull;
+  PlanExercise? get currentItem => activePlan?.plan
+      .orderedExercises()
+      .where((pe) => pe.exercise.exerciseId == _current?.exerciseId)
+      .firstOrNull;
 
   /// The clip being analysed, kept so "Retry" goes back to the recorder (FR300_20).
   UiState<PostureResult> _analysis = const Idle();
@@ -93,16 +102,22 @@ class TreatmentViewModel extends BaseViewModel {
     final res = await _repo.getActivePlan(account.accountId);
     if (res case Success(:final data)) {
       _plan = UiSuccess(data);
-      _sessions = data == null ? const [] : ((await _repo.getSessions(data.patientPlanId)).dataOrNull ?? const []);
+      _sessions = data == null
+          ? const []
+          : ((await _repo.getSessions(data.patientPlanId)).dataOrNull ??
+                const []);
       _nextReminderAt = null;
-      await _reminders?.sync(account.accountId); // refresh the device schedule (M600.1)
+      await _reminders?.sync(
+        account.accountId,
+      ); // refresh the device schedule (M600.1)
       if (data != null && _notifications != null) {
-        final reminders = (await _notifications.getReminders(account.accountId)).dataOrNull ?? const <Reminder>[];
+        final reminders =
+            (await _notifications.getReminders(account.accountId)).dataOrNull ??
+            const <Reminder>[];
         final times = [
           for (final r in reminders)
-            if (r.patientPlanId == data.patientPlanId) r.nextOccurrence()
-        ].whereType<DateTime>().toList()
-          ..sort();
+            if (r.patientPlanId == data.patientPlanId) r.nextOccurrence(),
+        ].whereType<DateTime>().toList()..sort();
         _nextReminderAt = times.isEmpty ? null : times.first;
       }
     } else {
@@ -123,8 +138,10 @@ class TreatmentViewModel extends BaseViewModel {
           i < p.completedStages
               ? StageStatus.done
               : i == p.completedStages
-                  ? (_best(ordered[i].exerciseId) != null ? StageStatus.attempted : StageStatus.current)
-                  : StageStatus.upcoming,
+              ? (_best(ordered[i].exerciseId) != null
+                    ? StageStatus.attempted
+                    : StageStatus.current)
+              : StageStatus.upcoming,
           _best(ordered[i].exerciseId),
         ),
     ];
@@ -133,7 +150,8 @@ class TreatmentViewModel extends BaseViewModel {
   double? _best(String exerciseId) {
     final scores = [
       for (final s in _sessions)
-        if (s.exerciseId == exerciseId && s.postureAccuracy != null) s.postureAccuracy!
+        if (s.exerciseId == exerciseId && s.postureAccuracy != null)
+          s.postureAccuracy!,
     ];
     return scores.isEmpty ? null : scores.reduce((a, b) => a > b ? a : b);
   }
@@ -143,16 +161,26 @@ class TreatmentViewModel extends BaseViewModel {
   List<SessionHistoryEntry> get history {
     final p = activePlan;
     if (p == null) return const [];
-    final names = {for (final e in p.plan.exercises) e.exerciseId: e.exercise.exerciseName};
+    final names = {
+      for (final e in p.plan.exercises) e.exerciseId: e.exercise.exerciseName,
+    };
     final list = [
-      for (final s in _sessions) SessionHistoryEntry(s, names[s.exerciseId] ?? 'Exercise'),
+      for (final s in _sessions)
+        SessionHistoryEntry(s, names[s.exerciseId] ?? 'Exercise'),
     ];
     // Unfinished attempts have no completion time; they sort last.
-    list.sort((a, b) => (b.session.completedAt ?? DateTime(0)).compareTo(a.session.completedAt ?? DateTime(0)));
+    list.sort(
+      (a, b) => (b.session.completedAt ?? DateTime(0)).compareTo(
+        a.session.completedAt ?? DateTime(0),
+      ),
+    );
     return list;
   }
 
-  List<double> get _scores => [for (final s in _sessions) if (s.postureAccuracy != null) s.postureAccuracy!];
+  List<double> get _scores => [
+    for (final s in _sessions)
+      if (s.postureAccuracy != null) s.postureAccuracy!,
+  ];
 
   double? get averageAccuracy {
     final xs = _scores;
@@ -164,7 +192,8 @@ class TreatmentViewModel extends BaseViewModel {
     return xs.isEmpty ? null : xs.reduce((a, b) => a > b ? a : b);
   }
 
-  int get completedSessionCount => _sessions.where((s) => s.isCompleted()).length;
+  int get completedSessionCount =>
+      _sessions.where((s) => s.isCompleted()).length;
 
   /// Opens the recorder with the recording instructions (FR300_05).
   Future<void> startExercise(Exercise e) async {
@@ -207,20 +236,26 @@ class TreatmentViewModel extends BaseViewModel {
     }
   }
 
-  ExerciseSession _session(PatientTreatmentPlan p, Exercise e, PostureResult r, CompletionStatus status) =>
-      ExerciseSession(
-        sessionId: newId(),
-        accountId: p.accountId,
-        patientPlanId: p.patientPlanId,
-        exerciseId: e.exerciseId,
-        completedAt: status == CompletionStatus.completed ? (_recordedAt ?? DateTime.now()) : null,
-        durationSec: _clipSeconds,
-        repetitionsCompleted: r.repetitions,
-        completionStatus: status,
-        postureAccuracy: r.accuracy,
-        postureFeedback: r.feedback.join('\n'),
-        modelVersion: r.modelVersion,
-      );
+  ExerciseSession _session(
+    PatientTreatmentPlan p,
+    Exercise e,
+    PostureResult r,
+    CompletionStatus status,
+  ) => ExerciseSession(
+    sessionId: newId(),
+    accountId: p.accountId,
+    patientPlanId: p.patientPlanId,
+    exerciseId: e.exerciseId,
+    completedAt: status == CompletionStatus.completed
+        ? (_recordedAt ?? DateTime.now())
+        : null,
+    durationSec: _clipSeconds,
+    repetitionsCompleted: r.repetitions,
+    completionStatus: status,
+    postureAccuracy: r.accuracy,
+    postureFeedback: r.feedback.join('\n'),
+    modelVersion: r.modelVersion,
+  );
 
   UiState<void> _saving = const Idle();
   UiState<void> get saving => _saving;
@@ -232,7 +267,9 @@ class TreatmentViewModel extends BaseViewModel {
     final p = activePlan;
     final s = _lastResult;
     if (p == null || s == null) return false;
-    if (_saving is UiSuccess) return true; // already saved (passing result, or Continue tapped twice)
+    if (_saving is UiSuccess) {
+      return true; // already saved (passing result, or Continue tapped twice)
+    }
     if (_saving is Loading) return false;
     _saving = const Loading();
     notifyListeners();
@@ -257,9 +294,14 @@ class TreatmentViewModel extends BaseViewModel {
   Future<void> retry() async {
     final p = activePlan;
     final s = _lastResult;
-    if (p != null && s != null && !s.postureIsPassing() && _saving is! UiSuccess) {
+    if (p != null &&
+        s != null &&
+        !s.postureIsPassing() &&
+        _saving is! UiSuccess) {
       final retried = s.withStatus(CompletionStatus.retried);
-      if ((await _repo.saveSession(retried)).isSuccess) _sessions = [..._sessions, retried];
+      if ((await _repo.saveSession(retried)).isSuccess) {
+        _sessions = [..._sessions, retried];
+      }
     }
     _analysis = const Idle();
     _lastResult = null;

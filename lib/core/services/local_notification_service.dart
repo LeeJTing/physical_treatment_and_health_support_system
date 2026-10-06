@@ -15,7 +15,8 @@ abstract interface class NotificationScheduler {
 }
 
 class PluginScheduler implements NotificationScheduler {
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   bool _ready = false;
 
   static const _details = NotificationDetails(
@@ -33,23 +34,41 @@ class PluginScheduler implements NotificationScheduler {
     if (_ready) return;
     tzdata.initializeTimeZones();
     tz.setLocalLocation(tz.getLocation(AppConstants.timezone));
-    await _plugin.initialize(const InitializationSettings(android: AndroidInitializationSettings('@mipmap/ic_launcher')));
+    await _plugin.initialize(
+      const InitializationSettings(
+        android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      ),
+    );
     _ready = true;
   }
 
   @override
   Future<bool> requestPermission() async {
     await init();
-    final android = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     return await android?.requestNotificationsPermission() ?? true;
   }
 
   @override
-  Future<void> scheduleOnce(int id, String title, String body, DateTime at) async {
+  Future<void> scheduleOnce(
+    int id,
+    String title,
+    String body,
+    DateTime at,
+  ) async {
     await init();
     // Inexact delivery needs no exact-alarm permission and is fine for a reminder.
-    await _plugin.zonedSchedule(id, title, body, tz.TZDateTime.from(at, tz.local), _details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle);
+    await _plugin.zonedSchedule(
+      id,
+      title,
+      body,
+      tz.TZDateTime.from(at, tz.local),
+      _details,
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    );
   }
 
   @override
@@ -69,9 +88,11 @@ class LocalNotificationService {
   final DateTime Function() _now;
   static const windowDays = 14;
 
-  LocalNotificationService({NotificationScheduler? scheduler, DateTime Function()? now})
-      : _scheduler = scheduler ?? PluginScheduler(),
-        _now = now ?? DateTime.now;
+  LocalNotificationService({
+    NotificationScheduler? scheduler,
+    DateTime Function()? now,
+  }) : _scheduler = scheduler ?? PluginScheduler(),
+       _now = now ?? DateTime.now;
 
   /// Requested before the first reminder is scheduled (FR600_008).
   bool permissionGranted = false;
@@ -98,7 +119,11 @@ class LocalNotificationService {
 
   /// Registers each repeat occurrence in the window (FR600_003, FR600_004). Days in [skipDays]
   /// (date only) are left out, e.g. today after the exercise is done.
-  Future<int> schedule(Reminder r, {Set<DateTime> skipDays = const {}, String? body}) async {
+  Future<int> schedule(
+    Reminder r, {
+    Set<DateTime> skipDays = const {},
+    String? body,
+  }) async {
     await cancel(r.reminderId);
     if (!r.isEnabled) return 0;
     if (!permissionGranted && !await requestPermission()) return 0;
@@ -107,9 +132,15 @@ class LocalNotificationService {
     for (var i = 0; i < windowDays; i++) {
       final day = DateTime(now.year, now.month, now.day + i);
       final at = DateTime(day.year, day.month, day.day, r.hour, r.minute);
-      if (!at.isAfter(now) || !r.firesOn(day) || skipDays.contains(day)) continue;
-      await _scheduler.scheduleOnce(idFor(r.reminderId, day), r.title,
-          body ?? 'Open the app to do today\'s exercises and check your posture.', at);
+      if (!at.isAfter(now) || !r.firesOn(day) || skipDays.contains(day)) {
+        continue;
+      }
+      await _scheduler.scheduleOnce(
+        idFor(r.reminderId, day),
+        r.title,
+        body ?? 'Open the app to do today\'s exercises and check your posture.',
+        at,
+      );
       count++;
     }
     return count;
@@ -119,13 +150,17 @@ class LocalNotificationService {
   Future<void> cancel(String reminderId) async {
     final now = _now();
     for (var i = -1; i <= windowDays; i++) {
-      await _scheduler.cancel(idFor(reminderId, DateTime(now.year, now.month, now.day + i)));
+      await _scheduler.cancel(
+        idFor(reminderId, DateTime(now.year, now.month, now.day + i)),
+      );
     }
   }
 
   /// Cancels only today's occurrence (FR600_005: the day's exercise is already done).
   Future<void> cancelToday(String reminderId) async {
     final now = _now();
-    await _scheduler.cancel(idFor(reminderId, DateTime(now.year, now.month, now.day)));
+    await _scheduler.cancel(
+      idFor(reminderId, DateTime(now.year, now.month, now.day)),
+    );
   }
 }

@@ -11,7 +11,8 @@ class FormValidators {
   static String? username(String? v) {
     final s = (v ?? '').trim();
     if (s.isEmpty) return Messages.usernameBlank;
-    if (s.length < AppConstants.usernameMin || s.length > AppConstants.usernameMax) {
+    if (s.length < AppConstants.usernameMin ||
+        s.length > AppConstants.usernameMax) {
       return 'Username must be 3 to 30 characters.';
     }
     return null;
@@ -28,7 +29,9 @@ class FormValidators {
     final s = v ?? '';
     if (s.isEmpty) return Messages.passwordEmpty;
     // Table 3.3 password rule, as worded in UC100 M4: 8+ characters with a letter and a number.
-    if (s.length < AppConstants.passwordMin || !s.contains(RegExp(r'[A-Za-z]')) || !s.contains(RegExp(r'\d'))) {
+    if (s.length < AppConstants.passwordMin ||
+        !s.contains(RegExp(r'[A-Za-z]')) ||
+        !s.contains(RegExp(r'\d'))) {
       return Messages.passwordInvalid;
     }
     return null;
@@ -53,7 +56,12 @@ class FormValidators {
     return null;
   }
 
-  static String? doubleInRange(String? v, double min, double max, String label) {
+  static String? doubleInRange(
+    String? v,
+    double min,
+    double max,
+    String label,
+  ) {
     final n = double.tryParse((v ?? '').trim());
     if (n == null) return '$label is required.';
     if (n < min || n > max) return Messages.valueOutOfRange;

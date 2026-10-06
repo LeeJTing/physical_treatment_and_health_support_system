@@ -43,12 +43,15 @@ Future<void> main() async {
     notificationRepo = FakeNotificationRepository();
     tokenProvider = () => 'dev-token';
   } else {
-    if (AppConstants.supabaseUrl.isEmpty || AppConstants.supabaseAnonKey.isEmpty) {
+    if (AppConstants.supabaseUrl.isEmpty ||
+        AppConstants.supabaseAnonKey.isEmpty) {
       runApp(const _MissingConfigApp());
       return;
     }
     final provider = await SupabaseProvider.initialise(
-        url: AppConstants.supabaseUrl, publishableKey: AppConstants.supabaseAnonKey);
+      url: AppConstants.supabaseUrl,
+      publishableKey: AppConstants.supabaseAnonKey,
+    );
     authRepo = SupabaseAuthRepository(provider);
     profileRepo = SupabaseProfileRepository(provider);
     treatmentRepo = SupabaseTreatmentRepository(provider);
@@ -57,7 +60,10 @@ Future<void> main() async {
     tokenProvider = () => provider.accessToken;
   }
 
-  final api = ApiClient(baseUrl: AppConstants.aiBaseUrl, tokenProvider: tokenProvider);
+  final api = ApiClient(
+    baseUrl: AppConstants.aiBaseUrl,
+    tokenProvider: tokenProvider,
+  );
 
   runApp(
     MultiProvider(
@@ -68,12 +74,23 @@ Future<void> main() async {
         Provider<INotificationRepository>.value(value: notificationRepo),
         Provider<ApiClient>.value(value: api),
         // Services are added here module by module; ViewModels are created per route in app.dart.
-        Provider<ProfileInfoService>.value(value: ProfileInfoService(authRepo, profileRepo)),
-        Provider<RecommendationService>.value(value: RecommendationService(api)),
+        Provider<ProfileInfoService>.value(
+          value: ProfileInfoService(authRepo, profileRepo),
+        ),
+        Provider<RecommendationService>.value(
+          value: RecommendationService(api),
+        ),
         Provider<ChatbotService>.value(value: ChatbotService(api)),
-        Provider<PoseEstimationService>.value(value: PoseEstimationService(api)),
+        Provider<PoseEstimationService>.value(
+          value: PoseEstimationService(api),
+        ),
         Provider<ReminderService>.value(
-            value: ReminderService(notificationRepo, treatmentRepo, LocalNotificationService())),
+          value: ReminderService(
+            notificationRepo,
+            treatmentRepo,
+            LocalNotificationService(),
+          ),
+        ),
       ],
       child: const MainApp(),
     ),
@@ -87,29 +104,32 @@ class _MissingConfigApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          body: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.all(24),
-              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Supabase is not configured', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-                SizedBox(height: 12),
-                Text('USE_FAKES is false but SUPABASE_URL or SUPABASE_ANON_KEY is empty.
-
-'
-                    'Copy config/dev.example.json to config/dev.json, fill in the project URL and the '
-                    'publishable (anon) key, then run:
-
-'
-                    'flutter run --dart-define-from-file=config/dev.json
-
-'
-                    'Or run on in-memory data: flutter run --dart-define=USE_FAKES=true',
-                    style: TextStyle(fontSize: 15, height: 1.4)),
-              ]),
-            ),
+    debugShowCheckedModeBanner: false,
+    home: Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Supabase is not configured',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(height: 12),
+              Text(
+                'USE_FAKES is false but SUPABASE_URL or SUPABASE_ANON_KEY is empty.\n\n'
+                'Copy config/dev.example.json to config/dev.json, fill in the project URL and the '
+                'publishable (anon) key, then run:\n\n'
+                'flutter run --dart-define-from-file=config/dev.json\n\n'
+                'Or run on in-memory data: flutter run --dart-define=USE_FAKES=true',
+                style: TextStyle(fontSize: 15, height: 1.4),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    ),
+  );
 }

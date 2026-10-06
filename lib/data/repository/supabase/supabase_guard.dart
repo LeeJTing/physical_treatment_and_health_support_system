@@ -8,7 +8,8 @@ import 'package:physical_treatment_and_health_support_system/core/base/result.da
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 
 /// Message shown when the phone cannot reach Supabase.
-const String offlineMessage = 'No connection to the server. Please check your internet connection.';
+const String offlineMessage =
+    'No connection to the server. Please check your internet connection.';
 
 /// Runs one Supabase call and turns every exception into a [Failure], so the
 /// Supabase repositories never throw (same contract as the fakes).
@@ -17,7 +18,10 @@ const String offlineMessage = 'No connection to the server. Please check your in
 /// Auth and database errors (the ViewModels map those to the report's
 /// messages), 'unknown' otherwise. Raw database messages are never shown to
 /// the patient; they stay in [Failure.cause] for debugging.
-Future<Result<T>> supabaseGuard<T>(Future<T> Function() body, {String failMessage = Messages.dbUnavailable}) async {
+Future<Result<T>> supabaseGuard<T>(
+  Future<T> Function() body, {
+  String failMessage = Messages.dbUnavailable,
+}) async {
   try {
     return Success<T>(await body().timeout(AppConstants.defaultTimeout));
   } on TimeoutException catch (e) {

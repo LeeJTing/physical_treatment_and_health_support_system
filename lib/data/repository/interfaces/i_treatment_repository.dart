@@ -17,7 +17,10 @@ abstract interface class ITreatmentRepository {
 
   /// Writes the attempt and, when given, the advanced plan progress in one
   /// transaction (FR300_21, ASR_04).
-  Future<Result<void>> saveSession(ExerciseSession s, {PatientTreatmentPlan? advancedPlan});
+  Future<Result<void>> saveSession(
+    ExerciseSession s, {
+    PatientTreatmentPlan? advancedPlan,
+  });
 
   /// Every attempt recorded for an assignment, oldest first, for the pathway's posture
   /// badges (FR300_02, FR300_10).

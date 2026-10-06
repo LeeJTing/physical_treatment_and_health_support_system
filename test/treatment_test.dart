@@ -20,7 +20,9 @@ import 'package:physical_treatment_and_health_support_system/features/treatment/
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/posture_result_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 
-final String catalogueJson = File('assets/seed/catalogue.json').readAsStringSync();
+final String catalogueJson = File(
+  'assets/seed/catalogue.json',
+).readAsStringSync();
 
 class FakeProbe implements VideoProbe {
   VideoInfo info = const VideoInfo(Duration(seconds: 15), 720, 1280);
@@ -36,14 +38,30 @@ class FakePoseServer {
   late final client = MockClient((req) async {
     calls++;
     if (errorCode != null) {
-      return http.Response(jsonEncode({'error': {'code': errorCode, 'message': 'x'}}), 422);
+      return http.Response(
+        jsonEncode({
+          'error': {'code': errorCode, 'message': 'x'},
+        }),
+        422,
+      );
     }
-    return http.Response(jsonEncode({
-      'exercise_key': 'knee_extension', 'accuracy': accuracy, 'repetitions': 4, 'hold_seconds': null,
-      'feedback': accuracy >= 80 ? ['Good form. Keep it up!'] : ['Hold the straight leg for 2 seconds before lowering it.'],
-      'mistakes': accuracy >= 80 ? {} : {'no_hold': 3}, 'full_body_visible': true, 'visible_ratio': 0.97,
-      'rep_details': [], 'model_version': 'rules-1.0',
-    }), 200);
+    return http.Response(
+      jsonEncode({
+        'exercise_key': 'knee_extension',
+        'accuracy': accuracy,
+        'repetitions': 4,
+        'hold_seconds': null,
+        'feedback': accuracy >= 80
+            ? ['Good form. Keep it up!']
+            : ['Hold the straight leg for 2 seconds before lowering it.'],
+        'mistakes': accuracy >= 80 ? {} : {'no_hold': 3},
+        'full_body_visible': true,
+        'visible_ratio': 0.97,
+        'rep_details': [],
+        'model_version': 'rules-1.0',
+      }),
+      200,
+    );
   });
 }
 
@@ -53,16 +71,32 @@ class Harness {
   final auth = FakeAuthRepository();
   final treatments = FakeTreatmentRepository.fromJson(catalogueJson);
   late final pose = PoseEstimationService(
-      ApiClient(baseUrl: 'http://ai', tokenProvider: () => 'dev-token', httpClient: server.client),
-      probe: probe);
+    ApiClient(
+      baseUrl: 'http://ai',
+      tokenProvider: () => 'dev-token',
+      httpClient: server.client,
+    ),
+    probe: probe,
+  );
   late final vm = TreatmentViewModel(treatments, pose, auth);
   late final File clip;
 
   Future<void> setUp(Directory tmp) async {
-    final account = (await auth.login('demo@apths.test', 'password123')).dataOrNull!;
-    final plan = (await treatments.getCatalogue()).dataOrNull!.firstWhere((p) => p.planName == 'Early Knee Recovery');
-    await treatments.assignPlan(PatientTreatmentPlan(
-        patientPlanId: 'pp1', accountId: account.accountId, plan: plan, selectedAt: DateTime.now()));
+    final account = (await auth.login(
+      'demo@apths.test',
+      'password123',
+    )).dataOrNull!;
+    final plan = (await treatments.getCatalogue()).dataOrNull!.firstWhere(
+      (p) => p.planName == 'Early Knee Recovery',
+    );
+    await treatments.assignPlan(
+      PatientTreatmentPlan(
+        patientPlanId: 'pp1',
+        accountId: account.accountId,
+        plan: plan,
+        selectedAt: DateTime.now(),
+      ),
+    );
     clip = File('${tmp.path}/clip.mp4')..writeAsBytesSync(List.filled(2048, 0));
     await vm.loadPlan();
   }
@@ -82,8 +116,15 @@ void main() {
     test('first exercise is current, the rest upcoming', () async {
       final h = Harness();
       await h.setUp(tmp);
-      expect(h.vm.pathway.map((s) => s.status), [StageStatus.current, StageStatus.upcoming, StageStatus.upcoming]);
-      expect(h.vm.pathway.first.item.exercise.exerciseName, 'Seated Knee Extension');
+      expect(h.vm.pathway.map((s) => s.status), [
+        StageStatus.current,
+        StageStatus.upcoming,
+        StageStatus.upcoming,
+      ]);
+      expect(
+        h.vm.pathway.first.item.exercise.exerciseName,
+        'Seated Knee Extension',
+      );
     });
 
     test('no plan gives an empty pathway', () async {
@@ -108,11 +149,20 @@ void main() {
       final avi = File('${tmp.path}/clip.avi')..writeAsBytesSync([0]);
       expect((await h.pose.validateVideo(avi)).message, Messages.videoInvalid);
       h.probe.info = const VideoInfo(Duration(seconds: 6), 720, 1280);
-      expect((await h.pose.validateVideo(h.clip)).message, Messages.videoInvalid);
+      expect(
+        (await h.pose.validateVideo(h.clip)).message,
+        Messages.videoInvalid,
+      );
       h.probe.info = const VideoInfo(Duration(seconds: 45), 720, 1280);
-      expect((await h.pose.validateVideo(h.clip)).message, Messages.videoInvalid);
+      expect(
+        (await h.pose.validateVideo(h.clip)).message,
+        Messages.videoInvalid,
+      );
       h.probe.info = const VideoInfo(Duration(seconds: 15), 480, 854);
-      expect((await h.pose.validateVideo(h.clip)).message, Messages.deviceCompatibility);
+      expect(
+        (await h.pose.validateVideo(h.clip)).message,
+        Messages.deviceCompatibility,
+      );
     });
 
     test('an invalid clip is never uploaded', () async {
@@ -133,8 +183,14 @@ void main() {
       expect(s!.postureAccuracy, 90);
       expect(h.vm.autoAdvanced, isTrue);
       expect(h.vm.activePlan!.completedStages, 1);
-      expect(h.treatments.sessions.single.completionStatus, CompletionStatus.completed);
-      expect(await h.vm.acceptResult(), isTrue);           // Continue afterwards does not save twice
+      expect(
+        h.treatments.sessions.single.completionStatus,
+        CompletionStatus.completed,
+      );
+      expect(
+        await h.vm.acceptResult(),
+        isTrue,
+      ); // Continue afterwards does not save twice
       expect(h.treatments.sessions, hasLength(1));
       expect(h.vm.pathway.first.status, StageStatus.done);
       expect(h.vm.pathway[1].status, StageStatus.current);
@@ -152,17 +208,23 @@ void main() {
       expect(h.treatments.sessions.single.postureAccuracy, 60);
     });
 
-    test('retry keeps the attempt as RETRIED without advancing (FR300_20)', () async {
-      final h = Harness();
-      await h.setUp(tmp);
-      h.server.accuracy = 55;
-      await h.recordFirst();
-      await h.vm.retry();
-      expect(h.treatments.sessions.single.completionStatus, CompletionStatus.retried);
-      expect(h.vm.activePlan!.completedStages, 0);
-      expect(h.vm.pathway.first.status, StageStatus.attempted);
-      expect(h.vm.pathway.first.bestAccuracy, 55);
-    });
+    test(
+      'retry keeps the attempt as RETRIED without advancing (FR300_20)',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 55;
+        await h.recordFirst();
+        await h.vm.retry();
+        expect(
+          h.treatments.sessions.single.completionStatus,
+          CompletionStatus.retried,
+        );
+        expect(h.vm.activePlan!.completedStages, 0);
+        expect(h.vm.pathway.first.status, StageStatus.attempted);
+        expect(h.vm.pathway.first.bestAccuracy, 55);
+      },
+    );
 
     test('server errors map to the UC500 messages', () async {
       for (final (code, message) in [
@@ -191,7 +253,14 @@ void main() {
     testWidgets('pathway shows progress and Start exercise', (tester) async {
       final h = Harness();
       await tester.runAsync(() => h.setUp(tmp));
-      await tester.pumpWidget(MaterialApp(home: ChangeNotifierProvider.value(value: h.vm, child: const PhysicalTreatmentView())));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const PhysicalTreatmentView(),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('My treatment plan'), findsOneWidget);
       expect(find.text('0 of 3 done'), findsOneWidget);
@@ -199,14 +268,23 @@ void main() {
       expect(find.text('Not started'), findsOneWidget);
     });
 
-    testWidgets('result screen shows the score, guidance and both buttons', (tester) async {
+    testWidgets('result screen shows the score, guidance and both buttons', (
+      tester,
+    ) async {
       final h = Harness();
       h.server.accuracy = 70;
       await tester.runAsync(() async {
         await h.setUp(tmp);
         await h.recordFirst();
       });
-      await tester.pumpWidget(MaterialApp(home: ChangeNotifierProvider.value(value: h.vm, child: const PostureResultView())));
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const PostureResultView(),
+          ),
+        ),
+      );
       await tester.pump();
       expect(find.text('70%'), findsOneWidget);
       expect(find.text('Needs improvement'), findsOneWidget);

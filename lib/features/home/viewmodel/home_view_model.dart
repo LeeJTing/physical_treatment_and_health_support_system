@@ -34,7 +34,8 @@ class HomeData {
 
   /// The profile must be completed before any limit is personalised (UC1000 A1/A2).
   bool get profileNeedsAttention =>
-      profile.status == ProfileStatus.notConfigured || profile.status == ProfileStatus.incomplete;
+      profile.status == ProfileStatus.notConfigured ||
+      profile.status == ProfileStatus.incomplete;
 
   bool get profileStale => profile.status == ProfileStatus.stale;
 }
@@ -50,20 +51,28 @@ class HomeViewModel extends BaseViewModel {
   final INotificationRepository? _notifications;
   final DateTime Function() _now;
 
-  HomeViewModel(this._auth, this._profileInfo, this._treatments, [this._notifications, DateTime Function()? now])
-      : _now = now ?? DateTime.now;
+  HomeViewModel(
+    this._auth,
+    this._profileInfo,
+    this._treatments, [
+    this._notifications,
+    DateTime Function()? now,
+  ]) : _now = now ?? DateTime.now;
 
   UiState<HomeData> state = const Idle();
 
-  HomeData? get data => switch (state) { UiSuccess(:final data) => data, _ => null };
+  HomeData? get data => switch (state) {
+    UiSuccess(:final data) => data,
+    _ => null,
+  };
 
   String greeting() {
     final h = _now().hour;
     return h < 12
         ? 'Good morning'
         : h < 18
-            ? 'Good afternoon'
-            : 'Good evening';
+        ? 'Good afternoon'
+        : 'Good evening';
   }
 
   Future<void> load() async {
@@ -81,33 +90,45 @@ class HomeViewModel extends BaseViewModel {
     final profile = snapshot.dataOrNull!;
 
     // A missing plan or an unreachable database still shows the rest of the dashboard.
-    final plan = (await _treatments.getActivePlan(account.accountId)).dataOrNull;
+    final plan = (await _treatments.getActivePlan(
+      account.accountId,
+    )).dataOrNull;
     var doneToday = false;
     if (plan != null) {
-      final sessions = (await _treatments.getSessions(plan.patientPlanId)).dataOrNull ?? const <ExerciseSession>[];
+      final sessions =
+          (await _treatments.getSessions(plan.patientPlanId)).dataOrNull ??
+          const <ExerciseSession>[];
       final now = _now();
-      doneToday = sessions.any((s) =>
-          s.isCompleted() &&
-          s.completedAt != null &&
-          s.completedAt!.toLocal().year == now.year &&
-          s.completedAt!.toLocal().month == now.month &&
-          s.completedAt!.toLocal().day == now.day);
+      doneToday = sessions.any(
+        (s) =>
+            s.isCompleted() &&
+            s.completedAt != null &&
+            s.completedAt!.toLocal().year == now.year &&
+            s.completedAt!.toLocal().month == now.month &&
+            s.completedAt!.toLocal().day == now.day,
+      );
     }
-    final unread = (await _notifications?.unreadCount(account.accountId))?.dataOrNull ?? 0;
+    final unread =
+        (await _notifications?.unreadCount(account.accountId))?.dataOrNull ?? 0;
 
-    state = UiSuccess(HomeData(
-      username: account.username,
-      profile: profile,
-      plan: plan,
-      nextStage: plan?.currentStage(),
-      doneToday: doneToday,
-      unread: unread,
-    ));
+    state = UiSuccess(
+      HomeData(
+        username: account.username,
+        profile: profile,
+        plan: plan,
+        nextStage: plan?.currentStage(),
+        doneToday: doneToday,
+        unread: unread,
+      ),
+    );
     notifyListeners();
   }
 
   /// "3 exercises · 12 min · Both legs" for the Today's session card.
-  static String sessionSummary(TreatmentPlan p, String Function(String) areaLabel) {
+  static String sessionSummary(
+    TreatmentPlan p,
+    String Function(String) areaLabel,
+  ) {
     final n = p.exercises.length;
     final minutes = (p.totalDurationSec / 60).ceil();
     return '$n exercise${n == 1 ? '' : 's'} · $minutes min · ${areaLabel(p.targetBodyArea)}';
@@ -116,10 +137,13 @@ class HomeViewModel extends BaseViewModel {
   /// "Medium risk · limits active" (Figma), or what the patient should do first.
   static String riskPill(HomeData d) {
     if (d.profileNeedsAttention) return 'Complete your profile';
-    if (d.profile.status == ProfileStatus.error) return 'Safe default limits active';
+    if (d.profile.status == ProfileStatus.error) {
+      return 'Safe default limits active';
+    }
     return '${d.risk.db} risk · limits active';
   }
 
   /// Name shown in the header: the username as the patient typed it.
-  static String displayName(String username) => username.trim().isEmpty ? 'there' : username.trim();
+  static String displayName(String username) =>
+      username.trim().isEmpty ? 'there' : username.trim();
 }

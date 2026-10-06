@@ -38,7 +38,8 @@ class _RegisterViewState extends State<RegisterView> {
       FormValidators.password(_password.text) == null &&
       FormValidators.confirmPassword(_password.text, _confirm.text) == null;
 
-  bool get _dirty => [_username, _email, _password, _confirm].any((c) => c.text.isNotEmpty);
+  bool get _dirty =>
+      [_username, _email, _password, _confirm].any((c) => c.text.isNotEmpty);
 
   /// Leaving with typed details asks first (FR100_010).
   Future<bool> _confirmDiscard() async {
@@ -46,12 +47,22 @@ class _RegisterViewState extends State<RegisterView> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        content: const Text(Messages.discardRegistration, style: TextStyle(fontSize: 17)),
+        content: const Text(
+          Messages.discardRegistration,
+          style: TextStyle(fontSize: 17),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Keep editing')),
           TextButton(
-              onPressed: () => Navigator.pop(c, true),
-              child: const Text('Discard', style: TextStyle(color: AppTokens.cta))),
+            onPressed: () => Navigator.pop(c, false),
+            child: const Text('Keep editing'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: const Text(
+              'Discard',
+              style: TextStyle(color: AppTokens.cta),
+            ),
+          ),
         ],
       ),
     );
@@ -62,15 +73,21 @@ class _RegisterViewState extends State<RegisterView> {
     FocusScope.of(context).unfocus();
     final vm = context.read<AuthViewModel>();
     final email = _email.text.trim();
-    if (await vm.register(_username.text.trim(), email, _password.text) && mounted) {
-      Navigator.of(context).pushReplacementNamed(Routes.verifyCode, arguments: email);
+    if (await vm.register(_username.text.trim(), email, _password.text) &&
+        mounted) {
+      Navigator.of(
+        context,
+      ).pushReplacementNamed(Routes.verifyCode, arguments: email);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<AuthViewModel>();
-    final error = switch (vm.registerState) { UiError(:final message) => message, _ => null };
+    final error = switch (vm.registerState) {
+      UiError(:final message) => message,
+      _ => null,
+    };
     void changed(String _) {
       setState(() {});
       vm.clearErrors();
@@ -80,89 +97,106 @@ class _RegisterViewState extends State<RegisterView> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (await _confirmDiscard() && context.mounted) Navigator.of(context).pop();
+        if (await _confirmDiscard() && context.mounted) {
+          Navigator.of(context).pop();
+        }
       },
       child: Scaffold(
         backgroundColor: AppTokens.screenBackground,
         body: SingleChildScrollView(
-          child: Column(children: [
-            AuthHeader(
-              heightFactor: 0.22,
-              showSubtitle: false,
-              leading: IconButton(
-                tooltip: 'Back',
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                onPressed: () => Navigator.of(context).maybePop(),
+          child: Column(
+            children: [
+              AuthHeader(
+                heightFactor: 0.22,
+                showSubtitle: false,
+                leading: IconButton(
+                  tooltip: 'Back',
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () => Navigator.of(context).maybePop(),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-              child: AutofillGroup(
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  const AuthTitle('Create account', subtitle: 'Start your personalised recovery plan.'),
-                  const SizedBox(height: 24),
-                  LabeledField(
-                    label: 'Username',
-                    controller: _username,
-                    validator: FormValidators.username,
-                    textInputAction: TextInputAction.next,
-                    autofillHints: const [AutofillHints.username],
-                    onChanged: changed,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
+                child: AutofillGroup(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const AuthTitle(
+                        'Create account',
+                        subtitle: 'Start your personalised recovery plan.',
+                      ),
+                      const SizedBox(height: 24),
+                      LabeledField(
+                        label: 'Username',
+                        controller: _username,
+                        validator: FormValidators.username,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.username],
+                        onChanged: changed,
+                      ),
+                      const SizedBox(height: 18),
+                      LabeledField(
+                        label: 'Email address',
+                        controller: _email,
+                        validator: FormValidators.email,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.email],
+                        onChanged: changed,
+                      ),
+                      const SizedBox(height: 18),
+                      LabeledField(
+                        label: 'Password',
+                        controller: _password,
+                        validator: FormValidators.password,
+                        obscure: true,
+                        helper:
+                            'At least 8 characters, with at least one letter and one number.',
+                        textInputAction: TextInputAction.next,
+                        autofillHints: const [AutofillHints.newPassword],
+                        onChanged: changed,
+                      ),
+                      const SizedBox(height: 18),
+                      LabeledField(
+                        label: 'Confirm password',
+                        controller: _confirm,
+                        validator: (v) =>
+                            FormValidators.confirmPassword(_password.text, v),
+                        obscure: true,
+                        textInputAction: TextInputAction.done,
+                        onChanged: changed,
+                        onSubmitted: (_) => _valid ? _submit() : null,
+                      ),
+                      const SizedBox(height: 20),
+                      if (error != null) ...[
+                        AuthErrorBanner(
+                          error,
+                          action: error == Messages.emailExists
+                              ? TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text(
+                                    'Go to log in',
+                                    style: TextStyle(
+                                      color: AppTokens.brandDeepAccent,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 12),
+                      ],
+                      PillButton(
+                        label: 'Create account',
+                        busy: vm.registerState is Loading,
+                        onPressed: _valid ? _submit : null,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 18),
-                  LabeledField(
-                    label: 'Email address',
-                    controller: _email,
-                    validator: FormValidators.email,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    autofillHints: const [AutofillHints.email],
-                    onChanged: changed,
-                  ),
-                  const SizedBox(height: 18),
-                  LabeledField(
-                    label: 'Password',
-                    controller: _password,
-                    validator: FormValidators.password,
-                    obscure: true,
-                    helper: 'At least 8 characters, with at least one letter and one number.',
-                    textInputAction: TextInputAction.next,
-                    autofillHints: const [AutofillHints.newPassword],
-                    onChanged: changed,
-                  ),
-                  const SizedBox(height: 18),
-                  LabeledField(
-                    label: 'Confirm password',
-                    controller: _confirm,
-                    validator: (v) => FormValidators.confirmPassword(_password.text, v),
-                    obscure: true,
-                    textInputAction: TextInputAction.done,
-                    onChanged: changed,
-                    onSubmitted: (_) => _valid ? _submit() : null,
-                  ),
-                  const SizedBox(height: 20),
-                  if (error != null) ...[
-                    AuthErrorBanner(
-                      error,
-                      action: error == Messages.emailExists
-                          ? TextButton(
-                              onPressed: () => Navigator.of(context).pop(),
-                              child: const Text('Go to log in',
-                                  style: TextStyle(color: AppTokens.brandDeepAccent, fontWeight: FontWeight.w600)),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(height: 12),
-                  ],
-                  PillButton(
-                    label: 'Create account',
-                    busy: vm.registerState is Loading,
-                    onPressed: _valid ? _submit : null,
-                  ),
-                ]),
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );

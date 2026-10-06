@@ -21,20 +21,20 @@ class PlanExercise {
 
   /// Reads a plan_exercise row joined with its exercise: {..., exercise: {...}}.
   factory PlanExercise.fromJson(Map<String, dynamic> j) => PlanExercise(
-        planId: j['plan_id'] as String,
-        exercise: Exercise.fromJson(j['exercise'] as Map<String, dynamic>),
-        sequenceOrder: (j['sequence_order'] as num).toInt(),
-        prescribedRepetitions: (j['prescribed_repetitions'] as num).toInt(),
-        prescribedDurationSec: (j['prescribed_duration_sec'] as num).toInt(),
-      );
+    planId: j['plan_id'] as String,
+    exercise: Exercise.fromJson(j['exercise'] as Map<String, dynamic>),
+    sequenceOrder: (j['sequence_order'] as num).toInt(),
+    prescribedRepetitions: (j['prescribed_repetitions'] as num).toInt(),
+    prescribedDurationSec: (j['prescribed_duration_sec'] as num).toInt(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'plan_id': planId,
-        'exercise_id': exercise.exerciseId,
-        'sequence_order': sequenceOrder,
-        'prescribed_repetitions': prescribedRepetitions,
-        'prescribed_duration_sec': prescribedDurationSec,
-      };
+    'plan_id': planId,
+    'exercise_id': exercise.exerciseId,
+    'sequence_order': sequenceOrder,
+    'prescribed_repetitions': prescribedRepetitions,
+    'prescribed_duration_sec': prescribedDurationSec,
+  };
 }
 
 /// Catalogue programme the recommender ranks (Table 4.18).
@@ -46,6 +46,7 @@ class TreatmentPlan {
   final RecoveryStage recoveryStage;
   final MobilityLevel mobilityLevel;
   final int frequencyPerWeek;
+
   /// STRENGTH, MOBILITY, BALANCE, PAIN_RELIEF or ENDURANCE. Extra column, see plan open issue 1.
   final String? goal;
   final List<PlanExercise> exercises;
@@ -68,49 +69,51 @@ class TreatmentPlan {
 
   /// The pathway in sequence (FR300_02).
   List<PlanExercise> orderedExercises() =>
-      [...exercises]..sort((a, b) => a.sequenceOrder.compareTo(b.sequenceOrder));
+      [...exercises]
+        ..sort((a, b) => a.sequenceOrder.compareTo(b.sequenceOrder));
 
-  int get totalDurationSec => exercises.fold(0, (s, e) => s + e.prescribedDurationSec);
+  int get totalDurationSec =>
+      exercises.fold(0, (s, e) => s + e.prescribedDurationSec);
 
   TreatmentPlan withScore(double score) => TreatmentPlan(
-        planId: planId,
-        planName: planName,
-        aim: aim,
-        targetBodyArea: targetBodyArea,
-        recoveryStage: recoveryStage,
-        mobilityLevel: mobilityLevel,
-        frequencyPerWeek: frequencyPerWeek,
-        goal: goal,
-        exercises: exercises,
-        suitabilityScore: score,
-      );
+    planId: planId,
+    planName: planName,
+    aim: aim,
+    targetBodyArea: targetBodyArea,
+    recoveryStage: recoveryStage,
+    mobilityLevel: mobilityLevel,
+    frequencyPerWeek: frequencyPerWeek,
+    goal: goal,
+    exercises: exercises,
+    suitabilityScore: score,
+  );
 
   factory TreatmentPlan.fromJson(Map<String, dynamic> j) => TreatmentPlan(
-        planId: j['plan_id'] as String,
-        planName: j['plan_name'] as String,
-        aim: j['aim'] as String,
-        targetBodyArea: j['target_body_area'] as String,
-        recoveryStage: RecoveryStage.fromDb(j['recovery_stage'] as String?),
-        mobilityLevel: MobilityLevel.fromDb(j['mobility_level'] as String?),
-        frequencyPerWeek: (j['frequency_per_week'] as num).toInt(),
-        goal: j['goal'] as String?,
-        exercises: ((j['plan_exercise'] as List?) ?? const [])
-            .map((e) => PlanExercise.fromJson(e as Map<String, dynamic>))
-            .toList(),
-        suitabilityScore: (j['suitability_score'] as num?)?.toDouble(),
-      );
+    planId: j['plan_id'] as String,
+    planName: j['plan_name'] as String,
+    aim: j['aim'] as String,
+    targetBodyArea: j['target_body_area'] as String,
+    recoveryStage: RecoveryStage.fromDb(j['recovery_stage'] as String?),
+    mobilityLevel: MobilityLevel.fromDb(j['mobility_level'] as String?),
+    frequencyPerWeek: (j['frequency_per_week'] as num).toInt(),
+    goal: j['goal'] as String?,
+    exercises: ((j['plan_exercise'] as List?) ?? const [])
+        .map((e) => PlanExercise.fromJson(e as Map<String, dynamic>))
+        .toList(),
+    suitabilityScore: (j['suitability_score'] as num?)?.toDouble(),
+  );
 
   Map<String, dynamic> toJson() => {
-        'plan_id': planId,
-        'plan_name': planName,
-        'aim': aim,
-        'target_body_area': targetBodyArea,
-        'recovery_stage': recoveryStage.db,
-        'mobility_level': mobilityLevel.db,
-        'frequency_per_week': frequencyPerWeek,
-        'goal': goal,
-        'plan_exercise': exercises
-            .map((e) => {...e.toJson(), 'exercise': e.exercise.toJson()})
-            .toList(),
-      };
+    'plan_id': planId,
+    'plan_name': planName,
+    'aim': aim,
+    'target_body_area': targetBodyArea,
+    'recovery_stage': recoveryStage.db,
+    'mobility_level': mobilityLevel.db,
+    'frequency_per_week': frequencyPerWeek,
+    'goal': goal,
+    'plan_exercise': exercises
+        .map((e) => {...e.toJson(), 'exercise': e.exercise.toJson()})
+        .toList(),
+  };
 }

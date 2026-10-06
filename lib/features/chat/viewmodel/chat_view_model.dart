@@ -14,7 +14,7 @@ import 'package:physical_treatment_and_health_support_system/features/chat/model
 /// One line in the chat: the stored message plus what the screen offers under it.
 class ChatEntry {
   final ChatMessage message;
-  final ChatReply? reply;        // set on system messages that came from the server
+  final ChatReply? reply; // set on system messages that came from the server
 
   const ChatEntry(this.message, [this.reply]);
 
@@ -29,7 +29,8 @@ class ChatViewModel extends BaseViewModel {
 
   ChatViewModel(this._chatbot, this._profileInfo, this._repo);
 
-  static const welcome = 'Hello! I can answer questions about your rehabilitation plan. '
+  static const welcome =
+      'Hello! I can answer questions about your rehabilitation plan. '
       'Choose a topic below or type your question.';
 
   ProfileSnapshot? _snapshot;
@@ -88,16 +89,30 @@ class ChatViewModel extends BaseViewModel {
     await _send(shown: c.title, category: c.key);
   }
 
-  Future<void> _send({required String shown, String? text, String? category}) async {
+  Future<void> _send({
+    required String shown,
+    String? text,
+    String? category,
+  }) async {
     _sending = true;
     final question = _patient(shown, category);
     _messages.add(ChatEntry(question));
     notifyListeners();
 
-    final res = await _chatbot.ask(text: text, category: category, profile: _snapshot);
+    final res = await _chatbot.ask(
+      text: text,
+      category: category,
+      profile: _snapshot,
+    );
     final ChatEntry answer = switch (res) {
       Success(:final data) => ChatEntry(
-          _system(data.answer, category: data.category, isMatched: _chatbot.isRecognised(data)), data),
+        _system(
+          data.answer,
+          category: data.category,
+          isMatched: _chatbot.isRecognised(data),
+        ),
+        data,
+      ),
       Failure(:final message) => ChatEntry(_system(message, isMatched: false)),
     };
     _messages.add(answer);
@@ -110,31 +125,37 @@ class ChatViewModel extends BaseViewModel {
     // Stored as chat_message rows; an unmatched question is the backlog for new rules
     // (Table 4.99). A failed save does not interrupt the conversation.
     if (res.isSuccess && _snapshot?.accountId != null) {
-      await _repo.saveChatMessage(question.withMatched(answer.message.isMatched));
+      await _repo.saveChatMessage(
+        question.withMatched(answer.message.isMatched),
+      );
       await _repo.saveChatMessage(answer.message);
     }
   }
 
   ChatMessage _patient(String text, String? category) => ChatMessage(
-        messageId: newId(),
-        accountId: _snapshot?.accountId ?? '',
-        patientPlanId: _patientPlanId,
-        sender: MessageSender.patient,
-        questionCategory: category,
-        messageText: text,
-        createdAt: DateTime.now(),
-      );
+    messageId: newId(),
+    accountId: _snapshot?.accountId ?? '',
+    patientPlanId: _patientPlanId,
+    sender: MessageSender.patient,
+    questionCategory: category,
+    messageText: text,
+    createdAt: DateTime.now(),
+  );
 
-  ChatMessage _system(String text, {String? category, required bool isMatched}) => ChatMessage(
-        messageId: newId(),
-        accountId: _snapshot?.accountId ?? '',
-        patientPlanId: _patientPlanId,
-        sender: MessageSender.system,
-        questionCategory: category,
-        messageText: text,
-        isMatched: isMatched,
-        createdAt: DateTime.now(),
-      );
+  ChatMessage _system(
+    String text, {
+    String? category,
+    required bool isMatched,
+  }) => ChatMessage(
+    messageId: newId(),
+    accountId: _snapshot?.accountId ?? '',
+    patientPlanId: _patientPlanId,
+    sender: MessageSender.system,
+    questionCategory: category,
+    messageText: text,
+    isMatched: isMatched,
+    createdAt: DateTime.now(),
+  );
 
   /// Dismisses the chat panel (FR500_23). The transcript is already stored.
   void close() {
@@ -147,20 +168,20 @@ class ChatViewModel extends BaseViewModel {
 
   bool get categoriesFailed => _categories is UiError;
   String get categoriesError => switch (_categories) {
-        UiError(:final message) => message,
-        _ => Messages.dbUnavailable,
-      };
+    UiError(:final message) => message,
+    _ => Messages.dbUnavailable,
+  };
 }
 
 extension on ChatMessage {
   ChatMessage withMatched(bool matched) => ChatMessage(
-        messageId: messageId,
-        accountId: accountId,
-        patientPlanId: patientPlanId,
-        sender: sender,
-        questionCategory: questionCategory,
-        messageText: messageText,
-        isMatched: matched,
-        createdAt: createdAt,
-      );
+    messageId: messageId,
+    accountId: accountId,
+    patientPlanId: patientPlanId,
+    sender: sender,
+    questionCategory: questionCategory,
+    messageText: messageText,
+    isMatched: matched,
+    createdAt: createdAt,
+  );
 }

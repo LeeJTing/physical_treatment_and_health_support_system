@@ -13,7 +13,10 @@ class FakeProfileRepository implements IProfileRepository {
   Future<Result<HealthProfile?>> getProfile(String accountId) async {
     if (failNext) {
       failNext = false;
-      return const Failure('Unable to retrieve your health information.', code: 'offline');
+      return const Failure(
+        'Unable to retrieve your health information.',
+        code: 'offline',
+      );
     }
     return Success(_profiles[accountId]);
   }
@@ -21,20 +24,27 @@ class FakeProfileRepository implements IProfileRepository {
   @override
   Future<Result<void>> saveProfile(HealthProfile p, SafetyLimit limit) async {
     final prev = _profiles[p.accountId];
-    _profiles[p.accountId] = p.copyWith(version: (prev?.version ?? 0) + 1, updatedAt: DateTime.now());
+    _profiles[p.accountId] = p.copyWith(
+      version: (prev?.version ?? 0) + 1,
+      updatedAt: DateTime.now(),
+    );
     _limits[p.profileId] = limit;
     return const Success(null);
   }
 
   @override
-  Future<Result<SafetyLimit?>> getCurrentSafetyLimit(String profileId) async => Success(_limits[profileId]);
+  Future<Result<SafetyLimit?>> getCurrentSafetyLimit(String profileId) async =>
+      Success(_limits[profileId]);
 
   @override
-  Future<Result<List<HealthCondition>>> getConditions() async => const Success(LookupSeed.conditions);
+  Future<Result<List<HealthCondition>>> getConditions() async =>
+      const Success(LookupSeed.conditions);
 
   @override
-  Future<Result<List<PhysicalLimitation>>> getLimitations() async => const Success(LookupSeed.limitations);
+  Future<Result<List<PhysicalLimitation>>> getLimitations() async =>
+      const Success(LookupSeed.limitations);
 
   @override
-  Future<Result<List<DietaryRestriction>>> getRestrictions() async => const Success(<DietaryRestriction>[]);
+  Future<Result<List<DietaryRestriction>>> getRestrictions() async =>
+      const Success(<DietaryRestriction>[]);
 }

@@ -18,25 +18,39 @@ class ChatbotService {
 
   /// Question categories that belong to the plan (FR500_18).
   Future<Result<List<ChatCategory>>> categoriesFor(String? planId) async {
-    final res = await _api.get(AppConstants.chatCategoriesPath, query: {if (planId != null) 'plan_id': planId});
+    final res = await _api.get(
+      AppConstants.chatCategoriesPath,
+      query: {'plan_id': ?planId},
+    );
     if (res is Failure<Map<String, dynamic>>) {
       return Failure(Messages.dbUnavailable, code: res.code, cause: res.cause);
     }
-    return guard(() async => [
-          for (final c in (res.dataOrNull!['categories'] as List)) ChatCategory.fromJson(c as Map<String, dynamic>)
-        ]);
+    return guard(
+      () async => [
+        for (final c in (res.dataOrNull!['categories'] as List))
+          ChatCategory.fromJson(c as Map<String, dynamic>),
+      ],
+    );
   }
 
   /// Sends a typed question or a tapped category; the server matches it and returns the
   /// predefined response (FR500_19, FR500_20).
-  Future<Result<ChatReply>> ask({String? text, String? category, ProfileSnapshot? profile}) async {
+  Future<Result<ChatReply>> ask({
+    String? text,
+    String? category,
+    ProfileSnapshot? profile,
+  }) async {
     final p = profile?.profile;
     final res = await _api.post(AppConstants.chatPath, {
       'plan_id': planId,
-      if (category != null) 'category': category,
+      'category': ?category,
       if (text != null && text.trim().isNotEmpty) 'text': text.trim(),
-      'conditions': [for (final c in p?.conditions ?? const []) c.conditionCode],
-      'limitations': [for (final l in p?.limitations ?? const []) l.limitationCode],
+      'conditions': [
+        for (final c in p?.conditions ?? const []) c.conditionCode,
+      ],
+      'limitations': [
+        for (final l in p?.limitations ?? const []) l.limitationCode,
+      ],
       if (profile != null) 'risk_level': profile.riskLevel.db,
     });
     if (res is Failure<Map<String, dynamic>>) {

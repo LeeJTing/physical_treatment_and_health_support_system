@@ -14,11 +14,17 @@ class AppTokens {
   static const border = Color(0xFFE4E2D8);
 
   // Brand
-  static const primary = Color(0xFF0E3B35); // dark green cards, header band, outlined buttons
+  static const primary = Color(
+    0xFF0E3B35,
+  ); // dark green cards, header band, outlined buttons
   static const onPrimaryMuted = Color(0xFF9FE1CB); // subtitle text on primary
-  static const accent = Color(0xFF0F6E56); // screen subtitles, chip and badge text
+  static const accent = Color(
+    0xFF0F6E56,
+  ); // screen subtitles, chip and badge text
   static const accentContainer = Color(0xFFE1F5EE); // chips, step badges
-  static const highlight = Color(0xFF5DCAA5); // border of the best-matching plan
+  static const highlight = Color(
+    0xFF5DCAA5,
+  ); // border of the best-matching plan
   static const progress = Color(0xFF1D9E75);
 
   // Text
@@ -29,7 +35,9 @@ class AppTokens {
   // Actions and status
   static const action = Color(0xFFD85A30); // Select
   static const danger = Color(0xFFE24B4A); // Reject all plans
-  static const dangerContainer = Color(0xFFFCE8E7); // urgent safety answer in the chat
+  static const dangerContainer = Color(
+    0xFFFCE8E7,
+  ); // urgent safety answer in the chat
   static const onDanger = Color(0xFF8E1F1E);
   static const good = Color(0xFF27500A);
   static const goodContainer = Color(0xFFEAF3DE);
@@ -38,17 +46,27 @@ class AppTokens {
 
   // Login and Profile screens. Their Figma frames use a slightly different
   // green, orange and background from the planning screens above.
-  static const brandDeep = Color(0xFF054E4A); // header band, selected chips, avatar initials
-  static const brandDeepAccent = Color(0xFF0C675F); // logo circle, "Forgot password?", "Edit"
+  static const brandDeep = Color(
+    0xFF054E4A,
+  ); // header band, selected chips, avatar initials
+  static const brandDeepAccent = Color(
+    0xFF0C675F,
+  ); // logo circle, "Forgot password?", "Edit"
   static const onBrandMuted = Color(0xFF80B5AE); // subtitle on the header band
   static const screenBackground = Color(0xFFF6F9F8);
   static const ink = Color(0xFF0C1A19); // headings
   static const inkMuted = Color(0xFF5A6B69); // field labels, secondary text
-  static const outline = Color(0xFF6E8481); // text-field and outlined-button borders
+  static const outline = Color(
+    0xFF6E8481,
+  ); // text-field and outlined-button borders
   static const cta = Color(0xFFC34317); // "Log In", "Create account", "Log out"
   static const cardBorder = Color(0xFFDDE7E5);
-  static const tint = Color(0xFFE3EFED); // health-profile stats card, avatar circle
-  static const warnContainer = Color(0xFFFDF1DD); // risk pill, BMI pill, advisory banner
+  static const tint = Color(
+    0xFFE3EFED,
+  ); // health-profile stats card, avatar circle
+  static const warnContainer = Color(
+    0xFFFDF1DD,
+  ); // risk pill, BMI pill, advisory banner
   static const onWarn = Color(0xFF8B5200);
   static const successContainer = Color(0xFFE5F4EB); // "Connected" pill
   static const radiusField = 14.0;

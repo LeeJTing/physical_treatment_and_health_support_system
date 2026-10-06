@@ -16,8 +16,9 @@ import 'package:physical_treatment_and_health_support_system/features/planning/w
 class RecommendedPlansView extends StatelessWidget {
   const RecommendedPlansView({super.key});
 
-  void _goHome(BuildContext context) =>
-      Navigator.of(context).popUntil((r) => r.settings.name == Routes.home || r.isFirst);
+  void _goHome(BuildContext context) => Navigator.of(
+    context,
+  ).popUntil((r) => r.settings.name == Routes.home || r.isFirst);
 
   /// Exit without choosing (FR500_16).
   void _exit(BuildContext context) {
@@ -29,7 +30,9 @@ class RecommendedPlansView extends StatelessWidget {
     final vm = context.read<PlanningViewModel>();
     final messenger = ScaffoldMessenger.of(context);
     if (await vm.select(plan)) {
-      messenger.showSnackBar(const SnackBar(content: Text(Messages.planSaved))); // FR500_10
+      messenger.showSnackBar(
+        const SnackBar(content: Text(Messages.planSaved)),
+      ); // FR500_10
       if (context.mounted) _goHome(context);
     } else if (vm.saving case UiError(:final message)) {
       messenger.showSnackBar(SnackBar(content: Text(message)));
@@ -40,9 +43,15 @@ class RecommendedPlansView extends StatelessWidget {
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        content: const Text(Messages.confirmReject, style: TextStyle(fontSize: 17, color: AppTokens.text)),
+        content: const Text(
+          Messages.confirmReject,
+          style: TextStyle(fontSize: 17, color: AppTokens.text),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('No')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('No'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: TextButton.styleFrom(foregroundColor: AppTokens.danger),
@@ -83,23 +92,23 @@ class RecommendedPlansView extends StatelessWidget {
                 child: switch (vm.recommendation) {
                   Idle() || Loading() => const _Loading(),
                   UiError(:final message) => _Problem(
-                      message: message,
-                      actionLabel: 'Try again',
-                      onAction: vm.retry,
-                    ),
+                    message: message,
+                    actionLabel: 'Try again',
+                    onAction: vm.retry,
+                  ),
                   UiSuccess(:final data) when data.plans.isEmpty => _Problem(
-                      message: Messages.conditionNotMet, // FR500_14
-                      actionLabel: 'Back to planning',
-                      onAction: () => _exit(context),
-                    ),
+                    message: Messages.conditionNotMet, // FR500_14
+                    actionLabel: 'Back to planning',
+                    onAction: () => _exit(context),
+                  ),
                   UiSuccess(:final data) => _PlanList(
-                      recommendation: data,
-                      notice: vm.notice,
-                      busy: vm.saving is Loading,
-                      onDetails: (p) => showPlanDetails(context, p),
-                      onSelect: (p) => _select(context, p),
-                      onRejectAll: () => _rejectAll(context),
-                    ),
+                    recommendation: data,
+                    notice: vm.notice,
+                    busy: vm.saving is Loading,
+                    onDetails: (p) => showPlanDetails(context, p),
+                    onSelect: (p) => _select(context, p),
+                    onRejectAll: () => _rejectAll(context),
+                  ),
                 },
               ),
             ],
@@ -131,9 +140,17 @@ class _PlanList extends StatelessWidget {
   Widget build(BuildContext context) {
     final plans = recommendation.plans;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppTokens.gutter, AppTokens.gutter, AppTokens.gutter, 24),
+      padding: const EdgeInsets.fromLTRB(
+        AppTokens.gutter,
+        AppTokens.gutter,
+        AppTokens.gutter,
+        24,
+      ),
       children: [
-        if (notice != null) ...[NoticeBanner(notice!, warning: true), const SizedBox(height: AppTokens.gap)],
+        if (notice != null) ...[
+          NoticeBanner(notice!, warning: true),
+          const SizedBox(height: AppTokens.gap),
+        ],
         if (recommendation.status == RecommendationStatus.onlyOne) ...[
           const NoticeBanner(Messages.onlyOnePlan), // FR500_15
           const SizedBox(height: AppTokens.gap),
@@ -149,7 +166,11 @@ class _PlanList extends StatelessWidget {
           const SizedBox(height: AppTokens.gap),
         ],
         const SizedBox(height: 4),
-        TokenButton(label: 'Reject all plans', color: AppTokens.danger, onPressed: busy ? null : onRejectAll),
+        TokenButton(
+          label: 'Reject all plans',
+          color: AppTokens.danger,
+          onPressed: busy ? null : onRejectAll,
+        ),
       ],
     );
   }
@@ -160,16 +181,18 @@ class _Loading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CircularProgressIndicator(color: AppTokens.primary),
-            SizedBox(height: 16),
-            Text('Finding the most suitable plans for you...',
-                style: TextStyle(fontSize: 15, color: AppTokens.textMuted)),
-          ],
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        CircularProgressIndicator(color: AppTokens.primary),
+        SizedBox(height: 16),
+        Text(
+          'Finding the most suitable plans for you...',
+          style: TextStyle(fontSize: 15, color: AppTokens.textMuted),
         ),
-      );
+      ],
+    ),
+  );
 }
 
 class _Problem extends StatelessWidget {
@@ -177,18 +200,26 @@ class _Problem extends StatelessWidget {
   final String actionLabel;
   final VoidCallback onAction;
 
-  const _Problem({required this.message, required this.actionLabel, required this.onAction});
+  const _Problem({
+    required this.message,
+    required this.actionLabel,
+    required this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.all(AppTokens.gutter),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            NoticeBanner(message, warning: true),
-            const SizedBox(height: AppTokens.gutter),
-            TokenButton(label: actionLabel, color: AppTokens.primary, onPressed: onAction),
-          ],
+    padding: const EdgeInsets.all(AppTokens.gutter),
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        NoticeBanner(message, warning: true),
+        const SizedBox(height: AppTokens.gutter),
+        TokenButton(
+          label: actionLabel,
+          color: AppTokens.primary,
+          onPressed: onAction,
         ),
-      );
+      ],
+    ),
+  );
 }

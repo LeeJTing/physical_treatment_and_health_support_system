@@ -21,7 +21,8 @@ class StartupViewModel extends BaseViewModel {
     _reminders?.sync(account.accountId).ignore();
     final profile = await _profiles.getProfile(account.accountId);
     return switch (profile) {
-      Success(:final data) when data == null || !data.isComplete => Routes.healthProfile,
+      Success(:final data) when data == null || !data.isComplete =>
+        Routes.healthProfile,
       // A read failure still opens the app; ProfileInfoService applies the fail-safe limits.
       _ => Routes.home,
     };

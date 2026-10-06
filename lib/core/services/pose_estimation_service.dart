@@ -29,7 +29,11 @@ class VideoPlayerProbe implements VideoProbe {
     try {
       await c.initialize();
       final size = c.value.size;
-      return VideoInfo(c.value.duration, size.width.round(), size.height.round());
+      return VideoInfo(
+        c.value.duration,
+        size.width.round(),
+        size.height.round(),
+      );
     } finally {
       await c.dispose();
     }
@@ -57,14 +61,21 @@ class PoseEstimationService {
   /// Returned by the server and stored with the session so scores stay comparable.
   String modelVersion = 'unknown';
 
-  PoseEstimationService(this._api, {VideoProbe? probe}) : _probe = probe ?? VideoPlayerProbe();
+  PoseEstimationService(this._api, {VideoProbe? probe})
+    : _probe = probe ?? VideoPlayerProbe();
 
   /// Format, 10 to 30 s, at most 100 MB and at least 720p (FR300_14 to FR300_16).
   Future<VideoCheck> validateVideo(File v) async {
     final ext = v.path.split('.').last.toLowerCase();
-    if (!AppConstants.allowedVideoExtensions.contains(ext)) return const VideoCheck.failed(Messages.videoInvalid);
-    if (!await v.exists()) return const VideoCheck.failed(Messages.videoInvalid);
-    if (await v.length() > AppConstants.maxVideoBytes) return const VideoCheck.failed(Messages.videoInvalid);
+    if (!AppConstants.allowedVideoExtensions.contains(ext)) {
+      return const VideoCheck.failed(Messages.videoInvalid);
+    }
+    if (!await v.exists()) {
+      return const VideoCheck.failed(Messages.videoInvalid);
+    }
+    if (await v.length() > AppConstants.maxVideoBytes) {
+      return const VideoCheck.failed(Messages.videoInvalid);
+    }
     final VideoInfo info;
     try {
       info = await _probe.probe(v);
@@ -72,10 +83,13 @@ class PoseEstimationService {
       return const VideoCheck.failed(Messages.videoInvalid);
     }
     final sec = info.duration.inMilliseconds / 1000;
-    if (sec < AppConstants.minVideoSeconds - 0.5 || sec > AppConstants.maxVideoSeconds + 0.5) {
+    if (sec < AppConstants.minVideoSeconds - 0.5 ||
+        sec > AppConstants.maxVideoSeconds + 0.5) {
       return const VideoCheck.failed(Messages.videoInvalid);
     }
-    if (info.shortSide < minResolution) return const VideoCheck.failed(Messages.deviceCompatibility);
+    if (info.shortSide < minResolution) {
+      return const VideoCheck.failed(Messages.deviceCompatibility);
+    }
     return const VideoCheck.passed();
   }
 
@@ -83,15 +97,26 @@ class PoseEstimationService {
   /// (FR300_06 to FR300_09). Server error codes map to the UC500 messages.
   Future<Result<PostureResult>> analyse(File v, Exercise e) async {
     final key = e.poseKey;
-    if (key == null) return const Failure(Messages.postureAnalyseFailed, code: 'unknown_exercise');
-    final res = await _api.postFile(AppConstants.posePath, v, fields: {'exercise_key': key});
+    if (key == null) {
+      return const Failure(
+        Messages.postureAnalyseFailed,
+        code: 'unknown_exercise',
+      );
+    }
+    final res = await _api.postFile(
+      AppConstants.posePath,
+      v,
+      fields: {'exercise_key': key},
+    );
     if (res is Failure<Map<String, dynamic>>) {
       final message = switch (res.code) {
-        'invalid_video' => Messages.videoInvalid,                 // FR300_16
-        'full_body_not_visible' => Messages.fullBodyNotVisible,   // FR300_17
-        'pose_not_detected' => Messages.poseDetectFailed,         // FR300_25
+        'invalid_video' => Messages.videoInvalid, // FR300_16
+        'full_body_not_visible' => Messages.fullBodyNotVisible, // FR300_17
+        'pose_not_detected' => Messages.poseDetectFailed, // FR300_25
         'unauthorised' => res.message,
-        _ => Messages.postureAnalyseFailed,                       // FR300_26 (no repetition, timeout, ...)
+        _ =>
+          Messages
+              .postureAnalyseFailed, // FR300_26 (no repetition, timeout, ...)
       };
       return Failure(message, code: res.code, cause: res.cause);
     }

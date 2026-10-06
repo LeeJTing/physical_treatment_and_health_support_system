@@ -37,6 +37,7 @@ class RehabLabels {
 
   static String area(String code) => bodyArea[code] ?? code;
 
-  static String duration(int seconds) =>
-      seconds < 60 ? '$seconds sec' : '${(seconds / 60).toStringAsFixed(seconds % 60 == 0 ? 0 : 1)} min';
+  static String duration(int seconds) => seconds < 60
+      ? '$seconds sec'
+      : '${(seconds / 60).toStringAsFixed(seconds % 60 == 0 ? 0 : 1)} min';
 }

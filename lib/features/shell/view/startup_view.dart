@@ -25,15 +25,32 @@ class _StartupViewState extends State<StartupView> {
 
   @override
   Widget build(BuildContext context) => const Scaffold(
-        backgroundColor: AppTokens.brandDeep,
-        body: Center(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            Icon(Icons.monitor_heart, color: Colors.white, size: 56),
-            SizedBox(height: 16),
-            Text('HealthGuide', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700)),
-            SizedBox(height: 28),
-            SizedBox(width: 28, height: 28, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3)),
-          ]),
-        ),
-      );
+    backgroundColor: AppTokens.brandDeep,
+    body: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.monitor_heart, color: Colors.white, size: 56),
+          SizedBox(height: 16),
+          Text(
+            'HealthGuide',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: 28),
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 3,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }

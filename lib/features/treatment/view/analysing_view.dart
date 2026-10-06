@@ -24,7 +24,12 @@ class AnalysingView extends StatefulWidget {
 }
 
 class _AnalysingViewState extends State<AnalysingView> {
-  static const steps = ['Video received', 'Body landmarks extracted', 'Analysing posture', 'Calculating accuracy score'];
+  static const steps = [
+    'Video received',
+    'Body landmarks extracted',
+    'Analysing posture',
+    'Calculating accuracy score',
+  ];
   int _step = 0; // index of the step in progress
   Timer? _timer;
 
@@ -53,9 +58,14 @@ class _AnalysingViewState extends State<AnalysingView> {
       setState(() => _step = steps.length);
       await Future<void>.delayed(const Duration(milliseconds: 400));
       if (!mounted) return;
-      await Navigator.of(context).pushReplacement(MaterialPageRoute<void>(
-        builder: (_) => ChangeNotifierProvider.value(value: vm, child: const PostureResultView()),
-      ));
+      await Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(
+          builder: (_) => ChangeNotifierProvider.value(
+            value: vm,
+            child: const PostureResultView(),
+          ),
+        ),
+      );
     } else {
       setState(() {});
     }
@@ -71,58 +81,101 @@ class _AnalysingViewState extends State<AnalysingView> {
     return Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
-        child: ListView(padding: const EdgeInsets.all(AppTokens.gutter), children: [
-          const Text('Analysing your posture',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600, color: AppTokens.text)),
-          const SizedBox(height: 2),
-          Text(vm.current?.exerciseName ?? '',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppTokens.accent)),
-          const SizedBox(height: 20),
-          AspectRatio(
-            aspectRatio: 1.05,
-            child: Container(
-              decoration: BoxDecoration(color: AppTokens.primary, borderRadius: BorderRadius.circular(AppTokens.radiusCard)),
-              child: Center(
-                child: error == null
-                    ? const SizedBox(
-                        width: 64,
-                        height: 64,
-                        child: CircularProgressIndicator(strokeWidth: 5, color: AppTokens.progress, backgroundColor: Colors.white24),
-                      )
-                    : const Icon(Icons.error_outline, color: AppTokens.onPrimaryMuted, size: 64),
+        child: ListView(
+          padding: const EdgeInsets.all(AppTokens.gutter),
+          children: [
+            const Text(
+              'Analysing your posture',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: AppTokens.text,
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          if (error == null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: AppTokens.surface,
-                borderRadius: BorderRadius.circular(AppTokens.radiusCard),
-                border: Border.all(color: AppTokens.border),
+            const SizedBox(height: 2),
+            Text(
+              vm.current?.exerciseName ?? '',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: AppTokens.accent,
               ),
-              child: Column(children: [
-                for (var i = 0; i < steps.length; i++) _StepRow(label: steps[i], state: i < _step ? 2 : i == _step ? 1 : 0),
-              ]),
-            )
-          else ...[
-            NoticeBanner(error, warning: true), // FR300_16 / 17 / 25 / 26
-            const SizedBox(height: AppTokens.gutter),
-            TokenButton(
-              label: 'Record again', // FR300_18: show the instructions and capture again
-              color: AppTokens.action,
-              onPressed: () {
-                vm.retry();
-                Navigator.of(context).pop();
-              },
             ),
+            const SizedBox(height: 20),
+            AspectRatio(
+              aspectRatio: 1.05,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTokens.primary,
+                  borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+                ),
+                child: Center(
+                  child: error == null
+                      ? const SizedBox(
+                          width: 64,
+                          height: 64,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 5,
+                            color: AppTokens.progress,
+                            backgroundColor: Colors.white24,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.error_outline,
+                          color: AppTokens.onPrimaryMuted,
+                          size: 64,
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (error == null)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: AppTokens.surface,
+                  borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+                  border: Border.all(color: AppTokens.border),
+                ),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < steps.length; i++)
+                      _StepRow(
+                        label: steps[i],
+                        state: i < _step
+                            ? 2
+                            : i == _step
+                            ? 1
+                            : 0,
+                      ),
+                  ],
+                ),
+              )
+            else ...[
+              NoticeBanner(error, warning: true), // FR300_16 / 17 / 25 / 26
+              const SizedBox(height: AppTokens.gutter),
+              TokenButton(
+                label:
+                    'Record again', // FR300_18: show the instructions and capture again
+                color: AppTokens.action,
+                onPressed: () {
+                  vm.retry();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+            const SizedBox(height: 16),
+            if (error == null)
+              const Text(
+                'This usually takes a few seconds',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: AppTokens.accent),
+              ),
           ],
-          const SizedBox(height: 16),
-          if (error == null)
-            const Text('This usually takes a few seconds',
-                textAlign: TextAlign.center, style: TextStyle(fontSize: 14, color: AppTokens.accent)),
-        ]),
+        ),
       ),
     );
   }
@@ -135,32 +188,49 @@ class _StepRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(children: [
-          Container(
-            width: 26,
-            height: 26,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: state == 2 ? AppTokens.goodContainer : Colors.transparent,
-              border: Border.all(
-                  color: state == 1 ? AppTokens.primary : state == 2 ? AppTokens.goodContainer : AppTokens.border,
-                  width: 2),
+    padding: const EdgeInsets.symmetric(vertical: 8),
+    child: Row(
+      children: [
+        Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: state == 2 ? AppTokens.goodContainer : Colors.transparent,
+            border: Border.all(
+              color: state == 1
+                  ? AppTokens.primary
+                  : state == 2
+                  ? AppTokens.goodContainer
+                  : AppTokens.border,
+              width: 2,
             ),
-            child: state == 2
-                ? const Icon(Icons.check, size: 16, color: AppTokens.good)
-                : state == 1
-                    ? Center(
-                        child: Container(
-                            width: 10, height: 10, decoration: const BoxDecoration(color: AppTokens.primary, shape: BoxShape.circle)))
-                    : null,
           ),
-          const SizedBox(width: 14),
-          Text(label,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: state == 1 ? FontWeight.w600 : FontWeight.w500,
-                  color: state == 0 ? AppTokens.textMuted : AppTokens.text)),
-        ]),
-      );
+          child: state == 2
+              ? const Icon(Icons.check, size: 16, color: AppTokens.good)
+              : state == 1
+              ? Center(
+                  child: Container(
+                    width: 10,
+                    height: 10,
+                    decoration: const BoxDecoration(
+                      color: AppTokens.primary,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                )
+              : null,
+        ),
+        const SizedBox(width: 14),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: state == 1 ? FontWeight.w600 : FontWeight.w500,
+            color: state == 0 ? AppTokens.textMuted : AppTokens.text,
+          ),
+        ),
+      ],
+    ),
+  );
 }

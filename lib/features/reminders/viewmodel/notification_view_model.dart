@@ -40,7 +40,11 @@ class NotificationViewModel extends BaseViewModel {
     }
     final res = await _repo.getReminders(id);
     _reminders = switch (res) {
-      Success(:final data) => UiSuccess([...data]..sort((a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute))),
+      Success(:final data) => UiSuccess(
+        [...data]..sort(
+          (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+        ),
+      ),
       Failure() => const UiError(Messages.dbUnavailable),
     };
     final now = DateTime.now();
@@ -54,13 +58,17 @@ class NotificationViewModel extends BaseViewModel {
   }
 
   /// Disables or re-enables without deleting (FR600_006).
-  Future<void> toggleReminder(String id, bool on) => _change(id, (r) => _scheduler.update(r, enabled: on));
+  Future<void> toggleReminder(String id, bool on) =>
+      _change(id, (r) => _scheduler.update(r, enabled: on));
 
   /// Changes the time of day it fires (FR600_004).
   Future<void> changeTime(String id, int hour, int minute) =>
       _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute));
 
-  Future<void> _change(String id, Future<Result<Reminder>> Function(Reminder) op) async {
+  Future<void> _change(
+    String id,
+    Future<Result<Reminder>> Function(Reminder) op,
+  ) async {
     final list = switch (_reminders) {
       UiSuccess(:final data) => data,
       _ => const <Reminder>[],

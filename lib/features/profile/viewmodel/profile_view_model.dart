@@ -36,7 +36,8 @@ class ProfileViewModel extends BaseViewModel {
   /// What the screen shows: the draft while editing, else the saved profile.
   HealthProfile? get shown => isEditing ? draft : profile;
 
-  bool get hasUnsavedChanges => isEditing && draft != null && !_same(draft!, profile);
+  bool get hasUnsavedChanges =>
+      isEditing && draft != null && !_same(draft!, profile);
 
   static bool _same(HealthProfile a, HealthProfile? b) =>
       b != null &&
@@ -60,7 +61,11 @@ class ProfileViewModel extends BaseViewModel {
       notifyListeners();
       return;
     }
-    final results = await Future.wait([_profiles.getProfile(account!.accountId), _profiles.getConditions(), _profiles.getLimitations()]);
+    final results = await Future.wait([
+      _profiles.getProfile(account!.accountId),
+      _profiles.getConditions(),
+      _profiles.getLimitations(),
+    ]);
     final p = results[0] as Result<HealthProfile?>;
     if (p is Failure) {
       loadState = const UiError(Messages.profileLoadFailed);
@@ -68,9 +73,17 @@ class ProfileViewModel extends BaseViewModel {
       return;
     }
     profile = p.dataOrNull;
-    conditions = (results[1] as Result<List<HealthCondition>>).dataOrNull ?? LookupSeed.conditions;
-    limitations = (results[2] as Result<List<PhysicalLimitation>>).dataOrNull ?? LookupSeed.limitations;
-    safetyLimit = profile == null ? null : (await _profiles.getCurrentSafetyLimit(profile!.profileId)).dataOrNull;
+    conditions =
+        (results[1] as Result<List<HealthCondition>>).dataOrNull ??
+        LookupSeed.conditions;
+    limitations =
+        (results[2] as Result<List<PhysicalLimitation>>).dataOrNull ??
+        LookupSeed.limitations;
+    safetyLimit = profile == null
+        ? null
+        : (await _profiles.getCurrentSafetyLimit(
+            profile!.profileId,
+          )).dataOrNull;
     // A brand-new patient has no profile yet: open straight in edit mode.
     if (profile == null) {
       draft = HealthProfile.empty(account!.accountId);
@@ -93,8 +106,15 @@ class ProfileViewModel extends BaseViewModel {
   }
 
   /// Text fields pass their parsed value; an empty or unparsable field passes null.
-  void updateDraft({int? age, Gender? gender, double? weightKg, double? heightCm, bool clearAge = false,
-      bool clearWeight = false, bool clearHeight = false}) {
+  void updateDraft({
+    int? age,
+    Gender? gender,
+    double? weightKg,
+    double? heightCm,
+    bool clearAge = false,
+    bool clearWeight = false,
+    bool clearHeight = false,
+  }) {
     final d = draft;
     if (d == null) return;
     draft = HealthProfile(
@@ -158,8 +178,14 @@ class ProfileViewModel extends BaseViewModel {
     final errors = d.validate();
     if (errors.isNotEmpty) {
       invalidFields = errors;
-      final missing = d.age == null || d.gender == null || d.weightKg == null || d.heightCm == null;
-      saveState = UiError(missing ? Messages.requiredFieldsEmpty : Messages.valueOutOfRange); // FR100_049, FR100_051
+      final missing =
+          d.age == null ||
+          d.gender == null ||
+          d.weightKg == null ||
+          d.heightCm == null;
+      saveState = UiError(
+        missing ? Messages.requiredFieldsEmpty : Messages.valueOutOfRange,
+      ); // FR100_049, FR100_051
       notifyListeners();
       return false;
     }
@@ -168,7 +194,9 @@ class ProfileViewModel extends BaseViewModel {
     notifyListeners();
     final res = await _profiles.saveProfile(d, d.generateSafetyLimit());
     if (res is Failure) {
-      saveState = const UiError(Messages.profileSaveFailed); // the draft is kept
+      saveState = const UiError(
+        Messages.profileSaveFailed,
+      ); // the draft is kept
       notifyListeners();
       return false;
     }

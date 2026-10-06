@@ -7,9 +7,9 @@ sealed class Result<T> {
 
   /// Returns the data on success, or null on failure.
   T? get dataOrNull => switch (this) {
-        Success<T>(:final data) => data,
-        Failure<T>() => null,
-      };
+    Success<T>(:final data) => data,
+    Failure<T>() => null,
+  };
 }
 
 class Success<T> extends Result<T> {

@@ -18,7 +18,8 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
   SupabaseTreatmentRepository(this._sb);
 
   @override
-  Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId) => supabaseGuard(() async {
+  Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId) =>
+      supabaseGuard(() async {
         final row = await _sb
             .from('patient_plan')
             .select('*, treatment_plan($_planWithExercises)')
@@ -29,13 +30,21 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
       }, failMessage: Messages.planRetrieveFailed);
 
   @override
-  Future<Result<List<TreatmentPlan>>> getCatalogue() => supabaseGuard(() async =>
-      (await _sb.from('treatment_plan').select(_planWithExercises).order('plan_name')).map(TreatmentPlan.fromJson).toList());
+  Future<Result<List<TreatmentPlan>>> getCatalogue() => supabaseGuard(
+    () async =>
+        (await _sb
+                .from('treatment_plan')
+                .select(_planWithExercises)
+                .order('plan_name'))
+            .map(TreatmentPlan.fromJson)
+            .toList(),
+  );
 
   /// Only one ACTIVE plan per patient (unique partial index), so the old one is
   /// abandoned before the new one is inserted (FR500_09).
   @override
-  Future<Result<void>> assignPlan(PatientTreatmentPlan p) => supabaseGuard(() async {
+  Future<Result<void>> assignPlan(PatientTreatmentPlan p) =>
+      supabaseGuard(() async {
         await _sb
             .from('patient_plan')
             .update({'status': PlanStatus.abandoned.db})
@@ -47,41 +56,55 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
   /// One RPC, so the attempt and the plan's new progress are written in one
   /// transaction (ASR_04).
   @override
-  Future<Result<void>> saveSession(ExerciseSession s, {PatientTreatmentPlan? advancedPlan}) => supabaseGuard(() async {
-        await _sb.client.rpc('complete_exercise_session', params: {
-          'p_session_id': s.sessionId,
-          'p_exercise_id': s.exerciseId,
-          'p_completion_status': s.completionStatus.db,
-          'p_patient_plan_id': s.patientPlanId,
-          'p_completed_at': s.completedAt?.toUtc().toIso8601String(),
-          'p_duration_sec': s.durationSec,
-          'p_repetitions_completed': s.repetitionsCompleted,
-          'p_posture_accuracy': s.postureAccuracy,
-          'p_posture_feedback': s.postureFeedback,
-          'p_model_version': s.modelVersion,
-          if (advancedPlan != null) 'p_new_progress': advancedPlan.progressPercentage,
-          if (advancedPlan != null) 'p_new_plan_status': advancedPlan.status.db,
-        });
-      }, failMessage: Messages.progressSaveFailed);
+  Future<Result<void>> saveSession(
+    ExerciseSession s, {
+    PatientTreatmentPlan? advancedPlan,
+  }) => supabaseGuard(() async {
+    await _sb.client.rpc(
+      'complete_exercise_session',
+      params: {
+        'p_session_id': s.sessionId,
+        'p_exercise_id': s.exerciseId,
+        'p_completion_status': s.completionStatus.db,
+        'p_patient_plan_id': s.patientPlanId,
+        'p_completed_at': s.completedAt?.toUtc().toIso8601String(),
+        'p_duration_sec': s.durationSec,
+        'p_repetitions_completed': s.repetitionsCompleted,
+        'p_posture_accuracy': s.postureAccuracy,
+        'p_posture_feedback': s.postureFeedback,
+        'p_model_version': s.modelVersion,
+        if (advancedPlan != null)
+          'p_new_progress': advancedPlan.progressPercentage,
+        if (advancedPlan != null) 'p_new_plan_status': advancedPlan.status.db,
+      },
+    );
+  }, failMessage: Messages.progressSaveFailed);
 
   @override
-  Future<Result<List<ExerciseSession>>> getSessions(String patientPlanId) => supabaseGuard(() async => (await _sb
-          .from('exercise_session')
-          .select()
-          .eq('patient_plan_id', patientPlanId)
-          .order('completed_at', ascending: true, nullsFirst: false))
-      .map(ExerciseSession.fromJson)
-      .toList());
+  Future<Result<List<ExerciseSession>>> getSessions(String patientPlanId) =>
+      supabaseGuard(
+        () async =>
+            (await _sb
+                    .from('exercise_session')
+                    .select()
+                    .eq('patient_plan_id', patientPlanId)
+                    .order('completed_at', ascending: true, nullsFirst: false))
+                .map(ExerciseSession.fromJson)
+                .toList(),
+      );
 
   @override
-  Future<Result<void>> endPlan(PatientTreatmentPlan p) => supabaseGuard(() async {
+  Future<Result<void>> endPlan(PatientTreatmentPlan p) =>
+      supabaseGuard(() async {
         await _sb
             .from('patient_plan')
-            .update({'status': PlanStatus.abandoned.db}).eq('patient_plan_id', p.patientPlanId);
+            .update({'status': PlanStatus.abandoned.db})
+            .eq('patient_plan_id', p.patientPlanId);
       });
 
   @override
-  Future<Result<void>> saveChatMessage(ChatMessage m) => supabaseGuard(() async {
+  Future<Result<void>> saveChatMessage(ChatMessage m) =>
+      supabaseGuard(() async {
         await _sb.from('chat_message').insert(m.toJson());
       });
 }

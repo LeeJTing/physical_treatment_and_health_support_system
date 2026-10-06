@@ -37,46 +37,52 @@ class ExerciseSession {
   double durationMinutes() => (durationSec ?? 0) / 60;
 
   ExerciseSession withStatus(CompletionStatus s) => ExerciseSession(
-        sessionId: sessionId,
-        accountId: accountId,
-        patientPlanId: patientPlanId,
-        exerciseId: exerciseId,
-        completedAt: s == CompletionStatus.completed ? (completedAt ?? DateTime.now()) : null,
-        durationSec: durationSec,
-        repetitionsCompleted: repetitionsCompleted,
-        completionStatus: s,
-        postureAccuracy: postureAccuracy,
-        postureFeedback: postureFeedback,
-        modelVersion: modelVersion,
-      );
+    sessionId: sessionId,
+    accountId: accountId,
+    patientPlanId: patientPlanId,
+    exerciseId: exerciseId,
+    completedAt: s == CompletionStatus.completed
+        ? (completedAt ?? DateTime.now())
+        : null,
+    durationSec: durationSec,
+    repetitionsCompleted: repetitionsCompleted,
+    completionStatus: s,
+    postureAccuracy: postureAccuracy,
+    postureFeedback: postureFeedback,
+    modelVersion: modelVersion,
+  );
 
   Map<String, dynamic> toJson() => {
-        'session_id': sessionId,
-        'account_id': accountId,
-        'patient_plan_id': patientPlanId,
-        'exercise_id': exerciseId,
-        'completed_at': completedAt?.toIso8601String(),
-        'duration_sec': durationSec,
-        'repetitions_completed': repetitionsCompleted,
-        'completion_status': completionStatus.db,
-        'posture_accuracy': postureAccuracy,
-        'posture_feedback': postureFeedback,
-        'model_version': modelVersion,
-      };
+    'session_id': sessionId,
+    'account_id': accountId,
+    'patient_plan_id': patientPlanId,
+    'exercise_id': exerciseId,
+    'completed_at': completedAt?.toIso8601String(),
+    'duration_sec': durationSec,
+    'repetitions_completed': repetitionsCompleted,
+    'completion_status': completionStatus.db,
+    'posture_accuracy': postureAccuracy,
+    'posture_feedback': postureFeedback,
+    'model_version': modelVersion,
+  };
 
   factory ExerciseSession.fromJson(Map<String, dynamic> j) => ExerciseSession(
-        sessionId: j['session_id'] as String,
-        accountId: j['account_id'] as String,
-        patientPlanId: j['patient_plan_id'] as String?,
-        exerciseId: j['exercise_id'] as String,
-        completedAt: j['completed_at'] == null ? null : DateTime.parse(j['completed_at'] as String),
-        durationSec: (j['duration_sec'] as num?)?.toInt(),
-        repetitionsCompleted: (j['repetitions_completed'] as num?)?.toInt(),
-        completionStatus: CompletionStatus.fromDb(j['completion_status'] as String?),
-        postureAccuracy: (j['posture_accuracy'] as num?)?.toDouble(),
-        postureFeedback: j['posture_feedback'] as String?,
-        modelVersion: j['model_version'] as String?,
-      );
+    sessionId: j['session_id'] as String,
+    accountId: j['account_id'] as String,
+    patientPlanId: j['patient_plan_id'] as String?,
+    exerciseId: j['exercise_id'] as String,
+    completedAt: j['completed_at'] == null
+        ? null
+        : DateTime.parse(j['completed_at'] as String),
+    durationSec: (j['duration_sec'] as num?)?.toInt(),
+    repetitionsCompleted: (j['repetitions_completed'] as num?)?.toInt(),
+    completionStatus: CompletionStatus.fromDb(
+      j['completion_status'] as String?,
+    ),
+    postureAccuracy: (j['posture_accuracy'] as num?)?.toDouble(),
+    postureFeedback: j['posture_feedback'] as String?,
+    modelVersion: j['model_version'] as String?,
+  );
 }
 
 /// Response of the /pose endpoint (FR300_07 to FR300_10). Not stored on its own: copied
@@ -88,7 +94,8 @@ class PostureResult {
   final int repetitions;
   final double? holdSeconds; // hold exercises such as Tandem Stance
   final List<String> feedback;
-  final Map<String, int> mistakes; // mistake label -> repetitions it was seen in
+  final Map<String, int>
+  mistakes; // mistake label -> repetitions it was seen in
   final String modelVersion;
 
   const PostureResult({
@@ -104,14 +111,17 @@ class PostureResult {
   bool get isPassing => accuracy >= ExerciseSession.passMark;
 
   factory PostureResult.fromJson(Map<String, dynamic> j) => PostureResult(
-        fullBodyVisible: (j['full_body_visible'] ?? true) as bool,
-        accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
-        repetitions: (j['repetitions'] as num?)?.toInt() ?? 0,
-        holdSeconds: (j['hold_seconds'] as num?)?.toDouble(),
-        feedback: ((j['feedback'] as List?) ?? const []).map((e) => e.toString()).toList(),
-        mistakes: {
-          for (final e in ((j['mistakes'] as Map?) ?? const {}).entries) e.key.toString(): (e.value as num).toInt()
-        },
-        modelVersion: (j['model_version'] ?? 'unknown') as String,
-      );
+    fullBodyVisible: (j['full_body_visible'] ?? true) as bool,
+    accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
+    repetitions: (j['repetitions'] as num?)?.toInt() ?? 0,
+    holdSeconds: (j['hold_seconds'] as num?)?.toDouble(),
+    feedback: ((j['feedback'] as List?) ?? const [])
+        .map((e) => e.toString())
+        .toList(),
+    mistakes: {
+      for (final e in ((j['mistakes'] as Map?) ?? const {}).entries)
+        e.key.toString(): (e.value as num).toInt(),
+    },
+    modelVersion: (j['model_version'] ?? 'unknown') as String,
+  );
 }
