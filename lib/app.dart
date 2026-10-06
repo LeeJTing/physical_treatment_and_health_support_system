@@ -34,7 +34,7 @@ class MainApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (c) => AuthViewModel(c.read(), c.read()),
       child: MaterialApp(
-        title: 'APTHS',
+        title: 'HealthGuide',
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,

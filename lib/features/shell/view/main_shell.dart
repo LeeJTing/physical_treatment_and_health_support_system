@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/features/home/view/home_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/home/viewmodel/home_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/profile/view/profile_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/profile/viewmodel/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/treatment_tab_view.dart';
@@ -28,19 +29,34 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    // The tab ViewModels live above the IndexedStack so switching tabs can refresh them.
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (c) => HomeViewModel(c.read(), c.read(), c.read(), c.read())),
+        ChangeNotifierProvider(create: (c) => TreatmentViewModel(c.read(), c.read(), c.read(), c.read(), c.read())),
+        ChangeNotifierProvider(create: (c) => ProfileViewModel(c.read(), c.read())..loadProfile()),
+      ],
+      child: Builder(builder: _scaffold),
+    );
+  }
+
+  /// Data on Home and Treatment changes on other tabs (a finished exercise, a new plan,
+  /// an edited profile), so they reload when opened again.
+  void _select(BuildContext context, int i) {
+    if (i == _index) return;
+    setState(() => _index = i);
+    if (i == 0) context.read<HomeViewModel>().load();
+    if (i == MainShell.treatmentTab) context.read<TreatmentViewModel>().loadPlan();
+  }
+
+  Widget _scaffold(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _index, children: [
-        const HomeView(),
-        const ComingSoonView('Tracking'),
-        ChangeNotifierProvider(
-          create: (c) => TreatmentViewModel(c.read(), c.read(), c.read(), c.read(), c.read()),
-          child: const TreatmentTabView(),
-        ),
-        const ComingSoonView('Diet'),
-        ChangeNotifierProvider(
-          create: (c) => ProfileViewModel(c.read(), c.read())..loadProfile(),
-          child: const ProfileView(),
-        ),
+      body: IndexedStack(index: _index, children: const [
+        HomeView(),
+        ComingSoonView('Tracking'),
+        TreatmentTabView(),
+        ComingSoonView('Diet'),
+        ProfileView(),
       ]),
       bottomNavigationBar: NavigationBarTheme(
         data: NavigationBarThemeData(
@@ -57,7 +73,7 @@ class _MainShellState extends State<MainShell> {
         ),
         child: NavigationBar(
           selectedIndex: _index,
-          onDestinationSelected: (i) => setState(() => _index = i),
+          onDestinationSelected: (i) => _select(context, i),
           destinations: const [
             NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Home'),
             NavigationDestination(icon: Icon(Icons.show_chart), label: 'Tracking'),
