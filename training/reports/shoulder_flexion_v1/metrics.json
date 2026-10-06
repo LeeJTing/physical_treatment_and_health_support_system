@@ -1,0 +1,35 @@
+{
+  "accuracy": 1.0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1": 1.0,
+  "confusion_matrix": {
+    "labels": [
+      "incorrect",
+      "correct"
+    ],
+    "rows_true_cols_pred": [
+      [
+        27,
+        0
+      ],
+      [
+        0,
+        25
+      ]
+    ]
+  },
+  "mistake_type_accuracy": 0.9259259259259259,
+  "split": "clip (fewer than 3 people; variants stay with their clip)",
+  "stopping": "early stopping",
+  "n_train": 869,
+  "n_val": 33,
+  "n_test": 52,
+  "n_train_augmented": 695,
+  "people_test": [
+    "own-p01"
+  ],
+  "epochs_run": 57,
+  "train_seconds": 4.6,
+  "device": "cuda"
+}

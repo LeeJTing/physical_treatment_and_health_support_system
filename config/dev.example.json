@@ -1,0 +1,6 @@
+{
+  "USE_FAKES": "false",
+  "SUPABASE_URL": "https://YOUR-PROJECT-REF.supabase.co",
+  "SUPABASE_ANON_KEY": "sb_publishable_xxx (the publishable / anon key, never the secret or service-role key)",
+  "AI_BASE_URL": "https://your-tunnel.trycloudflare.com"
+}

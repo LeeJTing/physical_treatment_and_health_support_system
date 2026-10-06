@@ -1,0 +1,174 @@
+"""Video -> per-frame body landmarks with MediaPipe Pose Landmarker (FR300_07).
+
+Frames are sampled at `target_fps` (default 10) to keep a 30 s clip near
+10 s of processing on the CPU. Landmarks are returned in PIXELS (x, y) so
+angles are not distorted by the frame's aspect ratio, plus visibility.
+"""
+from dataclasses import dataclass, replace
+from pathlib import Path
+
+import cv2
+import numpy as np
+
+# MediaPipe landmark indices used by the exercises.
+NOSE = 0
+L_SHOULDER, R_SHOULDER = 11, 12
+L_ELBOW, R_ELBOW = 13, 14
+L_WRIST, R_WRIST = 15, 16
+L_HIP, R_HIP = 23, 24
+L_KNEE, R_KNEE = 25, 26
+L_ANKLE, R_ANKLE = 27, 28
+L_HEEL, R_HEEL = 29, 30
+L_FOOT, R_FOOT = 31, 32
+
+DEFAULT_MODEL = Path(__file__).resolve().parents[2] / "models" / "weights" / "pose_landmarker_full.task"
+
+
+@dataclass
+class VideoInfo:
+    fps: float
+    frame_count: int
+    width: int
+    height: int
+
+    @property
+    def duration_sec(self) -> float:
+        return self.frame_count / self.fps if self.fps else 0.0
+
+
+@dataclass
+class PoseSequence:
+    """xy: (T, 33, 2) pixels, NaN where no person was found.
+    vis: (T, 33) visibility 0..1 (0 where no person). t: (T,) seconds."""
+    xy: np.ndarray
+    vis: np.ndarray
+    t: np.ndarray
+    info: VideoInfo
+
+    @property
+    def fps(self) -> float:
+        return 1.0 / float(np.median(np.diff(self.t))) if len(self.t) > 1 else 0.0
+
+    @property
+    def detected_ratio(self) -> float:
+        return float(np.mean(~np.isnan(self.xy[:, 0, 0]))) if len(self.t) else 0.0
+
+
+def read_video_info(path: str | Path) -> VideoInfo:
+    cap = cv2.VideoCapture(str(path))
+    try:
+        if not cap.isOpened():
+            raise ValueError("The video file cannot be opened.")
+        w = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) or 0)
+        h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) or 0)
+        # Phones store portrait video as landscape frames plus a rotation tag.
+        # OpenCV applies the rotation when reading frames, so report the rotated size.
+        if int(cap.get(cv2.CAP_PROP_ORIENTATION_META) or 0) % 180 == 90:
+            w, h = h, w
+        return VideoInfo(fps=float(cap.get(cv2.CAP_PROP_FPS) or 0.0),
+                         frame_count=int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0), width=w, height=h)
+    finally:
+        cap.release()
+
+
+def _make_landmarker(model_path: Path):
+    from mediapipe.tasks.python import vision
+    from mediapipe.tasks.python.core.base_options import BaseOptions
+
+    options = vision.PoseLandmarkerOptions(
+        base_options=BaseOptions(model_asset_path=str(model_path)),
+        running_mode=vision.RunningMode.VIDEO,
+        num_poses=1,
+        min_pose_detection_confidence=0.5,
+        min_pose_presence_confidence=0.5,
+        min_tracking_confidence=0.5,
+    )
+    return vision.PoseLandmarker.create_from_options(options)
+
+
+def extract(
+    path: str | Path,
+    target_fps: float = 10.0,
+    model_path: Path = DEFAULT_MODEL,
+    start_frame: int = 0,
+    end_frame: int | None = None,
+    transform=None,
+) -> PoseSequence:
+    """Runs the pose landmarker on every n-th frame of the video.
+
+    start_frame / end_frame (inclusive) limit the work to part of a long
+    video, e.g. one labelled repetition of a public dataset.
+    transform(frame_bgr) -> frame_bgr is applied to every analysed frame before detection
+    (training-time augmentation: recoloured outfit, lighting, mirror...).
+    """
+    batch = (lambda f: [transform(f)]) if transform is not None else None
+    return extract_many(path, 1, batch, target_fps, model_path, start_frame, end_frame)[0]
+
+
+def extract_many(
+    path: str | Path,
+    n: int,
+    transform_batch=None,
+    target_fps: float = 10.0,
+    model_path: Path = DEFAULT_MODEL,
+    start_frame: int = 0,
+    end_frame: int | None = None,
+) -> list[PoseSequence]:
+    """Like extract, but transform_batch(frame_bgr) -> n frames, each tracked by its own
+    landmarker: the video is decoded once for n augmented versions of it."""
+    import mediapipe as mp
+
+    base = read_video_info(path)
+    src_fps = base.fps if base.fps > 0 else 30.0
+    step = max(1, round(src_fps / target_fps))
+    cap = cv2.VideoCapture(str(path))
+    landmarkers = [_make_landmarker(model_path) for _ in range(n)]
+    infos = [replace(base) for _ in range(n)]
+    out = [([], [], []) for _ in range(n)]
+    try:
+        if start_frame:
+            cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        idx = start_frame
+        while True:
+            if end_frame is not None and idx > end_frame:
+                break
+            ok, frame = cap.read()
+            if not ok:
+                break
+            if (idx - start_frame) % step == 0:
+                frames = transform_batch(frame) if transform_batch is not None else [frame]
+                ts_ms = int(round(idx * 1000.0 / src_fps))
+                for k, (fr, lmk, info, (xs, vs, ts)) in enumerate(zip(frames, landmarkers, infos, out)):
+                    h, w = fr.shape[:2]
+                    info.width, info.height = w, h  # the size actually analysed
+                    rgb = np.ascontiguousarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB))
+                    result = lmk.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), ts_ms)
+                    if result.pose_landmarks:
+                        lm = result.pose_landmarks[0]
+                        xs.append([[p.x * w, p.y * h] for p in lm])
+                        vs.append([float(getattr(p, "visibility", 1.0) or 0.0) for p in lm])
+                    else:
+                        xs.append(np.full((33, 2), np.nan).tolist())
+                        vs.append([0.0] * 33)
+                    ts.append(idx / src_fps)
+            idx += 1
+    finally:
+        for lmk in landmarkers:
+            lmk.close()
+        cap.release()
+    return [PoseSequence(xy=np.asarray(xs, dtype=np.float32).reshape(-1, 33, 2),
+                         vis=np.asarray(vs, dtype=np.float32).reshape(-1, 33),
+                         t=np.asarray(ts, dtype=np.float32), info=info)
+            for info, (xs, vs, ts) in zip(infos, out)]
+
+
+def save(seq: PoseSequence, path: str | Path) -> None:
+    i = seq.info
+    np.savez_compressed(path, xy=seq.xy, vis=seq.vis, t=seq.t,
+                        info=np.array([i.fps, i.frame_count, i.width, i.height], dtype=np.float64))
+
+
+def load(path: str | Path) -> PoseSequence:
+    d = np.load(path)
+    fps, n, w, h = d["info"].tolist()
+    return PoseSequence(xy=d["xy"], vis=d["vis"], t=d["t"], info=VideoInfo(fps, int(n), int(w), int(h)))

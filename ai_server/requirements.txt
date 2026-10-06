@@ -1,0 +1,15 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+python-multipart>=0.0.9
+pydantic>=2.7
+pydantic-settings>=2.3
+PyJWT[crypto]>=2.8
+rapidfuzz>=3.9
+# Posture (/pose)
+mediapipe>=1.0
+opencv-python-headless>=4.10
+numpy>=2.0
+# Training only (PC): torch with CUDA from download.pytorch.org, matplotlib, scikit-learn
+# Tests
+pytest>=8
+httpx>=0.27

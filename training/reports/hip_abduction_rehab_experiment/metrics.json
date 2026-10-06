@@ -1,0 +1,34 @@
+{
+  "accuracy": 0.6,
+  "precision": 0.6,
+  "recall": 1.0,
+  "f1": 0.7499999999999999,
+  "confusion_matrix": {
+    "labels": [
+      "incorrect",
+      "correct"
+    ],
+    "rows_true_cols_pred": [
+      [
+        0,
+        10
+      ],
+      [
+        0,
+        15
+      ]
+    ]
+  },
+  "mistake_type_accuracy": null,
+  "split": "person",
+  "n_train": 81,
+  "n_val": 10,
+  "n_test": 25,
+  "people_test": [
+    "rehab-6",
+    "rehab-8"
+  ],
+  "epochs_run": 94,
+  "train_seconds": 1.0,
+  "device": "cuda"
+}
