@@ -8,8 +8,8 @@ class SupabaseProvider {
 
   SupabaseProvider(this.client);
 
-  static Future<SupabaseProvider> initialise({required String url, required String anonKey}) async {
-    await Supabase.initialize(url: url, anonKey: anonKey);
+  static Future<SupabaseProvider> initialise({required String url, required String publishableKey}) async {
+    await Supabase.initialize(url: url, publishableKey: publishableKey);
     return SupabaseProvider(Supabase.instance.client);
   }
 
