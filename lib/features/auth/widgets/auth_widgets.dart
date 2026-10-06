@@ -192,11 +192,17 @@ class _LabeledFieldState extends State<LabeledField> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         style:
             widget.style ?? const TextStyle(color: AppTokens.ink, fontSize: 17),
+        cursorColor: AppTokens.brandDeep,
+        // Every colour is fixed: with the phone in dark mode the theme's defaults
+        // were white text on these light screens.
         decoration: InputDecoration(
           filled: true,
           fillColor: AppTokens.surface,
           hintText: widget.hint,
+          hintStyle: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
           helperText: widget.helper,
+          helperStyle: const TextStyle(color: AppTokens.inkMuted, fontSize: 14),
+          errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 14),
           helperMaxLines: 3,
           errorMaxLines: 3,
           counterText: '',
@@ -246,9 +252,10 @@ class PillButton extends StatelessWidget {
       onPressed: busy ? null : onPressed,
       style: FilledButton.styleFrom(
         backgroundColor: AppTokens.cta,
-        disabledBackgroundColor: AppTokens.cta.withValues(alpha: 0.4),
+        // Disabled: grey with dark text, readable (white on pale orange was not).
+        disabledBackgroundColor: AppTokens.cardBorder,
         foregroundColor: Colors.white,
-        disabledForegroundColor: Colors.white,
+        disabledForegroundColor: AppTokens.inkMuted,
         shape: const StadiumBorder(),
         textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
       ),
@@ -258,7 +265,7 @@ class PillButton extends StatelessWidget {
               height: 24,
               child: CircularProgressIndicator(
                 strokeWidth: 2.5,
-                color: Colors.white,
+                color: AppTokens.brandDeep, // on the grey disabled background
               ),
             )
           : Text(label),
@@ -297,7 +304,10 @@ class OutlinedPillButton extends StatelessWidget {
           ? const SizedBox(
               width: 24,
               height: 24,
-              child: CircularProgressIndicator(strokeWidth: 2.5),
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
+                color: AppTokens.brandDeep,
+              ),
             )
           : Row(
               mainAxisAlignment: MainAxisAlignment.center,

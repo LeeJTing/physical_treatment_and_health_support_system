@@ -201,7 +201,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           const Text(
-                            'New patient?',
+                            'New user?',
                             style: TextStyle(
                               color: AppTokens.inkMuted,
                               fontSize: 16,

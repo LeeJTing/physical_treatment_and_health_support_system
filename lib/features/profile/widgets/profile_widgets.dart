@@ -434,11 +434,13 @@ class NumberField extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.w500,
         ),
+        cursorColor: AppTokens.brandDeep,
         decoration: InputDecoration(
           filled: true,
           fillColor: AppTokens.surface,
           isDense: true,
           errorMaxLines: 3,
+          errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 13),
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 14,
             vertical: 14,

@@ -38,6 +38,9 @@ class MainApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: lightTheme,
         darkTheme: darkTheme,
+        // The Figma screens are light-only and hard-code light backgrounds; following
+        // the phone's dark mode made theme-coloured text white on them.
+        themeMode: ThemeMode.light,
         supportedLocales: L10n.all,
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
