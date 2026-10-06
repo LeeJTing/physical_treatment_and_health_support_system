@@ -4,6 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/app.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
+import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
@@ -31,6 +36,7 @@ Future<void> main() async {
     treatmentRepo = FakeTreatmentRepository.fromJson(catalogue);
     notificationRepo = FakeNotificationRepository();
     tokenProvider = () => 'dev-token';
+    await _signInDemoPatient(authRepo, profileRepo);
   } else {
     // Wired once the Supabase project is ready: SupabaseProvider.initialise(...)
     // and the Supabase*Repository classes.
@@ -47,9 +53,29 @@ Future<void> main() async {
         Provider<ITreatmentRepository>.value(value: treatmentRepo),
         Provider<INotificationRepository>.value(value: notificationRepo),
         Provider<ApiClient>.value(value: api),
-        // Services and ViewModels are added here module by module.
+        // Services are added here module by module; ViewModels are created per route in app.dart.
+        Provider<ProfileInfoService>.value(value: ProfileInfoService(authRepo, profileRepo)),
+        Provider<RecommendationService>.value(value: RecommendationService(api)),
       ],
       child: const MainApp(),
     ),
   );
+}
+
+/// Fake mode only: signs in the seeded demo account and gives it a complete
+/// profile, so the planning screens can be used before the Phase 2 login
+/// and profile screens exist. Remove once those are built.
+Future<void> _signInDemoPatient(IAuthRepository auth, IProfileRepository profiles) async {
+  final account = (await auth.login('demo@apths.test', 'password123')).dataOrNull;
+  if (account == null) return;
+  final profile = HealthProfile(
+    profileId: newId(),
+    accountId: account.accountId,
+    age: 58,
+    gender: Gender.male,
+    weightKg: 72,
+    heightCm: 170,
+    updatedAt: DateTime.now(),
+  );
+  await profiles.saveProfile(profile, profile.generateSafetyLimit());
 }

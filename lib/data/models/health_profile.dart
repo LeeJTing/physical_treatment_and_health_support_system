@@ -183,11 +183,13 @@ class HealthProfile {
 
 /// Object returned by UC1000 Retrieve Profile Information (C2).
 class ProfileSnapshot {
+  /// The signed-in account, also set when no profile has been saved yet.
+  final String? accountId;
   final HealthProfile? profile;
   final SafetyLimit safetyLimit;
   final ProfileStatus status;
 
-  const ProfileSnapshot({this.profile, required this.safetyLimit, required this.status});
+  const ProfileSnapshot({this.accountId, this.profile, required this.safetyLimit, required this.status});
 
   RiskLevel get riskLevel => profile?.assignRiskLevel() ?? RiskLevel.high;
 }
