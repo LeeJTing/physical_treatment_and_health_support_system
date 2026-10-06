@@ -29,6 +29,8 @@ class AppTokens {
   // Actions and status
   static const action = Color(0xFFD85A30); // Select
   static const danger = Color(0xFFE24B4A); // Reject all plans
+  static const dangerContainer = Color(0xFFFCE8E7); // urgent safety answer in the chat
+  static const onDanger = Color(0xFF8E1F1E);
   static const good = Color(0xFF27500A);
   static const goodContainer = Color(0xFFEAF3DE);
   static const caution = Color(0xFF854F0B);

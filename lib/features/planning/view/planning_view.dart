@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/features/chat/view/chat_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/chat/viewmodel/chat_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/view/recommended_plans_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/view/rehab_questionnaire_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/viewmodel/planning_view_model.dart';
@@ -53,10 +55,13 @@ class PlanningView extends StatelessWidget {
                       icon: Icons.chat_bubble_outline,
                       title: 'Chat bot',
                       subtitle: 'Ask rehabilitation-related questions',
-                      // M500.2 chat assistant is Phase 5.
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('The chat bot is coming in the next update.')),
-                      ),
+                      // FR500_17: the chatbot opens within the planning module.
+                      onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                        builder: (_) => ChangeNotifierProvider(
+                          create: (c) => ChatViewModel(c.read(), c.read(), c.read()),
+                          child: const ChatView(),
+                        ),
+                      )),
                     ),
                     const SizedBox(height: 28),
                     const Text('How it works',
