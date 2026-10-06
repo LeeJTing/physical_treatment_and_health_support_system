@@ -94,6 +94,9 @@ def main():
     X, y, ym, groups = d["X"], d["y_correct"], d["y_mistake"], d["groups"]
     clips = d["clip"] if "clip" in d else np.arange(len(y)).astype(str)
     aug = d["aug"] if "aug" in d else np.zeros(len(y), int)
+    if "--own-only" in sys.argv:             # only Elwin's recordings (drops REHAB24-6 people)
+        keep = np.char.startswith(groups.astype(str), "own")
+        X, y, ym, groups, clips, aug = X[keep], y[keep], ym[keep], groups[keep], clips[keep], aug[keep]
     if "--no-aug" in sys.argv:               # same folds, augmented copies left out of training
         keep = aug == 0
         X, y, ym, groups, clips, aug = X[keep], y[keep], ym[keep], groups[keep], clips[keep], aug[keep]
@@ -109,7 +112,7 @@ def main():
         print(f"  {name:20s} accuracy {m['accuracy']:.0%}  precision {m['precision']:.2f}  recall {m['recall']:.2f}  "
               f"F1 {m['f1']:.2f}  confusion {m['confusion_matrix']['rows_true_cols_pred']}")
     REPORTS.mkdir(exist_ok=True)
-    tag = "_noaug" if "--no-aug" in sys.argv else ""
+    tag = ("_own" if "--own-only" in sys.argv else "") + ("_noaug" if "--no-aug" in sys.argv else "")
     (REPORTS / f"cv_{key}{tag}.json").write_text(json.dumps(
         {"method": method, "reps_scored": int(orig.sum()), "reps_augmented_in_training": int((~orig).sum()),
          "people": int(len(np.unique(groups))), "clips": int(len(np.unique(clips))), "results": results},
