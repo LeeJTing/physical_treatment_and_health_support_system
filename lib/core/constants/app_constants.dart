@@ -59,6 +59,47 @@ class AppConstants {
 class Messages {
   Messages._();
 
+  // UC100 Register Account
+  static const registrationUnavailable = 'Registration service is temporarily unavailable. Please try again later.';
+  static const usernameBlank = 'Username cannot be blank. Please enter your name.';
+  static const emailInvalid = 'Email address is invalid.';
+  static const passwordInvalid =
+      'Password must be at least 8 characters and contain at least one letter and one number.';
+  static const passwordMismatch = 'Confirm password does not match your password. Please check both fields.';
+  static const emailExists = 'The entered email already has an account. Please log in instead.';
+  static const useGoogle = 'This email was registered with Google. Please continue with Google.';
+  static const codeIncorrect = 'The verification code entered is incorrect.';
+  static const codeExpired = 'The verification code has expired. Please request a new code.';
+  static const verificationEmailFailed =
+      'We could not send the verification email. Please check your address and try again.';
+  static const discardRegistration = 'Cancel registration? The information you have entered will not be saved.';
+  static const googleLinked = 'Your Google account has been linked to your existing account.';
+  static const registrationFailed = 'Unable to create your account. Please try again.';
+
+  // UC200 Login / reset password
+  static const loginUnavailable = 'Login service is temporarily unavailable. Please try again later.';
+  static const emailEmpty = 'Please fill in your email address.';
+  static const passwordEmpty = 'Please fill in your password.';
+  static const resetCodeSent = 'If an account exists for this email, a 6-digit reset code has been sent to it.';
+  static const passwordResetDone = 'Your password has been reset. Please log in with your new password.';
+  static const googleOnlyAccount = 'This account signs in with Google. Please use Continue with Google.';
+  static const incorrectCredentials = 'The email or password you entered is incorrect.';
+  static const emailNotVerified = 'Please verify your email address before logging in.';
+  static const accountLocked = 'Too many failed attempts. Your account is locked for 15 minutes.';
+
+  // UC300 Manage Profile
+  static const valueOutOfRange = 'The value entered is outside the accepted range. Please check your entry.';
+  static const requiredFieldsEmpty = 'Please complete every required field before saving.';
+  static const profileSaveFailed = 'Unable to save your profile. Please try again.';
+  static const profileSaved = 'Your health profile has been saved.';
+  static const highRiskAdvisory =
+      'Based on the conditions you declared, please consult a healthcare professional before starting any exercise programme.';
+  static const passwordChanged = 'Your password has been updated. You have been signed out of your other devices.';
+  static const currentPasswordIncorrect = 'The current password you entered is incorrect.';
+  static const confirmLogout = 'Log out of your account?';
+  static const discardChanges = 'Discard your unsaved changes?';
+  static const profileLoadFailed = 'Unable to load your profile. Please try again.';
+
   // UC400 (M500)
   static const conditionNotMet =
       'No suitable treatment plan is available based on your current health condition.';

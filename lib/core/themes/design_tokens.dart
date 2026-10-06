@@ -34,6 +34,24 @@ class AppTokens {
   static const caution = Color(0xFF854F0B);
   static const cautionContainer = Color(0xFFFAEEDA);
 
+  // Login and Profile screens. Their Figma frames use a slightly different
+  // green, orange and background from the planning screens above.
+  static const brandDeep = Color(0xFF054E4A); // header band, selected chips, avatar initials
+  static const brandDeepAccent = Color(0xFF0C675F); // logo circle, "Forgot password?", "Edit"
+  static const onBrandMuted = Color(0xFF80B5AE); // subtitle on the header band
+  static const screenBackground = Color(0xFFF6F9F8);
+  static const ink = Color(0xFF0C1A19); // headings
+  static const inkMuted = Color(0xFF5A6B69); // field labels, secondary text
+  static const outline = Color(0xFF6E8481); // text-field and outlined-button borders
+  static const cta = Color(0xFFC34317); // "Log In", "Create account", "Log out"
+  static const cardBorder = Color(0xFFDDE7E5);
+  static const tint = Color(0xFFE3EFED); // health-profile stats card, avatar circle
+  static const warnContainer = Color(0xFFFDF1DD); // risk pill, BMI pill, advisory banner
+  static const onWarn = Color(0xFF8B5200);
+  static const successContainer = Color(0xFFE5F4EB); // "Connected" pill
+  static const radiusField = 14.0;
+  static const radiusPill = 28.0; // Log In and Google buttons are fully rounded
+
   // Dimensions
   static const gutter = 16.0;
   static const gap = 12.0;

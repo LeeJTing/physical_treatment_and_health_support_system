@@ -10,7 +10,7 @@ class FormValidators {
 
   static String? username(String? v) {
     final s = (v ?? '').trim();
-    if (s.isEmpty) return 'Username is required.';
+    if (s.isEmpty) return Messages.usernameBlank;
     if (s.length < AppConstants.usernameMin || s.length > AppConstants.usernameMax) {
       return 'Username must be 3 to 30 characters.';
     }
@@ -19,23 +19,24 @@ class FormValidators {
 
   static String? email(String? v) {
     final s = (v ?? '').trim();
-    if (s.isEmpty) return 'Email address is required.';
-    if (!_email.hasMatch(s)) return 'Enter a valid email address.';
+    if (s.isEmpty) return Messages.emailEmpty;
+    if (!_email.hasMatch(s)) return Messages.emailInvalid;
     return null;
   }
 
   static String? password(String? v) {
     final s = v ?? '';
-    if (s.isEmpty) return 'Password is required.';
-    if (s.length < AppConstants.passwordMin) {
-      return 'Password must be at least 8 characters.';
+    if (s.isEmpty) return Messages.passwordEmpty;
+    // Table 3.3 password rule, as worded in UC100 M4: 8+ characters with a letter and a number.
+    if (s.length < AppConstants.passwordMin || !s.contains(RegExp(r'[A-Za-z]')) || !s.contains(RegExp(r'\d'))) {
+      return Messages.passwordInvalid;
     }
     return null;
   }
 
   static String? confirmPassword(String? pw, String? confirm) {
     if ((confirm ?? '').isEmpty) return 'Please confirm your password.';
-    if (pw != confirm) return 'Passwords do not match.';
+    if (pw != confirm) return Messages.passwordMismatch;
     return null;
   }
 
@@ -48,16 +49,14 @@ class FormValidators {
   static String? intInRange(String? v, int min, int max, String label) {
     final n = int.tryParse((v ?? '').trim());
     if (n == null) return '$label is required.';
-    if (n < min || n > max) return '$label must be between $min and $max.';
+    if (n < min || n > max) return Messages.valueOutOfRange;
     return null;
   }
 
   static String? doubleInRange(String? v, double min, double max, String label) {
     final n = double.tryParse((v ?? '').trim());
     if (n == null) return '$label is required.';
-    if (n < min || n > max) {
-      return '$label must be between ${min.toStringAsFixed(0)} and ${max.toStringAsFixed(0)}.';
-    }
+    if (n < min || n > max) return Messages.valueOutOfRange;
     return null;
   }
 }
