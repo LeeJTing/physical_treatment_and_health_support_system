@@ -183,11 +183,38 @@ class AuthViewModel extends BaseViewModel {
     googleState = const Loading();
     notifyListeners();
     final res = await _auth.signInWithGoogle();
+    // On success the browser is open; the spinner stays until the patient comes back.
+    _awaitingGoogle = res.isSuccess;
     googleState = switch (res) {
-      Success() => const Idle(), // waiting for the redirect
+      Success() => const Loading(),
       Failure f => UiError(f.code == 'unsupported' ? f.message : messageFor(f)),
     };
     notifyListeners();
+  }
+
+  bool _awaitingGoogle = false;
+
+  /// Called when the app comes back to the front. After the Google page, Supabase
+  /// receives the sign-in link a moment later, so this waits up to [wait] for the
+  /// session before saying the sign-in did not finish (cancelled or failed).
+  Future<bool> completeGoogleSignIn({
+    Duration wait = const Duration(seconds: 10),
+    Duration every = const Duration(milliseconds: 500),
+  }) async {
+    if (!_awaitingGoogle) return checkSignedIn();
+    final deadline = DateTime.now().add(wait);
+    while (true) {
+      if (await checkSignedIn()) {
+        _awaitingGoogle = false;
+        return true;
+      }
+      if (isDisposed || DateTime.now().isAfter(deadline)) break;
+      await Future<void>.delayed(every);
+    }
+    _awaitingGoogle = false;
+    googleState = const UiError(Messages.googleNotFinished);
+    notifyListeners();
+    return false;
   }
 
   /// True when a session now exists (after the Google redirect); sets [nextRoute].

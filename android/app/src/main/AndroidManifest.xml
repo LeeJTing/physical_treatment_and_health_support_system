@@ -30,6 +30,9 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- Supabase (app_links) handles the Google sign-in return link itself; Flutter's
+                 own deep linking would push it to the Navigator as an unknown route. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
             <!-- Google sign-in returns here (SupabaseAuthRepository.oauthRedirect). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

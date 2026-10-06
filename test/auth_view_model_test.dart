@@ -164,4 +164,16 @@ void main() {
     await vm.signInWithGoogle();
     expect((vm.googleState as UiError).message, Messages.googleNotAvailable);
   });
+
+  test('coming back to the app with a session already present continues sign-in', () async {
+    await auth.login('demo@apths.test', 'password123'); // stands in for the Google redirect
+    expect(await vm.completeGoogleSignIn(), isTrue);
+    expect(vm.nextRoute, Routes.healthProfile);
+    expect(vm.googleState, isA<UiSuccess<void>>());
+  });
+
+  test('coming back without a session (not waiting for Google) stays on login quietly', () async {
+    expect(await vm.completeGoogleSignIn(), isFalse);
+    expect(vm.googleState, isA<Idle<void>>());
+  });
 }

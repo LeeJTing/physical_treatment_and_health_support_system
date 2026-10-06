@@ -122,6 +122,8 @@ class Messages {
       'Too many failed attempts. Your account is locked for 15 minutes.';
   static const googleNotAvailable =
       'Google sign-in is not available yet. Please log in with your email and password.'; // not a report message
+  static const googleNotFinished =
+      'Google sign-in did not finish. Please try again, or log in with your email and password.'; // not a report message
 
   // UC300 Manage Profile
   static const valueOutOfRange =

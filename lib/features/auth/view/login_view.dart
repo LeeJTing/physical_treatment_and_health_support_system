@@ -40,7 +40,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     if (state != AppLifecycleState.resumed) return;
     final vm = context.read<AuthViewModel>();
-    if (await vm.checkSignedIn() && mounted) _goNext(vm);
+    if (await vm.completeGoogleSignIn() && mounted) _goNext(vm);
   }
 
   void _goNext(AuthViewModel vm) => Navigator.of(
