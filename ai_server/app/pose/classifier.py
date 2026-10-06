@@ -1,0 +1,95 @@
+"""Learned posture classifier for the trained-model exercises (Phase 6).
+
+Input: one repetition as a sequence of joint angles, resampled to SEQ_LEN
+steps. Output: probability the repetition is correct, plus the most likely
+mistake. Weights live in models/weights/<pose_key>_v<N>.pt (git-ignored);
+when none exist the server uses the angle rules alone.
+"""
+from functools import lru_cache
+from pathlib import Path
+
+import numpy as np
+
+from .geometry import Features
+from .reps import Rep
+
+WEIGHTS_DIR = Path(__file__).resolve().parents[2] / "models" / "weights"
+SEQ_LEN = 48
+
+# Per-frame inputs. Angles are divided by 180; the other series are ratios.
+FEATURES = [
+    "elbow_L", "elbow_R", "shoulder_elev_L", "shoulder_elev_R", "knee_L", "knee_R", "hip_L", "hip_R",
+    "leg_from_down_L", "leg_from_down_R", "thigh_from_down_L", "thigh_from_down_R",
+    "lean_sagittal", "lean_lateral", "shin_forward_L", "shin_forward_R",
+    "shrug", "heel_lift_L", "heel_lift_R", "wrist_thigh_L", "wrist_thigh_R", "leg_len_L", "leg_len_R",
+]
+ANGLE_FEATURES = {f for f in FEATURES if not f.startswith(("shrug", "heel_lift", "wrist_thigh", "leg_len"))}
+
+
+def rep_tensor(f: Features, rep: Rep) -> np.ndarray:
+    """(SEQ_LEN, len(FEATURES) + 1): the rep resampled to a fixed length, plus its duration."""
+    s = rep.slice()
+    t = f.t[s]
+    grid = np.linspace(t[0], t[-1], SEQ_LEN) if len(t) > 1 else np.full(SEQ_LEN, t[0])
+    cols = []
+    for name in FEATURES:
+        x = f[name][s]
+        x = np.interp(grid, t, x) if len(t) > 1 else np.full(SEQ_LEN, x[0])
+        cols.append(x / 180.0 if name in ANGLE_FEATURES else np.clip(x, -3, 3))
+    duration = float(t[-1] - t[0]) if len(t) > 1 else 0.0
+    cols.append(np.full(SEQ_LEN, duration / 10.0))
+    return np.stack(cols, axis=1).astype(np.float32)
+
+
+def build_model(n_features: int, n_mistakes: int, hidden: int = 64):
+    import torch
+    from torch import nn
+
+    class PostureGRU(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.gru = nn.GRU(n_features, hidden, batch_first=True, bidirectional=True)
+            self.drop = nn.Dropout(0.3)
+            self.correct = nn.Linear(4 * hidden, 1)
+            self.mistake = nn.Linear(4 * hidden, max(n_mistakes, 1))
+
+        def forward(self, x):
+            out, _ = self.gru(x)
+            pooled = torch.cat([out.mean(dim=1), out.max(dim=1).values], dim=1)
+            z = self.drop(pooled)
+            return self.correct(z).squeeze(-1), self.mistake(z)
+
+    return PostureGRU()
+
+
+def latest_weights(pose_key: str) -> Path | None:
+    files = sorted(WEIGHTS_DIR.glob(f"{pose_key}_v*.pt"), key=lambda p: int(p.stem.rsplit("_v", 1)[1]))
+    return files[-1] if files else None
+
+
+@lru_cache(maxsize=16)
+def _load(path: str):
+    import torch
+
+    ckpt = torch.load(path, map_location="cpu", weights_only=False)
+    model = build_model(len(FEATURES) + 1, len(ckpt["mistakes"]))
+    model.load_state_dict(ckpt["state"])
+    model.eval()
+    return model, ckpt
+
+
+def predict(pose_key: str, f: Features, reps: list[Rep]) -> dict | None:
+    """Per-rep probability of correct form and likely mistake, or None if no model is trained yet."""
+    path = latest_weights(pose_key)
+    if path is None or not reps:
+        return None
+    import torch
+
+    model, ckpt = _load(str(path))
+    x = torch.from_numpy(np.stack([rep_tensor(f, r) for r in reps]))
+    with torch.no_grad():
+        c_logit, m_logit = model(x)
+    p_correct = torch.sigmoid(c_logit).numpy().tolist()
+    mistakes = ckpt["mistakes"]
+    likely = [mistakes[i] if mistakes else None for i in m_logit.argmax(dim=1).tolist()]
+    return {"p_correct": p_correct, "likely_mistake": likely, "version": f"{path.stem}"}

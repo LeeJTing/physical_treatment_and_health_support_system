@@ -49,4 +49,4 @@ def test_real_supabase_style_token(monkeypatch):
 def test_pose_accepts_multipart():
     r = client.post("/pose", headers=DEV, files={"file": ("clip.mp4", b"\x00" * 10, "video/mp4")},
                     data={"exercise_key": "sit_to_stand"})
-    assert r.status_code == 200 and "accuracy" in r.json()
+    assert r.status_code == 422 and r.json()["error"]["code"] == "invalid_video"
