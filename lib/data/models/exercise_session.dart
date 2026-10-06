@@ -2,8 +2,9 @@ import 'package:physical_treatment_and_health_support_system/data/models/enums.d
 
 /// One exercise attempt and its posture result (Table 4.15).
 class ExerciseSession {
-  /// Accuracy at or above this counts as passing (FR300_19). TO CONFIRM.
-  static const double passMark = 70;
+  /// Accuracy at or above this counts as passing and updates the pathway automatically
+  /// (UI Design, Posture Result Screen: "over 80% triggers an auto update").
+  static const double passMark = 80;
 
   final String sessionId;
   final String accountId;
@@ -78,31 +79,39 @@ class ExerciseSession {
       );
 }
 
-/// Response of the /pose endpoint. Not stored on its own: copied into an
-/// ExerciseSession (one result per session).
+/// Response of the /pose endpoint (FR300_07 to FR300_10). Not stored on its own: copied
+/// into an ExerciseSession (one result per session). Errors (no body found, body not fully in
+/// frame, no repetition) come back as failures instead, so a result always has a detected pose.
 class PostureResult {
   final bool fullBodyVisible;
-  final bool poseDetected;
   final double accuracy; // 0..100
   final int repetitions;
+  final double? holdSeconds; // hold exercises such as Tandem Stance
   final List<String> feedback;
+  final Map<String, int> mistakes; // mistake label -> repetitions it was seen in
   final String modelVersion;
 
   const PostureResult({
-    required this.fullBodyVisible,
-    required this.poseDetected,
+    this.fullBodyVisible = true,
     required this.accuracy,
     required this.repetitions,
+    this.holdSeconds,
     required this.feedback,
+    this.mistakes = const {},
     required this.modelVersion,
   });
 
+  bool get isPassing => accuracy >= ExerciseSession.passMark;
+
   factory PostureResult.fromJson(Map<String, dynamic> j) => PostureResult(
-        fullBodyVisible: (j['full_body_visible'] ?? false) as bool,
-        poseDetected: (j['pose_detected'] ?? false) as bool,
+        fullBodyVisible: (j['full_body_visible'] ?? true) as bool,
         accuracy: (j['accuracy'] as num?)?.toDouble() ?? 0,
         repetitions: (j['repetitions'] as num?)?.toInt() ?? 0,
+        holdSeconds: (j['hold_seconds'] as num?)?.toDouble(),
         feedback: ((j['feedback'] as List?) ?? const []).map((e) => e.toString()).toList(),
+        mistakes: {
+          for (final e in ((j['mistakes'] as Map?) ?? const {}).entries) e.key.toString(): (e.value as num).toInt()
+        },
         modelVersion: (j['model_version'] ?? 'unknown') as String,
       );
 }

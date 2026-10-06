@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/app.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/pose_estimation_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
@@ -58,6 +59,7 @@ Future<void> main() async {
         Provider<ProfileInfoService>.value(value: ProfileInfoService(authRepo, profileRepo)),
         Provider<RecommendationService>.value(value: RecommendationService(api)),
         Provider<ChatbotService>.value(value: ChatbotService(api)),
+        Provider<PoseEstimationService>.value(value: PoseEstimationService(api)),
       ],
       child: const MainApp(),
     ),

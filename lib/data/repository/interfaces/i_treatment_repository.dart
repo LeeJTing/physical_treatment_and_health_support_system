@@ -19,6 +19,13 @@ abstract interface class ITreatmentRepository {
   /// transaction (FR300_21, ASR_04).
   Future<Result<void>> saveSession(ExerciseSession s, {PatientTreatmentPlan? advancedPlan});
 
+  /// Every attempt recorded for an assignment, oldest first, for the pathway's posture
+  /// badges (FR300_02, FR300_10).
+  Future<Result<List<ExerciseSession>>> getSessions(String patientPlanId);
+
+  /// Stops the plan: status ABANDONED, kept for history (UI Design, Physical Treatment Page).
+  Future<Result<void>> endPlan(PatientTreatmentPlan p);
+
   /// Stores one chatbot turn (FR500_17-22). Chat belongs to M500, so it sits
   /// with the treatment data rather than adding a ninth interface.
   Future<Result<void>> saveChatMessage(ChatMessage m);

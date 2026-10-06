@@ -6,6 +6,8 @@ import 'package:physical_treatment_and_health_support_system/core/themes/theme_c
 import 'package:physical_treatment_and_health_support_system/features/home/view/home_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/view/planning_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/viewmodel/planning_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/features/treatment/view/physical_treatment_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/l10n/l10n.dart';
 
 /// Root widget: theme, locales and routes. Each module registers its View
@@ -35,7 +37,10 @@ class MainApp extends StatelessWidget {
               create: (c) => PlanningViewModel(c.read(), c.read(), c.read(), c.read()),
               child: const PlanningView(),
             ),
-        Routes.physicalTreatment: (_) => const ComingSoonView('Physical Treatment'),
+        Routes.physicalTreatment: (_) => ChangeNotifierProvider(
+              create: (c) => TreatmentViewModel(c.read(), c.read(), c.read(), c.read()),
+              child: const PhysicalTreatmentView(),
+            ),
         Routes.reminders: (_) => const ComingSoonView('Reminders'),
       },
     );

@@ -49,6 +49,24 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   }
 
   @override
+  Future<Result<List<ExerciseSession>>> getSessions(String patientPlanId) async =>
+      Success(sessions.where((s) => s.patientPlanId == patientPlanId).toList());
+
+  @override
+  Future<Result<void>> endPlan(PatientTreatmentPlan p) async {
+    _assigned[p.accountId] = PatientTreatmentPlan(
+      patientPlanId: p.patientPlanId,
+      accountId: p.accountId,
+      plan: p.plan,
+      suitabilityScore: p.suitabilityScore,
+      progressPercentage: p.progressPercentage,
+      status: PlanStatus.abandoned,
+      selectedAt: p.selectedAt,
+    );
+    return const Success(null);
+  }
+
+  @override
   Future<Result<void>> saveChatMessage(ChatMessage m) async {
     chat.add(m);
     return const Success(null);
