@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/physical_treatment_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/treatment/view/session_history_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/widgets/treatment_widgets.dart';
 
@@ -30,6 +31,14 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
       builder: (_) => ChangeNotifierProvider.value(value: vm, child: const PhysicalTreatmentView()),
     ));
     if (mounted) await vm.loadPlan();
+  }
+
+  Future<void> _openHistory() async {
+    final vm = context.read<TreatmentViewModel>();
+    await Navigator.of(context).push(MaterialPageRoute<void>(
+      settings: const RouteSettings(name: Routes.sessionHistory),
+      builder: (_) => ChangeNotifierProvider.value(value: vm, child: const SessionHistoryView()),
+    ));
   }
 
   Future<void> _openPlanning() async {
@@ -88,6 +97,15 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
               subtitle: 'Get a new plan, ask the chat bot',
               onTap: _openPlanning,
             ),
+            if (plan != null) ...[
+              const SizedBox(height: AppTokens.gap),
+              _NavCard(
+                icon: Icons.insights_outlined,
+                title: 'Session history',
+                subtitle: vm.sessions.isEmpty ? 'Your posture results will appear here' : 'Your posture accuracy over time',
+                onTap: _openHistory,
+              ),
+            ],
             if (plan != null) ...[
               const SizedBox(height: 28),
               const Text('Progress overview',

@@ -28,6 +28,13 @@ class PathwayStage {
 }
 
 /// Pathway progress, video capture and the posture result (Table 4.52).
+/// One row of the session history: the attempt and the name of its exercise.
+class SessionHistoryEntry {
+  final ExerciseSession session;
+  final String exerciseName;
+  const SessionHistoryEntry(this.session, this.exerciseName);
+}
+
 class TreatmentViewModel extends BaseViewModel {
   final ITreatmentRepository _repo;
   final PoseEstimationService _pose;
@@ -130,6 +137,34 @@ class TreatmentViewModel extends BaseViewModel {
     ];
     return scores.isEmpty ? null : scores.reduce((a, b) => a > b ? a : b);
   }
+
+  /// Every recorded attempt of the active plan, newest first, with its exercise name
+  /// (Session history screen; FR300_10 results kept per session).
+  List<SessionHistoryEntry> get history {
+    final p = activePlan;
+    if (p == null) return const [];
+    final names = {for (final e in p.plan.exercises) e.exerciseId: e.exercise.exerciseName};
+    final list = [
+      for (final s in _sessions) SessionHistoryEntry(s, names[s.exerciseId] ?? 'Exercise'),
+    ];
+    // Unfinished attempts have no completion time; they sort last.
+    list.sort((a, b) => (b.session.completedAt ?? DateTime(0)).compareTo(a.session.completedAt ?? DateTime(0)));
+    return list;
+  }
+
+  List<double> get _scores => [for (final s in _sessions) if (s.postureAccuracy != null) s.postureAccuracy!];
+
+  double? get averageAccuracy {
+    final xs = _scores;
+    return xs.isEmpty ? null : xs.reduce((a, b) => a + b) / xs.length;
+  }
+
+  double? get bestAccuracy {
+    final xs = _scores;
+    return xs.isEmpty ? null : xs.reduce((a, b) => a > b ? a : b);
+  }
+
+  int get completedSessionCount => _sessions.where((s) => s.isCompleted()).length;
 
   /// Opens the recorder with the recording instructions (FR300_05).
   Future<void> startExercise(Exercise e) async {

@@ -10,9 +10,7 @@ import 'package:physical_treatment_and_health_support_system/core/services/local
 import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
@@ -21,6 +19,10 @@ import 'package:physical_treatment_and_health_support_system/data/repository/int
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/data/repository/supabase/supabase_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/data/repository/supabase/supabase_notification_repository.dart';
+import 'package:physical_treatment_and_health_support_system/data/repository/supabase/supabase_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/data/repository/supabase/supabase_treatment_repository.dart';
 
 /// Composition root. This is the ONLY file that names a concrete repository
 /// class (ASR_02); everything else depends on the interfaces.
@@ -40,11 +42,19 @@ Future<void> main() async {
     treatmentRepo = FakeTreatmentRepository.fromJson(catalogue);
     notificationRepo = FakeNotificationRepository();
     tokenProvider = () => 'dev-token';
-    await _signInDemoPatient(authRepo, profileRepo);
   } else {
-    // Wired once the Supabase project is ready: SupabaseProvider.initialise(...)
-    // and the Supabase*Repository classes.
-    throw UnimplementedError('Supabase repositories are not wired yet. Run with USE_FAKES=true.');
+    if (AppConstants.supabaseUrl.isEmpty || AppConstants.supabaseAnonKey.isEmpty) {
+      runApp(const _MissingConfigApp());
+      return;
+    }
+    final provider = await SupabaseProvider.initialise(
+        url: AppConstants.supabaseUrl, publishableKey: AppConstants.supabaseAnonKey);
+    authRepo = SupabaseAuthRepository(provider);
+    profileRepo = SupabaseProfileRepository(provider);
+    treatmentRepo = SupabaseTreatmentRepository(provider);
+    notificationRepo = SupabaseNotificationRepository(provider);
+    // The AI server checks this Supabase token (JWKS) on every call.
+    tokenProvider = () => provider.accessToken;
   }
 
   final api = ApiClient(baseUrl: AppConstants.aiBaseUrl, tokenProvider: tokenProvider);
@@ -70,20 +80,36 @@ Future<void> main() async {
   );
 }
 
-/// Fake mode only: signs in the seeded demo account and gives it a complete
-/// profile, so the planning screens can be used before the Phase 2 login
-/// and profile screens exist. Remove once those are built.
-Future<void> _signInDemoPatient(IAuthRepository auth, IProfileRepository profiles) async {
-  final account = (await auth.login('demo@apths.test', 'password123')).dataOrNull;
-  if (account == null) return;
-  final profile = HealthProfile(
-    profileId: newId(),
-    accountId: account.accountId,
-    age: 58,
-    gender: Gender.male,
-    weightKg: 72,
-    heightCm: 170,
-    updatedAt: DateTime.now(),
-  );
-  await profiles.saveProfile(profile, profile.generateSafetyLimit());
+/// Shown instead of the app when it was started in Supabase mode without the
+/// project keys, so the cause is obvious instead of a crash.
+class _MissingConfigApp extends StatelessWidget {
+  const _MissingConfigApp();
+
+  @override
+  Widget build(BuildContext context) => const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          body: SafeArea(
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Supabase is not configured', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+                SizedBox(height: 12),
+                Text('USE_FAKES is false but SUPABASE_URL or SUPABASE_ANON_KEY is empty.
+
+'
+                    'Copy config/dev.example.json to config/dev.json, fill in the project URL and the '
+                    'publishable (anon) key, then run:
+
+'
+                    'flutter run --dart-define-from-file=config/dev.json
+
+'
+                    'Or run on in-memory data: flutter run --dart-define=USE_FAKES=true',
+                    style: TextStyle(fontSize: 15, height: 1.4)),
+              ]),
+            ),
+          ),
+        ),
+      );
 }
