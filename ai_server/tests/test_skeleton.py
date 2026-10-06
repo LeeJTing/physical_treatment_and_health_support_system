@@ -34,6 +34,7 @@ def test_dev_token_accepted():
 def test_real_supabase_style_token(monkeypatch):
     secret = "test-secret-at-least-32-bytes-long!!"
     monkeypatch.setenv("SUPABASE_JWT_SECRET", secret)
+    monkeypatch.setenv("SUPABASE_JWKS_URL", "")  # independent of a local .env with the real project's JWKS
     monkeypatch.setenv("DEV_AUTH_BYPASS", "false")
     get_settings.cache_clear()
     try:
