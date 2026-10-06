@@ -6,6 +6,8 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/pose_estimation_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
@@ -60,6 +62,8 @@ Future<void> main() async {
         Provider<RecommendationService>.value(value: RecommendationService(api)),
         Provider<ChatbotService>.value(value: ChatbotService(api)),
         Provider<PoseEstimationService>.value(value: PoseEstimationService(api)),
+        Provider<ReminderService>.value(
+            value: ReminderService(notificationRepo, treatmentRepo, LocalNotificationService())),
       ],
       child: const MainApp(),
     ),

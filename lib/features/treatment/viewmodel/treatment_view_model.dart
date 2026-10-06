@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/result.da
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/pose_estimation_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/exercise.dart';
@@ -32,8 +33,9 @@ class TreatmentViewModel extends BaseViewModel {
   final PoseEstimationService _pose;
   final IAuthRepository _auth;
   final INotificationRepository? _notifications;
+  final ReminderService? _reminders;
 
-  TreatmentViewModel(this._repo, this._pose, this._auth, [this._notifications]);
+  TreatmentViewModel(this._repo, this._pose, this._auth, [this._notifications, this._reminders]);
 
   /// The next exercise reminder for the active plan, for the Treatment screen card.
   DateTime? _nextReminderAt;
@@ -86,6 +88,7 @@ class TreatmentViewModel extends BaseViewModel {
       _plan = UiSuccess(data);
       _sessions = data == null ? const [] : ((await _repo.getSessions(data.patientPlanId)).dataOrNull ?? const []);
       _nextReminderAt = null;
+      await _reminders?.sync(account.accountId); // refresh the device schedule (M600.1)
       if (data != null && _notifications != null) {
         final reminders = (await _notifications.getReminders(account.accountId)).dataOrNull ?? const <Reminder>[];
         final times = [
@@ -204,6 +207,8 @@ class TreatmentViewModel extends BaseViewModel {
     if (res.isSuccess) {
       _sessions = [..._sessions, s];
       if (advanced != null) _plan = UiSuccess(advanced);
+      // FR300_12, FR600_005: today's exercise reminder is no longer needed.
+      await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
       _autoAdvanced = s.postureIsPassing();
       _saving = const UiSuccess(null);
     } else {

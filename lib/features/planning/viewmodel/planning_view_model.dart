@@ -4,6 +4,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/ui_state.
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
@@ -21,8 +22,9 @@ class PlanningViewModel extends BaseViewModel {
   final RecommendationService _recommender;
   final ProfileInfoService _profileInfo;
   final INotificationRepository _notifications;
+  final ReminderService? _reminders;
 
-  PlanningViewModel(this._repo, this._recommender, this._profileInfo, this._notifications);
+  PlanningViewModel(this._repo, this._recommender, this._profileInfo, this._notifications, [this._reminders]);
 
   UiState<Recommendation> _recommendation = const Idle();
   UiState<Recommendation> get recommendation => _recommendation;
@@ -127,9 +129,12 @@ class PlanningViewModel extends BaseViewModel {
       repeatDays: Reminder.maskForFrequency(p.frequencyPerWeek),
     );
 
+    final previous = (await _repo.getActivePlan(accountId)).dataOrNull;
     final saved = await _repo.assignPlan(assignment);
     final scheduled = saved.isSuccess ? await _notifications.saveReminder(reminder) : null;
     final ok = saved.isSuccess && (scheduled?.isSuccess ?? false);
+    // FR500_11, M600.1: the new plan's reminder goes on the device; the old plan's are removed.
+    if (ok) await _reminders?.planSelected(reminder, previousPatientPlanId: previous?.patientPlanId);
     _saving = ok ? UiSuccess(p) : const UiError(Messages.dbUnavailable);
     notifyListeners();
     return ok;

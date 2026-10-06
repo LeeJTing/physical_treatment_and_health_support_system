@@ -6,6 +6,8 @@ import 'package:physical_treatment_and_health_support_system/core/themes/theme_c
 import 'package:physical_treatment_and_health_support_system/features/home/view/home_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/view/planning_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/viewmodel/planning_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/features/reminders/view/reminders_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/reminders/viewmodel/notification_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/physical_treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/l10n/l10n.dart';
@@ -34,14 +36,17 @@ class MainApp extends StatelessWidget {
         Routes.loginScreen: (_) => const ComingSoonView('Login'),
         Routes.healthProfile: (_) => const ComingSoonView('Health Profile'),
         Routes.treatmentPlanning: (_) => ChangeNotifierProvider(
-              create: (c) => PlanningViewModel(c.read(), c.read(), c.read(), c.read()),
+              create: (c) => PlanningViewModel(c.read(), c.read(), c.read(), c.read(), c.read()),
               child: const PlanningView(),
             ),
         Routes.physicalTreatment: (_) => ChangeNotifierProvider(
-              create: (c) => TreatmentViewModel(c.read(), c.read(), c.read(), c.read()),
+              create: (c) => TreatmentViewModel(c.read(), c.read(), c.read(), c.read(), c.read()),
               child: const PhysicalTreatmentView(),
             ),
-        Routes.reminders: (_) => const ComingSoonView('Reminders'),
+        Routes.reminders: (_) => ChangeNotifierProvider(
+              create: (c) => NotificationViewModel(c.read(), c.read(), c.read()),
+              child: const RemindersView(),
+            ),
       },
     );
   }

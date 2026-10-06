@@ -21,6 +21,9 @@ dependencies:
   camera: ^0.11.0
   image_picker: ^1.1.2
   video_player: ^2.9.2
+  # Phase 4: exercise reminders scheduled on the device (Asia/Kuala_Lumpur)
+  flutter_local_notifications: ^19.4.0
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

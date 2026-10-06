@@ -8,4 +8,10 @@ abstract interface class INotificationRepository {
   Future<Result<void>> deleteRemindersForPlan(String patientPlanId);
   Future<Result<void>> logNotification(NotificationLog n);
   Future<Result<int>> unreadCount(String accountId);
+
+  /// Notifications issued between [from] and [to], newest first (FR600_013, FR600_015).
+  Future<Result<List<NotificationLog>>> getLog(String accountId, DateTime from, DateTime to);
+
+  /// Marks one entry read, clearing it from the unread count (FR600_016).
+  Future<Result<void>> markRead(String notificationId);
 }
