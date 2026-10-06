@@ -82,7 +82,7 @@ expect_error("anon cannot read accounts", "select * from public.account")
 # --- user A ------------------------------------------------------------------
 as_user(a)
 check("A reads the 10 seeded plans", x("select count(*) from public.treatment_plan").fetchone()[0] == 10)
-check("A reads 16 exercises", x("select count(*) from public.exercise").fetchone()[0] == 16)
+check("A reads 15 exercises", x("select count(*) from public.exercise").fetchone()[0] == 15)
 check("A sees only own account", x("select count(*) from public.account").fetchone()[0] == 1)
 expect_error("A cannot change own email column", "update public.account set email='z@x.com'")
 x("update public.account set username='alice2'")

@@ -53,112 +53,102 @@
     {
       "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
       "exercise_name": "Elbow Flexion",
-      "instruction_text": "Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, then lower slowly. Use a light bottle of water if comfortable.",
+      "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
       "target_body_area": "BOTH_ARMS",
       "intensity_level": "LOW",
       "default_repetitions": 12,
       "default_duration_sec": 60,
-      "pose_key": null
+      "pose_key": "elbow_flexion"
     },
     {
       "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
       "exercise_name": "Wall Push-Up",
-      "instruction_text": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight.",
+      "instruction_text": "Camera: side view, whole body in frame, wall at one edge of the picture. Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight from head to heels.",
       "target_body_area": "BOTH_ARMS",
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": null
+      "pose_key": "wall_push_up"
     },
     {
       "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
       "exercise_name": "Heel Raise",
-      "instruction_text": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
+      "instruction_text": "Camera: side view, whole body in frame. Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
       "target_body_area": "BOTH_LEGS",
       "intensity_level": "LOW",
       "default_repetitions": 12,
       "default_duration_sec": 60,
-      "pose_key": null
+      "pose_key": "heel_raise"
     },
     {
       "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
       "exercise_name": "Mini Squat",
-      "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+      "instruction_text": "Camera: side view, whole body in frame. Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes.",
       "target_body_area": "BOTH_LEGS",
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": null
+      "pose_key": "mini_squat"
     },
     {
       "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
       "exercise_name": "Seated Marching",
-      "instruction_text": "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+      "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
       "target_body_area": "BOTH_LEGS",
       "intensity_level": "LOW",
       "default_repetitions": 20,
       "default_duration_sec": 90,
-      "pose_key": null
-    },
-    {
-      "exercise_id": "e9b3e993-76be-5d62-aedd-f7800f28ed70",
-      "exercise_name": "Shoulder Pendulum",
-      "instruction_text": "Lean forward supporting yourself on a table with one hand. Let the other arm hang and swing it gently in small circles. Change arms halfway.",
-      "target_body_area": "BOTH_ARMS",
-      "intensity_level": "LOW",
-      "default_repetitions": 10,
-      "default_duration_sec": 60,
-      "pose_key": null
+      "pose_key": "seated_marching"
     },
     {
       "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
       "exercise_name": "Glute Bridge",
-      "instruction_text": "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body is straight from shoulders to knees, then lower slowly.",
+      "instruction_text": "Camera: side view, phone on the floor about 2 m away, whole body in frame. Lie on your back on a mat with knees bent and feet flat. Squeeze the buttocks and lift the hips until shoulders, hips and knees are in a straight line, then lower slowly. Safety: do not arch the lower back.",
       "target_body_area": "CORE",
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": null
+      "pose_key": "glute_bridge"
     },
     {
       "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
       "exercise_name": "Tandem Stance",
-      "instruction_text": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
+      "instruction_text": "Camera: facing you, whole body in frame. Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
       "target_body_area": "BOTH_LEGS",
       "intensity_level": "LOW",
       "default_repetitions": 4,
       "default_duration_sec": 120,
-      "pose_key": null
+      "pose_key": "tandem_stance"
     },
     {
-      "exercise_id": "e20128ab-20d6-5d62-add3-ab559fc63778",
-      "exercise_name": "Pelvic Tilt",
-      "instruction_text": "Lie on your back with knees bent. Tighten the stomach and flatten the lower back into the floor, hold for five seconds, then relax.",
+      "exercise_id": "b56023cf-6125-5e6d-abc8-732551a61b2a",
+      "exercise_name": "Bird Dog",
+      "instruction_text": "Camera: side view, phone on the floor about 2 m away, whole body in frame. Kneel on a mat on hands and knees, hands under shoulders, knees under hips. Stretch one arm forward and the opposite leg back until both are level with your back, hold for two seconds, return, and switch sides. Safety: keep the back flat, do not twist.",
       "target_body_area": "CORE",
       "intensity_level": "LOW",
       "default_repetitions": 10,
-      "default_duration_sec": 60,
-      "pose_key": null
+      "default_duration_sec": 90,
+      "pose_key": "bird_dog"
     },
     {
       "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
       "exercise_name": "Step-Up",
-      "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+      "instruction_text": "Camera: side view, whole body and the step in frame. Stand facing a low step holding a rail. Step up with one foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
       "target_body_area": "BOTH_LEGS",
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 120,
-      "pose_key": null
+      "pose_key": "step_up"
     },
     {
       "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
       "exercise_name": "March in Place",
-      "instruction_text": "Stand tall and march on the spot, lifting the knees and swinging the arms at a comfortable pace.",
+      "instruction_text": "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
       "target_body_area": "FULL_BODY",
       "intensity_level": "MODERATE",
       "default_repetitions": 30,
       "default_duration_sec": 120,
-      "pose_key": null
+      "pose_key": "march_in_place"
     }
   ],
   "plans": [
@@ -198,12 +188,12 @@
           "exercise": {
             "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
             "exercise_name": "Seated Marching",
-            "instruction_text": "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 20,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "seated_marching"
           }
         },
         {
@@ -215,12 +205,12 @@
           "exercise": {
             "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
             "exercise_name": "Heel Raise",
-            "instruction_text": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": null
+            "pose_key": "heel_raise"
           }
         }
       ]
@@ -261,12 +251,12 @@
           "exercise": {
             "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
             "exercise_name": "Mini Squat",
-            "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "mini_squat"
           }
         },
         {
@@ -278,12 +268,12 @@
           "exercise": {
             "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
             "exercise_name": "Step-Up",
-            "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+            "instruction_text": "Camera: side view, whole body and the step in frame. Stand facing a low step holding a rail. Step up with one foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 120,
-            "pose_key": null
+            "pose_key": "step_up"
           }
         }
       ]
@@ -300,25 +290,8 @@
       "plan_exercise": [
         {
           "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
-          "exercise_id": "e9b3e993-76be-5d62-aedd-f7800f28ed70",
-          "sequence_order": 1,
-          "prescribed_repetitions": 10,
-          "prescribed_duration_sec": 60,
-          "exercise": {
-            "exercise_id": "e9b3e993-76be-5d62-aedd-f7800f28ed70",
-            "exercise_name": "Shoulder Pendulum",
-            "instruction_text": "Lean forward supporting yourself on a table with one hand. Let the other arm hang and swing it gently in small circles. Change arms halfway.",
-            "target_body_area": "BOTH_ARMS",
-            "intensity_level": "LOW",
-            "default_repetitions": 10,
-            "default_duration_sec": 60,
-            "pose_key": null
-          }
-        },
-        {
-          "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
           "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
-          "sequence_order": 2,
+          "sequence_order": 1,
           "prescribed_repetitions": 8,
           "prescribed_duration_sec": 60,
           "exercise": {
@@ -335,7 +308,7 @@
         {
           "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
           "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
-          "sequence_order": 3,
+          "sequence_order": 2,
           "prescribed_repetitions": 8,
           "prescribed_duration_sec": 60,
           "exercise": {
@@ -347,6 +320,23 @@
             "default_repetitions": 10,
             "default_duration_sec": 60,
             "pose_key": "shoulder_abduction"
+          }
+        },
+        {
+          "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+          "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+          "sequence_order": 3,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+            "exercise_name": "Elbow Flexion",
+            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 12,
+            "default_duration_sec": 60,
+            "pose_key": "elbow_flexion"
           }
         }
       ]
@@ -370,12 +360,12 @@
           "exercise": {
             "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
             "exercise_name": "Elbow Flexion",
-            "instruction_text": "Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, then lower slowly. Use a light bottle of water if comfortable.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
             "target_body_area": "BOTH_ARMS",
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": null
+            "pose_key": "elbow_flexion"
           }
         },
         {
@@ -421,12 +411,12 @@
           "exercise": {
             "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
             "exercise_name": "Wall Push-Up",
-            "instruction_text": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight.",
+            "instruction_text": "Camera: side view, whole body in frame, wall at one edge of the picture. Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight from head to heels.",
             "target_body_area": "BOTH_ARMS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "wall_push_up"
           }
         }
       ]
@@ -467,12 +457,12 @@
           "exercise": {
             "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
             "exercise_name": "Tandem Stance",
-            "instruction_text": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 4,
             "default_duration_sec": 120,
-            "pose_key": null
+            "pose_key": "tandem_stance"
           }
         },
         {
@@ -484,12 +474,12 @@
           "exercise": {
             "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
             "exercise_name": "Glute Bridge",
-            "instruction_text": "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body is straight from shoulders to knees, then lower slowly.",
+            "instruction_text": "Camera: side view, phone on the floor about 2 m away, whole body in frame. Lie on your back on a mat with knees bent and feet flat. Squeeze the buttocks and lift the hips until shoulders, hips and knees are in a straight line, then lower slowly. Safety: do not arch the lower back.",
             "target_body_area": "CORE",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "glute_bridge"
           }
         }
       ]
@@ -513,12 +503,12 @@
           "exercise": {
             "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
             "exercise_name": "Tandem Stance",
-            "instruction_text": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
+            "instruction_text": "Camera: facing you, whole body in frame. Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 4,
             "default_duration_sec": 120,
-            "pose_key": null
+            "pose_key": "tandem_stance"
           }
         },
         {
@@ -530,12 +520,12 @@
           "exercise": {
             "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
             "exercise_name": "Heel Raise",
-            "instruction_text": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": null
+            "pose_key": "heel_raise"
           }
         },
         {
@@ -569,19 +559,19 @@
       "plan_exercise": [
         {
           "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
-          "exercise_id": "e20128ab-20d6-5d62-add3-ab559fc63778",
+          "exercise_id": "b56023cf-6125-5e6d-abc8-732551a61b2a",
           "sequence_order": 1,
-          "prescribed_repetitions": 10,
-          "prescribed_duration_sec": 60,
+          "prescribed_repetitions": 8,
+          "prescribed_duration_sec": 90,
           "exercise": {
-            "exercise_id": "e20128ab-20d6-5d62-add3-ab559fc63778",
-            "exercise_name": "Pelvic Tilt",
-            "instruction_text": "Lie on your back with knees bent. Tighten the stomach and flatten the lower back into the floor, hold for five seconds, then relax.",
+            "exercise_id": "b56023cf-6125-5e6d-abc8-732551a61b2a",
+            "exercise_name": "Bird Dog",
+            "instruction_text": "Camera: side view, phone on the floor about 2 m away, whole body in frame. Kneel on a mat on hands and knees, hands under shoulders, knees under hips. Stretch one arm forward and the opposite leg back until both are level with your back, hold for two seconds, return, and switch sides. Safety: keep the back flat, do not twist.",
             "target_body_area": "CORE",
             "intensity_level": "LOW",
             "default_repetitions": 10,
-            "default_duration_sec": 60,
-            "pose_key": null
+            "default_duration_sec": 90,
+            "pose_key": "bird_dog"
           }
         },
         {
@@ -593,12 +583,12 @@
           "exercise": {
             "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
             "exercise_name": "Glute Bridge",
-            "instruction_text": "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body is straight from shoulders to knees, then lower slowly.",
+            "instruction_text": "Camera: side view, phone on the floor about 2 m away, whole body in frame. Lie on your back on a mat with knees bent and feet flat. Squeeze the buttocks and lift the hips until shoulders, hips and knees are in a straight line, then lower slowly. Safety: do not arch the lower back.",
             "target_body_area": "CORE",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "glute_bridge"
           }
         }
       ]
@@ -622,12 +612,12 @@
           "exercise": {
             "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
             "exercise_name": "Seated Marching",
-            "instruction_text": "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 20,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "seated_marching"
           }
         },
         {
@@ -685,12 +675,12 @@
           "exercise": {
             "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
             "exercise_name": "March in Place",
-            "instruction_text": "Stand tall and march on the spot, lifting the knees and swinging the arms at a comfortable pace.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
             "target_body_area": "FULL_BODY",
             "intensity_level": "MODERATE",
             "default_repetitions": 30,
             "default_duration_sec": 120,
-            "pose_key": null
+            "pose_key": "march_in_place"
           }
         },
         {
@@ -702,12 +692,12 @@
           "exercise": {
             "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
             "exercise_name": "Step-Up",
-            "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+            "instruction_text": "Camera: side view, whole body and the step in frame. Stand facing a low step holding a rail. Step up with one foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 120,
-            "pose_key": null
+            "pose_key": "step_up"
           }
         },
         {
@@ -719,12 +709,12 @@
           "exercise": {
             "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
             "exercise_name": "Mini Squat",
-            "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "mini_squat"
           }
         },
         {
@@ -736,12 +726,12 @@
           "exercise": {
             "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
             "exercise_name": "Wall Push-Up",
-            "instruction_text": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight.",
+            "instruction_text": "Camera: side view, whole body in frame, wall at one edge of the picture. Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight from head to heels.",
             "target_body_area": "BOTH_ARMS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "wall_push_up"
           }
         }
       ]
@@ -765,12 +755,12 @@
           "exercise": {
             "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
             "exercise_name": "Mini Squat",
-            "instruction_text": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down, then stand up. Safety: knees must not pass the toes.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": null
+            "pose_key": "mini_squat"
           }
         },
         {
@@ -782,12 +772,12 @@
           "exercise": {
             "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
             "exercise_name": "Step-Up",
-            "instruction_text": "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
+            "instruction_text": "Camera: side view, whole body and the step in frame. Stand facing a low step holding a rail. Step up with one foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 120,
-            "pose_key": null
+            "pose_key": "step_up"
           }
         },
         {

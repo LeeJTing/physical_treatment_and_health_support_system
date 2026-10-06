@@ -36,37 +36,41 @@ EXERCISES = [
     ("Seated Knee Extension", "BOTH_LEGS", "LOW", 12, 90, "knee_extension",
      "Camera: side view, whole body in frame. Sit upright on a chair. Straighten one knee until the leg is level with the hip, hold for two "
      "seconds, and lower slowly. Alternate legs. Safety: keep the back against the chair."),
-    ("Elbow Flexion", "BOTH_ARMS", "LOW", 12, 60, None,
-     "Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the "
-     "shoulders, then lower slowly. Use a light bottle of water if comfortable."),
-    ("Wall Push-Up", "BOTH_ARMS", "MODERATE", 10, 90, None,
-     "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring "
-     "the chest toward the wall, then push back. Safety: keep the body straight."),
-    ("Heel Raise", "BOTH_LEGS", "LOW", 12, 60, None,
-     "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower "
-     "slowly. Safety: keep holding the chair throughout."),
-    ("Mini Squat", "BOTH_LEGS", "MODERATE", 10, 90, None,
-     "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the "
-     "heels down, then stand up. Safety: knees must not pass the toes."),
-    ("Seated Marching", "BOTH_LEGS", "LOW", 20, 90, None,
-     "Sit upright on a chair. Lift one knee toward the chest, lower it, and alternate legs at a steady pace."),
-    ("Shoulder Pendulum", "BOTH_ARMS", "LOW", 10, 60, None,
-     "Lean forward supporting yourself on a table with one hand. Let the other arm hang and swing it gently "
-     "in small circles. Change arms halfway."),
-    ("Glute Bridge", "CORE", "MODERATE", 10, 90, None,
-     "Lie on your back with knees bent and feet flat. Squeeze the buttocks and lift the hips until the body "
-     "is straight from shoulders to knees, then lower slowly."),
-    ("Tandem Stance", "BOTH_LEGS", "LOW", 4, 120, None,
-     "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold "
-     "for 30 seconds. Switch feet. Safety: always keep one hand near the support."),
-    ("Pelvic Tilt", "CORE", "LOW", 10, 60, None,
-     "Lie on your back with knees bent. Tighten the stomach and flatten the lower back into the floor, "
-     "hold for five seconds, then relax."),
-    ("Step-Up", "BOTH_LEGS", "MODERATE", 10, 120, None,
-     "Stand facing a low step holding a rail. Step up with one foot, bring the other up, then step down. "
-     "Alternate the leading leg. Safety: use a step no higher than 15 cm."),
-    ("March in Place", "FULL_BODY", "MODERATE", 30, 120, None,
-     "Stand tall and march on the spot, lifting the knees and swinging the arms at a comfortable pace."),
+    ("Elbow Flexion", "BOTH_ARMS", "LOW", 12, 60, "elbow_flexion",
+     "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows "
+     "to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. "
+     "Use a light bottle of water if comfortable."),
+    ("Wall Push-Up", "BOTH_ARMS", "MODERATE", 10, 90, "wall_push_up",
+     "Camera: side view, whole body in frame, wall at one edge of the picture. Stand an arm's length from a wall "
+     "with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. "
+     "Safety: keep the body straight from head to heels."),
+    ("Heel Raise", "BOTH_LEGS", "LOW", 12, 60, "heel_raise",
+     "Camera: side view, whole body in frame. Stand behind a chair holding the back of it. Rise onto your toes, "
+     "hold for one second, and lower slowly. Safety: keep holding the chair throughout."),
+    ("Mini Squat", "BOTH_LEGS", "MODERATE", 10, 90, "mini_squat",
+     "Camera: side view, whole body in frame. Stand with feet shoulder-width apart holding a support. Bend the knees "
+     "about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes."),
+    ("Seated Marching", "BOTH_LEGS", "LOW", 20, 90, "seated_marching",
+     "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the "
+     "chest, lower it, and alternate legs at a steady pace."),
+    ("Glute Bridge", "CORE", "MODERATE", 10, 90, "glute_bridge",
+     "Camera: side view, phone on the floor about 2 m away, whole body in frame. Lie on your back on a mat with knees "
+     "bent and feet flat. Squeeze the buttocks and lift the hips until shoulders, hips and knees are in a straight "
+     "line, then lower slowly. Safety: do not arch the lower back."),
+    ("Tandem Stance", "BOTH_LEGS", "LOW", 4, 120, "tandem_stance",
+     "Camera: facing you, whole body in frame. Stand next to a counter. Place one foot directly in front of the "
+     "other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support."),
+    ("Bird Dog", "CORE", "LOW", 10, 90, "bird_dog",
+     "Camera: side view, phone on the floor about 2 m away, whole body in frame. Kneel on a mat on hands and knees, "
+     "hands under shoulders, knees under hips. Stretch one arm forward and the opposite leg back until both are level "
+     "with your back, hold for two seconds, return, and switch sides. Safety: keep the back flat, do not twist."),
+    ("Step-Up", "BOTH_LEGS", "MODERATE", 10, 120, "step_up",
+     "Camera: side view, whole body and the step in frame. Stand facing a low step holding a rail. Step up with one "
+     "foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. "
+     "Safety: use a step no higher than 15 cm."),
+    ("March in Place", "FULL_BODY", "MODERATE", 30, 120, "march_in_place",
+     "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if "
+     "comfortable and swinging the arms, at a steady pace."),
 ]
 
 # name, aim, body area, stage, mobility, freq/week, goal, [(exercise, reps, duration_sec)]
@@ -79,7 +83,7 @@ PLANS = [
      [("Sit-to-Stand", 10, 90), ("Mini Squat", 10, 90), ("Step-Up", 8, 120)]),
     ("Shoulder Mobility Starter", "Regain gentle shoulder movement after a period of reduced arm use.",
      "BOTH_ARMS", "EARLY", "LOW", 5, "MOBILITY",
-     [("Shoulder Pendulum", 10, 60), ("Shoulder Flexion", 8, 60), ("Shoulder Abduction", 8, 60)]),
+     [("Shoulder Flexion", 8, 60), ("Shoulder Abduction", 8, 60), ("Elbow Flexion", 10, 60)]),
     ("Upper Limb Strength", "Strengthen the arms and shoulders for daily tasks such as lifting and reaching.",
      "BOTH_ARMS", "INTERMEDIATE", "MODERATE", 3, "STRENGTH",
      [("Elbow Flexion", 12, 60), ("Shoulder Flexion", 10, 60), ("Shoulder Abduction", 10, 60), ("Wall Push-Up", 10, 90)]),
@@ -91,7 +95,7 @@ PLANS = [
      [("Tandem Stance", 4, 120), ("Heel Raise", 10, 60), ("Sit-to-Stand", 8, 90)]),
     ("Core and Back Care", "Relieve lower back discomfort and activate the core muscles.",
      "CORE", "EARLY", "LOW", 4, "PAIN_RELIEF",
-     [("Pelvic Tilt", 10, 60), ("Glute Bridge", 8, 90)]),
+     [("Bird Dog", 8, 90), ("Glute Bridge", 8, 90)]),
     ("Disuse Atrophy Reconditioning", "Rebuild general muscle activity after a long period of inactivity.",
      "FULL_BODY", "EARLY", "LOW", 3, "ENDURANCE",
      [("Seated Marching", 20, 90), ("Sit-to-Stand", 8, 90), ("Shoulder Abduction", 8, 60)]),
@@ -143,21 +147,26 @@ def main():
     out.write_text(json.dumps({"exercises": exercises, "plans": plans}, indent=2), encoding="utf-8")
 
     sql = ["-- Generated by build_seed.py. Do not edit by hand.",
-           "-- Needs: exercise.pose_key VARCHAR(30) NULL and treatment_plan.goal VARCHAR(15) NULL",
-           "-- (two columns not in Tables 4.91/4.92; see IMPLEMENTATION_PLAN.md).", "BEGIN;"]
+           "-- Safe to run again: updates existing rows, rebuilds each plan's exercise list,",
+           "-- and removes catalogue exercises that are no longer used.", "BEGIN;"]
     for e in exercises:
         cols = list(e.keys())
+        sets = ", ".join(f"{c} = excluded.{c}" for c in cols if c != "exercise_id")
         sql.append(f"INSERT INTO exercise ({', '.join(cols)}) VALUES ({', '.join(q(e[c]) for c in cols)}) "
-                   "ON CONFLICT (exercise_id) DO NOTHING;")
+                   f"ON CONFLICT (exercise_id) DO UPDATE SET {sets};")
+    plan_cols = ["plan_id", "plan_name", "aim", "target_body_area", "recovery_stage",
+                 "mobility_level", "frequency_per_week", "goal"]
     for p in plans:
-        cols = ["plan_id", "plan_name", "aim", "target_body_area", "recovery_stage",
-                "mobility_level", "frequency_per_week", "goal"]
-        sql.append(f"INSERT INTO treatment_plan ({', '.join(cols)}) VALUES ({', '.join(q(p[c]) for c in cols)}) "
-                   "ON CONFLICT (plan_id) DO NOTHING;")
+        sets = ", ".join(f"{c} = excluded.{c}" for c in plan_cols if c != "plan_id")
+        sql.append(f"INSERT INTO treatment_plan ({', '.join(plan_cols)}) VALUES ({', '.join(q(p[c]) for c in plan_cols)}) "
+                   f"ON CONFLICT (plan_id) DO UPDATE SET {sets};")
+        sql.append(f"DELETE FROM plan_exercise WHERE plan_id = {q(p['plan_id'])};")
         for pe in p["plan_exercise"]:
             cols = ["plan_id", "exercise_id", "sequence_order", "prescribed_repetitions", "prescribed_duration_sec"]
-            sql.append(f"INSERT INTO plan_exercise ({', '.join(cols)}) VALUES ({', '.join(q(pe[c]) for c in cols)}) "
-                       "ON CONFLICT DO NOTHING;")
+            sql.append(f"INSERT INTO plan_exercise ({', '.join(cols)}) VALUES ({', '.join(q(pe[c]) for c in cols)});")
+    keep = ", ".join(q(e["exercise_id"]) for e in exercises)
+    sql.append(f"DELETE FROM exercise WHERE exercise_id NOT IN ({keep}) "
+               "AND NOT EXISTS (SELECT 1 FROM exercise_session s WHERE s.exercise_id = exercise.exercise_id);")
     sql.append("COMMIT;")
     (here / "seed_catalogue.sql").write_text("\n".join(sql) + "\n", encoding="utf-8")
     print(f"{len(exercises)} exercises, {len(plans)} plans written")

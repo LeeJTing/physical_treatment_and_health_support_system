@@ -11,6 +11,12 @@ phone camera can see clearly.
 | `hip_abduction` | Standing side leg raise | front | hip (opposite hip–hip–ankle), trunk upright |
 | `knee_extension` | Seated knee extension | side | knee (hip–knee–ankle), back upright |
 
+**Angle-rule exercises (no trained model, 6 clips each to tune and test the rules):**
+`elbow_flexion`, `wall_push_up`, `heel_raise`, `mini_squat`, `seated_marching`, `glute_bridge`,
+`tandem_stance` (hold, scored on time steady), `bird_dog`, `step_up`, `march_in_place`.
+Shoulder Pendulum and Pelvic Tilt were removed from the catalogue (a camera cannot judge them);
+Bird Dog replaced Pelvic Tilt. Recording instructions: `fyp-notes/Recording_Guide.pdf`.
+
 Planned files:
 
 - `extract_landmarks.py` — video → per-frame landmarks → joint angles (`.npz`)
