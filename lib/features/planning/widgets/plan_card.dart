@@ -152,8 +152,22 @@ Future<void> showPlanDetails(BuildContext context, TreatmentPlan plan) => showMo
                       InfoChip(RehabLabels.area(pe.exercise.targetBodyArea)),
                     ]),
                     const SizedBox(height: 10),
-                    Text(pe.exercise.instructionText,
+                    Text(pe.exercise.steps,
                         style: const TextStyle(fontSize: 15, height: 1.45, color: AppTokens.textBody)),
+                    if (pe.exercise.cameraTip case final tip?) ...[
+                      const SizedBox(height: 10),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.videocam_outlined, size: 18, color: AppTokens.accent),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text('Recording: $tip',
+                                style: const TextStyle(fontSize: 13, height: 1.35, color: AppTokens.accent)),
+                          ),
+                        ],
+                      ),
+                    ],
                   ],
                 ),
               ),

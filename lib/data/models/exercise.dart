@@ -27,6 +27,20 @@ class Exercise {
     this.poseKey,
   });
 
+  static final RegExp _camera = RegExp(r'^Camera:\s*([^.]*)\.\s*');
+
+  /// Where to put the phone when recording, e.g. "side view, whole body in frame".
+  /// Null when the instruction text has no "Camera: ..." sentence.
+  String? get cameraTip {
+    final m = _camera.firstMatch(instructionText);
+    if (m == null) return null;
+    final tip = m.group(1)!.trim();
+    return tip.isEmpty ? null : '${tip[0].toUpperCase()}${tip.substring(1)}.';
+  }
+
+  /// The steps and safety points, without the recording tip.
+  String get steps => instructionText.replaceFirst(_camera, '').trim();
+
   bool isSafeFor(SafetyLimit s) => s.permits(this);
 
   /// Whether the target body area is one the patient cannot use.

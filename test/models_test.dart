@@ -124,4 +124,22 @@ void main() {
       expect(r.shouldSuppress(false), isFalse);
     });
   });
+
+  group('Exercise instruction text', () {
+    Exercise withText(String t) => Exercise(
+          exerciseId: 'e', exerciseName: 'X', instructionText: t, targetBodyArea: 'BOTH_LEGS',
+          intensityLevel: ExerciseIntensity.low, defaultRepetitions: 10, defaultDurationSec: 60);
+
+    test('camera sentence is split from the steps', () {
+      final e = withText('Camera: side view, whole body in frame. Sit upright on a chair. Lift one knee.');
+      expect(e.cameraTip, 'Side view, whole body in frame.');
+      expect(e.steps, 'Sit upright on a chair. Lift one knee.');
+    });
+
+    test('text without a camera sentence is unchanged', () {
+      final e = withText('Sit upright on a chair.');
+      expect(e.cameraTip, isNull);
+      expect(e.steps, 'Sit upright on a chair.');
+    });
+  });
 }
