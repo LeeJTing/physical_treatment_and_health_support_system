@@ -195,15 +195,21 @@ def main():
     ap.add_argument("key", nargs="?")
     ap.add_argument("--epochs", type=int, default=300)
     ap.add_argument("--synthetic", action="store_true")
+    ap.add_argument("--own-only", action="store_true", help="train on Elwin's recordings only (drop REHAB24-6)")
     a = ap.parse_args()
     if a.synthetic:
         X, y, ym, g, mistakes = synthetic()
         name, res = train("synthetic", X, y, ym, g, mistakes, a.epochs, out_name="synthetic_smoke")
         (WEIGHTS_DIR / f"{name}.pt").unlink()  # never shipped
     else:
-        d = np.load(DATA / "datasets" / f"{a.key}.npz")
+        d = dict(np.load(DATA / "datasets" / f"{a.key}.npz"))
+        if a.own_only:
+            keep = np.char.startswith(d["groups"].astype(str), "own")
+            for k in ("X", "y_correct", "y_mistake", "groups", "clip", "aug"):
+                if k in d:
+                    d[k] = d[k][keep]
         name, res = train(a.key, d["X"], d["y_correct"], d["y_mistake"], d["groups"], d["mistakes"].tolist(), a.epochs,
-                          clips=d["clip"] if "clip" in d else None, aug=d["aug"] if "aug" in d else None)
+                          clips=d.get("clip"), aug=d.get("aug"))
     print(json.dumps({k: v for k, v in res.items() if k != "confusion_matrix"}, indent=2))
     print("confusion matrix [true incorrect, true correct] x [pred incorrect, pred correct]:",
           res["confusion_matrix"]["rows_true_cols_pred"])

@@ -1,0 +1,29 @@
+=== shoulder_flexion --own-only
+shoulder_flexion: 259 original reps (+1035 augmented), 1 people, 50 clips, 127 correct / 132 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  logistic regression  accuracy 98%  precision 0.97  recall 1.00  F1 0.98  confusion [[128, 4], [0, 127]]
+  GRU                  accuracy 99%  precision 0.99  recall 0.98  F1 0.99  confusion [[131, 1], [2, 125]]
+=== shoulder_flexion --own-only --no-aug
+shoulder_flexion: 259 original reps (+0 augmented), 1 people, 50 clips, 127 correct / 132 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  logistic regression  accuracy 98%  precision 0.98  recall 0.98  F1 0.98  confusion [[130, 2], [3, 124]]
+  GRU                  accuracy 97%  precision 0.95  recall 0.98  F1 0.96  confusion [[126, 6], [3, 124]]
+=== sit_to_stand --own-only
+sit_to_stand: 259 original reps (+1037 augmented), 1 people, 48 clips, 130 correct / 129 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  logistic regression  accuracy 97%  precision 0.96  recall 0.99  F1 0.97  confusion [[123, 6], [1, 129]]
+  GRU                  accuracy 97%  precision 0.96  recall 0.98  F1 0.97  confusion [[123, 6], [2, 128]]
+=== sit_to_stand --own-only --no-aug
+sit_to_stand: 259 original reps (+0 augmented), 1 people, 48 clips, 130 correct / 129 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  logistic regression  accuracy 98%  precision 0.96  recall 1.00  F1 0.98  confusion [[124, 5], [0, 130]]
+  GRU                  accuracy 93%  precision 0.89  recall 0.98  F1 0.93  confusion [[113, 16], [3, 127]]
+=== shoulder_abduction --own-only
+shoulder_abduction: 233 original reps (+932 augmented), 1 people, 45 clips, 132 correct / 101 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  logistic regression  accuracy 100%  precision 1.00  recall 1.00  F1 1.00  confusion [[101, 0], [0, 132]]
+  GRU                  accuracy 99%  precision 1.00  recall 0.98  F1 0.99  confusion [[101, 0], [2, 130]]
+=== shoulder_abduction --own-only --no-aug
+shoulder_abduction: 233 original reps (+0 augmented), 1 people, 45 clips, 132 correct / 101 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  logistic regression  accuracy 100%  precision 1.00  recall 1.00  F1 1.00  confusion [[101, 0], [0, 132]]
+  GRU                  accuracy 99%  precision 0.99  recall 1.00  F1 0.99  confusion [[99, 2], [0, 132]]
+=== shoulder_abduction with REHAB24-6 people (leave-one-person-out)
+shoulder_abduction: 321 original reps (+932 augmented), 9 people, 54 clips, 179 correct / 142 incorrect; leave-one-person-out
+  logistic regression  accuracy 38%  precision 0.33  recall 0.11  F1 0.17  confusion [[102, 40], [159, 20]]
+  GRU                  accuracy 47%  precision 0.60  recall 0.16  F1 0.25  confusion [[123, 19], [151, 28]]
+ALLDONE

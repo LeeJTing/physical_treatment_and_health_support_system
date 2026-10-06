@@ -1,0 +1,34 @@
+{
+  "shoulder_abduction": {
+    "variants": 180,
+    "same_rep_count": 1.0,
+    "same_mistakes_flagged": 0.883,
+    "median_accuracy_change": 0.0
+  },
+  "shoulder_flexion": {
+    "variants": 200,
+    "same_rep_count": 0.995,
+    "same_mistakes_flagged": 0.895,
+    "median_accuracy_change": 0.0
+  },
+  "sit_to_stand": {
+    "variants": 172,
+    "same_rep_count": 0.994,
+    "same_mistakes_flagged": 0.727,
+    "median_accuracy_change": 0.0
+  },
+  "by_change": {
+    "colour/light only": {
+      "variants": 207,
+      "same_mistakes_flagged": 0.894
+    },
+    "mirrored": {
+      "variants": 202,
+      "same_mistakes_flagged": 0.802
+    },
+    "rotated/zoomed": {
+      "variants": 143,
+      "same_mistakes_flagged": 0.811
+    }
+  }
+}
