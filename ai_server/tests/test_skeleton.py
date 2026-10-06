@@ -6,6 +6,13 @@ from app.main import app
 
 client = TestClient(app)
 DEV = {"Authorization": "Bearer dev-token"}
+VALID = {
+    "rehab": {"affected_body_area": "BOTH_LEGS", "recovery_stage": "EARLY", "mobility_level": "LOW", "goal": "MOBILITY"},
+    "safety_limit": {"max_exercise_intensity": "LOW", "max_session_duration_min": 20},
+    "plans": [{"plan_id": "p1", "target_body_area": "BOTH_LEGS", "recovery_stage": "EARLY", "mobility_level": "LOW",
+               "plan_exercise": [{"prescribed_duration_sec": 60,
+                                  "exercise": {"exercise_id": "e1", "target_body_area": "BOTH_LEGS", "intensity_level": "LOW"}}]}],
+}
 
 
 def test_health_needs_no_token():
@@ -20,7 +27,7 @@ def test_missing_token_is_401_with_error_contract():
 
 
 def test_dev_token_accepted():
-    assert client.post("/recommend", json={}, headers=DEV).status_code == 200
+    assert client.post("/recommend", json=VALID, headers=DEV).status_code == 200
     assert client.get("/chat/categories", headers=DEV).status_code == 200
 
 
@@ -31,10 +38,10 @@ def test_real_supabase_style_token(monkeypatch):
     get_settings.cache_clear()
     try:
         tok = jwt.encode({"sub": "abc", "aud": "authenticated"}, secret, algorithm="HS256")
-        assert client.post("/recommend", json={}, headers={"Authorization": f"Bearer {tok}"}).status_code == 200
+        assert client.post("/recommend", json=VALID, headers={"Authorization": f"Bearer {tok}"}).status_code == 200
         bad = jwt.encode({"sub": "abc", "aud": "authenticated"}, "wrong-secret-also-32-bytes-long!!!", algorithm="HS256")
-        assert client.post("/recommend", json={}, headers={"Authorization": f"Bearer {bad}"}).status_code == 401
-        assert client.post("/recommend", json={}, headers=DEV).status_code == 401
+        assert client.post("/recommend", json=VALID, headers={"Authorization": f"Bearer {bad}"}).status_code == 401
+        assert client.post("/recommend", json=VALID, headers=DEV).status_code == 401
     finally:
         get_settings.cache_clear()
 
