@@ -200,8 +200,6 @@ class _LabeledFieldState extends State<LabeledField> {
           fillColor: AppTokens.surface,
           hintText: widget.hint,
           hintStyle: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
-          helperText: widget.helper,
-          helperStyle: const TextStyle(color: AppTokens.inkMuted, fontSize: 14),
           errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 14),
           helperMaxLines: 3,
           errorMaxLines: 3,
@@ -228,6 +226,16 @@ class _LabeledFieldState extends State<LabeledField> {
               : null,
         ),
       ),
+      // Below the field and lined up with the label (InputDecoration.helperText is
+      // indented to the text inside the field).
+      if (widget.helper != null)
+        Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(
+            widget.helper!,
+            style: const TextStyle(color: AppTokens.inkMuted, fontSize: 14),
+          ),
+        ),
     ],
   );
 }

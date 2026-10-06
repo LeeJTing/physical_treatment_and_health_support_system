@@ -12,6 +12,7 @@ import 'package:physical_treatment_and_health_support_system/data/models/health_
 import 'package:physical_treatment_and_health_support_system/data/models/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/features/profile/viewmodel/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/profile/widgets/profile_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/core/widgets/status_bar_strip.dart';
 
 /// My Profile (UC300; Figma "Profile Screen"). Used as the Profile tab and, for a
 /// patient without a complete profile, as a standalone route after sign-in (FR100_035).
@@ -139,6 +140,7 @@ class _ProfileViewState extends State<ProfileView> {
         }
       },
       child: Scaffold(
+        appBar: const StatusBarStrip(),
         backgroundColor: AppTokens.screenBackground,
         bottomNavigationBar: vm.isEditing
             ? _EditBar(

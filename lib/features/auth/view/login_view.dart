@@ -7,6 +7,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/viewmodel/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/widgets/auth_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/core/widgets/status_bar_strip.dart';
 
 /// Log in with email and password or Google (UC200; Figma "Login Screen").
 class LoginView extends StatefulWidget {
@@ -68,6 +69,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
       },
     };
     return Scaffold(
+      appBar: const StatusBarStrip(),
       backgroundColor: AppTokens.screenBackground,
       body: SingleChildScrollView(
         child: Column(
@@ -196,7 +198,10 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                       ),
                       const SizedBox(height: 16),
                       // Wrap, not Row: with large text the link drops to its own line.
-                      Wrap(
+                      // Full width so WrapAlignment.center actually centres it.
+                      SizedBox(
+                        width: double.infinity,
+                        child: Wrap(
                         alignment: WrapAlignment.center,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
@@ -224,6 +229,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                             ),
                           ),
                         ],
+                      ),
                       ),
                     ],
                   ),

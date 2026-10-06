@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/viewmodel/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/widgets/auth_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/core/widgets/status_bar_strip.dart';
 
 /// Reset a forgotten password in two steps (UC200 alternative flow, FR100_037 to FR100_042):
 /// 1. email -> a reset code is sent; 2. code + new password.
@@ -108,6 +109,7 @@ class _ResetPasswordViewState extends State<ResetPasswordView> {
     }
 
     return Scaffold(
+      appBar: const StatusBarStrip(),
       backgroundColor: AppTokens.screenBackground,
       body: SingleChildScrollView(
         child: Column(

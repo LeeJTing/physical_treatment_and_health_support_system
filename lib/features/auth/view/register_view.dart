@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/viewmodel/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/widgets/auth_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/core/widgets/status_bar_strip.dart';
 
 /// Create an account with email and password (UC100).
 class RegisterView extends StatefulWidget {
@@ -102,6 +103,7 @@ class _RegisterViewState extends State<RegisterView> {
         }
       },
       child: Scaffold(
+        appBar: const StatusBarStrip(),
         backgroundColor: AppTokens.screenBackground,
         body: SingleChildScrollView(
           child: Column(

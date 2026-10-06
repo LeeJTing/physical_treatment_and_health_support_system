@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/viewmodel/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/widgets/auth_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/core/widgets/status_bar_strip.dart';
 
 /// Enter the 6-digit code emailed at sign-up (FR100_012 to FR100_015).
 /// The email address arrives as the route argument.
@@ -54,6 +55,7 @@ class _VerifyCodeViewState extends State<VerifyCodeView> {
     };
     final ready = FormValidators.otp(_code.text) == null;
     return Scaffold(
+      appBar: const StatusBarStrip(),
       backgroundColor: AppTokens.screenBackground,
       body: SingleChildScrollView(
         child: Column(

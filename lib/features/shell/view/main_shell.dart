@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/features/profile/vi
 import 'package:physical_treatment_and_health_support_system/features/profile/viewmodel/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/treatment_tab_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/core/widgets/status_bar_strip.dart';
 
 /// The five bottom tabs from the Figma screens (Home, Tracking, Treatment, Diet, Profile).
 /// An IndexedStack keeps each tab's state when switching. Tracking and Diet belong to
@@ -65,6 +66,10 @@ class _MainShellState extends State<MainShell> {
 
   Widget _scaffold(BuildContext context) {
     return Scaffold(
+      appBar: StatusBarStrip(
+        // Treatment's header is the darker planning green (Figma Treatment screen).
+        color: _index == MainShell.treatmentTab ? AppTokens.primary : AppTokens.brandDeep,
+      ),
       body: IndexedStack(
         index: _index,
         children: const [
