@@ -53,7 +53,7 @@ class FakePoseServer {
         'repetitions': 4,
         'hold_seconds': null,
         'feedback': [
-          if (fallMessage != null) fallMessage!,
+          ?fallMessage,
           accuracy >= 80
               ? 'Good form. Keep it up!'
               : 'Hold the straight leg for 2 seconds before lowering it.',
@@ -328,6 +328,11 @@ void main() {
       final h = Harness();
       h.server.accuracy = 40;
       h.server.fallMessage = 'Stop and rest: you may have fallen.';
+      // Tall phone-width screen so the whole ListView is built: with the default 800x600
+      // surface the banner pushes Continue below the fold and it is never built.
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       await tester.runAsync(() async {
         await h.setUp(tmp);
         await h.recordFirst();

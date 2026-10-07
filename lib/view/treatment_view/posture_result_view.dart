@@ -157,50 +157,50 @@ class PostureResultView extends StatelessWidget {
               ),
             ),
             if (lines.isNotEmpty) ...[
-            const SizedBox(height: AppTokens.gap),
-            TreatmentCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    passing ? 'Feedback' : 'Corrective guidance', // FR300_19
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTokens.accent,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  for (final line in lines)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            passing
-                                ? Icons.thumb_up_alt_outlined
-                                : Icons.tips_and_updates_outlined,
-                            size: 20,
-                            color: AppTokens.textBody,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              line,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                height: 1.4,
-                                color: AppTokens.text,
-                              ),
-                            ),
-                          ),
-                        ],
+              const SizedBox(height: AppTokens.gap),
+              TreatmentCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      passing ? 'Feedback' : 'Corrective guidance', // FR300_19
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTokens.accent,
                       ),
                     ),
-                ],
+                    const SizedBox(height: 8),
+                    for (final line in lines)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              passing
+                                  ? Icons.thumb_up_alt_outlined
+                                  : Icons.tips_and_updates_outlined,
+                              size: 20,
+                              color: AppTokens.textBody,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                line,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  height: 1.4,
+                                  color: AppTokens.text,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
             ],
             if (passing && vm.autoAdvanced) ...[
               const SizedBox(height: AppTokens.gap),
@@ -223,31 +223,31 @@ class PostureResultView extends StatelessWidget {
             Row(
               children: [
                 if (!fell) ...[
-                Expanded(
-                  child: SizedBox(
-                    height: AppTokens.minTarget,
-                    child: FilledButton(
-                      onPressed: saving is Loading
-                          ? null
-                          : () => _retry(context),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTokens.action,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppTokens.radiusButton,
+                  Expanded(
+                    child: SizedBox(
+                      height: AppTokens.minTarget,
+                      child: FilledButton(
+                        onPressed: saving is Loading
+                            ? null
+                            : () => _retry(context),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTokens.action,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTokens.radiusButton,
+                            ),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        child: const Text('Retry exercise'),
                       ),
-                      child: const Text('Retry exercise'),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
+                  const SizedBox(width: 10),
                 ],
                 Expanded(
                   child: SizedBox(
@@ -290,7 +290,6 @@ class PostureResultView extends StatelessWidget {
     );
   }
 }
-
 
 /// Shown first when the video looks like the patient lost their balance or fell.
 class _SafetyBanner extends StatelessWidget {
