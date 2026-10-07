@@ -1,9 +1,9 @@
 {
   "Ex1": {
-    "accuracy": 0.6818181818181818,
-    "precision": 0.6792452830188679,
-    "recall": 0.7659574468085106,
-    "f1": 0.72,
+    "accuracy": 0.3977272727272727,
+    "precision": 0.4318181818181818,
+    "recall": 0.40425531914893614,
+    "f1": 0.41758241758241754,
     "confusion_matrix": {
       "labels": [
         "incorrect",
@@ -11,12 +11,12 @@
       ],
       "rows_true_cols_pred": [
         [
-          24,
-          17
+          16,
+          25
         ],
         [
-          11,
-          36
+          28,
+          19
         ]
       ]
     },
@@ -38,21 +38,25 @@
       ]
     },
     "mistake_fired_on": {
-      "shoulder_shrug": {
-        "correct_reps": "11/47",
-        "incorrect_reps": "24/41"
-      },
       "bent_elbow": {
-        "correct_reps": "2/47",
-        "incorrect_reps": "2/41"
+        "correct_reps": "28/47",
+        "incorrect_reps": "15/41"
+      },
+      "shoulder_shrug": {
+        "correct_reps": "4/47",
+        "incorrect_reps": "1/41"
+      },
+      "low_range": {
+        "correct_reps": "0/47",
+        "incorrect_reps": "3/41"
       }
     }
   },
   "Ex4": {
-    "accuracy": 0.7586206896551724,
-    "precision": 0.7966101694915254,
-    "recall": 0.746031746031746,
-    "f1": 0.7704918032786885,
+    "accuracy": 0.6293103448275862,
+    "precision": 0.8333333333333334,
+    "recall": 0.3968253968253968,
+    "f1": 0.5376344086021505,
     "confusion_matrix": {
       "labels": [
         "incorrect",
@@ -60,19 +64,19 @@
       ],
       "rows_true_cols_pred": [
         [
-          41,
-          12
+          48,
+          5
         ],
         [
-          16,
-          47
+          38,
+          25
         ]
       ]
     },
     "exercise": "hip_abduction",
     "videos": 9,
     "labelled_reps": 116,
-    "rep_count_exact": "3/9",
+    "rep_count_exact": "1/9",
     "rep_count_within_1": "3/9",
     "peak_signal_p10_p50_p90": {
       "correct": [
@@ -88,20 +92,77 @@
     },
     "mistake_fired_on": {
       "trunk_lean": {
-        "correct_reps": "11/63",
-        "incorrect_reps": "40/53"
+        "correct_reps": "29/63",
+        "incorrect_reps": "47/53"
+      },
+      "bent_knee": {
+        "correct_reps": "14/63",
+        "incorrect_reps": "21/53"
       },
       "leg_forward": {
         "correct_reps": "5/63",
         "incorrect_reps": "1/53"
       },
-      "bent_knee": {
-        "correct_reps": "1/63",
-        "incorrect_reps": "8/53"
+      "toes_up": {
+        "correct_reps": "2/63",
+        "incorrect_reps": "2/53"
       },
       "low_range": {
         "correct_reps": "0/63",
         "incorrect_reps": "1/53"
+      }
+    }
+  },
+  "Ex3": {
+    "accuracy": 0.5514018691588785,
+    "precision": 1.0,
+    "recall": 0.07692307692307693,
+    "f1": 0.14285714285714288,
+    "confusion_matrix": {
+      "labels": [
+        "incorrect",
+        "correct"
+      ],
+      "rows_true_cols_pred": [
+        [
+          55,
+          0
+        ],
+        [
+          48,
+          4
+        ]
+      ]
+    },
+    "exercise": "wall_push_up",
+    "videos": 10,
+    "labelled_reps": 107,
+    "rep_count_exact": "2/10",
+    "rep_count_within_1": "4/10",
+    "peak_signal_p10_p50_p90": {
+      "correct": [
+        76.2,
+        100.1,
+        131.1
+      ],
+      "incorrect": [
+        62.8,
+        104.7,
+        155.4
+      ]
+    },
+    "mistake_fired_on": {
+      "hips_back": {
+        "correct_reps": "40/52",
+        "incorrect_reps": "43/55"
+      },
+      "low_range": {
+        "correct_reps": "42/52",
+        "incorrect_reps": "33/55"
+      },
+      "hips_sag": {
+        "correct_reps": "1/52",
+        "incorrect_reps": "12/55"
       }
     }
   }
