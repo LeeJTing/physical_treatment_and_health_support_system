@@ -2,7 +2,7 @@
 falling, partial movements, small text and family helpers. A fall long ago ("I fell last year") and a
 question about falling ("what if I can't get up after a fall") are not emergencies; a fall just now,
 or one that still hurts, is. Sudden blurred or double vision is a red flag. New answers: muscle_loss,
-fear_of_falling, text_size, family_help (rules 3.26).
+fear_of_falling, text_size, family_help (rules 3.26); tightened after laptop pass 8 (3.27).
 """
 from chat_round1_set import KNEE
 
@@ -56,6 +56,17 @@ ROUND14 = [
     (KNEE, "i live alone and i just fell and can't get up", "red_flag"),
     (KNEE, "my father fell years ago and now he is lying on the floor not moving", "red_flag"),
     (KNEE, "what if i fall right now, i feel dizzy", "red_flag"),
+    (KNEE, "my dad fell last month and hasn't been the same since", "red_flag"),
+    (KNEE, "she fell a while ago and has been confused since", "red_flag"),
+    (KNEE, "what if he fell? he's on the floor", "red_flag"),
+    (KNEE, "kalau dia jatuh tadi", "red_flag"),
+    (KNEE, "i fell in the past hour", "red_flag"),
+    (KNEE, "i fell a little while ago", "red_flag"),
+    (KNEE, "she has just fallen, she fell last year too", "red_flag"),
+    (KNEE, "saya baru jatuh", "red_flag"),
+    (KNEE, "i fell last year, i just want to know if i can exercise", "fear_of_falling"),
+    (KNEE, "if she falls what should i do", "fear_of_falling"),
+    (KNEE, "if i fell would the app know", "fall_alert"),
     # sudden vision changes
     (KNEE, "my eyesight is blurry suddenly", "red_flag"),
     (KNEE, "i can't see properly, everything is blurry", "red_flag"),
@@ -64,6 +75,10 @@ ROUND14 = [
     (KNEE, "mata saya kabur tiba tiba", "red_flag"),
     (KNEE, "my video is blurry", "recording_help"),
     (KNEE, "the recording looks blurry", "recording_help"),
+    (KNEE, "everything is blurry on the app", None),
+    (KNEE, "i'm so blur about how to use the app", "app_help"),
+    (KNEE, "mata saya blur tiba tiba", "red_flag"),
+    (KNEE, "suddenly my eyes went blurry and my head hurts", "red_flag"),
     # partial movements and stopping
     (KNEE, "i can only lift my leg halfway", "difficulty"),
     (KNEE, "my arm won't go up as high as the picture", "difficulty"),

@@ -57,7 +57,7 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
-         "jatuh": "fell", "terjatuh": "fell", "mengecil": "shrank", "otot": "muscles", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
+         "jatuh": "fell", "terjatuh": "fell", "tadi": "just now", "mengecil": "shrank", "otot": "muscles", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
          "susah": "hard", "duduk": "sitting", "sambil": "while",
          "seminggu": "a week", "sehari": "a day", "berapa": "how many", "kali": "times", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
          "mak": "mother", "ibu": "mother", "ayah": "father", "bapa": "father", "nenek": "grandma",
@@ -73,7 +73,12 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  "risau jatuh": "worried about falling", "otot mengecil": "muscles shrank",
                  "otot kecil": "muscles shrank", "kaki kurus": "legs are thin", "tulisan kecil": "text too small",
                  "huruf kecil": "text too small", "duduk hospital": "in hospital", "masuk hospital": "in hospital",
-                 "keluar hospital": "out of hospital", "masuk wad": "in hospital"}
+                 "keluar hospital": "out of hospital", "masuk wad": "in hospital",
+                 # laptop safety pass 8: after a fall
+                 "tak boleh jalan": "can't walk", "tidak boleh jalan": "can't walk", "tak boleh bangun": "can't get up",
+                 "tidak boleh bangun": "can't get up", "tak boleh berdiri": "can't stand",
+                 "tidak boleh berdiri": "can't stand", "sakit kepala": "headache", "muntah": "vomiting",
+                 "mengantuk": "drowsy", "lebam": "bruised"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -284,6 +289,12 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("recording_help", "fear_of_falling"), ("missed_session", "muscle_loss")]
 
 
+# As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
+# muscle loss, but "the doctor told me to rest after hospital" is the doctor's advice).
+PREFER_UNLESS = [("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not to", "don't", "avoid", "no exercise",
+                                                 "bed rest", "wait", "until"])]
+
+
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
 NOT_A_FALL = [("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behind", "behind"),
               ("fallen behind", "behind"), ("falling behind", "behind"), ("fell in love", "loved"),
@@ -309,15 +320,23 @@ ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped",
 # Round 14 (elderly users): a fall long ago is history, not an emergency ("I fell last year and now I'm
 # scared"), unless it still hurts; and "what if I can't get up after a fall" is a question about falling.
 FALL_WORDS = {"fell", "fall", "falls", "fallen", "falling", "jatuh", "tripped", "slipped"}
-PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "a while ago",
-             "long time ago", "long ago", "in the past"]
+PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "long time ago",
+             "long ago", "in the past year", "in the past few years", "years back"]
+# Words that make a fall recent whatever else is said ("i fell in the past hour", "kalau dia jatuh tadi").
+RECENT = ["just now", "tadi", "right now", "today", "this morning", "this afternoon", "this evening", "tonight",
+          "last night", "yesterday", "semalam", "earlier", "moment ago", "minutes ago", "minute ago", "hour ago",
+          "hours ago", "past hour", "just fell", "just fallen", "just had a fall", "just collapsed", "just slipped",
+          "baru fell"]
 STILL_HURT = ["hurt", "hurts", "hurting", "pain", "painful", "sakit", "swollen", "swelling", "bruise", "bruised",
-              "still can't", "still cannot", "still cant", "still unable", "still limping",
+              "still can't", "still cannot", "on the floor", "lying", "confused", "confusion", "keliru", "drowsy",
+              "sleepy", "vomit", "vomiting", "headache", "headaches", "not the same", "been the same", "not himself",
+              "not herself", "getting worse", "worse since", "limp", "limping", "numb", "numbness",
+              "can't put weight", "cannot put weight", "can't bear weight", "cannot bear weight", "still cant", "still unable", "still limping",
               "still sore", "can't walk", "cannot walk", "cant walk", "bleeding"]
 OLD_ACCIDENT_WORDS = FALL_WORDS | {"hit", "trip", "slip", "banged", "knocked"}
 HYPOTHETICAL = ["what if i", "what if you", "what if she", "what if he", "if i", "if you", "if i ever",
                 "in case i", "in case you", "kalau saya", "kalau", "supposing i", "suppose i", "how do i",
-                "how to", "how can i"]
+                "how to", "how can i", "if", "what if", "suppose", "supposing", "in case"]
 
 
 def _hypothetical(words: list[str], i: int) -> bool:
@@ -326,9 +345,14 @@ def _hypothetical(words: list[str], i: int) -> bool:
     return any(before.endswith(f" {h} ") for h in HYPOTHETICAL)
 
 
+def _recent_or_hurt(words: list[str]) -> bool:
+    return any(find_phrase(p, words) for p in RECENT + STILL_HURT + HARD_SIGNS)
+
+
 def _old_fall(words: list[str]) -> bool:
-    return any(find_phrase(p, words) for p in PAST_TIME) and not any(find_phrase(h, words) for h in STILL_HURT) \
-        and not any(find_phrase(h, words) for h in HARD_SIGNS)
+    return any(find_phrase(p, words) for p in PAST_TIME) and not _recent_or_hurt(words)
+
+
 # A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
 BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b(?!\s*(?:min|mins|minute|minutes|reps|rep|sets|set|"
                         r"km|steps|points|marks|%|days|times|seconds|secs))")
@@ -557,8 +581,8 @@ def red_flag(text: str | None) -> bool:
                     continue
                 if OLD_ACCIDENT_WORDS & set(phrase.split()) and old_fall:
                     continue                           # "i fell last year", "hit my head years ago"
-                if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i):
-                    continue                           # "if i fall"
+                if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i) and not _recent_or_hurt(words):
+                    continue                           # "if i fall", not "what if he fell? he's on the floor"
                 return True
         for combo in r.get("red_flag_combos", []):
             anchors, symptoms, window = combo[:3]
@@ -576,7 +600,8 @@ def red_flag(text: str | None) -> bool:
                     near = words[lo:i + window + 1]
                     for s in symptoms:
                         for j in find_phrase(s, near):
-                            if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)):
+                            if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)) \
+                                    and not any(find_phrase(p, words) for p in RECENT + HARD_SIGNS):
                                 continue               # "what if i can't get up after a fall"
                             return True
     return False
@@ -825,6 +850,10 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         keys = {h[2]["key"] for h in hits}
     for better, general in PREFER:
         if better in keys and general in keys:
+            hits = [h for h in hits if h[2]["key"] != general]
+    words = clean(text).split()
+    for better, general, unless in PREFER_UNLESS:
+        if better in keys and general in keys and not any(find_phrase(u, words) for u in unless):
             hits = [h for h in hits if h[2]["key"] != general]
     if hits:
         return max(hits, key=lambda h: (h[0], h[1]))[2], "keyword"

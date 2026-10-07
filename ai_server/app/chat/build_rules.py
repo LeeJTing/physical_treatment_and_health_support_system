@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.26"
+VERSION = "chat-rules-3.27"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -156,7 +156,7 @@ INTENTS = [
             "as high as the picture", "as high as the video", "as far as the picture", "not as high as",
             "sit down halfway", "need to sit down", "rest halfway", "stop halfway", "halfway through",
             "gave up after", "give up after", "stopped after",
-            "could only do"],
+            "could only do", "half way", "only goes up", "only go up", "only goes down", "only go down"],
            ["the exercises are too easy", "this is too hard for me", "I can't finish all the repetitions",
             "can I make it harder", "can I do more repetitions"],
            "If an exercise is too hard, do fewer repetitions with good form and rest between them; it should feel "
@@ -305,7 +305,9 @@ INTENTS = [
     # 8 Oct: the posture check's new messages (fall alert, adjusted targets, partial reps, video tips).
     intent("fall_alert", "The possible-fall message", 8,
            ["may have fallen", "might have fallen", "fall alert",
-            "fall warning", "thinks i fell", "think i fell", "possible fall"],
+            "fall warning", "thinks i fell", "think i fell", "possible fall", "would the app know",
+            "app know if i", "know if i fell", "know if i fall", "detect a fall", "detect falls", "detect if i fall",
+            "fall detection", "detects falls"],
            ["the app said I may have fallen", "why did I get a fall warning"],
            "The posture check saw a movement that looked like losing your balance or a fall. If you did "
            "fall, or feel hurt or dizzy, stop and get help; call 999 in an emergency. If it was a false "
@@ -733,7 +735,13 @@ RED_FLAGS += [f"{w} {v}" for w in _WHO for v in (
     "slipped and", "slipped in the", "slipped on the", "tripped and", "tripped over", "slip and", "trip and",
     "has fallen", "have fallen", "had fallen", "'ve fallen", "overdosed",
     # round 14: "i just fell", "she has just fallen"
-    "just fell", "just fallen", "has just fallen", "just had a fall", "just collapsed", "just slipped and")]
+    "just fell", "just fallen", "has just fallen", "just had a fall", "just collapsed", "just slipped and",
+    "has just collapsed", "had just collapsed", "suddenly collapsed", "has suddenly collapsed", "just fainted",
+    "has fainted")]
+RED_FLAGS += ["dia fell", "fell just now", "fell earlier", "fell this morning", "fell today", "baru fell",
+              # laptop pass 8: cannot take weight on the leg (possible fracture)
+              "can't put weight on", "cannot put weight on", "cant put weight on", "unable to put weight on",
+              "can't bear weight", "cannot bear weight", "unable to bear weight"]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
@@ -778,14 +786,19 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 RED_FLAG_COMBOS = [
     # Sudden blurred or double vision (round 14: stroke, very high blood pressure or low sugar), not a
     # blurry video or long-standing cataracts.
-    [["blurry", "blurred", "blur", "kabur", "double vision", "seeing double", "see double", "can't see properly",
+    [["blurry", "blurred", "kabur", "double vision", "seeing double", "see double", "can't see properly",
       "cannot see properly", "cant see properly", "lost my vision", "lost vision", "losing my vision",
       "went blind", "go blind", "can't see out of", "cannot see out of"],
      ["suddenly", "sudden", "all of a sudden", "just now", "during", "while", "after the exercise",
       "after exercising", "after exercise", "one eye", "everything", "dizzy", "headache", "vision", "eyesight",
-      "eyes", "eye", "mata", "pandangan"], 5,
+      "eyes", "eye", "mata", "pandangan"], 7,
      ["video", "photo", "picture", "camera", "screen", "recording", "cataract", "cataracts", "glasses",
-      "spectacles", "for years", "always", "old age", "reading"]],
+      "spectacles", "for years", "always", "old age", "reading", "app", "instructions", "words", "text",
+      "writing", "font", "every morning", "when i wake up", "wake up", "mengantuk", "sleepy", "drowsy", "fogged",
+      "sweat", "sweating", "phone"]],
+    # Malaysian "blur" also means confused ("i'm so blur about the app"): only with the eyes.
+    [["blur"], ["eye", "eyes", "mata", "vision", "eyesight", "pandangan", "seeing"], 3,
+     ["mengantuk", "drowsy", "sleepy", "every morning", "wake up", "glasses", "cataract", "cataracts"]],
     # Someone unable to get up or move after a fall, or on the floor / in bed ("my father fell and
     # cannot get up", "he is on the floor and can't move his leg"); not "can't get up early".
     # Pass 4: only with a fall, the floor, "since" or "lying" (not "can't get up from bed early",
