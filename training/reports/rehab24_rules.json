@@ -114,10 +114,10 @@
     }
   },
   "Ex3": {
-    "accuracy": 0.5514018691588785,
+    "accuracy": 0.5981308411214953,
     "precision": 1.0,
-    "recall": 0.07692307692307693,
-    "f1": 0.14285714285714288,
+    "recall": 0.17307692307692307,
+    "f1": 0.29508196721311475,
     "confusion_matrix": {
       "labels": [
         "incorrect",
@@ -129,8 +129,8 @@
           0
         ],
         [
-          48,
-          4
+          43,
+          9
         ]
       ]
     },
@@ -152,10 +152,6 @@
       ]
     },
     "mistake_fired_on": {
-      "hips_back": {
-        "correct_reps": "40/52",
-        "incorrect_reps": "43/55"
-      },
       "low_range": {
         "correct_reps": "42/52",
         "incorrect_reps": "33/55"
@@ -163,6 +159,10 @@
       "hips_sag": {
         "correct_reps": "1/52",
         "incorrect_reps": "12/55"
+      },
+      "hips_back": {
+        "correct_reps": "2/52",
+        "incorrect_reps": "34/55"
       }
     }
   }

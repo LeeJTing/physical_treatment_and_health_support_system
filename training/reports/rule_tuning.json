@@ -187,11 +187,11 @@
     "status": "kept"
   },
   "hip_abduction.bent_knee": {
-    "rule": "bent_knee: mistake when below 169.521 degrees",
+    "rule": "bent_knee: mistake when below 166 degrees",
     "n_correct": 186,
     "n_mistake": 25,
-    "current_limit": 169.521,
-    "current_balanced_accuracy": 0.962,
+    "current_limit": 166.0,
+    "current_balanced_accuracy": 0.969,
     "tuned_limit": 168.271,
     "tuned_balanced_accuracy": 0.981,
     "median_correct": 177.046,
@@ -674,7 +674,9 @@
     "rule": "hips_back: mistake when below -0.12 torso lengths",
     "n_correct": 20,
     "n_mistake": 3,
-    "status": "skipped (needs 5 reps on each side)"
+    "status": "reviewed",
+    "used_limit": -0.3,
+    "reason": "catches all of Elwin's hips-back reps and 62% of REHAB24's incorrect push-ups; flags 4% of REHAB24's approved ones (-0.12: 77%)"
   },
   "wall_push_up.low_range": {
     "rule": "low_range: mistake when below 111.605 degrees",

@@ -44,6 +44,10 @@ REVIEWED = {
                                            "the trained model handles subtler bends"),
     # 8 Oct, other people: REHAB24-6's approved leg abductions lean 12.3 deg (median), p90 19.3; 13.5
     # flagged 46 % of them. Elwin's 'trunk lean' reps are mild (median 15.9).
+    # 8 Oct: REHAB24-6's approved push-ups (on a table, 10 people) sit at -0.18 (median), p10 -0.29;
+    # -0.12 flagged 77 % of them. Elwin's hips-back reps are at -0.58.
+    "wall_push_up.hips_back": (-0.3, "catches all of Elwin's hips-back reps and 62% of REHAB24's incorrect "
+                                     "push-ups; flags 4% of REHAB24's approved ones (-0.12: 77%)"),
     # 8 Oct: REHAB24-6's approved leg abductions keep the knee at 166-168 deg (p5/p10); 170 flagged 25 %.
     "hip_abduction.bent_knee": (166, "catches 96% of Elwin's bent-knee reps (max 168 deg), flags none of his "
                                      "correct reps and 6% of REHAB24's approved ones (170: 25%)"),

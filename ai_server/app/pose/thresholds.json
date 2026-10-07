@@ -24,9 +24,10 @@
     "mini_squat.heels_lift": 0.138,
     "mini_squat.trunk_forward": 15,
     "shoulder_flexion.shoulder_shrug": 0.82,
-    "shoulder_flexion.swinging": 0.723
+    "shoulder_flexion.swinging": 0.723,
+    "wall_push_up.hips_back": -0.3
   },
-  "tuned_at": "2026-10-07T23:16:35",
+  "tuned_at": "2026-10-07T23:17:40",
   "sources": {
     "hip_abduction.trunk_lean": "own clips; reviewed: flags 4% of Elwin's correct reps and 27% of REHAB24's approved ones (13.5: 11% and 46%); catches 81% of REHAB24's incorrect reps and half of Elwin's mild leans; the trained model also judges lean",
     "shoulder_abduction.low_range": "own clips",
@@ -52,6 +53,7 @@
     "mini_squat.heels_lift": "own clips",
     "mini_squat.trunk_forward": "own clips; reviewed: correct -7 to -2 deg, leaning reps 25-38 deg; the one missed rep is a 0.5 s partial rep at the end of the clip; -4 would flag any forward lean",
     "shoulder_flexion.shoulder_shrug": "own clips; reviewed: two people: p02's correct reps 0.84-0.86 fired at 0.85; 0.82 catches the same 93% of Elwin's shrug reps with no false flags",
-    "shoulder_flexion.swinging": "own clips"
+    "shoulder_flexion.swinging": "own clips",
+    "wall_push_up.hips_back": "own clips; reviewed: catches all of Elwin's hips-back reps and 62% of REHAB24's incorrect push-ups; flags 4% of REHAB24's approved ones (-0.12: 77%)"
   }
 }
