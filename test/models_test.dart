@@ -1,5 +1,6 @@
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
@@ -194,6 +195,35 @@ void main() {
       final e = withText('Sit upright on a chair.');
       expect(e.cameraTip, isNull);
       expect(e.steps, 'Sit upright on a chair.');
+    });
+  });
+
+  group('PostureResult (8 Oct: fall alert, partial reps, adjusted targets)', () {
+    test('reads the safety alert, partial repetitions and range scale', () {
+      final r = PostureResult.fromJson({
+        'accuracy': 70,
+        'repetitions': 3,
+        'feedback': ['It looks like you may have lost your balance or fallen.'],
+        'model_version': 'rules-1.0',
+        'safety_alert': {'type': 'possible_fall', 'at_sec': 9.4, 'message': 'Stop the exercise.'},
+        'partial_repetitions': true,
+        'rom_scale': 0.7,
+      });
+      expect(r.safetyAlert, 'Stop the exercise.');
+      expect(r.partialRepetitions, isTrue);
+      expect(r.romScale, 0.7);
+    });
+
+    test('older server responses still parse', () {
+      final r = PostureResult.fromJson({
+        'accuracy': 90,
+        'repetitions': 5,
+        'feedback': ['Good form. Keep it up!'],
+        'model_version': 'rules-1.0',
+      });
+      expect(r.safetyAlert, isNull);
+      expect(r.partialRepetitions, isFalse);
+      expect(r.romScale, isNull);
     });
   });
 }

@@ -75,6 +75,7 @@ class MainApp extends StatelessWidget {
               c.read(),
               c.read(),
               c.read(),
+              c.read(),
             ),
             child: const TreatmentView(),
           ),
@@ -84,6 +85,7 @@ class MainApp extends StatelessWidget {
           ),
           Routes.sessionHistory: (_) => ChangeNotifierProvider(
             create: (c) => TreatmentViewModel(
+              c.read(),
               c.read(),
               c.read(),
               c.read(),

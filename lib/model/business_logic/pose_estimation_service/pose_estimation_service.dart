@@ -95,7 +95,14 @@ class PoseEstimationService {
 
   /// Uploads the clip and returns accuracy, repetitions and corrective guidance
   /// (FR300_06 to FR300_09). Server error codes map to the UC500 messages.
-  Future<Result<PostureResult>> analyse(File v, Exercise e) async {
+  /// [riskLevel] (LOW / MODERATE / HIGH) and [age] come from the health profile: the server
+  /// lowers the range-of-motion targets for older or high-risk patients.
+  Future<Result<PostureResult>> analyse(
+    File v,
+    Exercise e, {
+    String? riskLevel,
+    int? age,
+  }) async {
     final key = e.poseKey;
     if (key == null) {
       return const Failure(
@@ -106,7 +113,11 @@ class PoseEstimationService {
     final res = await _api.postFile(
       AppConstants.posePath,
       v,
-      fields: {'exercise_key': key},
+      fields: {
+        'exercise_key': key,
+        'risk_level': ?riskLevel,
+        if (age != null) 'age': '$age',
+      },
     );
     if (res is Failure<Map<String, dynamic>>) {
       final message = switch (res.code) {

@@ -72,6 +72,17 @@ class PostureResultView extends StatelessWidget {
                 color: AppTokens.accent,
               ),
             ),
+            if (r.safetyAlert != null) ...[
+              const SizedBox(height: 12),
+              _SafetyBanner(message: r.safetyAlert!),
+            ],
+            if (r.romScale != null) ...[
+              const SizedBox(height: 8),
+              const Text(
+                'Targets adjusted to your health profile.',
+                style: TextStyle(fontSize: 13, color: AppTokens.textMuted),
+              ),
+            ],
             const SizedBox(height: 16),
             TreatmentCard(
               padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
@@ -253,4 +264,38 @@ class PostureResultView extends StatelessWidget {
       ),
     );
   }
+}
+
+
+/// Shown first when the video looks like the patient lost their balance or fell.
+class _SafetyBanner extends StatelessWidget {
+  final String message;
+  const _SafetyBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(
+      color: AppTokens.dangerContainer,
+      borderRadius: BorderRadius.circular(12),
+      border: Border.all(color: AppTokens.danger),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Icon(Icons.health_and_safety_outlined, color: AppTokens.onDanger),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            message,
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              color: AppTokens.onDanger,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
 }

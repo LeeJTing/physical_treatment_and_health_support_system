@@ -43,6 +43,7 @@ class _MainShellState extends State<MainShell> {
             c.read(),
             c.read(),
             c.read(),
+            c.read(),
           ),
         ),
         ChangeNotifierProvider(

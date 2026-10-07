@@ -98,6 +98,16 @@ class PostureResult {
   mistakes; // mistake label -> repetitions it was seen in
   final String modelVersion;
 
+  /// Set when the video looks like the patient lost their balance or fell (server
+  /// "safety_alert"): the message to show first.
+  final String? safetyAlert;
+
+  /// Only small movements were seen; they were counted as partial repetitions.
+  final bool partialRepetitions;
+
+  /// Below 1 when the range-of-motion targets were lowered for an older or high-risk patient.
+  final double? romScale;
+
   const PostureResult({
     this.fullBodyVisible = true,
     required this.accuracy,
@@ -106,6 +116,9 @@ class PostureResult {
     required this.feedback,
     this.mistakes = const {},
     required this.modelVersion,
+    this.safetyAlert,
+    this.partialRepetitions = false,
+    this.romScale,
   });
 
   bool get isPassing => accuracy >= ExerciseSession.passMark;
@@ -123,5 +136,8 @@ class PostureResult {
         e.key.toString(): (e.value as num).toInt(),
     },
     modelVersion: (j['model_version'] ?? 'unknown') as String,
+    safetyAlert: (j['safety_alert'] as Map?)?['message'] as String?,
+    partialRepetitions: (j['partial_repetitions'] ?? false) as bool,
+    romScale: (j['rom_scale'] as num?)?.toDouble(),
   );
 }

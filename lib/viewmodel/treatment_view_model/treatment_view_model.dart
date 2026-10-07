@@ -6,6 +6,7 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
@@ -41,6 +42,7 @@ class TreatmentViewModel extends BaseViewModel {
   final IAuthRepository _auth;
   final INotificationRepository? _notifications;
   final LocalNotificationService? _reminders;
+  final RiskAssessmentService? _risk;
 
   TreatmentViewModel(
     this._repo,
@@ -48,7 +50,23 @@ class TreatmentViewModel extends BaseViewModel {
     this._auth, [
     this._notifications,
     this._reminders,
+    this._risk,
   ]);
+
+  /// Risk level and age from the health profile, so the server can lower the range-of-motion
+  /// targets for older or high-risk patients. Nulls (full targets) when there is no profile.
+  Future<(String?, int?)> _patientContext() async {
+    final r = _risk;
+    if (r == null) return (null, null);
+    final profile = (await r.retrieve()).dataOrNull?.profile;
+    if (profile == null) return (null, null);
+    final risk = switch (profile.assignRiskLevel()) {
+      RiskLevel.low => 'LOW',
+      RiskLevel.medium => 'MODERATE',
+      RiskLevel.high => 'HIGH',
+    };
+    return (risk, profile.age);
+  }
 
   /// The next exercise reminder for the active plan, for the Treatment screen card.
   DateTime? _nextReminderAt;
@@ -220,7 +238,8 @@ class TreatmentViewModel extends BaseViewModel {
       notifyListeners();
       return null;
     }
-    final res = await _pose.analyse(v, e);
+    final (riskLevel, age) = await _patientContext();
+    final res = await _pose.analyse(v, e, riskLevel: riskLevel, age: age);
     switch (res) {
       case Failure(:final message):
         _analysis = UiError(message);
@@ -231,7 +250,8 @@ class TreatmentViewModel extends BaseViewModel {
         _lastResult = _session(p, e, data, CompletionStatus.completed);
         notifyListeners();
         // UI Design, Posture Result Screen: 80% or more updates the progress automatically.
-        if (data.isPassing) await acceptResult();
+        // Not after a possible fall: the patient should stop and see the safety message first.
+        if (data.isPassing && data.safetyAlert == null) await acceptResult();
         return _lastResult;
     }
   }
