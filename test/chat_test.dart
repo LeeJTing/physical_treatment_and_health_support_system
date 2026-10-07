@@ -273,31 +273,40 @@ void main() {
     },
   );
 
-  test('a reply can carry a button (chat-rules-3.2), and older replies without one still parse', () {
-    final withButton = ChatReply.fromJson({
-      'answer': 'You can set a new password...',
-      'category': 'forgot_password',
-      'is_matched': true,
-      'matched_by': 'keyword',
-      'action': {'key': 'open_reset_password', 'label': 'Reset password'},
-    });
-    expect(withButton.action?.key, 'open_reset_password');
-    expect(withButton.action?.label, 'Reset password');
-    final plain = ChatReply.fromJson({'answer': 'Hello!', 'is_matched': true});
-    expect(plain.action, isNull);
-  });
+  test(
+    'a reply can carry a button (chat-rules-3.2), and older replies without one still parse',
+    () {
+      final withButton = ChatReply.fromJson({
+        'answer': 'You can set a new password...',
+        'category': 'forgot_password',
+        'is_matched': true,
+        'matched_by': 'keyword',
+        'action': {'key': 'open_reset_password', 'label': 'Reset password'},
+      });
+      expect(withButton.action?.key, 'open_reset_password');
+      expect(withButton.action?.label, 'Reset password');
+      final plain = ChatReply.fromJson({
+        'answer': 'Hello!',
+        'is_matched': true,
+      });
+      expect(plain.action, isNull);
+    },
+  );
 
-  test('every question carries the phone's local time and time zone (late-night advice)', () async {
-    final h = Harness();
-    await h.signInWithPlan();
-    await h.vm.loadCategories();
-    await h.vm.ask('can I exercise now');
-    final sent = h.server.asked.last;
-    expect(sent['local_hour'], 23);
-    expect(sent['local_minute'], 40);
-    expect(sent.containsKey('utc_offset_minutes'), isTrue);
-    expect(sent.containsKey('timezone'), isTrue);
-  });
+  test(
+    "every question carries the phone's local time and time zone (late-night advice)",
+    () async {
+      final h = Harness();
+      await h.signInWithPlan();
+      await h.vm.loadCategories();
+      await h.vm.ask('can I exercise now');
+      final sent = h.server.asked.last;
+      expect(sent['local_hour'], 23);
+      expect(sent['local_minute'], 40);
+      expect(sent.containsKey('utc_offset_minutes'), isTrue);
+      expect(sent.containsKey('timezone'), isTrue);
+    },
+  );
 
   test('a follow-up carries the topic of the previous answer', () async {
     final h = Harness();
