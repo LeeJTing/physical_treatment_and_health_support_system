@@ -4,7 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/exercise_session.dart';
@@ -41,7 +41,7 @@ void main() {
     )).dataOrNull!.accountId;
     vm = HomeViewModel(
       auth,
-      ProfileInfoService(auth, profiles),
+      RiskAssessmentService(auth, profiles),
       treatments,
       notifications,
       () => DateTime(2026, 10, 7, 9, 30),
@@ -164,7 +164,7 @@ void main() {
     expect(
       HomeViewModel(
         auth,
-        ProfileInfoService(auth, profiles),
+        RiskAssessmentService(auth, profiles),
         treatments,
         null,
         () => DateTime(2026, 1, 1, 15),
@@ -174,7 +174,7 @@ void main() {
     expect(
       HomeViewModel(
         auth,
-        ProfileInfoService(auth, profiles),
+        RiskAssessmentService(auth, profiles),
         treatments,
         null,
         () => DateTime(2026, 1, 1, 20),

@@ -13,17 +13,13 @@ import 'package:physical_treatment_and_health_support_system/data/repository/int
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/view/login_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/auth/viewmodel/auth_view_model.dart';
-import 'package:physical_treatment_and_health_support_system/features/shell/view/startup_view.dart';
-import 'package:physical_treatment_and_health_support_system/features/shell/viewmodel/startup_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/features/auth/view/startup_view.dart';
 
 /// A labelled stand-in for each destination screen.
 Widget _stub(String name) => Scaffold(body: Text('route:$name'));
 
 final Map<String, WidgetBuilder> _routes = {
-  Routes.init: (_) => ChangeNotifierProvider(
-    create: (c) => StartupViewModel(c.read(), c.read()),
-    child: const StartupView(),
-  ),
+  Routes.init: (_) => const StartupView(),
   Routes.loginScreen: (_) => const LoginView(),
   Routes.home: (_) => _stub('home'),
   Routes.healthProfile: (_) => _stub('profile'),
@@ -74,20 +70,20 @@ Future<void> _completeProfile(
 }
 
 void main() {
-  group('StartupViewModel (FR100_024, FR100_025, FR100_035)', () {
+  group('AuthViewModel.decideStartRoute (FR100_024, FR100_025, FR100_035)', () {
     test('no stored session -> login', () async {
-      final vm = StartupViewModel(
+      final vm = AuthViewModel(
         FakeAuthRepository(),
         FakeProfileRepository(),
       );
-      expect(await vm.decideRoute(), Routes.loginScreen);
+      expect(await vm.decideStartRoute(), Routes.loginScreen);
     });
 
     test('signed in without a profile -> profile', () async {
       final auth = FakeAuthRepository();
       await auth.login('demo@apths.test', 'password123');
       expect(
-        await StartupViewModel(auth, FakeProfileRepository()).decideRoute(),
+        await AuthViewModel(auth, FakeProfileRepository()).decideStartRoute(),
         Routes.healthProfile,
       );
     });
@@ -96,7 +92,7 @@ void main() {
       final auth = FakeAuthRepository();
       final profiles = FakeProfileRepository();
       await _completeProfile(auth, profiles);
-      expect(await StartupViewModel(auth, profiles).decideRoute(), Routes.home);
+      expect(await AuthViewModel(auth, profiles).decideStartRoute(), Routes.home);
     });
 
     test(
@@ -106,7 +102,7 @@ void main() {
         final profiles = FakeProfileRepository()..failNext = true;
         await auth.login('demo@apths.test', 'password123');
         expect(
-          await StartupViewModel(auth, profiles).decideRoute(),
+          await AuthViewModel(auth, profiles).decideStartRoute(),
           Routes.home,
         );
       },

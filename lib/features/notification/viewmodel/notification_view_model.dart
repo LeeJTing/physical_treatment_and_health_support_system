@@ -1,8 +1,8 @@
+import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/base_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_notification_repository.dart';
@@ -11,7 +11,7 @@ import 'package:physical_treatment_and_health_support_system/data/repository/int
 /// belongs to the M400 health-monitoring alerts and is added with that module.
 class NotificationViewModel extends BaseViewModel {
   final INotificationRepository _repo;
-  final ReminderService _scheduler;
+  final LocalNotificationService _scheduler;
   final IAuthRepository _auth;
 
   NotificationViewModel(this._repo, this._scheduler, this._auth);

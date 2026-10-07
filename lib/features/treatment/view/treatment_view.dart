@@ -13,15 +13,15 @@ import 'package:physical_treatment_and_health_support_system/features/treatment/
 
 /// "My treatment plan" (UI Design, Physical Treatment Page; TreatmentView in Table 4.42):
 /// the rehabilitation pathway with completed, current and upcoming exercises (FR300_01, FR300_02).
-class PhysicalTreatmentView extends StatefulWidget {
-  const PhysicalTreatmentView({super.key});
+class TreatmentView extends StatefulWidget {
+  const TreatmentView({super.key});
   static const routeName = Routes.physicalTreatment;
 
   @override
-  State<PhysicalTreatmentView> createState() => _PhysicalTreatmentViewState();
+  State<TreatmentView> createState() => _TreatmentViewState();
 }
 
-class _PhysicalTreatmentViewState extends State<PhysicalTreatmentView> {
+class _TreatmentViewState extends State<TreatmentView> {
   @override
   void initState() {
     super.initState();

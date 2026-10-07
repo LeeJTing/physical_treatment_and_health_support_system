@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
-import 'package:physical_treatment_and_health_support_system/features/treatment/view/physical_treatment_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/treatment/view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/session_history_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/widgets/treatment_widgets.dart';
@@ -30,10 +30,10 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
     final vm = context.read<TreatmentViewModel>();
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        settings: const RouteSettings(name: PhysicalTreatmentView.routeName),
+        settings: const RouteSettings(name: TreatmentView.routeName),
         builder: (_) => ChangeNotifierProvider.value(
           value: vm,
-          child: const PhysicalTreatmentView(),
+          child: const TreatmentView(),
         ),
       ),
     );

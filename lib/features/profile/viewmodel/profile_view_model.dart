@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/base_view
 import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/account.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
@@ -16,8 +17,9 @@ import 'package:physical_treatment_and_health_support_system/data/repository/int
 class ProfileViewModel extends BaseViewModel {
   final IProfileRepository _profiles;
   final IAuthRepository _auth;
+  final RiskAssessmentService _risk;
 
-  ProfileViewModel(this._profiles, this._auth);
+  ProfileViewModel(this._profiles, this._auth, this._risk);
 
   Account? account;
   HealthProfile? profile; // last saved
@@ -192,7 +194,7 @@ class ProfileViewModel extends BaseViewModel {
     invalidFields = const [];
     saveState = const Loading();
     notifyListeners();
-    final res = await _profiles.saveProfile(d, d.generateSafetyLimit());
+    final res = await _profiles.saveProfile(d, _risk.generateSafetyLimit(d));
     if (res is Failure) {
       saveState = const UiError(
         Messages.profileSaveFailed,

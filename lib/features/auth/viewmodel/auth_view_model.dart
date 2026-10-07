@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/result.da
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/account.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_profile_repository.dart';
@@ -16,8 +17,19 @@ class AuthViewModel extends BaseViewModel {
 
   final IAuthRepository _auth;
   final IProfileRepository _profiles;
+  final LocalNotificationService? _notifications;
 
-  AuthViewModel(this._auth, this._profiles);
+  AuthViewModel(this._auth, this._profiles, [this._notifications]);
+
+  /// First screen when the app opens (FR100_024, FR100_025, FR100_035): no stored
+  /// session -> login; signed in without a complete profile -> profile; else home.
+  Future<String> decideStartRoute() async {
+    final account = (await _auth.currentAccount()).dataOrNull;
+    if (account == null) return Routes.loginScreen;
+    // Refresh the phone's reminder schedule; it must not hold up start-up.
+    _notifications?.sync(account.accountId).ignore();
+    return _routeAfterSignIn(account);
+  }
 
   UiState<void> loginState = const Idle();
   UiState<void> registerState = const Idle();
@@ -55,7 +67,7 @@ class AuthViewModel extends BaseViewModel {
       };
 
   /// Complete profile -> home; none or incomplete -> profile screen (FR100_035).
-  /// If the profile cannot be read, go home: ProfileInfoService then applies the
+  /// If the profile cannot be read, go home: RiskAssessmentService then applies the
   /// conservative default limits (UC1000 C5).
   Future<String> _routeAfterSignIn(Account a) async {
     final res = await _profiles.getProfile(a.accountId);

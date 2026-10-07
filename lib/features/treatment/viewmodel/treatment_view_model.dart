@@ -1,11 +1,11 @@
 import 'dart:io';
 
+import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/base_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/pose_estimation_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/exercise.dart';
@@ -40,7 +40,7 @@ class TreatmentViewModel extends BaseViewModel {
   final PoseEstimationService _pose;
   final IAuthRepository _auth;
   final INotificationRepository? _notifications;
-  final ReminderService? _reminders;
+  final LocalNotificationService? _reminders;
 
   TreatmentViewModel(
     this._repo,

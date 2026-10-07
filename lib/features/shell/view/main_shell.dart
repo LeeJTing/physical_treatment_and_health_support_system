@@ -46,7 +46,7 @@ class _MainShellState extends State<MainShell> {
           ),
         ),
         ChangeNotifierProvider(
-          create: (c) => ProfileViewModel(c.read(), c.read())..loadProfile(),
+          create: (c) => ProfileViewModel(c.read(), c.read(), c.read())..loadProfile(),
         ),
       ],
       child: Builder(builder: _scaffold),

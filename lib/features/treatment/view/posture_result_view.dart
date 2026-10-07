@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/widgets/planning_widgets.dart';
-import 'package:physical_treatment_and_health_support_system/features/treatment/view/physical_treatment_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/treatment/view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/recording_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/widgets/treatment_widgets.dart';
@@ -27,7 +27,7 @@ class PostureResultView extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Your progress has been updated.')),
       );
-      _backTo(context, PhysicalTreatmentView.routeName);
+      _backTo(context, TreatmentView.routeName);
     }
   }
 

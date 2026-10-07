@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
@@ -19,7 +20,7 @@ void main() {
     auth = FakeAuthRepository();
     profiles = FakeProfileRepository();
     await auth.login('demo@apths.test', 'password123');
-    vm = ProfileViewModel(profiles, auth);
+    vm = ProfileViewModel(profiles, auth, RiskAssessmentService(auth, profiles));
     await vm.loadProfile();
   });
 
@@ -117,7 +118,7 @@ void main() {
     () async {
       fillValid();
       await vm.saveProfile();
-      final failing = ProfileViewModel(_FailingSave(profiles), auth);
+      final failing = ProfileViewModel(_FailingSave(profiles), auth, RiskAssessmentService(auth, profiles));
       await failing.loadProfile();
       failing.startEdit();
       failing.updateDraft(weightKg: 75);

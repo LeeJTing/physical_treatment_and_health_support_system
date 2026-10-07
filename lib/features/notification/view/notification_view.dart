@@ -6,19 +6,19 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/features/planning/widgets/planning_widgets.dart';
-import 'package:physical_treatment_and_health_support_system/features/reminders/viewmodel/notification_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/features/notification/viewmodel/notification_view_model.dart';
 
 /// Exercise reminders (M600.1): time, days, on/off (FR600_003, FR600_004, FR600_006), and the
 /// last two weeks of notifications (FR600_013, FR600_015, FR600_016). No Figma frame exists for
 /// it, so it uses the planning screens' tokens.
-class RemindersView extends StatefulWidget {
-  const RemindersView({super.key});
+class NotificationView extends StatefulWidget {
+  const NotificationView({super.key});
 
   @override
-  State<RemindersView> createState() => _RemindersViewState();
+  State<NotificationView> createState() => _NotificationViewState();
 }
 
-class _RemindersViewState extends State<RemindersView> {
+class _NotificationViewState extends State<NotificationView> {
   static const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   @override

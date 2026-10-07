@@ -16,7 +16,7 @@ import 'package:physical_treatment_and_health_support_system/data/models/exercis
 import 'package:physical_treatment_and_health_support_system/data/models/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_treatment_repository.dart';
-import 'package:physical_treatment_and_health_support_system/features/treatment/view/physical_treatment_view.dart';
+import 'package:physical_treatment_and_health_support_system/features/treatment/view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/view/posture_result_view.dart';
 import 'package:physical_treatment_and_health_support_system/features/treatment/viewmodel/treatment_view_model.dart';
 
@@ -257,7 +257,7 @@ void main() {
         MaterialApp(
           home: ChangeNotifierProvider.value(
             value: h.vm,
-            child: const PhysicalTreatmentView(),
+            child: const TreatmentView(),
           ),
         ),
       );

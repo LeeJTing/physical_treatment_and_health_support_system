@@ -11,7 +11,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/result.da
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
@@ -108,7 +108,7 @@ class Harness {
     vm = PlanningViewModel(
       treatments,
       recommender,
-      ProfileInfoService(auth, profiles),
+      RiskAssessmentService(auth, profiles),
       notifications,
     );
   }

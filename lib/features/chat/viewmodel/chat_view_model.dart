@@ -3,7 +3,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/result.da
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/chat_message.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
@@ -24,10 +24,10 @@ class ChatEntry {
 /// Rehabilitation chatbot state, scoped to the patient's active treatment plan (Table 4.45).
 class ChatViewModel extends BaseViewModel {
   final ChatbotService _chatbot;
-  final ProfileInfoService _profileInfo;
+  final RiskAssessmentService _riskAssessment;
   final ITreatmentRepository _repo;
 
-  ChatViewModel(this._chatbot, this._profileInfo, this._repo);
+  ChatViewModel(this._chatbot, this._riskAssessment, this._repo);
 
   static const welcome =
       'Hello! I can answer questions about your rehabilitation plan. '
@@ -55,7 +55,7 @@ class ChatViewModel extends BaseViewModel {
   Future<void> loadCategories() async {
     _categories = const Loading();
     notifyListeners();
-    final snap = await _profileInfo.retrieve();
+    final snap = await _riskAssessment.retrieve();
     if (snap case Success(:final data)) {
       _snapshot = data;
       final accountId = data.accountId;

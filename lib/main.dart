@@ -7,8 +7,7 @@ import 'package:physical_treatment_and_health_support_system/core/services/api_c
 import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/pose_estimation_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
@@ -74,8 +73,8 @@ Future<void> main() async {
         Provider<INotificationRepository>.value(value: notificationRepo),
         Provider<ApiClient>.value(value: api),
         // Services are added here module by module; ViewModels are created per route in app.dart.
-        Provider<ProfileInfoService>.value(
-          value: ProfileInfoService(authRepo, profileRepo),
+        Provider<RiskAssessmentService>.value(
+          value: RiskAssessmentService(authRepo, profileRepo),
         ),
         Provider<RecommendationService>.value(
           value: RecommendationService(api),
@@ -84,12 +83,8 @@ Future<void> main() async {
         Provider<PoseEstimationService>.value(
           value: PoseEstimationService(api),
         ),
-        Provider<ReminderService>.value(
-          value: ReminderService(
-            notificationRepo,
-            treatmentRepo,
-            LocalNotificationService(),
-          ),
+        Provider<LocalNotificationService>.value(
+          value: LocalNotificationService(notificationRepo, treatmentRepo),
         ),
       ],
       child: const MainApp(),

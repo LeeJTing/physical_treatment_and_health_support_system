@@ -2,7 +2,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/base_view
 import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
@@ -46,14 +46,14 @@ class HomeData {
 /// shown as empty states until those modules provide data.
 class HomeViewModel extends BaseViewModel {
   final IAuthRepository _auth;
-  final ProfileInfoService _profileInfo;
+  final RiskAssessmentService _riskAssessment;
   final ITreatmentRepository _treatments;
   final INotificationRepository? _notifications;
   final DateTime Function() _now;
 
   HomeViewModel(
     this._auth,
-    this._profileInfo,
+    this._riskAssessment,
     this._treatments, [
     this._notifications,
     DateTime Function()? now,
@@ -81,7 +81,7 @@ class HomeViewModel extends BaseViewModel {
       notifyListeners();
     }
     final account = (await _auth.currentAccount()).dataOrNull;
-    final snapshot = await _profileInfo.retrieve();
+    final snapshot = await _riskAssessment.retrieve();
     if (account == null || snapshot is Failure<ProfileSnapshot>) {
       state = const UiError(Messages.sessionExpired);
       notifyListeners();

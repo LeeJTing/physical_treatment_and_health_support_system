@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/platform/notification_scheduler.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/reminder.dart';
@@ -50,17 +50,18 @@ Reminder reminder({
 
 void main() {
   late FakeScheduler device;
-  late LocalNotificationService local;
   late FakeNotificationRepository repo;
   late FakeTreatmentRepository treatments;
-  late ReminderService service;
+  // One service (architecture diagram): device scheduling and the plan's reminders.
+  late LocalNotificationService local;
+  late LocalNotificationService service;
 
   setUp(() {
     device = FakeScheduler();
-    local = LocalNotificationService(scheduler: device, now: () => now);
     repo = FakeNotificationRepository();
     treatments = FakeTreatmentRepository(const []);
-    service = ReminderService(repo, treatments, local, now: () => now);
+    local = LocalNotificationService(repo, treatments, scheduler: device, now: () => now);
+    service = local;
   });
 
   group('LocalNotificationService (Table 4.75)', () {
@@ -107,7 +108,7 @@ void main() {
     });
   });
 
-  group('ReminderService (M600.1)', () {
+  group('LocalNotificationService: plan reminders (M600.1)', () {
     test(
       'a completed session cancels today\'s reminder and logs it as SUPPRESSED (FR600_005)',
       () async {

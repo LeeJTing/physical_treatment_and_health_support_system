@@ -11,7 +11,7 @@ import 'package:physical_treatment_and_health_support_system/core/base/ui_state.
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/lookups.dart';
@@ -113,7 +113,7 @@ class Harness {
         httpClient: server.client,
       ),
     ),
-    ProfileInfoService(auth, profiles),
+    RiskAssessmentService(auth, profiles),
     treatments,
   );
 

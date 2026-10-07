@@ -1,10 +1,10 @@
+import 'package:physical_treatment_and_health_support_system/core/services/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/base_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/services/recommendation_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/reminder_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
 import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
@@ -20,14 +20,14 @@ import 'package:physical_treatment_and_health_support_system/features/planning/m
 class PlanningViewModel extends BaseViewModel {
   final ITreatmentRepository _repo;
   final RecommendationService _recommender;
-  final ProfileInfoService _profileInfo;
+  final RiskAssessmentService _riskAssessment;
   final INotificationRepository _notifications;
-  final ReminderService? _reminders;
+  final LocalNotificationService? _reminders;
 
   PlanningViewModel(
     this._repo,
     this._recommender,
-    this._profileInfo,
+    this._riskAssessment,
     this._notifications, [
     this._reminders,
   ]);
@@ -63,7 +63,7 @@ class PlanningViewModel extends BaseViewModel {
     _recommendation = const Loading();
     notifyListeners();
 
-    final snap = await _profileInfo.retrieve();
+    final snap = await _riskAssessment.retrieve();
     if (snap is Failure<ProfileSnapshot>) {
       _fail(snap.message);
       return;
