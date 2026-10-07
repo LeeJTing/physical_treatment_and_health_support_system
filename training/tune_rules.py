@@ -54,6 +54,9 @@ REVIEWED = {
     # Only 3 leaning reps (near leg); -10 flagged normal marching at -10.6 deg.
     "march_in_place.leaning_back": (-20, "correct reps down to -10.6 deg, leaning reps -28 to -35 deg; "
                                          "-10 flagged normal marching"),
+    # The tuner's -4 only chases a 0.5 s partial rep at the end of the clip.
+    "mini_squat.trunk_forward": (15, "correct -7 to -2 deg, leaning reps 25-38 deg; the one missed rep is a 0.5 s "
+                                     "partial rep at the end of the clip; -4 would flag any forward lean"),
 }
 
 

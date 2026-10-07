@@ -20,9 +20,11 @@
     "hip_abduction.toes_up": 0.436,
     "knee_extension.slouching": -29.142,
     "knee_extension.thigh_lift": 21.337,
-    "knee_extension.no_hold": 0.594
+    "knee_extension.no_hold": 0.594,
+    "mini_squat.heels_lift": 0.138,
+    "mini_squat.trunk_forward": 15
   },
-  "tuned_at": "2026-10-07T22:00:43",
+  "tuned_at": "2026-10-07T22:10:01",
   "sources": {
     "hip_abduction.trunk_lean": "own clips",
     "shoulder_abduction.low_range": "own clips",
@@ -44,6 +46,8 @@
     "hip_abduction.toes_up": "own clips",
     "knee_extension.slouching": "own clips",
     "knee_extension.thigh_lift": "own clips",
-    "knee_extension.no_hold": "own clips"
+    "knee_extension.no_hold": "own clips",
+    "mini_squat.heels_lift": "own clips",
+    "mini_squat.trunk_forward": "own clips; reviewed: correct -7 to -2 deg, leaning reps 25-38 deg; the one missed rep is a 0.5 s partial rep at the end of the clip; -4 would flag any forward lean"
   }
 }
