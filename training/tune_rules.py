@@ -124,7 +124,8 @@ def other_people_samples():
     from app.pose import landmarks
     out = defaultdict(list)
     p02 = DATA / "test_p02"
-    if (p02 / "labels.json").exists():
+    imported = any(c.person == "p02" for c in own_clips())   # already counted by own_samples()
+    if (p02 / "labels.json").exists() and not imported:
         for stem, (key, label) in json.loads((p02 / "labels.json").read_text(encoding="utf-8")).items():
             f = Features(landmarks.load(p02 / f"{stem}.npz"))
             spec = EXERCISES[key]

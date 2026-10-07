@@ -284,3 +284,48 @@ def test_descent_time_runs_from_top_to_seated_not_to_rep_end():
 
     assert run(2.0) == pytest.approx(1.7, abs=0.25)   # slow, controlled: well above the 0.7 s limit
     assert run(0.5) < 0.7                             # dropping into the chair
+
+
+# ---- elderly users: possible fall, gentler targets, partial repetitions (8 Oct) ----------------
+
+def test_possible_fall_is_reported():
+    frames = [front_pose(a, a) for a in wave(3, 5, 88)] + [front_pose(0, 0, lean=85)] * 20
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert res["safety_alert"]["type"] == "possible_fall"
+    assert res["feedback"][0].startswith("It looks like you may have lost your balance")
+
+
+def test_normal_exercise_has_no_fall_alert():
+    res = analyse("shoulder_abduction", sequence([front_pose(a, a) for a in wave(5, 5, 88)]), use_model=False)
+    assert "safety_alert" not in res
+
+
+def test_fall_is_reported_even_without_repetitions():
+    frames = [front_pose(0, 0)] * 30 + [front_pose(0, 0, lean=85)] * 20
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert res["safety_alert"]["type"] == "possible_fall" and res["repetitions"] == 0
+
+
+def test_older_patients_get_gentler_range_targets():
+    frames = [front_pose(a, a) for a in wave(4, 5, 75)]
+    assert "low_range" in analyse("shoulder_abduction", sequence(frames), use_model=False)["mistakes"]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False, rom_scale=exercises.rom_scale_for("HIGH"))
+    assert "low_range" not in res["mistakes"] and res["rom_scale"] == 0.7
+
+
+def test_gentler_targets_keep_the_form_rules():
+    frames = [front_pose(a, a, elbow_bend=60 * a / 88) for a in wave(4, 5, 88)]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False, rom_scale=0.7)
+    assert "bent_elbow" in res["mistakes"]
+
+
+def test_small_movements_count_as_partial_repetitions():
+    res = analyse("shoulder_abduction", sequence([front_pose(a, a) for a in wave(4, 5, 48)]), use_model=False)
+    assert res["partial_repetitions"] is True and res["repetitions"] == 4
+    assert res["feedback"][0].startswith("We saw small movements")
+
+
+def test_rom_scale_for_risk_and_age():
+    assert exercises.rom_scale_for() == 1.0 and exercises.rom_scale_for("LOW", 40) == 1.0
+    assert exercises.rom_scale_for("MODERATE") == 0.85 and exercises.rom_scale_for(None, 68) == 0.85
+    assert exercises.rom_scale_for("high") == 0.7 and exercises.rom_scale_for("LOW", 80) == 0.7

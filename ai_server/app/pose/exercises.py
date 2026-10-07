@@ -43,13 +43,22 @@ class Mistake:
     limit: float
     above: bool          # True: mistake when measure > limit; False: when measure < limit
     unit: str = ""
+    # Range-of-motion rules only: the measure's value at rest (arm down 0 deg, seated knee 90 deg...).
+    # For frail users the limit moves towards it (rom_scale < 1); form rules (bent elbow, lean)
+    # stay as they are.
+    rom_base: float | None = None
 
     def value(self, f: Features, r: Rep) -> float:
         return float(self.measure(f, r))
 
-    def check(self, f: Features, r: Rep) -> bool:
-        v = self.value(f, r)
-        return v > self.limit if self.above else v < self.limit
+    def limit_for(self, rom_scale: float = 1.0) -> float:
+        if self.rom_base is None or rom_scale >= 1.0:
+            return self.limit
+        return self.rom_base + (self.limit - self.rom_base) * rom_scale
+
+    def check(self, f: Features, r: Rep, rom_scale: float = 1.0) -> bool:
+        v, limit = self.value(f, r), self.limit_for(rom_scale)
+        return v > limit if self.above else v < limit
 
     def describe(self) -> str:
         return f"{self.label}: mistake when {'above' if self.above else 'below'} {self.limit:g} {self.unit}".strip()
@@ -438,6 +447,33 @@ def apply_thresholds(path: Path = THRESHOLDS_FILE) -> dict:
             if m.label == part:
                 m.limit = float(value)
     return data
+
+
+# Range-of-motion rules and the value of their measure at rest (see Mistake.rom_base).
+ROM_BASE = {
+    "shoulder_abduction.low_range": 0.0, "shoulder_flexion.low_range": 0.0, "elbow_flexion.low_range": 0.0,
+    "wall_push_up.low_range": 0.0, "hip_abduction.low_range": 0.0, "sit_to_stand.incomplete_stand": 90.0,
+    "knee_extension.incomplete_extension": 90.0, "heel_raise.low_raise": 0.0,
+    "seated_marching.low_knee_lift": 0.0, "march_in_place.low_knee_lift": 0.0,
+    "glute_bridge.low_hips": -0.35, "bird_dog.arm_leg_low": 0.0,
+}
+for _name, _base in ROM_BASE.items():
+    _key, _, _label = _name.partition(".")
+    for _m in EXERCISES[_key].mistakes:
+        if _m.label == _label:
+            _m.rom_base = _base
+
+
+def rom_scale_for(risk_level: str | None = None, age: int | None = None) -> float:
+    """How much of the full range of movement to expect (8 Oct). Older or high-risk patients often
+    have muscles weakened by disuse; asking for the full range on day one makes them fail every rep
+    and give up. 1.0 = full targets."""
+    risk = (risk_level or "").strip().upper()
+    if risk == "HIGH" or (age is not None and age >= 75):
+        return 0.7
+    if risk == "MODERATE" or (age is not None and age >= 65):
+        return 0.85
+    return 1.0
 
 
 # The physiotherapy defaults written above, kept for comparison with the tuned limits (Chapter 5).
