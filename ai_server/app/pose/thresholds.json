@@ -7,9 +7,10 @@
     "sit_to_stand.incomplete_stand": 170,
     "sit_to_stand.no_forward_lean": 23.452,
     "sit_to_stand.feet_forward": -14.745,
-    "shoulder_abduction.shoulder_shrug": 0.75
+    "shoulder_abduction.shoulder_shrug": 0.75,
+    "elbow_flexion.low_range": 124.697
   },
-  "tuned_at": "2026-10-07T03:14:50",
+  "tuned_at": "2026-10-07T20:01:12",
   "sources": {
     "hip_abduction.trunk_lean": "hip_abduction.trunk_lean: REHAB24-6 leg abduction, 63 correct / 53 incorrect repetitions (balanced accuracy 68% -> 79%)",
     "shoulder_abduction.low_range": "own clips",
@@ -18,6 +19,7 @@
     "sit_to_stand.incomplete_stand": "own clips; reviewed: 98% vs 100% at 174, which is 2 deg below Elwin's own correct reps",
     "sit_to_stand.no_forward_lean": "own clips",
     "sit_to_stand.feet_forward": "own clips",
-    "shoulder_abduction.shoulder_shrug": "own clips; reviewed: correct reps p5 0.80 (arms to the side lift the shoulder blades); flexion shrug reps median 0.67; no abduction shrug clips yet"
+    "shoulder_abduction.shoulder_shrug": "own clips; reviewed: correct reps p5 0.80 (arms to the side lift the shoulder blades); flexion shrug reps median 0.67; no abduction shrug clips yet",
+    "elbow_flexion.low_range": "own clips"
   }
 }
