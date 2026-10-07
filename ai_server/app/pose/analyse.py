@@ -69,14 +69,15 @@ FALL_HOLD_SEC = 0.7            # ... for this long
 FALL_LOW_TORSO = 1.2           # or hips this far below their usual height for as long
 FALL_DROP_SPEED = 2.5          # or a drop this fast (torso lengths / s) ...
 FALL_DROP_DEPTH = 0.8          # ... that ends this far down
-FALL_MESSAGE = ("It looks like you may have lost your balance or fallen. Stop the exercise. If you are hurt, "
-                "dizzy or cannot get up, call for help or 999. Next time keep a sturdy chair or counter "
-                "within reach.")
+FALL_MESSAGE = ("Stop and rest: it looks like you may have lost your balance or fallen. If you are hurt, "
+                "dizzy or cannot get up, call for help or 999. Do not try this exercise again today. Next "
+                "time keep a sturdy chair or counter within reach.")
 # Balance (front-view standing exercises): side-to-side hip travel (3rd to 97th percentile) in torso
 # lengths. Correct clips reached at most 0.33; stepping out of tandem stance 0.57, leaning hip
 # abductions about 0.8. A tip, not a mistake: it does not lower the score.
 BALANCE_SWAY = 0.5
-BALANCE_MESSAGE = "You swayed quite a lot. Hold on to a sturdy chair or counter to keep your balance."
+BALANCE_MESSAGE = ("You swayed from side to side. Hold on to a sturdy chair or counter, and rest if you feel "
+                   "unsteady.")
 # Recording quality (8 Oct, rules_robustness_camera.json): dark footage and a small, far-away
 # figure made the rules less reliable (knee extension detection 100 -> 67 %, sit-to-stand false
 # alarms 2 -> 17 %), while MediaPipe's own confidence stayed at 99 %. Elwin's videos: mean

@@ -292,7 +292,7 @@ def test_possible_fall_is_reported():
     frames = [front_pose(a, a) for a in wave(3, 5, 88)] + [front_pose(0, 0, lean=85)] * 20
     res = analyse("shoulder_abduction", sequence(frames), use_model=False)
     assert res["safety_alert"]["type"] == "possible_fall"
-    assert res["feedback"][0].startswith("It looks like you may have lost your balance")
+    assert res["feedback"][0].startswith("Stop and rest: it looks like you may have lost your balance")
 
 
 def test_normal_exercise_has_no_fall_alert():
@@ -331,6 +331,18 @@ def test_rom_scale_for_risk_and_age():
     assert exercises.rom_scale_for("high") == 0.7 and exercises.rom_scale_for("LOW", 80) == 0.7
 
 
+def test_frail_patients_may_use_their_hands_and_step_out():
+    """Posture text review (8 Oct): for frail users the safe choice is not a mistake."""
+    marked = {(k, m.label) for k, s in exercises.EXERCISES.items() for m in s.mistakes if m.frail_ok}
+    assert marked == {("sit_to_stand", "hands_used"), ("tandem_stance", "stepping_out")}
+    hands = next(m for m in exercises.EXERCISES["sit_to_stand"].mistakes if m.label == "hands_used")
+    always = exercises.Mistake("x", "", lambda f, r: 0.0, 1.0, False)       # 0 < 1: always a mistake
+    always.frail_ok = True
+    rep = Rep(0, 1, 2)
+    assert always.check(None, rep, 1.0) and not always.check(None, rep, 0.85)
+    assert "keep using them" in hands.feedback
+
+
 def _shift(frames, dx):
     out = []
     for p, d in zip(frames, dx):
@@ -345,7 +357,7 @@ def test_large_side_to_side_sway_gives_a_balance_tip():
     sway = [85 * math.sin(i / 6) for i in range(len(frames))]      # about +-0.3 torso lengths
     res = analyse("shoulder_abduction", sequence(_shift(frames, sway)), use_model=False)
     assert res.get("balance_tip") is True
-    assert res["feedback"][-1].startswith("You swayed quite a lot")
+    assert res["feedback"][-1].startswith("You swayed from side to side")
     calm = analyse("shoulder_abduction", sequence(frames), use_model=False)
     assert "balance_tip" not in calm
 

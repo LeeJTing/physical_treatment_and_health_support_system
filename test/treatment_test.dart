@@ -34,6 +34,7 @@ class FakeProbe implements VideoProbe {
 class FakePoseServer {
   double accuracy = 90;
   String? errorCode;
+  String? fallMessage; // set: the clip looked like a fall (safety_alert)
   int calls = 0;
   late final client = MockClient((req) async {
     calls++;
@@ -51,9 +52,18 @@ class FakePoseServer {
         'accuracy': accuracy,
         'repetitions': 4,
         'hold_seconds': null,
-        'feedback': accuracy >= 80
-            ? ['Good form. Keep it up!']
-            : ['Hold the straight leg for 2 seconds before lowering it.'],
+        'feedback': [
+          if (fallMessage != null) fallMessage!,
+          accuracy >= 80
+              ? 'Good form. Keep it up!'
+              : 'Hold the straight leg for 2 seconds before lowering it.',
+        ],
+        if (fallMessage != null)
+          'safety_alert': {
+            'type': 'possible_fall',
+            'at_sec': 3.0,
+            'message': fallMessage,
+          },
         'mistakes': accuracy >= 80 ? {} : {'no_hold': 3},
         'full_body_visible': true,
         'visible_ratio': 0.97,
@@ -226,6 +236,20 @@ void main() {
       },
     );
 
+    test('two failed tries in a row are counted for the rest hint', () async {
+      final h = Harness();
+      await h.setUp(tmp);
+      h.server.accuracy = 50;
+      await h.recordFirst();
+      expect(h.vm.retriesInARow, 0);
+      await h.vm.retry();
+      await h.recordFirst();
+      expect(h.vm.retriesInARow, 1);
+      await h.vm.retry();
+      await h.recordFirst();
+      expect(h.vm.retriesInARow, 2);
+    });
+
     test('server errors map to the UC500 messages', () async {
       for (final (code, message) in [
         ('full_body_not_visible', Messages.fullBodyNotVisible),
@@ -291,6 +315,38 @@ void main() {
       expect(find.text('Corrective guidance'), findsOneWidget);
       expect(find.textContaining('Hold the straight leg'), findsOneWidget);
       expect(find.text('Retry exercise'), findsOneWidget);
+      expect(find.text('Continue'), findsOneWidget);
+      expect(
+        find.text('Rest for a minute before you try again.'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('a possible fall shows its message once and no retry', (
+      tester,
+    ) async {
+      final h = Harness();
+      h.server.accuracy = 40;
+      h.server.fallMessage = 'Stop and rest: you may have fallen.';
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        await h.recordFirst();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const PostureResultView(),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('Stop and rest: you may have fallen.'), findsOneWidget);
+      expect(find.text('Retry exercise'), findsNothing);
+      expect(
+        find.text('Rest now and try this exercise another day.'),
+        findsOneWidget,
+      );
       expect(find.text('Continue'), findsOneWidget);
     });
   });

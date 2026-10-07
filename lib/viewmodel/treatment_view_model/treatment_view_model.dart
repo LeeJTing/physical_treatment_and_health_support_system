@@ -311,6 +311,19 @@ class TreatmentViewModel extends BaseViewModel {
   }
 
   /// Back to the recorder (FR300_20). The attempt is kept as RETRIED.
+  /// Failed tries of the current exercise in a row; after two the result screen suggests trying
+  /// again tomorrow (posture text review, 8 Oct).
+  int get retriesInARow {
+    final id = _current?.exerciseId;
+    if (id == null) return 0;
+    var n = 0;
+    for (final s in _sessions.reversed.where((s) => s.exerciseId == id)) {
+      if (s.completionStatus != CompletionStatus.retried) break;
+      n++;
+    }
+    return n;
+  }
+
   Future<void> retry() async {
     final p = activePlan;
     final s = _lastResult;

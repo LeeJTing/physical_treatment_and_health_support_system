@@ -47,6 +47,9 @@ class Mistake:
     # For frail users the limit moves towards it (rom_scale < 1); form rules (bent elbow, lean)
     # stay as they are.
     rom_base: float | None = None
+    # Posture text review (8 Oct, laptop): for frail users (rom_scale < 1) using the hands to stand,
+    # or stepping out of a balance hold, is the safe thing to do and is not counted as a mistake.
+    frail_ok: bool = False
 
     def value(self, f: Features, r: Rep) -> float:
         return float(self.measure(f, r))
@@ -57,6 +60,8 @@ class Mistake:
         return self.rom_base + (self.limit - self.rom_base) * rom_scale
 
     def check(self, f: Features, r: Rep, rom_scale: float = 1.0) -> bool:
+        if self.frail_ok and rom_scale < 1.0:
+            return False
         v, limit = self.value(f, r), self.limit_for(rom_scale)
         return v > limit if self.above else v < limit
 
@@ -217,14 +222,14 @@ add(ExerciseSpec(
     # incomplete_stand feedback never fired; 130 counts them.
     signal=knees, rest=112, active=130, target=165,
     mistakes=[
-        M("hands_used", "Keep your arms crossed over your chest; try to stand up without pushing on your legs or the chair.",
+        M("hands_used", "If you can, stand up with your arms crossed. If you need your hands to stand safely, that is fine: keep using them.",
           lambda f, r: min(rep_min(f["wrist_thigh_L"], r), rep_min(f["wrist_thigh_R"], r)), 0.25, False, "torso lengths"),
         M("incomplete_stand", "Stand up fully: straighten your hips and knees at the top.",
           peak_of(knees), 160, False, "degrees"),
         M("no_forward_lean", "Lean your chest forward a little before you stand up.",
           lambda f, r: rep_max(f["lean_sagittal"], r), 12, False, "degrees"),
         # Whole descent, top to seated: 100% of uncontrolled sits under 0.7 s, 3% of correct ones.
-        M("uncontrolled_sit", "Sit down slowly and with control.",
+        M("uncontrolled_sit", "Sit down slowly: reach back for the chair with your hands and lower yourself gently.",
           lambda f, r: descent_seconds(knees, f, r), 0.7, False, "seconds"),
         M("feet_forward", "Bring your feet back so your knees are above your ankles before you stand.",
           lambda f, r: float(f.both("shin_forward", "mean")[r.start]), 22, True, "degrees"),
@@ -234,7 +239,7 @@ add(ExerciseSpec(
     key="shoulder_abduction", name="Shoulder Abduction", view="front", required=UPPER,
     signal=arm_elev, rest=30, active=55, target=80,
     mistakes=[
-        M("low_range", "Raise your arms higher, up to shoulder height.", peak_of(arm_elev), 72, False, "degrees"),
+        M("low_range", "Raise your arms a little higher, towards shoulder height, only as far as is comfortable.", peak_of(arm_elev), 72, False, "degrees"),
         M("bent_elbow", "Keep your elbows straight as you lift.",
           lambda f, r: at_peak(f.both("elbow", "min"), r), 150, False, "degrees"),
         M("uneven_arms", "Lift both arms together to the same height.",
@@ -251,7 +256,7 @@ add(ExerciseSpec(
     # not counted at active=55; rest=20/active=35 gives 5 reps on 44 of 50 clips, none below 4.
     signal=arm_elev_max, rest=20, active=35, target=80,
     mistakes=[
-        M("low_range", "Raise your arms higher, up to shoulder height.", peak_of(arm_elev_max), 72, False, "degrees"),
+        M("low_range", "Raise your arms a little higher, towards shoulder height, only as far as is comfortable.", peak_of(arm_elev_max), 72, False, "degrees"),
         M("bent_elbow", "Keep your elbows straight as you lift.",
           lambda f, r: at_peak(f.both("elbow", "max"), r), 150, False, "degrees"),
         M("back_arch", "Keep your back still; do not lean backwards as your arms go up.",
@@ -272,7 +277,7 @@ add(ExerciseSpec(
     mistakes=[
         M("trunk_lean", "Keep your body upright; do not lean away from the lifting leg.",
           lambda f, r: rep_max(f["lean_lateral"], r), 10, True, "degrees"),
-        M("low_range", "Lift your leg a little further out to the side.", peak_of(leg_raise), 20, False, "degrees"),
+        M("low_range", "Keep holding the chair and lift your leg a little further out to the side, only as far as is comfortable.", peak_of(leg_raise), 20, False, "degrees"),
         M("leg_forward", "Lift the leg straight out to the side, not forwards.",
           lambda f, r: at_peak(f[f"leg_len_{moving(f, r, 'leg_from_down')}"], r), 0.88, False, "ratio"),
         M("bent_knee", "Keep the knee of the lifting leg straight.",
@@ -285,7 +290,7 @@ add(ExerciseSpec(
     key="knee_extension", name="Seated Knee Extension", view="side", required=LOWER + [L_SHOULDER, R_SHOULDER],
     signal=knee_ext, rest=125, active=145, target=160,
     mistakes=[
-        M("incomplete_extension", "Straighten your knee fully, until the leg is level with your hip.",
+        M("incomplete_extension", "Straighten your knee so your leg is straight out in front, as far as is comfortable.",
           peak_of(knee_ext), 155, False, "degrees"),
         M("slouching", "Sit up straight with your back against the chair.",
           lambda f, r: rep_min(f["lean_sagittal"], r), -12, False, "degrees"),
@@ -307,7 +312,7 @@ add(ExerciseSpec(
     mistakes=[
         M("upper_arm_moves", "Keep your upper arms still against your body.",
           lambda f, r: at_peak(f.both("shoulder_elev", "max"), r), 30, True, "degrees"),
-        M("low_range", "Bend your elbows further, bringing your hands up to your shoulders.",
+        M("low_range", "Bend your elbows a little further, bringing your hands towards your shoulders, only as far as is comfortable.",
           peak_of(elbow_flex), 95, False, "degrees"),
         M("body_swing", "Keep your body still; do not rock back to lift.",
           lambda f, r: rep_range(f["lean_sagittal"], r), 10, True, "degrees"),
@@ -321,7 +326,7 @@ add(ExerciseSpec(
           lambda f, r: rep_max(f["body_line_ankle"], r), 0.12, True, "torso lengths"),
         M("hips_back", "Keep your body straight; do not push your hips back.",
           lambda f, r: rep_min(f["body_line_ankle"], r), -0.12, False, "torso lengths"),
-        M("low_range", "Bend your elbows more to bring your chest closer to the wall.", peak_of(elbow_flex), 55, False, "degrees"),
+        M("low_range", "Bend your elbows a little more to bring your chest closer to the wall, only as far as is comfortable.", peak_of(elbow_flex), 55, False, "degrees"),
     ]))
 
 add(ExerciseSpec(
@@ -329,10 +334,10 @@ add(ExerciseSpec(
     # 7 Oct, from Elwin's clips: 5 reps in every correct clip, low raises (0.04-0.065) counted too.
     signal=heel_lift, rest=0.025, active=0.04, target=0.10,
     mistakes=[
-        M("low_raise", "Rise higher onto your toes.", peak_of(heel_lift), 0.08, False, "shin lengths"),
+        M("low_raise", "Rise a little higher onto your toes, holding the chair, only as far as feels steady.", peak_of(heel_lift), 0.08, False, "shin lengths"),
         M("knees_bend", "Keep your knees straight as you rise.",
           lambda f, r: rep_min(f.both("knee", "mean"), r), 165, False, "degrees"),
-        M("leaning_forward", "Rise straight up; do not lean forward onto the chair.",
+        M("leaning_forward", "Rise straight up, keeping a light hold on the chair rather than leaning on it.",
           lambda f, r: rep_max(f["lean_sagittal"], r), 12, True, "degrees"),
     ]))
 
@@ -350,7 +355,7 @@ add(ExerciseSpec(
     # rest/active lowered 7 Oct: low knee lifts peak at 10-18 deg (near leg); flat thigh rests at -3 to 0.
     side_signals=thigh_lift_seated, rest=4, active=8, target=20,
     mistakes=[
-        M("low_knee_lift", "Lift your knees higher.",
+        M("low_knee_lift", "Lift your knees a little higher, only as far as is comfortable.",
           lambda f, r: rep_max(f[f"thigh_from_down_{r.side or 'L'}"] - 90, r), 16, False, "degrees"),
         M("leaning_back", "Sit upright; do not lean back against the chair.",
           lambda f, r: rep_min(f["lean_sagittal"], r), -12, False, "degrees"),
@@ -366,7 +371,7 @@ add(ExerciseSpec(
     # 7 Oct: reps counted from the clip's own lying level (bridge_rise); mistakes on the absolute line.
     signal=bridge_rise, rest=0.05, active=0.10, target=0.30,
     mistakes=[
-        M("low_hips", "Lift your hips higher, until your body is straight from shoulders to knees.",
+        M("low_hips", "Lift your hips a little higher, towards a straight line from shoulders to knees, without pain in your back.",
           peak_of(bridge), -0.10, False, "torso lengths"),
         M("over_arch", "Do not push your hips too high; keep your lower back from arching.",
           peak_of(bridge), 0.12, True, "torso lengths"),
@@ -381,11 +386,11 @@ add(ExerciseSpec(
         # For a hold, the checks run on the whole clip (rep = full clip).
         M("feet_not_in_line", "Place one foot directly in front of the other, heel touching toe.",
           lambda f, r: float(np.mean(f["feet_gap"] < 0.6)), 0.7, False, "share of time"),
-        M("stepping_out", "Try to hold the position without stepping out.",
+        M("stepping_out", "If you wobble, step out or hold the counter: that is the safe thing to do. With practice you will hold it for longer.",
           lambda f, r: float(np.sum(np.diff((f["feet_gap"] < 0.6).astype(int)) != 0)), 1.5, True, "changes"),
         # 7 Oct: the median missed a real lean (3.6 deg); the most-leaning 10 % of the hold
         # separates it (correct 1.5-2.2 deg, leaning 9.4 deg).
-        M("leaning", "Stand upright; do not lean on the counter or to the side.",
+        M("leaning", "Stand upright with a light touch on the counter, rather than leaning your weight on it or to the side.",
           lambda f, r: float(np.percentile(f["lean_lateral"], 90)), 5, True, "degrees"),
     ]))
 
@@ -393,7 +398,7 @@ add(ExerciseSpec(
     key="bird_dog", name="Bird Dog", view="side", required=UPPER + [L_KNEE, R_KNEE],
     side_signals=bird_dog_sides, rest=30, active=55, target=75,
     mistakes=[
-        M("arm_leg_low", "Stretch your arm and leg further, until both are level with your back.",
+        M("arm_leg_low", "Stretch your arm and leg a little further, towards the level of your back, only as far as feels steady.",
           lambda f, r: rep_max(bird_dog_sides(f)[r.side or "L"], r), 70, False, "degrees"),
         # 7 Oct, from Elwin's clips: on all fours the shoulder-hip line normally tilts up 12-18 deg
         # (arms longer than thighs); sagging flattens it to 0-6 deg. The old check (tilt above
@@ -409,19 +414,19 @@ add(ExerciseSpec(
     signal=hip_rise, rest=0.08, active=0.16, target=0.22,
     mistakes=[
         M("trunk_forward", "Keep your chest up as you step.", lambda f, r: rep_max(f["lean_sagittal"], r), 25, True, "degrees"),
-        M("knee_not_straight", "Straighten your leading leg fully at the top.",
+        M("knee_not_straight", "Straighten your leading leg at the top, holding the rail, as far as is comfortable.",
           lambda f, r: at_peak(f.both("knee", "max"), r), 165, False, "degrees"),
-        M("drop_down", "Step down slowly and with control.", drop_speed, 0.8, True, "torso lengths/s"),
+        M("drop_down", "Step down slowly, holding the rail, and let your foot touch down gently.", drop_speed, 0.8, True, "torso lengths/s"),
     ]))
 
 add(ExerciseSpec(
     key="march_in_place", name="March in Place", view="side", required=WHOLE,
     side_signals=thigh_lift_standing, rest=15, active=25, target=45,
     mistakes=[
-        M("low_knee_lift", "Lift your knees higher.",
+        M("low_knee_lift", "Lift your knees a little higher, only as far as is comfortable.",
           lambda f, r: rep_max(f[f"thigh_from_down_{r.side or 'L'}"], r), 35, False, "degrees"),
         M("leaning_back", "Stand tall; do not lean backwards.", lambda f, r: rep_min(f["lean_sagittal"], r), -10, False, "degrees"),
-        M("no_arm_swing", "Swing your arms as you march.",
+        M("no_arm_swing", "If you feel steady, swing your arms as you march. If not, keep one hand on the chair.",
           lambda f, r: rep_range(f.both("shoulder_elev", "max"), r), 12, False, "degrees"),
     ]))
 
@@ -462,6 +467,13 @@ for _name, _base in ROM_BASE.items():
     for _m in EXERCISES[_key].mistakes:
         if _m.label == _label:
             _m.rom_base = _base
+# Safe choices for frail users, not mistakes (see Mistake.frail_ok).
+FRAIL_OK = ["sit_to_stand.hands_used", "tandem_stance.stepping_out"]
+for _name in FRAIL_OK:
+    _key, _, _label = _name.partition(".")
+    for _m in EXERCISES[_key].mistakes:
+        if _m.label == _label:
+            _m.frail_ok = True
 
 
 def rom_scale_for(risk_level: str | None = None, age: int | None = None) -> float:

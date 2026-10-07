@@ -49,6 +49,20 @@ class PostureResultView extends StatelessWidget {
     final passing = r.isPassing;
     final color = passing ? AppTokens.progress : const Color(0xFFC17A1A);
     final saving = vm.saving;
+    // Posture text review (8 Oct): the fall message is shown once, in the banner, and a possible
+    // fall offers no retry today.
+    final fell = r.safetyAlert != null;
+    final lines = [
+      for (final l in r.feedback)
+        if (l != r.safetyAlert) l,
+    ];
+    final String? restHint = fell
+        ? 'Rest now and try this exercise another day.'
+        : passing
+        ? null
+        : vm.retriesInARow >= 2
+        ? 'You have tried this a few times. Rest now and try again tomorrow.'
+        : 'Rest for a minute before you try again.';
     return Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
@@ -79,7 +93,7 @@ class PostureResultView extends StatelessWidget {
             if (r.romScale != null) ...[
               const SizedBox(height: 8),
               const Text(
-                'Targets adjusted to your health profile.',
+                'We made the targets gentler to suit your health.',
                 style: TextStyle(fontSize: 13, color: AppTokens.textMuted),
               ),
             ],
@@ -142,6 +156,7 @@ class PostureResultView extends StatelessWidget {
                 ],
               ),
             ),
+            if (lines.isNotEmpty) ...[
             const SizedBox(height: AppTokens.gap),
             TreatmentCard(
               child: Column(
@@ -156,7 +171,7 @@ class PostureResultView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  for (final line in r.feedback)
+                  for (final line in lines)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 6),
                       child: Row(
@@ -186,19 +201,28 @@ class PostureResultView extends StatelessWidget {
                 ],
               ),
             ),
+            ],
             if (passing && vm.autoAdvanced) ...[
               const SizedBox(height: AppTokens.gap),
               const NoticeBanner(
-                '80% or more: your progress was updated automatically.',
+                'Score 80% or more: your progress has been saved.',
               ),
             ],
             if (saving case UiError(:final message)) ...[
               const SizedBox(height: AppTokens.gap),
               NoticeBanner(message, warning: true), // FR300_27
             ],
+            if (restHint != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                restHint,
+                style: const TextStyle(fontSize: 15, color: AppTokens.textBody),
+              ),
+            ],
             const SizedBox(height: 20),
             Row(
               children: [
+                if (!fell) ...[
                 Expanded(
                   child: SizedBox(
                     height: AppTokens.minTarget,
@@ -224,6 +248,7 @@ class PostureResultView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 10),
+                ],
                 Expanded(
                   child: SizedBox(
                     height: AppTokens.minTarget,

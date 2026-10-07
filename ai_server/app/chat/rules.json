@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.29",
+  "version": "chat-rules-3.30",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -2677,7 +2677,7 @@
         "what does arm leg low mean",
         "the result said arm leg low"
       ],
-      "answer": "“Arm leg low” in your posture result means your arm and leg did not reach the level of your back. Stretch your arm and leg further, until both are level with your back.",
+      "answer": "“Arm leg low” in your posture result means your arm and leg did not reach the level of your back. Stretch your arm and leg a little further, towards the level of your back, only as far as feels steady.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2803,7 +2803,7 @@
         "what does drop down mean",
         "the result said drop down"
       ],
-      "answer": "“Drop down” in your posture result means you came down from the step too quickly. Step down slowly and with control.",
+      "answer": "“Drop down” in your posture result means you came down from the step too quickly. Step down slowly, holding the rail, and let your foot touch down gently.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2887,7 +2887,7 @@
         "what does hands used mean",
         "the result said hands used"
       ],
-      "answer": "“Hands used” in your posture result means your hands pushed on your legs or the chair to help you stand. Keep your arms crossed over your chest and stand up without pushing.",
+      "answer": "“Hands used” in your posture result means your hands pushed on your legs or the chair to help you stand. If you can, stand up with your arms crossed; if you need your hands to stand safely, that is fine.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2971,7 +2971,7 @@
         "what does incomplete extension mean",
         "the result said incomplete extension"
       ],
-      "answer": "“Incomplete extension” in your posture result means your knee did not straighten fully. Straighten your knee fully, until the leg is level with your hip.",
+      "answer": "“Incomplete extension” in your posture result means your knee did not straighten fully. Straighten your knee so your leg is straight out in front, as far as is comfortable.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3013,7 +3013,7 @@
         "what does knee not straight mean",
         "the result said knee not straight"
       ],
-      "answer": "“Knee not straight” in your posture result means your leading leg was not fully straight at the top of the step. Straighten your leading leg fully at the top.",
+      "answer": "“Knee not straight” in your posture result means your leading leg was not fully straight at the top of the step. Straighten your leading leg at the top, holding the rail, as far as is comfortable.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3055,7 +3055,7 @@
         "what does leaning mean",
         "the result said leaning"
       ],
-      "answer": "“Leaning” in your posture result means you leaned on the counter or to the side. Stand upright; do not lean on the counter or to the side.",
+      "answer": "“Leaning” in your posture result means you leaned on the counter or to the side. Stand upright with a light touch on the counter, rather than leaning your weight on it.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3139,7 +3139,7 @@
         "what does low hips mean",
         "the result said low hips"
       ],
-      "answer": "“Low hips” in your posture result means your hips did not lift high enough. Lift your hips higher, until your body is straight from shoulders to knees.",
+      "answer": "“Low hips” in your posture result means your hips did not lift high enough. Lift your hips a little higher, towards a straight line from shoulders to knees, without pain in your back.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3160,7 +3160,7 @@
         "what does low knee lift mean",
         "the result said low knee lift"
       ],
-      "answer": "“Low knee lift” in your posture result means your knees did not lift high enough. Lift your knees higher.",
+      "answer": "“Low knee lift” in your posture result means your knees did not lift high enough. Lift your knees a little higher, only as far as is comfortable.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3181,7 +3181,7 @@
         "what does low raise mean",
         "the result said low raise"
       ],
-      "answer": "“Low raise” in your posture result means your heels did not rise high enough. Rise higher onto your toes.",
+      "answer": "“Low raise” in your posture result means your heels did not rise high enough. Rise a little higher onto your toes, holding the chair, only as far as feels steady.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3223,7 +3223,7 @@
         "what does no arm swing mean",
         "the result said no arm swing"
       ],
-      "answer": "“No arm swing” in your posture result means your arms stayed still while you marched. Swing your arms as you march.",
+      "answer": "“No arm swing” in your posture result means your arms stayed still while you marched. If you feel steady, swing your arms as you march; if not, keep one hand on the chair.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3349,7 +3349,7 @@
         "what does stepping out mean",
         "the result said stepping out"
       ],
-      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold. Try to hold the position without stepping out.",
+      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold. If you wobble, step out or hold the counter: that is the safe thing to do. With practice you will hold it for longer.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3496,7 +3496,7 @@
         "what does uncontrolled sit mean",
         "the result said uncontrolled sit"
       ],
-      "answer": "“Uncontrolled sit” in your posture result means you sat down too quickly instead of lowering yourself slowly. Sit down slowly and with control.",
+      "answer": "“Uncontrolled sit” in your posture result means you sat down too quickly instead of lowering yourself slowly. Sit down slowly: reach back for the chair with your hands and lower yourself gently.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
