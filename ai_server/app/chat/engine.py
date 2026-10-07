@@ -255,7 +255,8 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
+PREFER = [("weakness_balance", "equipment"), ("video_quality", "posture_result"),
+          ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
 

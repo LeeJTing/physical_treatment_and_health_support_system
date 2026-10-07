@@ -13,7 +13,7 @@ ROUND11 = [
     (SHOULDER, "it say uneven arms what is that", ("mistake:uneven_arms", "posture_result")),  # (3.15)
     (LEGS, "what does incomplete stand mean", ("mistake:incomplete_stand", "posture_result")),  # (3.15)
     (KNEE, "the result said trunk lean", ("mistake:trunk_lean", "posture_result")),  # (3.15)
-    (KNEE, "my room is quite dark can still record", "recording_help"),
+    (KNEE, "my room is quite dark can still record", ("recording_help", "video_quality")),  # lighting answer since 3.16
     (KNEE, "should i hold the phone landscape or portrait", "recording_help"),
     (KNEE, "the phone keep falling down while recording", "recording_help"),
     (KNEE, "i fell yesterday while doing step up", ("red_flag", "safety")),

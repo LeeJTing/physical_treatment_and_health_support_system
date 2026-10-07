@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.15",
+  "version": "chat-rules-3.16",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -662,6 +662,9 @@
       "show": true,
       "priority": 7,
       "keywords": [
+        "swayed",
+        "sway",
+        "swaying",
         "walking stick",
         "use a stick",
         "walking cane",
@@ -1233,6 +1236,129 @@
       "action": {
         "key": "open_reminders",
         "label": "Open reminders"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "fall_alert",
+      "title": "The possible-fall message",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "may have fallen",
+        "might have fallen",
+        "lost my balance",
+        "lost balance",
+        "fall alert",
+        "fall warning",
+        "thinks i fell",
+        "think i fell",
+        "possible fall"
+      ],
+      "examples": [
+        "the app said I may have fallen",
+        "why did I get a fall warning"
+      ],
+      "answer": "The posture check saw a movement that looked like losing your balance or a fall. If you did fall, or feel hurt or dizzy, stop and get help; call 999 in an emergency. If it was a false alarm (for example you bent down to pick something up), you can record the exercise again. Keep a sturdy chair or counter within reach while you exercise.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
+      "key": "adjusted_targets",
+      "title": "Adjusted targets",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "targets adjusted",
+        "adjusted targets",
+        "target adjusted",
+        "adjusted to my health profile",
+        "lower target",
+        "lower targets",
+        "easier target",
+        "easier targets"
+      ],
+      "examples": [
+        "why are my targets adjusted",
+        "what does targets adjusted to my health profile mean"
+      ],
+      "answer": "Because of your age or health profile, the posture check asks for a little less range of movement, so the exercises stay safe and achievable while your strength comes back. Checks on how you move, such as keeping your elbows straight or your back upright, are the same for everyone. If your health has changed, update your profile.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_profile",
+        "label": "Open health profile"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "partial_reps",
+      "title": "Partial repetitions",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "partial repetitions",
+        "partial repetition",
+        "partial reps",
+        "partial rep",
+        "small movements",
+        "small movement"
+      ],
+      "examples": [
+        "it says partial repetitions",
+        "what does small movements mean"
+      ],
+      "answer": "The posture check saw you moving but not as far as a full repetition, so it counted partial repetitions. That is a fine start, especially after a long rest: move a little further each session, only as far as is comfortable, and pause briefly back at the start of each one.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_treatment",
+        "label": "Open my treatment plan"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "video_quality",
+      "title": "Video too dark or too far",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "too dark",
+        "quite dark",
+        "video is dark",
+        "video dark",
+        "move the phone closer",
+        "phone closer",
+        "look small",
+        "i look small",
+        "too far away",
+        "far from the camera",
+        "less accurate"
+      ],
+      "examples": [
+        "it says my video is quite dark",
+        "why does it say move the phone closer"
+      ],
+      "answer": "A dark video, or you looking small in the picture, makes the posture check less accurate. Record with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away so your whole body fills most of the picture, from head to feet.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_treatment",
+        "label": "Record an exercise"
       },
       "time_aware": false
     },

@@ -25,6 +25,7 @@ from chat_round8_set import ROUND8
 from chat_round9_set import ROUND9
 from chat_round10_set import ROUND10
 from chat_round11_set import ROUND11
+from chat_posture_messages_set import POSTURE_MESSAGES
 from chat_verify_set import VERIFY
 
 client = TestClient(app)
@@ -33,7 +34,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(POSTURE_MESSAGES)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):

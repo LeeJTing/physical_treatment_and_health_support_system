@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.15"
+VERSION = "chat-rules-3.16"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -167,7 +167,7 @@ INTENTS = [
            "fever, skip today's session and rest; continue when you feel better. If tiredness lasts for days or "
            "comes with breathlessness, contact your doctor.", negatable=True),
     intent("weakness_balance", "Weak or unsteady legs", 7,
-           ["walking stick", "use a stick", "walking cane", "walker", "walking frame", "zimmer", "crutch", "crutches", "wheelchair", "lose my balance", "lose balance",
+           ["swayed", "sway", "swaying", "walking stick", "use a stick", "walking cane", "walker", "walking frame", "zimmer", "crutch", "crutches", "wheelchair", "lose my balance", "lose balance",
             "wobbly", "wobble", "unsteady", "unstable", "shaky", "shaking", "shake", "shakes", "trembling", "tremble",
             "weak", "weakness", "give way", "gives way", "giving way", "give out", "gives out", "collapse",
             "collapsing", "buckle", "buckles", "buckling", "balance", "off balance", "lose balance", "losing balance",
@@ -295,6 +295,40 @@ INTENTS = [
            "phone settings. If you have already exercised that day, the reminder is skipped. The reminder "
            "sound and volume follow your phone's notification settings.",
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
+    # 8 Oct: the posture check's new messages (fall alert, adjusted targets, partial reps, video tips).
+    intent("fall_alert", "The possible-fall message", 8,
+           ["may have fallen", "might have fallen", "lost my balance", "lost balance", "fall alert",
+            "fall warning", "thinks i fell", "think i fell", "possible fall"],
+           ["the app said I may have fallen", "why did I get a fall warning"],
+           "The posture check saw a movement that looked like losing your balance or a fall. If you did "
+           "fall, or feel hurt or dizzy, stop and get help; call 999 in an emergency. If it was a false "
+           "alarm (for example you bent down to pick something up), you can record the exercise again. "
+           "Keep a sturdy chair or counter within reach while you exercise.", show=False),
+    intent("adjusted_targets", "Adjusted targets", 7,
+           ["targets adjusted", "adjusted targets", "target adjusted", "adjusted to my health profile",
+            "lower target", "lower targets", "easier target", "easier targets"],
+           ["why are my targets adjusted", "what does targets adjusted to my health profile mean"],
+           "Because of your age or health profile, the posture check asks for a little less range of movement, "
+           "so the exercises stay safe and achievable while your strength comes back. Checks on how you move, "
+           "such as keeping your elbows straight or your back upright, are the same for everyone. If your "
+           "health has changed, update your profile.", show=False,
+           action={"key": "open_profile", "label": "Open health profile"}),
+    intent("partial_reps", "Partial repetitions", 7,
+           ["partial repetitions", "partial repetition", "partial reps", "partial rep", "small movements",
+            "small movement"],
+           ["it says partial repetitions", "what does small movements mean"],
+           "The posture check saw you moving but not as far as a full repetition, so it counted partial "
+           "repetitions. That is a fine start, especially after a long rest: move a little further each "
+           "session, only as far as is comfortable, and pause briefly back at the start of each one.",
+           show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
+    intent("video_quality", "Video too dark or too far", 7,
+           ["too dark", "quite dark", "video is dark", "video dark", "move the phone closer", "phone closer",
+            "look small", "i look small", "too far away", "far from the camera", "less accurate"],
+           ["it says my video is quite dark", "why does it say move the phone closer"],
+           "A dark video, or you looking small in the picture, makes the posture check less accurate. Record "
+           "with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away "
+           "so your whole body fills most of the picture, from head to feet.", show=False,
+           action={"key": "open_treatment", "label": "Record an exercise"}),
     # 8 Oct (round 10): elderly and family users.
     intent("for_someone_else", "Exercising for a family member", 3,
            ["my mother", "my father", "my mum", "my mom", "my dad", "my parents", "my parent",
