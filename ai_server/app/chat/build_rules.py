@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.11"
+VERSION = "chat-rules-3.12"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -57,7 +57,8 @@ INTENTS = [
            "80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
            action={"key": "open_planning", "label": "Open treatment planning"}),
     intent("how_to", "How to do the exercises", 4,
-           ["rest between", "between reps", "between sets", "between exercises", "break between", "how to do", "how do i do", "how should i do", "how to perform", "correct way", "right way", "proper way",
+           ["knee goes in", "knees go in", "knee goes inward", "knees go inward", "knee inwards", "knees inwards", "caving in", "knees together",
+            "rest between", "between reps", "between sets", "between exercises", "break between", "how to do", "how do i do", "how should i do", "how to perform", "correct way", "right way", "proper way",
             "proper form", "good form", "technique", "instruction", "instructions", "step by step",
             "demonstrate", "demonstration", "show me how", "doing it right", "doing it wrong", "do it right",
             "do it correctly", "correctly", "properly", "form", "posture", "position", "guide", "tutorial", "explain",
@@ -231,6 +232,13 @@ INTENTS = [
            "say it is safe; your progress is kept. If their advice differs from your plan, ask them which "
            "exercises are suitable, and update your health profile if anything has changed.", show=False,
            action={"key": "open_reminders", "label": "Pause my reminders"}),
+    intent("joint_noise", "Clicking or cracking joints", 7,
+           ["click", "clicks", "clicking", "clicky", "crack", "cracks", "cracking", "popping", "pops",
+            "grinding", "creaking", "crunching", "noise", "noises", "sound", "sounds"],
+           ["my shoulder clicks when I raise my arm", "my knee makes a cracking sound", "is the clicking normal"],
+           "Clicking or cracking without pain is common and usually harmless; it is often gas or a tendon moving "
+           "over the joint. Carry on if it does not hurt. If it comes with pain, swelling, or the joint catching "
+           "or locking, stop that movement and ask your doctor or physiotherapist.", show=False, tailor=True),
     intent("treatment_nav", "My treatment plan", 6,
            ["open my exercise", "open my exercises", "start exercise", "start my exercise",
             "start exercising", "start my exercises", "go to exercise", "go to my exercise", "open exercise",
@@ -268,7 +276,8 @@ INTENTS = [
            "phone settings. If you have already exercised that day, the reminder is skipped.",
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
     intent("history_help", "Your past results", 6,
-           ["see my score", "see my scores", "score last week", "scores last week", "last week", "my score history", "past scores", "past results", "previous results", "my results", "session history",
+           ["old results", "old scores", "see my old", "previous score", "previous scores", "earlier results", "earlier scores",
+            "see my score", "see my scores", "score last week", "scores last week", "last week", "my score history", "past scores", "past results", "previous results", "my results", "session history",
             "previous sessions", "past sessions", "how did i do", "accuracy history",
             "all my attempts", "track my progress", "see my progress"],
            ["where can I see my past results", "how did I do in my last session", "show my session history"],
@@ -301,7 +310,8 @@ INTENTS = [
            "After too many wrong passwords the account is locked for 15 minutes.",
            show=False, action={"key": "open_reset_password", "label": "Reset password"}),
     intent("verification_code", "Verification code", 7,
-           ["verification code", "verify code", "no code", "didn't get the code", "didnt get the code",
+           ["where is the code", "where is my code", "the code", "no code yet", "where code",
+            "verification code", "verify code", "no code", "didn't get the code", "didnt get the code",
             "did not get the code", "code not received", "never got the code", "didn't receive the code",
             "didnt receive the code", "did not receive the code", "didn't receive the email", "no email",
             "email not received", "otp", "resend code", "code expired", "code not working", "wrong code",
@@ -408,7 +418,8 @@ INTENTS = [
            "Take care, and see you at your next session. Tap Exit Chatbot to return to the planning page.",
            show=False, small_talk=True),
     intent("bot_identity", "About this assistant", 2,
-           ["who are you", "what are you", "your name", "are you human", "are you a robot", "are you a bot",
+           ["who made", "who created", "who built", "who developed", "made this app", "who designed",
+            "who are you", "what are you", "your name", "are you human", "are you a robot", "are you a bot",
             "chatgpt", "chat gpt", "gpt", "are you ai", "are you an ai", "artificial intelligence", "openai",
             "siri", "google assistant", "real doctor", "are you a doctor",
             "are you real", "real person", "what can you do", "what do you do", "what do you know",

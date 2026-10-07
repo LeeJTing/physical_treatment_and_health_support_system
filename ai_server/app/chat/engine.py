@@ -250,7 +250,7 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("history_help", "posture_result"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
+PREFER = [("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
 
 
 def red_flag(text: str | None) -> bool:

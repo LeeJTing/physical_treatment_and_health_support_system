@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.11",
+  "version": "chat-rules-3.12",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -66,6 +66,14 @@
       "show": true,
       "priority": 4,
       "keywords": [
+        "knee goes in",
+        "knees go in",
+        "knee goes inward",
+        "knees go inward",
+        "knee inwards",
+        "knees inwards",
+        "caving in",
+        "knees together",
         "rest between",
         "between reps",
         "between sets",
@@ -942,6 +950,43 @@
       "time_aware": false
     },
     {
+      "key": "joint_noise",
+      "title": "Clicking or cracking joints",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "click",
+        "clicks",
+        "clicking",
+        "clicky",
+        "crack",
+        "cracks",
+        "cracking",
+        "popping",
+        "pops",
+        "grinding",
+        "creaking",
+        "crunching",
+        "noise",
+        "noises",
+        "sound",
+        "sounds"
+      ],
+      "examples": [
+        "my shoulder clicks when I raise my arm",
+        "my knee makes a cracking sound",
+        "is the clicking normal"
+      ],
+      "answer": "Clicking or cracking without pain is common and usually harmless; it is often gas or a tendon moving over the joint. Carry on if it does not hurt. If it comes with pain, swelling, or the joint catching or locking, stop that movement and ask your doctor or physiotherapist.",
+      "follow_ups": [],
+      "tailor": true,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
       "key": "treatment_nav",
       "title": "My treatment plan",
       "show": false,
@@ -1116,6 +1161,13 @@
       "show": false,
       "priority": 6,
       "keywords": [
+        "old results",
+        "old scores",
+        "see my old",
+        "previous score",
+        "previous scores",
+        "earlier results",
+        "earlier scores",
         "see my score",
         "see my scores",
         "score last week",
@@ -1269,6 +1321,11 @@
       "show": false,
       "priority": 7,
       "keywords": [
+        "where is the code",
+        "where is my code",
+        "the code",
+        "no code yet",
+        "where code",
         "verification code",
         "verify code",
         "no code",
@@ -1788,6 +1845,12 @@
       "show": false,
       "priority": 2,
       "keywords": [
+        "who made",
+        "who created",
+        "who built",
+        "who developed",
+        "made this app",
+        "who designed",
         "who are you",
         "what are you",
         "your name",

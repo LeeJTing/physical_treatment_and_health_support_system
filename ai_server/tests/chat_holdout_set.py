@@ -39,7 +39,7 @@ HOLDOUT = [
     (SHOULDER, "my shoulder is painful when I lift", "pain_or_discomfort"),
     (SHOULDER, "bicep curl how many reps", "exercise:elbow_flexion"),
     (SHOULDER, "can i use dumbbells", "equipment"),
-    (SHOULDER, "shoulder clicking noise is that normal", None),
+    (SHOULDER, "shoulder clicking noise is that normal", ("joint_noise", None)),   # 3.12: own rule
     (SHOULDER, "where do I put the camera for the front arm raise", "exercise:shoulder_flexion"),
     (CORE, "how to do the bridge", "exercise:glute_bridge"),
     (CORE, "my lower back aches during bird dog", "pain_or_discomfort"),

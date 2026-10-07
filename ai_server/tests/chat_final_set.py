@@ -37,7 +37,7 @@ FINAL = [
     (KNEE, "ok", "acknowledge"),   # 3.2: a bare "ok" gets a short reply instead of "not recognised"
     (KNEE, "what time is it", None),
     (KNEE, "lol", None),
-    (SHOULDER, "my shoulder clicks when i raise my arm, is it bad?", ("pain_or_discomfort", "exercise:shoulder_abduction", "exercise:shoulder_flexion", None)),
+    (SHOULDER, "my shoulder clicks when i raise my arm, is it bad?", ("pain_or_discomfort", "exercise:shoulder_abduction", "exercise:shoulder_flexion", None, "joint_noise")),
     (SHOULDER, "can I swim instead of these exercises", "difficulty"),
     (SHOULDER, "my arm went numb after the arm raises", "red_flag"),
     (CORE, "how do I keep my back flat in bird dog", "exercise:bird_dog"),
