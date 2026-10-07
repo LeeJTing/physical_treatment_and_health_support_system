@@ -49,7 +49,7 @@ SAFETY_PASS2 = [
     (KNEE, 'i felt', (None, 'acknowledge')),
     (KNEE, 'i fell asleep after exercise', ('tired', 'acknowledge', None)),
     (KNEE, 'i have fallen behind on my plan', 'missed_session'),
-    (KNEE, 'afraid of falling when i stand up', ('weakness_balance', 'safety')),
+    (KNEE, 'afraid of falling when i stand up', ('weakness_balance', 'safety', 'fear_of_falling')),
     (KNEE, 'how to not fall during sit to stand', ('weakness_balance', 'safety', 'how_to', 'exercise:sit_to_stand')),  # laptop: acceptable
     (KNEE, 'chest very tight la', 'red_flag'),
     (KNEE, 'dada sakit', 'red_flag'),

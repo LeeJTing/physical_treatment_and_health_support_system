@@ -26,6 +26,6 @@ ROUND8 = [
            "what should I do?", ("pain_swelling", "red_flag")),
     (KNEE, "Good evening. My husband has diabetes and high blood pressure, is it safe for him to do "
            "these exercises in the evening?", ("best_time", "condition_advice", "safety")),
-    (KNEE, "sorry to bother you, my eyes are not good, the words too small, how to make bigger", None),
+    (KNEE, "sorry to bother you, my eyes are not good, the words too small, how to make bigger", "text_size"),   # round 14
     (KNEE, "my grandson set this up, i dont know how to use", ("app_help", "getting_started")),
 ]

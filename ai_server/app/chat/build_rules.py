@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.25"
+VERSION = "chat-rules-3.26"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -150,11 +150,18 @@ INTENTS = [
             "add more", "level up", "too much", "too little", "boring", "modify", "instead of these exercises", "instead of the exercises",
             "instead of this exercise", "something else", "other exercise", "another exercise", "different exercise",
             "replace", "can only",
-            "only do", "only manage", "only managed", "only able"],
+            "only do", "only manage", "only managed", "only able",
+            # round 14 (elderly users)
+            "won't go up", "wont go up", "won't go higher", "won't lift", "won't bend", "won't straighten",
+            "as high as the picture", "as high as the video", "as far as the picture", "not as high as",
+            "sit down halfway", "need to sit down", "rest halfway", "stop halfway", "halfway through",
+            "gave up after", "give up after", "stopped after",
+            "could only do"],
            ["the exercises are too easy", "this is too hard for me", "I can't finish all the repetitions",
             "can I make it harder", "can I do more repetitions"],
            "If an exercise is too hard, do fewer repetitions with good form and rest between them; it should feel "
-           "like effort, not pain. If it feels too easy, keep the same plan until you finish it, then request a "
+           "like effort, not pain. If you cannot move as far as the picture, go only as far as is comfortable "
+           "and a little further each week. If it feels too easy, keep the same plan until you finish it, then request a "
            "new recommendation from the planning page: it will suggest a plan for your new level. Do not add "
            "weight, extra sets or other exercises on your own.", tailor=True),
     intent("tired", "Feeling tired or unwell", 6,
@@ -315,7 +322,7 @@ INTENTS = [
            action={"key": "open_profile", "label": "Open health profile"}),
     intent("partial_reps", "Partial repetitions", 7,
            ["partial repetitions", "partial repetition", "partial reps", "partial rep", "small movements",
-            "small movement"],
+            "small movement", "half of each", "half of the movement", "half movements", "half the movement"],
            ["it says partial repetitions", "what does small movements mean"],
            "The posture check saw you moving but not as far as a full repetition, so it counted partial "
            "repetitions. That is a fine start, especially after a long rest: move a little further each "
@@ -351,6 +358,72 @@ INTENTS = [
            "and set up the phone for them so the app can check their posture. If they have fallen in the past "
            "year, feel unsteady or have a heart condition, ask their doctor before they start.", show=False,
            action={"key": "open_profile", "label": "Open health profile"}),
+    # 8 Oct (round 14): elderly users after a long rest (disuse atrophy), fear of falling, small text,
+    # family helpers.
+    intent("muscle_loss", "Weak muscles after bed rest", 7,
+           ["muscle loss", "lost muscle", "lost a lot of muscle", "losing muscle", "lose muscle", "muscles shrank",
+            "muscle shrank", "muscles shrink", "muscle shrink", "muscles shrunk", "muscle shrunk", "shrank", "shrunk",
+            "muscles got smaller", "thigh got smaller", "legs got smaller", "got smaller", "getting smaller",
+            "thin legs", "legs are thin", "legs are so thin", "legs so thin", "skinny legs", "legs became thin",
+            "muscle wasting", "wasting", "sarcopenia", "atrophy", "atrophied", "disuse", "bedridden",
+            "bed bound", "bedbound", "lying in bed", "in bed for", "stayed in bed", "in hospital for",
+            "in the hospital for", "in hospital", "after hospital", "out of hospital", "discharged from hospital",
+            "from hospital", "from the hospital", "hospital stay", "warded", "build muscle",
+            "build up muscle", "rebuild", "get stronger", "getting stronger", "become stronger", "regain",
+            "get it back", "strength back", "my strength back", "too late to build", "too late to get stronger",
+            "too late for me", "too old to get stronger", "too old to build", "after covid", "long covid"],
+           ["I was in hospital for weeks and my legs are weak", "my muscles shrank after bed rest",
+            "is it too late to build muscle at my age"],
+           "Muscles shrink quickly after weeks in bed or in hospital, but they grow stronger again with exercise "
+           "at any age. Start with the easiest exercises in your plan, a few repetitions with a sturdy chair "
+           "within reach, and add a little each week; most people notice a difference within 4 to 8 weeks. Eat "
+           "some protein at each meal (fish, eggs, tofu, beans or milk) unless your doctor has limited it. If "
+           "one calf is swollen, warm or painful after bed rest, see a doctor before exercising.",
+           show=False, tailor=True),
+    intent("fear_of_falling", "Afraid of falling", 7,
+           ["afraid of falling", "scared of falling", "fear of falling", "worried about falling",
+            "worry about falling", "scared i will fall", "scared i'll fall", "afraid i will fall", "afraid i'll fall",
+            "worried i will fall", "worried i'll fall", "scared to fall", "afraid to fall", "if i fall",
+            "what if i fall", "in case i fall", "if she falls", "if he falls", "if she fall", "if he fall",
+            "after a fall", "get up after a fall", "get up from the floor", "get up if i fall", "nobody is home",
+            "no one is home", "no one at home", "nobody at home", "alone at home", "home alone", "live alone",
+            "living alone", "stay alone", "staying alone", "someone with me", "someone be with me",
+            "anyone with me", "scared to stand", "afraid to stand", "scared to exercise",
+            "afraid to exercise", "holding the wall", "hold the wall", "hold onto the wall", "hold on to the wall",
+            "holding the chair", "hold the chair", "hold onto something", "fell last year", "fell before",
+            "fell down", "fell over", "fell off", "fell in the", "had a fall", "slipped in", "slipped on",
+            "fallen before", "had a fall before", "takut fell", "fell last month", "fell a few months ago",
+            "now i'm scared", "now i am scared", "since then i'm scared", "scared since"],
+           ["I am scared I will fall", "what if I fall when nobody is home", "should someone be with me"],
+           "Being afraid of falling is common. Keep one hand on a sturdy chair or kitchen counter, wear non-slip "
+           "shoes, clear the floor and keep your phone within reach. If you live alone, do the standing "
+           "exercises when someone is at home, and skip them on days you feel unsteady. If you fall, do not "
+           "get up quickly: rest, check for pain, roll onto your side, crawl to a sturdy chair and push up "
+           "slowly. If you are hurt or cannot get up, call for help or 999 and keep warm.",
+           show=False, tailor=True),
+    intent("text_size", "Text too small", 6,
+           ["words are too small", "words too small", "text is too small", "text too small", "font too small",
+            "font size", "text size", "bigger text", "bigger font", "bigger words", "larger text", "larger font",
+            "make the text bigger", "make the words bigger", "too small to read", "small words", "small text",
+            "can't see the screen", "cannot see the screen", "can't see my screen", "cannot see my screen",
+            "can't read the screen", "cannot read the screen", "hard to read", "difficult to read",
+            "poor eyesight", "bad eyesight", "eyesight", "rabun"],
+           ["the words are too small", "how do I make the text bigger"],
+           "The app follows your phone's text size. To make the words bigger, open your phone's Settings, "
+           "then Display, then Font size (on some phones, Font size and style), and move the slider up; the "
+           "app's text grows with it. A family member can also sit with you while you use the app.",
+           show=False),
+    intent("family_help", "Help from family", 6,
+           ["help me with the app", "help me use the app", "help me use", "help me with this app",
+            "help me record", "help me set up", "help me with my exercises", "can my daughter help",
+            "can my son help", "daughter help", "son help", "family help", "family member help",
+            "family members help", "grandchild help", "caregiver", "carer", "helper", "maid",
+            "domestic helper"],
+           ["can my daughter help me with the app", "can my caregiver record my video"],
+           "Yes. A family member or carer can set up the phone, record your video, and read your results and "
+           "my answers with you. Keep using your own account and health profile so your plan stays matched to "
+           "you, and do the exercises yourself; they can stay close by in case you lose your balance.",
+           show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
     intent("low_mood", "Feeling low", 7,
            ["sad", "so sad", "depressed", "depression", "feeling down", "feel down", "low mood", "lonely",
             "grief", "grieving", "passed away", "hopeless", "feel empty", "keep crying", "sedih", "murung",
@@ -658,7 +731,9 @@ _WHO = ["i", "he", "she", "my mum", "my mom", "my mother", "my dad", "my father"
 RED_FLAGS += [f"{w} {v}" for w in _WHO for v in (
     "collapsed", "has collapsed", "fall down", "falls down", "fall over", "falls over", "keep falling", "fell",
     "slipped and", "slipped in the", "slipped on the", "tripped and", "tripped over", "slip and", "trip and",
-    "has fallen", "have fallen", "had fallen", "'ve fallen", "overdosed")]
+    "has fallen", "have fallen", "had fallen", "'ve fallen", "overdosed",
+    # round 14: "i just fell", "she has just fallen"
+    "just fell", "just fallen", "has just fallen", "just had a fall", "just collapsed", "just slipped and")]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
@@ -701,6 +776,16 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
+    # Sudden blurred or double vision (round 14: stroke, very high blood pressure or low sugar), not a
+    # blurry video or long-standing cataracts.
+    [["blurry", "blurred", "blur", "kabur", "double vision", "seeing double", "see double", "can't see properly",
+      "cannot see properly", "cant see properly", "lost my vision", "lost vision", "losing my vision",
+      "went blind", "go blind", "can't see out of", "cannot see out of"],
+     ["suddenly", "sudden", "all of a sudden", "just now", "during", "while", "after the exercise",
+      "after exercising", "after exercise", "one eye", "everything", "dizzy", "headache", "vision", "eyesight",
+      "eyes", "eye", "mata", "pandangan"], 5,
+     ["video", "photo", "picture", "camera", "screen", "recording", "cataract", "cataracts", "glasses",
+      "spectacles", "for years", "always", "old age", "reading"]],
     # Someone unable to get up or move after a fall, or on the floor / in bed ("my father fell and
     # cannot get up", "he is on the floor and can't move his leg"); not "can't get up early".
     # Pass 4: only with a fall, the floor, "since" or "lying" (not "can't get up from bed early",

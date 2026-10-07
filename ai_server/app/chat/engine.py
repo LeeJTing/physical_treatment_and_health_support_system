@@ -57,7 +57,7 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
-         "jatuh": "fell", "terjatuh": "fell", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
+         "jatuh": "fell", "terjatuh": "fell", "mengecil": "shrank", "otot": "muscles", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
          "susah": "hard", "duduk": "sitting", "sambil": "while",
          "seminggu": "a week", "sehari": "a day", "berapa": "how many", "kali": "times", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
          "mak": "mother", "ibu": "mother", "ayah": "father", "bapa": "father", "nenek": "grandma",
@@ -66,7 +66,14 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
                  "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
                  "sesak nafas": "short of breath", "kencing manis": "diabetes", "darah tinggi": "high blood pressure",
-                 "sakit jantung": "heart disease", "lemah badan": "weak"}
+                 "sakit jantung": "heart disease", "lemah badan": "weak",
+                 # round 14 (elderly users)
+                 "tahun lepas": "last year", "tahun lalu": "last year", "bulan lepas": "last month",
+                 "bulan lalu": "last month", "minggu lepas": "last week", "takut jatuh": "afraid of falling",
+                 "risau jatuh": "worried about falling", "otot mengecil": "muscles shrank",
+                 "otot kecil": "muscles shrank", "kaki kurus": "legs are thin", "tulisan kecil": "text too small",
+                 "huruf kecil": "text too small", "duduk hospital": "in hospital", "masuk hospital": "in hospital",
+                 "keluar hospital": "out of hospital", "masuk wad": "in hospital"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -263,7 +270,18 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
           ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
-          ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
+          ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired"),
+          # round 14 (elderly users)
+          ("muscle_loss", "getting_started"), ("muscle_loss", "safety"), ("muscle_loss", "diagnosis"),
+          ("muscle_loss", "equipment"), ("muscle_loss", "weakness_balance"), ("muscle_loss", "plan_progress"),
+          ("muscle_loss", "best_time"), ("muscle_loss", "for_someone_else"),
+          ("fear_of_falling", "safety"), ("fear_of_falling", "equipment"), ("fear_of_falling", "how_often"),
+          ("fear_of_falling", "weakness_balance"), ("fear_of_falling", "for_someone_else"),
+          ("fear_of_falling", "difficulty"),
+          ("text_size", "recording_help"), ("text_size", "app_help"), ("language", "text_size"),
+          ("family_help", "for_someone_else"), ("family_help", "plan_progress"), ("family_help", "recording_help"),
+          ("family_help", "app_help"), ("partial_reps", "difficulty"), ("partial_reps", "posture_result"),
+          ("recording_help", "fear_of_falling"), ("missed_session", "muscle_loss")]
 
 
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
@@ -288,6 +306,29 @@ NEAR_MISS = {"nearly", "almost"}
 HARD_SIGNS = ["not moving", "not answering", "not responding", "unconscious", "can't move", "cannot move",
               "cant move", "bleeding", "blue lips", "not breathing", "tak sedar"]
 ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped", "trip", "collapsed")
+# Round 14 (elderly users): a fall long ago is history, not an emergency ("I fell last year and now I'm
+# scared"), unless it still hurts; and "what if I can't get up after a fall" is a question about falling.
+FALL_WORDS = {"fell", "fall", "falls", "fallen", "falling", "jatuh", "tripped", "slipped"}
+PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "a while ago",
+             "long time ago", "long ago", "in the past"]
+STILL_HURT = ["hurt", "hurts", "hurting", "pain", "painful", "sakit", "swollen", "swelling", "bruise", "bruised",
+              "still can't", "still cannot", "still cant", "still unable", "still limping",
+              "still sore", "can't walk", "cannot walk", "cant walk", "bleeding"]
+OLD_ACCIDENT_WORDS = FALL_WORDS | {"hit", "trip", "slip", "banged", "knocked"}
+HYPOTHETICAL = ["what if i", "what if you", "what if she", "what if he", "if i", "if you", "if i ever",
+                "in case i", "in case you", "kalau saya", "kalau", "supposing i", "suppose i", "how do i",
+                "how to", "how can i"]
+
+
+def _hypothetical(words: list[str], i: int) -> bool:
+    """The words just before position i make it a question about what to do ("what if i can't get up")."""
+    before = f" {' '.join(words[max(0, i - 3):i])} "
+    return any(before.endswith(f" {h} ") for h in HYPOTHETICAL)
+
+
+def _old_fall(words: list[str]) -> bool:
+    return any(find_phrase(p, words) for p in PAST_TIME) and not any(find_phrase(h, words) for h in STILL_HURT) \
+        and not any(find_phrase(h, words) for h in HARD_SIGNS)
 # A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
 BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b(?!\s*(?:min|mins|minute|minutes|reps|rep|sets|set|"
                         r"km|steps|points|marks|%|days|times|seconds|secs))")
@@ -506,6 +547,7 @@ def red_flag(text: str | None) -> bool:
     base = padded.strip()
     for variant in {base, correct(base)}:
         words = variant.split()
+        old_fall = _old_fall(words)
         for phrase in r["red_flags"]:
             for i in find_phrase(phrase, words):
                 before = set(words[max(0, i - 2):i])
@@ -513,6 +555,10 @@ def red_flag(text: str | None) -> bool:
                     continue
                 if NEAR_MISS & before and any(w in phrase.split() for w in ACCIDENT_WORDS):
                     continue
+                if OLD_ACCIDENT_WORDS & set(phrase.split()) and old_fall:
+                    continue                           # "i fell last year", "hit my head years ago"
+                if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i):
+                    continue                           # "if i fall"
                 return True
         for combo in r.get("red_flag_combos", []):
             anchors, symptoms, window = combo[:3]
@@ -520,12 +566,19 @@ def red_flag(text: str | None) -> bool:
                     and not any(find_phrase(h, words) for h in HARD_SIGNS):
                 continue                               # a planning question, or doing the exercise
             for anchor in anchors:
+                fall = bool(FALL_WORDS & set(anchor.split()))
+                if fall and old_fall:
+                    continue                           # "she fell last year and couldn't stand for a week"
                 for i in find_phrase(anchor, words):
                     if COMBO_NEGATORS & set(words[max(0, i - 2):i]):
                         continue                       # "no chest pain", "never had breathing trouble"
-                    near = words[max(0, i - window):i + window + 1]
-                    if any(find_phrase(s, near) for s in symptoms):
-                        return True
+                    lo = max(0, i - window)
+                    near = words[lo:i + window + 1]
+                    for s in symptoms:
+                        for j in find_phrase(s, near):
+                            if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)):
+                                continue               # "what if i can't get up after a fall"
+                            return True
     return False
 
 

@@ -12,7 +12,7 @@ FINAL = [
     (BALANCE, "Hello doctor, I am 72 years old and my son set up this app for me. I want to know if I can do "
               "the exercises in the morning before breakfast?", ("how_often", "diet", "best_time")),
     (BALANCE, "how long do i stand heel to toe", "exercise:tandem_stance"),
-    (BALANCE, "i'm scared of falling during the balance exercise", ("safety", "weakness_balance")),
+    (BALANCE, "i'm scared of falling during the balance exercise", ("safety", "weakness_balance", "fear_of_falling")),
     (BALANCE, "Which one comes first, heel raise or sit to stand?", "plan_exercises"),
     (BALANCE, "my ankles feel sore 😣", "pain_or_discomfort"),
     (BALANCE, "CAN I DO IT WITHOUT A CHAIR", "equipment"),
