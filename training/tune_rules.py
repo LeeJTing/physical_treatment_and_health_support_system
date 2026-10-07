@@ -11,6 +11,8 @@ direction. Rules with fewer than MIN_PER_CLASS repetitions on either side are le
     ai_server\\.venv\\Scripts\\python training\\tune_rules.py --write      (save thresholds.json)
     ai_server\\.venv\\Scripts\\python training\\tune_rules.py --rehab      (also REHAB24-6: hip_abduction,
                                                                            all incorrect reps as positives)
+    ai_server\\.venv\\Scripts\\python training\\tune_rules.py --everyone   (also the second person's labelled
+                                                                           clips and REHAB24-6 correct leg abductions)
 
 thresholds.json (ai_server/app/pose/) is read by the server at start-up. Report:
 training/reports/rule_tuning.json (for Chapter 5).
@@ -22,7 +24,7 @@ from datetime import datetime
 
 import numpy as np
 
-from common import REPORTS, cached_sequence, own_clips
+from common import DATA, REPORTS, cached_sequence, own_clips
 from app.pose.analyse import detect_reps
 from app.pose.exercises import EXERCISES, THRESHOLDS_FILE
 from app.pose.geometry import Features
@@ -112,10 +114,34 @@ def rehab_samples():
     return {"hip_abduction": [(f, r, ok, "*") for f, r, ok in labelled_reps(4)]}
 
 
+def other_people_samples():
+    """Reps from people other than Elwin, so limits do not drift towards one person's habits:
+      * the second person's labelled clips (training/data/test_p02: labels.json + landmark caches),
+      * REHAB24-6 leg abduction, CORRECT reps only (a physiotherapist approved them; its incorrect
+        reps carry no mistake type, so they cannot count as examples of any one rule).
+    REHAB24-6 push-ups are left out: on a table, not a wall, so depth and hip line differ."""
+    import json
+    from app.pose import landmarks
+    out = defaultdict(list)
+    p02 = DATA / "test_p02"
+    if (p02 / "labels.json").exists():
+        for stem, (key, label) in json.loads((p02 / "labels.json").read_text(encoding="utf-8")).items():
+            f = Features(landmarks.load(p02 / f"{stem}.npz"))
+            spec = EXERCISES[key]
+            reps = [Rep(0, len(f.t) // 2, len(f.t) - 1)] if spec.kind == "hold" else detect_reps(spec, f)
+            out[key] += [(f, r, label == "ok", label) for r in reps]
+    from evaluate_rehab import labelled_reps
+    out["hip_abduction"] += [(f, r, True, "ok") for f, r, ok in labelled_reps(4) if ok]
+    return out
+
+
 def main():
     samples = own_samples()
     if "--rehab" in sys.argv:
         for k, v in rehab_samples().items():
+            samples[k].extend(v)
+    if "--everyone" in sys.argv:
+        for k, v in other_people_samples().items():
             samples[k].extend(v)
     if not samples:
         print("No labelled clips yet (training/data/<exercise>/<correct|incorrect>/).")

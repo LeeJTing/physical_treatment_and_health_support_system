@@ -3,6 +3,7 @@ repetition correct or incorrect.
 
   Ex1 arm abduction (ONE arm)  -> shoulder_abduction rules, single-arm variant (no uneven_arms)
   Ex4 leg abduction            -> hip_abduction rules
+  Ex3 push-ups on a table (incline, side view) -> wall_push_up rules (added 8 Oct)
 
 For each video seen from the front: are the repetitions counted correctly, and does the rules'
 verdict on each labelled repetition agree with the physiotherapist? Also prints the measured
@@ -44,12 +45,20 @@ def single_arm_abduction():
     return replace(spec, key="shoulder_abduction_1arm", signal=arm_elev_max, mistakes=keep)
 
 
-SPECS = {1: single_arm_abduction(), 4: EXERCISES["hip_abduction"]}
+SPECS = {1: single_arm_abduction(), 4: EXERCISES["hip_abduction"], 3: EXERCISES["wall_push_up"]}
 
 
 def front_camera(orientation: str) -> str | None:
     # cam18 is at 90 degrees to cam17: cam17 "front" => use Camera17; cam17 "side" => Camera18 sees the front.
     return {"front": "Camera17", "side": "Camera18"}.get(orientation)
+
+
+def side_camera(orientation: str) -> str | None:
+    # Side-view exercises: cam17 "profile" sees the side; cam17 "front" => Camera18 sees the side.
+    return {"profile": "Camera17", "front": "Camera18"}.get(orientation)
+
+
+CAMERA = {1: front_camera, 4: front_camera, 3: side_camera}
 
 
 def video_path(vid: str, cam: str, ex: int):
@@ -76,8 +85,8 @@ def labelled_reps(ex: int):
     spec = SPECS[ex]
     by_video = defaultdict(list)
     for r in rows:
-        cam = front_camera(r["cam17_orientation"])
-        if int(r["exercise_id"]) == ex and cam:
+        cam = CAMERA[ex](r["cam17_orientation"]) if int(r["exercise_id"]) == ex else None
+        if cam:
             by_video[(r["video_id"], cam)].append(r)
     out = []
     for (vid, cam), reps in sorted(by_video.items()):
@@ -99,10 +108,10 @@ def main():
     videos = defaultdict(list)
     for r in rows:
         ex = int(r["exercise_id"])
-        cam = front_camera(r["cam17_orientation"])
-        if ex in SPECS and cam:
+        cam = CAMERA[ex](r["cam17_orientation"]) if ex in SPECS else None
+        if cam:
             videos[(ex, r["video_id"], cam)].append(r)
-    print(f"{len(videos)} front-view videos, {sum(map(len, videos.values()))} labelled repetitions")
+    print(f"{len(videos)} videos, {sum(map(len, videos.values()))} labelled repetitions")
 
     report = {}
     for ex, spec in SPECS.items():
