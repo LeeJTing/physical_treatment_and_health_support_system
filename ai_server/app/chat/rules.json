@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.22",
+  "version": "chat-rules-3.23",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -4050,6 +4050,17 @@
     "fell on my face",
     "lost balance and fell",
     "lost my balance and fell",
+    "hit his head",
+    "hit her head",
+    "banged my head",
+    "banged his head",
+    "banged her head",
+    "knocked my head",
+    "knocked his head",
+    "knocked her head",
+    "fell and hit his",
+    "fell and hit her",
+    "fell and hit my",
     "slipped and fell",
     "slipped and hit",
     "slipped and hurt",
@@ -4764,7 +4775,14 @@
         "mat",
         "bird dog",
         "doing",
-        "for the"
+        "for the",
+        "resting",
+        "rest",
+        "nap",
+        "session",
+        "sofa",
+        "relax",
+        "relaxing"
       ]
     ],
     [

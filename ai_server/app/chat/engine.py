@@ -284,6 +284,9 @@ NOT_A_FALL = [("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behin
 # "I nearly hit my head" / "almost fell" do not make an accident an emergency. Symptoms still count
 # ("I almost blacked out" is a warning sign itself).
 NEAR_MISS = {"nearly", "almost"}
+# Signs no cancel phrase may hide ("doing her exercise and now she is lying on the floor not moving").
+HARD_SIGNS = ["not moving", "not answering", "not responding", "unconscious", "can't move", "cannot move",
+              "cant move", "bleeding", "blue lips", "not breathing", "tak sedar"]
 ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped", "trip", "collapsed")
 # A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
 BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b(?!\s*(?:min|mins|minute|minutes|reps|rep|sets|set|"
@@ -291,7 +294,7 @@ BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b(?!\s*(?:min|mins|minute|
 # A low blood sugar reading with a symptom ("sugar 3.0 feeling shaky"): under 4.0 mmol/L or 70 mg/dL.
 SUGAR_READING = re.compile(r"\b(?:sugar|glucose|gula|bgl)\D{0,15}?(\d+(?:\.\d+)?)")
 LOW_SUGAR_SIGNS = ("shaky", "shaking", "shake", "sweaty", "sweating", "dizzy", "confused", "weak", "faint",
-                   "pening", "menggeletar", "trembling", "blur")
+                   "pening", "menggeletar", "menggigil", "berpeluh", "lemah", "keliru", "trembling", "blur")
 
 
 def low_sugar(text: str) -> bool:
@@ -317,13 +320,45 @@ def crisis(text: str | None) -> bool:
     """Thoughts of suicide or self-harm: checked before everything else."""
     if not text:
         return False
-    words = clean(text).split()
+    padded = f" {clean(text)} "
+    for a, b in NOT_A_CRISIS:
+        padded = padded.replace(f" {a} ", f" {b} ")
+    words = padded.split()
     for p in rules().get("crisis", []):
         for i in find_phrase(p, words):
-            # "I don't want to die from a fall" is a fear, not a crisis; phrases that contain the
-            # negation themselves ("don't want to live") start at it, so nothing comes before.
-            if not NEGATORS & set(words[max(0, i - 2):i]):
-                return True
+            # "I don't want to die from a fall" is a fear, not a crisis. Only a negation DIRECTLY in
+            # front counts: "no, i want to die" and "not eating, not sleeping, want to die" are crises
+            # (laptop pass 5).
+            prev = words[i - 1] if i >= 1 else ""
+            if prev in CRISIS_NEGATORS or words[max(0, i - 2):i] == ["do", "not"]:
+                continue
+            return True
+    return False
+
+
+CRISIS_NEGATORS = {"don't", "dont", "never", "not"}
+# "end everything for today, I'm done with the session" is about the session.
+NOT_A_CRISIS = [("end everything for today", "stop for today"), ("end things for today", "stop for today")]
+
+# 2) Too many pills, with or without the word overdose (laptop pass 5): an emergency even when it
+# was not on purpose (a paracetamol overdose can be fatal with no early symptoms).
+_PILLS = r"(?:pills?|tablets?|panadol|paracetamol|ubat|medicines?|capsules?|sleeping pills?)"
+OVERDOSE = re.compile(r"\b(?:took|taken|swallowed|ate|eaten|makan|telan)\b(?:\W+\w+){0,4}?\W+"
+                      r"(\d+|whole bottle|whole box|whole pack|all|banyak|handful|lots of|a lot of|many)\b"
+                      r"(?:\W+\w+){0,4}?\W+" + _PILLS + r"\b")
+OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now. Call 999 or go to the nearest "
+                   "emergency department now, and take the medicine packets with you; do not wait for symptoms. "
+                   "If this was on purpose, or you are thinking of harming yourself, you are not alone: "
+                   "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
+
+
+def overdose(text: str | None) -> bool:
+    if not text:
+        return False
+    for m in OVERDOSE.finditer(text.lower()):
+        q = m.group(1)
+        if not q.isdigit() or int(q) >= 8:
+            return True
     return False
 
 
@@ -333,17 +368,15 @@ def red_flag(text: str | None) -> bool:
     if high_bp(text) or low_sugar(text):
         return True
     r = rules()
-    exact = f" {clean(text)} "
-    variants = {clean(text), correct(text)}
-    if any(f" {a} " in exact for a, _ in NOT_A_FALL):
-        # Spelling correction can break the phrase ("tripped over my words" -> "word"), so when the
-        # patient's own words contain one, only those words are checked.
-        variants = {clean(text)}
-    for variant in variants:
-        padded = f" {variant} "
-        for a, b in NOT_A_FALL:
-            padded = padded.replace(f" {a} ", f" {b} ")
-        words = padded.split()
+    # Neutralise phrases that look like a fall first, then spell-correct the result: correction can
+    # break the phrase ("guest list" -> "guess list"), and skipping correction hid typos next to it
+    # ("fell for a scam and then she colapsed", laptop pass 5).
+    padded = f" {clean(text)} "
+    for a, b in NOT_A_FALL:
+        padded = padded.replace(f" {a} ", f" {b} ")
+    base = padded.strip()
+    for variant in {base, correct(base)}:
+        words = variant.split()
         for phrase in r["red_flags"]:
             for i in find_phrase(phrase, words):
                 before = set(words[max(0, i - 2):i])
@@ -354,7 +387,8 @@ def red_flag(text: str | None) -> bool:
                 return True
         for combo in r.get("red_flag_combos", []):
             anchors, symptoms, window = combo[:3]
-            if len(combo) > 3 and any(find_phrase(c, words) for c in combo[3]):
+            if len(combo) > 3 and any(find_phrase(c, words) for c in combo[3]) \
+                    and not any(find_phrase(h, words) for h in HARD_SIGNS):
                 continue                               # a planning question, or doing the exercise
             for anchor in anchors:
                 for i in find_phrase(anchor, words):
@@ -638,6 +672,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if crisis(text):
         return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
                 "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}
+    if overdose(text):
+        return {**base, "answer": OVERDOSE_ANSWER, "category": "overdose", "title": "Too many pills",
+                "is_matched": True, "matched_by": "overdose", "follow_ups": [], "notes": [], "action": None}
     if red_flag(text):
         return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
                 "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}

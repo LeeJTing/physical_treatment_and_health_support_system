@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.22"
+VERSION = "chat-rules-3.23"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -635,6 +635,8 @@ RED_FLAGS = [
     # Falling onto a body part ("lost balance and fell on my bum").
     "fell on my back", "fell on my hip", "fell on my knee", "fell on my bum", "fell on my head", "fell on my side",
     "fell on my arm", "fell on my wrist", "fell on my face", "lost balance and fell", "lost my balance and fell",
+    "hit his head", "hit her head", "banged my head", "banged his head", "banged her head", "knocked my head",
+    "knocked his head", "knocked her head", "fell and hit his", "fell and hit her", "fell and hit my",
     # Slipping is a fall only with a fall, a hit or a slippery place (laptop pass 4: "slipped me a note",
     # "slipped into the chair" are not).
     "slipped and fell", "slipped and hit", "slipped and hurt",
@@ -707,7 +709,8 @@ RED_FLAG_COMBOS = [
     # A person lying on the floor, not doing the exercise ("my father is lying on the kitchen floor").
     [["lying"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
                  "grandmother", "grandfather", "he", "she", "son", "daughter"], 3,
-     ["bridge", "exercise", "mat", "bird dog", "doing", "for the"]],
+     ["bridge", "exercise", "mat", "bird dog", "doing", "for the", "resting", "rest", "nap", "session", "sofa",
+      "relax", "relaxing"]],
     # Someone found on the floor ("found my mum on the floor"): a person must be named.
     [["found"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
                  "grandmother", "grandfather", "him", "her", "son", "daughter"], 3],
