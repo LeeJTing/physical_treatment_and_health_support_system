@@ -1,0 +1,153 @@
+{
+  "hip_abduction": {
+    "all inputs": {
+      "accuracy": 0.887,
+      "f1": 0.888,
+      "inputs": [
+        "elbow_L",
+        "elbow_R",
+        "shoulder_elev_L",
+        "shoulder_elev_R",
+        "knee_L",
+        "knee_R",
+        "hip_L",
+        "hip_R",
+        "leg_from_down_L",
+        "leg_from_down_R",
+        "thigh_from_down_L",
+        "thigh_from_down_R",
+        "lean_sagittal",
+        "lean_lateral",
+        "shin_forward_L",
+        "shin_forward_R",
+        "shrug",
+        "heel_lift_L",
+        "heel_lift_R",
+        "wrist_thigh_L",
+        "wrist_thigh_R",
+        "leg_len_L",
+        "leg_len_R"
+      ]
+    },
+    "rule inputs": {
+      "accuracy": 0.883,
+      "f1": 0.888,
+      "inputs": [
+        "leg_from_down_L",
+        "leg_from_down_R",
+        "knee_L",
+        "knee_R",
+        "lean_lateral",
+        "leg_len_L",
+        "leg_len_R"
+      ]
+    },
+    "rule inputs + hip and trunk": {
+      "accuracy": 0.903,
+      "f1": 0.9,
+      "inputs": [
+        "leg_from_down_L",
+        "leg_from_down_R",
+        "knee_L",
+        "knee_R",
+        "lean_lateral",
+        "leg_len_L",
+        "leg_len_R",
+        "hip_L",
+        "hip_R",
+        "lean_sagittal"
+      ]
+    },
+    "rule inputs + thigh": {
+      "accuracy": 0.914,
+      "f1": 0.914,
+      "inputs": [
+        "leg_from_down_L",
+        "leg_from_down_R",
+        "knee_L",
+        "knee_R",
+        "lean_lateral",
+        "leg_len_L",
+        "leg_len_R",
+        "thigh_from_down_L",
+        "thigh_from_down_R"
+      ]
+    }
+  },
+  "knee_extension": {
+    "all inputs": {
+      "accuracy": 0.947,
+      "f1": 0.947,
+      "inputs": [
+        "elbow_L",
+        "elbow_R",
+        "shoulder_elev_L",
+        "shoulder_elev_R",
+        "knee_L",
+        "knee_R",
+        "hip_L",
+        "hip_R",
+        "leg_from_down_L",
+        "leg_from_down_R",
+        "thigh_from_down_L",
+        "thigh_from_down_R",
+        "lean_sagittal",
+        "lean_lateral",
+        "shin_forward_L",
+        "shin_forward_R",
+        "shrug",
+        "heel_lift_L",
+        "heel_lift_R",
+        "wrist_thigh_L",
+        "wrist_thigh_R",
+        "leg_len_L",
+        "leg_len_R"
+      ]
+    },
+    "rule inputs": {
+      "accuracy": 0.883,
+      "f1": 0.887,
+      "inputs": [
+        "knee_L",
+        "knee_R",
+        "thigh_from_down_L",
+        "thigh_from_down_R",
+        "hip_L",
+        "hip_R",
+        "lean_sagittal"
+      ]
+    },
+    "rule inputs + shin": {
+      "accuracy": 0.943,
+      "f1": 0.943,
+      "inputs": [
+        "knee_L",
+        "knee_R",
+        "thigh_from_down_L",
+        "thigh_from_down_R",
+        "hip_L",
+        "hip_R",
+        "lean_sagittal",
+        "shin_forward_L",
+        "shin_forward_R"
+      ]
+    },
+    "rule inputs + legs": {
+      "accuracy": 0.955,
+      "f1": 0.955,
+      "inputs": [
+        "knee_L",
+        "knee_R",
+        "thigh_from_down_L",
+        "thigh_from_down_R",
+        "hip_L",
+        "hip_R",
+        "lean_sagittal",
+        "leg_from_down_L",
+        "leg_from_down_R",
+        "leg_len_L",
+        "leg_len_R"
+      ]
+    }
+  }
+}

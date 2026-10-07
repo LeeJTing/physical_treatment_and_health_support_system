@@ -33,10 +33,13 @@ INPUTS = {
                      "wrist_thigh_L", "wrist_thigh_R"],
     "shoulder_abduction": ["elbow_L", "elbow_R", "shoulder_elev_L", "shoulder_elev_R", "lean_lateral", "shrug"],
     "shoulder_flexion": ["elbow_L", "elbow_R", "shoulder_elev_L", "shoulder_elev_R", "lean_sagittal", "shrug"],
-    "hip_abduction": ["leg_from_down_L", "leg_from_down_R", "knee_L", "knee_R", "lean_lateral",
-                      "leg_len_L", "leg_len_R"],
+    # hip_abduction reads ALL inputs: unlike the arm exercises, every reduced set did worse, both in
+    # cross-validation on Elwin's clips (3 fold seeds: all 92.9 %, rule + thigh 90.4 %) and on the
+    # REHAB24-6 people doing the same leg raise (balanced accuracy all 60.6 %, rule + thigh 51.8 %;
+    # experiment_hip_crossperson.json).
+    # + whole-leg angle and length: 88.3 -> 95.5 % (all inputs 94.7 %).
     "knee_extension": ["knee_L", "knee_R", "thigh_from_down_L", "thigh_from_down_R", "hip_L", "hip_R",
-                       "lean_sagittal"],
+                       "lean_sagittal", "leg_from_down_L", "leg_from_down_R", "leg_len_L", "leg_len_R"],
 }
 
 
