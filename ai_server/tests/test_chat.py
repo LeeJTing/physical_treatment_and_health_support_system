@@ -14,6 +14,7 @@ from app.main import app
 from chat_eval_set import EVAL
 from chat_final_set import FINAL
 from chat_holdout_set import CORE, HOLDOUT, KNEE
+from chat_round1_set import ROUND1
 from chat_verify_set import VERIFY
 
 client = TestClient(app)
@@ -22,7 +23,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):

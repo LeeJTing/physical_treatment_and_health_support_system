@@ -47,6 +47,8 @@ def rules() -> dict:
 
 def clean(text: str) -> str:
     t = text.lower().replace("’", "'").replace("%", " percent ")
+    # A clock time ("11pm", "7:30 am", "10 o'clock") becomes one token the timing rule knows.
+    t = re.sub(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm|a\.m\.|p\.m\.|o'?\s?clock)(?![a-z])", " clocktime ", t)
     words = re.sub(r"[^a-z0-9' ]", " ", t).split()
     return " ".join(SYNONYMS.get(w, CONTRACTIONS.get(w, w)) for w in words)
 

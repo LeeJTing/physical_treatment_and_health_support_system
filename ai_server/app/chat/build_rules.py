@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.4"
+VERSION = "chat-rules-3.5"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -193,14 +193,39 @@ INTENTS = [
             "when should i do", "when to exercise", "when can i exercise", "exercise now", "exercise tonight",
             "exercise at night", "night", "tonight", "late", "too late", "midnight", "before bed", "before sleep",
             "bedtime", "after dinner", "after eating", "after a meal", "morning or evening", "in the morning",
-            "in the evening", "early morning", "can i do it now", "do it now", "right now"],
+            "in the evening", "early morning", "can i do it now", "do it now", "right now", "clocktime",
+            "morning better", "night better", "evening better", "before sleep", "before sleeping", "after lunch",
+            "after breakfast", "before breakfast"],
            ["when is the best time to exercise", "can I exercise now", "is it ok to exercise at night",
             "should I exercise in the morning or evening"],
            "The best time is when you feel alert and have had a light meal about an hour before. Many people find "
            "late morning or late afternoon easiest. Keep to a regular time so it becomes a habit, and avoid the "
            "last hour or two before bed.", tailor=True),
+    # Priority 7: "how does this app work" must beat the plan's progress rule ("is it working").
+    intent("app_help", "How the app works", 7,
+           ["how this app works", "how this app work", "how the app works", "how the app work",
+            "how does the app work", "how does this app work", "how do i use this app", "how to use this app",
+            "how to use the app", "how to use app", "app works", "using this app", "use this app"],
+           ["how does this app work", "how do I use this app"],
+           "HealthGuide has five tabs. Home shows today's session and your daily limits. Treatment holds your "
+           "plan: get one in AI-assisted treatment planning, then do each exercise and record it so the app can "
+           "check your posture. Profile holds your health details, which keep your advice safe. You can ask me "
+           "about any of these at any time.", show=False,
+           action={"key": "open_planning", "label": "Open treatment planning"}),
+    intent("treatment_nav", "My treatment plan", 6,
+           ["open my exercise", "open my exercises", "start exercise", "start my exercise",
+            "start exercising", "start my exercises", "go to exercise", "go to my exercise", "open exercise",
+            "exercise page", "treatment page", "my treatment plan page", "open treatment", "open my treatment",
+            "today's exercise", "todays exercise", "what should i do today", "what to do today",
+            "where are my exercises", "take me to my exercises", "my pathway", "next stage"],
+           ["open my exercises", "where are my exercises", "take me to my treatment plan"],
+           "Your treatment plan shows your exercises in order. Open the next one, read its steps, then record "
+           "yourself doing it; the app checks your posture and moves you on when you reach 80%.",
+           show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
     intent("profile_help", "Your health profile", 6,
            ["my profile", "health profile", "update profile", "update my profile", "edit profile", "edit my profile",
+            "profile", "go to profile", "open profile", "take me to profile", "to my profile", "gained weight",
+            "lost weight", "put on weight", "weight changed", "new weight", "where to update", "update my age",
             "change my profile", "profile page", "my details", "change my details", "update my details",
             "my weight", "my height", "my age", "change my weight", "update my weight", "change my age",
             "risk level", "my risk", "why am i high risk", "why high risk", "my conditions", "add a condition",
@@ -239,6 +264,8 @@ INTENTS = [
            "allowed for the app in your phone settings if they do not appear."),
     intent("forgot_password", "Forgot password", 7,
            ["forgot password", "forgot my password", "forget password", "forget my password", "forgotten password",
+            "forgot pasword", "forgot passwrod", "forgot pass", "pasword", "passwrod", "passward", "pass word",
+            "change pasword", "reset pasword",
             "reset password", "reset my password", "password reset", "change password", "change my password",
             "new password", "cant remember my password", "can't remember my password", "lost my password",
             "wrong password", "password not working", "locked out", "account locked", "cannot log in",
@@ -254,7 +281,9 @@ INTENTS = [
             "did not get the code", "code not received", "never got the code", "didn't receive the code",
             "didnt receive the code", "did not receive the code", "didn't receive the email", "no email",
             "email not received", "otp", "resend code", "code expired", "code not working", "wrong code",
-            "confirm my email", "verify my email", "email verification"],
+            "confirm my email", "verify my email", "email verification", "receive email", "receive any email",
+            "receive the email", "never receive", "never received", "not receive", "not received", "email not coming",
+            "email never came", "no email from you", "didn't get email", "didnt get email"],
            ["I did not get the verification code", "the code is not working", "how do I verify my email"],
            "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make "
            "sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working "
@@ -262,7 +291,7 @@ INTENTS = [
            "the app and log in.", show=False),
     intent("account_help", "Account and login", 6,
            ["log in", "login", "log out", "logout", "sign in", "sign out", "password", "account", "email",
-            "username", "verification code", "otp", "google sign in", "profile", "update my profile",
+            "username", "google sign in",
             "change my details", "delete my account", "my data", "privacy"],
            ["how do I log in", "how do I update my health profile", "is my data private"],
            "Log in with the email and password you registered with, or use Continue with Google. If you forgot "
@@ -470,7 +499,7 @@ ACTIONS = {
 
 # Rules about doing the exercises: the reply also considers the patient's local time of day
 # (late at night -> advise to rest; condition-specific timing).
-TIME_AWARE = {"getting_started", "how_to", "how_often", "missed_session", "safety", "condition_advice",
+TIME_AWARE = {"treatment_nav", "getting_started", "how_to", "how_often", "missed_session", "safety", "condition_advice",
               "equipment", "difficulty", "best_time", "recording_help"}
 
 # Periods by the phone's local hour: late night 22:00-05:59, early morning 06:00-08:59,
