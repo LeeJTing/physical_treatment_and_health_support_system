@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.27"
+VERSION = "chat-rules-3.28"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -738,10 +738,8 @@ RED_FLAGS += [f"{w} {v}" for w in _WHO for v in (
     "just fell", "just fallen", "has just fallen", "just had a fall", "just collapsed", "just slipped and",
     "has just collapsed", "had just collapsed", "suddenly collapsed", "has suddenly collapsed", "just fainted",
     "has fainted")]
-RED_FLAGS += ["dia fell", "fell just now", "fell earlier", "fell this morning", "fell today", "baru fell",
-              # laptop pass 8: cannot take weight on the leg (possible fracture)
-              "can't put weight on", "cannot put weight on", "cant put weight on", "unable to put weight on",
-              "can't bear weight", "cannot bear weight", "unable to bear weight"]
+# "fell today", "fell just now" without a person are judged by _recent_fall() in the engine (not "my phone fell today").
+RED_FLAGS += ["dia fell", "baru fell"]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
@@ -795,10 +793,16 @@ RED_FLAG_COMBOS = [
      ["video", "photo", "picture", "camera", "screen", "recording", "cataract", "cataracts", "glasses",
       "spectacles", "for years", "always", "old age", "reading", "app", "instructions", "words", "text",
       "writing", "font", "every morning", "when i wake up", "wake up", "mengantuk", "sleepy", "drowsy", "fogged",
-      "sweat", "sweating", "phone"]],
+      "sweat", "sweating", "phone", "for a long time", "presbyopia"]],
     # Malaysian "blur" also means confused ("i'm so blur about the app"): only with the eyes.
     [["blur"], ["eye", "eyes", "mata", "vision", "eyesight", "pandangan", "seeing"], 3,
-     ["mengantuk", "drowsy", "sleepy", "every morning", "wake up", "glasses", "cataract", "cataracts"]],
+     ["mengantuk", "drowsy", "sleepy", "every morning", "wake up", "glasses", "cataract", "cataracts", "reading",
+      "when reading", "for years", "for a long time", "presbyopia", "baca", "always", "spectacles"]],
+    # Cannot take weight on the leg (laptop pass 8: possible fracture), not "can't bear weight on my toes
+    # for the heel raise, too hard" (pass 9).
+    [["can't put weight on", "cannot put weight on", "cant put weight on", "unable to put weight on",
+      "can't bear weight", "cannot bear weight", "cant bear weight", "unable to bear weight"], ["weight"], 1,
+     ["toes", "tiptoe", "heel raise", "too hard", "for long", "too long", "difficult", "susah"]],
     # Someone unable to get up or move after a fall, or on the floor / in bed ("my father fell and
     # cannot get up", "he is on the floor and can't move his leg"); not "can't get up early".
     # Pass 4: only with a fall, the floor, "since" or "lying" (not "can't get up from bed early",

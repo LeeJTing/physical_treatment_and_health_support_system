@@ -78,7 +78,11 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  "tak boleh jalan": "can't walk", "tidak boleh jalan": "can't walk", "tak boleh bangun": "can't get up",
                  "tidak boleh bangun": "can't get up", "tak boleh berdiri": "can't stand",
                  "tidak boleh berdiri": "can't stand", "sakit kepala": "headache", "muntah": "vomiting",
-                 "mengantuk": "drowsy", "lebam": "bruised"}
+                 "mengantuk": "drowsy", "lebam": "bruised",
+                 # laptop safety pass 9
+                 "tergelincir": "slipped", "bilik air": "bathroom", "pagi tadi": "this morning",
+                 "tadi pagi": "this morning", "berdarah": "bleeding", "dah lama": "for a long time",
+                 "lama dah": "for a long time", "bila baca": "when reading"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -345,12 +349,69 @@ def _hypothetical(words: list[str], i: int) -> bool:
     return any(before.endswith(f" {h} ") for h in HYPOTHETICAL)
 
 
-def _recent_or_hurt(words: list[str]) -> bool:
-    return any(find_phrase(p, words) for p in RECENT + STILL_HURT + HARD_SIGNS)
+# Laptop pass 9: a time word counts only in the fall's own sentence ("my mum fell years ago; today she
+# started the plan" is an old fall), and "earlier in my life" is not "earlier today".
+CLAUSE_BREAK = re.compile(r"[.;!?]+|\bbut\b|\btapi\b")
+PAST_PHRASES = [("earlier in my life", "long ago"), ("earlier years", "long ago"), ("years earlier", "long ago"),
+                ("when i was young", "long ago"), ("when i was younger", "long ago"), ("as a child", "long ago"),
+                ("as a kid", "long ago")]
+# A fall told with no "I" or name in front ("fell down just now, knee berdarah", "atuk tergelincir pagi
+# tadi"): urgent when its own sentence says it was recent.
+RECENT_FALL_VERBS = {"fell", "fallen", "slipped", "tripped", "collapsed"}
+PEOPLE = {"i", "he", "she", "dia", "mother", "father", "mum", "mom", "dad", "grandma", "grandpa", "grandmother",
+          "grandfather", "husband", "wife", "son", "daughter", "we", "they", "uncle", "aunt", "patient"}
+# What may follow "slipped"/"tripped" in a fall ("slipped in the bathroom"), not "slipped the note under".
+SLIP_NEXT = {"in", "on", "at", "dalam", "di", "over", "down", "and", "while", "when", "near", "outside", "inside",
+             "just", "this", "today", "yesterday", "earlier", "tadi", "semalam", "from", "off"}
+# Long-standing symptoms are not new warning signs (laptop pass 9 debatable cases).
+CHRONIC = {"numb": ["years ago", "for years", "since the operation", "since my operation", "since surgery",
+                    "since the surgery", "since my surgery", "for a long time", "long time", "always", "since birth",
+                    "since my stroke"],
+           "vomit": ["after eating", "right after eating", "after a meal", "after meals", "full stomach",
+                     "after lunch", "after dinner", "after breakfast", "lepas makan"]}
+CHRONIC["numbness"] = CHRONIC["numb"]
+CHRONIC["vomiting"] = CHRONIC["vomit"]
 
 
-def _old_fall(words: list[str]) -> bool:
-    return any(find_phrase(p, words) for p in PAST_TIME) and not _recent_or_hurt(words)
+def _clauses(text: str) -> list[list[str]]:
+    out = []
+    for part in CLAUSE_BREAK.split(text.lower()):
+        p = f" {clean(part)} "
+        for a, c in NOT_A_FALL + PAST_PHRASES:
+            p = p.replace(f" {a} ", f" {c} ")
+        if p.strip():
+            out.append(p.split())
+    return out
+
+
+def _when(phrase: str, clauses: list[list[str]], words: list[str]) -> tuple[bool, bool]:
+    """(old, recent) for a fall phrase, judged in the sentence it is in; a symptom anywhere keeps it urgent."""
+    if any(find_phrase(h, words) for h in STILL_HURT + HARD_SIGNS):
+        return False, True
+    own = [c for c in clauses if find_phrase(phrase, c)] or [words]
+    recent = any(find_phrase(p, c) for c in own for p in RECENT)
+    old = not recent and any(find_phrase(p, c) for c in own for p in PAST_TIME)
+    return old, recent
+
+
+def _recent_fall(clauses: list[list[str]]) -> bool:
+    for c in clauses:
+        if not any(find_phrase(p, c) for p in RECENT):
+            continue
+        for i, w in enumerate(c):
+            if w not in RECENT_FALL_VERBS:
+                continue
+            k = i - 1
+            while k >= 0 and c[k] in ("just", "baru", "has", "had", "have", "suddenly"):
+                k -= 1
+            if k >= 0 and c[k] not in PEOPLE:
+                continue                               # "the phone fell", "the price has fallen today"
+            if NEGATORS & set(c[max(0, i - 2):i]) or _hypothetical(c, i):
+                continue
+            if w in ("slipped", "tripped") and i + 1 < len(c) and c[i + 1] not in SLIP_NEXT:
+                continue                               # "slipped the note under the door this morning"
+            return True
+    return False
 
 
 # A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
@@ -566,12 +627,14 @@ def red_flag(text: str | None) -> bool:
     # break the phrase ("guest list" -> "guess list"), and skipping correction hid typos next to it
     # ("fell for a scam and then she colapsed", laptop pass 5).
     padded = f" {clean(text)} "
-    for a, b in NOT_A_FALL:
+    for a, b in NOT_A_FALL + PAST_PHRASES:
         padded = padded.replace(f" {a} ", f" {b} ")
     base = padded.strip()
+    clauses = _clauses(text)
+    if _recent_fall(clauses):
+        return True
     for variant in {base, correct(base)}:
         words = variant.split()
-        old_fall = _old_fall(words)
         for phrase in r["red_flags"]:
             for i in find_phrase(phrase, words):
                 before = set(words[max(0, i - 2):i])
@@ -579,10 +642,15 @@ def red_flag(text: str | None) -> bool:
                     continue
                 if NEAR_MISS & before and any(w in phrase.split() for w in ACCIDENT_WORDS):
                     continue
-                if OLD_ACCIDENT_WORDS & set(phrase.split()) and old_fall:
-                    continue                           # "i fell last year", "hit my head years ago"
-                if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i) and not _recent_or_hurt(words):
-                    continue                           # "if i fall", not "what if he fell? he's on the floor"
+                if OLD_ACCIDENT_WORDS & set(phrase.split()):
+                    old, recent = _when(phrase, clauses, words)
+                    if old:
+                        continue                       # "i fell last year", "hit my head years ago"
+                    if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i) and not recent:
+                        continue                       # "if i fall", not "what if he fell? he's on the floor"
+                if phrase in CHRONIC and any(find_phrase(c, words) for c in CHRONIC[phrase]) \
+                        and not any(find_phrase(s, words) for s in ("suddenly", "sudden", "tiba tiba")):
+                    continue                           # "numbness since the operation 3 years ago"
                 return True
         for combo in r.get("red_flag_combos", []):
             anchors, symptoms, window = combo[:3]
@@ -591,7 +659,7 @@ def red_flag(text: str | None) -> bool:
                 continue                               # a planning question, or doing the exercise
             for anchor in anchors:
                 fall = bool(FALL_WORDS & set(anchor.split()))
-                if fall and old_fall:
+                if fall and _when(anchor, clauses, words)[0]:
                     continue                           # "she fell last year and couldn't stand for a week"
                 for i in find_phrase(anchor, words):
                     if COMBO_NEGATORS & set(words[max(0, i - 2):i]):
@@ -601,7 +669,7 @@ def red_flag(text: str | None) -> bool:
                     for s in symptoms:
                         for j in find_phrase(s, near):
                             if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)) \
-                                    and not any(find_phrase(p, words) for p in RECENT + HARD_SIGNS):
+                                    and not _when(anchor, clauses, words)[1]:
                                 continue               # "what if i can't get up after a fall"
                             return True
     return False

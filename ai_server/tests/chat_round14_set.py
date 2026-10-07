@@ -67,6 +67,16 @@ ROUND14 = [
     (KNEE, "i fell last year, i just want to know if i can exercise", "fear_of_falling"),
     (KNEE, "if she falls what should i do", "fear_of_falling"),
     (KNEE, "if i fell would the app know", "fall_alert"),
+    # a recent fall with no "I" in front counts, a phone or a price that fell does not (rules 3.28)
+    (KNEE, "fell over this morning, hip sore", "red_flag"),
+    (KNEE, "fell today", "red_flag"),
+    (KNEE, "today i slipped in the kitchen", "red_flag"),
+    (KNEE, "grandpa collapsed this morning", "red_flag"),
+    (KNEE, "my phone fell this morning and the screen cracked", ("joint_noise", "equipment", "recording_help", None)),
+    (KNEE, "the temperature fell today so i exercised inside", None),
+    (KNEE, "the tower fell today in the news", None),
+    (KNEE, "i slipped the note under the door this morning", ("how_often", None)),
+    (KNEE, "i fell last year but today my hip hurts again", "red_flag"),
     # sudden vision changes
     (KNEE, "my eyesight is blurry suddenly", "red_flag"),
     (KNEE, "i can't see properly, everything is blurry", "red_flag"),

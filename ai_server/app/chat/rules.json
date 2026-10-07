@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.27",
+  "version": "chat-rules-3.28",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -5214,18 +5214,7 @@
     "my daughter just fainted",
     "my daughter has fainted",
     "dia fell",
-    "fell just now",
-    "fell earlier",
-    "fell this morning",
-    "fell today",
-    "baru fell",
-    "can't put weight on",
-    "cannot put weight on",
-    "cant put weight on",
-    "unable to put weight on",
-    "can't bear weight",
-    "cannot bear weight",
-    "unable to bear weight"
+    "baru fell"
   ],
   "crisis": [
     "end my life",
@@ -5414,7 +5403,9 @@
         "fogged",
         "sweat",
         "sweating",
-        "phone"
+        "phone",
+        "for a long time",
+        "presbyopia"
       ]
     ],
     [
@@ -5439,7 +5430,41 @@
         "wake up",
         "glasses",
         "cataract",
-        "cataracts"
+        "cataracts",
+        "reading",
+        "when reading",
+        "for years",
+        "for a long time",
+        "presbyopia",
+        "baca",
+        "always",
+        "spectacles"
+      ]
+    ],
+    [
+      [
+        "can't put weight on",
+        "cannot put weight on",
+        "cant put weight on",
+        "unable to put weight on",
+        "can't bear weight",
+        "cannot bear weight",
+        "cant bear weight",
+        "unable to bear weight"
+      ],
+      [
+        "weight"
+      ],
+      1,
+      [
+        "toes",
+        "tiptoe",
+        "heel raise",
+        "too hard",
+        "for long",
+        "too long",
+        "difficult",
+        "susah"
       ]
     ],
     [
