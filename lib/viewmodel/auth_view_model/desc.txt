@@ -1,0 +1,1 @@
+AuthViewModel: register, verify, login, reset password, Google sign-in, start-up routing.

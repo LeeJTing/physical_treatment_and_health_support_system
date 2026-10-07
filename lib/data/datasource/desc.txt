@@ -1,1 +1,0 @@
-The purpose is to get data and update data from local or external storage.

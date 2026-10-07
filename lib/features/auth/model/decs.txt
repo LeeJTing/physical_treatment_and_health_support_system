@@ -1,1 +1,0 @@
-the entity uses in view model and view

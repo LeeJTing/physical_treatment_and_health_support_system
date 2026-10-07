@@ -1,0 +1,1 @@
+SupabaseProvider: the Supabase client and session. Used only by the Supabase repositories.

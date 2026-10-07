@@ -1,0 +1,2 @@
+ViewModel layer. One folder per ViewModel column. A ViewModel holds screen state (UiState) and calls the Model layer
+(business-logic services and repository interfaces). base_view_model.dart and ui_state.dart are shared by all.

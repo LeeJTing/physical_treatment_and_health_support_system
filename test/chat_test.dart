@@ -7,21 +7,21 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
-import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/risk_assessment_service.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/lookups.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/patient_treatment_plan.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_treatment_repository.dart';
-import 'package:physical_treatment_and_health_support_system/features/chat/model/chat_reply.dart';
-import 'package:physical_treatment_and_health_support_system/features/chat/view/chat_view.dart';
-import 'package:physical_treatment_and_health_support_system/features/chat/viewmodel/chat_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chatbot_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chat_reply.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/chat_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/chat_view_model/chat_view_model.dart';
 
 final String catalogueJson = File(
   'assets/seed/catalogue.json',

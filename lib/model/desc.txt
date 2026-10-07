@@ -1,0 +1,2 @@
+Model layer. business_logic/ = Service layer, repository/ = Repository layer (both from the diagram);
+entity/ = the Chapter 4 data classes they pass around; result.dart = Result/Success/Failure returned by every call.

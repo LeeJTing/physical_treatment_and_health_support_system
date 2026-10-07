@@ -1,0 +1,1 @@
+NotificationScheduler: the phone's notification scheduler (flutter_local_notifications).

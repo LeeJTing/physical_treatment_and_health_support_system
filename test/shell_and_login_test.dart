@@ -5,15 +5,15 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_auth_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/interfaces/i_profile_repository.dart';
-import 'package:physical_treatment_and_health_support_system/features/auth/view/login_view.dart';
-import 'package:physical_treatment_and_health_support_system/features/auth/viewmodel/auth_view_model.dart';
-import 'package:physical_treatment_and_health_support_system/features/auth/view/startup_view.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/login_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/startup_view.dart';
 
 /// A labelled stand-in for each destination screen.
 Widget _stub(String name) => Scaffold(body: Text('route:$name'));

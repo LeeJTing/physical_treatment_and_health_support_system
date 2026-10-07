@@ -1,0 +1,3 @@
+View layer (software architecture diagram). One folder per screen column: the widgets the patient sees.
+A View only talks to its ViewModel; it never imports a repository, ApiClient or Supabase.
+common/ holds widgets and labels shared by several screens.

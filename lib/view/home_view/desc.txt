@@ -1,0 +1,1 @@
+Home dashboard and MainShell (bottom tabs). From the Figma Home screen; not a box in the architecture diagram.

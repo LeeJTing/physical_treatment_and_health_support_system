@@ -1,9 +1,9 @@
-import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/exercise.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/lookups.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/reminder.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/safety_limit.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 HealthCondition cond(String code) =>

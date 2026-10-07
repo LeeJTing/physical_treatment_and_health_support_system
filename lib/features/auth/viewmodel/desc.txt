@@ -1,5 +1,0 @@
-is a provider and called by view to do action.
-using the notifier to update view.
-call the repository to get, update and delete data.
-
-write all business logic.
