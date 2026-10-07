@@ -19,6 +19,7 @@ from chat_round2_set import ROUND2
 from chat_round3_set import ROUND3
 from chat_round4_set import ROUND4
 from chat_round5_set import ROUND5
+from chat_round6_set import ROUND6
 from chat_verify_set import VERIFY
 
 client = TestClient(app)
@@ -27,7 +28,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):
@@ -311,3 +312,15 @@ def test_free_worded_emergencies_get_the_urgent_answer(text):
 ])
 def test_no_false_alarms(text):
     assert not engine.red_flag(text), text
+
+
+def test_no_keyword_reduces_to_a_common_word():
+    """A keyword whose stem is an everyday word ('cane' -> 'can') would capture every question
+    containing that word. Guard: no single-word keyword may stem to a stop word."""
+    bad = []
+    for i in engine.intents_for(KNEE):
+        for k in i["keywords"]:
+            words = engine.clean(k).split()
+            if len(words) == 1 and engine.stem(words[0]) in engine.STOP and words[0] not in engine.STOP:
+                bad.append((i["key"], k))
+    assert not bad, bad

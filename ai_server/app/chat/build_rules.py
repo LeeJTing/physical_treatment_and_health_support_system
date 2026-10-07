@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.10"
+VERSION = "chat-rules-3.11"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -79,9 +79,10 @@ INTENTS = [
            "swelling is not normal. Which describes your pain best? Choose an option below.",
            follow_ups=["pain_mild", "pain_sharp", "pain_swelling"], tailor=True, negatable=True),
     intent("how_often", "How often and how long", 4,
-           ["how often", "how many times", "how many days", "every day", "everyday", "daily", "per week", "a week",
+           ["do again", "again today", "twice a day", "two times a day", "more than once", "exercise again", "extra session", "already today",
+            "how often", "how many times", "how many days", "every day", "everyday", "daily", "per week", "a week",
             "times a week", "frequency", "schedule", "how long", "how much time", "what days", "which days",
-            "which day", "what time of day", "what time should", "time of day", "best time", "morning", "evening", "night", "at night",
+            "which day", "what time of day", "what time should", "time of day", "best time", "morning", "every evening", "each evening", "night", "at night",
             "before bed", "rest day", "rest days", "twice a day", "more than", "more often", "less often",
             "how many sessions", "session length", "duration", "minutes", "weekend", "weekends", "consecutive"],
            ["how often should I exercise", "can I do this every day", "how many times a week", "how long should each session be",
@@ -134,7 +135,8 @@ INTENTS = [
            "a low step (no higher than 15 cm) with a rail. Wear comfortable clothes and non-slip shoes. A small "
            "water bottle can be used as a light weight if you are comfortable."),
     intent("difficulty", "Too easy or too hard", 7,
-           ["too easy", "too hard", "too difficult", "difficult", "struggle", "struggling", "can't finish",
+           ["sitting down", "seated version", "while sitting", "do it sitting", "cannot lift", "can't lift", "cannot raise", "can't raise", "not high enough", "cannot reach", "can't reach",
+            "too easy", "too hard", "too difficult", "difficult", "struggle", "struggling", "can't finish",
             "cannot finish", "can't complete", "can't do", "cannot do", "unable to", "harder", "easier",
             "challenging", "not challenging", "progress to", "increase", "decrease", "fewer reps", "more reps",
             "add more", "level up", "too much", "too little", "boring", "modify", "instead of these exercises", "instead of the exercises",
@@ -158,7 +160,8 @@ INTENTS = [
            "fever, skip today's session and rest; continue when you feel better. If tiredness lasts for days or "
            "comes with breathlessness, contact your doctor.", negatable=True),
     intent("weakness_balance", "Weak or unsteady legs", 7,
-           ["wobbly", "wobble", "unsteady", "unstable", "shaky", "shaking", "shake", "shakes", "trembling", "tremble",
+           ["walking stick", "use a stick", "walking cane", "walker", "walking frame", "zimmer", "crutch", "crutches", "wheelchair", "lose my balance", "lose balance",
+            "wobbly", "wobble", "unsteady", "unstable", "shaky", "shaking", "shake", "shakes", "trembling", "tremble",
             "weak", "weakness", "give way", "gives way", "giving way", "give out", "gives out", "collapse",
             "collapsing", "buckle", "buckles", "buckling", "balance", "off balance", "lose balance", "losing balance",
             "lost my balance", "feel like falling", "jelly", "no strength", "not strong", "heavy legs"],
@@ -182,7 +185,8 @@ INTENTS = [
            "side. Someone else may hold the phone for you if it stays still. If the app cannot see your whole "
            "body, step back a little and record again."),
     intent("posture_result", "Understanding your posture score", 6,
-           ["score", "scores", "accuracy", "percent", "percentage", "my result", "the result", "result mean",
+           ["frustrated", "always low", "keep failing", "never pass",
+            "score", "scores", "accuracy", "percent", "percentage", "my result", "the result", "result mean",
             "results page", "feedback", "posture check", "posture analysis", "retry", "try again", "low score",
             "app said", "the app says", "app told me", "it said my", "said my", "says my", "too far forward",
             "failed", "fail", "pass", "passed", "80", "correction", "corrections", "tips", "what did i do wrong",
@@ -216,6 +220,17 @@ INTENTS = [
            "check your posture. Profile holds your health details, which keep your advice safe. You can ask me "
            "about any of these at any time.", show=False,
            action={"key": "open_planning", "label": "Open treatment planning"}),
+    # Priority 8: the patient's own doctor outranks everything except red flags and medicines.
+    intent("doctor_said", "Your doctor's advice", 8,
+           ["doctor said", "doctor told me", "doctor advised", "doctor asked me", "physiotherapist said",
+            "physio said", "physiotherapist told me", "told me to rest", "advised me to rest", "bed rest",
+            "rest for a week", "rest for a few days", "doctor say", "doctor says"],
+           ["my doctor said I should rest for a week", "the physiotherapist told me not to do squats"],
+           "Always follow your doctor's or physiotherapist's advice first: it is based on examining you. If "
+           "they told you to rest, pause your exercises (you can switch reminders off) and continue when they "
+           "say it is safe; your progress is kept. If their advice differs from your plan, ask them which "
+           "exercises are suitable, and update your health profile if anything has changed.", show=False,
+           action={"key": "open_reminders", "label": "Pause my reminders"}),
     intent("treatment_nav", "My treatment plan", 6,
            ["open my exercise", "open my exercises", "start exercise", "start my exercise",
             "start exercising", "start my exercises", "go to exercise", "go to my exercise", "open exercise",
@@ -227,7 +242,8 @@ INTENTS = [
            "yourself doing it; the app checks your posture and moves you on when you reach 80%.",
            show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
     intent("profile_help", "Your health profile", 6,
-           ["my profile", "health profile", "update profile", "update my profile", "edit profile", "edit my profile",
+           ["medium risk", "low risk", "high risk", "risk mean", "risk calculated", "my risk level", "risk level mean",
+            "my profile", "health profile", "update profile", "update my profile", "edit profile", "edit my profile",
             "profile", "go to profile", "open profile", "take me to profile", "to my profile", "gained weight",
             "lost weight", "put on weight", "weight changed", "new weight", "where to update", "update my age",
             "change my profile", "profile page", "my details", "change my details", "update my details",
@@ -252,15 +268,16 @@ INTENTS = [
            "phone settings. If you have already exercised that day, the reminder is skipped.",
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
     intent("history_help", "Your past results", 6,
-           ["my scores", "my score history", "past results", "previous results", "my results", "session history",
-            "my history", "previous sessions", "past sessions", "how did i do", "accuracy history",
+           ["see my score", "see my scores", "score last week", "scores last week", "last week", "my score history", "past scores", "past results", "previous results", "my results", "session history",
+            "previous sessions", "past sessions", "how did i do", "accuracy history",
             "all my attempts", "track my progress", "see my progress"],
            ["where can I see my past results", "how did I do in my last session", "show my session history"],
            "Every exercise you record is saved with its posture score and tips. Session history shows them all, "
            "with your average, your best score and a chart of how your posture accuracy is changing.",
            show=False, action={"key": "open_history", "label": "See my results"}),
     intent("plan_and_reminders", "Changing your plan or reminders", 5,
-           ["change plan", "change my plan", "new plan", "different plan", "another plan", "switch plan",
+           ["two plans", "more than one plan", "both plans", "second plan", "get a new plan", "new plan",
+            "change plan", "change my plan", "new plan", "different plan", "another plan", "switch plan",
             "switch to", "stop plan", "stop the plan", "stop this plan", "change this plan", "end this plan",
             "quit this plan", "leave this plan", "stop my plan", "end my plan", "delete plan", "cancel plan", "quit"],
            ["how do I change my plan", "can I get a different plan", "how do I stop this plan"],
@@ -298,7 +315,8 @@ INTENTS = [
            "after a while, so always use the newest one. If you clicked a link in the email instead, return to "
            "the app and log in.", show=False),
     intent("account_help", "Account and login", 6,
-           ["log in", "login", "log out", "logout", "sign in", "sign out", "account", "email",
+           ["my information", "my info", "my data", "who can see", "privacy", "private", "personal data", "data safe", "delete my account", "delete account",
+            "log in", "login", "log out", "logout", "sign in", "sign out", "account", "email",
             "username", "google sign in",
             "change my details", "delete my account", "my data", "privacy"],
            ["how do I log in", "how do I update my health profile", "is my data private"],
