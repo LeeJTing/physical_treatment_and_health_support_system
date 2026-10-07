@@ -250,7 +250,8 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
+PREFER = [("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
+          ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
 
 
 def red_flag(text: str | None) -> bool:
@@ -361,7 +362,13 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "blood sugar": "DIABETES", "heart disease": "HEART_DISEASE", "heart condition": "HEART_DISEASE",
                    "heart problem": "HEART_DISEASE", "stroke": "STROKE", "asthma": "ASTHMA", "asthmatic": "ASTHMA",
                    "arthritis": "ARTHRITIS", "osteoporosis": "OSTEOPOROSIS", "heart patient": "HEART_DISEASE",
-                   "sugar level": "DIABETES", "my sugar": "DIABETES", "glucose": "DIABETES"}
+                   "sugar level": "DIABETES", "my sugar": "DIABETES", "glucose": "DIABETES",
+                   "pregnant": "PREGNANCY", "pregnancy": "PREGNANCY", "expecting a baby": "PREGNANCY",
+                   "mengandung": "PREGNANCY", "hamil": "PREGNANCY", "hip replacement": "JOINT_REPLACEMENT",
+                   "knee replacement": "JOINT_REPLACEMENT", "joint replacement": "JOINT_REPLACEMENT",
+                   "replacement surgery": "JOINT_REPLACEMENT", "new hip": "JOINT_REPLACEMENT",
+                   "new knee": "JOINT_REPLACEMENT", "replaced hip": "JOINT_REPLACEMENT",
+                   "replaced knee": "JOINT_REPLACEMENT"}
 
 
 def conditions_in(text: str | None) -> list[str]:

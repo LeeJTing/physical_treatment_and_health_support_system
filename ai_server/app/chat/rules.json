@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.12",
+  "version": "chat-rules-3.13",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -236,7 +236,11 @@
         "minutes",
         "weekend",
         "weekends",
-        "consecutive"
+        "consecutive",
+        "sets per day",
+        "sets a day",
+        "rounds per day",
+        "per day"
       ],
       "examples": [
         "how often should I exercise",
@@ -407,7 +411,20 @@
         "sugar low",
         "low sugar",
         "glucose",
-        "sugar reading"
+        "sugar reading",
+        "pregnant",
+        "pregnancy",
+        "expecting a baby",
+        "mengandung",
+        "hamil",
+        "hip replacement",
+        "knee replacement",
+        "joint replacement",
+        "replacement surgery",
+        "new hip",
+        "new knee",
+        "replaced hip",
+        "replaced knee"
       ],
       "examples": [
         "I have diabetes, is there anything special I should do",
@@ -792,7 +809,23 @@
         "tips",
         "what did i do wrong",
         "wrong posture",
-        "bad posture"
+        "bad posture",
+        "only counted",
+        "it count",
+        "count only",
+        "counted only",
+        "didn't count",
+        "did not count",
+        "not counted",
+        "wrong count",
+        "count wrong",
+        "counted wrong",
+        "rep count",
+        "reps counted",
+        "miscount",
+        "missed my reps",
+        "counted less",
+        "count less"
       ],
       "examples": [
         "what does my posture score mean",
@@ -800,7 +833,7 @@
         "what do I do if I fail the posture check",
         "should I retry the exercise"
       ],
-      "answer": "The posture score shows how closely your movement matched the correct form, as a percentage, with tips on what to change. At 80% or more your progress is updated automatically. Below that you can read the tips and retry, or continue; every attempt is saved so you can see your improvement.",
+      "answer": "The posture score shows how closely your movement matched the correct form, as a percentage, with tips on what to change. At 80% or more your progress is updated automatically. Below that you can read the tips and retry, or continue; every attempt is saved so you can see your improvement. If it counted fewer repetitions than you did, make each one a full, clear movement with a short pause back at the start, and keep your whole body in the picture.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -894,13 +927,23 @@
         "how to use app",
         "app works",
         "using this app",
-        "use this app"
+        "use this app",
+        "internet",
+        "no internet",
+        "offline",
+        "no wifi",
+        "without wifi",
+        "wifi",
+        "mobile data",
+        "no data",
+        "no connection",
+        "no signal"
       ],
       "examples": [
         "how does this app work",
         "how do I use this app"
       ],
-      "answer": "HealthGuide has five tabs. Home shows today's session and your daily limits. Treatment holds your plan: get one in AI-assisted treatment planning, then do each exercise and record it so the app can check your posture. Profile holds your health details, which keep your advice safe. You can ask me about any of these at any time.",
+      "answer": "HealthGuide has five tabs. Home shows today's session and your daily limits. Treatment holds your plan: get one in AI-assisted treatment planning, then do each exercise and record it so the app can check your posture. Profile holds your health details, which keep your advice safe. You can ask me about any of these at any time. You need an internet connection to sign in, check your posture and chat with me; your reminders still arrive without one.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -1136,14 +1179,17 @@
         "turn off reminders",
         "stop reminders",
         "turn on reminders",
-        "missed reminder"
+        "missed reminder",
+        "too loud",
+        "volume",
+        "ringtone"
       ],
       "examples": [
         "how do I change my reminder time",
         "I am not getting reminders",
         "how do I turn off reminders"
       ],
-      "answer": "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, the reminder is skipped.",
+      "answer": "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, the reminder is skipped. The reminder sound and volume follow your phone's notification settings.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2474,7 +2520,9 @@
     "STROKE": "After a stroke, these exercises help you regain strength and balance. Do them next to a sturdy support, go slowly on your weaker side, and stop and call 999 if you notice new weakness, numbness, a drooping face or slurred speech.",
     "ARTHRITIS": "With arthritis, moving keeps your joints flexible and the muscles around them strong. Some discomfort is fine if it settles within about two hours; if it lasts longer, do fewer repetitions next time. Rest a joint that is hot and swollen during a flare.",
     "OSTEOPOROSIS": "With osteoporosis, strengthening and standing exercises help your bones. Avoid bending forward from the waist, twisting and jerky movements, and keep a support within reach to prevent falls.",
-    "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled."
+    "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled.",
+    "PREGNANCY": "During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going well, but check with your doctor or midwife first. After the first three months avoid lying flat on your back for long (as in the glute bridge), keep a support nearby for balance, drink water and do not overheat. Stop and contact your doctor if you have bleeding, dizziness, chest pain, calf pain or swelling, contractions or leaking fluid.",
+    "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and precautions come first: they decide how far you may bend and when you may do more. After a new hip, avoid bending it past a right angle, crossing your legs and twisting until they say it is safe. Ask them before starting this plan, and stop if the wound becomes red, hot, swollen or more painful, or you get calf pain or a fever."
   },
   "condition_closing": "Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.",
   "diet_notes": {
@@ -2512,6 +2560,15 @@
     "dizziness",
     "light headed",
     "lightheaded",
+    "giddy",
+    "giddiness",
+    "pening",
+    "pening kepala",
+    "vertigo",
+    "head spinning",
+    "head is spinning",
+    "room spinning",
+    "room is spinning",
     "severe pain",
     "extreme pain",
     "severe swelling",

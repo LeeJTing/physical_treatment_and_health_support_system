@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.12"
+VERSION = "chat-rules-3.13"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -85,7 +85,8 @@ INTENTS = [
             "times a week", "frequency", "schedule", "how long", "how much time", "what days", "which days",
             "which day", "what time of day", "what time should", "time of day", "best time", "morning", "every evening", "each evening", "night", "at night",
             "before bed", "rest day", "rest days", "twice a day", "more than", "more often", "less often",
-            "how many sessions", "session length", "duration", "minutes", "weekend", "weekends", "consecutive"],
+            "how many sessions", "session length", "duration", "minutes", "weekend", "weekends", "consecutive",
+            "sets per day", "sets a day", "rounds per day", "per day"],
            ["how often should I exercise", "can I do this every day", "how many times a week", "how long should each session be",
             "should I take rest days", "what time of day is best"],
            "Follow the number of sessions per week shown in your plan, with a rest day in between when you can. "
@@ -117,7 +118,9 @@ INTENTS = [
             "heart disease", "heart condition", "heart problem", "had a stroke", "stroke", "asthma", "asthmatic",
             "arthritis", "osteoporosis", "my condition", "my conditions", "health condition", "medical condition",
             "chronic", "heart patient", "sugar level", "my sugar", "sugar low", "low sugar", "glucose",
-            "sugar reading"],
+            "sugar reading", "pregnant", "pregnancy", "expecting a baby", "mengandung", "hamil",
+            "hip replacement", "knee replacement", "joint replacement", "replacement surgery", "new hip",
+            "new knee", "replaced hip", "replaced knee"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "
@@ -191,12 +194,16 @@ INTENTS = [
             "results page", "feedback", "posture check", "posture analysis", "retry", "try again", "low score",
             "app said", "the app says", "app told me", "it said my", "said my", "says my", "too far forward",
             "failed", "fail", "pass", "passed", "80", "correction", "corrections", "tips", "what did i do wrong",
-            "wrong posture", "bad posture"],
+            "wrong posture", "bad posture", "only counted", "it count", "count only", "counted only",
+            "didn't count", "did not count", "not counted", "wrong count", "count wrong", "counted wrong",
+            "rep count", "reps counted", "miscount", "missed my reps", "counted less", "count less"],
            ["what does my posture score mean", "why is my accuracy low", "what do I do if I fail the posture check",
             "should I retry the exercise"],
            "The posture score shows how closely your movement matched the correct form, as a percentage, with "
            "tips on what to change. At 80% or more your progress is updated automatically. Below that you can "
-           "read the tips and retry, or continue; every attempt is saved so you can see your improvement."),
+           "read the tips and retry, or continue; every attempt is saved so you can see your improvement. "
+           "If it counted fewer repetitions than you did, make each one a full, clear movement with a short "
+           "pause back at the start, and keep your whole body in the picture."),
     intent("best_time", "When to exercise", 5,
            ["what time should", "what time is best", "what time of day", "what time to", "which time", "best time", "good time", "right time", "when should i exercise",
             "when should i do", "when to exercise", "when can i exercise", "exercise now", "exercise tonight",
@@ -214,12 +221,15 @@ INTENTS = [
     intent("app_help", "How the app works", 7,
            ["how this app works", "how this app work", "how the app works", "how the app work",
             "how does the app work", "how does this app work", "how do i use this app", "how to use this app",
-            "how to use the app", "how to use app", "app works", "using this app", "use this app"],
+            "how to use the app", "how to use app", "app works", "using this app", "use this app",
+            "internet", "no internet", "offline", "no wifi", "without wifi", "wifi", "mobile data", "no data",
+            "no connection", "no signal"],
            ["how does this app work", "how do I use this app"],
            "HealthGuide has five tabs. Home shows today's session and your daily limits. Treatment holds your "
            "plan: get one in AI-assisted treatment planning, then do each exercise and record it so the app can "
            "check your posture. Profile holds your health details, which keep your advice safe. You can ask me "
-           "about any of these at any time.", show=False,
+           "about any of these at any time. You need an internet connection to sign in, check your posture "
+           "and chat with me; your reminders still arrive without one.", show=False,
            action={"key": "open_planning", "label": "Open treatment planning"}),
     # Priority 8: the patient's own doctor outranks everything except red flags and medicines.
     intent("doctor_said", "Your doctor's advice", 8,
@@ -269,11 +279,13 @@ INTENTS = [
            ["reminder", "reminders", "remind", "remind me", "notification", "notifications", "notify", "alarm",
             "remindr", "reminer", "remider", "remainder", "remainders", "reminde", "notifcation", "notication",
             "notifications not", "reminder time", "change time", "wrong time", "not getting reminders", "no reminder",
-            "turn off reminders", "stop reminders", "turn on reminders", "missed reminder"],
+            "turn off reminders", "stop reminders", "turn on reminders", "missed reminder", "too loud",
+            "volume", "ringtone"],
            ["how do I change my reminder time", "I am not getting reminders", "how do I turn off reminders"],
            "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a "
            "reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your "
-           "phone settings. If you have already exercised that day, the reminder is skipped.",
+           "phone settings. If you have already exercised that day, the reminder is skipped. The reminder "
+           "sound and volume follow your phone's notification settings.",
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
     intent("history_help", "Your past results", 6,
            ["old results", "old scores", "see my old", "previous score", "previous scores", "earlier results", "earlier scores",
@@ -503,7 +515,8 @@ RED_FLAGS = [
     "can't breathe", "cannot breathe", "cant breathe", "can't breath", "cant breath", "cannot breath",
     "hard to breathe", "difficulty breathing", "struggling to breathe", "breathless", "short of breath",
     "shortness of breath", "faint", "fainted", "fainting", "passed out", "pass out", "blacked out", "black out",
-    "dizzy", "dizziness", "light headed", "lightheaded", "severe pain", "extreme pain", "severe swelling",
+    "dizzy", "dizziness", "light headed", "lightheaded", "giddy", "giddiness", "pening", "pening kepala",
+    "vertigo", "head spinning", "head is spinning", "room spinning", "room is spinning", "severe pain", "extreme pain", "severe swelling",
     "very swollen", "badly swollen", "numb", "numbness", "heart racing", "racing heart", "heart is racing", "heart beating fast", "heart pounding",
     "heart is pounding", "palpitations", "irregular heartbeat", "fell down", "i fell", "i've fallen", "had a fall", "hit my head",
     "slurred speech", "speech is slurred", "slurring", "slurred", "face drooping", "face is drooping", "sudden weakness", "can't feel my", "cannot feel my", "coughing blood",
@@ -591,6 +604,17 @@ CONDITION_DETAIL = {
     "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before "
               "exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, "
               "and avoid exercising in cold air or when your asthma is not well controlled.",
+    # Named in a message only (not health-profile options).
+    "PREGNANCY": "During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going "
+                 "well, but check with your doctor or midwife first. After the first three months avoid lying "
+                 "flat on your back for long (as in the glute bridge), keep a support nearby for balance, drink "
+                 "water and do not overheat. Stop and contact your doctor if you have bleeding, dizziness, chest "
+                 "pain, calf pain or swelling, contractions or leaking fluid.",
+    "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and "
+                         "precautions come first: they decide how far you may bend and when you may do more. "
+                         "After a new hip, avoid bending it past a right angle, crossing your legs and twisting "
+                         "until they say it is safe. Ask them before starting this plan, and stop if the wound "
+                         "becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
 }
 CONDITION_CLOSING = ("Your plan was chosen within the safety limits set from your health profile, so follow it "
                      "as set and check with your doctor before doing more.")
