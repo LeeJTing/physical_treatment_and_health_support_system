@@ -145,17 +145,20 @@
     "used_balanced_accuracy": 0.917
   },
   "hip_abduction.trunk_lean": {
-    "rule": "trunk_lean: mistake when above 13.5 degrees",
+    "rule": "trunk_lean: mistake when above 16 degrees",
     "n_correct": 186,
     "n_mistake": 28,
-    "current_limit": 13.5,
-    "current_balanced_accuracy": 0.795,
+    "current_limit": 16.0,
+    "current_balanced_accuracy": 0.691,
     "tuned_limit": 13.5,
     "tuned_balanced_accuracy": 0.795,
     "median_correct": 11.165,
     "median_mistake": 15.897,
     "unit": "degrees",
-    "status": "kept"
+    "status": "reviewed",
+    "used_limit": 16,
+    "reason": "flags 4% of Elwin's correct reps and 27% of REHAB24's approved ones (13.5: 11% and 46%); catches 81% of REHAB24's incorrect reps and half of Elwin's mild leans; the trained model also judges lean",
+    "used_balanced_accuracy": 0.691
   },
   "hip_abduction.low_range": {
     "rule": "low_range: mistake when below 20 degrees",
@@ -194,7 +197,10 @@
     "median_correct": 177.046,
     "median_mistake": 129.545,
     "unit": "degrees",
-    "status": "kept"
+    "status": "reviewed",
+    "used_limit": 166,
+    "reason": "catches 96% of Elwin's bent-knee reps (max 168 deg), flags none of his correct reps and 6% of REHAB24's approved ones (170: 25%)",
+    "used_balanced_accuracy": 0.969
   },
   "hip_abduction.toes_up": {
     "rule": "toes_up: mistake when above 0.436 ratio",
@@ -399,20 +405,20 @@
     "status": "kept"
   },
   "shoulder_abduction.bent_elbow": {
-    "rule": "bent_elbow: mistake when below 165 degrees",
+    "rule": "bent_elbow: mistake when below 158 degrees",
     "n_correct": 135,
     "n_mistake": 26,
-    "current_limit": 165.0,
-    "current_balanced_accuracy": 0.846,
+    "current_limit": 158.0,
+    "current_balanced_accuracy": 0.808,
     "tuned_limit": 170.349,
     "tuned_balanced_accuracy": 0.912,
     "median_correct": 173.811,
     "median_mistake": 147.399,
     "unit": "degrees",
     "status": "reviewed",
-    "used_limit": 165,
-    "reason": "classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag normal arms; 165 scores 85%, the trained model handles the rest",
-    "used_balanced_accuracy": 0.846
+    "used_limit": 158,
+    "reason": "158 catches 62% of Elwin's bent-elbow reps (165: 69%) and flags 23% of REHAB24's approved reps (165: 60%); no correct rep of Elwin or p02; the trained model handles subtler bends",
+    "used_balanced_accuracy": 0.808
   },
   "shoulder_abduction.uneven_arms": {
     "rule": "uneven_arms: mistake when above 15 degrees",
@@ -499,17 +505,17 @@
     "status": "kept"
   },
   "shoulder_flexion.swinging": {
-    "rule": "swinging: mistake when below 0.6 seconds",
+    "rule": "swinging: mistake when below 0.723 seconds",
     "n_correct": 130,
     "n_mistake": 18,
-    "current_limit": 0.6,
-    "current_balanced_accuracy": 0.667,
+    "current_limit": 0.723,
+    "current_balanced_accuracy": 0.885,
     "tuned_limit": 0.723,
     "tuned_balanced_accuracy": 0.885,
     "median_correct": 1.178,
     "median_mistake": 0.643,
     "unit": "seconds",
-    "status": "tuned"
+    "status": "kept"
   },
   "shoulder_flexion.trunk_forward": {
     "rule": "trunk_forward: mistake when above 15 degrees",

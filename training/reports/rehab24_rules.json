@@ -1,9 +1,9 @@
 {
   "Ex1": {
-    "accuracy": 0.3977272727272727,
-    "precision": 0.4318181818181818,
-    "recall": 0.40425531914893614,
-    "f1": 0.41758241758241754,
+    "accuracy": 0.5227272727272727,
+    "precision": 0.5373134328358209,
+    "recall": 0.7659574468085106,
+    "f1": 0.631578947368421,
     "confusion_matrix": {
       "labels": [
         "incorrect",
@@ -11,12 +11,12 @@
       ],
       "rows_true_cols_pred": [
         [
-          16,
-          25
+          10,
+          31
         ],
         [
-          28,
-          19
+          11,
+          36
         ]
       ]
     },
@@ -39,8 +39,8 @@
     },
     "mistake_fired_on": {
       "bent_elbow": {
-        "correct_reps": "28/47",
-        "incorrect_reps": "15/41"
+        "correct_reps": "11/47",
+        "incorrect_reps": "7/41"
       },
       "shoulder_shrug": {
         "correct_reps": "4/47",
@@ -53,10 +53,10 @@
     }
   },
   "Ex4": {
-    "accuracy": 0.6293103448275862,
-    "precision": 0.8333333333333334,
-    "recall": 0.3968253968253968,
-    "f1": 0.5376344086021505,
+    "accuracy": 0.7068965517241379,
+    "precision": 0.8085106382978723,
+    "recall": 0.6031746031746031,
+    "f1": 0.6909090909090909,
     "confusion_matrix": {
       "labels": [
         "incorrect",
@@ -64,12 +64,12 @@
       ],
       "rows_true_cols_pred": [
         [
-          48,
-          5
+          44,
+          9
         ],
         [
-          38,
-          25
+          25,
+          38
         ]
       ]
     },
@@ -92,12 +92,12 @@
     },
     "mistake_fired_on": {
       "trunk_lean": {
-        "correct_reps": "29/63",
-        "incorrect_reps": "47/53"
+        "correct_reps": "17/63",
+        "incorrect_reps": "43/53"
       },
       "bent_knee": {
-        "correct_reps": "14/63",
-        "incorrect_reps": "21/53"
+        "correct_reps": "4/63",
+        "incorrect_reps": "14/53"
       },
       "leg_forward": {
         "correct_reps": "5/63",
