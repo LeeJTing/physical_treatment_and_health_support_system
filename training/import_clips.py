@@ -34,8 +34,11 @@ def main():
         done = {r["original"]: r["imported"] for r in csv.DictReader(manifest.open(encoding="utf-8"))}
     rows = [{"original": k, "imported": v} for k, v in done.items()]
     counts = {}
-    for ex_dir in sorted(p for p in src.iterdir() if p.is_dir() and p.name in EXERCISES):
-        key = ex_dir.name
+    def key_of(name: str) -> str:  # "step-up", "Step Up" -> "step_up"
+        return name.strip().lower().replace("-", "_").replace(" ", "_")
+
+    for ex_dir in sorted(p for p in src.iterdir() if p.is_dir() and key_of(p.name) in EXERCISES):
+        key = key_of(ex_dir.name)
         labels = {m.label for m in EXERCISES[key].mistakes}
         for lab_dir in sorted(p for p in ex_dir.iterdir() if p.is_dir()):
             label = ALIASES.get(lab_dir.name, lab_dir.name)

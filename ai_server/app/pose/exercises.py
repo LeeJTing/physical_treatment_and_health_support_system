@@ -161,7 +161,26 @@ def thigh_lift_seated(f):
 
 
 def thigh_lift_standing(f):
-    return {k: f[f"thigh_from_down_{k}"] for k in ("L", "R")}
+    """Near leg only (7 Oct): the far leg's estimated lifts gave 0.5 s phantom reps."""
+    k = near_side(f)
+    return {k: f[f"thigh_from_down_{k}"]}
+
+
+def bridge_rise(f):
+    """Hip lift above the clip's own lying level (10th percentile). Lying flat reads -0.27 to
+    -0.35 torso lengths depending on where the feet are, which merged reps (feet_far) or missed
+    low bridges. The mistakes still use the absolute shoulder-hip-knee line (bridge)."""
+    s = f["bridge_line"]
+    return s - np.nanpercentile(s, 10)
+
+
+def drop_speed(f, r: Rep, look_ahead: float = 1.5) -> float:
+    """Fastest downward speed of the hips after the top of a step-up, torso lengths per second.
+    Timing the descent did not work: at 10 frames/s every step-down took 0.3-0.4 s."""
+    stop = int(np.searchsorted(f.t, f.t[r.end] + look_ahead))
+    seg = slice(r.peak, max(stop, r.end + 1))
+    v = np.gradient(hip_rise(f), f.t)
+    return float(-np.nanmin(v[seg])) if len(v[seg]) else 0.0
 
 
 def bird_dog_sides(f):
@@ -332,7 +351,8 @@ add(ExerciseSpec(
 add(ExerciseSpec(
     key="glute_bridge", name="Glute Bridge", view="side",
     required=[L_SHOULDER, R_SHOULDER, L_HIP, R_HIP, L_KNEE, R_KNEE, L_ANKLE, R_ANKLE],
-    signal=bridge, rest=-0.30, active=-0.15, target=-0.05,
+    # 7 Oct: reps counted from the clip's own lying level (bridge_rise); mistakes on the absolute line.
+    signal=bridge_rise, rest=0.05, active=0.10, target=0.30,
     mistakes=[
         M("low_hips", "Lift your hips higher, until your body is straight from shoulders to knees.",
           peak_of(bridge), -0.10, False, "torso lengths"),
@@ -351,8 +371,10 @@ add(ExerciseSpec(
           lambda f, r: float(np.mean(f["feet_gap"] < 0.6)), 0.7, False, "share of time"),
         M("stepping_out", "Try to hold the position without stepping out.",
           lambda f, r: float(np.sum(np.diff((f["feet_gap"] < 0.6).astype(int)) != 0)), 1.5, True, "changes"),
+        # 7 Oct: the median missed a real lean (3.6 deg); the most-leaning 10 % of the hold
+        # separates it (correct 1.5-2.2 deg, leaning 9.4 deg).
         M("leaning", "Stand upright; do not lean on the counter or to the side.",
-          lambda f, r: float(np.median(f["lean_lateral"])), 8, True, "degrees"),
+          lambda f, r: float(np.percentile(f["lean_lateral"], 90)), 5, True, "degrees"),
     ]))
 
 add(ExerciseSpec(
@@ -361,8 +383,11 @@ add(ExerciseSpec(
     mistakes=[
         M("arm_leg_low", "Stretch your arm and leg further, until both are level with your back.",
           lambda f, r: rep_max(bird_dog_sides(f)[r.side or "L"], r), 70, False, "degrees"),
+        # 7 Oct, from Elwin's clips: on all fours the shoulder-hip line normally tilts up 12-18 deg
+        # (arms longer than thighs); sagging flattens it to 0-6 deg. The old check (tilt above
+        # 15 deg) fired on correct reps and never on sagging ones.
         M("back_sag", "Keep your back flat and your hips level.",
-          lambda f, r: rep_max(np.abs(f["trunk_from_horizontal"]), r), 15, True, "degrees"),
+          lambda f, r: at_peak(f["trunk_from_horizontal"], r), 9, False, "degrees"),
         M("no_hold", "Hold the stretched position for 2 seconds.",
           lambda f, r: hold_seconds(bird_dog_sides(f)[r.side or "L"], f.t, r, 10), 1.5, False, "seconds"),
     ]))
@@ -374,7 +399,7 @@ add(ExerciseSpec(
         M("trunk_forward", "Keep your chest up as you step.", lambda f, r: rep_max(f["lean_sagittal"], r), 25, True, "degrees"),
         M("knee_not_straight", "Straighten your leading leg fully at the top.",
           lambda f, r: at_peak(f.both("knee", "max"), r), 165, False, "degrees"),
-        M("drop_down", "Step down slowly and with control.", lambda f, r: phase_seconds(f.t, r)[1], 0.6, False, "seconds"),
+        M("drop_down", "Step down slowly and with control.", drop_speed, 0.8, True, "torso lengths/s"),
     ]))
 
 add(ExerciseSpec(

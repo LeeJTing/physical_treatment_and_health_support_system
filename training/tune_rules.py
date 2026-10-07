@@ -51,6 +51,9 @@ REVIEWED = {
     # -12 flagged a normal rep at -13 deg (sitting back against the chair); leaning reps -31 to -34.
     "seated_marching.leaning_back": (-20, "correct reps down to -13 deg (back against the chair), leaning reps "
                                           "-31 to -34 deg; -20 leaves margin on both sides"),
+    # Only 3 leaning reps (near leg); -10 flagged normal marching at -10.6 deg.
+    "march_in_place.leaning_back": (-20, "correct reps down to -10.6 deg, leaning reps -28 to -35 deg; "
+                                         "-10 flagged normal marching"),
 }
 
 

@@ -11,9 +11,13 @@
     "elbow_flexion.low_range": 124.697,
     "wall_push_up.low_range": 111.605,
     "seated_marching.low_knee_lift": 23.666,
-    "seated_marching.leaning_back": -20
+    "seated_marching.leaning_back": -20,
+    "bird_dog.no_hold": 0.964,
+    "glute_bridge.feet_far": 84.123,
+    "march_in_place.low_knee_lift": 91.921,
+    "march_in_place.leaning_back": -20
   },
-  "tuned_at": "2026-10-07T21:01:22",
+  "tuned_at": "2026-10-07T21:59:25",
   "sources": {
     "hip_abduction.trunk_lean": "hip_abduction.trunk_lean: REHAB24-6 leg abduction, 63 correct / 53 incorrect repetitions (balanced accuracy 68% -> 79%)",
     "shoulder_abduction.low_range": "own clips",
@@ -26,6 +30,10 @@
     "elbow_flexion.low_range": "own clips",
     "wall_push_up.low_range": "own clips",
     "seated_marching.low_knee_lift": "own clips",
-    "seated_marching.leaning_back": "own clips; reviewed: correct reps down to -13 deg (back against the chair), leaning reps -31 to -34 deg; -20 leaves margin on both sides"
+    "seated_marching.leaning_back": "own clips; reviewed: correct reps down to -13 deg (back against the chair), leaning reps -31 to -34 deg; -20 leaves margin on both sides",
+    "bird_dog.no_hold": "own clips",
+    "glute_bridge.feet_far": "own clips",
+    "march_in_place.low_knee_lift": "own clips",
+    "march_in_place.leaning_back": "own clips; reviewed: correct reps down to -10.6 deg, leaning reps -28 to -35 deg; -10 flagged normal marching"
   }
 }
