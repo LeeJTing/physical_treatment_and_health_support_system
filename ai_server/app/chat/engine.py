@@ -28,7 +28,20 @@ OVERLAP_THRESHOLD = 0.6   # weighted keyword overlap
 STOP = set("""a an the is are am was were be been being do does did i me my mine myself you your we our it its
 this that these those to of in on at for with and or but if so can could should would will shall may might must
 what which who whom when where why how about please tell any some just there here have has had get got im i'm
-ive i've id i'd ok okay also really very much still even then than too""".split())
+ive i've id i'd ok okay also really very much still even then than too one second another other thing things
+stuff lol""".split())
+# Emojis patients send instead of words.
+EMOJI = {"👍": " ok ", "👌": " ok ", "🙏": " thanks ", "❤": " love ", "😍": " love ", "🥰": " love "}
+# Words people stretch ("hiiii", "okayyy"): shortened to one letter if that gives one of these, else to two
+# ("kneee" -> "knee").
+SHORT_WORDS = {"hi", "hey", "hello", "ok", "okay", "yes", "no", "so", "thanks", "thank", "bye", "yay", "wow", "please"}
+
+
+def unstretch(w: str) -> str:
+    if not re.search(r"(.)\1{2,}", w):
+        return w
+    one = re.sub(r"(.)\1{2,}", r"\1", w)
+    return one if one in SHORT_WORDS else re.sub(r"(.)\1{2,}", r"\1\1", w)
 NEGATORS = {"no", "not", "without", "never", "don't", "dont", "didn't", "didnt", "haven't", "havent", "isn't",
             "isnt", "wasn't", "wasnt", "nor"}
 # Everyday words mapped onto the words the rules use.
@@ -58,11 +71,15 @@ def rules() -> dict:
 
 def clean(text: str) -> str:
     t = text.lower().replace("’", "'").replace("%", " percent ")
+    t = re.sub(r"<[^>]*>", " ", t)                     # pasted HTML / script tags
+    for e, word in EMOJI.items():
+        t = t.replace(e, word)
     # A clock time ("11pm", "7:30 am", "10 o'clock") becomes one token the timing rule knows.
     t = re.sub(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm|a\.m\.|p\.m\.|o'?\s?clock)(?![a-z])", " clocktime ", t)
     for phrase, english in MALAY_PHRASES.items():
         t = re.sub(rf"\b{phrase}\b", english, t)
     words = re.sub(r"[^a-z0-9' ]", " ", t).split()
+    words = [unstretch(w) for w in words]
     return " ".join(SYNONYMS.get(w, CONTRACTIONS.get(w, MALAY.get(w, w))) for w in words)
 
 
@@ -112,7 +129,7 @@ def plan_intents(plan: dict) -> list[dict]:
          "keywords": ["results", "see results", "progress", "improve", "improving", "improvement", "how long until",
                       "when will", "getting better", "get better", "working", "is it working", "finish the plan",
                       "finished the plan", "complete the plan", "after this plan", "next plan", "recover", "recovery",
-                      "helping", "help me", "effective", "worth it", "making a difference", "any difference",
+                      "is it helping", "plan helping", "helping me", "help me recover", "effective", "worth it", "making a difference", "any difference",
                       "fix", "cure", "heal", "do for me", "purpose", "aim", "goal", "benefit", "benefits",
                       "why this plan", "what does this plan do", "what next", "what's next", "next step",
                       "better now", "feel better", "feeling better"],

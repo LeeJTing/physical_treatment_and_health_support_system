@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.7"
+VERSION = "chat-rules-3.8"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -237,9 +237,11 @@ INTENTS = [
            "limitations. Your risk level and safety limits are worked out from it, and your treatment plans are "
            "chosen to fit them. Tap the button below, then Edit, to change anything; keep it up to date so your "
            "advice stays safe.", show=False, action={"key": "open_profile", "label": "Open my profile"}),
-    intent("reminders_help", "Exercise reminders", 6,
+    # Priority 7: "reminder not working" is about reminders, not the plan's progress ("is it working").
+    intent("reminders_help", "Exercise reminders", 7,
            ["reminder", "reminders", "remind", "remind me", "notification", "notifications", "notify", "alarm",
-            "alert", "reminder time", "change time", "wrong time", "not getting reminders", "no reminder",
+            "remindr", "reminer", "remider", "remainder", "remainders", "reminde", "notifcation", "notication",
+            "notifications not", "reminder time", "change time", "wrong time", "not getting reminders", "no reminder",
             "turn off reminders", "stop reminders", "turn on reminders", "missed reminder"],
            ["how do I change my reminder time", "I am not getting reminders", "how do I turn off reminders"],
            "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a "
@@ -266,6 +268,7 @@ INTENTS = [
     intent("forgot_password", "Forgot password", 7,
            ["forgot password", "forgot my password", "forget password", "forget my password", "forgotten password",
             "forgot pasword", "forgot passwrod", "forgot pass", "pasword", "passwrod", "passward", "pass word",
+            "password", "my password", "help with my password",
             "change pasword", "reset pasword",
             "reset password", "reset my password", "password reset", "change password", "change my password",
             "new password", "cant remember my password", "can't remember my password", "lost my password",
@@ -292,7 +295,7 @@ INTENTS = [
            "after a while, so always use the newest one. If you clicked a link in the email instead, return to "
            "the app and log in.", show=False),
     intent("account_help", "Account and login", 6,
-           ["log in", "login", "log out", "logout", "sign in", "sign out", "password", "account", "email",
+           ["log in", "login", "log out", "logout", "sign in", "sign out", "account", "email",
             "username", "google sign in",
             "change my details", "delete my account", "my data", "privacy"],
            ["how do I log in", "how do I update my health profile", "is my data private"],
@@ -363,7 +366,9 @@ INTENTS = [
            show=False, anchor_start=True, small_talk=True),
     intent("thanks", "Thanks", 2,
            ["thanks", "thank you", "thank u", "thx", "ty", "tq", "cheers", "appreciate", "appreciated", "helpful",
-            "that helps", "that helped", "great", "nice", "ok thanks", "okay thanks"],
+            "that helps", "that helped", "great", "nice", "ok thanks", "okay thanks", "love this app",
+            "love the app", "love it", "great app", "good app", "nice app", "awesome", "app is good",
+            "app is great", "very helpful", "so helpful"],
            ["thank you", "thanks a lot", "that was helpful"],
            "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done.",
            show=False, small_talk=True),
@@ -383,6 +388,8 @@ INTENTS = [
            show=False, small_talk=True),
     intent("bot_identity", "About this assistant", 2,
            ["who are you", "what are you", "your name", "are you human", "are you a robot", "are you a bot",
+            "chatgpt", "chat gpt", "gpt", "are you ai", "are you an ai", "artificial intelligence", "openai",
+            "siri", "google assistant", "real doctor", "are you a doctor",
             "are you real", "real person", "what can you do", "what do you do", "what do you know",
             "what can you help", "what can i ask", "help", "how does this work",
             "how do you work", "chatbot", "chat bot"],
