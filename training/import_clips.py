@@ -24,6 +24,8 @@ def main():
     ap.add_argument("src")
     ap.add_argument("--person", default="p01")
     ap.add_argument("--side", default="both")
+    ap.add_argument("--skip", nargs="*", default=[],
+                    help="<pose_key>/<label> folders to leave out, e.g. hip_abduction/trunk_lean (to be re-recorded)")
     a = ap.parse_args()
     src = Path(a.src)
     manifest = DATA / "import_manifest.csv"
@@ -37,6 +39,9 @@ def main():
         labels = {m.label for m in EXERCISES[key].mistakes}
         for lab_dir in sorted(p for p in ex_dir.iterdir() if p.is_dir()):
             label = ALIASES.get(lab_dir.name, lab_dir.name)
+            if f"{key}/{lab_dir.name}" in a.skip or f"{key}/{label}" in a.skip:
+                print(f"  {key}/{lab_dir.name}: skipped (--skip)")
+                continue
             if label != "correct" and label not in labels:
                 print(f"  WARNING {key}/{lab_dir.name}: not a rule label for {key} ({', '.join(sorted(labels))}); skipped")
                 continue
