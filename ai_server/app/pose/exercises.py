@@ -226,7 +226,8 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="hip_abduction", name="Standing Hip Abduction", view="front", required=LOWER + [L_SHOULDER, R_SHOULDER],
-    signal=leg_raise, rest=10, active=18, target=25,
+    # rest/active lowered 7 Oct: low_range clips peak at 14-18 deg and were not counted at 18.
+    signal=leg_raise, rest=8, active=12, target=25,
     mistakes=[
         M("trunk_lean", "Keep your body upright; do not lean away from the lifting leg.",
           lambda f, r: rep_max(f["lean_lateral"], r), 10, True, "degrees"),
