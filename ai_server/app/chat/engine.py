@@ -402,20 +402,24 @@ def overdose(text: str | None) -> bool:
     for i, w in enumerate(words):
         if w not in OD_VERBS:
             continue
-        window = words[i + 1:i + 9]
+        # One clause only: "ate all the biscuits and took my pills" is two things.
+        stop = min(len(words), i + 12)
+        for j in range(i + 1, stop):
+            if words[j] in OD_CLAUSE_BREAKS or words[j] in OD_VERBS:
+                stop = j
+                break
+        window = words[i + 1:min(stop, i + 9)]
         if not any(x in OD_SUBSTANCES or x.startswith("pill") for x in window):
             continue
         if any(c in OD_CHILD for c in words[max(0, i - 3):i]):
             return True                                  # "my grandson ate my pills"
-        seg = f" {' '.join(words[i:i + 12])} "
-        if any(f" {p} " in seg for p in OD_LARGE) or _amount(words, i + 1, min(len(words), i + 10)) >= 8:
+        seg = f" {' '.join(words[i:stop])} "
+        if any(f" {p} " in seg for p in OD_LARGE) or _amount(words, i + 1, stop) >= 8:
             return True
     return False
-    for m in OVERDOSE.finditer(text.lower()):
-        q = m.group(1)
-        if not q.isdigit() or int(q) >= 8:
-            return True
-    return False
+
+
+OD_CLAUSE_BREAKS = {"and", "then", "but", "dan", "lepas", "after", "before", "so", "because", "while"}
 
 
 def red_flag(text: str | None) -> bool:
