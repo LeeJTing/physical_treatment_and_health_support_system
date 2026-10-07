@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.8"
+VERSION = "chat-rules-3.9"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -182,6 +182,7 @@ INTENTS = [
     intent("posture_result", "Understanding your posture score", 6,
            ["score", "scores", "accuracy", "percent", "percentage", "my result", "the result", "result mean",
             "results page", "feedback", "posture check", "posture analysis", "retry", "try again", "low score",
+            "app said", "the app says", "app told me", "it said my", "said my", "says my", "too far forward",
             "failed", "fail", "pass", "passed", "80", "correction", "corrections", "tips", "what did i do wrong",
             "wrong posture", "bad posture"],
            ["what does my posture score mean", "why is my accuracy low", "what do I do if I fail the posture check",

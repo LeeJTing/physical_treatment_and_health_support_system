@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.8",
+  "version": "chat-rules-3.9",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -706,6 +706,13 @@
         "retry",
         "try again",
         "low score",
+        "app said",
+        "the app says",
+        "app told me",
+        "it said my",
+        "said my",
+        "says my",
+        "too far forward",
         "failed",
         "fail",
         "pass",

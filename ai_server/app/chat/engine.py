@@ -131,6 +131,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "finished the plan", "complete the plan", "after this plan", "next plan", "recover", "recovery",
                       "is it helping", "plan helping", "helping me", "help me recover", "effective", "worth it", "making a difference", "any difference",
                       "fix", "cure", "heal", "do for me", "purpose", "aim", "goal", "benefit", "benefits",
+                      "plan for", "normally again", "back to normal", "normal again", "like before",
+                      "get back to normal",
                       "why this plan", "what does this plan do", "what next", "what's next", "next step",
                       "better now", "feel better", "feeling better"],
          "examples": ["when will I see results", "how do I know I am improving", "is the plan working",
@@ -415,8 +417,17 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     # The patient's exact words first; spell-corrected words only if nothing matched, so a real
     # word the rules do not know ("turn") is never "corrected" into a different rule's keyword ("torn").
     hits = [(i["priority"], n, i) for i in intents if (n := keyword_match(text, i))]
-    if not hits and correct(text) != clean(text):
-        hits = [(i["priority"], n, i) for i in intents if (n := keyword_match(text, i, corrected=True))]
+    if correct(text) != clean(text):
+        fixed = [(i["priority"], n, i) for i in intents if (n := keyword_match(text, i, corrected=True))]
+        if not hits:
+            hits = fixed
+        else:
+            # A misspelt exercise name ("sholder flexion") still names the exercise: it wins over the
+            # general how-to rule the exact words matched. Only exercise names, so a real word the
+            # rules do not know is never turned into another topic's keyword.
+            named = [h for h in fixed if h[2]["key"].startswith("exercise:")]
+            if named and not any(h[2]["key"].startswith("exercise:") for h in hits):
+                hits = hits + named
     exercises = {h[2]["key"] for h in hits if h[2]["key"].startswith("exercise:")}
     if len(exercises) >= 2 and "plan_exercises" in {i["key"] for i in intents}:
         # "Which comes first, heel raise or sit to stand?" is about the plan's order.
