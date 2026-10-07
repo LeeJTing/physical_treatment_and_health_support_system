@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.6",
+  "version": "chat-rules-3.7",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -50,7 +50,7 @@
       ],
       "answer": "Here is how to start: 1) Make sure your health profile is complete (Profile tab), so your safety limits are set. 2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get plans that suit you, then select one. 3) Open My treatment plan from the Treatment tab and start the first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; reach 80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
       "follow_ups": [],
-      "tailor": false,
+      "tailor": true,
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
@@ -269,7 +269,7 @@
       ],
       "answer": "That is fine. Do your next session as usual; do not do two sessions in one day to catch up. If you have missed several days, start again gently with fewer repetitions and build back up.",
       "follow_ups": [],
-      "tailor": false,
+      "tailor": true,
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
@@ -561,7 +561,7 @@
       ],
       "answer": "Feeling a little tired after exercising is normal. If you are unusually exhausted, unwell, or have a fever, skip today's session and rest; continue when you feel better. If tiredness lasts for days or comes with breathlessness, contact your doctor.",
       "follow_ups": [],
-      "tailor": false,
+      "tailor": true,
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
@@ -872,7 +872,7 @@
       ],
       "answer": "Your treatment plan shows your exercises in order. Open the next one, read its steps, then record yourself doing it; the app checks your posture and moves you on when you reach 80%.",
       "follow_ups": [],
-      "tailor": false,
+      "tailor": true,
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
@@ -1484,7 +1484,7 @@
       ],
       "answer": "Drink some water before and after your exercises, and wait about an hour after a large meal before exercising. For food advice that suits your health conditions, use the Diet section of the app.",
       "follow_ups": [],
-      "tailor": false,
+      "tailor": true,
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
@@ -2239,6 +2239,21 @@
     "early_morning": "It is {time} where you are. Early morning is fine once you have been up for a while, had something light to eat and warmed up.",
     "daytime": "It is {time} where you are, a good time for your exercises if you feel well and have not just eaten a large meal.",
     "evening": "It is {time} where you are. A session now is fine; finish at least an hour or two before bed so it does not disturb your sleep."
+  },
+  "condition_detail": {
+    "HYPERTENSION": "With high blood pressure, regular gentle exercise like your plan can help lower it over time. Breathe out as you lift and never hold your breath or strain. If a home reading is 180/110 or higher, do not exercise that day: rest and contact your doctor.",
+    "DIABETES": "With diabetes, exercise helps control your blood sugar. If you take insulin or tablets that can cause low sugar, check your level before you start and have a small snack if it is low; keep glucose sweets nearby, and stop if you feel shaky, sweaty or confused. Check your feet afterwards.",
+    "HEART_DISEASE": "With heart disease, keep to the intensity in your plan: you should still be able to talk while exercising. Warm up and cool down for about five minutes. Stop at once if you get chest discomfort, unusual breathlessness, dizziness or a racing heartbeat, and call 999 if it does not settle with rest.",
+    "STROKE": "After a stroke, these exercises help you regain strength and balance. Do them next to a sturdy support, go slowly on your weaker side, and stop and call 999 if you notice new weakness, numbness, a drooping face or slurred speech.",
+    "ARTHRITIS": "With arthritis, moving keeps your joints flexible and the muscles around them strong. Some discomfort is fine if it settles within about two hours; if it lasts longer, do fewer repetitions next time. Rest a joint that is hot and swollen during a flare.",
+    "OSTEOPOROSIS": "With osteoporosis, strengthening and standing exercises help your bones. Avoid bending forward from the waist, twisting and jerky movements, and keep a support within reach to prevent falls.",
+    "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled."
+  },
+  "condition_closing": "Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.",
+  "diet_notes": {
+    "HYPERTENSION": "With high blood pressure, keep salt low: your daily sodium limit is on the Home page.",
+    "DIABETES": "With diabetes, spread carbohydrates through the day and exercise 1 to 3 hours after a meal; your daily sugar limit is on the Home page.",
+    "HEART_DISEASE": "With heart disease, keep salt and saturated fat low and avoid exercising after a large meal."
   },
   "red_flags": [
     "chest pain",

@@ -372,7 +372,12 @@ def tailor_notes(intent: dict, conditions, limitations, risk_level) -> list[str]
     if not intent.get("tailor"):
         return []
     r = rules()
-    notes = [r["condition_notes"][c] for c in (conditions or []) if c in r["condition_notes"]]
+    if intent.get("key") == "condition_advice" and any(c in r.get("condition_detail", {}) for c in conditions or []):
+        notes = []                    # the condition guidance is already the main answer
+    elif intent.get("key") == "diet":
+        notes = [r["diet_notes"][c] for c in (conditions or []) if c in r.get("diet_notes", {})]
+    else:
+        notes = [r["condition_notes"][c] for c in (conditions or []) if c in r["condition_notes"]]
     notes += [r["limitation_notes"][x] for x in (limitations or []) if x in r["limitation_notes"]]
     if risk_level in r["risk_notes"]:
         notes.append(r["risk_notes"][risk_level])
@@ -438,7 +443,13 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     # Time first: "rest now, it is late" matters more than the condition reminders that follow.
     notes = time_notes(chosen, local_time, all_conditions, limitations)
     notes += tailor_notes(chosen, all_conditions, limitations, risk_level)
-    answer = chosen["answer"] + ("\n\n" + " ".join(notes) if notes else "")
+    base_answer = chosen["answer"]
+    asked_first = list(dict.fromkeys(mentioned + all_conditions))   # the condition named in the question leads
+    details = [r["condition_detail"][c] for c in asked_first if c in r.get("condition_detail", {})]
+    if chosen["key"] == "condition_advice" and details:
+        # A different answer for each condition (Table 4.2.2): the patient's own conditions first.
+        base_answer = " ".join(details) + " " + r["condition_closing"]
+    answer = base_answer + ("\n\n" + " ".join(notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,
             "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action")}

@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.6"
+VERSION = "chat-rules-3.7"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -501,6 +501,9 @@ ACTIONS = {
 
 # Rules about doing the exercises: the reply also considers the patient's local time of day
 # (late at night -> advise to rest; condition-specific timing).
+# Also tailored to the patient's conditions (besides the rules created with tailor=True).
+TAILORED = {"tired", "getting_started", "treatment_nav", "missed_session", "diet"}
+
 TIME_AWARE = {"treatment_nav", "getting_started", "how_to", "how_often", "missed_session", "safety", "condition_advice",
               "equipment", "difficulty", "best_time", "recording_help"}
 
@@ -509,6 +512,45 @@ TIME_AWARE = {"treatment_nav", "getting_started", "how_to", "how_often", "missed
 LATE_NIGHT_NOTE = ("It is {time} where you are. Late at night is not a good time for your exercises: tiredness and "
                    "dim light raise the risk of a fall, and activity close to bedtime can disturb your sleep. Rest "
                    "now and do them tomorrow, ideally in the late morning or late afternoon.")
+# Main answer to "can I exercise with my condition?" for each condition the patient has (profile or
+# named in the message). General guidance only; every answer ends by pointing to their doctor.
+CONDITION_DETAIL = {
+    "HYPERTENSION": "With high blood pressure, regular gentle exercise like your plan can help lower it over "
+                    "time. Breathe out as you lift and never hold your breath or strain. If a home reading is "
+                    "180/110 or higher, do not exercise that day: rest and contact your doctor.",
+    "DIABETES": "With diabetes, exercise helps control your blood sugar. If you take insulin or tablets that can "
+                "cause low sugar, check your level before you start and have a small snack if it is low; keep "
+                "glucose sweets nearby, and stop if you feel shaky, sweaty or confused. Check your feet "
+                "afterwards.",
+    "HEART_DISEASE": "With heart disease, keep to the intensity in your plan: you should still be able to talk "
+                     "while exercising. Warm up and cool down for about five minutes. Stop at once if you get "
+                     "chest discomfort, unusual breathlessness, dizziness or a racing heartbeat, and call 999 if "
+                     "it does not settle with rest.",
+    "STROKE": "After a stroke, these exercises help you regain strength and balance. Do them next to a sturdy "
+              "support, go slowly on your weaker side, and stop and call 999 if you notice new weakness, "
+              "numbness, a drooping face or slurred speech.",
+    "ARTHRITIS": "With arthritis, moving keeps your joints flexible and the muscles around them strong. Some "
+                 "discomfort is fine if it settles within about two hours; if it lasts longer, do fewer "
+                 "repetitions next time. Rest a joint that is hot and swollen during a flare.",
+    "OSTEOPOROSIS": "With osteoporosis, strengthening and standing exercises help your bones. Avoid bending "
+                    "forward from the waist, twisting and jerky movements, and keep a support within reach to "
+                    "prevent falls.",
+    "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before "
+              "exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, "
+              "and avoid exercising in cold air or when your asthma is not well controlled.",
+}
+CONDITION_CLOSING = ("Your plan was chosen within the safety limits set from your health profile, so follow it "
+                     "as set and check with your doctor before doing more.")
+
+# Food and drink answers get diet notes for the patient's conditions (not exercise reminders).
+DIET_NOTES = {
+    "HYPERTENSION": "With high blood pressure, keep salt low: your daily sodium limit is on the Home page.",
+    "DIABETES": "With diabetes, spread carbohydrates through the day and exercise 1 to 3 hours after a meal; "
+                "your daily sugar limit is on the Home page.",
+    "HEART_DISEASE": "With heart disease, keep salt and saturated fat low and avoid exercising after a large "
+                     "meal.",
+}
+
 # Direct answer to "can I exercise now?" for each part of the day (best_time only; late night uses
 # LATE_NIGHT_NOTE).
 NOW_NOTES = {
@@ -584,6 +626,8 @@ def build() -> dict:
         if i["key"] in ACTIONS and not i.get("action"):
             i["action"] = ACTIONS[i["key"]]
         i["time_aware"] = i["key"] in TIME_AWARE
+        if i["key"] in TAILORED:
+            i["tailor"] = True
     rules = {
         "version": VERSION,
         "not_recognised": NOT_RECOGNISED,
@@ -596,6 +640,9 @@ def build() -> dict:
         "late_night_note": LATE_NIGHT_NOTE,
         "time_notes": TIME_NOTES,
         "now_notes": NOW_NOTES,
+        "condition_detail": CONDITION_DETAIL,
+        "condition_closing": CONDITION_CLOSING,
+        "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
         "red_flag_answer": RED_FLAG_ANSWER,
     }

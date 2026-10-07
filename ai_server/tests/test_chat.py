@@ -263,3 +263,29 @@ def test_malay_words_are_understood():
     assert ask("boleh buat senaman malam?")["category"] == "best_time"
     assert ask("lupa kata laluan")["category"] == "forgot_password"
     assert ask("terima kasih")["category"] == "thanks"
+
+
+# ---- chat-rules-3.7: a different answer for each health condition (Table 4.2.2) ------------------
+
+def test_condition_answer_differs_by_condition():
+    generic = ask("can I exercise with my condition")["answer"]
+    bp = ask("can I exercise with my condition", conditions=["HYPERTENSION"])["answer"]
+    diabetes = ask("can I exercise with my condition", conditions=["DIABETES"])["answer"]
+    assert len({generic, bp, diabetes}) == 3
+    assert "180/110" in bp and "low sugar" in diabetes
+
+
+def test_condition_named_in_the_question_comes_first():
+    a = ask("i have diabetes can i exercise", conditions=["ARTHRITIS"])["answer"]
+    assert a.index("With diabetes") < a.index("With arthritis")
+
+
+def test_diet_answers_get_diet_notes_not_exercise_reminders():
+    notes = ask("what should I eat", conditions=["HYPERTENSION", "DIABETES"])["notes"]
+    assert any("salt" in n for n in notes) and any("carbohydrates" in n for n in notes)
+    assert not any(n.startswith("Because you have") for n in notes)
+
+
+def test_more_topics_follow_the_patients_conditions():
+    assert ask("i feel tired today", conditions=["DIABETES"])["notes"]
+    assert ask("i missed yesterday", conditions=["HEART_DISEASE"])["notes"]
