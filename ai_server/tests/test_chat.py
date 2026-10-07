@@ -18,6 +18,7 @@ from chat_round1_set import ROUND1
 from chat_round2_set import ROUND2
 from chat_round3_set import ROUND3
 from chat_round4_set import ROUND4
+from chat_round5_set import ROUND5
 from chat_verify_set import VERIFY
 
 client = TestClient(app)
@@ -26,7 +27,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):
@@ -291,3 +292,22 @@ def test_diet_answers_get_diet_notes_not_exercise_reminders():
 def test_more_topics_follow_the_patients_conditions():
     assert ask("i feel tired today", conditions=["DIABETES"])["notes"]
     assert ask("i missed yesterday", conditions=["HEART_DISEASE"])["notes"]
+
+
+# ---- chat-rules-3.10: emergencies in free words, without false alarms ---------------------------
+
+@pytest.mark.parametrize("text", [
+    "my chest feels heavy and painful", "i can hardly breathe", "my left arm suddenly cannot move",
+    "the pain moved to my chest", "i cannot breathe properly", "suddenly my face is drooping",
+])
+def test_free_worded_emergencies_get_the_urgent_answer(text):
+    assert engine.red_flag(text), text
+
+
+@pytest.mark.parametrize("text", [
+    "how do i breathe during the exercise", "breathe out as you lift?", "my chest is fine",
+    "no chest pain at all", "i never had breathing problems", "suddenly i feel better",
+    "can i do chest exercises",
+])
+def test_no_false_alarms(text):
+    assert not engine.red_flag(text), text

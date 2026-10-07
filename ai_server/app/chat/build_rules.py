@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.9"
+VERSION = "chat-rules-3.10"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -57,7 +57,7 @@ INTENTS = [
            "80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
            action={"key": "open_planning", "label": "Open treatment planning"}),
     intent("how_to", "How to do the exercises", 4,
-           ["how to do", "how do i do", "how should i do", "how to perform", "correct way", "right way", "proper way",
+           ["rest between", "between reps", "between sets", "between exercises", "break between", "how to do", "how do i do", "how should i do", "how to perform", "correct way", "right way", "proper way",
             "proper form", "good form", "technique", "instruction", "instructions", "step by step",
             "demonstrate", "demonstration", "show me how", "doing it right", "doing it wrong", "do it right",
             "do it correctly", "correctly", "properly", "form", "posture", "position", "guide", "tutorial", "explain",
@@ -98,7 +98,8 @@ INTENTS = [
            "That is fine. Do your next session as usual; do not do two sessions in one day to catch up. If you "
            "have missed several days, start again gently with fewer repetitions and build back up."),
     intent("safety", "Exercising safely", 4,
-           ["safe", "safely", "safety", "unsafe", "danger", "dangerous", "careful", "precaution", "precautions",
+           ["when to stop", "when should i stop", "stop exercising", "should i stop", "sweat", "sweating",
+            "sweaty", "warm up", "warming up", "cool down", "cooling down", "safe", "safely", "safety", "unsafe", "danger", "dangerous", "careful", "precaution", "precautions",
             "risk", "risky", "breath", "breathe", "breathing", "warm up", "warmup", "warm-up", "warming up",
             "cool down", "cooling down", "stretch", "stretching", "my age", "old age", "elderly", "too old",
             "fall", "falling", "slip", "slipping", "support", "hold on", "harm", "injure myself", "hurt myself",
@@ -146,8 +147,9 @@ INTENTS = [
            "like effort, not pain. If it feels too easy, keep the same plan until you finish it, then request a "
            "new recommendation from the planning page: it will suggest a plan for your new level. Do not add "
            "weight, extra sets or other exercises on your own.", tailor=True),
-    intent("tired", "Feeling tired or unwell", 5,
-           ["tired", "tiring", "exhausted", "exhausting", "fatigue", "fatigued", "no energy", "low energy",
+    intent("tired", "Feeling tired or unwell", 6,
+           ["didn't sleep well", "did not sleep well", "not sleep well", "slept badly", "slept poorly", "poor sleep",
+            "bad sleep", "no sleep", "sleepy", "not enough sleep", "tired", "tiring", "exhausted", "exhausting", "fatigue", "fatigued", "no energy", "low energy",
             "worn out", "sleepy", "drained", "not feeling well", "feel unwell", "unwell", "sick", "ill", "fever",
             "cold", "flu", "cough", "headache", "period", "bad day"],
            ["I feel too tired to exercise", "I am exhausted after the session", "I'm not feeling well today",
@@ -478,6 +480,20 @@ RED_FLAGS = [
     "slurred speech", "speech is slurred", "slurring", "slurred", "face drooping", "face is drooping", "sudden weakness", "can't feel my", "cannot feel my", "coughing blood",
     "vomiting", "unconscious",
 ]
+# Emergencies described in free words: an anchor word with a symptom word close to it, in any order
+# ("my chest feels heavy and painful", "i can hardly breathe", "my arm suddenly cannot move").
+# [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
+# ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
+RED_FLAG_COMBOS = [
+    [["chest"], ["pain", "painful", "hurt", "hurts", "hurting", "heavy", "heaviness", "pressure", "tight",
+                 "tightness", "squeeze", "squeezing", "ache", "aching", "burning", "crushing"], 4],
+    [["breathe", "breath", "breathing"], ["hardly", "barely", "can't", "cannot", "difficult", "difficulty",
+                                          "trouble", "struggle", "struggling", "hard", "gasping"], 3],
+    [["suddenly", "sudden"], ["weak", "weakness", "numb", "numbness", "can't move", "cannot move",
+                              "paralysed", "paralyzed", "drooping", "droop", "slurred", "can't speak",
+                              "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see"], 5],
+]
+
 RED_FLAG_ANSWER = ("Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or "
                    "numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency "
                    "department. For other new pain, dizziness or a fall, sit down, rest, and contact your doctor "
@@ -652,6 +668,7 @@ def build() -> dict:
         "condition_closing": CONDITION_CLOSING,
         "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
+        "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
     }
     OUT.write_text(json.dumps(rules, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

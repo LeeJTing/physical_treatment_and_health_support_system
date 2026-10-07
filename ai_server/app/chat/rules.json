@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.9",
+  "version": "chat-rules-3.10",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -66,6 +66,11 @@
       "show": true,
       "priority": 4,
       "keywords": [
+        "rest between",
+        "between reps",
+        "between sets",
+        "between exercises",
+        "break between",
         "how to do",
         "how do i do",
         "how should i do",
@@ -285,6 +290,17 @@
       "show": true,
       "priority": 4,
       "keywords": [
+        "when to stop",
+        "when should i stop",
+        "stop exercising",
+        "should i stop",
+        "sweat",
+        "sweating",
+        "sweaty",
+        "warm up",
+        "warming up",
+        "cool down",
+        "cooling down",
         "safe",
         "safely",
         "safety",
@@ -527,8 +543,18 @@
       "key": "tired",
       "title": "Feeling tired or unwell",
       "show": true,
-      "priority": 5,
+      "priority": 6,
       "keywords": [
+        "didn't sleep well",
+        "did not sleep well",
+        "not sleep well",
+        "slept badly",
+        "slept poorly",
+        "poor sleep",
+        "bad sleep",
+        "no sleep",
+        "sleepy",
+        "not enough sleep",
         "tired",
         "tiring",
         "exhausted",
@@ -2356,6 +2382,80 @@
     "coughing blood",
     "vomiting",
     "unconscious"
+  ],
+  "red_flag_combos": [
+    [
+      [
+        "chest"
+      ],
+      [
+        "pain",
+        "painful",
+        "hurt",
+        "hurts",
+        "hurting",
+        "heavy",
+        "heaviness",
+        "pressure",
+        "tight",
+        "tightness",
+        "squeeze",
+        "squeezing",
+        "ache",
+        "aching",
+        "burning",
+        "crushing"
+      ],
+      4
+    ],
+    [
+      [
+        "breathe",
+        "breath",
+        "breathing"
+      ],
+      [
+        "hardly",
+        "barely",
+        "can't",
+        "cannot",
+        "difficult",
+        "difficulty",
+        "trouble",
+        "struggle",
+        "struggling",
+        "hard",
+        "gasping"
+      ],
+      3
+    ],
+    [
+      [
+        "suddenly",
+        "sudden"
+      ],
+      [
+        "weak",
+        "weakness",
+        "numb",
+        "numbness",
+        "can't move",
+        "cannot move",
+        "paralysed",
+        "paralyzed",
+        "drooping",
+        "droop",
+        "slurred",
+        "can't speak",
+        "cannot speak",
+        "collapse",
+        "collapsed",
+        "confused",
+        "can't see",
+        "cannot see"
+      ],
+      5
+    ]
   ],
   "red_flag_answer": "Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency department. For other new pain, dizziness or a fall, sit down, rest, and contact your doctor before exercising again."
 }

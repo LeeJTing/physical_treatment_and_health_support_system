@@ -241,15 +241,27 @@ def negated(words: list[str], i: int) -> bool:
     return bool(NEGATORS & set(words[max(0, i - 2):i]))
 
 
+COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
+
+
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
+    r = rules()
     for variant in {clean(text), correct(text)}:
         words = variant.split()
-        for phrase in rules()["red_flags"]:
+        for phrase in r["red_flags"]:
             for i in find_phrase(phrase, words):
                 if not negated(words, i):
                     return True
+        for anchors, symptoms, window in r.get("red_flag_combos", []):
+            for anchor in anchors:
+                for i in find_phrase(anchor, words):
+                    if COMBO_NEGATORS & set(words[max(0, i - 2):i]):
+                        continue                       # "no chest pain", "never had breathing trouble"
+                    near = words[max(0, i - window):i + window + 1]
+                    if any(find_phrase(s, near) for s in symptoms):
+                        return True
     return False
 
 
