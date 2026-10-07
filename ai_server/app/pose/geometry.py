@@ -120,6 +120,19 @@ class Features:
                 point_segment_dist(d["wr"], s["L"]["hip"], s["L"]["kn"]),
                 point_segment_dist(d["wr"], s["R"]["hip"], s["R"]["kn"])) / self.torso
 
+        # Seated marching: how far along the side-k thigh (0 hip, 1 knee) a hand rests, for the hand
+        # closest to that thigh. Resting hands sit near the hip end; hands pulling the leg up sit at
+        # the knee. 0 when no hand is on the thigh.
+        for k, d in s.items():
+            ab = d["kn"] - d["hip"]
+            best = np.zeros(len(ab))
+            for w in ("L", "R"):
+                ap = s[w]["wr"] - d["hip"]
+                along = np.sum(ap * ab, axis=1) / (np.sum(ab * ab, axis=1) + 1e-9)
+                off = np.abs(ab[:, 0] * ap[:, 1] - ab[:, 1] * ap[:, 0]) / (np.linalg.norm(ab, axis=1) + 1e-9)
+                best = np.maximum(best, np.where(off / self.torso < 0.35, along, 0.0))
+            S[f"wrist_along_thigh_{k}"] = best
+
         trunk = sh_mid - hip_mid
         lean = angle_to(trunk, UP)
         S["lean_sagittal"] = lean * np.sign(trunk[:, 0] * self.facing + 1e-9)      # + forward, - backward

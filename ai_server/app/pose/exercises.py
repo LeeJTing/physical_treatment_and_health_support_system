@@ -147,8 +147,17 @@ def descent_seconds(signal, f, r: Rep, margin: float = 5.0, look_ahead: float = 
     return float(f.t[i1] - f.t[i0]) if i1 > i0 else float("inf")
 
 
+def near_side(f) -> str:
+    """The leg nearer the camera in a side view (its knee is seen better). The far leg is hidden
+    behind it, and its estimated lifts are unreliable (phantom 13-23 deg lifts in Elwin's clips)."""
+    vis = f.seq.vis
+    return "L" if np.nanmean(vis[:, L_KNEE]) >= np.nanmean(vis[:, R_KNEE]) else "R"
+
+
 def thigh_lift_seated(f):
-    return {k: f[f"thigh_from_down_{k}"] - 90 for k in ("L", "R")}
+    """Near leg only (7 Oct): from the side the far leg cannot be judged."""
+    k = near_side(f)
+    return {k: f[f"thigh_from_down_{k}"] - 90}
 
 
 def thigh_lift_standing(f):
@@ -307,14 +316,17 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="seated_marching", name="Seated Marching", view="side", required=LOWER + [L_SHOULDER, R_SHOULDER, L_WRIST, R_WRIST],
-    side_signals=thigh_lift_seated, rest=6, active=12, target=20,
+    # rest/active lowered 7 Oct: low knee lifts peak at 10-18 deg (near leg); flat thigh rests at -3 to 0.
+    side_signals=thigh_lift_seated, rest=4, active=8, target=20,
     mistakes=[
         M("low_knee_lift", "Lift your knees higher.",
           lambda f, r: rep_max(f[f"thigh_from_down_{r.side or 'L'}"] - 90, r), 16, False, "degrees"),
         M("leaning_back", "Sit upright; do not lean back against the chair.",
           lambda f, r: rep_min(f["lean_sagittal"], r), -12, False, "degrees"),
+        # 7 Oct: hands resting on the thighs are normal (they sit 0-0.5 of the way to the knee);
+        # pulling the leg up puts a hand at the knee (0.8-1.0).
         M("using_hands", "Lift your legs without pulling them up with your hands.",
-          lambda f, r: at_peak(f.both("wrist_thigh", "min"), r), 0.2, False, "torso lengths"),
+          lambda f, r: at_peak(f[f"wrist_along_thigh_{r.side or 'L'}"], r), 0.7, True, "of the thigh"),
     ]))
 
 add(ExerciseSpec(

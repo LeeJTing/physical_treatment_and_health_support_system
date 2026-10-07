@@ -48,6 +48,9 @@ REVIEWED = {
     # upright again); correct reps lean -1.4 deg (median), leaning reps 31 deg.
     "heel_raise.leaning_forward": (12, "correct median -1.4 deg, leaning median 31 deg; the one missed rep is a "
                                        "0.6 s partial rep at the end of the clip; -0.03 would flag any lean"),
+    # -12 flagged a normal rep at -13 deg (sitting back against the chair); leaning reps -31 to -34.
+    "seated_marching.leaning_back": (-20, "correct reps down to -13 deg (back against the chair), leaning reps "
+                                          "-31 to -34 deg; -20 leaves margin on both sides"),
 }
 
 
