@@ -329,3 +329,28 @@ def test_rom_scale_for_risk_and_age():
     assert exercises.rom_scale_for() == 1.0 and exercises.rom_scale_for("LOW", 40) == 1.0
     assert exercises.rom_scale_for("MODERATE") == 0.85 and exercises.rom_scale_for(None, 68) == 0.85
     assert exercises.rom_scale_for("high") == 0.7 and exercises.rom_scale_for("LOW", 80) == 0.7
+
+
+def _shift(frames, dx):
+    out = []
+    for p, d in zip(frames, dx):
+        q = p.copy()
+        q[:, 0] += d
+        out.append(q)
+    return out
+
+
+def test_large_side_to_side_sway_gives_a_balance_tip():
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    sway = [85 * math.sin(i / 6) for i in range(len(frames))]      # about +-0.3 torso lengths
+    res = analyse("shoulder_abduction", sequence(_shift(frames, sway)), use_model=False)
+    assert res.get("balance_tip") is True
+    assert res["feedback"][-1].startswith("You swayed quite a lot")
+    calm = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert "balance_tip" not in calm
+
+
+def test_frail_patients_get_a_shorter_hold_target():
+    full = analyse("tandem_stance", sequence([front_pose(feet_gap=10)] * 110), use_model=False)
+    gentle = analyse("tandem_stance", sequence([front_pose(feet_gap=10)] * 110), use_model=False, rom_scale=0.7)
+    assert gentle["accuracy"] >= full["accuracy"]

@@ -72,6 +72,11 @@ FALL_DROP_DEPTH = 0.8          # ... that ends this far down
 FALL_MESSAGE = ("It looks like you may have lost your balance or fallen. Stop the exercise. If you are hurt, "
                 "dizzy or cannot get up, call for help or 999. Next time keep a sturdy chair or counter "
                 "within reach.")
+# Balance (front-view standing exercises): side-to-side hip travel (3rd to 97th percentile) in torso
+# lengths. Correct clips reached at most 0.33; stepping out of tandem stance 0.57, leaning hip
+# abductions about 0.8. A tip, not a mistake: it does not lower the score.
+BALANCE_SWAY = 0.5
+BALANCE_MESSAGE = "You swayed quite a lot. Hold on to a sturdy chair or counter to keep your balance."
 PARTIAL_MESSAGE = ("We saw small movements but not full repetitions. That is a good start: move a little "
                    "further each time, as far as is comfortable.")
 
@@ -139,7 +144,8 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
         whole = Rep(start=0, peak=len(f.t) // 2, end=len(f.t) - 1)
         mistakes = check_rep(spec, f, whole, rom_scale)
         hold = longest_true_seconds((f["feet_gap"] < 0.6) & visible, f.t)
-        score = max(0.0, min(1.0, hold / spec.hold_target_sec) * 100 - MISTAKE_PENALTY * len(mistakes))
+        target = spec.hold_target_sec * min(rom_scale, 1.0)        # shorter hold for frail patients
+        score = max(0.0, min(1.0, hold / target) * 100 - MISTAKE_PENALTY * len(mistakes))
         all_mistakes.update(mistakes)
         rep_details.append({"start_sec": float(f.t[0]), "end_sec": float(f.t[-1]), "score": round(score, 1),
                             "mistakes": mistakes})
@@ -190,6 +196,11 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     if fall_at is not None:
         feedback = [FALL_MESSAGE] + [x for x in feedback if x != GOOD_FORM]
     extra = {}
+    if fall_at is None and spec.view == "front" and spec.key not in LYING_EXERCISES:
+        sway = f["hip_sway"]
+        if float(np.nanpercentile(sway, 97) - np.nanpercentile(sway, 3)) > BALANCE_SWAY:
+            feedback = feedback + [BALANCE_MESSAGE]
+            extra["balance_tip"] = True
     if fall_at is not None:
         extra["safety_alert"] = {"type": "possible_fall", "at_sec": round(fall_at, 1), "message": FALL_MESSAGE}
     if partial:
