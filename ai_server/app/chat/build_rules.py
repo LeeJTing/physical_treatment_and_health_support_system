@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.17"
+VERSION = "chat-rules-3.18"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -159,7 +159,7 @@ INTENTS = [
     intent("tired", "Feeling tired or unwell", 6,
            ["didn't sleep well", "did not sleep well", "not sleep well", "slept badly", "slept poorly", "poor sleep",
             "bad sleep", "no sleep", "sleepy", "not enough sleep", "tired", "tiring", "exhausted", "exhausting", "fatigue", "fatigued", "no energy", "low energy",
-            "worn out", "sleepy", "drained", "not feeling well", "feel unwell", "unwell", "sick", "ill", "fever",
+            "worn out", "sleepy", "drained", "fell asleep", "not feeling well", "feel unwell", "unwell", "sick", "ill", "fever",
             "cold", "flu", "cough", "headache", "period", "bad day"],
            ["I feel too tired to exercise", "I am exhausted after the session", "I'm not feeling well today",
             "should I exercise when I am sick"],
@@ -331,7 +331,9 @@ INTENTS = [
     intent("for_someone_else", "Exercising for a family member", 3,
            ["my mother", "my father", "my mum", "my mom", "my dad", "my parents", "my parent",
             "my grandmother", "my grandfather", "my grandma", "my grandpa", "my wife", "my husband",
-            "my son", "my daughter", "my friend", "can she", "can he", "for her", "for him", "she do", "he do"],
+            "my son", "my daughter", "my friend", "can she", "can he", "for her", "for him", "she do", "he do",
+            "father", "mother", "grandmother", "grandfather", "grandma", "grandpa", "year old father",
+            "year old mother", "elderly parent"],
            ["can my mother do these exercises", "is this plan suitable for my father"],
            "Each person should use their own account and health profile: the plan and its safety limits are "
            "chosen from the profile of the person exercising, including their age, conditions and fall risk. "
@@ -342,7 +344,9 @@ INTENTS = [
            action={"key": "open_profile", "label": "Open health profile"}),
     intent("low_mood", "Feeling low", 7,
            ["sad", "so sad", "depressed", "depression", "feeling down", "feel down", "low mood", "lonely",
-            "grief", "grieving", "passed away", "hopeless", "feel empty", "keep crying", "sedih", "murung"],
+            "grief", "grieving", "passed away", "hopeless", "feel empty", "keep crying", "sedih", "murung",
+            "cry every day", "crying every day", "i cry", "nobody visits", "no one visits", "nobody cares",
+            "no one cares", "alone all day", "all alone"],
            ["I feel sad", "I have been feeling down", "my husband died and I feel so sad"],
            "I am sorry you are feeling this way. Low mood is common during recovery and after a loss, and it is "
            "not a weakness. Gentle activity, daylight and talking with someone you trust can help. If you have "
@@ -619,7 +623,18 @@ RED_FLAGS = [
     "wife fell", "grandmother fell", "grandfather fell", "grandma fell", "grandpa fell", "fell over",
     "fell on the floor", "fell off", "has fallen", "have fallen", "had fallen", "cannot get up", "can't get up",
     "cant get up", "unable to get up", "jatuh",
+    # 8 Oct, laptop safety pass 2.
+    "terjatuh", "slipped and", "tripped and", "slipped in",
+    "slipped on", "tripped over", "slipped and fell", "hit my hip", "pengsan", "cannot stand up",
+    "can't stand up", "cant stand up",
 ]
+# A person collapsing or falling, not a knee or a phone ("my knee will collapse", "the phone keeps
+# falling down").
+_WHO = ["i", "he", "she", "my mum", "my mom", "my mother", "my dad", "my father", "my husband", "my wife",
+        "my grandma", "my grandpa", "my grandmother", "my grandfather", "mum", "dad", "father", "mother",
+        "husband", "wife", "grandma", "grandpa"]
+RED_FLAGS += [f"{w} {v}" for w in _WHO for v in ("collapsed", "has collapsed", "fall down", "falls down",
+                                                 "fall over", "falls over", "keep falling")]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury.
@@ -629,6 +644,15 @@ CRISIS = [
     "nothing to live for", "give up on life", "giving up on life", "want to hurt myself", "going to hurt myself",
     "harm myself", "self harm", "self-harm", "cut myself", "don't want to live", "dont want to live",
     "do not want to live", "bunuh diri", "nak mati", "ingin mati", "mahu mati", "tak nak hidup",
+    # 8 Oct, laptop safety pass 2: indirect wording, someone else, overdose, misspellings.
+    "tired of living", "tired of life", "sick of living", "penat hidup", "letih hidup", "no point anymore",
+    "no point going on", "no point in living", "point of living", "point in living", "not wake up",
+    "don't want to wake up", "dont want to wake up", "do not want to wake up", "better if i was gone",
+    "better if i were gone", "better off without me", "i am a burden", "i'm a burden", "im a burden",
+    "burden to my", "burden to everyone", "want to end it", "end it now", "take all my pills",
+    "take all my medicine", "take all my tablets", "all my pills", "overdose", "kill herself", "kill himself",
+    "end her life", "end his life", "take her own life", "take his own life", "sucide", "suicde", "suiside",
+    "suicid", "sucidal",
 ]
 CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
                  "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
@@ -640,13 +664,21 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
+    # Someone found on the floor or unable to get off it ("found my mum on the floor"); "lying on the
+    # floor" alone is not here: the glute bridge is done lying on the floor.
+    [["floor"], ["found", "collapsed", "fell", "fallen", "cannot stand", "can't stand", "cant stand",
+                 "unable to stand", "cannot get up", "can't get up", "cant get up", "still on"], 5],
+    # One side of the face drooping (stroke), in everyday words ("face one side drop").
+    [["face", "mouth"], ["drop", "droop", "drooping", "dropping", "dropped", "crooked", "lopsided",
+                         "one side"], 3],
     [["chest"], ["pain", "painful", "hurt", "hurts", "hurting", "heavy", "heaviness", "pressure", "tight",
                  "tightness", "squeeze", "squeezing", "ache", "aching", "burning", "crushing"], 4],
     [["breathe", "breath", "breathing"], ["hardly", "barely", "can't", "cannot", "difficult", "difficulty",
                                           "trouble", "struggle", "struggling", "hard", "gasping"], 3],
     [["suddenly", "sudden"], ["weak", "weakness", "numb", "numbness", "can't move", "cannot move",
                               "paralysed", "paralyzed", "drooping", "droop", "slurred", "can't speak",
-                              "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see"], 5],
+                              "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see",
+                              "cannot talk", "can't talk", "cant talk", "talk properly", "speak properly"], 5],
 ]
 
 RED_FLAG_ANSWER = ("Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or "
