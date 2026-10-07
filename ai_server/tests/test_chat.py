@@ -388,3 +388,15 @@ def test_safety_pass5(plan, question, expected):
         assert got not in ("crisis", "red_flag", "overdose"), got
     else:
         assert got in expected.split("/"), got
+
+
+from chat_safety_pass6_set import SAFETY_PASS6  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS6, ids=[q[:40] for _, q, _ in SAFETY_PASS6])
+def test_safety_pass6(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose"), got
+    else:
+        assert got in expected.split("/"), got

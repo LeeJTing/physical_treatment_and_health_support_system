@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.23",
+  "version": "chat-rules-3.24",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -426,6 +426,9 @@
         "new knee",
         "replaced hip",
         "replaced knee",
+        "wound",
+        "stitches",
+        "incision",
         "cast",
         "plaster",
         "fracture",
@@ -2034,7 +2037,7 @@
         "should I stop my medicine",
         "what medicine should I take"
       ],
-      "answer": "I cannot give advice about medicines. Please ask your doctor or pharmacist, and keep taking your medicines as prescribed unless they tell you otherwise.",
+      "answer": "I cannot give advice about medicines. Please ask your doctor or pharmacist, and keep taking your medicines as prescribed unless they tell you otherwise. If a dose was taken twice by mistake, call your pharmacist or doctor now for advice; for insulin, a blood thinner or many tablets, call 999.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3948,6 +3951,7 @@
     "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled.",
     "PREGNANCY": "During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going well, but check with your doctor or midwife first. After the first three months avoid lying flat on your back for long (as in the glute bridge), exercise on a firm, non-slip surface with a support nearby for balance, drink water and do not overheat. Stop and contact your doctor if you have bleeding, dizziness, chest pain, calf pain or swelling, contractions or leaking fluid.",
     "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and precautions come first: they decide how far you may bend and when you may do more. After a new hip, avoid bending it past 90 degrees (a right angle), crossing your legs and twisting, and keep the leg facing forward, until they say it is safe. Ask them before starting this plan, and stop if the wound becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
+    "SURGERY_WOUND": "A little oozing from a surgical wound can be normal in the first days, but if it keeps bleeding, soaks the dressing, or turns red, hot, swollen or smelly, or you get a fever, contact your surgeon or clinic today, and do not exercise that area until they have checked it.",
     "INJURY": "With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor or physiotherapist says it is ready. Exercises that do not use it are usually fine, but check with them first, and stop if the injured area hurts or swells."
   },
   "condition_closing": "Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.",
@@ -4050,6 +4054,13 @@
     "fell on my face",
     "lost balance and fell",
     "lost my balance and fell",
+    "blue lips",
+    "lips turning blue",
+    "lips going blue",
+    "lips are blue",
+    "lips turned blue",
+    "lips blue",
+    "bibir biru",
     "hit his head",
     "hit her head",
     "banged my head",

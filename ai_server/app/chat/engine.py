@@ -260,7 +260,7 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
+PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
           ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
@@ -340,21 +340,77 @@ CRISIS_NEGATORS = {"don't", "dont", "never", "not"}
 # "end everything for today, I'm done with the session" is about the session.
 NOT_A_CRISIS = [("end everything for today", "stop for today"), ("end things for today", "stop for today")]
 
-# 2) Too many pills, with or without the word overdose (laptop pass 5): an emergency even when it
-# was not on purpose (a paracetamol overdose can be fatal with no early symptoms).
-_PILLS = r"(?:pills?|tablets?|panadol|paracetamol|ubat|medicines?|capsules?|sleeping pills?)"
-OVERDOSE = re.compile(r"\b(?:took|taken|swallowed|ate|eaten|makan|telan)\b(?:\W+\w+){0,4}?\W+"
-                      r"(\d+|whole bottle|whole box|whole pack|all|banyak|handful|lots of|a lot of|many)\b"
-                      r"(?:\W+\w+){0,4}?\W+" + _PILLS + r"\b")
+# Too many pills, with or without the word overdose (laptop safety passes 5 and 6): an emergency
+# even when it was not on purpose (a paracetamol overdose can be fatal with no early symptoms).
+# Read word by word: a taking verb, then within 8 words a medicine, with an amount that is large
+# (8+ tablets, strips of 10, a whole bottle, in one go, all of them...). Normal use ("took all my
+# pills today as prescribed", "took 10 minutes to swallow the tablets") is not an overdose.
+OD_VERBS = {"took", "taken", "swallowed", "ate", "eaten", "makan", "telan", "drank", "drunk", "minum", "finished",
+            "habis", "habiskan"}
+OD_SUBSTANCES = {"pill", "pills", "tablet", "tablets", "panadol", "paracetamol", "ubat", "medicine", "medicines",
+                 "medication", "capsule", "capsules", "syrup", "insulin", "warfarin", "biji"}
+OD_NUMBER_WORDS = {"eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "fifteen": 15, "twenty": 20,
+                   "thirty": 30, "forty": 40, "fifty": 50, "lapan": 8, "sembilan": 9, "sepuluh": 10, "belas": 11,
+                   "puluh": 20}
+OD_UNITS_NOT_PILLS = {"minute", "minutes", "min", "mins", "hour", "hours", "day", "days", "time", "times", "mg",
+                      "ml", "second", "seconds", "week", "weeks", "year", "years"}
+OD_STRIPS = {"strip", "strips", "papan", "kepingan", "sheet", "sheets", "blister", "blisters"}
+OD_LARGE = ["whole bottle", "whole box", "whole pack", "whole strip", "a bottle", "one bottle", "satu botol",
+            "the bottle", "a whole", "handful", "in one go", "at once", "all of them", "all my", "all the",
+            "banyak", "lots of", "a lot of", "every pill", "the rest of"]
+OD_NORMAL_USE = ["as prescribed", "like the doctor said", "the doctor told", "as usual", "every day", "everyday",
+                 "daily", "before the session", "after the session", "before exercise", "after exercise",
+                 "before the exercise", "after the exercise", "every morning", "every night"]
+OD_CHILD = {"grandson", "granddaughter", "grandchild", "child", "kid", "baby", "toddler", "cucu", "anak"}
+OD_DOUBLE = ["double my insulin", "double insulin", "double dose of insulin", "twice my insulin",
+             "extra insulin", "double my warfarin", "double warfarin", "extra warfarin", "double my blood thinner"]
 OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now. Call 999 or go to the nearest "
                    "emergency department now, and take the medicine packets with you; do not wait for symptoms. "
                    "If this was on purpose, or you are thinking of harming yourself, you are not alone: "
                    "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
 
 
+def _amount(words: list[str], lo: int, hi: int) -> int:
+    """Largest tablet count stated between positions lo and hi (strips count as 10 tablets)."""
+    best = 0
+    for j in range(lo, hi):
+        w = words[j]
+        n = int(w) if w.isdigit() else OD_NUMBER_WORDS.get(w, 0)
+        if w == "dua" and j + 1 < len(words) and words[j + 1] in ("puluh", "belas"):
+            n = 20 if words[j + 1] == "puluh" else 12
+        if not n:
+            continue
+        nxt = words[j + 1] if j + 1 < len(words) else ""
+        if nxt in OD_UNITS_NOT_PILLS:
+            continue                                     # "10 minutes", "500 mg"
+        if nxt in OD_STRIPS:
+            n *= 10
+        best = max(best, n)
+    return best
+
+
 def overdose(text: str | None) -> bool:
     if not text:
         return False
+    low = text.lower()
+    words = re.findall(r"[a-z0-9']+", low)
+    padded = f" {' '.join(words)} "
+    if any(f" {d} " in padded for d in OD_DOUBLE):
+        return True
+    if any(f" {n} " in padded for n in OD_NORMAL_USE):
+        return False
+    for i, w in enumerate(words):
+        if w not in OD_VERBS:
+            continue
+        window = words[i + 1:i + 9]
+        if not any(x in OD_SUBSTANCES or x.startswith("pill") for x in window):
+            continue
+        if any(c in OD_CHILD for c in words[max(0, i - 3):i]):
+            return True                                  # "my grandson ate my pills"
+        seg = f" {' '.join(words[i:i + 12])} "
+        if any(f" {p} " in seg for p in OD_LARGE) or _amount(words, i + 1, min(len(words), i + 10)) >= 8:
+            return True
+    return False
     for m in OVERDOSE.finditer(text.lower()):
         q = m.group(1)
         if not q.isdigit() or int(q) >= 8:
@@ -493,7 +549,8 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "knee replacement": "JOINT_REPLACEMENT", "joint replacement": "JOINT_REPLACEMENT",
                    "replacement surgery": "JOINT_REPLACEMENT", "new hip": "JOINT_REPLACEMENT",
                    "new knee": "JOINT_REPLACEMENT", "replaced hip": "JOINT_REPLACEMENT",
-                   "replaced knee": "JOINT_REPLACEMENT", "cast": "INJURY", "plaster": "INJURY",
+                   "replaced knee": "JOINT_REPLACEMENT", "wound": "SURGERY_WOUND", "stitches": "SURGERY_WOUND",
+                   "incision": "SURGERY_WOUND", "cast": "INJURY", "plaster": "INJURY",
                    "fracture": "INJURY", "fractured": "INJURY", "broken bone": "INJURY", "broke my": "INJURY",
                    "sprain": "INJURY", "sprained": "INJURY"}
 

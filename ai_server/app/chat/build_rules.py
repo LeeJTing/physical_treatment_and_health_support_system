@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.23"
+VERSION = "chat-rules-3.24"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -120,7 +120,8 @@ INTENTS = [
             "chronic", "heart patient", "sugar level", "my sugar", "sugar low", "low sugar", "glucose",
             "sugar reading", "pregnant", "pregnancy", "expecting a baby", "mengandung", "hamil",
             "hip replacement", "knee replacement", "joint replacement", "replacement surgery", "new hip",
-            "new knee", "replaced hip", "replaced knee", "cast", "plaster", "fracture", "fractured",
+            "new knee", "replaced hip", "replaced knee", "wound", "stitches", "incision", "cast", "plaster",
+            "fracture", "fractured",
             "broken bone", "broke my", "sprain", "sprained"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
@@ -485,7 +486,9 @@ INTENTS = [
             "injection", "inhaler dose"],
            ["can I take painkillers before exercising", "should I stop my medicine", "what medicine should I take"],
            "I cannot give advice about medicines. Please ask your doctor or pharmacist, and keep taking your "
-           "medicines as prescribed unless they tell you otherwise.", show=False),
+           "medicines as prescribed unless they tell you otherwise. If a dose was taken twice by mistake, call "
+           "your pharmacist or doctor now for advice; for insulin, a blood thinner or many tablets, call 999.",
+           show=False),
     intent("diagnosis", "Diagnosis and seeing a doctor", 9,
            ["diagnose", "diagnosis", "what is wrong", "what's wrong", "is it broken", "broken", "fracture",
             "fractured", "torn", "tear", "tore", "sprain", "sprained", "dislocated", "pulled a muscle", "pulled muscle",
@@ -635,6 +638,8 @@ RED_FLAGS = [
     # Falling onto a body part ("lost balance and fell on my bum").
     "fell on my back", "fell on my hip", "fell on my knee", "fell on my bum", "fell on my head", "fell on my side",
     "fell on my arm", "fell on my wrist", "fell on my face", "lost balance and fell", "lost my balance and fell",
+    "blue lips", "lips turning blue", "lips going blue", "lips are blue", "lips turned blue", "lips blue",
+    "bibir biru",
     "hit his head", "hit her head", "banged my head", "banged his head", "banged her head", "knocked my head",
     "knocked his head", "knocked her head", "fell and hit his", "fell and hit her", "fell and hit my",
     # Slipping is a fall only with a fall, a hit or a slippery place (laptop pass 4: "slipped me a note",
@@ -808,6 +813,10 @@ CONDITION_DETAIL = {
                          "After a new hip, avoid bending it past 90 degrees (a right angle), crossing your legs and "
                          "twisting, and keep the leg facing forward, until they say it is safe. Ask them before starting this plan, and stop if the wound "
                          "becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
+    "SURGERY_WOUND": "A little oozing from a surgical wound can be normal in the first days, but if it keeps "
+                     "bleeding, soaks the dressing, or turns red, hot, swollen or smelly, or you get a fever, "
+                     "contact your surgeon or clinic today, and do not exercise that area until they have "
+                     "checked it.",
     "INJURY": "With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor "
               "or physiotherapist says it is ready. Exercises that do not use it are usually fine, but check "
               "with them first, and stop if the injured area hurts or swells.",
