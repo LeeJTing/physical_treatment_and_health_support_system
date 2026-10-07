@@ -348,3 +348,17 @@ def test_follow_up_never_overrides_safety_or_a_new_topic():
     assert ask("how do i do the sit to stand", previous_category="exercise:heel_raise")["category"] == "exercise:sit_to_stand"
     assert ask("i feel chest pain doing it", previous_category="exercise:heel_raise")["category"] == "red_flag"
     assert ask("how many reps for that one")["category"] == "plan_exercises"      # no previous topic
+
+
+# ---- safety pass 3 (laptop, 8 Oct): messages that must not trigger the urgent answers -------------
+
+from chat_safety_pass3_set import SAFETY_PASS3  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS3, ids=[q[:40] for _, q, _ in SAFETY_PASS3])
+def test_safety_pass3(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag"), got
+    else:
+        assert got in expected.split("/"), got

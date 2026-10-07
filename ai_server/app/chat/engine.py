@@ -57,7 +57,10 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
-         "jatuh": "fell", "terjatuh": "fell", "sakit": "pain", "pengsan": "fainted", "makan": "eat", "lepas": "after", "sebelum": "before", "tidur": "sleep"}
+         "jatuh": "fell", "terjatuh": "fell", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
+         "susah": "hard", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
+         "mak": "mother", "ibu": "mother", "ayah": "father", "bapa": "father", "nenek": "grandma",
+         "atuk": "grandpa", "suami": "husband", "isteri": "wife", "makan": "eat", "lepas": "after", "sebelum": "before", "tidur": "sleep"}
 MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afternoon",
                  "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
                  "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
@@ -263,7 +266,23 @@ PREFER = [("for_someone_else", "posture_result"), ("weakness_balance", "equipmen
 
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
 NOT_A_FALL = [("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behind", "behind"),
-              ("fallen behind", "behind"), ("falling behind", "behind")]
+              ("fallen behind", "behind"), ("falling behind", "behind"), ("fell in love", "loved"),
+              ("fallen in love", "loved"), ("tripped the alarm", "set off the alarm"),
+              ("tripped the switch", "set off the switch"), ("tripped the breaker", "set off the breaker")]
+# "I nearly hit my head" / "almost fell" do not make an accident an emergency. Symptoms still count
+# ("I almost blacked out" is a warning sign itself).
+NEAR_MISS = {"nearly", "almost"}
+ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped", "trip", "collapsed")
+# A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
+BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b")
+
+
+def high_bp(text: str) -> bool:
+    for sys_, dia in BP_READING.findall(text):
+        s_, d_ = int(sys_), int(dia)
+        if 70 <= s_ <= 280 and 40 <= d_ <= 180 and s_ > d_ and (s_ >= 180 or d_ >= 110):
+            return True
+    return False
 
 
 def crisis(text: str | None) -> bool:
@@ -277,6 +296,8 @@ def crisis(text: str | None) -> bool:
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
+    if high_bp(text):
+        return True
     r = rules()
     for variant in {clean(text), correct(text)}:
         padded = f" {variant} "
@@ -285,8 +306,12 @@ def red_flag(text: str | None) -> bool:
         words = padded.split()
         for phrase in r["red_flags"]:
             for i in find_phrase(phrase, words):
-                if not negated(words, i):
-                    return True
+                before = set(words[max(0, i - 2):i])
+                if NEGATORS & before:
+                    continue
+                if NEAR_MISS & before and any(w in phrase.split() for w in ACCIDENT_WORDS):
+                    continue
+                return True
         for anchors, symptoms, window in r.get("red_flag_combos", []):
             for anchor in anchors:
                 for i in find_phrase(anchor, words):

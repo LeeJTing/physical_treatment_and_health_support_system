@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.18"
+VERSION = "chat-rules-3.19"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -615,44 +615,50 @@ RED_FLAGS = [
     "dizzy", "dizziness", "light headed", "lightheaded", "giddy", "giddiness", "pening", "pening kepala",
     "vertigo", "head spinning", "head is spinning", "room spinning", "room is spinning", "severe pain", "extreme pain", "severe swelling",
     "very swollen", "badly swollen", "numb", "numbness", "heart racing", "racing heart", "heart is racing", "heart beating fast", "heart pounding",
-    "heart is pounding", "palpitations", "irregular heartbeat", "fell down", "i fell", "i've fallen", "had a fall", "hit my head",
-    "slurred speech", "speech is slurred", "slurring", "slurred", "face drooping", "face is drooping", "sudden weakness", "can't feel my", "cannot feel my", "coughing blood",
-    "vomiting", "unconscious",
-    # 8 Oct (laptop review): someone else falling, and not being able to get up (a long lie).
-    "he fell", "she fell", "father fell", "mother fell", "dad fell", "mum fell", "mom fell", "husband fell",
-    "wife fell", "grandmother fell", "grandfather fell", "grandma fell", "grandpa fell", "fell over",
-    "fell on the floor", "fell off", "has fallen", "have fallen", "had fallen", "cannot get up", "can't get up",
-    "cant get up", "unable to get up", "jatuh",
-    # 8 Oct, laptop safety pass 2.
-    "terjatuh", "slipped and", "tripped and", "slipped in",
-    "slipped on", "tripped over", "slipped and fell", "hit my hip", "pengsan", "cannot stand up",
-    "can't stand up", "cant stand up",
+    "heart is pounding", "palpitations", "irregular heartbeat", "had a fall", "hit my head", "hit my hip",
+    "slurred speech", "speech is slurred", "slurring", "slurred", "face drooping", "face is drooping", "sudden weakness", "can't feel my", "cannot feel my",
+    "coughing blood", "coughing up blood", "cough up blood", "cough blood", "batuk darah",
+    "vomiting", "unconscious", "pengsan", "not answering", "not responding", "unresponsive", "tak sedar",
+    "tidak sedar", "not waking up", "won't wake up", "will not wake up", "not breathing",
+    # Falling onto a body part ("lost balance and fell on my bum").
+    "fell on my back", "fell on my hip", "fell on my knee", "fell on my bum", "fell on my head", "fell on my side",
+    "fell on my arm", "fell on my wrist", "fell on my face", "lost balance and fell", "lost my balance and fell",
 ]
-# A person collapsing or falling, not a knee or a phone ("my knee will collapse", "the phone keeps
-# falling down").
+# Falls, collapses, slips: only with a PERSON in front (8 Oct, laptop safety passes 2 and 3), so a
+# phone, a mat, a score or a price that "fell" or "slipped" is not an emergency. Malay "jatuh" /
+# "terjatuh" and family words (emak, ayah, nenek...) are mapped to English before matching.
 _WHO = ["i", "he", "she", "my mum", "my mom", "my mother", "my dad", "my father", "my husband", "my wife",
         "my grandma", "my grandpa", "my grandmother", "my grandfather", "mum", "dad", "father", "mother",
-        "husband", "wife", "grandma", "grandpa"]
-RED_FLAGS += [f"{w} {v}" for w in _WHO for v in ("collapsed", "has collapsed", "fall down", "falls down",
-                                                 "fall over", "falls over", "keep falling")]
+        "husband", "wife", "grandma", "grandpa", "grandmother", "grandfather", "my son", "my daughter"]
+RED_FLAGS += [f"{w} {v}" for w in _WHO for v in (
+    "collapsed", "has collapsed", "fall down", "falls down", "fall over", "falls over", "keep falling", "fell",
+    "slipped", "tripped", "slip and", "trip and", "has fallen", "have fallen", "had fallen", "'ve fallen")]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
-# is about injury.
+# is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
+# take all my medicine before exercise".
 CRISIS = [
     "end my life", "end it all", "kill myself", "killing myself", "want to die", "wanna die", "wish i was dead",
     "wish i were dead", "better off dead", "suicide", "suicidal", "take my own life", "no reason to live",
     "nothing to live for", "give up on life", "giving up on life", "want to hurt myself", "going to hurt myself",
     "harm myself", "self harm", "self-harm", "cut myself", "don't want to live", "dont want to live",
     "do not want to live", "bunuh diri", "nak mati", "ingin mati", "mahu mati", "tak nak hidup",
-    # 8 Oct, laptop safety pass 2: indirect wording, someone else, overdose, misspellings.
+    # laptop safety pass 2: indirect wording, someone else, misspellings.
     "tired of living", "tired of life", "sick of living", "penat hidup", "letih hidup", "no point anymore",
-    "no point going on", "no point in living", "point of living", "point in living", "not wake up",
-    "don't want to wake up", "dont want to wake up", "do not want to wake up", "better if i was gone",
-    "better if i were gone", "better off without me", "i am a burden", "i'm a burden", "im a burden",
-    "burden to my", "burden to everyone", "want to end it", "end it now", "take all my pills",
-    "take all my medicine", "take all my tablets", "all my pills", "overdose", "kill herself", "kill himself",
-    "end her life", "end his life", "take her own life", "take his own life", "sucide", "suicde", "suiside",
-    "suicid", "sucidal",
+    "no point going on", "no point in living", "point of living", "point in living", "sleep and not wake up",
+    "never wake up", "don't want to wake up", "dont want to wake up", "do not want to wake up",
+    "better if i was gone", "better if i were gone", "better off without me", "burden to my", "burden to everyone",
+    "a burden to", "want to end it", "end it now", "kill herself", "kill himself", "end her life", "end his life",
+    "take her own life", "take his own life", "sucide", "suicde", "suiside", "suicid", "sucidal",
+    # overdose as a statement
+    "going to take all my", "gonna take all my", "take all my pills at once", "swallow all my", "overdose",
+    "saving up my pills", "saving up my sleeping pills", "saving my sleeping pills", "saving up pills",
+    # laptop safety pass 3
+    "hang myself", "hanging myself", "jump from the", "jump off the", "thinking about jumping", "jump in front",
+    "rat poison", "poison myself", "drink poison", "want to disappear", "point of anything",
+    "point in anything", "won't be here much longer", "wont be here much longer", "not be here much longer",
+    "goodbye everyone", "life has no meaning", "no meaning in life", "baik saya mati", "lebih baik mati",
+    "baik mati", "tak ada makna", "tiada makna", "tidak ada makna",
 ]
 CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
                  "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
@@ -664,10 +670,15 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
-    # Someone found on the floor or unable to get off it ("found my mum on the floor"); "lying on the
-    # floor" alone is not here: the glute bridge is done lying on the floor.
-    [["floor"], ["found", "collapsed", "fell", "fallen", "cannot stand", "can't stand", "cant stand",
-                 "unable to stand", "cannot get up", "can't get up", "cant get up", "still on"], 5],
+    # Someone unable to get up or move after a fall, or on the floor / in bed ("my father fell and
+    # cannot get up", "he is on the floor and can't move his leg"); not "can't get up early".
+    [["floor", "fell", "fall", "fallen", "bed", "ground", "toilet", "bathroom", "stairs"],
+     ["cannot get up", "can't get up", "cant get up", "unable to get up", "cannot stand", "can't stand",
+      "cant stand", "unable to stand", "cannot move", "can't move", "cant move", "cannot walk", "can't walk",
+      "cant walk", "unable to walk", "not answering", "not responding", "still on"], 6],
+    # Someone found on the floor ("found my mum on the floor"): a person must be named.
+    [["found"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
+                 "grandmother", "grandfather", "him", "her", "son", "daughter"], 3],
     # One side of the face drooping (stroke), in everyday words ("face one side drop").
     [["face", "mouth"], ["drop", "droop", "drooping", "dropping", "dropped", "crooked", "lopsided",
                          "one side"], 3],
@@ -678,7 +689,8 @@ RED_FLAG_COMBOS = [
     [["suddenly", "sudden"], ["weak", "weakness", "numb", "numbness", "can't move", "cannot move",
                               "paralysed", "paralyzed", "drooping", "droop", "slurred", "can't speak",
                               "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see",
-                              "cannot talk", "can't talk", "cant talk", "talk properly", "speak properly"], 5],
+                              "cannot talk", "can't talk", "cant talk", "talk properly", "speak properly",
+                              "cannot lift", "can't lift", "cant lift", "cannot raise", "can't raise"], 5],
 ]
 
 RED_FLAG_ANSWER = ("Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or "
