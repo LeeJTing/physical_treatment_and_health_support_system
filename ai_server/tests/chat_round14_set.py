@@ -82,6 +82,16 @@ ROUND14 = [
     (KNEE, "jatuh tahun lepas, tapi tadi lagi", "red_flag"),
     (KNEE, "i fell last year but today i'm fine again", "fear_of_falling"),
     (KNEE, "i fell last year. this morning i tried the plan again", "fear_of_falling"),
+    # sentences that only say when join the sentence before (rules 3.29)
+    (KNEE, "my mum fell. it was years ago.", ("for_someone_else", "fear_of_falling")),
+    (KNEE, "she fell. that was last year, now fine", "fear_of_falling"),
+    (KNEE, "he fell. today.", "red_flag"),
+    (KNEE, "she fell again", "red_flag"),
+    (KNEE, "she fell again last month", "fear_of_falling"),
+    (KNEE, "the price fell again", None),
+    (KNEE, "my phone fell again", None),
+    (KNEE, "i nearly fell this morning but grabbed the chair", "fear_of_falling"),
+    (KNEE, "hampir jatuh tadi", "fear_of_falling"),
     # sudden vision changes
     (KNEE, "my eyesight is blurry suddenly", "red_flag"),
     (KNEE, "i can't see properly, everything is blurry", "red_flag"),

@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.28"
+VERSION = "chat-rules-3.29"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -395,13 +395,17 @@ INTENTS = [
             "holding the chair", "hold the chair", "hold onto something", "fell last year", "fell before",
             "fell down", "fell over", "fell off", "fell in the", "had a fall", "slipped in", "slipped on",
             "fallen before", "had a fall before", "takut fell", "fell last month", "fell a few months ago",
-            "now i'm scared", "now i am scared", "since then i'm scared", "scared since"],
+            "now i'm scared", "now i am scared", "since then i'm scared", "scared since",
+            # laptop pass 10: a near-fall is a warning sign worth telling the doctor
+            "nearly fell", "almost fell", "nearly fall", "almost fall", "nearly fallen", "almost fallen",
+            "nearly slipped", "almost slipped", "nearly tripped", "almost tripped"],
            ["I am scared I will fall", "what if I fall when nobody is home", "should someone be with me"],
            "Being afraid of falling is common. Keep one hand on a sturdy chair or kitchen counter, wear non-slip "
            "shoes, clear the floor and keep your phone within reach. If you live alone, do the standing "
            "exercises when someone is at home, and skip them on days you feel unsteady. If you fall, do not "
            "get up quickly: rest, check for pain, roll onto your side, crawl to a sturdy chair and push up "
-           "slowly. If you are hurt or cannot get up, call for help or 999 and keep warm.",
+           "slowly. If you are hurt or cannot get up, call for help or 999 and keep warm. Tell your doctor "
+           "about any fall or near-fall; they can check your balance and medicines.",
            show=False, tailor=True),
     intent("text_size", "Text too small", 6,
            ["words are too small", "words too small", "text is too small", "text too small", "font too small",

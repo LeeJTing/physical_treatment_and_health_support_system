@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.28",
+  "version": "chat-rules-3.29",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -1645,14 +1645,24 @@
         "now i'm scared",
         "now i am scared",
         "since then i'm scared",
-        "scared since"
+        "scared since",
+        "nearly fell",
+        "almost fell",
+        "nearly fall",
+        "almost fall",
+        "nearly fallen",
+        "almost fallen",
+        "nearly slipped",
+        "almost slipped",
+        "nearly tripped",
+        "almost tripped"
       ],
       "examples": [
         "I am scared I will fall",
         "what if I fall when nobody is home",
         "should someone be with me"
       ],
-      "answer": "Being afraid of falling is common. Keep one hand on a sturdy chair or kitchen counter, wear non-slip shoes, clear the floor and keep your phone within reach. If you live alone, do the standing exercises when someone is at home, and skip them on days you feel unsteady. If you fall, do not get up quickly: rest, check for pain, roll onto your side, crawl to a sturdy chair and push up slowly. If you are hurt or cannot get up, call for help or 999 and keep warm.",
+      "answer": "Being afraid of falling is common. Keep one hand on a sturdy chair or kitchen counter, wear non-slip shoes, clear the floor and keep your phone within reach. If you live alone, do the standing exercises when someone is at home, and skip them on days you feel unsteady. If you fall, do not get up quickly: rest, check for pain, roll onto your side, crawl to a sturdy chair and push up slowly. If you are hurt or cannot get up, call for help or 999 and keep warm. Tell your doctor about any fall or near-fall; they can check your balance and medicines.",
       "follow_ups": [],
       "tailor": true,
       "negatable": false,

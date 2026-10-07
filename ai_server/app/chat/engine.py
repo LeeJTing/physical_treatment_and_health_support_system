@@ -82,7 +82,10 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  # laptop safety pass 9
                  "tergelincir": "slipped", "bilik air": "bathroom", "pagi tadi": "this morning",
                  "tadi pagi": "this morning", "berdarah": "bleeding", "dah lama": "for a long time",
-                 "lama dah": "for a long time", "bila baca": "when reading"}
+                 "lama dah": "for a long time", "bila baca": "when reading",
+                 # laptop safety pass 10
+                 "dah ok": "fine now", "sekarang ok": "fine now", "hari ni": "today", "hari ini": "today",
+                 "hampir jatuh": "nearly fell", "nyaris jatuh": "nearly fell"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -325,7 +328,7 @@ ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped",
 # scared"), unless it still hurts; and "what if I can't get up after a fall" is a question about falling.
 FALL_WORDS = {"fell", "fall", "falls", "fallen", "falling", "jatuh", "tripped", "slipped"}
 PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "long time ago",
-             "long ago", "in the past year", "in the past few years", "years back"]
+             "long ago", "in the past year", "in the past few years", "years back", "dulu"]
 # Words that make a fall recent whatever else is said ("i fell in the past hour", "kalau dia jatuh tadi").
 RECENT = ["just now", "tadi", "right now", "today", "this morning", "this afternoon", "this evening", "tonight",
           "last night", "yesterday", "semalam", "earlier", "moment ago", "minutes ago", "minute ago", "hour ago",
@@ -335,6 +338,9 @@ STILL_HURT = ["hurt", "hurts", "hurting", "pain", "painful", "sakit", "swollen",
               "still can't", "still cannot", "on the floor", "lying", "confused", "confusion", "keliru", "drowsy",
               "sleepy", "vomit", "vomiting", "headache", "headaches", "not the same", "been the same", "not himself",
               "not herself", "getting worse", "worse since", "limp", "limping", "numb", "numbness",
+              "sleeping all day", "sleeps all day", "sleep all day", "sleeping a lot", "sleeps a lot",
+              "asleep all the time", "sleep je", "sleep sahaja", "can't remember", "cannot remember", "forgetful",
+              "doesn't recognise", "doesn't recognize", "not recognise", "not recognize",
               "can't put weight", "cannot put weight", "can't bear weight", "cannot bear weight", "still cant", "still unable", "still limping",
               "still sore", "can't walk", "cannot walk", "cant walk", "bleeding"]
 OLD_ACCIDENT_WORDS = FALL_WORDS | {"hit", "trip", "slip", "banged", "knocked"}
@@ -363,6 +369,10 @@ PEOPLE = {"i", "he", "she", "dia", "mother", "father", "mum", "mom", "dad", "gra
 # What may follow "slipped"/"tripped" in a fall ("slipped in the bathroom"), not "slipped the note under".
 AGAIN_FILLER = {"again", "lagi", "and", "it", "happened", "the", "same", "thing", "once", "more", "she", "he", "i",
                 "dia", "saya", "did", "so", "then", "now", "sekali"}
+TIME_FILLER = AGAIN_FILLER | {"it", "was", "that", "this", "about", "around", "already", "la", "lah", "maybe", "like",
+                              "only", "yes", "ya", "a", "an", "few", "some", "two", "three", "2", "3", "4", "5"}
+# Good-news words may follow a past time only ("that was last year, now fine"; not "today i'm fine").
+CALM_FILLER = {"fine", "ok", "okay", "good", "better", "is", "she's", "he's", "i'm", "all"}
 SLIP_NEXT = {"in", "on", "at", "dalam", "di", "over", "down", "and", "while", "when", "near", "outside", "inside",
              "just", "this", "today", "yesterday", "earlier", "tadi", "semalam", "from", "off"}
 # Long-standing symptoms are not new warning signs (laptop pass 9 debatable cases).
@@ -381,8 +391,17 @@ def _clauses(text: str) -> list[list[str]]:
         p = f" {clean(part)} "
         for a, c in NOT_A_FALL + PAST_PHRASES:
             p = p.replace(f" {a} ", f" {c} ")
-        if p.strip():
-            out.append(p.split())
+        if not p.strip():
+            continue
+        words = p.split()
+        # A sentence that only says when belongs to the one before ("My mum fell. It was years ago.").
+        when = {w for ph in RECENT + PAST_TIME for w in ph.split() if find_phrase(ph, words)}
+        recent = any(find_phrase(ph, words) for ph in RECENT)
+        filler = TIME_FILLER if recent else TIME_FILLER | CALM_FILLER
+        if out and when and all(w in when or w in filler for w in words):
+            out[-1] = out[-1] + words
+        else:
+            out.append(words)
     return out
 
 
@@ -392,35 +411,45 @@ def _when(phrase: str, clauses: list[list[str]], words: list[str]) -> tuple[bool
         return False, True
     own = [c for c in clauses if find_phrase(phrase, c)] or [words]
     recent = any(find_phrase(p, c) for c in own for p in RECENT)
-    old = not recent and any(find_phrase(p, c) for c in own for p in PAST_TIME)
+    old = not recent and all(any(find_phrase(p, c) for p in PAST_TIME) for c in own)
     return old, recent
 
 
+def _person_fell(c: list[str], i: int, times: set[str]) -> bool:
+    """c[i] is a fall verb told of a person, or at the start of its sentence once time words are skipped
+    ("pagi tadi jatuh lagi"); not "the phone fell", "slipped the note", "if i fell"."""
+    w = c[i]
+    if w not in RECENT_FALL_VERBS:
+        return False
+    k = i - 1
+    while k >= 0 and (c[k] in ("just", "baru", "has", "had", "have", "suddenly") or c[k] in times):
+        k -= 1
+    if k >= 0 and c[k] not in PEOPLE:
+        return False                                   # "the phone fell", "the price has fallen today"
+    if NEGATORS & set(c[max(0, i - 2):i]) or _hypothetical(c, i):
+        return False
+    if w in ("slipped", "tripped") and i + 1 < len(c) and c[i + 1] not in SLIP_NEXT:
+        return False                                   # "slipped the note under the door this morning"
+    return True
+
+
 def _recent_fall(clauses: list[list[str]]) -> bool:
-    fell_before = False
+    """A person's fall that is recent, judged sentence by sentence (laptop passes 9 and 10)."""
+    previous = None                                    # the last fall told: "old" (with a past time) or "new"
     for c in clauses:
-        if not any(find_phrase(p, c) for p in RECENT):
-            fell_before = fell_before or bool(RECENT_FALL_VERBS & set(c))
+        times = {w for p in RECENT for w in p.split() if find_phrase(p, c)}
+        past = any(find_phrase(p, c) for p in PAST_TIME)
+        again = bool({"again", "lagi"} & set(c))
+        if any(_person_fell(c, i, times) for i in range(len(c))):
+            if times or (again and not past):
+                return True                            # "fell this morning", "now she fell again"
+            previous = "old" if past else "new"
             continue
-        # "i fell last year but this morning again": the sentence says only when, and "again".
-        when = {w for p in RECENT for w in p.split() if find_phrase(p, c)}
-        rest = [w for w in c if w not in when and w not in AGAIN_FILLER]
-        if fell_before and ({"again", "lagi"} & set(c)) and not rest:
-            return True
-        fell_before = fell_before or bool(RECENT_FALL_VERBS & set(c))
-        for i, w in enumerate(c):
-            if w not in RECENT_FALL_VERBS:
-                continue
-            k = i - 1
-            while k >= 0 and c[k] in ("just", "baru", "has", "had", "have", "suddenly"):
-                k -= 1
-            if k >= 0 and c[k] not in PEOPLE:
-                continue                               # "the phone fell", "the price has fallen today"
-            if NEGATORS & set(c[max(0, i - 2):i]) or _hypothetical(c, i):
-                continue
-            if w in ("slipped", "tripped") and i + 1 < len(c) and c[i + 1] not in SLIP_NEXT:
-                continue                               # "slipped the note under the door this morning"
-            return True
+        if times and previous:
+            # A sentence that says only when: "Fell. Just now.", "fell last month. today again."
+            rest = [w for w in c if w not in times and w not in AGAIN_FILLER]
+            if not rest and (previous == "new" or again):
+                return True
     return False
 
 
