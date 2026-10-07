@@ -354,3 +354,22 @@ def test_frail_patients_get_a_shorter_hold_target():
     full = analyse("tandem_stance", sequence([front_pose(feet_gap=10)] * 110), use_model=False)
     gentle = analyse("tandem_stance", sequence([front_pose(feet_gap=10)] * 110), use_model=False, rom_scale=0.7)
     assert gentle["accuracy"] >= full["accuracy"]
+
+
+def test_dark_video_gives_a_quality_tip():
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False, brightness=50)
+    assert res["quality_tips"] and res["feedback"][-1].startswith("Your video is quite dark")
+    assert "quality_tips" not in analyse("shoulder_abduction", sequence(frames), use_model=False, brightness=130)
+
+
+def test_small_figure_gives_a_quality_tip():
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    small = []
+    for p in frames:                                   # shrink the person to a third, around the centre
+        q = p.copy()
+        q[:, 0] = W / 2 + (q[:, 0] - W / 2) / 3
+        q[:, 1] = H / 2 + (q[:, 1] - H / 2) / 3
+        small.append(q)
+    res = analyse("shoulder_abduction", sequence(small), use_model=False)
+    assert any(t.startswith("You look small") for t in res["quality_tips"])

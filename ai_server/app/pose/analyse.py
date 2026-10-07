@@ -77,6 +77,17 @@ FALL_MESSAGE = ("It looks like you may have lost your balance or fallen. Stop th
 # abductions about 0.8. A tip, not a mistake: it does not lower the score.
 BALANCE_SWAY = 0.5
 BALANCE_MESSAGE = "You swayed quite a lot. Hold on to a sturdy chair or counter to keep your balance."
+# Recording quality (8 Oct, rules_robustness_camera.json): dark footage and a small, far-away
+# figure made the rules less reliable (knee extension detection 100 -> 67 %, sit-to-stand false
+# alarms 2 -> 17 %), while MediaPipe's own confidence stayed at 99 %. Elwin's videos: mean
+# brightness 105-152 (0-255), body 53-81 % of the frame height; dark copies 50-75, MobiPhysio's
+# low-light videos 83 (median), far-camera copies 42 % (p5).
+DARK_BRIGHTNESS = 80.0
+SMALL_BODY = 0.45
+DARK_MESSAGE = ("Your video is quite dark, so this result may be less accurate. Next time record with a "
+                "light on in front of you.")
+SMALL_MESSAGE = ("You look small in the video, so this result may be less accurate. Move the phone a little "
+                 "closer, keeping your whole body from head to feet in the picture.")
 PARTIAL_MESSAGE = ("We saw small movements but not full repetitions. That is a good start: move a little "
                    "further each time, as far as is comfortable.")
 
@@ -120,7 +131,18 @@ def _fall_only(pose_key: str, at: float, visible_ratio: float) -> dict:
             "safety_alert": {"type": "possible_fall", "at_sec": round(at, 1), "message": FALL_MESSAGE}}
 
 
-def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale: float = 1.0) -> dict:
+def body_height_share(seq: PoseSequence) -> float:
+    """Median share of the frame height the body covers (1st to 99th percentile of the points)."""
+    y = seq.xy[..., 1]
+    ok = ~np.all(np.isnan(y), axis=1)
+    if not ok.any():
+        return 0.0
+    ext = np.nanpercentile(y[ok], 99, axis=1) - np.nanpercentile(y[ok], 1, axis=1)
+    return float(np.median(ext) / (seq.info.height or 1))
+
+
+def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale: float = 1.0,
+            brightness: float | None = None) -> dict:
     """rom_scale < 1 (from rom_scale_for: older / high-risk patients) lowers the range-of-motion
     targets only. A possible fall is reported in "safety_alert" even when nothing else can be scored."""
     spec = get(pose_key)
@@ -207,6 +229,14 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
         extra["partial_repetitions"] = True
     if rom_scale < 1.0:
         extra["rom_scale"] = rom_scale
+    tips = []
+    if brightness is not None and brightness < DARK_BRIGHTNESS:
+        tips.append(DARK_MESSAGE)
+    if spec.key not in LYING_EXERCISES and body_height_share(seq) < SMALL_BODY:
+        tips.append(SMALL_MESSAGE)
+    if tips:
+        feedback = feedback + tips
+        extra["quality_tips"] = tips
     return {
         "exercise_key": pose_key,
         "accuracy": accuracy,

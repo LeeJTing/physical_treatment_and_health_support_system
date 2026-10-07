@@ -31,6 +31,23 @@ MIN_SEC, MAX_SEC, TOLERANCE_SEC = 10.0, 30.0, 0.5
 MIN_SHORT_SIDE = 720
 
 
+def _brightness(path: str, samples: int = 5) -> float | None:
+    """Mean grey level (0-255) of a few frames, for the 'video is dark' tip."""
+    import cv2
+    cap = cv2.VideoCapture(path)
+    try:
+        n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+        vals = []
+        for i in range(samples):
+            cap.set(cv2.CAP_PROP_POS_FRAMES, int(n * (i + 0.5) / samples))
+            ok, frame = cap.read()
+            if ok:
+                vals.append(float(cv2.cvtColor(cv2.resize(frame, (160, 160)), cv2.COLOR_BGR2GRAY).mean()))
+        return sum(vals) / len(vals) if vals else None
+    finally:
+        cap.release()
+
+
 def _error(code: str, message: str) -> JSONResponse:
     return JSONResponse(status_code=422, content={"error": {"code": code, "message": message}})
 
@@ -78,7 +95,8 @@ def pose(
         if min(info.width, info.height) < MIN_SHORT_SIDE:
             return _error("invalid_video", "The video resolution must be at least 720p.")
         try:
-            return analyse(exercise_key, extract(path), rom_scale=exercises.rom_scale_for(risk_level, age))
+            return analyse(exercise_key, extract(path), rom_scale=exercises.rom_scale_for(risk_level, age),
+                           brightness=_brightness(path))
         except PoseError as e:
             return _error(e.code, e.message)
     finally:

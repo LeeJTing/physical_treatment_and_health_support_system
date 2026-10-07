@@ -1,0 +1,391 @@
+{
+  "sit_to_stand": {
+    "rules": {
+      "hands_used": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.023,
+          "n_mistake": 25,
+          "n_correct": 133
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.042,
+          "n_mistake": 200,
+          "n_correct": 1064
+        }
+      },
+      "incomplete_stand": {
+        "orig": {
+          "detection": 0.97,
+          "false_alarm": 0.0,
+          "n_mistake": 33,
+          "n_correct": 133
+        },
+        "aug": {
+          "detection": 0.981,
+          "false_alarm": 0.0,
+          "n_mistake": 264,
+          "n_correct": 1064
+        }
+      },
+      "no_forward_lean": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.023,
+          "n_mistake": 31,
+          "n_correct": 133
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.024,
+          "n_mistake": 248,
+          "n_correct": 1064
+        }
+      },
+      "uncontrolled_sit": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.023,
+          "n_mistake": 21,
+          "n_correct": 133
+        },
+        "aug": {
+          "detection": 0.911,
+          "false_alarm": 0.07,
+          "n_mistake": 168,
+          "n_correct": 1064
+        }
+      },
+      "feet_forward": {
+        "orig": {
+          "detection": 0.9,
+          "false_alarm": 0.0,
+          "n_mistake": 20,
+          "n_correct": 133
+        },
+        "aug": {
+          "detection": 0.893,
+          "false_alarm": 0.045,
+          "n_mistake": 159,
+          "n_correct": 1064
+        }
+      }
+    },
+    "rep_count_same_share": 0.9825
+  },
+  "shoulder_abduction": {
+    "rules": {
+      "low_range": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.007,
+          "n_mistake": 28,
+          "n_correct": 135
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.006,
+          "n_mistake": 224,
+          "n_correct": 1080
+        }
+      },
+      "bent_elbow": {
+        "orig": {
+          "detection": 0.615,
+          "false_alarm": 0.0,
+          "n_mistake": 26,
+          "n_correct": 135
+        },
+        "aug": {
+          "detection": 0.577,
+          "false_alarm": 0.0,
+          "n_mistake": 208,
+          "n_correct": 1080
+        }
+      },
+      "uneven_arms": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 28,
+          "n_correct": 135
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 224,
+          "n_correct": 1080
+        }
+      },
+      "trunk_lean": {
+        "orig": {
+          "detection": 0.929,
+          "false_alarm": 0.0,
+          "n_mistake": 28,
+          "n_correct": 135
+        },
+        "aug": {
+          "detection": 0.938,
+          "false_alarm": 0.0,
+          "n_mistake": 224,
+          "n_correct": 1080
+        }
+      },
+      "shoulder_shrug": {
+        "orig": {
+          "detection": 0.667,
+          "false_alarm": 0.0,
+          "n_mistake": 27,
+          "n_correct": 135
+        },
+        "aug": {
+          "detection": 0.685,
+          "false_alarm": 0.017,
+          "n_mistake": 216,
+          "n_correct": 1080
+        }
+      }
+    },
+    "rep_count_same_share": 1.0
+  },
+  "shoulder_flexion": {
+    "rules": {
+      "low_range": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 28,
+          "n_correct": 130
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 220,
+          "n_correct": 1040
+        }
+      },
+      "bent_elbow": {
+        "orig": {
+          "detection": 0.852,
+          "false_alarm": 0.0,
+          "n_mistake": 27,
+          "n_correct": 130
+        },
+        "aug": {
+          "detection": 0.839,
+          "false_alarm": 0.0,
+          "n_mistake": 224,
+          "n_correct": 1040
+        }
+      },
+      "back_arch": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 26,
+          "n_correct": 130
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.016,
+          "n_mistake": 208,
+          "n_correct": 1040
+        }
+      },
+      "swinging": {
+        "orig": {
+          "detection": 0.778,
+          "false_alarm": 0.008,
+          "n_mistake": 18,
+          "n_correct": 130
+        },
+        "aug": {
+          "detection": 0.709,
+          "false_alarm": 0.005,
+          "n_mistake": 158,
+          "n_correct": 1040
+        }
+      },
+      "trunk_forward": {
+        "orig": {
+          "detection": 0.931,
+          "false_alarm": 0.0,
+          "n_mistake": 29,
+          "n_correct": 130
+        },
+        "aug": {
+          "detection": 0.931,
+          "false_alarm": 0.0,
+          "n_mistake": 232,
+          "n_correct": 1040
+        }
+      },
+      "shoulder_shrug": {
+        "orig": {
+          "detection": 0.926,
+          "false_alarm": 0.0,
+          "n_mistake": 27,
+          "n_correct": 130
+        },
+        "aug": {
+          "detection": 0.935,
+          "false_alarm": 0.008,
+          "n_mistake": 216,
+          "n_correct": 1040
+        }
+      }
+    },
+    "rep_count_same_share": 0.9396551724137931
+  },
+  "hip_abduction": {
+    "rules": {
+      "trunk_lean": {
+        "orig": {
+          "detection": 0.5,
+          "false_alarm": 0.041,
+          "n_mistake": 28,
+          "n_correct": 123
+        },
+        "aug": {
+          "detection": 0.505,
+          "false_alarm": 0.041,
+          "n_mistake": 210,
+          "n_correct": 952
+        }
+      },
+      "low_range": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 25,
+          "n_correct": 123
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.001,
+          "n_mistake": 178,
+          "n_correct": 952
+        }
+      },
+      "leg_forward": {
+        "orig": {
+          "detection": 0.0,
+          "false_alarm": 0.0,
+          "n_mistake": 25,
+          "n_correct": 123
+        },
+        "aug": {
+          "detection": 0.0,
+          "false_alarm": 0.005,
+          "n_mistake": 193,
+          "n_correct": 952
+        }
+      },
+      "bent_knee": {
+        "orig": {
+          "detection": 0.96,
+          "false_alarm": 0.0,
+          "n_mistake": 25,
+          "n_correct": 123
+        },
+        "aug": {
+          "detection": 0.985,
+          "false_alarm": 0.006,
+          "n_mistake": 200,
+          "n_correct": 952
+        }
+      },
+      "toes_up": {
+        "orig": {
+          "detection": 0.774,
+          "false_alarm": 0.073,
+          "n_mistake": 31,
+          "n_correct": 123
+        },
+        "aug": {
+          "detection": 0.6,
+          "false_alarm": 0.08,
+          "n_mistake": 240,
+          "n_correct": 952
+        }
+      }
+    },
+    "rep_count_same_share": 0.7843137254901961
+  },
+  "knee_extension": {
+    "rules": {
+      "incomplete_extension": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.016,
+          "n_mistake": 21,
+          "n_correct": 126
+        },
+        "aug": {
+          "detection": 0.77,
+          "false_alarm": 0.05,
+          "n_mistake": 161,
+          "n_correct": 1010
+        }
+      },
+      "slouching": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.0,
+          "n_mistake": 25,
+          "n_correct": 126
+        },
+        "aug": {
+          "detection": 1.0,
+          "false_alarm": 0.005,
+          "n_mistake": 200,
+          "n_correct": 1010
+        }
+      },
+      "thigh_lift": {
+        "orig": {
+          "detection": 0.96,
+          "false_alarm": 0.008,
+          "n_mistake": 25,
+          "n_correct": 126
+        },
+        "aug": {
+          "detection": 0.985,
+          "false_alarm": 0.024,
+          "n_mistake": 200,
+          "n_correct": 1010
+        }
+      },
+      "no_hold": {
+        "orig": {
+          "detection": 1.0,
+          "false_alarm": 0.048,
+          "n_mistake": 35,
+          "n_correct": 126
+        },
+        "aug": {
+          "detection": 0.996,
+          "false_alarm": 0.059,
+          "n_mistake": 280,
+          "n_correct": 1010
+        }
+      },
+      "leaning_forward": {
+        "orig": {
+          "detection": 0.97,
+          "false_alarm": 0.0,
+          "n_mistake": 33,
+          "n_correct": 126
+        },
+        "aug": {
+          "detection": 0.958,
+          "false_alarm": 0.003,
+          "n_mistake": 264,
+          "n_correct": 1010
+        }
+      }
+    },
+    "rep_count_same_share": 0.94
+  }
+}

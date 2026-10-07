@@ -74,6 +74,8 @@ def main():
     scores = physio_scores()
     spec = single_arm_abduction()
     videos = sorted((ROOT / "videos").glob("E01_*_AF_*.mp4"))
+    if "--cached-only" in sys.argv:          # while the download / extraction is still running
+        videos = [v for v in videos if (CACHE / "mobiphysio" / f"{v.stem}.npz").exists()]
     print(f"{len(videos)} videos, {len(scores)} scored")
     per_var = defaultdict(lambda: {"videos": 0, "detected": [], "reps": [], "rule_score": [], "physio": []})
     fired = defaultdict(lambda: [0, 0])
