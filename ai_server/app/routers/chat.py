@@ -34,6 +34,8 @@ class ChatRequest(BaseModel):
     local_minute: int | None = Field(default=None, ge=0, le=59)
     utc_offset_minutes: int | None = Field(default=None, ge=-840, le=840)
     timezone: str | None = Field(default=None, max_length=64)
+    # The rule that answered the previous question, so "how many reps for that one?" continues it.
+    previous_category: str | None = Field(default=None, max_length=80)
 
     @model_validator(mode="after")
     def needs_input(self):
@@ -72,4 +74,4 @@ def chat(body: ChatRequest, account_id: str = Depends(current_account_id)):
     """Answer a tapped category or a typed question (FR500_19 to FR500_22)."""
     local = (body.local_hour, body.local_minute or 0) if body.local_hour is not None else None
     return engine.reply(body.plan_id, body.category, body.text, body.conditions, body.limitations, body.risk_level,
-                        local_time=local)
+                        local_time=local, previous_category=body.previous_category)

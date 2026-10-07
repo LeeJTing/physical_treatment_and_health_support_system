@@ -325,3 +325,18 @@ def test_no_keyword_reduces_to_a_common_word():
             if len(words) == 1 and engine.stem(words[0]) in engine.STOP and words[0] not in engine.STOP:
                 bad.append((i["key"], k))
     assert not bad, bad
+
+
+# ---- follow-ups use the previous answer's topic ----------------------------------------------------
+
+def test_follow_up_continues_the_previous_exercise():
+    r = ask("how many reps for that one", previous_category="exercise:heel_raise")
+    assert r["category"] == "exercise:heel_raise" and r["matched_by"] == "follow_up"
+    assert ask("how often should i do it", previous_category="exercise:heel_raise")["category"] == "exercise:heel_raise"
+
+
+def test_follow_up_never_overrides_safety_or_a_new_topic():
+    assert ask("is it painful", previous_category="exercise:heel_raise")["category"] == "pain_or_discomfort"
+    assert ask("how do i do the sit to stand", previous_category="exercise:heel_raise")["category"] == "exercise:sit_to_stand"
+    assert ask("i feel chest pain doing it", previous_category="exercise:heel_raise")["category"] == "red_flag"
+    assert ask("how many reps for that one")["category"] == "plan_exercises"      # no previous topic

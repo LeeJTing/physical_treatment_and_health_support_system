@@ -41,6 +41,7 @@ class ChatbotService {
     String? text,
     String? category,
     ProfileSnapshot? profile,
+    String? previousCategory,
   }) async {
     final p = profile?.profile;
     // The phone's own local time and time zone (no GPS, no location permission): the server
@@ -51,6 +52,8 @@ class ChatbotService {
       'local_minute': local.minute,
       'utc_offset_minutes': local.timeZoneOffset.inMinutes,
       'timezone': local.timeZoneName,
+      // Lets "how many reps for that one?" continue the exercise asked about just before.
+      'previous_category': ?previousCategory,
       'plan_id': planId,
       'category': ?category,
       if (text != null && text.trim().isNotEmpty) 'text': text.trim(),

@@ -470,9 +470,27 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     return (best, "keyword_overlap") if best is not None and score >= OVERLAP_THRESHOLD else (None, None)
 
 
+# Follow-ups that point back at the previous answer ("how many reps for that one?").
+REFERENCES = ["it", "that", "this", "that one", "this one", "that exercise", "this exercise", "the exercise",
+              "same one", "the same"]
+# A follow-up may replace these general answers with the exercise discussed just before.
+FOLLOW_GENERAL = {"how_to", "plan_exercises", "how_often", "difficulty"}
+
+
+def follow_up(text: str | None, chosen: dict | None, previous: str | None, by_key: dict) -> dict | None:
+    """The previous exercise rule when the question refers back to it and nothing more specific matched."""
+    if not text or not previous or not previous.startswith("exercise:") or previous not in by_key:
+        return None
+    if chosen is not None and chosen["key"] not in FOLLOW_GENERAL:
+        return None
+    words = clean(text).split()
+    return by_key[previous] if any(find_phrase(r, words) for r in REFERENCES) else None
+
+
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
-          risk_level: str | None = None, local_time: tuple[int, int] | None = None) -> dict:
+          risk_level: str | None = None, local_time: tuple[int, int] | None = None,
+          previous_category: str | None = None) -> dict:
     r = rules()
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id)), "rules_version": r["version"]}
@@ -486,6 +504,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
         chosen, how = by_key[category], "category"
     elif text and text.strip():
         chosen, how = match(plan_id, text)
+        followed = follow_up(text, chosen, previous_category, by_key)
+        if followed is not None:
+            chosen, how = followed, "follow_up"
 
     if chosen is None:
         return {**base, "answer": r["not_recognised"], "category": None, "title": None, "is_matched": False,

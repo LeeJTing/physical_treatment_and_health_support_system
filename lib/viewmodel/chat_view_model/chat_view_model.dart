@@ -95,6 +95,10 @@ class ChatViewModel extends BaseViewModel {
     String? category,
   }) async {
     _sending = true;
+    // Topic of the last answer, for follow-ups such as "how many reps for that one?".
+    final previous = _messages.reversed
+        .map((e) => e.reply?.category)
+        .firstWhere((c) => c != null, orElse: () => null);
     final question = _patient(shown, category);
     _messages.add(ChatEntry(question));
     notifyListeners();
@@ -103,6 +107,7 @@ class ChatViewModel extends BaseViewModel {
       text: text,
       category: category,
       profile: _snapshot,
+      previousCategory: previous,
     );
     final ChatEntry answer = switch (res) {
       Success(:final data) => ChatEntry(

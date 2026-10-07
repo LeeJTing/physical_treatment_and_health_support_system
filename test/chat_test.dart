@@ -298,4 +298,14 @@ void main() {
     expect(sent.containsKey('utc_offset_minutes'), isTrue);
     expect(sent.containsKey('timezone'), isTrue);
   });
+
+  test('a follow-up carries the topic of the previous answer', () async {
+    final h = Harness();
+    await h.signInWithPlan();
+    await h.vm.loadCategories();
+    await h.vm.ask('my knee hurts');
+    expect(h.server.asked.first.containsKey('previous_category'), isFalse);
+    await h.vm.ask('is that normal');
+    expect(h.server.asked.last['previous_category'], 'pain_or_discomfort');
+  });
 }
