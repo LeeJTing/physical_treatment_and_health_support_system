@@ -181,5 +181,16 @@ void main() {
       ).greeting(),
       'Good evening',
     );
+    // After midnight (phone test, 8 Oct): not "Good morning" at 00:30.
+    expect(
+      HomeViewModel(
+        auth,
+        RiskAssessmentService(auth, profiles),
+        treatments,
+        null,
+        () => DateTime(2026, 1, 1, 0, 30),
+      ).greeting(),
+      'Hello',
+    );
   });
 }

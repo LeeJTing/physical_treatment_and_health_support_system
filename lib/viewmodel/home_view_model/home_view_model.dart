@@ -68,7 +68,10 @@ class HomeViewModel extends BaseViewModel {
 
   String greeting() {
     final h = _now().hour;
-    return h < 12
+    // "Good morning" at 00:30 read oddly on the phone (8 Oct): plain "Hello" from midnight to 5 am.
+    return h < 5
+        ? 'Hello'
+        : h < 12
         ? 'Good morning'
         : h < 18
         ? 'Good afternoon'
