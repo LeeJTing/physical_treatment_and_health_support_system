@@ -44,6 +44,10 @@ REVIEWED = {
     # 0.75 is below every correct rep and above the shrug reps recorded for flexion (median 0.67).
     "shoulder_abduction.shoulder_shrug": (0.75, "correct reps p5 0.80 (arms to the side lift the shoulder blades); "
                                                 "flexion shrug reps median 0.67; no abduction shrug clips yet"),
+    # The tuner's -0.03 only catches a 0.6 s partial rep at the end of the leaning clip (already
+    # upright again); correct reps lean -1.4 deg (median), leaning reps 31 deg.
+    "heel_raise.leaning_forward": (12, "correct median -1.4 deg, leaning median 31 deg; the one missed rep is a "
+                                       "0.6 s partial rep at the end of the clip; -0.03 would flag any lean"),
 }
 
 

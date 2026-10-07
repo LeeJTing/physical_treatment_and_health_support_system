@@ -122,7 +122,11 @@ def elbow_flex(f):       return 180 - f.both("elbow", "min")
 def leg_raise(f):        return f.both("leg_from_down", "max")
 def knee_ext(f):         return f.both("knee", "max")
 def squat_depth(f):      return 180 - f.both("knee", "mean")
-def heel_lift(f):        return f.both("heel_lift", "mean")
+def heel_lift(f):
+    """Heel lift above the clip's own flat-standing level (10th percentile): with the camera a
+    little high or low, flat feet already read 0.02-0.07 shin lengths, which merged reps."""
+    s = f.both("heel_lift", "mean")
+    return s - np.nanpercentile(s, 10) if np.isfinite(s).any() else s
 def bridge(f):           return f["bridge_line"]
 def hip_rise(f):         return f["hip_rise"]
 
@@ -282,7 +286,8 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="heel_raise", name="Heel Raise", view="side", required=LOWER + FEET,
-    signal=heel_lift, rest=0.03, active=0.06, target=0.10,
+    # 7 Oct, from Elwin's clips: 5 reps in every correct clip, low raises (0.04-0.065) counted too.
+    signal=heel_lift, rest=0.025, active=0.04, target=0.10,
     mistakes=[
         M("low_raise", "Rise higher onto your toes.", peak_of(heel_lift), 0.08, False, "shin lengths"),
         M("knees_bend", "Keep your knees straight as you rise.",
