@@ -37,7 +37,12 @@ MIN_GAIN = 0.05
 REVIEWED = {
     "shoulder_abduction.bent_elbow": (165, "classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag "
                                            "normal arms; 165 scores 85%, the trained model handles the rest"),
-    "shoulder_flexion.bent_elbow": (160, "94%, same as the tuned 162, rounder and with more margin"),
+    # 8 Oct, second person (p02) blind test: her correct flexion keeps the elbow at 160-164 deg and
+    # her shoulders at 0.84-0.86; both fired at 160 / 0.85. Elwin's correct reps stay >= 163 / >= 0.86.
+    "shoulder_flexion.bent_elbow": (157, "two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; "
+                                         "157 still catches 84% of bent-elbow reps (160: 88%)"),
+    "shoulder_flexion.shoulder_shrug": (0.82, "two people: p02's correct reps 0.84-0.86 fired at 0.85; 0.82 "
+                                              "catches the same 93% of Elwin's shrug reps with no false flags"),
     "sit_to_stand.incomplete_stand": (170, "98% vs 100% at 174, which is 2 deg below Elwin's own correct reps"),
     # No shrug clips for abduction: raising the arms to the side rotates the shoulder blades up,
     # so correct reps sit at 0.80-0.85 (p5 0.80) and the default 0.85 fired on half of them.

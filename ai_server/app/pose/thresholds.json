@@ -3,7 +3,7 @@
     "hip_abduction.trunk_lean": 13.5,
     "shoulder_abduction.low_range": 92.441,
     "shoulder_abduction.bent_elbow": 165,
-    "shoulder_flexion.bent_elbow": 160,
+    "shoulder_flexion.bent_elbow": 157,
     "sit_to_stand.incomplete_stand": 170,
     "sit_to_stand.no_forward_lean": 23.452,
     "sit_to_stand.feet_forward": -14.745,
@@ -22,14 +22,15 @@
     "knee_extension.thigh_lift": 21.337,
     "knee_extension.no_hold": 0.594,
     "mini_squat.heels_lift": 0.138,
-    "mini_squat.trunk_forward": 15
+    "mini_squat.trunk_forward": 15,
+    "shoulder_flexion.shoulder_shrug": 0.82
   },
-  "tuned_at": "2026-10-07T22:10:01",
+  "tuned_at": "2026-10-07T22:13:06",
   "sources": {
     "hip_abduction.trunk_lean": "own clips",
     "shoulder_abduction.low_range": "own clips",
     "shoulder_abduction.bent_elbow": "own clips; reviewed: classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag normal arms; 165 scores 85%, the trained model handles the rest",
-    "shoulder_flexion.bent_elbow": "own clips; reviewed: 94%, same as the tuned 162, rounder and with more margin",
+    "shoulder_flexion.bent_elbow": "own clips; reviewed: two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; 157 still catches 84% of bent-elbow reps (160: 88%)",
     "sit_to_stand.incomplete_stand": "own clips; reviewed: 98% vs 100% at 174, which is 2 deg below Elwin's own correct reps",
     "sit_to_stand.no_forward_lean": "own clips",
     "sit_to_stand.feet_forward": "own clips",
@@ -48,6 +49,7 @@
     "knee_extension.thigh_lift": "own clips",
     "knee_extension.no_hold": "own clips",
     "mini_squat.heels_lift": "own clips",
-    "mini_squat.trunk_forward": "own clips; reviewed: correct -7 to -2 deg, leaning reps 25-38 deg; the one missed rep is a 0.5 s partial rep at the end of the clip; -4 would flag any forward lean"
+    "mini_squat.trunk_forward": "own clips; reviewed: correct -7 to -2 deg, leaning reps 25-38 deg; the one missed rep is a 0.5 s partial rep at the end of the clip; -4 would flag any forward lean",
+    "shoulder_flexion.shoulder_shrug": "own clips; reviewed: two people: p02's correct reps 0.84-0.86 fired at 0.85; 0.82 catches the same 93% of Elwin's shrug reps with no false flags"
   }
 }
