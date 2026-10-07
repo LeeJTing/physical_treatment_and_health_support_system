@@ -7,21 +7,21 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
-import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/api_client.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/chatbot_service.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/lookups.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/patient_treatment_plan.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_treatment_repository.dart';
-import 'package:physical_treatment_and_health_support_system/features/chat/model/chat_reply.dart';
-import 'package:physical_treatment_and_health_support_system/features/chat/view/chat_view.dart';
-import 'package:physical_treatment_and_health_support_system/features/chat/viewmodel/chat_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chatbot_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chat_reply.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/chat_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/chat_view_model/chat_view_model.dart';
 
 final String catalogueJson = File(
   'assets/seed/catalogue.json',
@@ -112,8 +112,9 @@ class Harness {
         tokenProvider: () => 'dev-token',
         httpClient: server.client,
       ),
+      now: () => DateTime(2026, 10, 7, 23, 40), // late at night on the phone
     ),
-    ProfileInfoService(auth, profiles),
+    RiskAssessmentService(auth, profiles),
     treatments,
   );
 
@@ -271,4 +272,49 @@ void main() {
       ); // condition note
     },
   );
+
+  test(
+    'a reply can carry a button (chat-rules-3.2), and older replies without one still parse',
+    () {
+      final withButton = ChatReply.fromJson({
+        'answer': 'You can set a new password...',
+        'category': 'forgot_password',
+        'is_matched': true,
+        'matched_by': 'keyword',
+        'action': {'key': 'open_reset_password', 'label': 'Reset password'},
+      });
+      expect(withButton.action?.key, 'open_reset_password');
+      expect(withButton.action?.label, 'Reset password');
+      final plain = ChatReply.fromJson({
+        'answer': 'Hello!',
+        'is_matched': true,
+      });
+      expect(plain.action, isNull);
+    },
+  );
+
+  test(
+    "every question carries the phone's local time and time zone (late-night advice)",
+    () async {
+      final h = Harness();
+      await h.signInWithPlan();
+      await h.vm.loadCategories();
+      await h.vm.ask('can I exercise now');
+      final sent = h.server.asked.last;
+      expect(sent['local_hour'], 23);
+      expect(sent['local_minute'], 40);
+      expect(sent.containsKey('utc_offset_minutes'), isTrue);
+      expect(sent.containsKey('timezone'), isTrue);
+    },
+  );
+
+  test('a follow-up carries the topic of the previous answer', () async {
+    final h = Harness();
+    await h.signInWithPlan();
+    await h.vm.loadCategories();
+    await h.vm.ask('my knee hurts');
+    expect(h.server.asked.first.containsKey('previous_category'), isFalse);
+    await h.vm.ask('is that normal');
+    expect(h.server.asked.last['previous_category'], 'pain_or_discomfort');
+  });
 }

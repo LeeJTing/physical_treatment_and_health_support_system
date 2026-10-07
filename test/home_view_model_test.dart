@@ -2,21 +2,21 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/services/profile_info_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/enums.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/exercise_session.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/health_profile.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/lookups.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/patient_treatment_plan.dart';
-import 'package:physical_treatment_and_health_support_system/data/models/reminder.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_auth_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_notification_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_profile_repository.dart';
-import 'package:physical_treatment_and_health_support_system/data/repository/fake/fake_treatment_repository.dart';
-import 'package:physical_treatment_and_health_support_system/features/home/viewmodel/home_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/home_view_model/home_view_model.dart';
 
 final String catalogueJson = File(
   'assets/seed/catalogue.json',
@@ -41,7 +41,7 @@ void main() {
     )).dataOrNull!.accountId;
     vm = HomeViewModel(
       auth,
-      ProfileInfoService(auth, profiles),
+      RiskAssessmentService(auth, profiles),
       treatments,
       notifications,
       () => DateTime(2026, 10, 7, 9, 30),
@@ -164,7 +164,7 @@ void main() {
     expect(
       HomeViewModel(
         auth,
-        ProfileInfoService(auth, profiles),
+        RiskAssessmentService(auth, profiles),
         treatments,
         null,
         () => DateTime(2026, 1, 1, 15),
@@ -174,12 +174,23 @@ void main() {
     expect(
       HomeViewModel(
         auth,
-        ProfileInfoService(auth, profiles),
+        RiskAssessmentService(auth, profiles),
         treatments,
         null,
         () => DateTime(2026, 1, 1, 20),
       ).greeting(),
       'Good evening',
+    );
+    // After midnight (phone test, 8 Oct): not "Good morning" at 00:30.
+    expect(
+      HomeViewModel(
+        auth,
+        RiskAssessmentService(auth, profiles),
+        treatments,
+        null,
+        () => DateTime(2026, 1, 1, 0, 30),
+      ).greeting(),
+      'Hello',
     );
   });
 }

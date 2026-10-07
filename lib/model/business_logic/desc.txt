@@ -1,0 +1,1 @@
+Business Logic - Service layer. One folder per service column. Services never throw: they return Result.

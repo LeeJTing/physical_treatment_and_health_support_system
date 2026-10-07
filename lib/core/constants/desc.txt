@@ -1,6 +1,0 @@
-put default values
-example:
-AppDefaults > global default values
-Model constructors > entity default values
-Feature constants > feature-only defaults
-Theme/constants > UI defaults

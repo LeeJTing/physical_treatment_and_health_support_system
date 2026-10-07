@@ -1,13 +1,41 @@
 exercise,rule,unit,correct_reps,mistake_reps,default_limit,tuned_limit,default_detection,default_false_alarm,tuned_detection,tuned_false_alarm
+bird_dog,arm_leg_low,degrees,16,4,70,70,1.0,0.0,1.0,0.0
+bird_dog,back_sag,degrees,16,5,9,9,1.0,0.0,1.0,0.0
+bird_dog,no_hold,seconds,16,8,1.5,0.964,1.0,0.125,1.0,0.0
+elbow_flexion,upper_arm_moves,degrees,28,17,30,30,1.0,0.0,1.0,0.0
+elbow_flexion,low_range,degrees,28,15,95,124.697,0.2,0.0,1.0,0.0
+elbow_flexion,body_swing,degrees,28,3,10,10,1.0,0.0,1.0,0.0
+glute_bridge,low_hips,torso lengths,14,5,-0.1,-0.1,1.0,0.0,1.0,0.0
+glute_bridge,over_arch,torso lengths,14,5,0.12,0.12,1.0,0.0,1.0,0.0
+glute_bridge,feet_far,degrees,14,5,115,84.123,0.0,0.0,1.0,0.0
+heel_raise,low_raise,shin lengths,15,6,0.08,0.08,1.0,0.0,1.0,0.0
+heel_raise,knees_bend,degrees,15,5,165,165,1.0,0.0,1.0,0.0
+heel_raise,leaning_forward,degrees,15,6,12,12,0.833,0.0,0.833,0.0
+hip_abduction,trunk_lean,degrees,123,28,10,13.5,0.964,0.585,0.821,0.114
+hip_abduction,low_range,degrees,123,25,20,20,1.0,0.0,1.0,0.0
+hip_abduction,leg_forward,ratio,123,25,0.88,0.88,0.0,0.0,0.0,0.0
+hip_abduction,bent_knee,degrees,123,25,160,169.521,0.88,0.0,1.0,0.0
+hip_abduction,toes_up,ratio,123,31,0.6,0.436,0.0,0.0,0.774,0.073
+knee_extension,incomplete_extension,degrees,126,21,155,155,1.0,0.016,1.0,0.016
+knee_extension,slouching,degrees,126,25,-12,-29.142,1.0,1.0,1.0,0.0
+knee_extension,thigh_lift,degrees,126,25,15,21.337,0.96,0.183,0.96,0.008
+knee_extension,no_hold,seconds,126,35,1.5,0.594,1.0,0.325,1.0,0.048
+knee_extension,leaning_forward,degrees gained,126,33,10,10,0.97,0.0,0.97,0.0
+march_in_place,low_knee_lift,degrees,9,5,35,91.921,0.0,0.0,1.0,0.0
+march_in_place,leaning_back,degrees,9,3,-10,-20.0,1.0,0.0,1.0,0.0
+march_in_place,no_arm_swing,degrees,9,5,12,12,1.0,0.0,1.0,0.0
+seated_marching,low_knee_lift,degrees,17,5,16,23.666,0.8,0.0,1.0,0.0
+seated_marching,leaning_back,degrees,17,5,-12,-20.0,1.0,0.059,1.0,0.0
+seated_marching,using_hands,of the thigh,17,0,0.7,0.7,,0.0,,0.0
 shoulder_abduction,low_range,degrees,132,25,72,92.441,0.16,0.0,1.0,0.008
 shoulder_abduction,bent_elbow,degrees,132,26,150,165.0,0.5,0.0,0.692,0.0
 shoulder_abduction,uneven_arms,degrees,132,25,15,15,1.0,0.0,1.0,0.0
 shoulder_abduction,trunk_lean,degrees,132,25,10,10,0.92,0.0,0.92,0.0
-shoulder_abduction,shoulder_shrug,ratio,132,0,0.85,0.75,,0.583,,0.0
+shoulder_abduction,shoulder_shrug,ratio,132,27,0.85,0.75,0.815,0.583,0.667,0.0
 shoulder_flexion,low_range,degrees,127,25,72,72,1.0,0.0,1.0,0.0
 shoulder_flexion,bent_elbow,degrees,127,25,150,160.0,0.72,0.0,0.88,0.0
 shoulder_flexion,back_arch,degrees,127,26,-10,-10,1.0,0.0,1.0,0.0
-shoulder_flexion,swinging,seconds,127,0,0.6,0.6,,0.0,,0.0
+shoulder_flexion,swinging,seconds,127,18,0.6,0.6,0.333,0.0,0.333,0.0
 shoulder_flexion,trunk_forward,degrees,127,29,15,15,0.931,0.0,0.931,0.0
 shoulder_flexion,shoulder_shrug,ratio,127,27,0.85,0.85,0.926,0.008,0.926,0.008
 sit_to_stand,hands_used,torso lengths,130,25,0.25,0.25,1.0,0.0,1.0,0.0
@@ -15,3 +43,12 @@ sit_to_stand,incomplete_stand,degrees,130,32,160,170.0,0.844,0.0,0.969,0.0
 sit_to_stand,no_forward_lean,degrees,130,31,12,23.452,0.323,0.0,1.0,0.023
 sit_to_stand,uncontrolled_sit,seconds,130,21,0.7,0.7,1.0,0.023,1.0,0.023
 sit_to_stand,feet_forward,degrees,130,20,22,-14.745,0.05,0.0,0.9,0.0
+step_up,trunk_forward,degrees,15,4,25,25,1.0,0.0,1.0,0.0
+step_up,knee_not_straight,degrees,15,5,165,165,1.0,0.0,1.0,0.0
+step_up,drop_down,torso lengths/s,15,6,0.8,0.8,1.0,0.0,1.0,0.0
+tandem_stance,feet_not_in_line,share of time,3,1,0.7,0.7,1.0,0.0,1.0,0.0
+tandem_stance,stepping_out,changes,3,1,1.5,1.5,1.0,0.0,1.0,0.0
+tandem_stance,leaning,degrees,3,1,5,5,1.0,0.0,1.0,0.0
+wall_push_up,hips_sag,torso lengths,20,4,0.12,0.12,0.0,0.3,0.0,0.3
+wall_push_up,hips_back,torso lengths,20,3,-0.12,-0.12,1.0,0.0,1.0,0.0
+wall_push_up,low_range,degrees,20,5,55,111.605,0.0,0.0,1.0,0.0

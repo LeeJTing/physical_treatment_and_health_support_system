@@ -10,7 +10,7 @@ UPPER = "45245b62-5696-56fe-9713-9af0b74f8768"      # Upper Limb Strength
 
 FINAL = [
     (BALANCE, "Hello doctor, I am 72 years old and my son set up this app for me. I want to know if I can do "
-              "the exercises in the morning before breakfast?", ("how_often", "diet")),
+              "the exercises in the morning before breakfast?", ("how_often", "diet", "best_time")),
     (BALANCE, "how long do i stand heel to toe", "exercise:tandem_stance"),
     (BALANCE, "i'm scared of falling during the balance exercise", ("safety", "weakness_balance")),
     (BALANCE, "Which one comes first, heel raise or sit to stand?", "plan_exercises"),
@@ -26,18 +26,18 @@ FINAL = [
     (UPPER, "I can only do 5 curls", "difficulty"),
     (UPPER, "when will my arms be stronger", "plan_progress"),
     (UPPER, "the score said 55%, what did I do wrong?", "posture_result"),
-    (UPPER, "how do i turn off the reminders", "plan_and_reminders"),
+    (UPPER, "how do i turn off the reminders", "reminders_help"),
     (UPPER, "what do you do", "bot_identity"),
     (KNEE, "boleh exercise kalau knee sakit?", "pain_or_discomfort"),
     (KNEE, "after the session my knee feels warm and looks bigger", "pain_swelling"),
     (KNEE, "my knee is not painful anymore, can I stop the plan?", "plan_and_reminders"),
     (KNEE, "is it normal that my leg shakes when I hold it straight", "weakness_balance"),
     (KNEE, "where do I put the phone for knee extension", ("exercise:knee_extension", "recording_help")),
-    (KNEE, "I forgot my password", "account_help"),
-    (KNEE, "ok", None),
+    (KNEE, "I forgot my password", "forgot_password"),   # own rule since 3.2, with a Reset password button
+    (KNEE, "ok", "acknowledge"),   # 3.2: a bare "ok" gets a short reply instead of "not recognised"
     (KNEE, "what time is it", None),
     (KNEE, "lol", None),
-    (SHOULDER, "my shoulder clicks when i raise my arm, is it bad?", ("pain_or_discomfort", "exercise:shoulder_abduction", "exercise:shoulder_flexion", None)),
+    (SHOULDER, "my shoulder clicks when i raise my arm, is it bad?", ("pain_or_discomfort", "exercise:shoulder_abduction", "exercise:shoulder_flexion", None, "joint_noise")),
     (SHOULDER, "can I swim instead of these exercises", "difficulty"),
     (SHOULDER, "my arm went numb after the arm raises", "red_flag"),
     (CORE, "how do I keep my back flat in bird dog", "exercise:bird_dog"),

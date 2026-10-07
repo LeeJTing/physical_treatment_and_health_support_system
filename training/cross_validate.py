@@ -97,6 +97,9 @@ def main():
     if "--own-only" in sys.argv:             # only Elwin's recordings (drops REHAB24-6 people)
         keep = np.char.startswith(groups.astype(str), "own")
         X, y, ym, groups, clips, aug = X[keep], y[keep], ym[keep], groups[keep], clips[keep], aug[keep]
+    if "--rule-inputs" in sys.argv:          # the model reads only what the exercise's rules look at
+        from app.pose.classifier import INPUTS, columns
+        X = X[:, :, columns(INPUTS[key])]
     if "--no-aug" in sys.argv:               # same folds, augmented copies left out of training
         keep = aug == 0
         X, y, ym, groups, clips, aug = X[keep], y[keep], ym[keep], groups[keep], clips[keep], aug[keep]
@@ -112,7 +115,7 @@ def main():
         print(f"  {name:20s} accuracy {m['accuracy']:.0%}  precision {m['precision']:.2f}  recall {m['recall']:.2f}  "
               f"F1 {m['f1']:.2f}  confusion {m['confusion_matrix']['rows_true_cols_pred']}")
     REPORTS.mkdir(exist_ok=True)
-    tag = ("_own" if "--own-only" in sys.argv else "") + ("_noaug" if "--no-aug" in sys.argv else "")
+    tag = ("_own" if "--own-only" in sys.argv else "") + ("_noaug" if "--no-aug" in sys.argv else "") +         ("_ruleinputs" if "--rule-inputs" in sys.argv else "")
     (REPORTS / f"cv_{key}{tag}.json").write_text(json.dumps(
         {"method": method, "reps_scored": int(orig.sum()), "reps_augmented_in_training": int((~orig).sum()),
          "people": int(len(np.unique(groups))), "clips": int(len(np.unique(clips))), "results": results},

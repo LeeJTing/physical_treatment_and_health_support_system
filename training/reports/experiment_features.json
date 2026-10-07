@@ -1,0 +1,71 @@
+{
+  "sit_to_stand": {
+    "all inputs": {
+      "own_heldout_rep_acc": 0.994,
+      "p02_rep_acc": 0.25,
+      "p02_clip_acc": 0.5,
+      "p02_reps": 4,
+      "seeds": 3
+    },
+    "rule inputs": {
+      "own_heldout_rep_acc": 0.988,
+      "p02_rep_acc": 0.75,
+      "p02_clip_acc": 0.833,
+      "p02_reps": 4,
+      "seeds": 3
+    },
+    "rule inputs, posture relative": {
+      "own_heldout_rep_acc": 0.994,
+      "p02_rep_acc": 0.25,
+      "p02_clip_acc": 0.5,
+      "p02_reps": 4,
+      "seeds": 3
+    }
+  },
+  "shoulder_abduction": {
+    "all inputs": {
+      "own_heldout_rep_acc": 0.98,
+      "p02_rep_acc": 0.778,
+      "p02_clip_acc": 0.75,
+      "p02_reps": 12,
+      "seeds": 3
+    },
+    "rule inputs": {
+      "own_heldout_rep_acc": 0.974,
+      "p02_rep_acc": 0.972,
+      "p02_clip_acc": 1.0,
+      "p02_reps": 12,
+      "seeds": 3
+    },
+    "rule inputs, posture relative": {
+      "own_heldout_rep_acc": 0.974,
+      "p02_rep_acc": 0.972,
+      "p02_clip_acc": 1.0,
+      "p02_reps": 12,
+      "seeds": 3
+    }
+  },
+  "shoulder_flexion": {
+    "all inputs": {
+      "own_heldout_rep_acc": 0.959,
+      "p02_rep_acc": 1.0,
+      "p02_clip_acc": 1.0,
+      "p02_reps": 8,
+      "seeds": 3
+    },
+    "rule inputs": {
+      "own_heldout_rep_acc": 0.977,
+      "p02_rep_acc": 1.0,
+      "p02_clip_acc": 1.0,
+      "p02_reps": 8,
+      "seeds": 3
+    },
+    "rule inputs, posture relative": {
+      "own_heldout_rep_acc": 0.947,
+      "p02_rep_acc": 1.0,
+      "p02_clip_acc": 1.0,
+      "p02_reps": 8,
+      "seeds": 3
+    }
+  }
+}

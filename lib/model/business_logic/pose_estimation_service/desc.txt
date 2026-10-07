@@ -1,0 +1,1 @@
+PoseEstimationService: checks the video and calls /pose on the AI server.

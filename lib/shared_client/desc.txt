@@ -1,0 +1,1 @@
+Shared Client (diagram): the two connections to the outside, shared by the repositories and services.

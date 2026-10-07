@@ -1,0 +1,2 @@
+Repository layer. One folder per repository column: the interface (i_*), its Supabase implementation and
+an in-memory fake for tests / USE_FAKES. Only lib/main.dart names a concrete class. supabase_guard.dart = shared error handling.

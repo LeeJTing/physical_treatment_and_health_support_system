@@ -1,0 +1,53 @@
+{
+  "method": "5-fold, whole clips held out (fewer than 3 people)",
+  "reps_scored": 257,
+  "reps_augmented_in_training": 1973,
+  "people": 1,
+  "clips": 51,
+  "results": {
+    "logistic regression": {
+      "accuracy": 0.867704280155642,
+      "precision": 0.8296296296296296,
+      "recall": 0.9105691056910569,
+      "f1": 0.8682170542635658,
+      "confusion_matrix": {
+        "labels": [
+          "incorrect",
+          "correct"
+        ],
+        "rows_true_cols_pred": [
+          [
+            111,
+            23
+          ],
+          [
+            11,
+            112
+          ]
+        ]
+      }
+    },
+    "GRU": {
+      "accuracy": 0.8871595330739299,
+      "precision": 0.8455882352941176,
+      "recall": 0.9349593495934959,
+      "f1": 0.888030888030888,
+      "confusion_matrix": {
+        "labels": [
+          "incorrect",
+          "correct"
+        ],
+        "rows_true_cols_pred": [
+          [
+            113,
+            21
+          ],
+          [
+            8,
+            115
+          ]
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,1 @@
+LoginView and the rest of the sign-in flow: register, verify code, reset password, start-up splash. widgets/ = auth-only widgets.
