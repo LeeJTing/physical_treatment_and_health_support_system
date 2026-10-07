@@ -1,8 +1,8 @@
 {
   "limits": {
-    "hip_abduction.trunk_lean": 13.5,
+    "hip_abduction.trunk_lean": 16,
     "shoulder_abduction.low_range": 92.441,
-    "shoulder_abduction.bent_elbow": 165,
+    "shoulder_abduction.bent_elbow": 158,
     "shoulder_flexion.bent_elbow": 157,
     "sit_to_stand.incomplete_stand": 170,
     "sit_to_stand.no_forward_lean": 23.452,
@@ -26,11 +26,11 @@
     "shoulder_flexion.shoulder_shrug": 0.82,
     "shoulder_flexion.swinging": 0.723
   },
-  "tuned_at": "2026-10-07T22:22:22",
+  "tuned_at": "2026-10-07T23:15:22",
   "sources": {
-    "hip_abduction.trunk_lean": "own clips",
+    "hip_abduction.trunk_lean": "own clips; reviewed: flags 4% of Elwin's correct reps and 27% of REHAB24's approved ones (13.5: 11% and 46%); catches 81% of REHAB24's incorrect reps and half of Elwin's mild leans; the trained model also judges lean",
     "shoulder_abduction.low_range": "own clips",
-    "shoulder_abduction.bent_elbow": "own clips; reviewed: classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag normal arms; 165 scores 85%, the trained model handles the rest",
+    "shoulder_abduction.bent_elbow": "own clips; reviewed: 158 catches 62% of Elwin's bent-elbow reps (165: 69%) and flags 23% of REHAB24's approved reps (165: 60%); no correct rep of Elwin or p02; the trained model handles subtler bends",
     "shoulder_flexion.bent_elbow": "own clips; reviewed: two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; 157 still catches 84% of bent-elbow reps (160: 88%)",
     "sit_to_stand.incomplete_stand": "own clips; reviewed: 98% vs 100% at 174, which is 2 deg below Elwin's own correct reps",
     "sit_to_stand.no_forward_lean": "own clips",

@@ -37,8 +37,16 @@ MIN_GAIN = 0.05
 # Limits reviewed by hand after tuning on Elwin's clips (7 Oct): the tuned value sat at the edge
 # of the correct reps, so a value with more margin and nearly the same score is used.
 REVIEWED = {
-    "shoulder_abduction.bent_elbow": (165, "classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag "
-                                           "normal arms; 165 scores 85%, the trained model handles the rest"),
+    # 8 Oct, other people: REHAB24-6's physiotherapist-approved arm raises keep the elbow at 154-163 deg
+    # (p10/p50; measured overhead, so only partly comparable); 165 flagged 60 % of them.
+    "shoulder_abduction.bent_elbow": (158, "158 catches 62% of Elwin's bent-elbow reps (165: 69%) and flags 23% of "
+                                           "REHAB24's approved reps (165: 60%); no correct rep of Elwin or p02; "
+                                           "the trained model handles subtler bends"),
+    # 8 Oct, other people: REHAB24-6's approved leg abductions lean 12.3 deg (median), p90 19.3; 13.5
+    # flagged 46 % of them. Elwin's 'trunk lean' reps are mild (median 15.9).
+    "hip_abduction.trunk_lean": (16, "flags 4% of Elwin's correct reps and 27% of REHAB24's approved ones "
+                                     "(13.5: 11% and 46%); catches 81% of REHAB24's incorrect reps and half of "
+                                     "Elwin's mild leans; the trained model also judges lean"),
     # 8 Oct, second person (p02) blind test: her correct flexion keeps the elbow at 160-164 deg and
     # her shoulders at 0.84-0.86; both fired at 160 / 0.85. Elwin's correct reps stay >= 163 / >= 0.86.
     "shoulder_flexion.bent_elbow": (157, "two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; "
