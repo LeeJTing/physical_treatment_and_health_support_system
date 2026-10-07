@@ -156,7 +156,9 @@ def test_knee_extension_correct_with_hold():
 
 
 def test_knee_extension_no_hold_and_incomplete():
-    no_hold = analyse("knee_extension", sequence([side_seated(k) for k in wave(4, 90, 175)]), use_model=False)
+    # A real no-hold kick is quick (Elwin's clips: 0.3 s near the top; limit tuned to 0.59 s).
+    no_hold = analyse("knee_extension", sequence([side_seated(k) for k in wave(4, 90, 175, rep_sec=1.5)]),
+                      use_model=False)
     assert "no_hold" in no_hold["mistakes"]
     half = analyse("knee_extension", sequence([side_seated(k) for k in wave(4, 90, 148, hold_sec=2.0)]), use_model=False)
     assert "incomplete_extension" in half["mistakes"]
@@ -164,7 +166,8 @@ def test_knee_extension_no_hold_and_incomplete():
 
 def test_knee_extension_slouching():
     res = analyse("knee_extension",
-                  sequence([side_seated(k, lean=-18) for k in wave(4, 90, 175, hold_sec=2.0)]), use_model=False)
+                  # limit tuned to -29 deg on Elwin's clips (his chair reclines ~20 deg, slouching ~-39)
+                  sequence([side_seated(k, lean=-35) for k in wave(4, 90, 175, hold_sec=2.0)]), use_model=False)
     assert "slouching" in res["mistakes"]
 
 

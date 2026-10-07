@@ -283,8 +283,11 @@ add(ExerciseSpec(
         M("thigh_lift", "Keep your thigh resting on the seat; only the lower leg moves.",
           lambda f, r: rep_max(f[f"thigh_from_down_{moving(f, r, 'knee')}"], r) - 90, 15, True, "degrees"),
         M("no_hold", "Hold the straight leg for 2 seconds before lowering it.", hold_of(knee_ext, 8), 1.5, False, "seconds"),
+        # 7 Oct: forward lean gained during the lift, so a reclined chair back does not matter
+        # (Elwin's chair reclines ~20 deg). Correct reps gain 0-1.6 deg, leaning reps 15-39 deg.
         M("leaning_forward", "Keep your upper body upright; do not lean towards your knee.",
-          lambda f, r: rep_max(f["lean_sagittal"], r), 15, True, "degrees"),
+          lambda f, r: rep_max(f["lean_sagittal"], r) - float(f["lean_sagittal"][r.start]), 10, True,
+          "degrees gained"),
     ]))
 
 # ---- Angle-rule exercises ---------------------------------------------------

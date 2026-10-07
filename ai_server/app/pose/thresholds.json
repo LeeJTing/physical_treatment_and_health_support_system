@@ -1,6 +1,6 @@
 {
   "limits": {
-    "hip_abduction.trunk_lean": 17.759,
+    "hip_abduction.trunk_lean": 13.5,
     "shoulder_abduction.low_range": 92.441,
     "shoulder_abduction.bent_elbow": 165,
     "shoulder_flexion.bent_elbow": 160,
@@ -15,11 +15,16 @@
     "bird_dog.no_hold": 0.964,
     "glute_bridge.feet_far": 84.123,
     "march_in_place.low_knee_lift": 91.921,
-    "march_in_place.leaning_back": -20
+    "march_in_place.leaning_back": -20,
+    "hip_abduction.bent_knee": 169.521,
+    "hip_abduction.toes_up": 0.436,
+    "knee_extension.slouching": -29.142,
+    "knee_extension.thigh_lift": 21.337,
+    "knee_extension.no_hold": 0.594
   },
-  "tuned_at": "2026-10-07T21:59:25",
+  "tuned_at": "2026-10-07T22:00:43",
   "sources": {
-    "hip_abduction.trunk_lean": "hip_abduction.trunk_lean: REHAB24-6 leg abduction, 63 correct / 53 incorrect repetitions (balanced accuracy 68% -> 79%)",
+    "hip_abduction.trunk_lean": "own clips",
     "shoulder_abduction.low_range": "own clips",
     "shoulder_abduction.bent_elbow": "own clips; reviewed: classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag normal arms; 165 scores 85%, the trained model handles the rest",
     "shoulder_flexion.bent_elbow": "own clips; reviewed: 94%, same as the tuned 162, rounder and with more margin",
@@ -34,6 +39,11 @@
     "bird_dog.no_hold": "own clips",
     "glute_bridge.feet_far": "own clips",
     "march_in_place.low_knee_lift": "own clips",
-    "march_in_place.leaning_back": "own clips; reviewed: correct reps down to -10.6 deg, leaning reps -28 to -35 deg; -10 flagged normal marching"
+    "march_in_place.leaning_back": "own clips; reviewed: correct reps down to -10.6 deg, leaning reps -28 to -35 deg; -10 flagged normal marching",
+    "hip_abduction.bent_knee": "own clips",
+    "hip_abduction.toes_up": "own clips",
+    "knee_extension.slouching": "own clips",
+    "knee_extension.thigh_lift": "own clips",
+    "knee_extension.no_hold": "own clips"
   }
 }
