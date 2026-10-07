@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.13"
+VERSION = "chat-rules-3.14"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -96,7 +96,7 @@ INTENTS = [
     intent("missed_session", "Missed a session", 5,
            ["missed", "miss", "skip", "skipped", "skipping", "forgot", "forgotten", "didn't exercise", "did not exercise",
             "haven't exercised", "have not exercised", "fell behind", "behind schedule", "catch up", "make up",
-            "lazy", "no time", "too busy", "busy", "stopped exercising", "break from"],
+            "no time", "too busy", "busy", "stopped exercising", "break from"],
            ["I missed my session yesterday", "what if I skip a day", "I forgot to exercise", "how do I catch up"],
            "That is fine. Do your next session as usual; do not do two sessions in one day to catch up. If you "
            "have missed several days, start again gently with fewer repetitions and build back up."),
@@ -139,7 +139,9 @@ INTENTS = [
            "a low step (no higher than 15 cm) with a rail. Wear comfortable clothes and non-slip shoes. A small "
            "water bottle can be used as a light weight if you are comfortable."),
     intent("difficulty", "Too easy or too hard", 7,
-           ["sitting down", "seated version", "while sitting", "do it sitting", "cannot lift", "can't lift", "cannot raise", "can't raise", "not high enough", "cannot reach", "can't reach",
+           ["cannot go up", "can't go up", "cannot go higher", "can't go higher", "not able to lift",
+            "not able to raise", "cannot bend", "can't bend", "cannot straighten", "can't straighten",
+            "sitting down", "seated version", "while sitting", "do it sitting", "cannot lift", "can't lift", "cannot raise", "can't raise", "not high enough", "cannot reach", "can't reach",
             "too easy", "too hard", "too difficult", "difficult", "struggle", "struggling", "can't finish",
             "cannot finish", "can't complete", "can't do", "cannot do", "unable to", "harder", "easier",
             "challenging", "not challenging", "progress to", "increase", "decrease", "fewer reps", "more reps",
@@ -180,14 +182,16 @@ INTENTS = [
             "put my phone", "put the phone", "where to put", "tripod", "stand for my phone", "full body",
             "not detected", "can't detect", "cannot detect", "can't see me", "cannot see me", "can't see my",
             "upload", "uploading", "angle", "frame", "720p", "resolution", "too long", "too short", "front or side",
-            "in front or", "at the side", "lighting", "dark", "someone record", "record for me"],
+            "in front or", "at the side", "lighting", "dark", "someone record", "record for me",
+            "no repetition", "no repetitions", "no reps found", "repetition found", "no complete repetition"],
            ["how do I record my exercise", "where should I put my phone", "the app cannot detect my body",
             "why does it say my full body is not visible", "how long should the video be"],
            "Put your phone on a stand, upright, at about waist height and 2.5 to 3 metres away, so your whole "
            "body from head to feet stays in the picture during the movement. Use good light in front of you "
            "and record 10 to 30 seconds. Each exercise says whether the camera should face you or be at your "
            "side. Someone else may hold the phone for you if it stays still. If the app cannot see your whole "
-           "body, step back a little and record again."),
+           "body, step back a little and record again. If it found no repetition, make each movement a little "
+           "bigger and slower, with a short pause back at the start."),
     intent("posture_result", "Understanding your posture score", 6,
            ["frustrated", "always low", "keep failing", "never pass",
             "score", "scores", "accuracy", "percent", "percentage", "my result", "the result", "result mean",
@@ -205,7 +209,9 @@ INTENTS = [
            "If it counted fewer repetitions than you did, make each one a full, clear movement with a short "
            "pause back at the start, and keep your whole body in the picture."),
     intent("best_time", "When to exercise", 5,
-           ["what time should", "what time is best", "what time of day", "what time to", "which time", "best time", "good time", "right time", "when should i exercise",
+           ["very hot", "so hot", "too hot", "hot day", "today hot", "raining",
+            "heatwave", "panas", "humid",
+            "what time should", "what time is best", "what time of day", "what time to", "which time", "best time", "good time", "right time", "when should i exercise",
             "when should i do", "when to exercise", "when can i exercise", "exercise now", "exercise tonight",
             "exercise at night", "night", "tonight", "late", "too late", "midnight", "before bed", "before sleep",
             "bedtime", "after dinner", "after eating", "after a meal", "morning or evening", "in the morning",
@@ -287,10 +293,44 @@ INTENTS = [
            "phone settings. If you have already exercised that day, the reminder is skipped. The reminder "
            "sound and volume follow your phone's notification settings.",
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
+    # 8 Oct (round 10): elderly and family users.
+    intent("for_someone_else", "Exercising for a family member", 3,
+           ["my mother", "my father", "my mum", "my mom", "my dad", "my parents", "my parent",
+            "my grandmother", "my grandfather", "my grandma", "my grandpa", "my wife", "my husband",
+            "my son", "my daughter", "my friend", "can she", "can he", "for her", "for him", "she do", "he do"],
+           ["can my mother do these exercises", "is this plan suitable for my father"],
+           "Each person should use their own account and health profile: the plan and its safety limits are "
+           "chosen from the profile of the person exercising, including their age, conditions and fall risk. "
+           "Help them create an account and fill in their profile, then get a plan for them. For an older "
+           "family member, stay close during the first sessions, keep a sturdy chair or counter within reach, "
+           "and set up the phone for them so the app can check their posture.", show=False,
+           action={"key": "open_profile", "label": "Open health profile"}),
+    intent("motivation", "Keeping motivated", 4,
+           ["lazy", "malas", "unmotivated", "no mood", "don't feel like",
+            "dont feel like", "can't be bothered", "cannot be bothered", "sad",
+            "depressed", "feeling down", "feel down", "low mood"],
+           ["I feel too lazy to exercise", "I have no motivation", "I want to give up"],
+           "That happens to everyone. Start small: do just the first exercise today, at the same time each day, "
+           "and let your reminder prompt you. Exercising with a family member helps, and Results shows how far "
+           "you have come. Strength comes back slowly after a long rest, so every session counts, even a short "
+           "one. If you have felt low or lost interest in most things for more than two weeks, please talk to "
+           "your doctor.", show=False, action={"key": "open_history", "label": "See my progress"}),
+    intent("other_activity", "Other sports and activities", 5,
+           ["jogging", "jog", "go running", "running every", "gym", "swimming", "swim", "cycling", "bicycle",
+            "play badminton", "play football", "play futsal", "play tennis", "playing badminton",
+            "playing football", "go hiking", "yoga", "pilates", "zumba", "dancing",
+            "other exercise", "other exercises", "other sports", "sports", "play sport", "brisk walk",
+            "treadmill", "go for a walk", "walking exercise"],
+           ["can I go jogging", "can I go to the gym", "can I play badminton"],
+           "Gentle walking is good for you, also on rest days. For harder activity such as jogging, sports or "
+           "the gym, wait until your plan has built up your strength, start gently, and ask your doctor or "
+           "physiotherapist first, especially if you have a health condition or have fallen before. Stop if it "
+           "causes pain that is still there the next day.", show=False),
     intent("history_help", "Your past results", 6,
            ["old results", "old scores", "see my old", "previous score", "previous scores", "earlier results", "earlier scores",
             "see my score", "see my scores", "score last week", "scores last week", "last week", "my score history", "past scores", "past results", "previous results", "my results", "session history",
-            "previous sessions", "past sessions", "how did i do", "accuracy history",
+            "previous sessions", "past sessions", "how did i do", "accuracy history", "what i did",
+            "did yesterday", "yesterday's score", "see yesterday",
             "all my attempts", "track my progress", "see my progress"],
            ["where can I see my past results", "how did I do in my last session", "show my session history"],
            "Every exercise you record is saved with its posture score and tips. Session history shows them all, "
