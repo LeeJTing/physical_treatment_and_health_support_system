@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.5"
+VERSION = "chat-rules-3.6"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -113,7 +113,8 @@ INTENTS = [
            ["high blood pressure", "blood pressure", "hypertension", "diabetes", "diabetic", "blood sugar",
             "heart disease", "heart condition", "heart problem", "had a stroke", "stroke", "asthma", "asthmatic",
             "arthritis", "osteoporosis", "my condition", "my conditions", "health condition", "medical condition",
-            "chronic"],
+            "chronic", "heart patient", "sugar level", "my sugar", "sugar low", "low sugar", "glucose",
+            "sugar reading"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "
@@ -282,6 +283,7 @@ INTENTS = [
             "didnt receive the code", "did not receive the code", "didn't receive the email", "no email",
             "email not received", "otp", "resend code", "code expired", "code not working", "wrong code",
             "confirm my email", "verify my email", "email verification", "receive email", "receive any email",
+            "not get code", "not get the code", "not get any code", "no otp", "code not come", "code never came",
             "receive the email", "never receive", "never received", "not receive", "not received", "email not coming",
             "email never came", "no email from you", "didn't get email", "didnt get email"],
            ["I did not get the verification code", "the code is not working", "how do I verify my email"],

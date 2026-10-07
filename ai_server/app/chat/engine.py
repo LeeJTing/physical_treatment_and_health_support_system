@@ -35,6 +35,17 @@ NEGATORS = {"no", "not", "without", "never", "don't", "dont", "didn't", "didnt",
 SYNONYMS = {"workout": "exercise", "workouts": "exercises", "train": "exercise", "training": "exercising",
             "lift": "raise", "lifts": "raises", "lifting": "raising", "lifted": "raised", "high": "height",
             "physio": "physiotherapist", "doc": "doctor", "vid": "video", "pic": "photo"}
+# Common Malay words patients mix into English (Malaysian users). Single words; phrases are in
+# MALAY_PHRASES. Body-part and symptom words map to the English the rules (and red flags) know.
+MALAY = {"saya": "i", "aku": "i", "malam": "night", "pagi": "morning", "petang": "evening", "tengahari": "afternoon", "boleh": "can",
+         "buat": "do", "senaman": "exercise", "bersenam": "exercise", "lutut": "knee", "bahu": "shoulder",
+         "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
+         "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
+         "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
+         "jatuh": "fell", "makan": "eat", "lepas": "after", "sebelum": "before", "tidur": "sleep"}
+MALAY_PHRASES = {"kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
+                 "sesak nafas": "short of breath", "kencing manis": "diabetes", "darah tinggi": "high blood pressure",
+                 "sakit jantung": "heart disease", "lemah badan": "weak"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -49,8 +60,10 @@ def clean(text: str) -> str:
     t = text.lower().replace("’", "'").replace("%", " percent ")
     # A clock time ("11pm", "7:30 am", "10 o'clock") becomes one token the timing rule knows.
     t = re.sub(r"\b\d{1,2}(?::\d{2})?\s*(?:am|pm|a\.m\.|p\.m\.|o'?\s?clock)(?![a-z])", " clocktime ", t)
+    for phrase, english in MALAY_PHRASES.items():
+        t = re.sub(rf"\b{phrase}\b", english, t)
     words = re.sub(r"[^a-z0-9' ]", " ", t).split()
-    return " ".join(SYNONYMS.get(w, CONTRACTIONS.get(w, w)) for w in words)
+    return " ".join(SYNONYMS.get(w, CONTRACTIONS.get(w, MALAY.get(w, w))) for w in words)
 
 
 # ---------------------------------------------------------------------------
@@ -307,7 +320,8 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "hypertension": "HYPERTENSION", "diabetes": "DIABETES", "diabetic": "DIABETES",
                    "blood sugar": "DIABETES", "heart disease": "HEART_DISEASE", "heart condition": "HEART_DISEASE",
                    "heart problem": "HEART_DISEASE", "stroke": "STROKE", "asthma": "ASTHMA", "asthmatic": "ASTHMA",
-                   "arthritis": "ARTHRITIS", "osteoporosis": "OSTEOPOROSIS"}
+                   "arthritis": "ARTHRITIS", "osteoporosis": "OSTEOPOROSIS", "heart patient": "HEART_DISEASE",
+                   "sugar level": "DIABETES", "my sugar": "DIABETES", "glucose": "DIABETES"}
 
 
 def conditions_in(text: str | None) -> list[str]:

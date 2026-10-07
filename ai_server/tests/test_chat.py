@@ -15,6 +15,7 @@ from chat_eval_set import EVAL
 from chat_final_set import FINAL
 from chat_holdout_set import CORE, HOLDOUT, KNEE
 from chat_round1_set import ROUND1
+from chat_round2_set import ROUND2
 from chat_verify_set import VERIFY
 
 client = TestClient(app)
@@ -23,7 +24,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):
@@ -251,3 +252,14 @@ def test_condition_specific_timing():
 def test_local_time_is_validated():
     r = client.post("/chat", headers=DEV, json={"text": "hi", "local_hour": 25})
     assert r.status_code == 422
+
+
+def test_malay_symptoms_get_the_urgent_answer():
+    for text in ["dada sakit, sesak nafas", "saya pening lepas senaman", "saya jatuh tadi"]:
+        assert ask(text)["category"] == "red_flag", text
+
+
+def test_malay_words_are_understood():
+    assert ask("boleh buat senaman malam?")["category"] == "best_time"
+    assert ask("lupa kata laluan")["category"] == "forgot_password"
+    assert ask("terima kasih")["category"] == "thanks"

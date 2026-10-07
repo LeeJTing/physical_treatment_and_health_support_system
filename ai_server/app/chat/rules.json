@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.5",
+  "version": "chat-rules-3.6",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -367,7 +367,14 @@
         "my conditions",
         "health condition",
         "medical condition",
-        "chronic"
+        "chronic",
+        "heart patient",
+        "sugar level",
+        "my sugar",
+        "sugar low",
+        "low sugar",
+        "glucose",
+        "sugar reading"
       ],
       "examples": [
         "I have diabetes, is there anything special I should do",
@@ -1153,6 +1160,12 @@
         "email verification",
         "receive email",
         "receive any email",
+        "not get code",
+        "not get the code",
+        "not get any code",
+        "no otp",
+        "code not come",
+        "code never came",
         "receive the email",
         "never receive",
         "never received",
