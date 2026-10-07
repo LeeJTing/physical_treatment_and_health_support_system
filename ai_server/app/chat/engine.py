@@ -71,7 +71,8 @@ def exercise_intent(key: str, ex: dict, plan: dict | None) -> dict:
         "keywords": aliases,
         "examples": [f"how do I do the {aliases[0]}", f"{aliases[0]} instructions", f"how many {aliases[0]}"],
         "answer": f"{ex['name']}: {ex['instruction']} {extra}{camera}".strip(),
-        "follow_ups": [], "tailor": True,
+        "follow_ups": [], "tailor": True, "time_aware": True,
+        "action": {"key": "open_treatment", "label": "Open my treatment plan"} if in_plan else None,
     }
 
 
@@ -90,7 +91,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "what is in this plan"],
          "answer": f"Your plan, {plan['plan_name']}, has {len(plan['exercises'])} exercises, done in this order: "
                    f"{lines}. Do it {plan['frequency_per_week']} times a week.",
-         "follow_ups": [], "tailor": True},
+         "follow_ups": [], "tailor": True, "time_aware": True,
+         "action": {"key": "open_treatment", "label": "Open my treatment plan"}},
         {"key": "plan_progress", "title": "Progress and results", "show": True, "priority": 6,
          "keywords": ["results", "see results", "progress", "improve", "improving", "improvement", "how long until",
                       "when will", "getting better", "get better", "working", "is it working", "finish the plan",
@@ -104,7 +106,8 @@ def plan_intents(plan: dict) -> list[dict]:
          "answer": f"This plan aims to help you {plan['goal_text']}. Most people notice a difference after two to "
                    f"four weeks of regular sessions. Your progress bar moves forward each time you complete an "
                    f"exercise with good posture; when the plan is complete, request a new recommendation to move on.",
-         "follow_ups": [], "tailor": False},
+         "follow_ups": [], "tailor": False,
+         "action": {"key": "open_history", "label": "See my results"}},
     ]
 
 
@@ -312,6 +315,43 @@ def conditions_in(text: str | None) -> list[str]:
     return list(dict.fromkeys(code for phrase, code in CONDITION_WORDS.items() if find_phrase(phrase, words)))
 
 
+def period(hour: int) -> str:
+    """Part of the patient's day by the phone's local hour."""
+    if hour >= 22 or hour < 6:
+        return "late_night"
+    if hour < 9:
+        return "early_morning"
+    if hour < 18:
+        return "daytime"
+    return "evening"
+
+
+def clock(hour: int, minute: int) -> str:
+    h = hour % 12 or 12
+    return f"{h}:{minute:02d} {'am' if hour < 12 else 'pm'}"
+
+
+def time_notes(intent: dict, local: tuple[int, int] | None, conditions, limitations) -> list[str]:
+    """Advice that depends on the time where the patient is (the phone's local time): rest late at
+    night, and condition-specific timing (e.g. diabetes in the evening, blood pressure after waking)."""
+    if local is None or not intent.get("time_aware"):
+        return []
+    r = rules()
+    hour, minute = local
+    p = period(hour)
+    if p == "late_night":
+        notes = [r["late_night_note"].format(time=clock(hour, minute))]
+    elif intent.get("key") == "best_time" and p in r.get("now_notes", {}):
+        notes = [r["now_notes"][p].format(time=clock(hour, minute))]
+    else:
+        notes = []
+    for code in list(conditions or []) + list(limitations or []):
+        note = r.get("time_notes", {}).get(code, {}).get(p)
+        if note:
+            notes.append(note)
+    return notes
+
+
 def tailor_notes(intent: dict, conditions, limitations, risk_level) -> list[str]:
     if not intent.get("tailor"):
         return []
@@ -358,7 +398,7 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
 
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
-          risk_level: str | None = None) -> dict:
+          risk_level: str | None = None, local_time: tuple[int, int] | None = None) -> dict:
     r = rules()
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id)), "rules_version": r["version"]}
@@ -378,7 +418,10 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
                 "matched_by": None, "follow_ups": [], "notes": [], "action": None}
 
     mentioned = conditions_in(text) if chosen["key"] in ("condition_advice", "safety") else []
-    notes = tailor_notes(chosen, list(dict.fromkeys((conditions or []) + mentioned)), limitations, risk_level)
+    all_conditions = list(dict.fromkeys((conditions or []) + mentioned))
+    # Time first: "rest now, it is late" matters more than the condition reminders that follow.
+    notes = time_notes(chosen, local_time, all_conditions, limitations)
+    notes += tailor_notes(chosen, all_conditions, limitations, risk_level)
     answer = chosen["answer"] + ("\n\n" + " ".join(notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,

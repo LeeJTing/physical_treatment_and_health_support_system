@@ -28,6 +28,8 @@ class _ChatViewState extends State<ChatView> {
     'open_planning': Routes.treatmentPlanning,
     'open_profile': Routes.healthProfile,
     'open_treatment': Routes.physicalTreatment,
+    'open_reminders': Routes.reminders,
+    'open_history': Routes.sessionHistory,
   };
 
   /// Opens the screen behind a chatbot button. If that screen is already open under the

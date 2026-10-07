@@ -20,7 +20,7 @@ HOLDOUT = [
     (KNEE, "my phone can't see my feet in the video", "recording_help"),
     (KNEE, "why did I only get 40 percent", "posture_result"),
     (KNEE, "Can I switch to another plan?", "plan_and_reminders"),
-    (KNEE, "the reminder comes at the wrong time", "plan_and_reminders"),
+    (KNEE, "the reminder comes at the wrong time", "reminders_help"),
     (KNEE, "is it ok to exercise with a cold", "tired"),
     (KNEE, "I feel faint", "red_flag"),
     (KNEE, "I fell and hit my head", "red_flag"),

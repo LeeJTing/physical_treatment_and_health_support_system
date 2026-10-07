@@ -10,11 +10,13 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 /// condition (Table 4.2.2).
 class ChatbotService {
   final ApiClient _api;
+  final DateTime Function() _now;
 
   /// Treatment plan the conversation concerns, sent with every question (FR500_18).
   String? planId;
 
-  ChatbotService(this._api);
+  ChatbotService(this._api, {DateTime Function()? now})
+    : _now = now ?? DateTime.now;
 
   /// Question categories that belong to the plan (FR500_18).
   Future<Result<List<ChatCategory>>> categoriesFor(String? planId) async {
@@ -41,7 +43,14 @@ class ChatbotService {
     ProfileSnapshot? profile,
   }) async {
     final p = profile?.profile;
+    // The phone's own local time and time zone (no GPS, no location permission): the server
+    // advises resting late at night and gives condition-specific timing.
+    final local = _now();
     final res = await _api.post(AppConstants.chatPath, {
+      'local_hour': local.hour,
+      'local_minute': local.minute,
+      'utc_offset_minutes': local.timeZoneOffset.inMinutes,
+      'timezone': local.timeZoneName,
       'plan_id': planId,
       'category': ?category,
       if (text != null && text.trim().isNotEmpty) 'text': text.trim(),

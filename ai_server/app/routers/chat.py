@@ -29,6 +29,11 @@ class ChatRequest(BaseModel):
     conditions: list[str] = Field(default_factory=list)        # e.g. ["HYPERTENSION", "DIABETES"]
     limitations: list[str] = Field(default_factory=list)       # e.g. ["BALANCE_IMPAIRMENT"]
     risk_level: Literal["Low", "Medium", "High"] | None = None
+    # The phone's local time and time zone (no GPS): late-night and condition-specific timing advice.
+    local_hour: int | None = Field(default=None, ge=0, le=23)
+    local_minute: int | None = Field(default=None, ge=0, le=59)
+    utc_offset_minutes: int | None = Field(default=None, ge=-840, le=840)
+    timezone: str | None = Field(default=None, max_length=64)
 
     @model_validator(mode="after")
     def needs_input(self):
@@ -65,4 +70,6 @@ def categories(plan_id: str | None = None, account_id: str = Depends(current_acc
 @router.post("/chat", response_model=ChatResponse)
 def chat(body: ChatRequest, account_id: str = Depends(current_account_id)):
     """Answer a tapped category or a typed question (FR500_19 to FR500_22)."""
-    return engine.reply(body.plan_id, body.category, body.text, body.conditions, body.limitations, body.risk_level)
+    local = (body.local_hour, body.local_minute or 0) if body.local_hour is not None else None
+    return engine.reply(body.plan_id, body.category, body.text, body.conditions, body.limitations, body.risk_level,
+                        local_time=local)

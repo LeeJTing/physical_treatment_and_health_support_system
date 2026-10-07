@@ -17,7 +17,8 @@ class ChatCategory {
 /// A button offered under an answer, e.g. "Reset password" (chat-rules-3.2). The view maps
 /// [key] to a screen.
 class ChatAction {
-  final String key; // open_reset_password | open_planning | open_profile | open_treatment
+  final String
+  key; // open_reset_password | open_planning | open_profile | open_treatment | open_reminders | open_history
   final String label;
 
   const ChatAction(this.key, this.label);

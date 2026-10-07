@@ -203,3 +203,50 @@ def test_password_and_start_answers_offer_a_button():
     res = client.post("/chat", json={"text": "asdfgh"}, headers=DEV).json()
     assert res["action"] is None and res["answer"] == engine.rules()["not_recognised"]   # FR500_22 unchanged
 
+
+
+# ---- chat-rules-3.4: links to screens, time of day ----------------------------------------------
+
+@pytest.mark.parametrize("text, key, action", [
+    ("update my profile", "profile_help", "open_profile"),
+    ("why is my risk level high", "profile_help", "open_profile"),
+    ("change my reminder time", "reminders_help", "open_reminders"),
+    ("show my past results", "history_help", "open_history"),
+    ("how do I record my video", "recording_help", "open_treatment"),
+    ("what exercises are in my plan", "plan_exercises", "open_treatment"),
+    ("how do I do the exercises", "how_to", "open_treatment"),
+    ("I forgot my password", "forgot_password", "open_reset_password"),
+])
+def test_answers_link_to_the_right_screen(text, key, action):
+    res = ask(text)
+    assert res["category"] == key and res["action"]["key"] == action
+
+
+def test_late_night_advises_rest_and_shows_the_local_time():
+    res = ask("can I exercise now", local_hour=23, local_minute=40)
+    assert res["category"] == "best_time"
+    assert res["notes"][0].startswith("It is 11:40 pm where you are. Late at night is not a good time")
+    # also for an exercise question, but not for pain (safety advice must not be delayed)
+    assert "Late at night" in ask("how do I do the exercises", local_hour=2, local_minute=0)["notes"][0]
+    assert ask("my knee hurts", local_hour=23, local_minute=0)["notes"] == []
+
+
+def test_daytime_says_now_is_fine_and_no_time_without_the_phone_time():
+    assert ask("can I exercise now", local_hour=15, local_minute=0)["notes"][0].startswith("It is 3:00 pm")
+    assert ask("can I exercise now")["notes"] == []          # older app: no local time sent
+
+
+def test_condition_specific_timing():
+    diabetic_evening = ask("can I exercise now", local_hour=20, local_minute=0, conditions=["DIABETES"])["notes"]
+    assert any("blood sugar drop overnight" in n for n in diabetic_evening)
+    morning = ask("when is the best time to exercise", local_hour=7, local_minute=0,
+                  conditions=["HYPERTENSION", "ARTHRITIS"])["notes"]
+    assert any("higher in the first hours after waking" in n for n in morning)
+    assert any("stiffest first thing" in n for n in morning)
+    balance_evening = ask("can I exercise now", local_hour=19, local_minute=0, limitations=["BALANCE_IMPAIRMENT"])
+    assert any("well-lit room" in n for n in balance_evening["notes"])
+
+
+def test_local_time_is_validated():
+    r = client.post("/chat", headers=DEV, json={"text": "hi", "local_hour": 25})
+    assert r.status_code == 422

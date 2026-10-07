@@ -112,6 +112,7 @@ class Harness {
         tokenProvider: () => 'dev-token',
         httpClient: server.client,
       ),
+      now: () => DateTime(2026, 10, 7, 23, 40), // late at night on the phone
     ),
     RiskAssessmentService(auth, profiles),
     treatments,
@@ -284,5 +285,17 @@ void main() {
     expect(withButton.action?.label, 'Reset password');
     final plain = ChatReply.fromJson({'answer': 'Hello!', 'is_matched': true});
     expect(plain.action, isNull);
+  });
+
+  test('every question carries the phone's local time and time zone (late-night advice)', () async {
+    final h = Harness();
+    await h.signInWithPlan();
+    await h.vm.loadCategories();
+    await h.vm.ask('can I exercise now');
+    final sent = h.server.asked.last;
+    expect(sent['local_hour'], 23);
+    expect(sent['local_minute'], 40);
+    expect(sent.containsKey('utc_offset_minutes'), isTrue);
+    expect(sent.containsKey('timezone'), isTrue);
   });
 }

@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.2"
+VERSION = "chat-rules-3.4"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -188,14 +188,51 @@ INTENTS = [
            "The posture score shows how closely your movement matched the correct form, as a percentage, with "
            "tips on what to change. At 80% or more your progress is updated automatically. Below that you can "
            "read the tips and retry, or continue; every attempt is saved so you can see your improvement."),
+    intent("best_time", "When to exercise", 5,
+           ["what time should", "what time is best", "what time of day", "what time to", "which time", "best time", "good time", "right time", "when should i exercise",
+            "when should i do", "when to exercise", "when can i exercise", "exercise now", "exercise tonight",
+            "exercise at night", "night", "tonight", "late", "too late", "midnight", "before bed", "before sleep",
+            "bedtime", "after dinner", "after eating", "after a meal", "morning or evening", "in the morning",
+            "in the evening", "early morning", "can i do it now", "do it now", "right now"],
+           ["when is the best time to exercise", "can I exercise now", "is it ok to exercise at night",
+            "should I exercise in the morning or evening"],
+           "The best time is when you feel alert and have had a light meal about an hour before. Many people find "
+           "late morning or late afternoon easiest. Keep to a regular time so it becomes a habit, and avoid the "
+           "last hour or two before bed.", tailor=True),
+    intent("profile_help", "Your health profile", 6,
+           ["my profile", "health profile", "update profile", "update my profile", "edit profile", "edit my profile",
+            "change my profile", "profile page", "my details", "change my details", "update my details",
+            "my weight", "my height", "my age", "change my weight", "update my weight", "change my age",
+            "risk level", "my risk", "why am i high risk", "why high risk", "my conditions", "add a condition",
+            "remove a condition", "add condition", "health conditions", "my limitations", "bmi", "body mass index"],
+           ["how do I update my health profile", "why is my risk level high", "how do I change my weight",
+            "where can I add my health conditions"],
+           "Your health profile holds your age, gender, weight, height, health conditions and physical "
+           "limitations. Your risk level and safety limits are worked out from it, and your treatment plans are "
+           "chosen to fit them. Tap the button below, then Edit, to change anything; keep it up to date so your "
+           "advice stays safe.", show=False, action={"key": "open_profile", "label": "Open my profile"}),
+    intent("reminders_help", "Exercise reminders", 6,
+           ["reminder", "reminders", "remind", "remind me", "notification", "notifications", "notify", "alarm",
+            "alert", "reminder time", "change time", "wrong time", "not getting reminders", "no reminder",
+            "turn off reminders", "stop reminders", "turn on reminders", "missed reminder"],
+           ["how do I change my reminder time", "I am not getting reminders", "how do I turn off reminders"],
+           "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a "
+           "reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your "
+           "phone settings. If you have already exercised that day, the reminder is skipped.",
+           show=False, action={"key": "open_reminders", "label": "Open reminders"}),
+    intent("history_help", "Your past results", 6,
+           ["my scores", "my score history", "past results", "previous results", "my results", "session history",
+            "my history", "previous sessions", "past sessions", "how did i do", "accuracy history",
+            "all my attempts", "track my progress", "see my progress"],
+           ["where can I see my past results", "how did I do in my last session", "show my session history"],
+           "Every exercise you record is saved with its posture score and tips. Session history shows them all, "
+           "with your average, your best score and a chart of how your posture accuracy is changing.",
+           show=False, action={"key": "open_history", "label": "See my results"}),
     intent("plan_and_reminders", "Changing your plan or reminders", 5,
            ["change plan", "change my plan", "new plan", "different plan", "another plan", "switch plan",
             "switch to", "stop plan", "stop the plan", "stop this plan", "change this plan", "end this plan",
-            "quit this plan", "leave this plan", "stop my plan", "end my plan", "delete plan", "cancel plan", "quit",
-            "reminder", "reminders", "remind", "notification", "notifications", "notify", "alarm", "alert",
-            "change time", "wrong time"],
-           ["how do I change my plan", "can I get a different plan", "how do I change my reminder time",
-            "I am not getting reminders", "how do I stop this plan"],
+            "quit this plan", "leave this plan", "stop my plan", "end my plan", "delete plan", "cancel plan", "quit"],
+           ["how do I change my plan", "can I get a different plan", "how do I stop this plan"],
            "To change plan, open AI-assisted planning and choose Retrieve physical treatment to get new "
            "recommendations; selecting a new plan replaces the current one. You can stop a plan from the "
            "Physical Treatment page. Reminders follow your plan's weekly schedule; check that notifications are "
@@ -420,6 +457,80 @@ def clean_instruction(text: str) -> str:
     return re.sub(r"^Camera:[^.]*\.\s*", "", text).strip()
 
 
+# Buttons under the answer (the app maps each key to a screen).
+ACTIONS = {
+    "how_to": {"key": "open_treatment", "label": "Open my treatment plan"},
+    "missed_session": {"key": "open_treatment", "label": "Open my treatment plan"},
+    "recording_help": {"key": "open_treatment", "label": "Record an exercise"},
+    "posture_result": {"key": "open_history", "label": "See my results"},
+    "plan_and_reminders": {"key": "open_planning", "label": "Open treatment planning"},
+    "condition_advice": {"key": "open_profile", "label": "Update my health conditions"},
+    "account_help": {"key": "open_profile", "label": "Open my profile"},
+}
+
+# Rules about doing the exercises: the reply also considers the patient's local time of day
+# (late at night -> advise to rest; condition-specific timing).
+TIME_AWARE = {"getting_started", "how_to", "how_often", "missed_session", "safety", "condition_advice",
+              "equipment", "difficulty", "best_time", "recording_help"}
+
+# Periods by the phone's local hour: late night 22:00-05:59, early morning 06:00-08:59,
+# daytime 09:00-17:59, evening 18:00-21:59.
+LATE_NIGHT_NOTE = ("It is {time} where you are. Late at night is not a good time for your exercises: tiredness and "
+                   "dim light raise the risk of a fall, and activity close to bedtime can disturb your sleep. Rest "
+                   "now and do them tomorrow, ideally in the late morning or late afternoon.")
+# Direct answer to "can I exercise now?" for each part of the day (best_time only; late night uses
+# LATE_NIGHT_NOTE).
+NOW_NOTES = {
+    "early_morning": "It is {time} where you are. Early morning is fine once you have been up for a while, had "
+                     "something light to eat and warmed up.",
+    "daytime": "It is {time} where you are, a good time for your exercises if you feel well and have not just "
+               "eaten a large meal.",
+    "evening": "It is {time} where you are. A session now is fine; finish at least an hour or two before bed so "
+               "it does not disturb your sleep.",
+}
+TIME_NOTES = {
+    # code -> {period: note}
+    "DIABETES": {
+        "evening": "With diabetes, avoid exercising late in the evening: it can make your blood sugar drop "
+                   "overnight. Exercise earlier in the day, about 1 to 3 hours after a meal.",
+        "late_night": "With diabetes, exercising at night can make your blood sugar drop while you sleep.",
+        "early_morning": "With diabetes, avoid exercising on an empty stomach first thing; have breakfast and "
+                         "exercise about 1 to 3 hours after it.",
+        "daytime": "With diabetes, exercise about 1 to 3 hours after a meal rather than on an empty stomach.",
+    },
+    "HYPERTENSION": {
+        "early_morning": "Blood pressure is naturally higher in the first hours after waking: wait about an hour "
+                         "after you get up, warm up slowly and keep the effort gentle.",
+    },
+    "HEART_DISEASE": {
+        "early_morning": "Heart strain is more likely in the early morning: wait about an hour after waking, warm "
+                         "up slowly and avoid exercising right after a large meal.",
+    },
+    "ARTHRITIS": {
+        "early_morning": "Joints are often stiffest first thing in the morning: a warm shower and a few gentle "
+                         "movements first, or exercising later in the morning, can make it easier.",
+    },
+    "ASTHMA": {
+        "early_morning": "Cool morning air can trigger asthma: exercise indoors and warm up gradually.",
+        "late_night": "Cool night air can trigger asthma, another reason to wait until tomorrow.",
+    },
+    "OSTEOPOROSIS": {
+        "early_morning": "Make sure the room is well lit and the floor is clear: falls are more likely when you "
+                         "have just woken up.",
+        "evening": "Make sure the room is well lit and the floor is clear: falls are more likely when it is dark "
+                   "or you are tired.",
+    },
+    "STROKE": {
+        "evening": "Exercise when you are not tired, with good lighting and someone nearby if possible.",
+    },
+    "BALANCE_IMPAIRMENT": {
+        "early_morning": "With your balance limitation, wait until you are fully awake and steady, and keep the "
+                         "room well lit.",
+        "evening": "With your balance limitation, exercise in a well-lit room with someone nearby if possible.",
+    },
+}
+
+
 def build() -> dict:
     cat = json.loads(CATALOGUE.read_text(encoding="utf-8"))
     exercises = {}
@@ -438,6 +549,10 @@ def build() -> dict:
                            "repetitions": x["prescribed_repetitions"], "duration": duration(x["prescribed_duration_sec"]),
                            "order": i} for i, x in enumerate(items, 1)],
         }
+    for i in INTENTS:
+        if i["key"] in ACTIONS and not i.get("action"):
+            i["action"] = ACTIONS[i["key"]]
+        i["time_aware"] = i["key"] in TIME_AWARE
     rules = {
         "version": VERSION,
         "not_recognised": NOT_RECOGNISED,
@@ -447,6 +562,9 @@ def build() -> dict:
         "condition_notes": CONDITION_NOTES,
         "limitation_notes": LIMITATION_NOTES,
         "risk_notes": RISK_NOTES,
+        "late_night_note": LATE_NIGHT_NOTE,
+        "time_notes": TIME_NOTES,
+        "now_notes": NOW_NOTES,
         "red_flags": RED_FLAGS,
         "red_flag_answer": RED_FLAG_ANSWER,
     }

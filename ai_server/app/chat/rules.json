@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.2",
+  "version": "chat-rules-3.4",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -57,7 +57,8 @@
       "action": {
         "key": "open_planning",
         "label": "Open treatment planning"
-      }
+      },
+      "time_aware": true
     },
     {
       "key": "how_to",
@@ -108,7 +109,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_treatment",
+        "label": "Open my treatment plan"
+      },
+      "time_aware": true
     },
     {
       "key": "pain_or_discomfort",
@@ -163,7 +168,8 @@
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "how_often",
@@ -224,7 +230,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": true
     },
     {
       "key": "missed_session",
@@ -266,7 +273,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_treatment",
+        "label": "Open my treatment plan"
+      },
+      "time_aware": true
     },
     {
       "key": "safety",
@@ -328,7 +339,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": true
     },
     {
       "key": "condition_advice",
@@ -368,7 +380,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_profile",
+        "label": "Update my health conditions"
+      },
+      "time_aware": true
     },
     {
       "key": "equipment",
@@ -434,7 +450,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": true
     },
     {
       "key": "difficulty",
@@ -496,7 +513,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": true
     },
     {
       "key": "tired",
@@ -540,7 +558,8 @@
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "weakness_balance",
@@ -594,7 +613,8 @@
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "recording_help",
@@ -652,7 +672,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_treatment",
+        "label": "Record an exercise"
+      },
+      "time_aware": true
     },
     {
       "key": "posture_result",
@@ -699,7 +723,200 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "best_time",
+      "title": "When to exercise",
+      "show": true,
+      "priority": 5,
+      "keywords": [
+        "what time should",
+        "what time is best",
+        "what time of day",
+        "what time to",
+        "which time",
+        "best time",
+        "good time",
+        "right time",
+        "when should i exercise",
+        "when should i do",
+        "when to exercise",
+        "when can i exercise",
+        "exercise now",
+        "exercise tonight",
+        "exercise at night",
+        "night",
+        "tonight",
+        "late",
+        "too late",
+        "midnight",
+        "before bed",
+        "before sleep",
+        "bedtime",
+        "after dinner",
+        "after eating",
+        "after a meal",
+        "morning or evening",
+        "in the morning",
+        "in the evening",
+        "early morning",
+        "can i do it now",
+        "do it now",
+        "right now"
+      ],
+      "examples": [
+        "when is the best time to exercise",
+        "can I exercise now",
+        "is it ok to exercise at night",
+        "should I exercise in the morning or evening"
+      ],
+      "answer": "The best time is when you feel alert and have had a light meal about an hour before. Many people find late morning or late afternoon easiest. Keep to a regular time so it becomes a habit, and avoid the last hour or two before bed.",
+      "follow_ups": [],
+      "tailor": true,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": true
+    },
+    {
+      "key": "profile_help",
+      "title": "Your health profile",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "my profile",
+        "health profile",
+        "update profile",
+        "update my profile",
+        "edit profile",
+        "edit my profile",
+        "change my profile",
+        "profile page",
+        "my details",
+        "change my details",
+        "update my details",
+        "my weight",
+        "my height",
+        "my age",
+        "change my weight",
+        "update my weight",
+        "change my age",
+        "risk level",
+        "my risk",
+        "why am i high risk",
+        "why high risk",
+        "my conditions",
+        "add a condition",
+        "remove a condition",
+        "add condition",
+        "health conditions",
+        "my limitations",
+        "bmi",
+        "body mass index"
+      ],
+      "examples": [
+        "how do I update my health profile",
+        "why is my risk level high",
+        "how do I change my weight",
+        "where can I add my health conditions"
+      ],
+      "answer": "Your health profile holds your age, gender, weight, height, health conditions and physical limitations. Your risk level and safety limits are worked out from it, and your treatment plans are chosen to fit them. Tap the button below, then Edit, to change anything; keep it up to date so your advice stays safe.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_profile",
+        "label": "Open my profile"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "reminders_help",
+      "title": "Exercise reminders",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "reminder",
+        "reminders",
+        "remind",
+        "remind me",
+        "notification",
+        "notifications",
+        "notify",
+        "alarm",
+        "alert",
+        "reminder time",
+        "change time",
+        "wrong time",
+        "not getting reminders",
+        "no reminder",
+        "turn off reminders",
+        "stop reminders",
+        "turn on reminders",
+        "missed reminder"
+      ],
+      "examples": [
+        "how do I change my reminder time",
+        "I am not getting reminders",
+        "how do I turn off reminders"
+      ],
+      "answer": "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, the reminder is skipped.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_reminders",
+        "label": "Open reminders"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "history_help",
+      "title": "Your past results",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "my scores",
+        "my score history",
+        "past results",
+        "previous results",
+        "my results",
+        "session history",
+        "my history",
+        "previous sessions",
+        "past sessions",
+        "how did i do",
+        "accuracy history",
+        "all my attempts",
+        "track my progress",
+        "see my progress"
+      ],
+      "examples": [
+        "where can I see my past results",
+        "how did I do in my last session",
+        "show my session history"
+      ],
+      "answer": "Every exercise you record is saved with its posture score and tips. Session history shows them all, with your average, your best score and a chart of how your posture accuracy is changing.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      },
+      "time_aware": false
     },
     {
       "key": "plan_and_reminders",
@@ -725,23 +942,11 @@
         "end my plan",
         "delete plan",
         "cancel plan",
-        "quit",
-        "reminder",
-        "reminders",
-        "remind",
-        "notification",
-        "notifications",
-        "notify",
-        "alarm",
-        "alert",
-        "change time",
-        "wrong time"
+        "quit"
       ],
       "examples": [
         "how do I change my plan",
         "can I get a different plan",
-        "how do I change my reminder time",
-        "I am not getting reminders",
         "how do I stop this plan"
       ],
       "answer": "To change plan, open AI-assisted planning and choose Retrieve physical treatment to get new recommendations; selecting a new plan replaces the current one. You can stop a plan from the Physical Treatment page. Reminders follow your plan's weekly schedule; check that notifications are allowed for the app in your phone settings if they do not appear.",
@@ -750,7 +955,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_planning",
+        "label": "Open treatment planning"
+      },
+      "time_aware": false
     },
     {
       "key": "forgot_password",
@@ -799,7 +1008,8 @@
       "action": {
         "key": "open_reset_password",
         "label": "Reset password"
-      }
+      },
+      "time_aware": false
     },
     {
       "key": "verification_code",
@@ -841,7 +1051,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "account_help",
@@ -880,7 +1091,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": {
+        "key": "open_profile",
+        "label": "Open my profile"
+      },
+      "time_aware": false
     },
     {
       "key": "pain_mild",
@@ -912,7 +1127,8 @@
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "pain_sharp",
@@ -948,7 +1164,8 @@
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "pain_swelling",
@@ -982,7 +1199,8 @@
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "medication",
@@ -1031,7 +1249,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "diagnosis",
@@ -1092,7 +1311,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "diet",
@@ -1135,7 +1355,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "greeting",
@@ -1168,7 +1389,8 @@
       "negatable": false,
       "anchor_start": true,
       "small_talk": true,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "thanks",
@@ -1204,7 +1426,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": true,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "acknowledge",
@@ -1237,7 +1460,8 @@
       "negatable": false,
       "anchor_start": true,
       "small_talk": false,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "goodbye",
@@ -1269,7 +1493,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": true,
-      "action": null
+      "action": null,
+      "time_aware": false
     },
     {
       "key": "bot_identity",
@@ -1307,7 +1532,8 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": true,
-      "action": null
+      "action": null,
+      "time_aware": false
     }
   ],
   "exercises": {
@@ -1842,6 +2068,44 @@
   },
   "risk_notes": {
     "High": "Your risk level is High: follow your plan exactly as set and check with a healthcare professional before doing more."
+  },
+  "late_night_note": "It is {time} where you are. Late at night is not a good time for your exercises: tiredness and dim light raise the risk of a fall, and activity close to bedtime can disturb your sleep. Rest now and do them tomorrow, ideally in the late morning or late afternoon.",
+  "time_notes": {
+    "DIABETES": {
+      "evening": "With diabetes, avoid exercising late in the evening: it can make your blood sugar drop overnight. Exercise earlier in the day, about 1 to 3 hours after a meal.",
+      "late_night": "With diabetes, exercising at night can make your blood sugar drop while you sleep.",
+      "early_morning": "With diabetes, avoid exercising on an empty stomach first thing; have breakfast and exercise about 1 to 3 hours after it.",
+      "daytime": "With diabetes, exercise about 1 to 3 hours after a meal rather than on an empty stomach."
+    },
+    "HYPERTENSION": {
+      "early_morning": "Blood pressure is naturally higher in the first hours after waking: wait about an hour after you get up, warm up slowly and keep the effort gentle."
+    },
+    "HEART_DISEASE": {
+      "early_morning": "Heart strain is more likely in the early morning: wait about an hour after waking, warm up slowly and avoid exercising right after a large meal."
+    },
+    "ARTHRITIS": {
+      "early_morning": "Joints are often stiffest first thing in the morning: a warm shower and a few gentle movements first, or exercising later in the morning, can make it easier."
+    },
+    "ASTHMA": {
+      "early_morning": "Cool morning air can trigger asthma: exercise indoors and warm up gradually.",
+      "late_night": "Cool night air can trigger asthma, another reason to wait until tomorrow."
+    },
+    "OSTEOPOROSIS": {
+      "early_morning": "Make sure the room is well lit and the floor is clear: falls are more likely when you have just woken up.",
+      "evening": "Make sure the room is well lit and the floor is clear: falls are more likely when it is dark or you are tired."
+    },
+    "STROKE": {
+      "evening": "Exercise when you are not tired, with good lighting and someone nearby if possible."
+    },
+    "BALANCE_IMPAIRMENT": {
+      "early_morning": "With your balance limitation, wait until you are fully awake and steady, and keep the room well lit.",
+      "evening": "With your balance limitation, exercise in a well-lit room with someone nearby if possible."
+    }
+  },
+  "now_notes": {
+    "early_morning": "It is {time} where you are. Early morning is fine once you have been up for a while, had something light to eat and warmed up.",
+    "daytime": "It is {time} where you are, a good time for your exercises if you feel well and have not just eaten a large meal.",
+    "evening": "It is {time} where you are. A session now is fine; finish at least an hour or two before bed so it does not disturb your sleep."
   },
   "red_flags": [
     "chest pain",
