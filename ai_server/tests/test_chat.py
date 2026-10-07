@@ -290,9 +290,13 @@ def test_condition_answer_differs_by_condition():
     assert "180/110" in bp and "low sugar" in diabetes
 
 
-def test_condition_named_in_the_question_comes_first():
+def test_condition_named_in_the_question_is_answered_on_its_own():
+    # 8 Oct (phone test): with the profile's conditions added, answers for older readers ran to 230
+    # words. A condition named in the question is answered alone; otherwise the profile's are used.
     a = ask("i have diabetes can i exercise", conditions=["ARTHRITIS"])["answer"]
-    assert a.index("With diabetes") < a.index("With arthritis")
+    assert "With diabetes" in a and "With arthritis" not in a
+    b = ask("can i exercise with my condition", conditions=["ARTHRITIS"])["answer"]
+    assert "With arthritis" in b
 
 
 def test_diet_answers_get_diet_notes_not_exercise_reminders():
@@ -385,7 +389,7 @@ from chat_safety_pass5_set import SAFETY_PASS5  # noqa: E402
 def test_safety_pass5(plan, question, expected):
     got = engine.reply(plan, None, question)["category"]
     if expected == "NOT_URGENT":
-        assert got not in ("crisis", "red_flag", "overdose"), got
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
     else:
         assert got in expected.split("/"), got
 
@@ -397,6 +401,18 @@ from chat_safety_pass6_set import SAFETY_PASS6  # noqa: E402
 def test_safety_pass6(plan, question, expected):
     got = engine.reply(plan, None, question)["category"]
     if expected == "NOT_URGENT":
-        assert got not in ("crisis", "red_flag", "overdose"), got
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert got in expected.split("/"), got
+
+
+from chat_safety_pass7_set import SAFETY_PASS7  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS7, ids=[q[:40] for _, q, _ in SAFETY_PASS7])
+def test_safety_pass7(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
     else:
         assert got in expected.split("/"), got

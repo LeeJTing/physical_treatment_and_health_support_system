@@ -348,26 +348,61 @@ NOT_A_CRISIS = [("end everything for today", "stop for today"), ("end things for
 OD_VERBS = {"took", "taken", "swallowed", "ate", "eaten", "makan", "telan", "drank", "drunk", "minum", "finished",
             "habis", "habiskan"}
 OD_SUBSTANCES = {"pill", "pills", "tablet", "tablets", "panadol", "paracetamol", "ubat", "medicine", "medicines",
-                 "medication", "capsule", "capsules", "syrup", "insulin", "warfarin", "biji"}
+                 "medication", "capsule", "capsules", "syrup", "insulin", "warfarin", "biji", "painkiller",
+                 "painkillers", "strip", "strips", "papan", "blister", "blisters", "ones"}
 OD_NUMBER_WORDS = {"eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "fifteen": 15, "twenty": 20,
                    "thirty": 30, "forty": 40, "fifty": 50, "lapan": 8, "sembilan": 9, "sepuluh": 10, "belas": 11,
                    "puluh": 20}
 OD_UNITS_NOT_PILLS = {"minute", "minutes", "min", "mins", "hour", "hours", "day", "days", "time", "times", "mg",
-                      "ml", "second", "seconds", "week", "weeks", "year", "years"}
+                      "ml", "second", "seconds", "week", "weeks", "year", "years", "steps", "step"}
 OD_STRIPS = {"strip", "strips", "papan", "kepingan", "sheet", "sheets", "blister", "blisters"}
 OD_LARGE = ["whole bottle", "whole box", "whole pack", "whole strip", "a bottle", "one bottle", "satu botol",
-            "the bottle", "a whole", "handful", "in one go", "at once", "all of them", "all my", "all the",
-            "banyak", "lots of", "a lot of", "every pill", "the rest of"]
+            "the bottle", "a whole", "handful", "in one go", "at once", "all of them", "all of", "all my", "all the",
+            "semua", "banyak", "lots of", "a lot of", "too many", "too much", "every pill", "the rest of"]
+# Words between an amount and what it counts ("a bottle OF HIS pills", "all OF MY MUM'S pills").
+OD_FILLERS = {"of", "the", "my", "his", "her", "their", "a", "an", "mum's", "dad's", "mother's", "father's",
+              "wife's", "husband's", "sleeping", "pain", "heart", "bp", "blood", "pressure", "white", "blue", "red",
+              "yellow", "little", "small", "big", "saya", "dia"}
+OD_SINGLE = ["a pill", "one pill", "1 pill", "a tablet", "one tablet", "1 tablet", "satu biji", "sebiji",
+             "a capsule", "one capsule"]
 OD_NORMAL_USE = ["as prescribed", "like the doctor said", "the doctor told", "as usual", "every day", "everyday",
                  "daily", "before the session", "after the session", "before exercise", "after exercise",
                  "before the exercise", "after the exercise", "every morning", "every night"]
+OD_NOT_TAKING = [("took me off", "removed"), ("took him off", "removed"), ("took her off", "removed"),
+                 ("taken off", "removed")]
 OD_CHILD = {"grandson", "granddaughter", "grandchild", "child", "kid", "baby", "toddler", "cucu", "anak"}
 OD_DOUBLE = ["double my insulin", "double insulin", "double dose of insulin", "twice my insulin",
-             "extra insulin", "double my warfarin", "double warfarin", "extra warfarin", "double my blood thinner"]
+             "extra insulin", "insulin twice", "insulin two times", "insulin 2 times", "double my warfarin",
+             "double warfarin", "extra warfarin", "warfarin twice", "double my blood thinner"]
+OD_BOXES = ["medicine box", "pill box", "pillbox", "medicine cabinet", "kotak ubat"]
 OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now. Call 999 or go to the nearest "
                    "emergency department now, and take the medicine packets with you; do not wait for symptoms. "
                    "If this was on purpose, or you are thinking of harming yourself, you are not alone: "
                    "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
+# Household chemicals swallowed (laptop pass 7): Dettol, bleach, floor cleaner, pesticide...
+POISONS = ["dettol", "clorox", "bleach", "floor cleaner", "cleaner", "pesticide", "insecticide", "racun",
+           "kerosene", "minyak tanah", "antifreeze", "weed killer", "detergent", "toilet cleaner", "lysol"]
+POISON_VERBS = {"drank", "drink", "drinks", "swallowed", "swallow", "ate", "eaten", "minum", "telan", "took", "had"}
+POISON_ANSWER = ("Swallowing a cleaning product, pesticide or other chemical is an emergency. Call 999 now or go "
+                 "to the nearest emergency department, and take the bottle with you. Do not try to make them "
+                 "vomit. If it was on purpose, or you are thinking of harming yourself, you are not alone: "
+                 "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
+
+
+def _is_medicine(w: str) -> bool:
+    return w in OD_SUBSTANCES or w.startswith("pill") or w.startswith("tablet") or w.startswith("painkiller")
+
+
+def _counts_medicine(words: list[str], j: int, stop: int) -> bool:
+    """Does the amount ending at position j count medicine? The next real word after it must be a
+    medicine word, or nothing ("took all of them"): "a bottle of water", "all the steps" do not."""
+    k = j + 1
+    while k < stop and words[k] in OD_FILLERS:
+        k += 1
+    if k >= stop or _is_medicine(words[k]) or words[k] in ("them", "it", "everything", "lagi"):
+        return True
+    # one describing word may come first ("a bottle of COUGH syrup"), not more ("a bottle of water")
+    return k + 1 < stop and _is_medicine(words[k + 1])
 
 
 def _amount(words: list[str], lo: int, hi: int) -> int:
@@ -382,11 +417,27 @@ def _amount(words: list[str], lo: int, hi: int) -> int:
             continue
         nxt = words[j + 1] if j + 1 < len(words) else ""
         if nxt in OD_UNITS_NOT_PILLS:
-            continue                                     # "10 minutes", "500 mg"
+            continue                                     # "10 minutes", "500 mg", "ten steps"
         if nxt in OD_STRIPS:
             n *= 10
+        if nxt == "or" and j + 2 < hi:                   # "9 or 10 of the white ones"
+            continue
+        if not _counts_medicine(words, j, hi):
+            continue
         best = max(best, n)
     return best
+
+
+def poisoning(text: str | None) -> bool:
+    if not text:
+        return False
+    words = re.findall(r"[a-z0-9']+", text.lower())
+    for i, w in enumerate(words):
+        if w in POISON_VERBS:
+            seg = f" {' '.join(words[i + 1:i + 6])} "
+            if any(f" {p} " in seg for p in POISONS):
+                return True
+    return False
 
 
 def overdose(text: str | None) -> bool:
@@ -395,6 +446,9 @@ def overdose(text: str | None) -> bool:
     low = text.lower()
     words = re.findall(r"[a-z0-9']+", low)
     padded = f" {' '.join(words)} "
+    for a, b in OD_NOT_TAKING:
+        padded = padded.replace(f" {a} ", f" {b} ")
+    words = padded.split()
     if any(f" {d} " in padded for d in OD_DOUBLE):
         return True
     if any(f" {n} " in padded for n in OD_NORMAL_USE):
@@ -408,14 +462,29 @@ def overdose(text: str | None) -> bool:
             if words[j] in OD_CLAUSE_BREAKS or words[j] in OD_VERBS:
                 stop = j
                 break
-        window = words[i + 1:min(stop, i + 9)]
-        if not any(x in OD_SUBSTANCES or x.startswith("pill") for x in window):
+        seg_words = words[i + 1:stop]
+        seg = f" {' '.join(seg_words)} "
+        has_medicine = any(_is_medicine(x) for x in seg_words[:8])
+        if any(f" {b} " in seg for b in OD_BOXES):
+            return True                                  # "swallowed something from my medicine box"
+        if w in ("swallowed", "telan") and _amount(words, i + 1, stop) >= 8:
+            return True                                  # "swallowed 9 or 10 of the white ones"
+        if not has_medicine:
             continue
         if any(c in OD_CHILD for c in words[max(0, i - 3):i]):
             return True                                  # "my grandson ate my pills"
-        seg = f" {' '.join(words[i:stop])} "
-        if any(f" {p} " in seg for p in OD_LARGE) or _amount(words, i + 1, stop) >= 8:
+        if _amount(words, i + 1, stop) >= 8:
             return True
+        single = any(f" {s} " in seg for s in OD_SINGLE)
+        for p in OD_LARGE:
+            if single and p in ("at once", "in one go"):
+                continue                                 # "took a pill at once"
+            idx = seg.find(f" {p} ")
+            if idx < 0:
+                continue
+            end_word = len(seg[:idx + len(p) + 1].split()) - 1   # index of the amount's last word
+            if p in ("at once", "in one go") or _counts_medicine(seg_words, end_word, len(seg_words)):
+                return True
     return False
 
 
@@ -613,7 +682,15 @@ def tailor_notes(intent: dict, conditions, limitations, risk_level) -> list[str]
         notes = [r["diet_notes"][c] for c in (conditions or []) if c in r.get("diet_notes", {})]
     else:
         notes = [r["condition_notes"][c] for c in (conditions or []) if c in r["condition_notes"]]
-    notes += [r["limitation_notes"][x] for x in (limitations or []) if x in r["limitation_notes"]]
+    lims = list(limitations or [])
+    # One line for both sides (phone test, 8 Oct): "go gently with your right leg ... left leg".
+    both = {"LEFT_LEG_MOBILITY": ("RIGHT_LEG_MOBILITY", "Go gently with both legs and keep a support within reach."),
+            "LEFT_ARM_MOBILITY": ("RIGHT_ARM_MOBILITY", "Only move your arms within a range that feels comfortable.")}
+    for left, (right, line) in both.items():
+        if left in lims and right in lims:
+            lims = [x for x in lims if x not in (left, right)]
+            notes.append(line)
+    notes += [r["limitation_notes"][x] for x in lims if x in r["limitation_notes"]]
     if risk_level in r["risk_notes"]:
         notes.append(r["risk_notes"][risk_level])
     return notes
@@ -736,6 +813,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if overdose(text):
         return {**base, "answer": OVERDOSE_ANSWER, "category": "overdose", "title": "Too many pills",
                 "is_matched": True, "matched_by": "overdose", "follow_ups": [], "notes": [], "action": None}
+    if poisoning(text):
+        return {**base, "answer": POISON_ANSWER, "category": "poisoning", "title": "Swallowed a chemical",
+                "is_matched": True, "matched_by": "poisoning", "follow_ups": [], "notes": [], "action": None}
     if red_flag(text):
         return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
                 "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
@@ -759,7 +839,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     notes = time_notes(chosen, local_time, all_conditions, limitations)
     notes += tailor_notes(chosen, all_conditions, limitations, risk_level)
     base_answer = chosen["answer"]
-    asked_first = list(dict.fromkeys(mentioned + all_conditions))   # the condition named in the question leads
+    # A condition named in the question is answered on its own (phone test, 8 Oct: with the profile's
+    # conditions added the answer ran to 230 words); otherwise the profile's conditions are used.
+    asked_first = mentioned if any(c in r.get("condition_detail", {}) for c in mentioned) else all_conditions
     details = [r["condition_detail"][c] for c in asked_first if c in r.get("condition_detail", {})]
     if chosen["key"] == "condition_advice" and details:
         # A different answer for each condition (Table 4.2.2): the patient's own conditions first.
