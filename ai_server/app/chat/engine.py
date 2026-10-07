@@ -361,6 +361,8 @@ RECENT_FALL_VERBS = {"fell", "fallen", "slipped", "tripped", "collapsed"}
 PEOPLE = {"i", "he", "she", "dia", "mother", "father", "mum", "mom", "dad", "grandma", "grandpa", "grandmother",
           "grandfather", "husband", "wife", "son", "daughter", "we", "they", "uncle", "aunt", "patient"}
 # What may follow "slipped"/"tripped" in a fall ("slipped in the bathroom"), not "slipped the note under".
+AGAIN_FILLER = {"again", "lagi", "and", "it", "happened", "the", "same", "thing", "once", "more", "she", "he", "i",
+                "dia", "saya", "did", "so", "then", "now", "sekali"}
 SLIP_NEXT = {"in", "on", "at", "dalam", "di", "over", "down", "and", "while", "when", "near", "outside", "inside",
              "just", "this", "today", "yesterday", "earlier", "tadi", "semalam", "from", "off"}
 # Long-standing symptoms are not new warning signs (laptop pass 9 debatable cases).
@@ -395,9 +397,17 @@ def _when(phrase: str, clauses: list[list[str]], words: list[str]) -> tuple[bool
 
 
 def _recent_fall(clauses: list[list[str]]) -> bool:
+    fell_before = False
     for c in clauses:
         if not any(find_phrase(p, c) for p in RECENT):
+            fell_before = fell_before or bool(RECENT_FALL_VERBS & set(c))
             continue
+        # "i fell last year but this morning again": the sentence says only when, and "again".
+        when = {w for p in RECENT for w in p.split() if find_phrase(p, c)}
+        rest = [w for w in c if w not in when and w not in AGAIN_FILLER]
+        if fell_before and ({"again", "lagi"} & set(c)) and not rest:
+            return True
+        fell_before = fell_before or bool(RECENT_FALL_VERBS & set(c))
         for i, w in enumerate(c):
             if w not in RECENT_FALL_VERBS:
                 continue

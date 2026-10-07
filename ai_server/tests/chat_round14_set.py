@@ -77,6 +77,11 @@ ROUND14 = [
     (KNEE, "the tower fell today in the news", None),
     (KNEE, "i slipped the note under the door this morning", ("how_often", None)),
     (KNEE, "i fell last year but today my hip hurts again", "red_flag"),
+    (KNEE, "i fell last year but this morning again", "red_flag"),
+    (KNEE, "she fell last month, but it happened again today", "red_flag"),
+    (KNEE, "jatuh tahun lepas, tapi tadi lagi", "red_flag"),
+    (KNEE, "i fell last year but today i'm fine again", "fear_of_falling"),
+    (KNEE, "i fell last year. this morning i tried the plan again", "fear_of_falling"),
     # sudden vision changes
     (KNEE, "my eyesight is blurry suddenly", "red_flag"),
     (KNEE, "i can't see properly, everything is blurry", "red_flag"),
