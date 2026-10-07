@@ -58,7 +58,9 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
          "jatuh": "fell", "makan": "eat", "lepas": "after", "sebelum": "before", "tidur": "sleep"}
-MALAY_PHRASES = {"kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
+MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afternoon",
+                 "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
+                 "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
                  "sesak nafas": "short of breath", "kencing manis": "diabetes", "darah tinggi": "high blood pressure",
                  "sakit jantung": "heart disease", "lemah badan": "weak"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
@@ -253,7 +255,7 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
+PREFER = [("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
 
@@ -372,7 +374,9 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "knee replacement": "JOINT_REPLACEMENT", "joint replacement": "JOINT_REPLACEMENT",
                    "replacement surgery": "JOINT_REPLACEMENT", "new hip": "JOINT_REPLACEMENT",
                    "new knee": "JOINT_REPLACEMENT", "replaced hip": "JOINT_REPLACEMENT",
-                   "replaced knee": "JOINT_REPLACEMENT"}
+                   "replaced knee": "JOINT_REPLACEMENT", "cast": "INJURY", "plaster": "INJURY",
+                   "fracture": "INJURY", "fractured": "INJURY", "broken bone": "INJURY", "broke my": "INJURY",
+                   "sprain": "INJURY", "sprained": "INJURY"}
 
 
 def conditions_in(text: str | None) -> list[str]:
@@ -443,8 +447,31 @@ def _listing(items):
     return [{"key": i["key"], "title": i["title"]} for i in items]
 
 
+# A mistake name counts as a question about it only with one of these ("what does hips sag mean",
+# "the result said trunk lean"), so "I keep leaning on the chair" is not answered with a definition.
+GLOSSARY_CUES = ["mean", "means", "meaning", "what is", "what's", "whats", "what does", "what do", "said",
+                 "says", "say", "saying", "result", "told", "mistake", "feedback", "explain", "maksud"]
+
+
+def glossary_match(text: str) -> dict | None:
+    words = clean(text).split()
+    if not any(find_phrase(c, words) for c in GLOSSARY_CUES):
+        return None
+    # Exact names only: the topic matcher treats "raise" and "lift" alike, but "heel raises" is not
+    # the mistake "heels lift".
+    padded = f" {' '.join(words)} "
+    hits = [(len(p), key) for p, key in rules().get("glossary", {}).items() if f" {p} " in padded]
+    if not hits:
+        return None
+    key = max(hits)[1]                                   # the longest name ("shoulder shrug" over "shrug")
+    return next((i for i in rules()["intents"] if i["key"] == key), None)
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched."""
+    g = glossary_match(text)
+    if g is not None:
+        return g, "glossary"
     intents = intents_for(plan_id)
     # The patient's exact words first; spell-corrected words only if nothing matched, so a real
     # word the rules do not know ("turn") is never "corrected" into a different rule's keyword ("torn").

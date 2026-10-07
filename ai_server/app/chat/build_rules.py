@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.14"
+VERSION = "chat-rules-3.15"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -120,7 +120,8 @@ INTENTS = [
             "chronic", "heart patient", "sugar level", "my sugar", "sugar low", "low sugar", "glucose",
             "sugar reading", "pregnant", "pregnancy", "expecting a baby", "mengandung", "hamil",
             "hip replacement", "knee replacement", "joint replacement", "replacement surgery", "new hip",
-            "new knee", "replaced hip", "replaced knee"],
+            "new knee", "replaced hip", "replaced knee", "cast", "plaster", "fracture", "fractured",
+            "broken bone", "broke my", "sprain", "sprained"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "
@@ -183,7 +184,8 @@ INTENTS = [
             "not detected", "can't detect", "cannot detect", "can't see me", "cannot see me", "can't see my",
             "upload", "uploading", "angle", "frame", "720p", "resolution", "too long", "too short", "front or side",
             "in front or", "at the side", "lighting", "dark", "someone record", "record for me",
-            "no repetition", "no repetitions", "no reps found", "repetition found", "no complete repetition"],
+            "no repetition", "no repetitions", "no reps found", "repetition found", "no complete repetition",
+            "landscape", "portrait", "horizontal or vertical", "sideways or upright"],
            ["how do I record my exercise", "where should I put my phone", "the app cannot detect my body",
             "why does it say my full body is not visible", "how long should the video be"],
            "Put your phone on a stand, upright, at about waist height and 2.5 to 3 metres away, so your whole "
@@ -655,6 +657,9 @@ CONDITION_DETAIL = {
                          "After a new hip, avoid bending it past a right angle, crossing your legs and twisting "
                          "until they say it is safe. Ask them before starting this plan, and stop if the wound "
                          "becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
+    "INJURY": "With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor "
+              "or physiotherapist says it is ready. Exercises that do not use it are usually fine, but check "
+              "with them first, and stop if the injured area hurts or swells.",
 }
 CONDITION_CLOSING = ("Your plan was chosen within the safety limits set from your health profile, so follow it "
                      "as set and check with your doctor before doing more.")
@@ -721,6 +726,98 @@ TIME_NOTES = {
 }
 
 
+
+# ---- what the posture check's mistake names mean (8 Oct, round 11) ------------------------------
+# (meaning, what to do). The "what to do" lines are the posture check's own feedback where the name
+# belongs to one exercise; names shared by several exercises get a general line.
+MISTAKE_MEANING = {
+    "arm_leg_low": ("your arm and leg did not reach the level of your back",
+                    "Stretch your arm and leg further, until both are level with your back."),
+    "back_arch": ("your lower back bent backwards as your arms went up",
+                  "Keep your back still; do not lean backwards as your arms go up."),
+    "back_sag": ("your lower back dipped or your hips tilted while you stretched",
+                 "Keep your back flat and your hips level."),
+    "bent_elbow": ("your elbows were bent while your arms were raised", "Keep your elbows straight as you lift."),
+    "bent_knee": ("the knee of your lifting leg was bent", "Keep the knee of the lifting leg straight."),
+    "body_swing": ("you rocked your body back to help lift", "Keep your body still; do not rock back to lift."),
+    "drop_down": ("you came down from the step too quickly", "Step down slowly and with control."),
+    "feet_far": ("your feet were too far from your buttocks", "Bring your feet closer to your buttocks."),
+    "feet_forward": ("your feet were too far in front of you when you started to stand",
+                     "Bring your feet back so your knees are above your ankles before you stand."),
+    "feet_not_in_line": ("your feet were side by side or apart instead of one in front of the other",
+                         "Place one foot directly in front of the other, heel touching toe."),
+    "hands_used": ("your hands pushed on your legs or the chair to help you stand",
+                   "Keep your arms crossed over your chest and stand up without pushing."),
+    "heels_lift": ("your heels came off the floor", "Keep your heels on the floor."),
+    "hips_back": ("your hips were pushed back, so your body bent at the hips",
+                  "Keep your body straight; do not push your hips back."),
+    "hips_sag": ("your hips dropped towards the wall, so your body was not straight",
+                 "Keep your body straight from head to heels."),
+    "incomplete_extension": ("your knee did not straighten fully",
+                             "Straighten your knee fully, until the leg is level with your hip."),
+    "incomplete_stand": ("you did not stand up fully straight at the top",
+                         "Stand up fully: straighten your hips and knees at the top."),
+    "knee_not_straight": ("your leading leg was not fully straight at the top of the step",
+                          "Straighten your leading leg fully at the top."),
+    "knees_bend": ("your knees bent as you rose onto your toes", "Keep your knees straight as you rise."),
+    "leaning": ("you leaned on the counter or to the side", "Stand upright; do not lean on the counter or to the side."),
+    "leaning_back": ("you leaned your upper body backwards", "Sit or stand tall; do not lean back."),
+    "leaning_forward": ("you leaned your upper body forwards", "Keep your upper body upright."),
+    "leg_forward": ("your leg went forwards instead of straight out to the side",
+                    "Lift the leg straight out to the side, not forwards."),
+    "low_hips": ("your hips did not lift high enough",
+                 "Lift your hips higher, until your body is straight from shoulders to knees."),
+    "low_knee_lift": ("your knees did not lift high enough", "Lift your knees higher."),
+    "low_raise": ("your heels did not rise high enough", "Rise higher onto your toes."),
+    "low_range": ("the movement did not go as far as the exercise asks",
+                  "Move a little further each time, as far as is comfortable; the exercise steps say how far."),
+    "no_arm_swing": ("your arms stayed still while you marched", "Swing your arms as you march."),
+    "no_forward_lean": ("you did not lean your chest forward before standing up",
+                        "Lean your chest forward a little before you stand up."),
+    "no_hold": ("you did not hold the top position", "Pause and hold for about 2 seconds before lowering."),
+    "over_arch": ("your hips went too high, so your lower back arched",
+                  "Do not push your hips too high; keep your lower back from arching."),
+    "shoulder_shrug": ("your shoulders lifted up towards your ears", "Relax your shoulders down, away from your ears."),
+    "slouching": ("you slumped or leaned back away from the chair back",
+                  "Sit up straight with your back against the chair."),
+    "stepping_out": ("you stepped out of position during the hold", "Try to hold the position without stepping out."),
+    "swinging": ("you swung your arms up quickly instead of lifting slowly",
+                 "Lift slowly and pause at the top instead of swinging."),
+    "thigh_lift": ("your whole thigh lifted off the seat", "Keep your thigh resting on the seat; only the lower leg moves."),
+    "toes_up": ("your toes turned up or outwards as the leg lifted", "Keep your toes pointing forwards."),
+    "too_deep": ("you bent your knees further than a mini squat", "Only bend your knees a little, about a third of the way down."),
+    "trunk_forward": ("you bent forward at the waist", "Stand tall and keep your chest up."),
+    "trunk_lean": ("your body leaned to the side", "Keep your body upright; do not lean to the side."),
+    "uncontrolled_sit": ("you sat down too quickly instead of lowering yourself slowly", "Sit down slowly and with control."),
+    "uneven_arms": ("one arm went higher than the other", "Lift both arms together to the same height."),
+    "upper_arm_moves": ("your upper arm moved away from your side", "Keep your upper arms still against your body."),
+    "using_hands": ("your hands pulled your leg up", "Lift your legs without pulling them up with your hands."),
+}
+# Other ways people write a name.
+MISTAKE_ALIASES = {"uneven arm": "uneven_arms", "hip sag": "hips_sag", "hips sagging": "hips_sag",
+                   "shoulders shrug": "shoulder_shrug", "shrugging": "shoulder_shrug", "low arm": "low_range",
+                   "knee not straight": "knee_not_straight", "heel lift": "heels_lift", "hand used": "hands_used"}
+
+
+def mistake_intents():
+    out = []
+    for label, (meaning, tip) in MISTAKE_MEANING.items():
+        words = label.replace("_", " ")
+        out.append(intent(f"mistake:{label}", words.capitalize(), 6, [],
+                          [f"what does {words} mean", f"the result said {words}"],
+                          f"\u201c{words.capitalize()}\u201d in your posture result means {meaning}. {tip}", show=False,
+                          action={"key": "open_history", "label": "See my results"}))
+    return out
+
+
+def glossary():
+    """Phrase -> mistake intent key, for questions that ask what a name means."""
+    g = {label.replace("_", " "): f"mistake:{label}" for label in MISTAKE_MEANING}
+    g.update({label: f"mistake:{label}" for label in MISTAKE_MEANING if "_" in label})
+    g.update({alias: f"mistake:{label}" for alias, label in MISTAKE_ALIASES.items()})
+    return g
+
+
 def build() -> dict:
     cat = json.loads(CATALOGUE.read_text(encoding="utf-8"))
     exercises = {}
@@ -748,7 +845,8 @@ def build() -> dict:
     rules = {
         "version": VERSION,
         "not_recognised": NOT_RECOGNISED,
-        "intents": INTENTS,
+        "intents": INTENTS + mistake_intents(),
+        "glossary": glossary(),
         "exercises": exercises,
         "plans": plans,
         "condition_notes": CONDITION_NOTES,

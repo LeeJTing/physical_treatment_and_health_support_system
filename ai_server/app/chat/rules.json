@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.14",
+  "version": "chat-rules-3.15",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -423,7 +423,15 @@
         "new hip",
         "new knee",
         "replaced hip",
-        "replaced knee"
+        "replaced knee",
+        "cast",
+        "plaster",
+        "fracture",
+        "fractured",
+        "broken bone",
+        "broke my",
+        "sprain",
+        "sprained"
       ],
       "examples": [
         "I have diabetes, is there anything special I should do",
@@ -760,7 +768,11 @@
         "no repetitions",
         "no reps found",
         "repetition found",
-        "no complete repetition"
+        "no complete repetition",
+        "landscape",
+        "portrait",
+        "horizontal or vertical",
+        "sideways or upright"
       ],
       "examples": [
         "how do I record my exercise",
@@ -2099,8 +2111,1004 @@
       "small_talk": true,
       "action": null,
       "time_aware": false
+    },
+    {
+      "key": "mistake:arm_leg_low",
+      "title": "Arm leg low",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does arm leg low mean",
+        "the result said arm leg low"
+      ],
+      "answer": "“Arm leg low” in your posture result means your arm and leg did not reach the level of your back. Stretch your arm and leg further, until both are level with your back.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:back_arch",
+      "title": "Back arch",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does back arch mean",
+        "the result said back arch"
+      ],
+      "answer": "“Back arch” in your posture result means your lower back bent backwards as your arms went up. Keep your back still; do not lean backwards as your arms go up.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:back_sag",
+      "title": "Back sag",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does back sag mean",
+        "the result said back sag"
+      ],
+      "answer": "“Back sag” in your posture result means your lower back dipped or your hips tilted while you stretched. Keep your back flat and your hips level.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:bent_elbow",
+      "title": "Bent elbow",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does bent elbow mean",
+        "the result said bent elbow"
+      ],
+      "answer": "“Bent elbow” in your posture result means your elbows were bent while your arms were raised. Keep your elbows straight as you lift.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:bent_knee",
+      "title": "Bent knee",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does bent knee mean",
+        "the result said bent knee"
+      ],
+      "answer": "“Bent knee” in your posture result means the knee of your lifting leg was bent. Keep the knee of the lifting leg straight.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:body_swing",
+      "title": "Body swing",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does body swing mean",
+        "the result said body swing"
+      ],
+      "answer": "“Body swing” in your posture result means you rocked your body back to help lift. Keep your body still; do not rock back to lift.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:drop_down",
+      "title": "Drop down",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does drop down mean",
+        "the result said drop down"
+      ],
+      "answer": "“Drop down” in your posture result means you came down from the step too quickly. Step down slowly and with control.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:feet_far",
+      "title": "Feet far",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does feet far mean",
+        "the result said feet far"
+      ],
+      "answer": "“Feet far” in your posture result means your feet were too far from your buttocks. Bring your feet closer to your buttocks.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:feet_forward",
+      "title": "Feet forward",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does feet forward mean",
+        "the result said feet forward"
+      ],
+      "answer": "“Feet forward” in your posture result means your feet were too far in front of you when you started to stand. Bring your feet back so your knees are above your ankles before you stand.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:feet_not_in_line",
+      "title": "Feet not in line",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does feet not in line mean",
+        "the result said feet not in line"
+      ],
+      "answer": "“Feet not in line” in your posture result means your feet were side by side or apart instead of one in front of the other. Place one foot directly in front of the other, heel touching toe.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:hands_used",
+      "title": "Hands used",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does hands used mean",
+        "the result said hands used"
+      ],
+      "answer": "“Hands used” in your posture result means your hands pushed on your legs or the chair to help you stand. Keep your arms crossed over your chest and stand up without pushing.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:heels_lift",
+      "title": "Heels lift",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does heels lift mean",
+        "the result said heels lift"
+      ],
+      "answer": "“Heels lift” in your posture result means your heels came off the floor. Keep your heels on the floor.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:hips_back",
+      "title": "Hips back",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does hips back mean",
+        "the result said hips back"
+      ],
+      "answer": "“Hips back” in your posture result means your hips were pushed back, so your body bent at the hips. Keep your body straight; do not push your hips back.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:hips_sag",
+      "title": "Hips sag",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does hips sag mean",
+        "the result said hips sag"
+      ],
+      "answer": "“Hips sag” in your posture result means your hips dropped towards the wall, so your body was not straight. Keep your body straight from head to heels.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:incomplete_extension",
+      "title": "Incomplete extension",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does incomplete extension mean",
+        "the result said incomplete extension"
+      ],
+      "answer": "“Incomplete extension” in your posture result means your knee did not straighten fully. Straighten your knee fully, until the leg is level with your hip.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:incomplete_stand",
+      "title": "Incomplete stand",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does incomplete stand mean",
+        "the result said incomplete stand"
+      ],
+      "answer": "“Incomplete stand” in your posture result means you did not stand up fully straight at the top. Stand up fully: straighten your hips and knees at the top.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:knee_not_straight",
+      "title": "Knee not straight",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does knee not straight mean",
+        "the result said knee not straight"
+      ],
+      "answer": "“Knee not straight” in your posture result means your leading leg was not fully straight at the top of the step. Straighten your leading leg fully at the top.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:knees_bend",
+      "title": "Knees bend",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does knees bend mean",
+        "the result said knees bend"
+      ],
+      "answer": "“Knees bend” in your posture result means your knees bent as you rose onto your toes. Keep your knees straight as you rise.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:leaning",
+      "title": "Leaning",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does leaning mean",
+        "the result said leaning"
+      ],
+      "answer": "“Leaning” in your posture result means you leaned on the counter or to the side. Stand upright; do not lean on the counter or to the side.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:leaning_back",
+      "title": "Leaning back",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does leaning back mean",
+        "the result said leaning back"
+      ],
+      "answer": "“Leaning back” in your posture result means you leaned your upper body backwards. Sit or stand tall; do not lean back.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:leaning_forward",
+      "title": "Leaning forward",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does leaning forward mean",
+        "the result said leaning forward"
+      ],
+      "answer": "“Leaning forward” in your posture result means you leaned your upper body forwards. Keep your upper body upright.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:leg_forward",
+      "title": "Leg forward",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does leg forward mean",
+        "the result said leg forward"
+      ],
+      "answer": "“Leg forward” in your posture result means your leg went forwards instead of straight out to the side. Lift the leg straight out to the side, not forwards.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:low_hips",
+      "title": "Low hips",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does low hips mean",
+        "the result said low hips"
+      ],
+      "answer": "“Low hips” in your posture result means your hips did not lift high enough. Lift your hips higher, until your body is straight from shoulders to knees.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:low_knee_lift",
+      "title": "Low knee lift",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does low knee lift mean",
+        "the result said low knee lift"
+      ],
+      "answer": "“Low knee lift” in your posture result means your knees did not lift high enough. Lift your knees higher.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:low_raise",
+      "title": "Low raise",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does low raise mean",
+        "the result said low raise"
+      ],
+      "answer": "“Low raise” in your posture result means your heels did not rise high enough. Rise higher onto your toes.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:low_range",
+      "title": "Low range",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does low range mean",
+        "the result said low range"
+      ],
+      "answer": "“Low range” in your posture result means the movement did not go as far as the exercise asks. Move a little further each time, as far as is comfortable; the exercise steps say how far.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:no_arm_swing",
+      "title": "No arm swing",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does no arm swing mean",
+        "the result said no arm swing"
+      ],
+      "answer": "“No arm swing” in your posture result means your arms stayed still while you marched. Swing your arms as you march.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:no_forward_lean",
+      "title": "No forward lean",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does no forward lean mean",
+        "the result said no forward lean"
+      ],
+      "answer": "“No forward lean” in your posture result means you did not lean your chest forward before standing up. Lean your chest forward a little before you stand up.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:no_hold",
+      "title": "No hold",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does no hold mean",
+        "the result said no hold"
+      ],
+      "answer": "“No hold” in your posture result means you did not hold the top position. Pause and hold for about 2 seconds before lowering.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:over_arch",
+      "title": "Over arch",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does over arch mean",
+        "the result said over arch"
+      ],
+      "answer": "“Over arch” in your posture result means your hips went too high, so your lower back arched. Do not push your hips too high; keep your lower back from arching.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:shoulder_shrug",
+      "title": "Shoulder shrug",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does shoulder shrug mean",
+        "the result said shoulder shrug"
+      ],
+      "answer": "“Shoulder shrug” in your posture result means your shoulders lifted up towards your ears. Relax your shoulders down, away from your ears.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:slouching",
+      "title": "Slouching",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does slouching mean",
+        "the result said slouching"
+      ],
+      "answer": "“Slouching” in your posture result means you slumped or leaned back away from the chair back. Sit up straight with your back against the chair.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:stepping_out",
+      "title": "Stepping out",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does stepping out mean",
+        "the result said stepping out"
+      ],
+      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold. Try to hold the position without stepping out.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:swinging",
+      "title": "Swinging",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does swinging mean",
+        "the result said swinging"
+      ],
+      "answer": "“Swinging” in your posture result means you swung your arms up quickly instead of lifting slowly. Lift slowly and pause at the top instead of swinging.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:thigh_lift",
+      "title": "Thigh lift",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does thigh lift mean",
+        "the result said thigh lift"
+      ],
+      "answer": "“Thigh lift” in your posture result means your whole thigh lifted off the seat. Keep your thigh resting on the seat; only the lower leg moves.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:toes_up",
+      "title": "Toes up",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does toes up mean",
+        "the result said toes up"
+      ],
+      "answer": "“Toes up” in your posture result means your toes turned up or outwards as the leg lifted. Keep your toes pointing forwards.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:too_deep",
+      "title": "Too deep",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does too deep mean",
+        "the result said too deep"
+      ],
+      "answer": "“Too deep” in your posture result means you bent your knees further than a mini squat. Only bend your knees a little, about a third of the way down.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:trunk_forward",
+      "title": "Trunk forward",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does trunk forward mean",
+        "the result said trunk forward"
+      ],
+      "answer": "“Trunk forward” in your posture result means you bent forward at the waist. Stand tall and keep your chest up.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:trunk_lean",
+      "title": "Trunk lean",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does trunk lean mean",
+        "the result said trunk lean"
+      ],
+      "answer": "“Trunk lean” in your posture result means your body leaned to the side. Keep your body upright; do not lean to the side.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:uncontrolled_sit",
+      "title": "Uncontrolled sit",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does uncontrolled sit mean",
+        "the result said uncontrolled sit"
+      ],
+      "answer": "“Uncontrolled sit” in your posture result means you sat down too quickly instead of lowering yourself slowly. Sit down slowly and with control.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:uneven_arms",
+      "title": "Uneven arms",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does uneven arms mean",
+        "the result said uneven arms"
+      ],
+      "answer": "“Uneven arms” in your posture result means one arm went higher than the other. Lift both arms together to the same height.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:upper_arm_moves",
+      "title": "Upper arm moves",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does upper arm moves mean",
+        "the result said upper arm moves"
+      ],
+      "answer": "“Upper arm moves” in your posture result means your upper arm moved away from your side. Keep your upper arms still against your body.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
+      "key": "mistake:using_hands",
+      "title": "Using hands",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does using hands mean",
+        "the result said using hands"
+      ],
+      "answer": "“Using hands” in your posture result means your hands pulled your leg up. Lift your legs without pulling them up with your hands.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
     }
   ],
+  "glossary": {
+    "arm leg low": "mistake:arm_leg_low",
+    "back arch": "mistake:back_arch",
+    "back sag": "mistake:back_sag",
+    "bent elbow": "mistake:bent_elbow",
+    "bent knee": "mistake:bent_knee",
+    "body swing": "mistake:body_swing",
+    "drop down": "mistake:drop_down",
+    "feet far": "mistake:feet_far",
+    "feet forward": "mistake:feet_forward",
+    "feet not in line": "mistake:feet_not_in_line",
+    "hands used": "mistake:hands_used",
+    "heels lift": "mistake:heels_lift",
+    "hips back": "mistake:hips_back",
+    "hips sag": "mistake:hips_sag",
+    "incomplete extension": "mistake:incomplete_extension",
+    "incomplete stand": "mistake:incomplete_stand",
+    "knee not straight": "mistake:knee_not_straight",
+    "knees bend": "mistake:knees_bend",
+    "leaning": "mistake:leaning",
+    "leaning back": "mistake:leaning_back",
+    "leaning forward": "mistake:leaning_forward",
+    "leg forward": "mistake:leg_forward",
+    "low hips": "mistake:low_hips",
+    "low knee lift": "mistake:low_knee_lift",
+    "low raise": "mistake:low_raise",
+    "low range": "mistake:low_range",
+    "no arm swing": "mistake:no_arm_swing",
+    "no forward lean": "mistake:no_forward_lean",
+    "no hold": "mistake:no_hold",
+    "over arch": "mistake:over_arch",
+    "shoulder shrug": "mistake:shoulder_shrug",
+    "slouching": "mistake:slouching",
+    "stepping out": "mistake:stepping_out",
+    "swinging": "mistake:swinging",
+    "thigh lift": "mistake:thigh_lift",
+    "toes up": "mistake:toes_up",
+    "too deep": "mistake:too_deep",
+    "trunk forward": "mistake:trunk_forward",
+    "trunk lean": "mistake:trunk_lean",
+    "uncontrolled sit": "mistake:uncontrolled_sit",
+    "uneven arms": "mistake:uneven_arms",
+    "upper arm moves": "mistake:upper_arm_moves",
+    "using hands": "mistake:using_hands",
+    "arm_leg_low": "mistake:arm_leg_low",
+    "back_arch": "mistake:back_arch",
+    "back_sag": "mistake:back_sag",
+    "bent_elbow": "mistake:bent_elbow",
+    "bent_knee": "mistake:bent_knee",
+    "body_swing": "mistake:body_swing",
+    "drop_down": "mistake:drop_down",
+    "feet_far": "mistake:feet_far",
+    "feet_forward": "mistake:feet_forward",
+    "feet_not_in_line": "mistake:feet_not_in_line",
+    "hands_used": "mistake:hands_used",
+    "heels_lift": "mistake:heels_lift",
+    "hips_back": "mistake:hips_back",
+    "hips_sag": "mistake:hips_sag",
+    "incomplete_extension": "mistake:incomplete_extension",
+    "incomplete_stand": "mistake:incomplete_stand",
+    "knee_not_straight": "mistake:knee_not_straight",
+    "knees_bend": "mistake:knees_bend",
+    "leaning_back": "mistake:leaning_back",
+    "leaning_forward": "mistake:leaning_forward",
+    "leg_forward": "mistake:leg_forward",
+    "low_hips": "mistake:low_hips",
+    "low_knee_lift": "mistake:low_knee_lift",
+    "low_raise": "mistake:low_raise",
+    "low_range": "mistake:low_range",
+    "no_arm_swing": "mistake:no_arm_swing",
+    "no_forward_lean": "mistake:no_forward_lean",
+    "no_hold": "mistake:no_hold",
+    "over_arch": "mistake:over_arch",
+    "shoulder_shrug": "mistake:shoulder_shrug",
+    "stepping_out": "mistake:stepping_out",
+    "thigh_lift": "mistake:thigh_lift",
+    "toes_up": "mistake:toes_up",
+    "too_deep": "mistake:too_deep",
+    "trunk_forward": "mistake:trunk_forward",
+    "trunk_lean": "mistake:trunk_lean",
+    "uncontrolled_sit": "mistake:uncontrolled_sit",
+    "uneven_arms": "mistake:uneven_arms",
+    "upper_arm_moves": "mistake:upper_arm_moves",
+    "using_hands": "mistake:using_hands",
+    "uneven arm": "mistake:uneven_arms",
+    "hip sag": "mistake:hips_sag",
+    "hips sagging": "mistake:hips_sag",
+    "shoulders shrug": "mistake:shoulder_shrug",
+    "shrugging": "mistake:shoulder_shrug",
+    "low arm": "mistake:low_range",
+    "heel lift": "mistake:heels_lift",
+    "hand used": "mistake:hands_used"
+  },
   "exercises": {
     "sit_to_stand": {
       "name": "Sit-to-Stand",
@@ -2681,7 +3689,8 @@
     "OSTEOPOROSIS": "With osteoporosis, strengthening and standing exercises help your bones. Avoid bending forward from the waist, twisting and jerky movements, and keep a support within reach to prevent falls.",
     "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled.",
     "PREGNANCY": "During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going well, but check with your doctor or midwife first. After the first three months avoid lying flat on your back for long (as in the glute bridge), keep a support nearby for balance, drink water and do not overheat. Stop and contact your doctor if you have bleeding, dizziness, chest pain, calf pain or swelling, contractions or leaking fluid.",
-    "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and precautions come first: they decide how far you may bend and when you may do more. After a new hip, avoid bending it past a right angle, crossing your legs and twisting until they say it is safe. Ask them before starting this plan, and stop if the wound becomes red, hot, swollen or more painful, or you get calf pain or a fever."
+    "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and precautions come first: they decide how far you may bend and when you may do more. After a new hip, avoid bending it past a right angle, crossing your legs and twisting until they say it is safe. Ask them before starting this plan, and stop if the wound becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
+    "INJURY": "With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor or physiotherapist says it is ready. Exercises that do not use it are usually fine, but check with them first, and stop if the injured area hurts or swells."
   },
   "condition_closing": "Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.",
   "diet_notes": {

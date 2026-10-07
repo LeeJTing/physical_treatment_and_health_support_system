@@ -14,7 +14,7 @@ ROUND9 = [
     (CORE, "where should i put the phone for glute bridge", ("exercise:glute_bridge", "recording_help")),
     (LEGS, "how low should i go in mini squat", "exercise:mini_squat"),
     (LEGS, "what height step should i use", ("exercise:step_up", "equipment")),
-    (KNEE, "the app says hips sag what does that mean", "posture_result"),
+    (KNEE, "the app says hips sag what does that mean", ("mistake:hips_sag", "posture_result")),  # glossary since 3.15
     (KNEE, "why it count only 3 reps when i did 5", ("posture_result", "recording_help")),
     (KNEE, "my video always say full body not visible", "recording_help"),
     (KNEE, "i have osteoporosis can i do these", ("condition_advice", "safety")),
