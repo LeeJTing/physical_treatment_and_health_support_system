@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.21"
+VERSION = "chat-rules-3.22"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -185,7 +185,8 @@ INTENTS = [
             "upload", "uploading", "angle", "frame", "720p", "resolution", "too long", "too short", "front or side",
             "in front or", "at the side", "lighting", "dark", "someone record", "record for me",
             "no repetition", "no repetitions", "no reps found", "repetition found", "no complete repetition",
-            "landscape", "portrait", "horizontal or vertical", "sideways or upright"],
+            "landscape", "portrait", "horizontal or vertical", "sideways or upright", "phone stand",
+            "without a stand", "no stand", "no tripod"],
            ["how do I record my exercise", "where should I put my phone", "the app cannot detect my body",
             "why does it say my full body is not visible", "how long should the video be"],
            "Put your phone on a stand, upright, at about waist height and 2.5 to 3 metres away, so your whole "
@@ -327,6 +328,13 @@ INTENTS = [
            "with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away "
            "so your whole body fills most of the picture, from head to feet.", show=False,
            action={"key": "open_treatment", "label": "Record an exercise"}),
+    # 8 Oct (round 13): which languages the assistant understands.
+    intent("language", "Languages", 5,
+           ["what language", "which language", "languages", "bahasa melayu", "guna bahasa", "speak malay",
+            "in malay", "speak chinese", "in chinese", "mandarin", "speak tamil", "in tamil", "english only"],
+           ["what language can I use", "can I ask in Malay"],
+           "I answer in English and understand many everyday Malay words mixed in, such as sakit, lutut, "
+           "boleh or penat. Short, simple sentences work best. In an emergency, call 999.", show=False),
     # 8 Oct (round 10): elderly and family users.
     intent("for_someone_else", "Exercising for a family member", 3,
            ["my mother", "my father", "my mum", "my mom", "my dad", "my parents", "my parent",
@@ -386,7 +394,8 @@ INTENTS = [
     intent("history_help", "Your past results", 6,
            ["old results", "old scores", "see my old", "previous score", "previous scores", "earlier results", "earlier scores",
             "see my score", "see my scores", "score last week", "scores last week", "last week", "my score history", "past scores", "past results", "previous results", "my results", "session history",
-            "previous sessions", "past sessions", "how did i do", "accuracy history", "what i did",
+            "previous sessions", "past sessions", "how did i do", "accuracy history", "what i did", "green tick",
+            "tick in my history", "my history",
             "did yesterday", "yesterday's score", "see yesterday",
             "all my attempts", "track my progress", "see my progress"],
            ["where can I see my past results", "how did I do in my last session", "show my session history"],

@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.21",
+  "version": "chat-rules-3.22",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -783,7 +783,11 @@
         "landscape",
         "portrait",
         "horizontal or vertical",
-        "sideways or upright"
+        "sideways or upright",
+        "phone stand",
+        "without a stand",
+        "no stand",
+        "no tripod"
       ],
       "examples": [
         "how do I record my exercise",
@@ -1360,6 +1364,39 @@
       "time_aware": false
     },
     {
+      "key": "language",
+      "title": "Languages",
+      "show": false,
+      "priority": 5,
+      "keywords": [
+        "what language",
+        "which language",
+        "languages",
+        "bahasa melayu",
+        "guna bahasa",
+        "speak malay",
+        "in malay",
+        "speak chinese",
+        "in chinese",
+        "mandarin",
+        "speak tamil",
+        "in tamil",
+        "english only"
+      ],
+      "examples": [
+        "what language can I use",
+        "can I ask in Malay"
+      ],
+      "answer": "I answer in English and understand many everyday Malay words mixed in, such as sakit, lutut, boleh or penat. Short, simple sentences work best. In an emergency, call 999.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
       "key": "for_someone_else",
       "title": "Exercising for a family member",
       "show": false,
@@ -1599,6 +1636,9 @@
         "how did i do",
         "accuracy history",
         "what i did",
+        "green tick",
+        "tick in my history",
+        "my history",
         "did yesterday",
         "yesterday's score",
         "see yesterday",

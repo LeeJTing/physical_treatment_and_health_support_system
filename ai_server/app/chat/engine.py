@@ -147,7 +147,7 @@ def plan_intents(plan: dict) -> list[dict]:
                       "better now", "feel better", "feeling better", "when can i stop", "can i stop now",
                       "still need to continue", "need to continue", "continue or not", "better already",
                       "already better", "how long more", "walk normally", "walk again", "walk properly",
-                      "how long before"],
+                      "how long before", "did all", "did all my", "done my exercises"],
          "examples": ["when will I see results", "how do I know I am improving", "is the plan working",
                       "what happens when I finish this plan"],
          "answer": f"This plan aims to help you {plan['goal_text']}. Most people notice a difference after two to "
@@ -260,7 +260,7 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
+PREFER = [("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
           ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
