@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.19"
+VERSION = "chat-rules-3.20"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -159,7 +159,7 @@ INTENTS = [
     intent("tired", "Feeling tired or unwell", 6,
            ["didn't sleep well", "did not sleep well", "not sleep well", "slept badly", "slept poorly", "poor sleep",
             "bad sleep", "no sleep", "sleepy", "not enough sleep", "tired", "tiring", "exhausted", "exhausting", "fatigue", "fatigued", "no energy", "low energy",
-            "worn out", "sleepy", "drained", "fell asleep", "not feeling well", "feel unwell", "unwell", "sick", "ill", "fever",
+            "worn out", "sleepy", "drained", "fell asleep", "out of breath", "breathing hard", "panting", "not feeling well", "feel unwell", "unwell", "sick", "ill", "fever",
             "cold", "flu", "cough", "headache", "period", "bad day"],
            ["I feel too tired to exercise", "I am exhausted after the session", "I'm not feeling well today",
             "should I exercise when I am sick"],
@@ -564,19 +564,22 @@ ALIASES = {
     "elbow_flexion": ["elbow flexion", "bicep curl", "bicep curls", "biceps curl", "arm curl", "arm curls", "curl",
                       "curls", "elbow bend", "bend my elbow"],
     "wall_push_up": ["wall push up", "wall push-up", "wall pushup", "wall push ups", "wall push-ups", "wall pushups",
-                     "push up against the wall", "push up on the wall"],
+                     "push up against the wall", "push up on the wall", "close to the wall", "far from the wall",
+                     "distance from the wall"],
     "heel_raise": ["heel raise", "heel raises", "calf raise", "calf raises", "tiptoe", "tiptoes", "toe raise",
-                   "rise on my toes", "stand on my toes"],
+                   "rise on my toes", "stand on my toes", "my heels", "raise my heels",
+                   "lift my heels", "heels up"],
     "mini_squat": ["mini squat", "mini squats", "half squat", "small squat", "partial squat", "squat", "squats"],
     "seated_marching": ["seated marching", "seated march", "sitting march", "marching while sitting",
-                        "march while sitting", "march sitting down"],
+                        "march while sitting", "march sitting down", "march", "marching"],
     "glute_bridge": ["glute bridge", "glute bridges", "hip bridge", "bridge exercise", "bridging", "bridge"],
     "tandem_stance": ["tandem stance", "tandem stand", "heel to toe", "heel-to-toe", "one foot in front of the other",
                       "balance stand"],
     "bird_dog": ["bird dog", "bird-dog", "birddog", "bird dogs", "opposite arm and leg"],
-    "step_up": ["step up", "step-up", "step ups", "step-ups", "stepping up", "stair step"],
+    "step_up": ["step up", "step-up", "step ups", "step-ups", "stepping up", "stair step", "my step",
+                "step height", "high step", "step too high", "step is"],
     "march_in_place": ["march in place", "marching in place", "march on the spot", "marching on the spot",
-                       "standing march", "marching standing"],
+                       "standing march", "marching standing", "march", "marching"],
 }
 
 CONDITION_NOTES = {

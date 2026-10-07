@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.19",
+  "version": "chat-rules-3.20",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -631,6 +631,9 @@
         "sleepy",
         "drained",
         "fell asleep",
+        "out of breath",
+        "breathing hard",
+        "panting",
         "not feeling well",
         "feel unwell",
         "unwell",
@@ -3410,7 +3413,10 @@
         "wall push-ups",
         "wall pushups",
         "push up against the wall",
-        "push up on the wall"
+        "push up on the wall",
+        "close to the wall",
+        "far from the wall",
+        "distance from the wall"
       ],
       "instruction": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight from head to heels.",
       "camera": "side view, whole body in frame, wall at one edge of the picture"
@@ -3426,7 +3432,11 @@
         "tiptoes",
         "toe raise",
         "rise on my toes",
-        "stand on my toes"
+        "stand on my toes",
+        "my heels",
+        "raise my heels",
+        "lift my heels",
+        "heels up"
       ],
       "instruction": "Stand behind a chair holding the back of it. Rise onto your toes, hold for one second, and lower slowly. Safety: keep holding the chair throughout.",
       "camera": "side view, whole body in frame"
@@ -3453,7 +3463,9 @@
         "sitting march",
         "marching while sitting",
         "march while sitting",
-        "march sitting down"
+        "march sitting down",
+        "march",
+        "marching"
       ],
       "instruction": "Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
       "camera": "side view, whole body in frame"
@@ -3504,7 +3516,12 @@
         "step ups",
         "step-ups",
         "stepping up",
-        "stair step"
+        "stair step",
+        "my step",
+        "step height",
+        "high step",
+        "step too high",
+        "step is"
       ],
       "instruction": "Stand facing a low step holding a rail. Step up with one foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
       "camera": "side view, whole body and the step in frame"
@@ -3517,7 +3534,9 @@
         "march on the spot",
         "marching on the spot",
         "standing march",
-        "marching standing"
+        "marching standing",
+        "march",
+        "marching"
       ],
       "instruction": "Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
       "camera": "side view, whole body in frame"

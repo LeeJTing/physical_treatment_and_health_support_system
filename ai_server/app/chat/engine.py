@@ -30,7 +30,7 @@ this that these those to of in on at for with and or but if so can could should 
 what which who whom when where why how about please tell any some just there here have has had get got im i'm
 ive i've id i'd ok okay also really very much still even then than too one second another other thing things
 stuff lol""".split())
-COMMON_WORDS = """she he her him his hers they them their mum mom mummy papa mama grandma grandpa wife son malay
+COMMON_WORDS = """she he her him his hers they them their mum mom mummy papa mama grandma grandpa wife son malay match
 able about above accident across act action add after afternoon again age ago agree air all allow almost alone along already alright always amount angry animal answer anyone anything appointment area arm arms around ask asked asleep attack aunt away baby back bad bag ball bathroom bed bedroom before begin behind believe belly best better big bike bit blood board body bone bones book born both bottle bottom box boy brain bread break breakfast bring brother brought brush building bus busy buy call called came cane car card care careful carry case cat catch caught chair change cheap check child children choose church city class clean clear climb clinic close clothes cold colour come comfortable coming company computer cook cool corner cost could count country couple cover crutch crutches cry cup cut dad daily dance dark data daughter day days dead dear decide deep diet different dinner dirty doctor dog done door double down dress drink drive drop dry during early easy eat eaten eating else email empty end enough evening ever every everyone everything example expensive explain eye face fact fall family far fast father fear feel feeling feet fell felt few field fight fill find fine finger finish fire first fish floor flower fly food foot forget forward frame free friend friends front frustrated fruit full fun funny game garden gave girl give given glad glass go going gone good grandchild grandmother grandfather great green ground group grow guess hair half hall hand hands happen happy hard hate head health hear heard heavy hello help here hill hold holiday home hope hospital hot hour hours house hundred hungry husband idea ill important information inside instead job join joke keep key kid kids kind kitchen knew know lady last late later laugh lazy learn least leave left lesson letter life light like line list listen little live long look lost lot loud love low lunch made make man many market married matter maybe meal mean meet message middle mind minute minutes miss mobile moment money month months more morning mother move movie much music must name near neck need never new news next nice night noise none noon nothing notice number nurse office often old once only open other outside over own pain paper parent park part party pass past pay people perhaps person phone pick picture piece place plan play please pocket point police poor possible pray pretty price problem pull push put question quick quiet quite radio rain read ready real reason remember rest return rich ride right road room round run sad safe said same school sea second see seen sell send sent set shop short show shower sick side sign since sister sit sitting sleep slow small smile snow some someone something sometimes son soon sorry sound speak stand start stay step stick still stop story street strong student study sun supper sure surgery table take taken talk tea teacher tell thank thing think third thought through throw ticket tired today together told tomorrow tonight took top touch town train travel tree trip true try turn type uncle under understand until upset use used usual visit voice wait wake walk walker walking wall want warm wash watch water way wear weather week weekend well went wet wheelchair while white whole wife will win window wish woman word work world worry worse worst write wrong year years yes yesterday young zimmer""".split()
 # Emojis patients send instead of words.
 EMOJI = {"👍": " ok ", "👌": " ok ", "🙏": " thanks ", "❤": " love ", "😍": " love ", "🥰": " love "}
@@ -58,7 +58,8 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
          "jatuh": "fell", "terjatuh": "fell", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
-         "susah": "hard", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
+         "susah": "hard", "duduk": "sitting", "sambil": "while",
+         "seminggu": "a week", "sehari": "a day", "berapa": "how many", "kali": "times", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
          "mak": "mother", "ibu": "mother", "ayah": "father", "bapa": "father", "nenek": "grandma",
          "atuk": "grandpa", "suami": "husband", "isteri": "wife", "makan": "eat", "lepas": "after", "sebelum": "before", "tidur": "sleep"}
 MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afternoon",
@@ -145,7 +146,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "why this plan", "what does this plan do", "what next", "what's next", "next step",
                       "better now", "feel better", "feeling better", "when can i stop", "can i stop now",
                       "still need to continue", "need to continue", "continue or not", "better already",
-                      "already better", "how long more"],
+                      "already better", "how long more", "walk normally", "walk again", "walk properly",
+                      "how long before"],
          "examples": ["when will I see results", "how do I know I am improving", "is the plan working",
                       "what happens when I finish this plan"],
          "answer": f"This plan aims to help you {plan['goal_text']}. Most people notice a difference after two to "
@@ -258,7 +260,7 @@ COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
+PREFER = [("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
           ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
@@ -529,6 +531,19 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
             named = [h for h in fixed if h[2]["key"].startswith("exercise:")]
             if named and not any(h[2]["key"].startswith("exercise:") for h in hits):
                 hits = hits + named
+    ex = [h for h in hits if h[2]["key"].startswith("exercise:")]
+    if len({h[2]["key"] for h in ex if h[1] >= 2}) >= 2 and "plan_exercises" in {i["key"] for i in intents}:
+        # Two exercises named in full ("heel raise or sit to stand") ask about the plan's order.
+        return next(i for i in intents if i["key"] == "plan_exercises"), "keyword"
+    if len({h[2]["key"] for h in ex}) > 1:
+        # The most specific name wins ("marching on the spot" over "marching") ...
+        longest = max(h[1] for h in ex)
+        hits = [h for h in hits if not h[2]["key"].startswith("exercise:") or h[1] == longest]
+    named = {h[2]["key"] for h in hits if h[2]["key"].startswith("exercise:")}
+    in_plan = {h[2]["key"] for h in hits if h[2]["key"].startswith("exercise:") and h[2]["show"]}
+    if len(in_plan) == 1 and len(named) > 1:
+        # "march" names march in place and seated marching: the one in the patient's plan is meant.
+        hits = [h for h in hits if not h[2]["key"].startswith("exercise:") or h[2]["show"]]
     exercises = {h[2]["key"] for h in hits if h[2]["key"].startswith("exercise:")}
     if len(exercises) >= 2 and "plan_exercises" in {i["key"] for i in intents}:
         # "Which comes first, heel raise or sit to stand?" is about the plan's order.
