@@ -261,12 +261,28 @@ PREFER = [("weakness_balance", "equipment"), ("video_quality", "posture_result")
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
 
 
+# Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
+NOT_A_FALL = [("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behind", "behind"),
+              ("fallen behind", "behind"), ("falling behind", "behind")]
+
+
+def crisis(text: str | None) -> bool:
+    """Thoughts of suicide or self-harm: checked before everything else."""
+    if not text:
+        return False
+    words = clean(text).split()
+    return any(find_phrase(p, words) for p in rules().get("crisis", []))
+
+
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
     r = rules()
     for variant in {clean(text), correct(text)}:
-        words = variant.split()
+        padded = f" {variant} "
+        for a, b in NOT_A_FALL:
+            padded = padded.replace(f" {a} ", f" {b} ")
+        words = padded.split()
         for phrase in r["red_flags"]:
             for i in find_phrase(phrase, words):
                 if not negated(words, i):
@@ -538,6 +554,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id)), "rules_version": r["version"]}
 
+    if crisis(text):
+        return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
+                "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}
     if red_flag(text):
         return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
                 "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}

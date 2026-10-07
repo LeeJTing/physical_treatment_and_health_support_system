@@ -12,9 +12,9 @@ ROUND10 = [
     (KNEE, "i am helping my father record his exercise", "recording_help"),
     (KNEE, "can i exercise while fasting", ("diet", "best_time")),
     (KNEE, "puasa boleh senaman tak", ("diet", "best_time")),
-    (KNEE, "today very hot can exercise?", ("safety", "best_time")),
+    (KNEE, "today very hot can exercise?", ("hot_weather", "safety", "best_time")),  # heat topic since 3.17
     (KNEE, "i feel so lazy to exercise", ("motivation", "tired", "difficulty")),  # (3.14)
-    (KNEE, "i'm feeling sad and don't want to do anything", ("motivation", "tired", None)),  # (3.14)
+    (KNEE, "i'm feeling sad and don't want to do anything", ("low_mood", "motivation", "tired", None)),  # (3.14), low_mood since 3.17
     (CORE, "what is a bird dog", "exercise:bird_dog"),
     (CORE, "can i skip the glute bridge", ("missed_session", "difficulty", "exercise:glute_bridge")),
     (LEGS, "can i do squats instead of step ups", ("difficulty", "plan_exercises", "exercise:step_up")),

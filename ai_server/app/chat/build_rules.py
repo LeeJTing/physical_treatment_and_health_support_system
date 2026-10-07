@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.16"
+VERSION = "chat-rules-3.17"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -95,7 +95,7 @@ INTENTS = [
            "matters more than doing extra sessions.", tailor=True),
     intent("missed_session", "Missed a session", 5,
            ["missed", "miss", "skip", "skipped", "skipping", "forgot", "forgotten", "didn't exercise", "did not exercise",
-            "haven't exercised", "have not exercised", "fell behind", "behind schedule", "catch up", "make up",
+            "haven't exercised", "have not exercised", "fell behind", "fallen behind", "falling behind", "behind schedule", "catch up", "make up",
             "no time", "too busy", "busy", "stopped exercising", "break from"],
            ["I missed my session yesterday", "what if I skip a day", "I forgot to exercise", "how do I catch up"],
            "That is fine. Do your next session as usual; do not do two sessions in one day to catch up. If you "
@@ -211,9 +211,7 @@ INTENTS = [
            "If it counted fewer repetitions than you did, make each one a full, clear movement with a short "
            "pause back at the start, and keep your whole body in the picture."),
     intent("best_time", "When to exercise", 5,
-           ["very hot", "so hot", "too hot", "hot day", "today hot", "raining",
-            "heatwave", "panas", "humid",
-            "what time should", "what time is best", "what time of day", "what time to", "which time", "best time", "good time", "right time", "when should i exercise",
+           ["what time should", "what time is best", "what time of day", "what time to", "which time", "best time", "good time", "right time", "when should i exercise",
             "when should i do", "when to exercise", "when can i exercise", "exercise now", "exercise tonight",
             "exercise at night", "night", "tonight", "late", "too late", "midnight", "before bed", "before sleep",
             "bedtime", "after dinner", "after eating", "after a meal", "morning or evening", "in the morning",
@@ -339,14 +337,32 @@ INTENTS = [
            "chosen from the profile of the person exercising, including their age, conditions and fall risk. "
            "Help them create an account and fill in their profile, then get a plan for them. For an older "
            "family member, stay close during the first sessions, keep a sturdy chair or counter within reach, "
-           "and set up the phone for them so the app can check their posture.", show=False,
+           "and set up the phone for them so the app can check their posture. If they have fallen in the past "
+           "year, feel unsteady or have a heart condition, ask their doctor before they start.", show=False,
            action={"key": "open_profile", "label": "Open health profile"}),
+    intent("low_mood", "Feeling low", 7,
+           ["sad", "so sad", "depressed", "depression", "feeling down", "feel down", "low mood", "lonely",
+            "grief", "grieving", "passed away", "hopeless", "feel empty", "keep crying", "sedih", "murung"],
+           ["I feel sad", "I have been feeling down", "my husband died and I feel so sad"],
+           "I am sorry you are feeling this way. Low mood is common during recovery and after a loss, and it is "
+           "not a weakness. Gentle activity, daylight and talking with someone you trust can help. If you have "
+           "felt low or lost interest in most things for more than two weeks, please talk to your doctor. If "
+           "you ever think about harming yourself, call Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL "
+           "15555 (8 am to midnight), or 999 in an emergency.", show=False),
+    intent("hot_weather", "Exercising in hot weather", 6,
+           ["very hot", "so hot", "too hot", "hot day", "heatwave", "panas", "humid", "hot weather",
+            "weather is hot"],
+           # no "today" here: with "weather" it made "what is the weather today" a heat question
+           ["it is very hot, can I exercise?", "is it ok to exercise in hot weather"],
+           "On hot days exercise indoors in a cool, airy room, or outdoors only before 11 am or after 4 pm. "
+           "Drink water before and after, wear light clothes, and stop if you feel dizzy, very thirsty, very "
+           "sweaty or get a headache. Older adults and people with heart disease or diabetes are more at risk "
+           "in the heat, so take extra care.", show=False),
     intent("motivation", "Keeping motivated", 4,
            ["lazy", "malas", "unmotivated", "no mood", "don't feel like",
-            "dont feel like", "can't be bothered", "cannot be bothered", "sad",
-            "depressed", "feeling down", "feel down", "low mood"],
+            "dont feel like", "can't be bothered", "cannot be bothered"],
            ["I feel too lazy to exercise", "I have no motivation", "I want to give up"],
-           "That happens to everyone. Start small: do just the first exercise today, at the same time each day, "
+           "Many people feel this way. Start small: do just the first exercise today, at the same time each day, "
            "and let your reminder prompt you. Exercising with a family member helps, and Results shows how far "
            "you have come. Strength comes back slowly after a long rest, so every session counts, even a short "
            "one. If you have felt low or lost interest in most things for more than two weeks, please talk to "
@@ -358,7 +374,8 @@ INTENTS = [
             "other exercise", "other exercises", "other sports", "sports", "play sport", "brisk walk",
             "treadmill", "go for a walk", "walking exercise"],
            ["can I go jogging", "can I go to the gym", "can I play badminton"],
-           "Gentle walking is good for you, also on rest days. For harder activity such as jogging, sports or "
+           "Gentle walking is good for you, also on rest days: on even ground, with your walking aid if you use "
+           "one, and with someone if you have fallen before. For harder activity such as jogging, sports or "
            "the gym, wait until your plan has built up your strength, start gently, and ask your doctor or "
            "physiotherapist first, especially if you have a health condition or have fallen before. Stop if it "
            "causes pain that is still there the next day.", show=False),
@@ -597,7 +614,27 @@ RED_FLAGS = [
     "heart is pounding", "palpitations", "irregular heartbeat", "fell down", "i fell", "i've fallen", "had a fall", "hit my head",
     "slurred speech", "speech is slurred", "slurring", "slurred", "face drooping", "face is drooping", "sudden weakness", "can't feel my", "cannot feel my", "coughing blood",
     "vomiting", "unconscious",
+    # 8 Oct (laptop review): someone else falling, and not being able to get up (a long lie).
+    "he fell", "she fell", "father fell", "mother fell", "dad fell", "mum fell", "mom fell", "husband fell",
+    "wife fell", "grandmother fell", "grandfather fell", "grandma fell", "grandpa fell", "fell over",
+    "fell on the floor", "fell off", "has fallen", "have fallen", "had fallen", "cannot get up", "can't get up",
+    "cant get up", "unable to get up", "jatuh",
 ]
+# Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
+# including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
+# is about injury.
+CRISIS = [
+    "end my life", "end it all", "kill myself", "killing myself", "want to die", "wanna die", "wish i was dead",
+    "wish i were dead", "better off dead", "suicide", "suicidal", "take my own life", "no reason to live",
+    "nothing to live for", "give up on life", "giving up on life", "want to hurt myself", "going to hurt myself",
+    "harm myself", "self harm", "self-harm", "cut myself", "don't want to live", "dont want to live",
+    "do not want to live", "bunuh diri", "nak mati", "ingin mati", "mahu mati", "tak nak hidup",
+]
+CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
+                 "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
+                 "department. You can talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and "
+                 "confidential) or Talian HEAL 15555 (8 am to midnight daily). Please also tell a family member "
+                 "or your doctor how you feel. I am only an exercise assistant, but these people can help you.")
 # Emergencies described in free words: an anchor word with a symptom word close to it, in any order
 # ("my chest feels heavy and painful", "i can hardly breathe", "my arm suddenly cannot move").
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
@@ -683,13 +720,14 @@ CONDITION_DETAIL = {
     # Named in a message only (not health-profile options).
     "PREGNANCY": "During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going "
                  "well, but check with your doctor or midwife first. After the first three months avoid lying "
-                 "flat on your back for long (as in the glute bridge), keep a support nearby for balance, drink "
+                 "flat on your back for long (as in the glute bridge), exercise on a firm, non-slip surface with a "
+                 "support nearby for balance, drink "
                  "water and do not overheat. Stop and contact your doctor if you have bleeding, dizziness, chest "
                  "pain, calf pain or swelling, contractions or leaking fluid.",
     "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and "
                          "precautions come first: they decide how far you may bend and when you may do more. "
-                         "After a new hip, avoid bending it past a right angle, crossing your legs and twisting "
-                         "until they say it is safe. Ask them before starting this plan, and stop if the wound "
+                         "After a new hip, avoid bending it past 90 degrees (a right angle), crossing your legs and "
+                         "twisting, and keep the leg facing forward, until they say it is safe. Ask them before starting this plan, and stop if the wound "
                          "becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
     "INJURY": "With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor "
               "or physiotherapist says it is ready. Exercises that do not use it are usually fine, but check "
@@ -893,6 +931,8 @@ def build() -> dict:
         "condition_closing": CONDITION_CLOSING,
         "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
+        "crisis": CRISIS,
+        "crisis_answer": CRISIS_ANSWER,
         "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
     }
