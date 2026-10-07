@@ -365,7 +365,7 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
 
     if red_flag(text):
         return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
-                "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": []}
+                "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
 
     chosen, how = None, None
     if category and category in by_key:
@@ -375,11 +375,11 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
 
     if chosen is None:
         return {**base, "answer": r["not_recognised"], "category": None, "title": None, "is_matched": False,
-                "matched_by": None, "follow_ups": [], "notes": []}
+                "matched_by": None, "follow_ups": [], "notes": [], "action": None}
 
     mentioned = conditions_in(text) if chosen["key"] in ("condition_advice", "safety") else []
     notes = tailor_notes(chosen, list(dict.fromkeys((conditions or []) + mentioned)), limitations, risk_level)
     answer = chosen["answer"] + ("\n\n" + " ".join(notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,
-            "matched_by": how, "follow_ups": _listing(follow), "notes": notes}
+            "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action")}

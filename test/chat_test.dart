@@ -271,4 +271,18 @@ void main() {
       ); // condition note
     },
   );
+
+  test('a reply can carry a button (chat-rules-3.2), and older replies without one still parse', () {
+    final withButton = ChatReply.fromJson({
+      'answer': 'You can set a new password...',
+      'category': 'forgot_password',
+      'is_matched': true,
+      'matched_by': 'keyword',
+      'action': {'key': 'open_reset_password', 'label': 'Reset password'},
+    });
+    expect(withButton.action?.key, 'open_reset_password');
+    expect(withButton.action?.label, 'Reset password');
+    final plain = ChatReply.fromJson({'answer': 'Hello!', 'is_matched': true});
+    expect(plain.action, isNull);
+  });
 }

@@ -1,7 +1,64 @@
 {
-  "version": "chat-rules-3.1",
+  "version": "chat-rules-3.2",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
+    {
+      "key": "getting_started",
+      "title": "Getting started",
+      "show": true,
+      "priority": 5,
+      "keywords": [
+        "start",
+        "starting",
+        "get started",
+        "getting started",
+        "begin",
+        "beginning",
+        "first step",
+        "first steps",
+        "first time",
+        "new here",
+        "new user",
+        "where do i start",
+        "where should i start",
+        "how should we start",
+        "how should i start",
+        "how do i start",
+        "how do we start",
+        "how to start",
+        "where to begin",
+        "how to begin",
+        "what should i do first",
+        "what do i do first",
+        "what to do first",
+        "what now",
+        "what next",
+        "what should i do now",
+        "how to use",
+        "how to use this app",
+        "how does the app work",
+        "how do i use",
+        "guide me",
+        "walk me through"
+      ],
+      "examples": [
+        "how should we start",
+        "where do I begin",
+        "what should I do first",
+        "I am new, how do I use this app",
+        "how do I get started with my exercises"
+      ],
+      "answer": "Here is how to start: 1) Make sure your health profile is complete (Profile tab), so your safety limits are set. 2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get plans that suit you, then select one. 3) Open My treatment plan from the Treatment tab and start the first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; reach 80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_planning",
+        "label": "Open treatment planning"
+      }
+    },
     {
       "key": "how_to",
       "title": "How to do the exercises",
@@ -50,7 +107,8 @@
       "tailor": true,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "pain_or_discomfort",
@@ -104,7 +162,8 @@
       "tailor": true,
       "negatable": true,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "how_often",
@@ -164,7 +223,8 @@
       "tailor": true,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "missed_session",
@@ -205,7 +265,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "safety",
@@ -266,7 +327,8 @@
       "tailor": true,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "condition_advice",
@@ -305,7 +367,8 @@
       "tailor": true,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "equipment",
@@ -370,7 +433,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "difficulty",
@@ -431,7 +495,8 @@
       "tailor": true,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "tired",
@@ -474,7 +539,8 @@
       "tailor": false,
       "negatable": true,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "weakness_balance",
@@ -527,7 +593,8 @@
       "tailor": true,
       "negatable": true,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "recording_help",
@@ -584,7 +651,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "posture_result",
@@ -630,7 +698,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "plan_and_reminders",
@@ -680,7 +749,99 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
+    },
+    {
+      "key": "forgot_password",
+      "title": "Forgot password",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "forgot password",
+        "forgot my password",
+        "forget password",
+        "forget my password",
+        "forgotten password",
+        "reset password",
+        "reset my password",
+        "password reset",
+        "change password",
+        "change my password",
+        "new password",
+        "cant remember my password",
+        "can't remember my password",
+        "lost my password",
+        "wrong password",
+        "password not working",
+        "locked out",
+        "account locked",
+        "cannot log in",
+        "can't log in",
+        "cant log in",
+        "unable to log in",
+        "cannot login",
+        "can't login",
+        "cant login"
+      ],
+      "examples": [
+        "I forgot my password",
+        "how do I reset my password",
+        "I can't log in",
+        "how do I change my password"
+      ],
+      "answer": "You can set a new password with a 6-digit code sent to your email: tap the button below (or Forgot password? on the login screen), enter your email, then type the code and your new password. If the code does not arrive, check your spam folder and wait a minute before asking for a new one. After too many wrong passwords the account is locked for 15 minutes.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_reset_password",
+        "label": "Reset password"
+      }
+    },
+    {
+      "key": "verification_code",
+      "title": "Verification code",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "verification code",
+        "verify code",
+        "no code",
+        "didn't get the code",
+        "didnt get the code",
+        "did not get the code",
+        "code not received",
+        "never got the code",
+        "didn't receive the code",
+        "didnt receive the code",
+        "did not receive the code",
+        "didn't receive the email",
+        "no email",
+        "email not received",
+        "otp",
+        "resend code",
+        "code expired",
+        "code not working",
+        "wrong code",
+        "confirm my email",
+        "verify my email",
+        "email verification"
+      ],
+      "examples": [
+        "I did not get the verification code",
+        "the code is not working",
+        "how do I verify my email"
+      ],
+      "answer": "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working after a while, so always use the newest one. If you clicked a link in the email instead, return to the app and log in.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "account_help",
@@ -710,7 +871,6 @@
       ],
       "examples": [
         "how do I log in",
-        "I forgot my password",
         "how do I update my health profile",
         "is my data private"
       ],
@@ -719,7 +879,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "pain_mild",
@@ -750,7 +911,8 @@
       "tailor": true,
       "negatable": true,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "pain_sharp",
@@ -785,7 +947,8 @@
       "tailor": true,
       "negatable": true,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "pain_swelling",
@@ -818,7 +981,8 @@
       "tailor": false,
       "negatable": true,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "medication",
@@ -866,7 +1030,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "diagnosis",
@@ -926,7 +1091,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "diet",
@@ -968,7 +1134,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": false
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "greeting",
@@ -1000,7 +1167,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": true,
-      "small_talk": true
+      "small_talk": true,
+      "action": null
     },
     {
       "key": "thanks",
@@ -1023,9 +1191,7 @@
         "great",
         "nice",
         "ok thanks",
-        "noted",
-        "got it",
-        "understood"
+        "okay thanks"
       ],
       "examples": [
         "thank you",
@@ -1037,7 +1203,41 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": true
+      "small_talk": true,
+      "action": null
+    },
+    {
+      "key": "acknowledge",
+      "title": "Okay",
+      "show": false,
+      "priority": 0,
+      "keywords": [
+        "ok",
+        "okay",
+        "okk",
+        "okey",
+        "alright",
+        "all right",
+        "noted",
+        "got it",
+        "understood",
+        "i see",
+        "cool",
+        "hmm",
+        "hm"
+      ],
+      "examples": [
+        "ok",
+        "alright",
+        "got it"
+      ],
+      "answer": "Okay. If you have another question about your exercises, pain, safety or your plan, type it or tap a topic below.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": true,
+      "small_talk": false,
+      "action": null
     },
     {
       "key": "goodbye",
@@ -1068,7 +1268,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": true
+      "small_talk": true,
+      "action": null
     },
     {
       "key": "bot_identity",
@@ -1105,7 +1306,8 @@
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
-      "small_talk": true
+      "small_talk": true,
+      "action": null
     }
   ],
   "exercises": {

@@ -14,6 +14,19 @@ class ChatCategory {
   int get hashCode => key.hashCode;
 }
 
+/// A button offered under an answer, e.g. "Reset password" (chat-rules-3.2). The view maps
+/// [key] to a screen.
+class ChatAction {
+  final String key; // open_reset_password | open_planning | open_profile | open_treatment
+  final String label;
+
+  const ChatAction(this.key, this.label);
+
+  static ChatAction? fromJson(Object? j) => j is Map<String, dynamic>
+      ? ChatAction(j['key'] as String, j['label'] as String)
+      : null;
+}
+
 /// The /chat response: the predefined answer and what to offer next.
 class ChatReply {
   final String answer;
@@ -28,6 +41,7 @@ class ChatReply {
   notes; // condition-specific lines, already part of [answer]
   final List<ChatCategory>
   categories; // shown again after every reply (FR500_21, FR500_22)
+  final ChatAction? action; // optional button under the answer
 
   const ChatReply({
     required this.answer,
@@ -38,6 +52,7 @@ class ChatReply {
     this.followUps = const [],
     this.notes = const [],
     this.categories = const [],
+    this.action,
   });
 
   bool get isUrgent => matchedBy == 'red_flag';
@@ -63,5 +78,6 @@ class ChatReply {
     followUps: _cats(j['follow_ups']),
     notes: [for (final n in (j['notes'] as List? ?? const [])) n as String],
     categories: _cats(j['categories']),
+    action: ChatAction.fromJson(j['action']),
   );
 }

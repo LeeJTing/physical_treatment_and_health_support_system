@@ -20,14 +20,41 @@ class VerifyCodeView extends StatefulWidget {
   State<VerifyCodeView> createState() => _VerifyCodeViewState();
 }
 
-class _VerifyCodeViewState extends State<VerifyCodeView> {
+class _VerifyCodeViewState extends State<VerifyCodeView>
+    with WidgetsBindingObserver {
   final _code = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Back in the app after tapping the confirmation LINK in the email (instead of typing
+  /// the code): Supabase signs the patient in from the link, so carry on from here.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    if (state != AppLifecycleState.resumed) return;
+    final vm = context.read<AuthViewModel>();
+    for (var i = 0; i < 6 && mounted; i++) {
+      if (await vm.checkSignedIn()) {
+        if (mounted) _continue(vm);
+        return;
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 500));
+    }
+  }
+
+  void _continue(AuthViewModel vm) => Navigator.of(
+    context,
+  ).pushNamedAndRemoveUntil(vm.nextRoute ?? Routes.home, (_) => false);
 
   String get _email =>
       (ModalRoute.of(context)?.settings.arguments as String?) ?? '';
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _code.dispose();
     super.dispose();
   }
@@ -37,9 +64,7 @@ class _VerifyCodeViewState extends State<VerifyCodeView> {
     final vm = context.read<AuthViewModel>();
     if (await vm.verify(_email, _code.text.trim()) && mounted) {
       // The auth screens are removed so Back does not return to them.
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(vm.nextRoute ?? Routes.home, (_) => false);
+      _continue(vm);
     }
   }
 
@@ -76,7 +101,10 @@ class _VerifyCodeViewState extends State<VerifyCodeView> {
                 children: [
                   AuthTitle(
                     'Enter your code',
-                    subtitle: 'We sent a 6-digit code to $_email.',
+                    subtitle:
+                        'We sent a 6-digit code to $_email. If the email has a '
+                        'confirmation link instead, tap it on this phone and you will '
+                        'come straight back.',
                   ),
                   const SizedBox(height: 24),
                   LabeledField(

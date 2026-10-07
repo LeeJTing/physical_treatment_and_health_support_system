@@ -152,7 +152,7 @@ def test_request_validation():
 def test_response_fields():
     res = ask(text="how often should I exercise")
     assert set(res) == {"answer", "category", "title", "is_matched", "matched_by", "follow_ups", "notes",
-                        "categories", "rules_version"}
+                        "categories", "rules_version", "action"}
     assert res["matched_by"] == "keyword"
 
 
@@ -174,3 +174,32 @@ def test_rules_file_matches_catalogue():
     for i in rules["intents"]:
         assert i["keywords"] and i["examples"] and i["answer"], i["key"]
         assert all(f in keys for f in i["follow_ups"]), i["key"]
+
+
+# ---- chat-rules-3.2: everyday questions found on the phone (7 Oct) ----------------------------------
+
+@pytest.mark.parametrize("text, key", [
+    ("how should we start", "getting_started"),
+    ("where do I begin", "getting_started"),
+    ("what should I do first", "getting_started"),
+    ("forgot password", "forgot_password"),
+    ("I can't log in", "forgot_password"),
+    ("didn't get the code", "verification_code"),
+    ("got it", "acknowledge"),
+    ("ok my knee hurts", "pain_or_discomfort"),     # an acknowledgement never hides a real question
+    ("right knee hurts", "pain_or_discomfort"),
+    ("how do i start the heel raise", "exercise:heel_raise"),
+])
+def test_everyday_questions(text, key):
+    res = client.post("/chat", json={"plan_id": KNEE, "text": text}, headers=DEV).json()
+    assert res["category"] == key, res["answer"][:80]
+
+
+def test_password_and_start_answers_offer_a_button():
+    res = client.post("/chat", json={"text": "I forgot my password"}, headers=DEV).json()
+    assert res["action"] == {"key": "open_reset_password", "label": "Reset password"}
+    res = client.post("/chat", json={"text": "how should we start"}, headers=DEV).json()
+    assert res["action"]["key"] == "open_planning"
+    res = client.post("/chat", json={"text": "asdfgh"}, headers=DEV).json()
+    assert res["action"] is None and res["answer"] == engine.rules()["not_recognised"]   # FR500_22 unchanged
+

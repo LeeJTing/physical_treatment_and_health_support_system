@@ -44,6 +44,19 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
     if (await vm.completeGoogleSignIn() && mounted) _goNext(vm);
   }
 
+  Widget _bannerLink(String label, VoidCallback onTap) => TextButton(
+    onPressed: onTap,
+    style: TextButton.styleFrom(minimumSize: const Size(48, AppTokens.minTarget)),
+    child: Text(
+      label,
+      style: const TextStyle(
+        color: AppTokens.brandDeepAccent,
+        fontWeight: FontWeight.w600,
+        decoration: TextDecoration.underline,
+      ),
+    ),
+  );
+
   void _goNext(AuthViewModel vm) => Navigator.of(
     context,
   ).pushNamedAndRemoveUntil(vm.nextRoute ?? Routes.home, (_) => false);
@@ -134,25 +147,25 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                       if (error != null) ...[
                         AuthErrorBanner(
                           error,
-                          action: vm.lastErrorCode == 'email_not_confirmed'
-                              ? TextButton(
-                                  onPressed: () {
-                                    final email = _email.text.trim();
-                                    vm.resendCode(email);
-                                    Navigator.of(context).pushNamed(
-                                      Routes.verifyCode,
-                                      arguments: email,
-                                    );
-                                  },
-                                  child: const Text(
-                                    'Resend code',
-                                    style: TextStyle(
-                                      color: AppTokens.brandDeepAccent,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                )
-                              : null,
+                          action: switch (vm.lastErrorCode) {
+                            'email_not_confirmed' => _bannerLink('Resend code', () {
+                              final email = _email.text.trim();
+                              vm.resendCode(email);
+                              Navigator.of(
+                                context,
+                              ).pushNamed(Routes.verifyCode, arguments: email);
+                            }),
+                            // A wrong password or a lockout: offer the reset page directly
+                            // (FR100_037), with the email already filled in.
+                            'invalid_credentials' || 'locked' => _bannerLink(
+                              'Forgot password? Reset it',
+                              () => Navigator.of(context).pushNamed(
+                                Routes.resetPassword,
+                                arguments: _email.text.trim(),
+                              ),
+                            ),
+                            _ => null,
+                          },
                         ),
                         const SizedBox(height: 12),
                       ],

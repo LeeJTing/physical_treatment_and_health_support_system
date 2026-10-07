@@ -58,6 +58,10 @@ class SupabaseAuthRepository implements IAuthRepository {
         email: email.trim().toLowerCase(),
         password: password,
         data: {'username': username.trim()},
+        // If the email holds a confirmation LINK (Supabase's default template) instead of the
+        // 6-digit code, the link opens the app and signs the patient in, rather than a dead
+        // localhost page. Needs this address in Supabase -> URL Configuration -> Redirect URLs.
+        emailRedirectTo: oauthRedirect,
       ),
       failMessage: Messages.registrationUnavailable,
     );
@@ -100,7 +104,11 @@ class SupabaseAuthRepository implements IAuthRepository {
 
   @override
   Future<Result<void>> resendCode(String email) => supabaseGuard(
-    () => _auth.resend(type: OtpType.signup, email: email.trim().toLowerCase()),
+    () => _auth.resend(
+      type: OtpType.signup,
+      email: email.trim().toLowerCase(),
+      emailRedirectTo: oauthRedirect,
+    ),
     failMessage: Messages.verificationEmailFailed,
   );
 

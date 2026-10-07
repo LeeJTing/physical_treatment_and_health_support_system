@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/base/ui_state.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/features/chat/model/chat_reply.dart';
 import 'package:physical_treatment_and_health_support_system/features/chat/viewmodel/chat_view_model.dart';
@@ -20,6 +21,29 @@ class _ChatViewState extends State<ChatView> {
   final _input = TextEditingController();
   final _scroll = ScrollController();
   int _shown = 0;
+
+  /// Screens a chatbot button can open (ChatAction.key -> route).
+  static const _actionRoutes = {
+    'open_reset_password': Routes.resetPassword,
+    'open_planning': Routes.treatmentPlanning,
+    'open_profile': Routes.healthProfile,
+    'open_treatment': Routes.physicalTreatment,
+  };
+
+  /// Opens the screen behind a chatbot button. If that screen is already open under the
+  /// chat (the chat is started from the planning page), go back to it instead of stacking
+  /// a second copy.
+  void _openAction(ChatAction action) {
+    final route = _actionRoutes[action.key];
+    if (route == null) return;
+    final nav = Navigator.of(context);
+    var below = false;
+    nav.popUntil((r) {
+      if (r.settings.name == route) below = true;
+      return r.isFirst || r.settings.name == route || r.settings.name == Routes.home;
+    });
+    if (!below) nav.pushNamed(route);
+  }
 
   @override
   void initState() {
@@ -151,7 +175,11 @@ class _ChatViewState extends State<ChatView> {
                               ),
                             ),
                           for (final e in vm.messages)
-                            _MessageTile(entry: e, onChoose: vm.choose),
+                            _MessageTile(
+                              entry: e,
+                              onChoose: vm.choose,
+                              onAction: _openAction,
+                            ),
                           if (vm.sending) const _Typing(),
                         ],
                       ),
@@ -178,7 +206,13 @@ class _MessageTile extends StatelessWidget {
   final ChatEntry entry;
   final void Function(ChatCategory) onChoose;
 
-  const _MessageTile({required this.entry, required this.onChoose});
+  final void Function(ChatAction) onAction;
+
+  const _MessageTile({
+    required this.entry,
+    required this.onChoose,
+    required this.onAction,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -260,6 +294,24 @@ class _MessageTile extends StatelessWidget {
                 maxWidth: MediaQuery.sizeOf(context).width * 0.8,
               ),
               child: NoticeBanner(reply.notes.join(' '), warning: true),
+            ),
+          ],
+          if (reply?.action case final action?) ...[
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              onPressed: () => onAction(action),
+              icon: const Icon(Icons.open_in_new, size: 18),
+              label: Text(action.label),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppTokens.primary,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(48, AppTokens.minTarget),
+                shape: const StadiumBorder(),
+                textStyle: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ],
           if (reply != null && reply.followUps.isNotEmpty) ...[

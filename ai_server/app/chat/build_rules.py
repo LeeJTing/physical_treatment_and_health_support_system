@@ -22,23 +22,40 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.1"
+VERSION = "chat-rules-3.2"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
 
 def intent(key, title, priority, keywords, examples, answer, show=True, follow_ups=(), tailor=False,
-           negatable=False, anchor_start=False, small_talk=False):
+           negatable=False, anchor_start=False, small_talk=False, action=None):
     """negatable: a keyword right after "no"/"not" does not count ("I have no pain").
     anchor_start: keywords count only at the start of the message (greetings).
-    small_talk: wins outright when the whole message is three words or fewer ("good morning", "help")."""
+    small_talk: wins outright when the whole message is three words or fewer ("good morning", "help").
+    action: a button the app shows under the answer, {"key": ..., "label": ...}; the app maps the key
+    to a screen (open_reset_password, open_planning, open_profile, open_treatment)."""
     return {"key": key, "title": title, "show": show, "priority": priority, "keywords": list(keywords),
             "examples": list(examples), "answer": answer, "follow_ups": list(follow_ups), "tailor": tailor,
-            "negatable": negatable, "anchor_start": anchor_start, "small_talk": small_talk}
+            "negatable": negatable, "anchor_start": anchor_start, "small_talk": small_talk, "action": action}
 
 
 INTENTS = [
     # ---- shown categories ---------------------------------------------------------------------
+    intent("getting_started", "Getting started", 5,
+           ["start", "starting", "get started", "getting started", "begin", "beginning", "first step", "first steps",
+            "first time", "new here", "new user", "where do i start", "where should i start", "how should we start",
+            "how should i start", "how do i start", "how do we start", "how to start", "where to begin",
+            "how to begin", "what should i do first", "what do i do first", "what to do first", "what now",
+            "what next", "what should i do now", "how to use", "how to use this app", "how does the app work",
+            "how do i use", "guide me", "walk me through"],
+           ["how should we start", "where do I begin", "what should I do first", "I am new, how do I use this app",
+            "how do I get started with my exercises"],
+           "Here is how to start: 1) Make sure your health profile is complete (Profile tab), so your safety "
+           "limits are set. 2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get "
+           "plans that suit you, then select one. 3) Open My treatment plan from the Treatment tab and start the "
+           "first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; reach "
+           "80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
+           action={"key": "open_planning", "label": "Open treatment planning"}),
     intent("how_to", "How to do the exercises", 4,
            ["how to do", "how do i do", "how should i do", "how to perform", "correct way", "right way", "proper way",
             "proper form", "good form", "technique", "instruction", "instructions", "step by step",
@@ -183,11 +200,34 @@ INTENTS = [
            "recommendations; selecting a new plan replaces the current one. You can stop a plan from the "
            "Physical Treatment page. Reminders follow your plan's weekly schedule; check that notifications are "
            "allowed for the app in your phone settings if they do not appear."),
+    intent("forgot_password", "Forgot password", 7,
+           ["forgot password", "forgot my password", "forget password", "forget my password", "forgotten password",
+            "reset password", "reset my password", "password reset", "change password", "change my password",
+            "new password", "cant remember my password", "can't remember my password", "lost my password",
+            "wrong password", "password not working", "locked out", "account locked", "cannot log in",
+            "can't log in", "cant log in", "unable to log in", "cannot login", "can't login", "cant login"],
+           ["I forgot my password", "how do I reset my password", "I can't log in", "how do I change my password"],
+           "You can set a new password with a 6-digit code sent to your email: tap the button below (or "
+           "Forgot password? on the login screen), enter your email, then type the code and your new password. "
+           "If the code does not arrive, check your spam folder and wait a minute before asking for a new one. "
+           "After too many wrong passwords the account is locked for 15 minutes.",
+           show=False, action={"key": "open_reset_password", "label": "Reset password"}),
+    intent("verification_code", "Verification code", 7,
+           ["verification code", "verify code", "no code", "didn't get the code", "didnt get the code",
+            "did not get the code", "code not received", "never got the code", "didn't receive the code",
+            "didnt receive the code", "did not receive the code", "didn't receive the email", "no email",
+            "email not received", "otp", "resend code", "code expired", "code not working", "wrong code",
+            "confirm my email", "verify my email", "email verification"],
+           ["I did not get the verification code", "the code is not working", "how do I verify my email"],
+           "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make "
+           "sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working "
+           "after a while, so always use the newest one. If you clicked a link in the email instead, return to "
+           "the app and log in.", show=False),
     intent("account_help", "Account and login", 6,
            ["log in", "login", "log out", "logout", "sign in", "sign out", "password", "account", "email",
             "username", "verification code", "otp", "google sign in", "profile", "update my profile",
             "change my details", "delete my account", "my data", "privacy"],
-           ["how do I log in", "I forgot my password", "how do I update my health profile", "is my data private"],
+           ["how do I log in", "how do I update my health profile", "is my data private"],
            "Log in with the email and password you registered with, or use Continue with Google. If you forgot "
            "your password, tap Forgot password? on the login screen to get a reset code by email. You can update "
            "your health details on the Profile page; your plan's safety limits are recalculated when you save. "
@@ -255,10 +295,18 @@ INTENTS = [
            show=False, anchor_start=True, small_talk=True),
     intent("thanks", "Thanks", 2,
            ["thanks", "thank you", "thank u", "thx", "ty", "tq", "cheers", "appreciate", "appreciated", "helpful",
-            "that helps", "that helped", "great", "nice", "ok thanks", "noted", "got it", "understood"],
+            "that helps", "that helped", "great", "nice", "ok thanks", "okay thanks"],
            ["thank you", "thanks a lot", "that was helpful"],
            "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done.",
            show=False, small_talk=True),
+    # Lowest priority and not small talk: answers a bare "ok", but "ok my knee hurts" still gets the
+    # pain answer. No "yes"/"no"/"right"/"fine": they start real questions ("no pain", "right knee hurts").
+    intent("acknowledge", "Okay", 0,
+           ["ok", "okay", "okk", "okey", "alright", "all right", "noted", "got it", "understood", "i see", "cool",
+            "hmm", "hm"],
+           ["ok", "alright", "got it"],
+           "Okay. If you have another question about your exercises, pain, safety or your plan, type it or tap "
+           "a topic below.", show=False, anchor_start=True),
     intent("goodbye", "Goodbye", 1,
            ["bye", "byebye", "goodbye", "good bye", "see you", "see ya", "that's all", "thats all", "nothing else",
             "no more questions", "exit", "close", "good night"],

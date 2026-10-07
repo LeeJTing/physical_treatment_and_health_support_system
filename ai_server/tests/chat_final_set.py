@@ -33,8 +33,8 @@ FINAL = [
     (KNEE, "my knee is not painful anymore, can I stop the plan?", "plan_and_reminders"),
     (KNEE, "is it normal that my leg shakes when I hold it straight", "weakness_balance"),
     (KNEE, "where do I put the phone for knee extension", ("exercise:knee_extension", "recording_help")),
-    (KNEE, "I forgot my password", "account_help"),
-    (KNEE, "ok", None),
+    (KNEE, "I forgot my password", "forgot_password"),   # own rule since 3.2, with a Reset password button
+    (KNEE, "ok", "acknowledge"),   # 3.2: a bare "ok" gets a short reply instead of "not recognised"
     (KNEE, "what time is it", None),
     (KNEE, "lol", None),
     (SHOULDER, "my shoulder clicks when i raise my arm, is it bad?", ("pain_or_discomfort", "exercise:shoulder_abduction", "exercise:shoulder_flexion", None)),

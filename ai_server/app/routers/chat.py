@@ -37,6 +37,11 @@ class ChatRequest(BaseModel):
         return self
 
 
+class ChatAction(BaseModel):
+    key: str        # the app maps it to a screen, e.g. open_reset_password -> Reset password
+    label: str      # button text
+
+
 class ChatResponse(BaseModel):
     answer: str
     category: str | None            # rule that answered; None when not recognised
@@ -46,6 +51,7 @@ class ChatResponse(BaseModel):
     follow_ups: list[Category]      # decision-tree options to offer next
     notes: list[str]                # condition-specific safety lines already appended to answer
     categories: list[Category]      # shown again after every reply (FR500_21, FR500_22)
+    action: ChatAction | None = None  # optional button under the answer (e.g. "Reset password")
     rules_version: str
 
 
