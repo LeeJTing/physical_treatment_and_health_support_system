@@ -270,13 +270,39 @@ PREFER = [("plan_progress", "how_often"), ("for_someone_else", "posture_result")
 NOT_A_FALL = [("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behind", "behind"),
               ("fallen behind", "behind"), ("falling behind", "behind"), ("fell in love", "loved"),
               ("fallen in love", "loved"), ("tripped the alarm", "set off the alarm"),
-              ("tripped the switch", "set off the switch"), ("tripped the breaker", "set off the breaker")]
+              ("tripped the switch", "set off the switch"), ("tripped the breaker", "set off the breaker"),
+              # laptop safety pass 4
+              ("slipped up", "made a mistake"), ("slipped me", "gave me"), ("slipped into", "eased into"),
+              ("fell for", "believed"), ("fell off the guest list", "was left off the list"),
+              ("fell off the list", "was left off the list"), ("tripped over my words", "stumbled over my words"),
+              ("tripped over my tongue", "stumbled over my words"), ("found her balance", "balanced"),
+              ("found his balance", "balanced"), ("found my balance", "balanced"), ("found her feet", "settled"),
+              ("found his feet", "settled"), ("fell cinta", "loved"), ("jatuh cinta", "loved"),
+              ("collapsed onto the sofa", "sat on the sofa"), ("collapsed onto the bed", "lay on the bed"),
+              ("collapsed onto the couch", "sat on the couch"), ("collapsed on the sofa", "sat on the sofa"),
+              ("collapsed on the bed", "lay on the bed")]
 # "I nearly hit my head" / "almost fell" do not make an accident an emergency. Symptoms still count
 # ("I almost blacked out" is a warning sign itself).
 NEAR_MISS = {"nearly", "almost"}
 ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped", "trip", "collapsed")
 # A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
-BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b")
+BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b(?!\s*(?:min|mins|minute|minutes|reps|rep|sets|set|"
+                        r"km|steps|points|marks|%|days|times|seconds|secs))")
+# A low blood sugar reading with a symptom ("sugar 3.0 feeling shaky"): under 4.0 mmol/L or 70 mg/dL.
+SUGAR_READING = re.compile(r"\b(?:sugar|glucose|gula|bgl)\D{0,15}?(\d+(?:\.\d+)?)")
+LOW_SUGAR_SIGNS = ("shaky", "shaking", "shake", "sweaty", "sweating", "dizzy", "confused", "weak", "faint",
+                   "pening", "menggeletar", "trembling", "blur")
+
+
+def low_sugar(text: str) -> bool:
+    low = text.lower()
+    if not any(w in low for w in LOW_SUGAR_SIGNS):
+        return False
+    for v in SUGAR_READING.findall(low):
+        x = float(v)
+        if x < 4.0 or 20 <= x < 70:
+            return True
+    return False
 
 
 def high_bp(text: str) -> bool:
@@ -292,16 +318,28 @@ def crisis(text: str | None) -> bool:
     if not text:
         return False
     words = clean(text).split()
-    return any(find_phrase(p, words) for p in rules().get("crisis", []))
+    for p in rules().get("crisis", []):
+        for i in find_phrase(p, words):
+            # "I don't want to die from a fall" is a fear, not a crisis; phrases that contain the
+            # negation themselves ("don't want to live") start at it, so nothing comes before.
+            if not NEGATORS & set(words[max(0, i - 2):i]):
+                return True
+    return False
 
 
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
-    if high_bp(text):
+    if high_bp(text) or low_sugar(text):
         return True
     r = rules()
-    for variant in {clean(text), correct(text)}:
+    exact = f" {clean(text)} "
+    variants = {clean(text), correct(text)}
+    if any(f" {a} " in exact for a, _ in NOT_A_FALL):
+        # Spelling correction can break the phrase ("tripped over my words" -> "word"), so when the
+        # patient's own words contain one, only those words are checked.
+        variants = {clean(text)}
+    for variant in variants:
         padded = f" {variant} "
         for a, b in NOT_A_FALL:
             padded = padded.replace(f" {a} ", f" {b} ")
@@ -314,7 +352,10 @@ def red_flag(text: str | None) -> bool:
                 if NEAR_MISS & before and any(w in phrase.split() for w in ACCIDENT_WORDS):
                     continue
                 return True
-        for anchors, symptoms, window in r.get("red_flag_combos", []):
+        for combo in r.get("red_flag_combos", []):
+            anchors, symptoms, window = combo[:3]
+            if len(combo) > 3 and any(find_phrase(c, words) for c in combo[3]):
+                continue                               # a planning question, or doing the exercise
             for anchor in anchors:
                 for i in find_phrase(anchor, words):
                     if COMBO_NEGATORS & set(words[max(0, i - 2):i]):

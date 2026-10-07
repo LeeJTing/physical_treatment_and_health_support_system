@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.20"
+VERSION = "chat-rules-3.21"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -167,7 +167,7 @@ INTENTS = [
            "fever, skip today's session and rest; continue when you feel better. If tiredness lasts for days or "
            "comes with breathlessness, contact your doctor.", negatable=True),
     intent("weakness_balance", "Weak or unsteady legs", 7,
-           ["swayed", "sway", "swaying", "walking stick", "use a stick", "walking cane", "walker", "walking frame", "zimmer", "crutch", "crutches", "wheelchair", "lose my balance", "lose balance",
+           ["swayed", "sway", "swaying", "lost balance", "lost my balance", "walking stick", "use a stick", "walking cane", "walker", "walking frame", "zimmer", "crutch", "crutches", "wheelchair", "lose my balance", "lose balance",
             "wobbly", "wobble", "unsteady", "unstable", "shaky", "shaking", "shake", "shakes", "trembling", "tremble",
             "weak", "weakness", "give way", "gives way", "giving way", "give out", "gives out", "collapse",
             "collapsing", "buckle", "buckles", "buckling", "balance", "off balance", "lose balance", "losing balance",
@@ -295,7 +295,7 @@ INTENTS = [
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
     # 8 Oct: the posture check's new messages (fall alert, adjusted targets, partial reps, video tips).
     intent("fall_alert", "The possible-fall message", 8,
-           ["may have fallen", "might have fallen", "lost my balance", "lost balance", "fall alert",
+           ["may have fallen", "might have fallen", "fall alert",
             "fall warning", "thinks i fell", "think i fell", "possible fall"],
            ["the app said I may have fallen", "why did I get a fall warning"],
            "The posture check saw a movement that looked like losing your balance or a fall. If you did "
@@ -626,6 +626,12 @@ RED_FLAGS = [
     # Falling onto a body part ("lost balance and fell on my bum").
     "fell on my back", "fell on my hip", "fell on my knee", "fell on my bum", "fell on my head", "fell on my side",
     "fell on my arm", "fell on my wrist", "fell on my face", "lost balance and fell", "lost my balance and fell",
+    # Slipping is a fall only with a fall, a hit or a slippery place (laptop pass 4: "slipped me a note",
+    # "slipped into the chair" are not).
+    "slipped and fell", "slipped and hit", "slipped and hurt",
+    # Vision going dark (near-fainting), not about the video.
+    "everything went dark", "everything went black", "vision went dark", "vision went black", "greyed out",
+    "grayed out",
 ]
 # Falls, collapses, slips: only with a PERSON in front (8 Oct, laptop safety passes 2 and 3), so a
 # phone, a mat, a score or a price that "fell" or "slipped" is not an emergency. Malay "jatuh" /
@@ -635,7 +641,8 @@ _WHO = ["i", "he", "she", "my mum", "my mom", "my mother", "my dad", "my father"
         "husband", "wife", "grandma", "grandpa", "grandmother", "grandfather", "my son", "my daughter"]
 RED_FLAGS += [f"{w} {v}" for w in _WHO for v in (
     "collapsed", "has collapsed", "fall down", "falls down", "fall over", "falls over", "keep falling", "fell",
-    "slipped", "tripped", "slip and", "trip and", "has fallen", "have fallen", "had fallen", "'ve fallen")]
+    "slipped and", "slipped in the", "slipped on the", "tripped and", "tripped over", "slip and", "trip and",
+    "has fallen", "have fallen", "had fallen", "'ve fallen", "overdosed")]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
@@ -654,7 +661,8 @@ CRISIS = [
     "a burden to", "want to end it", "end it now", "kill herself", "kill himself", "end her life", "end his life",
     "take her own life", "take his own life", "sucide", "suicde", "suiside", "suicid", "sucidal",
     # overdose as a statement
-    "going to take all my", "gonna take all my", "take all my pills at once", "swallow all my", "overdose",
+    "going to take all my", "gonna take all my", "take all my pills at once", "swallow all my", "took an overdose",
+    "take an overdose", "taken an overdose", "overdose on",
     "saving up my pills", "saving up my sleeping pills", "saving my sleeping pills", "saving up pills",
     # laptop safety pass 3
     "hang myself", "hanging myself", "jump from the", "jump off the", "thinking about jumping", "jump in front",
@@ -662,6 +670,10 @@ CRISIS = [
     "point in anything", "won't be here much longer", "wont be here much longer", "not be here much longer",
     "goodbye everyone", "life has no meaning", "no meaning in life", "baik saya mati", "lebih baik mati",
     "baik mati", "tak ada makna", "tiada makna", "tidak ada makna",
+    # laptop safety pass 4: goodbyes, sleeping forever, ending things
+    "sleep forever", "end things tonight", "end things", "end everything", "goodbye letter", "goodbye letters",
+    "wrote goodbye", "said my goodbyes", "saying my goodbyes", "giving away my things", "give away my things",
+    "giving my things away",
 ]
 CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
                  "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
@@ -675,10 +687,18 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 RED_FLAG_COMBOS = [
     # Someone unable to get up or move after a fall, or on the floor / in bed ("my father fell and
     # cannot get up", "he is on the floor and can't move his leg"); not "can't get up early".
-    [["floor", "fell", "fall", "fallen", "bed", "ground", "toilet", "bathroom", "stairs"],
+    # Pass 4: only with a fall, the floor, "since" or "lying" (not "can't get up from bed early",
+    # "stairs: can't walk up them yet"), and not in a planning question.
+    [["floor", "fell", "fall", "fallen", "since", "lying"],
      ["cannot get up", "can't get up", "cant get up", "unable to get up", "cannot stand", "can't stand",
       "cant stand", "unable to stand", "cannot move", "can't move", "cant move", "cannot walk", "can't walk",
-      "cant walk", "unable to walk", "not answering", "not responding", "still on"], 6],
+      "cant walk", "unable to walk", "not answering", "not responding", "still on"], 6,
+     ["any easier", "easier exercise", "which plan", "where do i", "where should i", "is there a",
+      "chair version"]],
+    # A person lying on the floor, not doing the exercise ("my father is lying on the kitchen floor").
+    [["lying"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
+                 "grandmother", "grandfather", "he", "she", "son", "daughter"], 3,
+     ["bridge", "exercise", "mat", "bird dog", "doing", "for the"]],
     # Someone found on the floor ("found my mum on the floor"): a person must be named.
     [["found"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
                  "grandmother", "grandfather", "him", "her", "son", "daughter"], 3],
