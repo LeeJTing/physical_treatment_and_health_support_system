@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.31"
+VERSION = "chat-rules-3.32"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -122,7 +122,8 @@ INTENTS = [
             "hip replacement", "knee replacement", "joint replacement", "replacement surgery", "new hip",
             "new knee", "replaced hip", "replaced knee", "wound", "stitches", "incision", "cast", "plaster",
             "fracture", "fractured",
-            "broken bone", "broke my", "sprain", "sprained"],
+            "broken bone", "broke my", "sprain", "sprained", "heart attack", "pacemaker", "stent",
+            "bypass surgery", "angioplasty"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "
@@ -448,6 +449,15 @@ INTENTS = [
            "skip meals or exercise to control your weight, you are not alone: talk to your doctor, or call "
            "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight). I cannot give "
            "calorie or weight-loss advice.", show=False),
+    intent("bladder_leak", "Leaking urine", 8,
+           ["wet myself", "wet my pants", "leak urine", "leaking urine", "leak a little", "leak when i",
+            "pee a little", "pee myself", "bladder leak", "bladder leakage", "incontinence", "incontinent",
+            "terkencing", "kencing sikit", "can't hold my urine", "cannot hold my urine"],
+           ["I wet myself a little when I do the squats", "urine leaks out when I cough or squat"],
+           "Leaking a little urine when you squat, cough or lift is common, especially after childbirth or as "
+           "we get older, and it can be treated. Empty your bladder before you exercise and tell your doctor "
+           "or a physiotherapist: pelvic floor exercises often help. If it starts suddenly together with back "
+           "pain or numbness between your legs, get medical help straight away.", show=False),
     intent("low_mood", "Feeling low", 7,
            ["sad", "so sad", "depressed", "depression", "feeling down", "feel down", "low mood", "lonely",
             "grief", "grieving", "passed away", "hopeless", "feel empty", "keep crying", "sedih", "murung",
@@ -581,7 +591,8 @@ INTENTS = [
             "painkillers", "pain killer", "panadol", "paracetamol", "ibuprofen", "aspirin", "insulin", "drug", "drugs",
             "dose", "dosage", "prescription", "supplement", "supplements", "vitamin", "vitamins", "cream", "ointment",
             "injection", "inhaler dose", "antibiotic", "antibiotics", "antibiotik", "which medicine",
-            "what medicine"],
+            "what medicine", "glucosamine", "fish oil", "collagen", "minyak angin", "minyak urut", "liniment",
+            "tiger balm", "counterpain", "balm"],
            ["can I take painkillers before exercising", "should I stop my medicine", "what medicine should I take"],
            "I cannot give advice about medicines. Please ask your doctor or pharmacist, and keep taking your "
            "medicines as prescribed unless they tell you otherwise. If a dose was taken twice by mistake, call "

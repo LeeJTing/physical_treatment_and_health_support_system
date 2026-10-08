@@ -84,6 +84,9 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  "tadi pagi": "this morning", "berdarah": "bleeding", "dah lama": "for a long time",
                  "lama dah": "for a long time", "bila baca": "when reading",
                  # laptop safety pass 10
+                 "tak boleh bernafas": "can't breathe", "tidak boleh bernafas": "can't breathe",
+                 "tak dapat bernafas": "can't breathe", "tidak dapat bernafas": "can't breathe",
+                 "sukar bernafas": "hard to breathe", "susah bernafas": "hard to breathe",
                  "dah ok": "fine now", "sekarang ok": "fine now", "hari ni": "today", "hari ini": "today",
                  "hampir jatuh": "nearly fell", "nyaris jatuh": "nearly fell"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
@@ -96,6 +99,7 @@ def rules() -> dict:
     return json.loads(RULES_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=20000)
 def clean(text: str) -> str:
     t = text.lower().replace("’", "'").replace("%", " percent ")
     t = re.sub(r"<[^>]*>", " ", t)                     # pasted HTML / script tags
@@ -306,7 +310,8 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("recording_help", "fear_of_falling"), ("missed_session", "muscle_loss"),
           ("eating_concern", "missed_session"), ("eating_concern", "diet"), ("eating_concern", "best_time"),
           ("eating_concern", "tired"), ("eating_concern", "motivation"), ("eating_concern", "difficulty"),
-          ("eating_concern", "low_mood"), ("eating_concern", "medication")]
+          ("eating_concern", "low_mood"), ("eating_concern", "medication"), ("bladder_leak", "difficulty"),
+          ("bladder_leak", "pain_or_discomfort")]
 
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
@@ -341,7 +346,7 @@ ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped",
 # scared"), unless it still hurts; and "what if I can't get up after a fall" is a question about falling.
 FALL_WORDS = {"fell", "fall", "falls", "fallen", "falling", "jatuh", "tripped", "slipped"}
 PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "long time ago",
-             "long ago", "in the past year", "in the past few years", "years back", "dulu"]
+             "long ago", "in the past year", "in the past few years", "years back", "dulu", "once"]
 # Words that make a fall recent whatever else is said ("i fell in the past hour", "kalau dia jatuh tadi").
 RECENT = ["just now", "tadi", "right now", "today", "this morning", "this afternoon", "this evening", "tonight",
           "last night", "yesterday", "semalam", "earlier", "moment ago", "minutes ago", "minute ago", "hour ago",
@@ -391,11 +396,25 @@ SLIP_NEXT = {"in", "on", "at", "dalam", "di", "over", "down", "and", "while", "w
 # Long-standing symptoms are not new warning signs (laptop pass 9 debatable cases).
 CHRONIC = {"numb": ["years ago", "for years", "since the operation", "since my operation", "since surgery",
                     "since the surgery", "since my surgery", "for a long time", "long time", "always", "since birth",
-                    "since my stroke"],
+                    "since my stroke", "because of diabetes", "because of my diabetes", "from diabetes",
+                    "due to diabetes", "diabetic", "neuropathy", "since years", "for many years"],
            "vomit": ["after eating", "right after eating", "after a meal", "after meals", "full stomach",
                      "after lunch", "after dinner", "after breakfast", "lepas makan"]}
 CHRONIC["numbness"] = CHRONIC["numb"]
 CHRONIC["vomiting"] = CHRONIC["vomit"]
+
+
+# Events that are history when told with a past time in their own sentence (laptop pass 12).
+HISTORY_EVENTS = {"heart attack"}
+YEAR = re.compile(r"^(19|20)[0-9][0-9]$")
+
+
+def _past_event(phrase: str, clauses: list[list[str]]) -> bool:
+    own = [c for c in clauses if find_phrase(phrase, c)]
+    return bool(own) and all(
+        (any(find_phrase(p, c) for p in PAST_TIME + ["history of", "previous", "previously", "before"])
+         or any(YEAR.match(w) for w in c))
+        and not any(find_phrase(p, c) for p in RECENT + ["having", "now", "right now"]) for c in own)
 
 
 def _clauses(text: str) -> list[list[str]]:
@@ -713,6 +732,8 @@ def red_flag(text: str | None) -> bool:
                         continue                       # "i fell last year", "hit my head years ago"
                     if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i) and not recent:
                         continue                       # "if i fall", not "what if he fell? he's on the floor"
+                if phrase in HISTORY_EVENTS and _past_event(phrase, clauses):
+                    continue                           # "i had a heart attack last year"
                 if phrase in CHRONIC and any(find_phrase(c, words) for c in CHRONIC[phrase]) \
                         and not any(find_phrase(s, words) for s in ("suddenly", "sudden", "tiba tiba")):
                     continue                           # "numbness since the operation 3 years ago"
@@ -825,7 +846,8 @@ def overlap_match(plan_id: str | None, text: str) -> tuple[dict | None, float]:
 CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYPERTENSION",
                    "hypertension": "HYPERTENSION", "diabetes": "DIABETES", "diabetic": "DIABETES",
                    "blood sugar": "DIABETES", "heart disease": "HEART_DISEASE", "heart condition": "HEART_DISEASE",
-                   "heart problem": "HEART_DISEASE", "stroke": "STROKE", "asthma": "ASTHMA", "asthmatic": "ASTHMA",
+                   "heart problem": "HEART_DISEASE", "heart attack": "HEART_DISEASE", "pacemaker": "HEART_DISEASE",
+                   "stent": "HEART_DISEASE", "stroke": "STROKE", "asthma": "ASTHMA", "asthmatic": "ASTHMA",
                    "arthritis": "ARTHRITIS", "osteoporosis": "OSTEOPOROSIS", "heart patient": "HEART_DISEASE",
                    "sugar level": "DIABETES", "my sugar": "DIABETES", "glucose": "DIABETES",
                    "pregnant": "PREGNANCY", "pregnancy": "PREGNANCY", "expecting a baby": "PREGNANCY",
@@ -1014,6 +1036,22 @@ def follow_up(text: str | None, chosen: dict | None, previous: str | None, by_ke
     return by_key[previous] if any(find_phrase(r, words) for r in REFERENCES) else None
 
 
+# Laptop pass 12: Chinese and Tamil messages were all unrecognised, emergencies included. The rules
+# read English and Malay; a few emergency words in other scripts are still caught, and anything else
+# mostly in another script gets this answer instead of "not recognised".
+OTHER_SCRIPT_CRISIS = ["想死", "自杀", "自殺", "不想活", "轻生", "輕生", "தற்கொலை"]
+OTHER_SCRIPT_RED_FLAGS = ["胸口痛", "胸痛", "心口痛", "呼吸困难", "呼吸困難", "喘不过气", "喘不過氣", "头晕", "頭暈",
+                          "晕倒", "暈倒", "昏倒", "中风", "中風", "நெஞ்சு வலி", "மூச்சு திணறல்", "மயக்கம்"]
+OTHER_SCRIPT_ANSWER = ("I can only understand English and Bahasa Melayu. Saya hanya faham Bahasa Inggeris dan "
+                       "Bahasa Melayu. In an emergency call 999 (kecemasan: hubungi 999). If you are thinking of "
+                       "harming yourself, call Befrienders KL 03-7627 2929 (24 hours).")
+
+
+def _other_script(text: str) -> bool:
+    letters = [ch for ch in text if ch.isalpha()]
+    return bool(letters) and sum(not ch.isascii() for ch in letters) / len(letters) > 0.5
+
+
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
           risk_level: str | None = None, local_time: tuple[int, int] | None = None,
@@ -1022,6 +1060,15 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id)), "rules_version": r["version"]}
 
+    if text and any(w in text for w in OTHER_SCRIPT_CRISIS):
+        return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
+                "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}
+    if text and any(w in text for w in OTHER_SCRIPT_RED_FLAGS):
+        return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
+                "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
+    if text and _other_script(text):
+        return {**base, "answer": OTHER_SCRIPT_ANSWER, "category": "language", "title": "Languages",
+                "is_matched": True, "matched_by": "other_script", "follow_ups": [], "notes": [], "action": None}
     if crisis(text):
         return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
                 "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}

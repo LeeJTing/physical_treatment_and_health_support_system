@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.31",
+  "version": "chat-rules-3.32",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -436,7 +436,12 @@
         "broken bone",
         "broke my",
         "sprain",
-        "sprained"
+        "sprained",
+        "heart attack",
+        "pacemaker",
+        "stent",
+        "bypass surgery",
+        "angioplasty"
       ],
       "examples": [
         "I have diabetes, is there anything special I should do",
@@ -1828,6 +1833,42 @@
       "time_aware": false
     },
     {
+      "key": "bladder_leak",
+      "title": "Leaking urine",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "wet myself",
+        "wet my pants",
+        "leak urine",
+        "leaking urine",
+        "leak a little",
+        "leak when i",
+        "pee a little",
+        "pee myself",
+        "bladder leak",
+        "bladder leakage",
+        "incontinence",
+        "incontinent",
+        "terkencing",
+        "kencing sikit",
+        "can't hold my urine",
+        "cannot hold my urine"
+      ],
+      "examples": [
+        "I wet myself a little when I do the squats",
+        "urine leaks out when I cough or squat"
+      ],
+      "answer": "Leaking a little urine when you squat, cough or lift is common, especially after childbirth or as we get older, and it can be treated. Empty your bladder before you exercise and tell your doctor or a physiotherapist: pelvic floor exercises often help. If it starts suddenly together with back pain or numbness between your legs, get medical help straight away.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
       "key": "low_mood",
       "title": "Feeling low",
       "show": false,
@@ -2409,7 +2450,16 @@
         "antibiotics",
         "antibiotik",
         "which medicine",
-        "what medicine"
+        "what medicine",
+        "glucosamine",
+        "fish oil",
+        "collagen",
+        "minyak angin",
+        "minyak urut",
+        "liniment",
+        "tiger balm",
+        "counterpain",
+        "balm"
       ],
       "examples": [
         "can I take painkillers before exercising",
