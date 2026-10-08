@@ -300,6 +300,34 @@ class BodyRegions {
     return '${sides.single == BodySide.left ? 'LEFT' : 'RIGHT'}_$limb';
   }
 
+  /// Body parts of a region shape, as the recommender's focus block names
+  /// them (ai_server engine.FOCUS_PARTS). A segment between two joints
+  /// counts for both; the neck has none.
+  static const _shapeParts = {
+    'shoulder': ['shoulder'],
+    'upperArm': ['shoulder', 'elbow'],
+    'elbow': ['elbow'],
+    'forearm': ['wrist_hand'],
+    'hand': ['wrist_hand'],
+    'torsoUpper': ['back'],
+    'torsoLower': ['back'],
+    'hip': ['hip'],
+    'thigh': ['hip', 'knee'],
+    'knee': ['knee'],
+    'shin': ['ankle_foot'],
+    'foot': ['ankle_foot'],
+  };
+
+  /// The finer body parts of the tapped regions, sent as focus_parts to
+  /// /recommend so it can tell, e.g., a shoulder plan from a hand plan that
+  /// share the same body area. Sorted; empty when nothing usable is chosen.
+  static List<String> focusParts(Iterable<BodyRegion> regions) => [
+    ...{
+      for (final r in regions)
+        if (r.available) ...?_shapeParts[r.shape],
+    },
+  ]..sort();
+
   /// Regions of [view] that a plan for [area] targets, for the plan card.
   static Set<BodyRegion> forArea(String area, BodyView view) {
     bool wanted(BodyRegion r) => switch (area) {

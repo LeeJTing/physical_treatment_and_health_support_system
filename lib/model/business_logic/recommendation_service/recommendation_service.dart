@@ -31,6 +31,8 @@ class RecommendationService {
     final age = snapshot.profile?.age;
     final res = await _api.post(AppConstants.recommendPath, {
       'rehab': rehab.toJson(),
+      // Body-map parts (hybrid-2.1 focus block); left out for a list choice.
+      if (rehab.focusParts.isNotEmpty) 'focus_parts': rehab.focusParts,
       'safety_limit': snapshot.safetyLimit.toJson(),
       'limitations': [
         for (final l in snapshot.profile?.limitations ?? const [])

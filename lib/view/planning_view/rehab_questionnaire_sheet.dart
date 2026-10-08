@@ -221,6 +221,13 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
                         recoveryStage: _stage!,
                         mobilityLevel: _mobility!,
                         goal: _goal!,
+                        // Only from the map: a list choice has no parts.
+                        focusParts: _listArea != null
+                            ? const []
+                            : BodyRegions.focusParts([
+                                for (final id in _regions)
+                                  ?BodyRegions.byId[id],
+                              ]),
                       ),
                     )
                   : null,

@@ -123,6 +123,41 @@ void main() {
     });
   });
 
+  group('focus parts for the recommender', () {
+    List<String> parts(List<String> ids) =>
+        BodyRegions.focusParts([for (final id in ids) r(id)]);
+    test('each region gives its body parts', () {
+      expect(parts(['front_right_hand']), ['wrist_hand']);
+      expect(parts(['front_left_forearm']), ['wrist_hand']);
+      expect(parts(['back_right_shoulder']), ['shoulder']);
+      expect(parts(['front_left_upper_arm']), ['elbow', 'shoulder']);
+      expect(parts(['back_left_heel', 'front_right_knee']), [
+        'ankle_foot',
+        'knee',
+      ]);
+      expect(parts(['back_lower_back', 'front_abdomen']), ['back']);
+    });
+    test('the neck adds nothing, both sides count once', () {
+      expect(parts(['front_neck', 'back_neck']), isEmpty);
+      expect(parts(['front_left_hand', 'front_right_hand']), ['wrist_hand']);
+    });
+    test('every available region has at least one known part', () {
+      const known = {
+        'shoulder',
+        'elbow',
+        'wrist_hand',
+        'hip',
+        'knee',
+        'ankle_foot',
+        'back',
+      };
+      for (final x in BodyRegions.byId.values.where((x) => x.available)) {
+        expect(BodyRegions.focusParts([x]), isNotEmpty, reason: x.id);
+        expect(known.containsAll(BodyRegions.focusParts([x])), isTrue);
+      }
+    });
+  });
+
   group('person\'s side vs screen side', () {
     test('front: the person\'s right is on the screen\'s left', () {
       expect(r('front_right_knee').onScreenLeft, isTrue);
@@ -387,6 +422,7 @@ void main() {
         await tapRegion(t, 'front_left_knee');
       });
       expect(rehab?.affectedBodyArea, 'BOTH_LEGS');
+      expect(rehab?.focusParts, ['knee']);
     });
 
     testWidgets('Find my plans stays disabled until a part is chosen', (

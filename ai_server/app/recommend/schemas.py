@@ -14,6 +14,8 @@ Stage = Literal["EARLY", "INTERMEDIATE", "ADVANCED"]
 Mobility = Literal["LOW", "MODERATE", "HIGH"]
 Goal = Literal["STRENGTH", "MOBILITY", "BALANCE", "PAIN_RELIEF", "ENDURANCE"]
 Intensity = Literal["LOW", "MODERATE", "VIGOROUS"]
+# Finer body parts from the body map (BodyRegions.focusParts in the app).
+FocusPart = Literal["shoulder", "elbow", "wrist_hand", "hip", "knee", "ankle_foot", "back"]
 
 
 class _In(BaseModel):
@@ -37,6 +39,8 @@ class ExerciseIn(_In):
     exercise_name: str = ""
     target_body_area: BodyArea
     intensity_level: Intensity
+    # Posture model key; tells which body parts the exercise trains (engine.POSE_PARTS).
+    pose_key: str | None = None
 
 
 class PlanExerciseIn(_In):
@@ -87,6 +91,9 @@ class RecommendRequest(_In):
     # content + rules ranking (cold start).
     cohort: CohortIn | None = None
     plan_outcomes: list[PlanOutcomeIn] = []
+    # Body parts the patient tapped on the body map. Optional: empty means no focus block, and the
+    # result equals hybrid-2.0.
+    focus_parts: list[FocusPart] = []
 
 
 class ScoreBreakdown(BaseModel):
@@ -96,6 +103,9 @@ class ScoreBreakdown(BaseModel):
     mobility_level: float
     # Collaborative score after shrinkage, or None when there is no evidence for the plan.
     collaborative: float | None = None
+    # Match between the tapped body parts and the parts the plan's exercises train, or None
+    # when the request has no focus parts.
+    focus: float | None = None
 
 
 class RankedPlan(BaseModel):

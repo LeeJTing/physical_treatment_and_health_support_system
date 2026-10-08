@@ -162,6 +162,24 @@ class Harness {
 
 void main() {
   group('RecommendationService', () {
+    test('sends the body-map parts as focus_parts', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(
+        const RehabInfo(
+          affectedBodyArea: 'BOTH_ARMS',
+          recoveryStage: RecoveryStage.early,
+          mobilityLevel: MobilityLevel.low,
+          goal: 'MOBILITY',
+          focusParts: ['wrist_hand'],
+        ),
+      );
+      final body = h.server.lastBody!;
+      expect(body['focus_parts'], ['wrist_hand']);
+      // Not inside rehab: RehabInfo.toJson keeps the four FR500_03 answers.
+      expect((body['rehab'] as Map).containsKey('focus_parts'), isFalse);
+    });
+
     test(
       'sends rehab, safety limit, limitation codes and the catalogue',
       () async {
@@ -172,6 +190,16 @@ void main() {
         expect(body['rehab'], rehab.toJson());
         expect(body['safety_limit']['max_exercise_intensity'], 'MODERATE');
         expect(body['limitations'], ['LEFT_ARM_MOBILITY']);
+        // No body-map parts: no focus block (hybrid-2.0 result).
+        expect(body.containsKey('focus_parts'), isFalse);
+        // Each exercise carries its pose key, from which the server reads the
+        // body parts a plan trains.
+        final first = (body['plans'] as List).first as Map;
+        expect(
+          ((first['plan_exercise'] as List).first
+              as Map)['exercise']['pose_key'],
+          isNotNull,
+        );
         // Every catalogue plan is sent (11 since 608b5ce added Hand and Wrist Recovery).
         expect(
           (body['plans'] as List).length,

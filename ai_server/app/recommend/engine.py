@@ -30,6 +30,14 @@ rules always run first, so evidence can only re-order plans that are already saf
 small on purpose: plans given to healthier patients look better (confounding), and the risk and
 age cells only partly control for that.
 
+Body-part focus (hybrid-2.1, optional): the body map gives finer parts than the eight body areas
+(shoulder, elbow, wrist_hand, hip, knee, ankle_foot, back). A plan's parts come from its
+exercises' pose keys (POSE_PARTS), summed over the exercises. When the request has focus parts,
+a fifth block, the cosine of the two part vectors, joins the weighted mean with FOCUS_WEIGHT and
+the same block joins the plan similarity used by the diversity re-rank. Without focus parts
+neither changes, so the result equals hybrid-2.0. This separates plans the four blocks cannot,
+e.g. Shoulder Mobility Starter and Hand and Wrist Recovery (both BOTH_ARMS, EARLY, LOW, MOBILITY).
+
 Stage 4, rank by score and keep the best three, with a light MMR diversity re-rank (report para
 944, 950): a plan that nearly duplicates one already picked (plan similarity above DUPLICATE_SIM)
 is penalised, so the three picks are not the same plan three times. Below that similarity the
@@ -40,7 +48,7 @@ import math
 from .schemas import (PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest, RecommendResponse, ExcludedPlan,
                       ScoreBreakdown)
 
-MODEL_VERSION = "hybrid-2.0"
+MODEL_VERSION = "hybrid-2.1"
 TOP_N = 3
 
 # Collaborative part.
@@ -57,6 +65,30 @@ MMR_LAMBDA = 0.8
 DUPLICATE_SIM = 0.80      # only near-twins (same area and goal, neighbouring level: 0.906 in the seed) are penalised
 
 WEIGHTS = {"body_area": 0.40, "goal": 0.25, "recovery_stage": 0.20, "mobility_level": 0.15}
+
+# Body-part focus block: modest, so it separates otherwise equal plans more than it overrides
+# the area, goal, stage and mobility match.
+FOCUS_WEIGHT = 0.20
+FOCUS_PARTS = ("shoulder", "elbow", "wrist_hand", "hip", "knee", "ankle_foot", "back")
+POSE_PARTS = {
+    "shoulder_abduction": ("shoulder",),
+    "shoulder_flexion": ("shoulder",),
+    "elbow_flexion": ("elbow",),
+    "wall_push_up": ("elbow",),
+    "wrist_extension": ("wrist_hand",),
+    "hand_open_close": ("wrist_hand",),
+    "hip_abduction": ("hip",),
+    "seated_marching": ("hip",),
+    "march_in_place": ("hip",),
+    "glute_bridge": ("hip", "back"),
+    "bird_dog": ("back",),
+    "knee_extension": ("knee",),
+    "sit_to_stand": ("knee", "hip"),
+    "mini_squat": ("knee", "hip"),
+    "step_up": ("knee", "hip"),
+    "heel_raise": ("ankle_foot",),
+    "tandem_stance": ("ankle_foot",),
+}
 
 # Body areas as membership over five body parts: left arm, right arm, left leg, right leg, core.
 # Overlapping areas (LEFT_ARM vs BOTH_ARMS, anything vs FULL_BODY) get partial similarity.
@@ -138,6 +170,19 @@ def exclusion_reasons(req: RecommendRequest, plan: PlanIn) -> list[str]:
     return reasons
 
 
+def plan_parts(plan: PlanIn) -> tuple[float, ...]:
+    """How many of the plan's exercises train each FOCUS_PARTS part (unknown pose keys add nothing)."""
+    counts = dict.fromkeys(FOCUS_PARTS, 0.0)
+    for pe in plan.plan_exercise:
+        for part in POSE_PARTS.get(pe.exercise.pose_key or "", ()):
+            counts[part] += 1
+    return tuple(counts.values())
+
+
+def focus_vec(parts) -> tuple[float, ...]:
+    return tuple(1.0 if p in parts else 0.0 for p in FOCUS_PARTS)
+
+
 def score(req: RecommendRequest, plan: PlanIn) -> ScoreBreakdown:
     r = req.rehab
     return ScoreBreakdown(
@@ -145,11 +190,16 @@ def score(req: RecommendRequest, plan: PlanIn) -> ScoreBreakdown:
         goal=cosine(_goal_vec(r.goal), _goal_vec(plan.goal)),
         recovery_stage=cosine(_ORDINAL[STAGES.index(r.recovery_stage)], _ORDINAL[STAGES.index(plan.recovery_stage)]),
         mobility_level=cosine(_ORDINAL[MOBILITY.index(r.mobility_level)], _ORDINAL[MOBILITY.index(plan.mobility_level)]),
+        focus=cosine(focus_vec(req.focus_parts), plan_parts(plan)) if req.focus_parts else None,
     )
 
 
 def weighted(b: ScoreBreakdown) -> float:
-    return sum(WEIGHTS[k] * getattr(b, k) for k in WEIGHTS) / sum(WEIGHTS.values())
+    """Weighted mean of the blocks; the focus block only counts when the request has one."""
+    total = sum(WEIGHTS[k] * getattr(b, k) for k in WEIGHTS)
+    if b.focus is None:
+        return total / sum(WEIGHTS.values())
+    return (total + FOCUS_WEIGHT * b.focus) / (sum(WEIGHTS.values()) + FOCUS_WEIGHT)
 
 
 # ---- collaborative part ---------------------------------------------------------------------
@@ -196,8 +246,9 @@ def blend(content: float, cf: float | None, n: float) -> tuple[float, float]:
 
 # ---- diversity re-rank ----------------------------------------------------------------------
 
-def plan_similarity(a: PlanIn, b: PlanIn) -> float:
-    """Content similarity between two plans, same blocks and weights as the patient score."""
+def plan_similarity(a: PlanIn, b: PlanIn, focus: bool = False) -> float:
+    """Content similarity between two plans, same blocks and weights as the patient score (the
+    focus block too when the request has focus parts)."""
     blocks = {
         "body_area": cosine(_PARTS[a.target_body_area], _PARTS[b.target_body_area]),
         "goal": cosine(_goal_vec(a.goal), _goal_vec(b.goal)),
@@ -205,22 +256,27 @@ def plan_similarity(a: PlanIn, b: PlanIn) -> float:
         "mobility_level": cosine(_ORDINAL[MOBILITY.index(a.mobility_level)],
                                  _ORDINAL[MOBILITY.index(b.mobility_level)]),
     }
-    return sum(WEIGHTS[k] * v for k, v in blocks.items()) / sum(WEIGHTS.values())
+    total = sum(WEIGHTS[k] * v for k, v in blocks.items())
+    if not focus:
+        return total / sum(WEIGHTS.values())
+    parts = cosine(plan_parts(a), plan_parts(b))
+    return (total + FOCUS_WEIGHT * parts) / (sum(WEIGHTS.values()) + FOCUS_WEIGHT)
 
 
-def redundancy(a: PlanIn, b: PlanIn) -> float:
+def redundancy(a: PlanIn, b: PlanIn, focus: bool = False) -> float:
     """0 up to DUPLICATE_SIM, rising to 1 for an identical plan."""
-    return max(0.0, (plan_similarity(a, b) - DUPLICATE_SIM) / (1 - DUPLICATE_SIM))
+    return max(0.0, (plan_similarity(a, b, focus) - DUPLICATE_SIM) / (1 - DUPLICATE_SIM))
 
 
 def diversify(scored: list[tuple[float, PlanIn]], k: int = TOP_N,
-              lam: float = MMR_LAMBDA) -> list[tuple[float, PlanIn]]:
+              lam: float = MMR_LAMBDA, focus: bool = False) -> list[tuple[float, PlanIn]]:
     """Greedy MMR over plans that already passed the rules, best first. Only re-orders the
     candidates it is given, so an excluded plan can never come back."""
     remaining, picked = list(scored), []
     while remaining and len(picked) < k:
         def mmr(item):
-            return lam * item[0] - (1 - lam) * max((redundancy(item[1], p) for _, p in picked), default=0.0)
+            return lam * item[0] - (1 - lam) * max((redundancy(item[1], p, focus) for _, p in picked),
+                                                   default=0.0)
         best = max(range(len(remaining)), key=lambda i: (mmr(remaining[i]), -i))   # ties keep score order
         picked.append(remaining.pop(best))
     return picked
@@ -244,7 +300,7 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
     # Highest score first; plan name breaks ties so the same input always gives the same order.
     scored.sort(key=lambda t: (-t[0], t[1].plan_name))
     top = []
-    for final, plan in diversify(scored, TOP_N, lam):
+    for final, plan in diversify(scored, TOP_N, lam, focus=bool(req.focus_parts)):
         b, content, alpha, n = details[plan.plan_id]
         rounded = ScoreBreakdown(**{k: (None if v is None else round(v, 3)) for k, v in b.model_dump().items()})
         top.append(RankedPlan(plan_id=plan.plan_id, suitability_score=round(final, 3), breakdown=rounded,

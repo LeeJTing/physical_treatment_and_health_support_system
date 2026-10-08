@@ -1,4 +1,5 @@
 """Tests for the hybrid recommender, run against the real seed catalogue."""
+import copy
 import json
 from pathlib import Path
 
@@ -299,7 +300,98 @@ def test_endpoint_accepts_evidence_and_reports_it():
     r = client.post("/recommend", json=b, headers=DEV)
     assert r.status_code == 200, r.text
     res = r.json()
-    assert res["model_version"] == "hybrid-2.0"
+    assert res["model_version"] == "hybrid-2.1"
     top = next(x for x in res["ranked"] if NAME[x["plan_id"]] == "Early Knee Recovery")
     assert top["evidence_patients"] == 30 and 0 < top["alpha"] <= 0.3
     assert top["breakdown"]["collaborative"] is not None
+
+
+# ---- hybrid-2.1: body-part focus from the body map ---------------------------------------------
+
+def focused(parts, **kw):
+    b = body(**kw)
+    b["focus_parts"] = list(parts)
+    return RecommendRequest.model_validate(b)
+
+
+ARM_EARLY = dict(area="BOTH_ARMS", stage="EARLY", mobility="LOW", goal="MOBILITY")
+
+
+def test_every_catalogue_pose_key_has_body_parts():
+    keys = {e["pose_key"] for e in CATALOGUE["exercises"] if e.get("pose_key")}
+    assert keys <= set(E.POSE_PARTS)
+    assert all(set(v) <= set(E.FOCUS_PARTS) for v in E.POSE_PARTS.values())
+
+
+def test_no_focus_parts_is_exactly_hybrid_2_0():
+    # The focus block and its MMR term only exist when the request has focus parts.
+    for req in grid():
+        assert all(r.breakdown.focus is None for r in recommend(req).ranked)
+        assert [(r.plan_id, r.suitability_score) for r in recommend(req, lam=1.0).ranked] == hybrid_1(req)
+
+
+def test_tapping_a_wrist_ranks_the_hand_plan_first():
+    res = recommend(focused(["wrist_hand"], **ARM_EARLY))
+    assert NAME[res.ranked[0].plan_id] == "Hand and Wrist Recovery"
+    assert res.ranked[0].breakdown.focus == pytest.approx(0.894, abs=1e-3)
+
+
+def test_tapping_a_shoulder_ranks_the_shoulder_plan_first():
+    res = recommend(focused(["shoulder"], **ARM_EARLY))
+    assert NAME[res.ranked[0].plan_id] == "Shoulder Mobility Starter"
+    hand = next(r for r in res.ranked if NAME[r.plan_id] == "Hand and Wrist Recovery")
+    assert hand.breakdown.focus == 0
+
+
+def test_an_elbow_matches_both_arm_plans_equally():
+    res = recommend(focused(["elbow"], **ARM_EARLY))
+    by_name = {NAME[r.plan_id]: r.breakdown.focus for r in res.ranked}
+    assert by_name["Hand and Wrist Recovery"] == pytest.approx(by_name["Shoulder Mobility Starter"])
+
+
+def test_focus_is_modest_and_never_brings_back_an_excluded_plan():
+    # Wrist focus for a leg patient: arm plans stay excluded, the leg ranking keeps its order.
+    req = focused(["wrist_hand"], area="BOTH_LEGS")
+    res = recommend(req)
+    assert "Hand and Wrist Recovery" not in names(res.model_dump())
+    assert names(res.model_dump())[0] == "Early Knee Recovery"
+    # A full block mismatch costs at most FOCUS_WEIGHT / 1.2 of the score.
+    assert res.ranked[0].suitability_score >= round(1 - E.FOCUS_WEIGHT / (1 + E.FOCUS_WEIGHT), 3)
+
+
+def test_knee_focus_prefers_the_plans_that_train_the_knee():
+    res = recommend(focused(["knee"], area="BOTH_LEGS", stage="ADVANCED", mobility="HIGH", goal="STRENGTH",
+                            minutes=60))
+    assert all(r.breakdown.focus > 0 for r in res.ranked)
+
+
+def test_plan_parts_counts_exercises():
+    plan = next(p for p in RecommendRequest.model_validate(body()).plans if p.plan_name == "Hand and Wrist Recovery")
+    parts = dict(zip(E.FOCUS_PARTS, E.plan_parts(plan)))
+    assert parts["wrist_hand"] == 2 and parts["elbow"] == 1 and parts["shoulder"] == 0
+
+
+def test_plans_without_pose_keys_get_no_focus_match():
+    b = copy.deepcopy(body(**ARM_EARLY))   # body() shares the catalogue between tests
+    for p in b["plans"]:
+        for pe in p["plan_exercise"]:
+            pe["exercise"] = {k: v for k, v in pe["exercise"].items() if k != "pose_key"}
+    b["focus_parts"] = ["wrist_hand"]
+    res = recommend(RecommendRequest.model_validate(b))
+    assert all(r.breakdown.focus == 0 for r in res.ranked)
+
+
+def test_unknown_focus_part_is_an_invalid_request():
+    b = body()
+    b["focus_parts"] = ["neck"]
+    r = client.post("/recommend", json=b, headers=DEV)
+    assert r.status_code == 422
+
+
+def test_endpoint_reports_the_focus_score():
+    b = body(**ARM_EARLY)
+    b["focus_parts"] = ["wrist_hand"]
+    r = client.post("/recommend", json=b, headers=DEV)
+    assert r.status_code == 200
+    assert names(r.json())[0] == "Hand and Wrist Recovery"
+    assert r.json()["ranked"][0]["breakdown"]["focus"] == pytest.approx(0.894, abs=1e-3)
