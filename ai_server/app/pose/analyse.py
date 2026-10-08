@@ -166,6 +166,33 @@ def possible_fall(spec: ExerciseSpec, f: Features) -> float | None:
             continue                                   # the drop is mostly on a misfitted skeleton
         if np.nanmin(np.where(ok[i:stop], hip[i:stop], np.nan)) < -FALL_DROP_DEPTH:
             return float(f.t[i])
+    return _upright_then_down(f, lean, hip, ok)
+
+
+# A fast change from standing upright to low (UR Fall Detection Dataset, 8 Oct: the checks above caught
+# 12 of 30 real falls; short clips end soon after the fall, and a body on the floor often fits a
+# skeleton the checks above distrust). The person was upright on a reliable skeleton a moment
+# before, so what follows is trusted: falls caught 25/30, no alert on 374 sit2stand.ai videos (fast
+# sitting) or Elwin's clips; everyday movements on the floor 10/40 (lying or crouching down on purpose).
+FALL_UPRIGHT_LEAN = 35.0       # upright: trunk within 35 degrees of vertical, hips near standing height
+FALL_FAST_DROP = 0.6           # then hips at least this many torso lengths lower ...
+FALL_FAST_WINDOW = 1.0         # ... within this many seconds ...
+FALL_FAST_LEAN = 60.0          # ... with the trunk past 60 degrees ...
+FALL_FAST_STAY = 0.5           # ... and staying low (or out of sight) this long or to the end
+
+
+def _upright_then_down(f: Features, lean: np.ndarray, hip: np.ndarray, ok: np.ndarray) -> float | None:
+    lean = np.nan_to_num(lean, nan=0.0)
+    t = f.t
+    upright = ok & (lean < FALL_UPRIGHT_LEAN) & (np.nan_to_num(hip, nan=-9.0) > -0.4)
+    for i in np.where(upright)[0]:
+        last = min(int(np.searchsorted(t, t[i] + FALL_FAST_WINDOW)), len(t) - 1)
+        for j in range(i + 1, last + 1):
+            if np.isnan(hip[j]) or hip[i] - hip[j] < FALL_FAST_DROP or lean[j] < FALL_FAST_LEAN:
+                continue
+            after = hip[j:max(int(np.searchsorted(t, t[j] + FALL_FAST_STAY)), j + 1)]
+            if np.all(np.where(np.isnan(after), True, after <= hip[i] - 0.75 * FALL_FAST_DROP)):
+                return float(t[j])
     return None
 
 
