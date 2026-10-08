@@ -8,7 +8,8 @@ raise. The rules that use them are in identity.check (filled in from training/ex
 import numpy as np
 
 from .geometry import Features
-from .landmarks import L_ELBOW, L_HIP, L_SHOULDER, L_WRIST, R_ELBOW, R_HIP, R_SHOULDER, R_WRIST
+from .landmarks import (L_EAR, L_ELBOW, L_HIP, L_SHOULDER, L_WRIST, NOSE, R_EAR, R_ELBOW, R_HIP, R_SHOULDER,
+                        R_WRIST)
 
 
 def _rng(x: np.ndarray) -> float:
@@ -55,6 +56,22 @@ def signature(f: Features) -> dict[str, float]:
     width = np.linalg.norm(xy[:, L_SHOULDER] - xy[:, R_SHOULDER], axis=1)
     torso = np.linalg.norm(shoulders - hips, axis=1)
     s["view_ratio"] = _med(width / (torso + 1e-9))
+    # Forwards or backwards (9 Oct, REHAB26-ViewAngles: shoulder extension, the arm swung back, passed as
+    # shoulder flexion in 29 of 30 side-on blocks). From the side, the nose sits ahead of the ears
+    # (facing: 0.14-0.16 torso lengths in Elwin's flexion clips, 0.08+ from 45 degrees round), so the
+    # wrist's side of the shoulder while the arm is raised 30-120 degrees says forwards (+) or back (-).
+    s["facing"] = _med((xy[:, NOSE, 0] - (xy[:, L_EAR, 0] + xy[:, R_EAR, 0]) / 2) / (torso + 1e-9))
+    s["arm_forward"] = float("nan")
+    if np.isfinite(s["facing"]):
+        best = -1.0
+        for k, (sh, el, wr) in zip("LR", ((L_SHOULDER, L_ELBOW, L_WRIST), (R_SHOULDER, R_ELBOW, R_WRIST))):
+            elev = f[f"shoulder_elev_{k}"]
+            arm = np.linalg.norm(xy[:, sh] - xy[:, el], axis=1) + np.linalg.norm(xy[:, el] - xy[:, wr], axis=1)
+            fwd = (xy[:, wr, 0] - xy[:, sh, 0]) / (arm + 1e-9) * np.sign(s["facing"])
+            raised = np.isfinite(elev) & (elev >= 30) & (elev <= 120) & np.isfinite(fwd)
+            r = _rng(elev)
+            if raised.sum() >= 3 and r > best:                          # the arm that moves most
+                best, s["arm_forward"] = r, float(np.median(fwd[raised]))
     return s
 
 
@@ -123,4 +140,10 @@ def check(key: str, sig: dict[str, float]) -> str | None:
             return "your arms went out to the side, not forwards"
         if key == "shoulder_abduction" and view < 0.3 and side > 0.7:
             return "your arms went forwards, not out to the side"
+    # Flexion raises the arm in front (wrist ahead of the shoulder: +0.71 to +1.0 of the arm's length in
+    # Elwin's clips); shoulder extension swings it back (-0.51 or less from 45 degrees round, REHAB26).
+    # Only when the face direction is clear: from the front, forwards and back look the same.
+    facing, fwd = sig.get("facing", float("nan")), sig.get("arm_forward", float("nan"))
+    if key == "shoulder_flexion" and np.isfinite(facing) and abs(facing) >= 0.08 and np.isfinite(fwd) and fwd < 0:
+        return "your arm went backwards, not forwards"
     return None

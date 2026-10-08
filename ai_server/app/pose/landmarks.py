@@ -12,6 +12,7 @@ import numpy as np
 
 # MediaPipe landmark indices used by the exercises.
 NOSE = 0
+L_EAR, R_EAR = 7, 8
 L_SHOULDER, R_SHOULDER = 11, 12
 L_ELBOW, R_ELBOW = 13, 14
 L_WRIST, R_WRIST = 15, 16

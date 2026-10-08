@@ -413,6 +413,54 @@ def test_identity_accepts_the_selected_exercise_and_refuses_others():
     assert check("glute_bridge", lying) is None and check("heel_raise", lying) is not None
 
 
+def test_identity_tells_a_forward_raise_from_a_backward_swing():
+    # REHAB26-ViewAngles (9 Oct): shoulder extension filmed from the side had passed as shoulder flexion.
+    from app.pose.identity import check
+    flexion_side = _sig(arm_raise=85, arm_sideways=0.98, view_ratio=0.06, facing=0.15, arm_forward=0.9)
+    extension_side = _sig(arm_raise=50, arm_sideways=0.6, view_ratio=0.06, facing=-0.15, arm_forward=-0.7)
+    assert check("shoulder_flexion", flexion_side) is None
+    assert check("shoulder_flexion", extension_side) == "your arm went backwards, not forwards"
+    # From the front the nose is between the ears: forwards and back look alike, so never refuse on it.
+    assert check("shoulder_flexion", {**extension_side, "facing": 0.02, "view_ratio": 0.3}) is None
+
+
+def test_identity_measures_arm_direction_from_the_face():
+    from app.pose.identity import signature
+    from app.pose.landmarks import L_EAR, R_EAR
+
+    def side(arm_deg):              # standing, side view, facing image right; arm_deg > 0 = forwards
+        p = np.zeros((33, 2))
+        hip, sh = np.array([360.0, 700.0]), np.array([360.0, 440.0])
+        p[L_HIP] = p[R_HIP] = hip
+        p[L_SHOULDER] = p[R_SHOULDER] = sh
+        p[NOSE], p[L_EAR], p[R_EAR] = sh + [45, -110], sh + [0, -105], sh + [0, -105]
+        for el, wr in ((L_ELBOW, L_WRIST), (R_ELBOW, R_WRIST)):
+            p[el] = limb(sh, arm_deg, 130)
+            p[wr] = limb(p[el], arm_deg, 120)
+        for kn, an in ((L_KNEE, L_ANKLE), (R_KNEE, R_ANKLE)):
+            p[kn], p[an] = hip + [0, 240], hip + [0, 480]
+        return p
+
+    for sign in (1, -1):
+        frames = [side(sign * a) for a in list(range(0, 80, 8)) + list(range(80, 0, -8))] * 3
+        s = signature(Features(sequence(frames)))
+        assert s["facing"] > 0.1 and np.sign(s["arm_forward"]) == sign
+
+
+def test_mini_squat_counts_reps_when_the_knees_never_fully_straighten():
+    # REHAB26 (9 Oct): standing knees read 10-13 degrees bent, above the 8 degree start level, and ten
+    # squats were counted as two. Small squats keep the exercise's own levels.
+    from app.pose.analyse import rep_levels
+    spec = exercises.EXERCISES["mini_squat"]
+    one = [12, 14, 25, 45, 60, 45, 25, 14]
+    sig = np.array(one * 10 + [12, 12], dtype=float)
+    t = np.arange(len(sig)) / FPS
+    assert len(find_reps(sig, t, spec.rest, spec.active)) <= 1
+    assert len(find_reps(sig, t, *rep_levels(spec, sig))) == 10
+    small = np.array([2, 4, 10, 18, 20, 18, 10, 4] * 5 + [2, 2], dtype=float)
+    assert rep_levels(spec, small) == (spec.rest, spec.active)
+
+
 def test_identity_never_refuses_on_what_it_cannot_measure():
     from app.pose.identity import check
     weak_raise = _sig(arm_raise=30, arm_sideways=float("nan"), view_ratio=float("nan"))   # small, partial raise

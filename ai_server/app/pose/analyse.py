@@ -33,18 +33,25 @@ class PoseError(Exception):
 # Sit-to-stand filmed at an angle (sit2stand.ai home videos, 8 Oct): from 45 degrees a seated knee
 # looks 115-130 degrees, never below the 112 "seated" level, so five stands merged into one (97 of
 # 377 videos). When the clip's own seated level stays above it, the levels come from the clip.
-ADAPTIVE_REST = {"sit_to_stand"}
+# Mini squat (9 Oct, REHAB26-ViewAngles): a person whose knees never read straighter than 10-13
+# degrees standing (slightly bent knees, common with age) never got back under the 8 degree start level,
+# so ten squats counted as two. Values: how close the clip's standing level must come to `rest` (any,
+# for the squat) and the smallest movement range before the levels follow the clip, then the start and
+# count levels as shares of the clip's range. The exercise's own levels stay the lowest used, and the
+# squat's shares are low so that shallow squats after a deep one (tiring) still count.
+ADAPTIVE_REST = {"sit_to_stand": (5.0, 25.0, 0.25, 0.5), "mini_squat": (180.0, 12.0, 0.2, 0.35)}
 
 
 def rep_levels(spec: ExerciseSpec, sig: np.ndarray) -> tuple[float, float]:
     rest, active = spec.rest, spec.active
     if spec.key in ADAPTIVE_REST:
+        below, min_range, rest_share, active_share = ADAPTIVE_REST[spec.key]
         s = sig[~np.isnan(sig)]
         if len(s) > 10:
             lo, hi = np.percentile(s, [5, 95])
-            if lo > rest - 5 and hi - lo > 25:
-                rest = float(lo + 0.25 * (hi - lo))
-                active = max(active, float(lo + 0.5 * (hi - lo)))
+            if lo > rest - below and hi - lo > min_range:
+                rest = max(rest, float(lo + rest_share * (hi - lo)))
+                active = max(active, float(lo + active_share * (hi - lo)))
     return rest, active
 
 
@@ -212,8 +219,12 @@ def _fall_only(pose_key: str, at: float, visible_ratio: float) -> dict:
 # degrees round towards the front, 0.52 at 45 degrees; the sit2stand.ai home videos (about 45
 # degrees) have a median of 0.50. Front-view exercises are not checked: other people filmed from the
 # front ranged down to 0.36 (MobiPhysio p5) with an arm raised, too close to a turned camera.
+# Shoulder width / torso length. REHAB26-ViewAngles (5 people, 3 cameras, 29 angles, 9 Oct) medians:
+# 0.07 in profile, 0.22-0.26 at 20 degrees off, 0.34-0.39 at 30, 0.42-0.48 at 40, 0.5-0.52 at 45, 0.7 facing.
 SIDE_VIEW_TIP = 0.30           # about 25 degrees off: tell the patient
-SIDE_VIEW_WRONG = 0.42         # about 35 degrees off: the checks below are no longer reliable
+SIDE_VIEW_WRONG = 0.42         # about 35-40 degrees off: the checks below are no longer reliable
+CAMERA_FRONT_HINT = ("Your phone seems to be in front of you: for this exercise, place the phone at your side "
+                     "and record again.")
 SIDE_VIEW_MESSAGE = ("Your phone seems to be more in front of you than at your side, so this result may be "
                      "less accurate. For this exercise, place the phone at your side.")
 # Checks that fired on most of Elwin's correct clips with the phone 45 degrees round; they are not
@@ -245,7 +256,7 @@ def body_height_share(seq: PoseSequence) -> float:
     return float(np.median(ext) / (seq.info.height or 1))
 
 
-def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None) -> None:
+def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None, camera_wrong: bool = False) -> None:
     """Is the movement the selected exercise? (8 Oct: another exercise's video passed as shoulder
     abduction.) Checked only once movement was found (no movement stays "no repetition"), and never
     when a possible fall was seen: the fall is reported first, whatever the exercise."""
@@ -253,8 +264,11 @@ def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None) -> No
         return
     why = identity.check(spec.key, identity.signature(f))
     if why:
-        raise PoseError("wrong_exercise", f"This video does not look like {spec.name} ({why}). Please check "
-                                          f"that you chose the right exercise and record it as shown in the steps.")
+        # A side-view exercise filmed from the front hides the bend it is checked on (REHAB26, 9 Oct:
+        # squats facing the phone read "no knee bending was seen"), so say where the phone goes.
+        how = (CAMERA_FRONT_HINT if camera_wrong
+               else "Please check that you chose the right exercise and record it as shown in the steps.")
+        raise PoseError("wrong_exercise", f"This video does not look like {spec.name} ({why}). {how}")
 
 
 def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale: float = 1.0,
@@ -295,7 +309,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     partial = False
 
     if spec.kind == "hold":
-        _same_exercise(spec, f, fall_at)
+        _same_exercise(spec, f, fall_at, camera_wrong)
         whole = Rep(start=0, peak=len(f.t) // 2, end=len(f.t) - 1)
         mistakes = [m for m in check_rep(spec, f, whole, rom_scale) if m not in ignore]
         hold = longest_true_seconds((f["feet_gap"] < 0.6) & visible, f.t)
@@ -320,7 +334,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
             if fall_at is not None:
                 return _fall_only(pose_key, fall_at, visible_ratio)
             raise PoseError("no_repetitions", "No complete repetition was found in the video.")
-        _same_exercise(spec, f, fall_at)
+        _same_exercise(spec, f, fall_at, camera_wrong)
         # The trained model learned full-range movement: it would mark every shortened rep wrong, so
         # it is not used for adjusted targets or partial repetitions; the rules judge those.
         model = (classifier.predict(pose_key, f, reps)
