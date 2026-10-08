@@ -125,6 +125,10 @@ class PoseEstimationService {
         'full_body_not_visible' => Messages.fullBodyNotVisible, // FR300_17
         'pose_not_detected' => Messages.poseDetectFailed, // FR300_25
         'unauthorised' => res.message,
+        // The video shows another exercise. The server's text names the
+        // exercise and the reason, so show it as is (not in the report's
+        // UC500 message list, PROJECT_STATE §11). Nothing is saved.
+        'wrong_exercise' => res.message,
         _ =>
           Messages
               .postureAnalyseFailed, // FR300_26 (no repetition, timeout, ...)

@@ -34,6 +34,7 @@ class FakeProbe implements VideoProbe {
 class FakePoseServer {
   double accuracy = 90;
   String? errorCode;
+  String errorMessage = 'x';
   String? fallMessage; // set: the clip looked like a fall (safety_alert)
   int calls = 0;
   late final client = MockClient((req) async {
@@ -41,7 +42,7 @@ class FakePoseServer {
     if (errorCode != null) {
       return http.Response(
         jsonEncode({
-          'error': {'code': errorCode, 'message': 'x'},
+          'error': {'code': errorCode, 'message': errorMessage},
         }),
         422,
       );
@@ -264,6 +265,26 @@ void main() {
         expect((h.vm.analysis as UiError).message, message, reason: code);
       }
     });
+
+    test(
+      'a video of another exercise shows the server reason and saves nothing',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        final progressBefore = h.vm.activePlan!.progressPercentage;
+        const reason =
+            'This video does not look like Seated Knee Extension (you stood up). '
+            'Please check that you chose the right exercise and record it as '
+            'shown in the steps.';
+        h.server
+          ..errorCode = 'wrong_exercise'
+          ..errorMessage = reason;
+        await h.recordFirst();
+        expect((h.vm.analysis as UiError).message, reason);
+        expect(h.treatments.sessions, isEmpty); // no attempt saved
+        expect(h.vm.activePlan!.progressPercentage, progressBefore);
+      },
+    );
 
     test('stopping the plan', () async {
       final h = Harness();
