@@ -261,6 +261,19 @@ void main() {
   });
 
   group('PlanningViewModel', () {
+    // Found on the phone: the live catalogue was empty (seed not loaded), the
+    // app sent plans: [] and the server's 422 surfaced as M4.
+    test('empty catalogue gives M1 without calling the server', () async {
+      final h = Harness(repo: FakeTreatmentRepository(const []));
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(
+        (h.vm.recommendation as UiError).message,
+        Messages.conditionNotMet,
+      );
+      expect(h.server.lastBody, isNull);
+    });
+
     test('no session gives the session-expired message', () async {
       final h = Harness();
       await h.vm.recommend(rehab);

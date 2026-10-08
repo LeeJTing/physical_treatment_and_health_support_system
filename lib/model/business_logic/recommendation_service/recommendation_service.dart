@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
@@ -57,6 +58,11 @@ class RecommendationService {
       ],
     }, timeout: AppConstants.recommendTimeout);
     if (res is Failure<Map<String, dynamic>>) {
+      // Debug builds only: the server's reason (e.g. a 422 field error) is
+      // replaced by the UC400 M4 message for the patient, so log it here.
+      if (kDebugMode) {
+        debugPrint('recommend failed: ${res.code} ${res.message}');
+      }
       return Failure(
         Messages.recommendFailed,
         code: res.code,

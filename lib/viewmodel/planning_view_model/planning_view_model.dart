@@ -86,6 +86,12 @@ class PlanningViewModel extends BaseViewModel {
       _fail(Messages.dbUnavailable);
       return;
     }
+    // An empty catalogue (e.g. the seed was never loaded) has nothing to
+    // rank: UC400 A1 / M1, instead of sending an invalid request (M4).
+    if (catalogue.dataOrNull!.isEmpty) {
+      _fail(Messages.conditionNotMet);
+      return;
+    }
 
     // Collaborative evidence is optional: a failure (e.g. the RPC is not
     // deployed) just means a cold start, never an error for the patient.
