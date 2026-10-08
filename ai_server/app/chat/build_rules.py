@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.33"
+VERSION = "chat-rules-3.34"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -1093,6 +1093,7 @@ MISTAKE_MEANING = {
                              "Straighten your knee so your leg is straight out in front, as far as is comfortable."),
     "incomplete_stand": ("you did not stand up fully straight at the top",
                          "Stand up fully: straighten your hips and knees at the top."),
+    "head_tilt": ("your head tilted to one side as you lifted", "Keep your head level and look straight ahead."),
     "knee_not_straight": ("your leading leg was not fully straight at the top of the step",
                           "Straighten your leading leg at the top, holding the rail, as far as is comfortable."),
     "knees_bend": ("your knees bent as you rose onto your toes", "Keep your knees straight as you rise."),
@@ -1131,7 +1132,7 @@ MISTAKE_MEANING = {
 }
 # Other ways people write a name.
 MISTAKE_ALIASES = {"uneven arm": "uneven_arms", "hip sag": "hips_sag", "hips sagging": "hips_sag",
-                   "shoulders shrug": "shoulder_shrug", "shrugging": "shoulder_shrug", "low arm": "low_range",
+                   "shoulders shrug": "shoulder_shrug", "shrugging": "shoulder_shrug", "low arm": "low_range", "head tilt": "head_tilt",
                    "knee not straight": "knee_not_straight", "heel lift": "heels_lift", "hand used": "hands_used"}
 
 

@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.33",
+  "version": "chat-rules-3.34",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -3149,6 +3149,27 @@
       }
     },
     {
+      "key": "mistake:head_tilt",
+      "title": "Head tilt",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does head tilt mean",
+        "the result said head tilt"
+      ],
+      "answer": "“Head tilt” in your posture result means your head tilted to one side as you lifted. Keep your head level and look straight ahead.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
       "key": "mistake:knee_not_straight",
       "title": "Knee not straight",
       "show": false,
@@ -3734,6 +3755,7 @@
     "hips sag": "mistake:hips_sag",
     "incomplete extension": "mistake:incomplete_extension",
     "incomplete stand": "mistake:incomplete_stand",
+    "head tilt": "mistake:head_tilt",
     "knee not straight": "mistake:knee_not_straight",
     "knees bend": "mistake:knees_bend",
     "leaning": "mistake:leaning",
@@ -3778,6 +3800,7 @@
     "hips_sag": "mistake:hips_sag",
     "incomplete_extension": "mistake:incomplete_extension",
     "incomplete_stand": "mistake:incomplete_stand",
+    "head_tilt": "mistake:head_tilt",
     "knee_not_straight": "mistake:knee_not_straight",
     "knees_bend": "mistake:knees_bend",
     "leaning_back": "mistake:leaning_back",

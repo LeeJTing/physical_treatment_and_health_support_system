@@ -223,8 +223,8 @@ def _fall_only(pose_key: str, at: float, visible_ratio: float) -> dict:
 # 0.07 in profile, 0.22-0.26 at 20 degrees off, 0.34-0.39 at 30, 0.42-0.48 at 40, 0.5-0.52 at 45, 0.7 facing.
 SIDE_VIEW_TIP = 0.30           # about 25 degrees off: tell the patient
 SIDE_VIEW_WRONG = 0.42         # about 35-40 degrees off: the checks below are no longer reliable
-CAMERA_FRONT_HINT = ("Your phone seems to be in front of you: for this exercise, place the phone at your side "
-                     "and record again.")
+CAMERA_FRONT_HINT = ("Your phone also seems to be in front of you: for this exercise, place the phone at your "
+                     "side.")
 SIDE_VIEW_MESSAGE = ("Your phone seems to be more in front of you than at your side, so this result may be "
                      "less accurate. For this exercise, place the phone at your side.")
 # Checks that fired on most of Elwin's correct clips with the phone 45 degrees round; they are not
@@ -266,8 +266,9 @@ def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None, camer
     if why:
         # A side-view exercise filmed from the front hides the bend it is checked on (REHAB26, 9 Oct:
         # squats facing the phone read "no knee bending was seen"), so say where the phone goes.
-        how = (CAMERA_FRONT_HINT if camera_wrong
-               else "Please check that you chose the right exercise and record it as shown in the steps.")
+        how = "Please check that you chose the right exercise and record it as shown in the steps."
+        if camera_wrong:
+            how = f"{how} {CAMERA_FRONT_HINT}"
         raise PoseError("wrong_exercise", f"This video does not look like {spec.name} ({why}). {how}")
 
 

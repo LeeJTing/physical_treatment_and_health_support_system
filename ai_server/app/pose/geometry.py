@@ -7,8 +7,8 @@ missed frames do not break repetition counting.
 import numpy as np
 
 from .landmarks import (
-    L_ANKLE, L_ELBOW, L_FOOT, L_HEEL, L_HIP, L_KNEE, L_SHOULDER, L_WRIST, NOSE,
-    R_ANKLE, R_ELBOW, R_FOOT, R_HEEL, R_HIP, R_KNEE, R_SHOULDER, R_WRIST, PoseSequence,
+    L_ANKLE, L_EAR, L_ELBOW, L_FOOT, L_HEEL, L_HIP, L_KNEE, L_SHOULDER, L_WRIST, NOSE,
+    R_ANKLE, R_EAR, R_ELBOW, R_FOOT, R_HEEL, R_HIP, R_KNEE, R_SHOULDER, R_WRIST, PoseSequence,
 )
 
 SIDES = {
@@ -139,6 +139,11 @@ class Features:
         S["lean_lateral"] = lean                                                  # front view: any side
         S["trunk_from_horizontal"] = 90 - angle_to(trunk, UP)                      # all fours: 0 = level
         S["shrug"] = (sh_mid[:, 1] - p(NOSE)[:, 1]) / self.shoulder_width          # smaller = shoulders up
+        # Head tilt (9 Oct, REHAB26-ViewAngles "head tilted to side"): the ear line's and the trunk's turn
+        # in the picture, in degrees, defined so that leaning the whole body turns both by the same amount.
+        ears = p(L_EAR) - p(R_EAR)
+        S["ear_line"] = np.degrees(np.arctan2(ears[:, 1], np.abs(ears[:, 0]) + 1e-9))
+        S["trunk_roll"] = np.degrees(np.arctan2(trunk[:, 0], -trunk[:, 1]))
         S["feet_gap"] = np.abs(p(L_ANKLE)[:, 0] - p(R_ANKLE)[:, 0]) / self.hip_width
         S["hip_sway"] = (hip_mid[:, 0] - np.median(hip_mid[:, 0])) / self.torso
         S["hip_rise"] = (np.median(hip_mid[:, 1]) - hip_mid[:, 1]) / self.torso      # + when hips go up

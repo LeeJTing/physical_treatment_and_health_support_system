@@ -117,6 +117,14 @@ def moving(f: Features, r: Rep, signal: str) -> str:
     return "L" if rep_range(f[f"{signal}_L"], r) >= rep_range(f[f"{signal}_R"], r) else "R"
 
 
+def head_tilt(f: Features, r: Rep) -> float:
+    """Degrees the head tilted sideways from the start to the top of the rep, beyond what the trunk
+    turned (a whole-body lean is trunk_lean's to report)."""
+    head = abs(at_peak(f["ear_line"], r) - float(f["ear_line"][r.start]))
+    trunk = abs(at_peak(f["trunk_roll"], r) - float(f["trunk_roll"][r.start]))
+    return max(0.0, head - trunk)
+
+
 def peak_of(signal: Callable[[Features], np.ndarray]) -> Measure:
     return lambda f, r: rep_max(signal(f), r)
 
@@ -248,6 +256,11 @@ add(ExerciseSpec(
           lambda f, r: rep_max(f["lean_lateral"], r), 10, True, "degrees"),
         M("shoulder_shrug", "Relax your shoulders down, away from your ears.",
           lambda f, r: at_peak(f["shrug"], r) / max(float(f["shrug"][r.start]), 1e-6), 0.85, False, "ratio"),
+        # 9 Oct, REHAB26-ViewAngles (physiotherapist-marked "head tilted to side"), facing the phone: tilts
+        # beyond the trunk reach 14.6 deg (median, p10 7.9) against 0.8 (p95 4.7) on correct reps; Elwin's
+        # correct clips at most 4.7, REHAB24-6 correct reps p95 11.1. At 12: 70% caught, 0% false alarms
+        # on REHAB26 and Elwin's correct reps (4% on REHAB24-6, filmed from further away).
+        M("head_tilt", "Keep your head level and look straight ahead as you lift.", head_tilt, 12, True, "degrees"),
     ]))
 
 add(ExerciseSpec(

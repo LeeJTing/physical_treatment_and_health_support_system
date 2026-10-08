@@ -148,6 +148,28 @@ def test_shoulder_abduction_mistakes(label, frames):
     assert res["accuracy"] < 100
 
 
+def _with_ears(p, tilt=0.0, lean=0.0):
+    """Ears 35 px either side of the head; tilt (deg) turns the head, lean the whole upper body."""
+    from app.pose.landmarks import L_EAR, R_EAR
+    p = p.copy()
+    head = p[NOSE] + [0, 10]
+    half = rot(np.array([35.0, 0.0]), tilt + lean)
+    p[L_EAR], p[R_EAR] = head + half, head - half
+    return p
+
+
+def test_shoulder_abduction_head_tilt_beyond_the_trunk():
+    # REHAB26-ViewAngles, 9 Oct: "head tilted to side" while lifting.
+    tilted = [_with_ears(front_pose(a, a), tilt=20 * a / 88) for a in wave(4, 5, 88)]
+    assert "head_tilt" in analyse("shoulder_abduction", sequence(tilted), use_model=False)["mistakes"]
+    level = [_with_ears(front_pose(a, a)) for a in wave(4, 5, 88)]
+    assert analyse("shoulder_abduction", sequence(level), use_model=False)["mistakes"] == {}
+    # A whole-body lean turns the ears with the trunk: reported as trunk_lean only.
+    leaning = [_with_ears(front_pose(a, a, lean=15 * a / 88), lean=15 * a / 88) for a in wave(4, 5, 88)]
+    m = analyse("shoulder_abduction", sequence(leaning), use_model=False)["mistakes"]
+    assert "trunk_lean" in m and "head_tilt" not in m
+
+
 # ---- seated knee extension (side view) --------------------------------------
 
 def test_knee_extension_correct_with_hold():
