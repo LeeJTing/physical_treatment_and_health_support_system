@@ -472,6 +472,20 @@ void main() {
       },
     );
 
+    test('a hand out of the picture shows the server reason', () async {
+      final h = Harness();
+      await h.setUp(tmp);
+      const reason =
+          'Your hand was not visible for most of the video. Keep your whole '
+          'hand in the picture.';
+      h.server
+        ..errorCode = 'hand_not_visible'
+        ..errorMessage = reason;
+      await h.recordFirst();
+      expect((h.vm.analysis as UiError).message, reason);
+      expect(h.treatments.sessions, isEmpty);
+    });
+
     test('stopping the plan', () async {
       final h = Harness();
       await h.setUp(tmp);

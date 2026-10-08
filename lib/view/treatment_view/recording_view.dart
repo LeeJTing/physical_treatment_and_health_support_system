@@ -173,7 +173,9 @@ class _RecordingViewState extends State<RecordingView>
       );
 
   void _help() {
-    final tip = context.read<TreatmentViewModel>().current?.cameraTip;
+    final current = context.read<TreatmentViewModel>().current;
+    final tip = current?.cameraTip;
+    final hands = current?.recordsHands ?? false;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -189,12 +191,16 @@ class _RecordingViewState extends State<RecordingView>
               ),
               const SizedBox(height: 8),
             ],
-            const Text(
-              '• Put the phone on a stand at about waist height, 2.5 to 3 metres away.\n'
-              '• Keep your whole body, head to feet, inside the frame.\n'
-              '• Use good light in front of you.\n'
-              '• Record 10 to 30 seconds: do the repetitions slowly.\n'
-              '• If the upload fails, check the video is MP4 or MOV, 10 to 30 seconds and under 100 MB.',
+            Text(
+              hands
+                  ? '• Sit at a table. Put the phone on a stand at table height, about half a metre to 1 metre away.\n'
+                        '• Keep your forearm and your whole hand inside the frame.\n'
+                        '• Use good light in front of you.\n'
+                  : '• Put the phone on a stand at about waist height, 2.5 to 3 metres away.\n'
+                        '• Keep your whole body, head to feet, inside the frame.\n'
+                        '• Use good light in front of you.\n'
+                        '• Record 10 to 30 seconds: do the repetitions slowly.\n'
+                        '• If the upload fails, check the video is MP4 or MOV, 10 to 30 seconds and under 100 MB.',
             ),
           ],
         ),
@@ -212,6 +218,7 @@ class _RecordingViewState extends State<RecordingView>
   Widget build(BuildContext context) {
     final vm = context.watch<TreatmentViewModel>();
     final name = vm.current?.exerciseName ?? '';
+    final hands = vm.current?.recordsHands ?? false;
     final c = _controller;
     return Scaffold(
       backgroundColor: AppTokens.background,
@@ -275,7 +282,7 @@ class _RecordingViewState extends State<RecordingView>
                               color: AppTokens.onPrimaryMuted,
                             ),
                           ),
-                        const _FrameGuide(),
+                        _FrameGuide(hands: hands),
                         Positioned(
                           left: 12,
                           top: 12,
@@ -328,7 +335,9 @@ class _RecordingViewState extends State<RecordingView>
                             ),
                             child: Text(
                               _cameraError ??
-                                  'Step back until your whole body, head to feet, fits inside the frame.',
+                                  (hands
+                                      ? 'Keep your forearm and your whole hand inside the frame.'
+                                      : 'Step back until your whole body, head to feet, fits inside the frame.'),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
@@ -466,16 +475,21 @@ class _BigAction extends StatelessWidget {
   );
 }
 
-/// Dashed full-body frame with a faint stick figure, as in the design.
+/// Dashed full-body frame with a faint stick figure, as in the design. For
+/// the hand exercises only the frame is drawn: no whole body is needed.
 class _FrameGuide extends StatelessWidget {
-  const _FrameGuide();
+  final bool hands;
+  const _FrameGuide({this.hands = false});
 
   @override
   Widget build(BuildContext context) =>
-      IgnorePointer(child: CustomPaint(painter: _GuidePainter()));
+      IgnorePointer(child: CustomPaint(painter: _GuidePainter(hands)));
 }
 
 class _GuidePainter extends CustomPainter {
+  final bool hands;
+  _GuidePainter(this.hands);
+
   @override
   void paint(Canvas canvas, Size size) {
     final frame = Rect.fromLTWH(
@@ -495,6 +509,7 @@ class _GuidePainter extends CustomPainter {
         canvas.drawPath(metric.extractPath(d, d + 8), dash);
       }
     }
+    if (hands) return;
     final body = Paint()
       ..color = AppTokens.highlight.withValues(alpha: 0.6)
       ..style = PaintingStyle.stroke
@@ -522,5 +537,5 @@ class _GuidePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_GuidePainter old) => old.hands != hands;
 }

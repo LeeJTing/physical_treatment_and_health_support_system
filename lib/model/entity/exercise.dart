@@ -31,6 +31,13 @@ class Exercise {
 
   static final RegExp _camera = RegExp(r'^Camera:\s*([^.]*)\.\s*');
 
+  /// Pose keys the server checks with its hand model (608b5ce): done seated at
+  /// a table, so only the forearm and hand need to be in the picture.
+  static const handPoseKeys = {'wrist_extension', 'hand_open_close'};
+
+  /// Recorded seated at a table with the hands in frame, not the whole body.
+  bool get recordsHands => handPoseKeys.contains(poseKey);
+
   /// Where to put the phone when recording, e.g. "side view, whole body in frame".
   /// Null when the instruction text has no "Camera: ..." sentence.
   String? get cameraTip {

@@ -129,6 +129,9 @@ class PoseEstimationService {
         // exercise and the reason, so show it as is (not in the report's
         // UC500 message list, PROJECT_STATE §11). Nothing is saved.
         'wrong_exercise' => res.message,
+        // Hand exercises: the hand was out of the picture for most of the
+        // clip. The server's text says what to change (§11, as above).
+        'hand_not_visible' => res.message,
         _ =>
           Messages
               .postureAnalyseFailed, // FR300_26 (no repetition, timeout, ...)

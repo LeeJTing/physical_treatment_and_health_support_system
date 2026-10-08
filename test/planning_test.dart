@@ -172,7 +172,11 @@ void main() {
         expect(body['rehab'], rehab.toJson());
         expect(body['safety_limit']['max_exercise_intensity'], 'MODERATE');
         expect(body['limitations'], ['LEFT_ARM_MOBILITY']);
-        expect((body['plans'] as List).length, 10);
+        // Every catalogue plan is sent (11 since 608b5ce added Hand and Wrist Recovery).
+        expect(
+          (body['plans'] as List).length,
+          (jsonDecode(catalogueJson)['plans'] as List).length,
+        );
       },
     );
 

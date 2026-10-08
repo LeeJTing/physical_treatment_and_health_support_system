@@ -191,6 +191,23 @@ void main() {
       expect(e.steps, 'Sit upright on a chair. Lift one knee.');
     });
 
+    test('hand exercises are recorded at a table, not as a whole body', () {
+      Exercise keyed(String? k) => Exercise(
+        exerciseId: 'e',
+        exerciseName: 'X',
+        instructionText: 'x',
+        targetBodyArea: 'BOTH_ARMS',
+        intensityLevel: ExerciseIntensity.low,
+        defaultRepetitions: 10,
+        defaultDurationSec: 60,
+        poseKey: k,
+      );
+      expect(keyed('wrist_extension').recordsHands, isTrue);
+      expect(keyed('hand_open_close').recordsHands, isTrue);
+      expect(keyed('shoulder_abduction').recordsHands, isFalse);
+      expect(keyed(null).recordsHands, isFalse);
+    });
+
     test('text without a camera sentence is unchanged', () {
       final e = withText('Sit upright on a chair.');
       expect(e.cameraTip, isNull);
@@ -198,32 +215,41 @@ void main() {
     });
   });
 
-  group('PostureResult (8 Oct: fall alert, partial reps, adjusted targets)', () {
-    test('reads the safety alert, partial repetitions and range scale', () {
-      final r = PostureResult.fromJson({
-        'accuracy': 70,
-        'repetitions': 3,
-        'feedback': ['It looks like you may have lost your balance or fallen.'],
-        'model_version': 'rules-1.0',
-        'safety_alert': {'type': 'possible_fall', 'at_sec': 9.4, 'message': 'Stop the exercise.'},
-        'partial_repetitions': true,
-        'rom_scale': 0.7,
+  group(
+    'PostureResult (8 Oct: fall alert, partial reps, adjusted targets)',
+    () {
+      test('reads the safety alert, partial repetitions and range scale', () {
+        final r = PostureResult.fromJson({
+          'accuracy': 70,
+          'repetitions': 3,
+          'feedback': [
+            'It looks like you may have lost your balance or fallen.',
+          ],
+          'model_version': 'rules-1.0',
+          'safety_alert': {
+            'type': 'possible_fall',
+            'at_sec': 9.4,
+            'message': 'Stop the exercise.',
+          },
+          'partial_repetitions': true,
+          'rom_scale': 0.7,
+        });
+        expect(r.safetyAlert, 'Stop the exercise.');
+        expect(r.partialRepetitions, isTrue);
+        expect(r.romScale, 0.7);
       });
-      expect(r.safetyAlert, 'Stop the exercise.');
-      expect(r.partialRepetitions, isTrue);
-      expect(r.romScale, 0.7);
-    });
 
-    test('older server responses still parse', () {
-      final r = PostureResult.fromJson({
-        'accuracy': 90,
-        'repetitions': 5,
-        'feedback': ['Good form. Keep it up!'],
-        'model_version': 'rules-1.0',
+      test('older server responses still parse', () {
+        final r = PostureResult.fromJson({
+          'accuracy': 90,
+          'repetitions': 5,
+          'feedback': ['Good form. Keep it up!'],
+          'model_version': 'rules-1.0',
+        });
+        expect(r.safetyAlert, isNull);
+        expect(r.partialRepetitions, isFalse);
+        expect(r.romScale, isNull);
       });
-      expect(r.safetyAlert, isNull);
-      expect(r.partialRepetitions, isFalse);
-      expect(r.romScale, isNull);
-    });
-  });
+    },
+  );
 }
