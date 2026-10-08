@@ -186,6 +186,114 @@ void main() {
     });
   });
 
+  group('several active plans', () {
+    // Early Knee Recovery (pp1) at stage 2 and Disuse Atrophy Reconditioning
+    // (pp2) at stage 1 share their current exercise.
+    Future<Harness> twoPlans(Directory tmp, {double knee = 34}) async {
+      final h = Harness();
+      await h.setUp(tmp);
+      final catalogue = (await h.treatments.getCatalogue()).dataOrNull!;
+      PatientTreatmentPlan assign(String id, String name, double pct) =>
+          PatientTreatmentPlan(
+            patientPlanId: id,
+            accountId: h.vm.activePlan!.accountId,
+            plan: catalogue.firstWhere((p) => p.planName == name),
+            progressPercentage: pct,
+            selectedAt: DateTime.now(),
+          );
+      await h.treatments.assignPlan(assign('pp1', 'Early Knee Recovery', knee));
+      await h.treatments.assignPlan(
+        assign('pp2', 'Disuse Atrophy Reconditioning', 0),
+      );
+      await h.vm.loadPlan();
+      h.vm.selectPlan('pp1');
+      return h;
+    }
+
+    Future<void> recordCurrent(Harness h) async {
+      await h.vm.startExercise(h.vm.activePlan!.currentExercise()!);
+      await h.vm.submitVideo(h.clip, clipSeconds: 15);
+    }
+
+    test('both plans load and can be switched', () async {
+      final h = await twoPlans(tmp);
+      expect([for (final a in h.vm.plans) a.patientPlanId], ['pp1', 'pp2']);
+      expect(h.vm.activePlan!.patientPlanId, 'pp1');
+      h.vm.selectPlan('pp2');
+      expect(h.vm.activePlan!.plan.planName, 'Disuse Atrophy Reconditioning');
+    });
+
+    test('a shared exercise done once counts for both plans', () async {
+      final h = await twoPlans(tmp);
+      final shared = h.vm.activePlan!.currentExercise()!.exerciseId;
+      await recordCurrent(h); // 90 %: passes and is saved
+      final byPlan = {for (final a in h.vm.plans) a.patientPlanId: a};
+      expect(byPlan['pp1']!.completedStages, 2);
+      expect(byPlan['pp2']!.completedStages, 1);
+      expect(
+        h.treatments.sessions
+            .where((s) => s.exerciseId == shared)
+            .map((s) => s.patientPlanId),
+        unorderedEquals(['pp1', 'pp2']),
+      );
+      // Each plan has now had its exercise today.
+      h.vm.selectPlan('pp2');
+      expect(h.vm.doneToday, isTrue);
+      expect(
+        h.vm.canStart(h.vm.activePlan!.currentExercise()!.exerciseId),
+        isFalse,
+      );
+    });
+
+    test('one exercise per plan per day: the other plan is still open', () async {
+      // Early Knee at stage 1: its exercise is not in Disuse Atrophy's first stage.
+      final h = await twoPlans(tmp, knee: 0);
+      await recordCurrent(h);
+      expect(h.vm.doneToday, isTrue);
+      h.vm.selectPlan('pp2');
+      expect(h.vm.doneToday, isFalse);
+      expect(
+        h.vm.canStart(h.vm.activePlan!.currentExercise()!.exerciseId),
+        isTrue,
+      );
+    });
+
+    test('a possible fall in one plan is a rest day for every plan', () async {
+      final h = await twoPlans(tmp, knee: 0);
+      h.server.fallMessage =
+          'Stop and rest: it looks like you may have lost your balance or fallen.';
+      await recordCurrent(h);
+      expect(h.vm.restDayToday, isTrue);
+      expect(
+        h.vm.canStart(h.vm.activePlan!.currentExercise()!.exerciseId),
+        isFalse,
+      );
+      // Continue saves the attempt (with the fall message in its feedback).
+      expect(await h.vm.acceptResult(), isTrue);
+      h.vm.selectPlan('pp2');
+      expect(
+        h.vm.canStart(h.vm.activePlan!.currentExercise()!.exerciseId),
+        isFalse,
+      );
+      // Also after the app restarts (a new view model, same data): the fall
+      // is found in the saved feedback.
+      final restarted = TreatmentViewModel(h.treatments, h.pose, h.auth);
+      await restarted.loadPlan();
+      expect(restarted.restDayToday, isTrue);
+      expect(
+        restarted.canStart(restarted.activePlan!.currentExercise()!.exerciseId),
+        isFalse,
+      );
+    });
+
+    test('stopping one plan keeps the other', () async {
+      final h = await twoPlans(tmp);
+      expect(await h.vm.endPlan(), isTrue);
+      expect([for (final a in h.vm.plans) a.patientPlanId], ['pp2']);
+      expect(h.vm.activePlan!.patientPlanId, 'pp2');
+    });
+  });
+
   group('one exercise per day', () {
     ExerciseSession at(DateTime t, {bool completed = true}) => ExerciseSession(
       sessionId: 's',

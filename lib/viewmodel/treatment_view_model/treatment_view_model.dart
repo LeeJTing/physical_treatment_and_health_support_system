@@ -84,6 +84,16 @@ class TreatmentViewModel extends BaseViewModel {
   List<ExerciseSession> _sessions = const [];
   List<ExerciseSession> get sessions => _sessions;
 
+  /// Every plan being followed; [plan] / [activePlan] is the one on screen.
+  List<PatientTreatmentPlan> _plans = const [];
+  List<PatientTreatmentPlan> get plans => _plans;
+
+  /// Sessions of every active plan (for the shared-exercise and rest-day rules).
+  Map<String, List<ExerciseSession>> _sessionsByPlan = const {};
+
+  /// Date a possible fall was seen in this app session (until it is saved).
+  DateTime? _fallSeenOn;
+
   /// The exercise being recorded.
   Exercise? _current;
   Exercise? get current => _current;
@@ -117,13 +127,23 @@ class TreatmentViewModel extends BaseViewModel {
       notifyListeners();
       return;
     }
-    final res = await _repo.getActivePlan(account.accountId);
-    if (res case Success(:final data)) {
+    final res = await _repo.getActivePlans(account.accountId);
+    if (res case Success(data: final all)) {
+      _plans = all;
+      _sessionsByPlan = {
+        for (final a in all)
+          a.patientPlanId:
+              (await _repo.getSessions(a.patientPlanId)).dataOrNull ??
+              const <ExerciseSession>[],
+      };
+      final keep = activePlan?.patientPlanId;
+      final data =
+          all.where((a) => a.patientPlanId == keep).firstOrNull ??
+          all.lastOrNull;
       _plan = UiSuccess(data);
       _sessions = data == null
           ? const []
-          : ((await _repo.getSessions(data.patientPlanId)).dataOrNull ??
-                const []);
+          : _sessionsByPlan[data.patientPlanId] ?? const [];
       _nextReminderAt = null;
       await _reminders?.sync(
         account.accountId,
@@ -144,6 +164,46 @@ class TreatmentViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// Shows another of the active plans (its pathway, sessions and lock).
+  void selectPlan(String patientPlanId) {
+    final next = _plans.where((a) => a.patientPlanId == patientPlanId);
+    if (next.isEmpty) return;
+    _plan = UiSuccess(next.first);
+    _sessions = _sessionsByPlan[patientPlanId] ?? const [];
+    _analysis = const Idle();
+    _lastResult = null;
+    _saving = const Idle();
+    notifyListeners();
+  }
+
+  /// Phrases of the server's possible-fall message (FALL_MESSAGE in
+  /// ai_server/app/pose/analyse.py), found in a saved attempt's feedback.
+  static const _fallPhrase = 'lost your balance or fallen';
+
+  /// A possible fall today in ANY plan makes today a rest day for all plans.
+  bool get restDayToday {
+    final today = clock();
+    final f = _fallSeenOn;
+    if (f != null &&
+        f.year == today.year &&
+        f.month == today.month &&
+        f.day == today.day) {
+      return true;
+    }
+    return _sessionsByPlan.values.any(
+      (list) => list.any(
+        (s) =>
+            s.completedOn(today) &&
+            (s.postureFeedback ?? '').contains(_fallPhrase),
+      ),
+    );
+  }
+
+  /// Shown on every pathway after a possible fall today.
+  static const restAfterFall =
+      'Rest now and try your exercises another day. If you are hurt, dizzy '
+      'or cannot get up, call for help or 999.';
+
   /// Clock for the one-exercise-per-day rule; replaced in tests.
   DateTime Function() clock = DateTime.now;
 
@@ -159,6 +219,7 @@ class TreatmentViewModel extends BaseViewModel {
   /// anything the pathway offers; afterwards only today's own exercise, and
   /// only when today's attempt at it did not pass (a retry).
   bool canStart(String exerciseId) {
+    if (restDayToday) return false;
     if (!doneToday) return true;
     final today = [
       for (final s in _sessions)
@@ -269,6 +330,7 @@ class TreatmentViewModel extends BaseViewModel {
         notifyListeners();
         return null;
       case Success(:final data):
+        if (data.safetyAlert != null) _fallSeenOn = clock();
         _analysis = UiSuccess(data);
         _lastResult = _session(p, e, data, CompletionStatus.completed);
         notifyListeners();
@@ -321,9 +383,14 @@ class TreatmentViewModel extends BaseViewModel {
     final res = await _repo.saveSession(s, advancedPlan: advanced);
     if (res.isSuccess) {
       _sessions = [..._sessions, s];
-      if (advanced != null) _plan = UiSuccess(advanced);
+      _sessionsByPlan = {..._sessionsByPlan, p.patientPlanId: _sessions};
+      if (advanced != null) {
+        _plan = UiSuccess(advanced);
+        _replacePlan(advanced);
+      }
       // FR300_12, FR600_005: today's exercise reminder is no longer needed.
       await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
+      await _countForOtherPlans(p, s);
       _autoAdvanced = s.postureIsPassing();
       _saving = const UiSuccess(null);
     } else {
@@ -331,6 +398,52 @@ class TreatmentViewModel extends BaseViewModel {
     }
     notifyListeners();
     return res.isSuccess;
+  }
+
+  void _replacePlan(PatientTreatmentPlan updated) {
+    _plans = [
+      for (final a in _plans)
+        a.patientPlanId == updated.patientPlanId ? updated : a,
+    ];
+  }
+
+  /// An exercise shared by several active plans is done once and counts for
+  /// every plan whose CURRENT stage it is and that has not had its exercise
+  /// today (one exercise per plan per day). Each plan gets its own copy of the
+  /// attempt and moves only its own stage.
+  Future<void> _countForOtherPlans(
+    PatientTreatmentPlan from,
+    ExerciseSession s,
+  ) async {
+    if (!s.isCompleted()) return;
+    for (final other in List.of(_plans)) {
+      if (other.patientPlanId == from.patientPlanId) continue;
+      if (other.currentExercise()?.exerciseId != s.exerciseId) continue;
+      final theirs = _sessionsByPlan[other.patientPlanId] ?? const [];
+      if (ExerciseSession.anyCompletedOn(theirs, clock())) continue;
+      final copy = ExerciseSession(
+        sessionId: newId(),
+        accountId: s.accountId,
+        patientPlanId: other.patientPlanId,
+        exerciseId: s.exerciseId,
+        completedAt: s.completedAt,
+        durationSec: s.durationSec,
+        repetitionsCompleted: s.repetitionsCompleted,
+        completionStatus: s.completionStatus,
+        postureAccuracy: s.postureAccuracy,
+        postureFeedback: s.postureFeedback,
+        modelVersion: s.modelVersion,
+      );
+      final advanced = other.advance();
+      if ((await _repo.saveSession(copy, advancedPlan: advanced)).isSuccess) {
+        _sessionsByPlan = {
+          ..._sessionsByPlan,
+          other.patientPlanId: [...theirs, copy],
+        };
+        _replacePlan(advanced);
+        await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
+      }
+    }
   }
 
   /// Back to the recorder (FR300_20). The attempt is kept as RETRIED.
@@ -357,6 +470,7 @@ class TreatmentViewModel extends BaseViewModel {
       final retried = s.withStatus(CompletionStatus.retried);
       if ((await _repo.saveSession(retried)).isSuccess) {
         _sessions = [..._sessions, retried];
+        _sessionsByPlan = {..._sessionsByPlan, p.patientPlanId: _sessions};
       }
     }
     _analysis = const Idle();
@@ -372,8 +486,15 @@ class TreatmentViewModel extends BaseViewModel {
     if (p == null) return false;
     final ok = (await _repo.endPlan(p)).isSuccess;
     if (ok) {
-      _plan = const UiSuccess(null);
-      _sessions = const [];
+      _plans = [
+        for (final a in _plans)
+          if (a.patientPlanId != p.patientPlanId) a,
+      ];
+      final next = _plans.lastOrNull;
+      _plan = UiSuccess(next);
+      _sessions = next == null
+          ? const []
+          : _sessionsByPlan[next.patientPlanId] ?? const [];
       notifyListeners();
     }
     return ok;

@@ -138,6 +138,29 @@ class _TreatmentViewState extends State<TreatmentView> {
                   ),
                 ],
               ),
+              // Several plans at once: choose which pathway to show.
+              if (vm.plans.length > 1)
+                Padding(
+                  padding: const EdgeInsets.only(left: 8, top: 8),
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final a in vm.plans)
+                        ChoiceChip(
+                          label: Text(a.plan.planName),
+                          selected: a.patientPlanId == plan.patientPlanId,
+                          selectedColor: AppTokens.accentContainer,
+                          labelStyle: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppTokens.primary,
+                          ),
+                          onSelected: (_) => vm.selectPlan(a.patientPlanId),
+                        ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.only(left: 8),
@@ -155,8 +178,16 @@ class _TreatmentViewState extends State<TreatmentView> {
                         'Plan complete. Well done! Get your next plan from AI-assisted planning.',
                       ),
                     ],
-                    // One exercise per day, the same rule as Home.
-                    if (vm.doneToday &&
+                    // A possible fall in any plan: rest day for every plan.
+                    if (vm.restDayToday) ...[
+                      const SizedBox(height: AppTokens.gap),
+                      const NoticeBanner(
+                        TreatmentViewModel.restAfterFall,
+                        warning: true,
+                      ),
+                    ]
+                    // One exercise per plan per day, the same rule as Home.
+                    else if (vm.doneToday &&
                         plan.completedStages < plan.plan.exercises.length) ...[
                       const SizedBox(height: AppTokens.gap),
                       const NoticeBanner(
