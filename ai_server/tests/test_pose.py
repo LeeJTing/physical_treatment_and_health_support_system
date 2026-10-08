@@ -385,3 +385,41 @@ def test_small_figure_gives_a_quality_tip():
         small.append(q)
     res = analyse("shoulder_abduction", sequence(small), use_model=False)
     assert any(t.startswith("You look small") for t in res["quality_tips"])
+
+
+# ---- is it the selected exercise? (identity.py, 8 Oct) --------------------------------------
+
+def _sig(**kw):
+    base = {"arm_raise": 5.0, "elbow_bend": 10.0, "knee_bend": 5.0, "knee_median": 175.0, "hip_rise": 0.03,
+            "trunk_upright": 88.0, "thigh_lift": 3.0, "leg_side": 2.0, "heel_lift": 0.05, "heels_together": 0.6,
+            "thighs_together": 0.2, "arm_sideways": float("nan"), "view_ratio": 0.1}
+    return {**base, **kw}
+
+
+def test_identity_accepts_the_selected_exercise_and_refuses_others():
+    from app.pose.identity import check
+    sit_to_stand = _sig(knee_bend=85, knee_median=105, hip_rise=0.5, thigh_lift=75, thighs_together=0.99)
+    assert check("sit_to_stand", sit_to_stand) is None
+    assert check("knee_extension", sit_to_stand) == "you stood up"
+    assert check("shoulder_abduction", {**sit_to_stand, "arm_raise": 40}) == "your knees bent a lot"
+    assert check("march_in_place", sit_to_stand) is not None
+    abduction_front = _sig(arm_raise=90, arm_sideways=1.0, view_ratio=0.67)
+    assert check("shoulder_abduction", abduction_front) is None
+    assert check("shoulder_flexion", abduction_front) == "your arms went out to the side, not forwards"
+    flexion_side = _sig(arm_raise=85, arm_sideways=0.98, view_ratio=0.06)
+    assert check("shoulder_flexion", flexion_side) is None
+    assert check("shoulder_abduction", flexion_side) == "your arms went forwards, not out to the side"
+    lying = _sig(trunk_upright=-12, hip_rise=0.35, knee_median=45)
+    assert check("glute_bridge", lying) is None and check("heel_raise", lying) is not None
+
+
+def test_identity_never_refuses_on_what_it_cannot_measure():
+    from app.pose.identity import check
+    weak_raise = _sig(arm_raise=30, arm_sideways=float("nan"), view_ratio=float("nan"))   # small, partial raise
+    assert check("shoulder_abduction", weak_raise) is None and check("shoulder_flexion", weak_raise) is None
+
+
+def test_wrong_exercise_is_reported_only_after_movement_was_found():
+    with pytest.raises(PoseError) as e:
+        analyse("shoulder_abduction", sequence([front_pose()] * 120), use_model=False)
+    assert e.value.code == "no_repetitions"

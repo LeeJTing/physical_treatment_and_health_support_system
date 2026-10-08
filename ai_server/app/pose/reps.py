@@ -27,15 +27,22 @@ def find_reps(signal: np.ndarray, t: np.ndarray, rest: float, active: float,
     n = len(signal)
     i = 0
     last_rest = 0
+    seen_rest = False
     while i < n:
         if signal[i] <= rest:
             last_rest = i
+            seen_rest = True
             i += 1
             continue
         if signal[i] >= active:
             j = i
             while j < n and signal[j] > rest:
                 j += 1
+            if not seen_rest:
+                # Already past the start level before any start position was seen (8 Oct: a person
+                # standing still, scored as sit-to-stand, counted as one repetition and passed).
+                i = j
+                continue
             end = min(j, n - 1)
             seg = signal[last_rest:end + 1]
             peak = last_rest + int(np.argmax(seg))

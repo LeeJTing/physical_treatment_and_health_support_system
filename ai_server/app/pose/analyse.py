@@ -8,7 +8,7 @@ from dataclasses import replace
 
 import numpy as np
 
-from . import classifier
+from . import classifier, identity
 from .exercises import ExerciseSpec, get
 from .geometry import Features
 from .landmarks import L_ANKLE, L_HIP, L_SHOULDER, NOSE, R_ANKLE, R_HIP, R_SHOULDER, PoseSequence
@@ -22,7 +22,7 @@ GOOD_FORM = "Good form. Keep it up!"
 
 
 class PoseError(Exception):
-    """code: pose_not_detected | full_body_not_visible | no_repetitions"""
+    """code: pose_not_detected | full_body_not_visible | no_repetitions | wrong_exercise"""
 
     def __init__(self, code: str, message: str):
         super().__init__(message)
@@ -242,6 +242,18 @@ def body_height_share(seq: PoseSequence) -> float:
     return float(np.median(ext) / (seq.info.height or 1))
 
 
+def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None) -> None:
+    """Is the movement the selected exercise? (8 Oct: another exercise's video passed as shoulder
+    abduction.) Checked only once movement was found (no movement stays "no repetition"), and never
+    when a possible fall was seen: the fall is reported first, whatever the exercise."""
+    if fall_at is not None:
+        return
+    why = identity.check(spec.key, identity.signature(f))
+    if why:
+        raise PoseError("wrong_exercise", f"This video does not look like {spec.name} ({why}). Please check "
+                                          f"that you chose the right exercise and record it as shown in the steps.")
+
+
 def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale: float = 1.0,
             brightness: float | None = None) -> dict:
     """rom_scale < 1 (from rom_scale_for: older / high-risk patients) lowers the range-of-motion
@@ -268,6 +280,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     partial = False
 
     if spec.kind == "hold":
+        _same_exercise(spec, f, fall_at)
         whole = Rep(start=0, peak=len(f.t) // 2, end=len(f.t) - 1)
         mistakes = [m for m in check_rep(spec, f, whole, rom_scale) if m not in ignore]
         hold = longest_true_seconds((f["feet_gap"] < 0.6) & visible, f.t)
@@ -292,6 +305,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
             if fall_at is not None:
                 return _fall_only(pose_key, fall_at, visible_ratio)
             raise PoseError("no_repetitions", "No complete repetition was found in the video.")
+        _same_exercise(spec, f, fall_at)
         # The trained model learned full-range movement: it would mark every shortened rep wrong, so
         # it is not used for adjusted targets or partial repetitions; the rules judge those.
         model = (classifier.predict(pose_key, f, reps)
