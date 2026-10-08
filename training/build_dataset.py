@@ -22,7 +22,7 @@ from pathlib import Path
 
 import numpy as np
 
-from common import CACHE, DATA, cached_sequence, own_clips
+from common import CACHE, DATA, MISLABELLED, cached_sequence, own_clips
 from app.pose import landmarks
 from app.pose.analyse import detect_reps
 from app.pose.classifier import rep_tensor
@@ -42,6 +42,9 @@ def own_samples(key: str):
     for clip in own_clips([key]):
         if not clip.name_ok or clip.problems:
             print(f"  skip {clip.path.name}: {'; '.join(clip.problems) or 'bad name'}")
+            continue
+        if MISLABELLED.search(clip.path.name):
+            print(f"  skip {clip.path.name}: shows another movement than its name (common.MISLABELLED)")
             continue
         seq = cached_sequence(clip)
         if seq.detected_ratio < 0.5:

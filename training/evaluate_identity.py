@@ -11,18 +11,15 @@
     ai_server\\.venv\\Scripts\\python training\\evaluate_identity.py
 """
 import json
-import re
 from collections import Counter, defaultdict
 
 import numpy as np
 
-from common import CACHE, DATA, REPORTS, cached_sequence, own_clips
+from common import CACHE, DATA, MISLABELLED, REPORTS, cached_sequence, own_clips
 from app.pose import exercises, landmarks
 from app.pose.geometry import Features
 from app.pose.identity import check, signature
 from evaluate_irds import ROOT as IRDS, read, to_sequence
-
-MISLABELLED = re.compile(r"shoulder_flexion__incorrect__shoulder_shrug")
 
 
 def main():
