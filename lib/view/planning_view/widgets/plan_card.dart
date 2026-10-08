@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 
 /// One recommended plan: name, match score, aim, chips, and the two actions.
@@ -65,13 +66,22 @@ class PlanCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InfoChip(RehabLabels.area(plan.targetBodyArea)),
-            InfoChip('${plan.exercises.length} exercises'),
-            InfoChip('${plan.frequencyPerWeek}x a week'),
+            BodyMapThumbnail(area: plan.targetBodyArea),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  InfoChip(RehabLabels.area(plan.targetBodyArea)),
+                  InfoChip('${plan.exercises.length} exercises'),
+                  InfoChip('${plan.frequencyPerWeek}x a week'),
+                ],
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 14),

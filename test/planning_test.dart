@@ -375,6 +375,11 @@ void main() {
 
   group('RecommendedPlansView', () {
     Future<Harness> pump(WidgetTester tester, {int n = 3}) async {
+      // Phone width, tall enough that all three cards (with their body
+      // thumbnails) are built by the ListView.
+      tester.view.physicalSize = const Size(1080, 3600);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       final h = Harness()..server.n = n;
       await tester.runAsync(() async {
         await h.signIn();

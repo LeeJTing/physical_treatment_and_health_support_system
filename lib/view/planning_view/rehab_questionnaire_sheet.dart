@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/body_regions.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
@@ -29,13 +31,50 @@ class RehabQuestionnaireSheet extends StatefulWidget {
 }
 
 class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
-  String? _area;
+  /// Regions tapped on the body map (ids of both views).
+  Set<String> _regions = {};
+
+  /// Area chosen from the fallback list instead of the map.
+  String? _listArea;
+
+  /// The one affected body area sent to /recommend (FR500_03).
+  String? get _area =>
+      _listArea ??
+      BodyRegions.areaFor([for (final id in _regions) ?BodyRegions.byId[id]]);
+
   RecoveryStage? _stage;
   MobilityLevel? _mobility;
   String? _goal;
 
   bool get _complete =>
       _area != null && _stage != null && _mobility != null && _goal != null;
+
+  /// Fallback for patients who cannot find the place on the figure: the
+  /// original eight body-area options.
+  Future<void> _chooseFromList() async {
+    final area = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Which area needs rehabilitation?'),
+        children: [
+          for (final e in RehabLabels.bodyArea.entries)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(context).pop(e.key),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(e.value, style: const TextStyle(fontSize: 16)),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (area != null) {
+      setState(() {
+        _listArea = area;
+        _regions = {};
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => DraggableScrollableSheet(
@@ -84,14 +123,38 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
               ),
               _Question(
                 title: 'Which area needs rehabilitation?',
-                options: [
-                  for (final e in RehabLabels.bodyArea.entries)
-                    _Option(
-                      e.value,
-                      selected: _area == e.key,
-                      onTap: () => setState(() => _area = e.key),
+                options: const [],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    BodyMap(
+                      selected: _regions,
+                      onChanged: (s) => setState(() {
+                        _regions = s;
+                        _listArea = null;
+                      }),
                     ),
-                ],
+                    if (_listArea != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          'Chosen from the list: ${RehabLabels.area(_listArea!)}',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppTokens.accent,
+                          ),
+                        ),
+                      ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: _chooseFromList,
+                        child: const Text("Can't find it? Choose from a list"),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               _Question(
                 title: 'How far along is your recovery?',
@@ -164,7 +227,10 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
 class _Question extends StatelessWidget {
   final String title;
   final List<_Option> options;
-  const _Question({required this.title, required this.options});
+
+  /// Custom answer area (the body map) instead of [options].
+  final Widget? child;
+  const _Question({required this.title, required this.options, this.child});
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -181,7 +247,7 @@ class _Question extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Wrap(spacing: 8, runSpacing: 8, children: options),
+        child ?? Wrap(spacing: 8, runSpacing: 8, children: options),
       ],
     ),
   );
