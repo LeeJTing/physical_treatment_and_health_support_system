@@ -87,10 +87,15 @@ class PlanningViewModel extends BaseViewModel {
       return;
     }
 
+    // Collaborative evidence is optional: a failure (e.g. the RPC is not
+    // deployed) just means a cold start, never an error for the patient.
+    final outcomes = (await _repo.getPlanOutcomes()).dataOrNull ?? const [];
+
     final result = await _recommender.topThree(
       snapshot,
       rehab,
       catalogue.dataOrNull!,
+      outcomes: outcomes,
     );
     _recommendation = switch (result) {
       Success(:final data) => UiSuccess(data),

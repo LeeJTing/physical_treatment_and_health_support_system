@@ -36,6 +36,13 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   Future<Result<List<TreatmentPlan>>> getCatalogue() async =>
       Success(List<TreatmentPlan>.unmodifiable(_catalogue));
 
+  /// Synthetic cohort evidence for tests and demos; empty by default (cold start).
+  List<PlanOutcome> planOutcomes = const [];
+
+  @override
+  Future<Result<List<PlanOutcome>>> getPlanOutcomes() async =>
+      Success(List<PlanOutcome>.unmodifiable(planOutcomes));
+
   @override
   Future<Result<void>> assignPlan(PatientTreatmentPlan p) async {
     _assigned[p.accountId] = p; // replaces (abandons) any previous plan

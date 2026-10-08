@@ -151,3 +151,145 @@ def test_engine_accepts_app_json_directly():
     # TreatmentPlan.toJson() sends extra keys (aim, frequency_per_week, ...); they are ignored.
     req = RecommendRequest.model_validate(body())
     assert recommend(req).status == "OK"
+
+
+# ---- hybrid-2.0: collaborative part and diversity re-rank ------------------------------------
+
+import itertools  # noqa: E402
+
+from app.recommend import engine as E  # noqa: E402
+
+ID = {p["plan_name"]: p["plan_id"] for p in CATALOGUE["plans"]}
+TWINS = {"Lower Limb Strength Builder", "Advanced Leg Function"}    # the only pair above DUPLICATE_SIM
+
+
+def hybrid_1(req):
+    """hybrid-1.0 as it was: rules, content score, best three by score then name."""
+    ranked = [(E.weighted(E.score(req, p)), p.plan_name, p.plan_id) for p in req.plans
+              if not E.exclusion_reasons(req, p)]
+    ranked.sort(key=lambda t: (-t[0], t[1]))
+    return [(t[2], round(t[0], 3)) for t in ranked[:3]]
+
+
+def grid():
+    for area, stage, mob, goal, inten, mins in itertools.product(
+            E._PARTS, E.STAGES, E.MOBILITY, E.GOALS, E.INTENSITY, (10, 30, 60)):
+        yield RecommendRequest.model_validate(body(area, stage, mob, goal, inten, mins))
+
+
+def cell(plan, risk="High", age="75+", patients=40, completion=0.9, accuracy=85.0, progress=60.0):
+    return {"plan_id": ID[plan], "risk_level": risk, "age_band": age, "patients": patients,
+            "completion_rate": completion, "mean_accuracy": accuracy, "mean_progress": progress}
+
+
+def with_evidence(outcomes, cohort=None, **kw):
+    b = body(**kw)
+    b["cohort"] = cohort or {"risk_level": "High", "age_band": "75+"}
+    b["plan_outcomes"] = outcomes
+    return RecommendRequest.model_validate(b)
+
+
+def test_cold_start_equals_hybrid_1_on_every_request():
+    # Main guard: without evidence the collaborative part changes nothing (diversity off).
+    for req in grid():
+        assert [(r.plan_id, r.suitability_score) for r in recommend(req, lam=1.0).ranked] == hybrid_1(req)
+        assert all(r.alpha == 0 and r.breakdown.collaborative is None for r in recommend(req, lam=1.0).ranked)
+
+
+def test_cohort_without_outcomes_is_still_cold_start():
+    req = with_evidence([])
+    assert [(r.plan_id, r.suitability_score) for r in recommend(req, lam=1.0).ranked] == hybrid_1(req)
+
+
+def test_diversity_only_ever_splits_the_near_twin_plans():
+    changed = 0
+    for req in grid():
+        before = [NAME[r.plan_id] for r in recommend(req, lam=1.0).ranked]
+        after = [NAME[r.plan_id] for r in recommend(req).ranked]
+        if before != after:
+            changed += 1
+            assert TWINS <= set(before) and len(TWINS & set(after)) == 1
+            assert set(after) - set(before)           # a different kind of plan took the twin's place
+    assert 0 < changed < 100                           # 42 of 3240 on the seed catalogue
+
+
+def test_diversity_never_returns_an_excluded_plan():
+    for req in grid():
+        res = recommend(req)
+        excluded = {e.plan_id for e in res.excluded}
+        assert not excluded & {r.plan_id for r in res.ranked}
+
+
+def test_diversity_keeps_order_when_plans_are_already_diverse():
+    plans = [p for p in RecommendRequest.model_validate(body()).plans if p.plan_name not in TWINS]
+    scored = [(1 - i * 0.01, p) for i, p in enumerate(plans)]
+    assert [p.plan_id for _, p in E.diversify(scored)] == [p.plan_id for _, p in scored[:3]]
+
+
+def test_redundancy_is_zero_below_threshold_and_one_for_identical():
+    p = RecommendRequest.model_validate(body()).plans
+    assert E.redundancy(p[0], p[0]) == pytest.approx(1.0)
+    assert all(E.redundancy(a, b) == 0 for a, b in itertools.combinations(p, 2)
+               if {a.plan_name, b.plan_name} != TWINS)
+
+
+def test_cell_outcome_clamped_and_missing_values_neutral():
+    from app.recommend.schemas import PlanOutcomeIn
+    full = PlanOutcomeIn(**cell("Hip Stability", completion=1.0, accuracy=100, progress=100))
+    none = PlanOutcomeIn(**cell("Hip Stability", completion=0.0, accuracy=None, progress=None))
+    assert E.cell_outcome(full) == pytest.approx(1.0)
+    assert E.cell_outcome(none) == pytest.approx(0.3 * 0.5 + 0.2 * 0.5)
+
+
+def test_small_cells_are_ignored():
+    req = with_evidence([cell("Early Knee Recovery", patients=4)])
+    res = recommend(req, lam=1.0)
+    assert all(r.alpha == 0 for r in res.ranked)
+    assert [(r.plan_id, r.suitability_score) for r in res.ranked] == hybrid_1(req)
+
+
+def test_alpha_grows_with_evidence_and_never_exceeds_cap():
+    alphas = []
+    for n in (5, 20, 200, 100000):
+        res = recommend(with_evidence([cell("Early Knee Recovery", patients=n)]), lam=1.0)
+        alphas.append(next(r.alpha for r in res.ranked if NAME[r.plan_id] == "Early Knee Recovery"))
+    assert alphas == sorted(alphas) and alphas[0] > 0 and max(alphas) <= E.ALPHA_MAX
+
+
+def test_good_evidence_can_reorder_safe_plans_but_not_bring_back_excluded_ones():
+    # EARLY knee patient: Early Knee Recovery first on content alone.
+    base = [NAME[r.plan_id] for r in recommend(with_evidence([]), lam=1.0).ranked]
+    second = base[1]
+    strong = [cell(second, patients=5000, completion=1.0, accuracy=100, progress=100),
+              cell(base[0], patients=5000, completion=0.0, accuracy=0, progress=0),
+              cell("Advanced Leg Function", patients=5000, completion=1.0, accuracy=100, progress=100)]
+    res = recommend(with_evidence(strong), lam=1.0)
+    got = [NAME[r.plan_id] for r in res.ranked]
+    assert got[0] == second                           # evidence re-ordered two safe plans
+    assert "Advanced Leg Function" not in got         # ADVANCED plan stays excluded for an EARLY patient
+
+
+def test_dissimilar_cohort_counts_less():
+    me = {"risk_level": "High", "age_band": "75+"}
+    near = recommend(with_evidence([cell("Early Knee Recovery", "High", "75+")], cohort=me), lam=1.0)
+    far = recommend(with_evidence([cell("Early Knee Recovery", "Low", "<60")], cohort=me), lam=1.0)
+    ev = lambda res: next(r.evidence_patients for r in res.ranked if NAME[r.plan_id] == "Early Knee Recovery")
+    assert ev(near) > ev(far) > 0
+
+
+def test_evidence_result_is_deterministic():
+    req = with_evidence([cell("Hip Stability"), cell("Early Knee Recovery", patients=8)])
+    assert recommend(req).model_dump() == recommend(req).model_dump()
+
+
+def test_endpoint_accepts_evidence_and_reports_it():
+    b = body()
+    b["cohort"] = {"risk_level": "Medium", "age_band": "60-74"}
+    b["plan_outcomes"] = [cell("Early Knee Recovery", "Medium", "60-74", patients=30)]
+    r = client.post("/recommend", json=b, headers=DEV)
+    assert r.status_code == 200, r.text
+    res = r.json()
+    assert res["model_version"] == "hybrid-2.0"
+    top = next(x for x in res["ranked"] if NAME[x["plan_id"]] == "Early Knee Recovery")
+    assert top["evidence_patients"] == 30 and 0 < top["alpha"] <= 0.3
+    assert top["breakdown"]["collaborative"] is not None

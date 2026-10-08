@@ -16,14 +16,45 @@ level). Each block is compared with cosine similarity and the four
 similarities are combined as a weighted mean, which equals the cosine of the
 concatenated vectors when every block is scaled to length sqrt(weight).
 
-Stage 3, rank by score and keep the best three.
+Stage 3, collaborative score (hybrid-2.0, report 2.7 and Table 2.7): how patients with a similar
+risk level and age band did on the plan, from anonymised cohort cells the app reads through the
+plan_outcome_stats() RPC (the server never reads Supabase). User-based neighbourhood filtering:
+  cell outcome    o  = clamp(0.5 * completion_rate + 0.3 * accuracy/100 + 0.2 * progress/100),
+                       a missing accuracy or progress counting as the neutral 0.5
+  cell similarity s  = mean of the cosines of the risk and age-band soft one-hot vectors
+  evidence        n  = sum(s * patients)        raw cf = sum(s * patients * o) / n
+  shrinkage       cf = (n * cf + K * 0.5) / (n + K)          (sparse data, report para 936)
+  blend       final  = (1 - alpha) * content + alpha * cf,   alpha = ALPHA_MAX * n / (n + K)
+With no evidence alpha is 0 and the result equals the content + rules ranking (cold start). The
+rules always run first, so evidence can only re-order plans that are already safe. alpha stays
+small on purpose: plans given to healthier patients look better (confounding), and the risk and
+age cells only partly control for that.
+
+Stage 4, rank by score and keep the best three, with a light MMR diversity re-rank (report para
+944, 950): a plan that nearly duplicates one already picked (plan similarity above DUPLICATE_SIM)
+is penalised, so the three picks are not the same plan three times. Below that similarity the
+order is unchanged.
 """
 import math
 
-from .schemas import PlanIn, RankedPlan, RecommendRequest, RecommendResponse, ExcludedPlan, ScoreBreakdown
+from .schemas import (PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest, RecommendResponse, ExcludedPlan,
+                      ScoreBreakdown)
 
-MODEL_VERSION = "hybrid-1.0"
+MODEL_VERSION = "hybrid-2.0"
 TOP_N = 3
+
+# Collaborative part.
+MIN_PATIENTS = 5          # k-anonymity: smaller cells are ignored (the RPC already drops them)
+K = 20.0                  # shrinkage strength and alpha half-saturation, in similar patients
+ALPHA_MAX = 0.3           # the collaborative score never decides more than 30 % of the result
+NEUTRAL = 0.5
+OUTCOME_WEIGHTS = {"completion": 0.5, "accuracy": 0.3, "progress": 0.2}
+RISKS = ("Low", "Medium", "High")
+AGE_BANDS = ("<60", "60-74", "75+")
+
+# Diversity re-rank (maximal marginal relevance).
+MMR_LAMBDA = 0.8
+DUPLICATE_SIM = 0.80      # only near-twins (same area and goal, neighbouring level: 0.906 in the seed) are penalised
 
 WEIGHTS = {"body_area": 0.40, "goal": 0.25, "recovery_stage": 0.20, "mobility_level": 0.15}
 
@@ -121,20 +152,103 @@ def weighted(b: ScoreBreakdown) -> float:
     return sum(WEIGHTS[k] * getattr(b, k) for k in WEIGHTS) / sum(WEIGHTS.values())
 
 
-def recommend(req: RecommendRequest) -> RecommendResponse:
-    ranked, excluded = [], []
+# ---- collaborative part ---------------------------------------------------------------------
+
+def cell_outcome(c: PlanOutcomeIn) -> float:
+    """How well the patients in one cell did, 0..1. Missing accuracy or progress is neutral."""
+    acc = NEUTRAL if c.mean_accuracy is None else c.mean_accuracy / 100
+    prog = NEUTRAL if c.mean_progress is None else c.mean_progress / 100
+    o = (OUTCOME_WEIGHTS["completion"] * c.completion_rate + OUTCOME_WEIGHTS["accuracy"] * acc
+         + OUTCOME_WEIGHTS["progress"] * prog)
+    return min(1.0, max(0.0, o))
+
+
+def cohort_similarity(req: RecommendRequest, c: PlanOutcomeIn) -> float:
+    me = req.cohort
+    risk = cosine(_ORDINAL[RISKS.index(me.risk_level)], _ORDINAL[RISKS.index(c.risk_level)])
+    age = cosine(_ORDINAL[AGE_BANDS.index(me.age_band)], _ORDINAL[AGE_BANDS.index(c.age_band)])
+    return (risk + age) / 2
+
+
+def collaborative(req: RecommendRequest, plan_id: str) -> tuple[float | None, float]:
+    """(shrunk collaborative score or None, evidence n) for one plan."""
+    if req.cohort is None:
+        return None, 0.0
+    n = acc = 0.0
+    for c in req.plan_outcomes:
+        if c.plan_id != plan_id or c.patients < MIN_PATIENTS:
+            continue
+        w = cohort_similarity(req, c) * c.patients
+        n += w
+        acc += w * cell_outcome(c)
+    if n == 0:
+        return None, 0.0
+    return (acc + K * NEUTRAL) / (n + K), n
+
+
+def blend(content: float, cf: float | None, n: float) -> tuple[float, float]:
+    """(final score, alpha). alpha = 0 without evidence, so the content score passes unchanged."""
+    if cf is None:
+        return content, 0.0
+    alpha = ALPHA_MAX * n / (n + K)
+    return (1 - alpha) * content + alpha * cf, alpha
+
+
+# ---- diversity re-rank ----------------------------------------------------------------------
+
+def plan_similarity(a: PlanIn, b: PlanIn) -> float:
+    """Content similarity between two plans, same blocks and weights as the patient score."""
+    blocks = {
+        "body_area": cosine(_PARTS[a.target_body_area], _PARTS[b.target_body_area]),
+        "goal": cosine(_goal_vec(a.goal), _goal_vec(b.goal)),
+        "recovery_stage": cosine(_ORDINAL[STAGES.index(a.recovery_stage)], _ORDINAL[STAGES.index(b.recovery_stage)]),
+        "mobility_level": cosine(_ORDINAL[MOBILITY.index(a.mobility_level)],
+                                 _ORDINAL[MOBILITY.index(b.mobility_level)]),
+    }
+    return sum(WEIGHTS[k] * v for k, v in blocks.items()) / sum(WEIGHTS.values())
+
+
+def redundancy(a: PlanIn, b: PlanIn) -> float:
+    """0 up to DUPLICATE_SIM, rising to 1 for an identical plan."""
+    return max(0.0, (plan_similarity(a, b) - DUPLICATE_SIM) / (1 - DUPLICATE_SIM))
+
+
+def diversify(scored: list[tuple[float, PlanIn]], k: int = TOP_N,
+              lam: float = MMR_LAMBDA) -> list[tuple[float, PlanIn]]:
+    """Greedy MMR over plans that already passed the rules, best first. Only re-orders the
+    candidates it is given, so an excluded plan can never come back."""
+    remaining, picked = list(scored), []
+    while remaining and len(picked) < k:
+        def mmr(item):
+            return lam * item[0] - (1 - lam) * max((redundancy(item[1], p) for _, p in picked), default=0.0)
+        best = max(range(len(remaining)), key=lambda i: (mmr(remaining[i]), -i))   # ties keep score order
+        picked.append(remaining.pop(best))
+    return picked
+
+
+def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendResponse:
+    scored, excluded, details = [], [], {}
     for plan in req.plans:
         reasons = exclusion_reasons(req, plan)
         if reasons:
             excluded.append(ExcludedPlan(plan_id=plan.plan_id, reasons=reasons))
             continue
         b = score(req, plan)
-        rounded = ScoreBreakdown(**{k: round(v, 3) for k, v in b.model_dump().items()})
-        ranked.append((weighted(b), plan.plan_name, RankedPlan(plan_id=plan.plan_id, suitability_score=round(weighted(b), 3), breakdown=rounded)))
+        content = weighted(b)
+        cf, n = collaborative(req, plan.plan_id)
+        final, alpha = blend(content, cf, n)
+        b.collaborative = cf
+        details[plan.plan_id] = (b, content, alpha, n)
+        scored.append((final, plan))
 
     # Highest score first; plan name breaks ties so the same input always gives the same order.
-    ranked.sort(key=lambda t: (-t[0], t[1]))
-    top = [t[2] for t in ranked[:TOP_N]]
+    scored.sort(key=lambda t: (-t[0], t[1].plan_name))
+    top = []
+    for final, plan in diversify(scored, TOP_N, lam):
+        b, content, alpha, n = details[plan.plan_id]
+        rounded = ScoreBreakdown(**{k: (None if v is None else round(v, 3)) for k, v in b.model_dump().items()})
+        top.append(RankedPlan(plan_id=plan.plan_id, suitability_score=round(final, 3), breakdown=rounded,
+                              content_score=round(content, 3), alpha=round(alpha, 3), evidence_patients=round(n)))
     status = "NONE" if not top else "ONLY_ONE" if len(top) == 1 else "OK"
     return RecommendResponse(status=status, ranked=top, excluded=excluded,
-                             suitable_count=len(ranked), model_version=MODEL_VERSION)
+                             suitable_count=len(scored), model_version=MODEL_VERSION)

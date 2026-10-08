@@ -40,6 +40,27 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
             .toList(),
   );
 
+  /// Anonymised outcomes from the `plan_outcome_stats()` RPC (cells of 5+
+  /// patients, no account ids). Until the RPC is applied (supabase/proposed/)
+  /// the call fails and the recommender runs as a cold start.
+  @override
+  Future<Result<List<PlanOutcome>>> getPlanOutcomes() =>
+      supabaseGuard(() async {
+        final rows = await _sb.client.rpc('plan_outcome_stats') as List;
+        return [
+          for (final r in rows.cast<Map<String, dynamic>>())
+            (
+              planId: r['plan_id'] as String,
+              riskLevel: r['risk_level'] as String,
+              ageBand: r['age_band'] as String,
+              patients: (r['patients'] as num).toInt(),
+              completionRate: (r['completion_rate'] as num).toDouble(),
+              meanAccuracy: (r['mean_accuracy'] as num?)?.toDouble(),
+              meanProgress: (r['mean_progress'] as num?)?.toDouble(),
+            ),
+        ];
+      });
+
   /// Only one ACTIVE plan per patient (unique partial index), so the old one is
   /// abandoned before the new one is inserted (FR500_09).
   @override

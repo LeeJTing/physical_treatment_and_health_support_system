@@ -87,6 +87,24 @@ class FailingCatalogue extends FakeTreatmentRepository {
       const Failure('down', code: 'offline');
 }
 
+/// The plan_outcome_stats() RPC is not deployed: the call fails.
+class NoOutcomeStats extends FakeTreatmentRepository {
+  NoOutcomeStats(super.catalogue);
+  @override
+  Future<Result<List<PlanOutcome>>> getPlanOutcomes() async =>
+      const Failure('function not found', code: 'PGRST202');
+}
+
+const PlanOutcome kneeCell = (
+  planId: 'p-knee',
+  riskLevel: 'Low',
+  ageBand: '<60',
+  patients: 12,
+  completionRate: 0.8,
+  meanAccuracy: 84.5,
+  meanProgress: null,
+);
+
 class Harness {
   final server = FakeServer();
   final auth = FakeAuthRepository();
@@ -178,6 +196,67 @@ void main() {
         (h.vm.recommendation as UiError).message,
         Messages.recommendFailed,
       );
+    });
+  });
+
+  group('collaborative evidence (hybrid-2.0)', () {
+    test(
+      'sends the cohort and the outcome cells from the repository',
+      () async {
+        final repo = FakeTreatmentRepository.fromJson(catalogueJson)
+          ..planOutcomes = const [kneeCell];
+        final h = Harness(repo: repo);
+        await h.signIn();
+        await h.vm.recommend(rehab);
+        final body = h.server.lastBody!;
+        expect(body['cohort'], {'risk_level': 'Low', 'age_band': '<60'});
+        expect(body['plan_outcomes'], [
+          {
+            'plan_id': 'p-knee',
+            'risk_level': 'Low',
+            'age_band': '<60',
+            'patients': 12,
+            'completion_rate': 0.8,
+            'mean_accuracy': 84.5,
+            'mean_progress': null,
+          },
+        ]);
+        expect(h.vm.candidates.length, 3);
+      },
+    );
+
+    test('no evidence by default: empty list, still recommends', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!['plan_outcomes'], isEmpty);
+      expect(h.vm.recommendation, isA<UiSuccess<Recommendation>>());
+    });
+
+    test('RPC missing or failing is a cold start, not an error', () async {
+      final catalogue = FakeTreatmentRepository.fromJson(catalogueJson);
+      final h = Harness(
+        repo: NoOutcomeStats((await catalogue.getCatalogue()).dataOrNull!),
+      );
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!['plan_outcomes'], isEmpty);
+      expect(h.vm.recommendation, isA<UiSuccess<Recommendation>>());
+      expect(h.vm.candidates.length, 3);
+    });
+
+    test('no profile: no cohort is sent', () async {
+      final h = Harness();
+      await h.signIn(withProfile: false);
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!.containsKey('cohort'), isFalse);
+    });
+
+    test('age bands match the RPC', () {
+      expect(RecommendationService.ageBand(59), '<60');
+      expect(RecommendationService.ageBand(60), '60-74');
+      expect(RecommendationService.ageBand(74), '60-74');
+      expect(RecommendationService.ageBand(75), '75+');
     });
   });
 

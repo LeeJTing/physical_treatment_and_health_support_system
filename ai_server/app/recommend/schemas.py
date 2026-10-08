@@ -54,12 +54,39 @@ class PlanIn(_In):
     plan_exercise: list[PlanExerciseIn] = Field(min_length=1)
 
 
+RiskLevel = Literal["Low", "Medium", "High"]          # health_profile.risk_level
+AgeBand = Literal["<60", "60-74", "75+"]
+
+
+class CohortIn(_In):
+    """The patient's own cohort features, compared with the outcome cells."""
+    risk_level: RiskLevel
+    age_band: AgeBand
+
+
+class PlanOutcomeIn(_In):
+    """One anonymised cohort cell from the plan_outcome_stats() RPC: how patients with this risk
+    level and age band did on a plan. Never contains account ids; cells under MIN_PATIENTS are
+    dropped by the RPC and again by the engine."""
+    plan_id: str
+    risk_level: RiskLevel
+    age_band: AgeBand
+    patients: int = Field(ge=0)
+    completion_rate: float = Field(ge=0, le=1)
+    mean_accuracy: float | None = Field(default=None, ge=0, le=100)
+    mean_progress: float | None = Field(default=None, ge=0, le=100)
+
+
 class RecommendRequest(_In):
     rehab: RehabInfo
     safety_limit: SafetyLimitIn
     # PhysicalLimitation.limitationCode values, e.g. LEFT_ARM_MOBILITY, BALANCE_IMPAIRMENT.
     limitations: list[str] = []
     plans: list[PlanIn] = Field(min_length=1)
+    # Collaborative evidence (hybrid-2.0). Both optional: without them the result equals the
+    # content + rules ranking (cold start).
+    cohort: CohortIn | None = None
+    plan_outcomes: list[PlanOutcomeIn] = []
 
 
 class ScoreBreakdown(BaseModel):
@@ -67,12 +94,17 @@ class ScoreBreakdown(BaseModel):
     goal: float
     recovery_stage: float
     mobility_level: float
+    # Collaborative score after shrinkage, or None when there is no evidence for the plan.
+    collaborative: float | None = None
 
 
 class RankedPlan(BaseModel):
     plan_id: str
-    suitability_score: float
+    suitability_score: float           # final = (1 - alpha) * content + alpha * collaborative
     breakdown: ScoreBreakdown
+    content_score: float = 0.0
+    alpha: float = 0.0                 # weight given to the collaborative score (0 at cold start)
+    evidence_patients: int = 0         # similarity-weighted number of similar patients behind it
 
 
 class ExcludedPlan(BaseModel):
