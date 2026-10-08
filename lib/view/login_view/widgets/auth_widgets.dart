@@ -36,43 +36,17 @@ class AuthHeader extends StatelessWidget {
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: compact ? 56 : 80,
-                      height: compact ? 56 : 80,
-                      decoration: const BoxDecoration(
-                        color: AppTokens.brandDeepAccent,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.monitor_heart,
-                        color: Colors.white,
-                        size: compact ? 30 : 42,
-                      ),
+                // With large phone text (font size 130-200 %) the logo, name and subtitle are
+                // taller than the fixed header: scale them down to fit instead of overflowing.
+                // The fixed width keeps the subtitle wrapping exactly as at normal size.
+                child: LayoutBuilder(
+                  builder: (context, box) => FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: SizedBox(
+                      width: box.maxWidth,
+                      child: _headerContent(compact),
                     ),
-                    SizedBox(height: compact ? 10 : 18),
-                    Text(
-                      'HealthGuide',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: compact ? 24 : 30,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (showSubtitle) ...[
-                      const SizedBox(height: 8),
-                      const Text(
-                        'AI-Assisted Physical Treatment and Health Support',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: AppTokens.onBrandMuted,
-                          fontSize: 15,
-                        ),
-                      ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -81,6 +55,42 @@ class AuthHeader extends StatelessWidget {
       ),
     );
   }
+
+  Widget _headerContent(bool compact) => Column(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: compact ? 56 : 80,
+        height: compact ? 56 : 80,
+        decoration: const BoxDecoration(
+          color: AppTokens.brandDeepAccent,
+          shape: BoxShape.circle,
+        ),
+        child: Icon(
+          Icons.monitor_heart,
+          color: Colors.white,
+          size: compact ? 30 : 42,
+        ),
+      ),
+      SizedBox(height: compact ? 10 : 18),
+      Text(
+        'HealthGuide',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: compact ? 24 : 30,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      if (showSubtitle) ...[
+        const SizedBox(height: 8),
+        const Text(
+          'AI-Assisted Physical Treatment and Health Support',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: AppTokens.onBrandMuted, fontSize: 15),
+        ),
+      ],
+    ],
+  );
 }
 
 /// "Welcome back" heading with its grey subtitle.

@@ -132,12 +132,17 @@ class PostureResultView extends StatelessWidget {
                           color: passing ? AppTokens.good : AppTokens.caution,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          passing ? 'Great form' : 'Needs improvement',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: passing ? AppTokens.good : AppTokens.caution,
+                        // Flexible: wraps instead of overflowing with large phone text.
+                        Flexible(
+                          child: Text(
+                            passing ? 'Great form' : 'Needs improvement',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: passing
+                                  ? AppTokens.good
+                                  : AppTokens.caution,
+                            ),
                           ),
                         ),
                       ],
