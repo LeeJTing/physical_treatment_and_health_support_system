@@ -354,5 +354,40 @@ void main() {
       );
       expect(find.text('Continue'), findsOneWidget);
     });
+
+    // Older users are told to raise the phone's font size (chatbot text_size answer).
+    testWidgets('result screen has no overflow with 2x phone text on 360x800', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3;
+      tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+      addTearDown(tester.view.reset);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      // A failing score with retry and rest hint, then a possible fall with the banner.
+      for (final fall in [null, 'Stop and rest: you may have fallen.']) {
+        final h = Harness();
+        h.server.accuracy = 40;
+        h.server.fallMessage = fall;
+        await tester.runAsync(() async {
+          await h.setUp(tmp);
+          await h.recordFirst();
+        });
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: h.vm,
+              child: const PostureResultView(),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        // Scroll to the end so every item of the ListView is built and laid out.
+        await tester.scrollUntilVisible(find.text('Continue'), 300);
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+      }
+    });
   });
 }

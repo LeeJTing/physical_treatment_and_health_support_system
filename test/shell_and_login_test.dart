@@ -72,10 +72,7 @@ Future<void> _completeProfile(
 void main() {
   group('AuthViewModel.decideStartRoute (FR100_024, FR100_025, FR100_035)', () {
     test('no stored session -> login', () async {
-      final vm = AuthViewModel(
-        FakeAuthRepository(),
-        FakeProfileRepository(),
-      );
+      final vm = AuthViewModel(FakeAuthRepository(), FakeProfileRepository());
       expect(await vm.decideStartRoute(), Routes.loginScreen);
     });
 
@@ -92,7 +89,10 @@ void main() {
       final auth = FakeAuthRepository();
       final profiles = FakeProfileRepository();
       await _completeProfile(auth, profiles);
-      expect(await AuthViewModel(auth, profiles).decideStartRoute(), Routes.home);
+      expect(
+        await AuthViewModel(auth, profiles).decideStartRoute(),
+        Routes.home,
+      );
     });
 
     test(
@@ -172,5 +172,38 @@ void main() {
     await tester.tap(find.text('Log In'));
     await tester.pumpAndSettle();
     expect(find.text('route:home'), findsOneWidget);
+  });
+
+  // Older users are told to raise the phone's font size (chatbot text_size answer).
+  testWidgets('Login: no overflow with 2x phone text on a 360x800 screen', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 2400);
+    tester.view.devicePixelRatio = 3;
+    tester.platformDispatcher.textScaleFactorTestValue = 2.0;
+    addTearDown(tester.view.reset);
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(
+      _app(
+        FakeAuthRepository(),
+        FakeProfileRepository(),
+        initial: Routes.loginScreen,
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    // The page's own scroll view (each text field has a Scrollable too).
+    await tester.scrollUntilVisible(
+      find.text('Create account'),
+      300,
+      scrollable: find
+          .descendant(
+            of: find.byType(SingleChildScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first,
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }
