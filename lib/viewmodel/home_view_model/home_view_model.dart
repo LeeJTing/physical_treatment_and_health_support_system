@@ -101,15 +101,7 @@ class HomeViewModel extends BaseViewModel {
       final sessions =
           (await _treatments.getSessions(plan.patientPlanId)).dataOrNull ??
           const <ExerciseSession>[];
-      final now = _now();
-      doneToday = sessions.any(
-        (s) =>
-            s.isCompleted() &&
-            s.completedAt != null &&
-            s.completedAt!.toLocal().year == now.year &&
-            s.completedAt!.toLocal().month == now.month &&
-            s.completedAt!.toLocal().day == now.day,
-      );
+      doneToday = ExerciseSession.anyCompletedOn(sessions, _now());
     }
     final unread =
         (await _notifications?.unreadCount(account.accountId))?.dataOrNull ?? 0;

@@ -186,6 +186,84 @@ void main() {
     });
   });
 
+  group('one exercise per day', () {
+    ExerciseSession at(DateTime t, {bool completed = true}) => ExerciseSession(
+      sessionId: 's',
+      accountId: 'a',
+      exerciseId: 'e',
+      completionStatus: completed
+          ? CompletionStatus.completed
+          : CompletionStatus.retried,
+      completedAt: t,
+    );
+
+    test('the shared rule uses the local calendar date', () {
+      final day = DateTime(2026, 10, 9);
+      expect(
+        ExerciseSession.anyCompletedOn([
+          at(DateTime(2026, 10, 9, 23, 50)),
+        ], day),
+        isTrue,
+      );
+      expect(
+        ExerciseSession.anyCompletedOn([
+          at(DateTime(2026, 10, 8, 23, 50)),
+        ], day),
+        isFalse,
+      );
+      expect(
+        ExerciseSession.anyCompletedOn([
+          at(DateTime(2026, 10, 9, 8), completed: false),
+        ], day),
+        isFalse,
+      );
+      // Stored as UTC (Supabase): 9 Oct 17:00 UTC is 10 Oct 01:00 in Malaysia (UTC+8).
+      final utc = DateTime.utc(2026, 10, 9, 17).toLocal();
+      expect(
+        ExerciseSession.anyCompletedOn([
+          at(DateTime.utc(2026, 10, 9, 17)),
+        ], DateTime(utc.year, utc.month, utc.day)),
+        isTrue,
+      );
+    });
+
+    test(
+      'after a passing exercise today the next one is locked until tomorrow',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        final first = h.vm.pathway.first.item.exerciseId;
+        final second = h.vm.pathway[1].item.exerciseId;
+        expect(h.vm.doneToday, isFalse);
+        expect(h.vm.canStart(first), isTrue);
+        await h.recordFirst(); // 90 %: passes and is saved as COMPLETED
+        expect(h.vm.doneToday, isTrue);
+        expect(h.vm.canStart(second), isFalse);
+        expect(h.vm.canStart(first), isFalse); // passed, nothing to retry today
+        h.vm.clock = () => DateTime.now().add(const Duration(days: 1));
+        expect(h.vm.doneToday, isFalse);
+        expect(h.vm.canStart(second), isTrue);
+      },
+    );
+
+    test(
+      'a failed exercise continued today can still be retried, the next one cannot',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        final first = h.vm.pathway.first.item.exerciseId;
+        final second = h.vm.pathway[1].item.exerciseId;
+        h.server.accuracy = 60;
+        await h.recordFirst();
+        expect(h.vm.doneToday, isFalse); // nothing saved until Continue
+        expect(await h.vm.acceptResult(), isTrue);
+        expect(h.vm.doneToday, isTrue);
+        expect(h.vm.canStart(first), isTrue);
+        expect(h.vm.canStart(second), isFalse);
+      },
+    );
+  });
+
   group('posture result (FR300_09 to FR300_21)', () {
     test('80% or more saves the session and advances automatically', () async {
       final h = Harness();
@@ -312,6 +390,32 @@ void main() {
       expect(find.text('Start exercise'), findsOneWidget);
       expect(find.text('Not started'), findsOneWidget);
     });
+
+    testWidgets(
+      'after today\'s exercise the pathway says the next one unlocks tomorrow',
+      (tester) async {
+        final h = Harness();
+        await tester.runAsync(() async {
+          await h.setUp(tmp);
+          await h.recordFirst(); // passes and is saved
+        });
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: h.vm,
+              child: const TreatmentView(),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(find.text('1 of 3 done'), findsOneWidget);
+        expect(
+          find.text(TreatmentViewModel.nextUnlocksTomorrow),
+          findsOneWidget,
+        );
+        expect(find.text('Start exercise'), findsNothing);
+      },
+    );
 
     testWidgets('result screen shows the score, guidance and both buttons', (
       tester,

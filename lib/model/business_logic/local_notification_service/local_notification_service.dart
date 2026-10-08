@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/i_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/i_treatment_repository.dart';
@@ -151,18 +152,8 @@ class LocalNotificationService {
   Future<bool> _doneToday(String patientPlanId) async {
     final sessions =
         (await _treatments.getSessions(patientPlanId)).dataOrNull ?? const [];
-    final t = _today;
-    return sessions.any(
-      (s) =>
-          s.completionStatus == CompletionStatus.completed &&
-          s.completedAt != null &&
-          DateTime(
-                s.completedAt!.year,
-                s.completedAt!.month,
-                s.completedAt!.day,
-              ) ==
-              t,
-    );
+    // Same rule as Home and Treatment (local calendar date).
+    return ExerciseSession.anyCompletedOn(sessions, _today);
   }
 
   /// A session was completed (FR300_12, FR600_005): today's exercise reminders for the plan are

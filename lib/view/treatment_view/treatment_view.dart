@@ -155,6 +155,14 @@ class _TreatmentViewState extends State<TreatmentView> {
                         'Plan complete. Well done! Get your next plan from AI-assisted planning.',
                       ),
                     ],
+                    // One exercise per day, the same rule as Home.
+                    if (vm.doneToday &&
+                        plan.completedStages < plan.plan.exercises.length) ...[
+                      const SizedBox(height: AppTokens.gap),
+                      const NoticeBanner(
+                        TreatmentViewModel.nextUnlocksTomorrow,
+                      ),
+                    ],
                     for (final stage in vm.pathway) ...[
                       const SizedBox(height: AppTokens.gap),
                       StageCard(
@@ -162,11 +170,15 @@ class _TreatmentViewState extends State<TreatmentView> {
                         onOpen: () => showExerciseDetails(
                           context,
                           stage.item,
-                          onStart: stage.status == StageStatus.upcoming
+                          onStart:
+                              stage.status == StageStatus.upcoming ||
+                                  !vm.canStart(stage.item.exerciseId)
                               ? null
                               : () => _start(stage.item),
                         ),
-                        onStart: () => _start(stage.item),
+                        onStart: vm.canStart(stage.item.exerciseId)
+                            ? () => _start(stage.item)
+                            : null,
                       ),
                     ],
                   ],

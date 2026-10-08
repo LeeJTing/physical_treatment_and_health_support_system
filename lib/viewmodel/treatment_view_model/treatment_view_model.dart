@@ -144,6 +144,29 @@ class TreatmentViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// Clock for the one-exercise-per-day rule; replaced in tests.
+  DateTime Function() clock = DateTime.now;
+
+  /// Shown on the pathway once today's exercise is done.
+  static const nextUnlocksTomorrow =
+      "Today's exercise is done. Your next exercise unlocks tomorrow.";
+
+  /// One exercise per day: a COMPLETED attempt was saved today (the shared
+  /// ExerciseSession rule that Home and the reminder also use).
+  bool get doneToday => ExerciseSession.anyCompletedOn(_sessions, clock());
+
+  /// Whether [exerciseId] may be started now. Before today's exercise is done,
+  /// anything the pathway offers; afterwards only today's own exercise, and
+  /// only when today's attempt at it did not pass (a retry).
+  bool canStart(String exerciseId) {
+    if (!doneToday) return true;
+    final today = [
+      for (final s in _sessions)
+        if (s.exerciseId == exerciseId && s.completedOn(clock())) s,
+    ];
+    return today.isNotEmpty && !today.any((s) => s.postureIsPassing());
+  }
+
   /// The pathway with completed, current and upcoming exercises (FR300_02).
   List<PathwayStage> get pathway {
     final p = activePlan;
