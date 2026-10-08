@@ -11,7 +11,7 @@ import numpy as np
 from . import classifier
 from .exercises import ExerciseSpec, get
 from .geometry import Features
-from .landmarks import PoseSequence
+from .landmarks import L_ANKLE, L_HIP, L_SHOULDER, NOSE, R_ANKLE, R_HIP, R_SHOULDER, PoseSequence
 from .reps import Rep, find_reps, merge_sides
 
 RULES_VERSION = "rules-1.0"
@@ -125,20 +125,46 @@ def _held(mask: np.ndarray, t: np.ndarray, sec: float) -> int | None:
     return None
 
 
+FALL_WARMUP_SEC = 1.0          # the tracker is still finding the person
+
+
+def reliable_frames(f: Features) -> np.ndarray:
+    """Frames whose skeleton is plausible enough to call a fall on. On strangers' home videos
+    (sit2stand.ai, 8 Oct) MediaPipe fitted a shrunken or twisted skeleton for the first second on
+    seated people, and the fall check fired at 0.6 s on 3 healthy people. A fall is not called in
+    the first second, when the torso is under 0.6 or over 1.6 times its usual length (4 of 41,538
+    frames in Elwin's clips), or on an upside-down skeleton (nose below the hips with the ankles
+    above them)."""
+    xy = f.seq.xy
+    torso = np.linalg.norm((xy[:, L_SHOULDER] + xy[:, R_SHOULDER]) / 2 - (xy[:, L_HIP] + xy[:, R_HIP]) / 2, axis=1)
+    ratio = torso / (np.nanmedian(torso) or 1.0)
+    y = xy[..., 1]
+    hip_y = (y[:, L_HIP] + y[:, R_HIP]) / 2
+    upside_down = (y[:, NOSE] > hip_y) & ((y[:, L_ANKLE] + y[:, R_ANKLE]) / 2 < hip_y)
+    # Shoulders well below the hips (trunk over 120 degrees from upright): a real fall leaves the
+    # trunk about level, near 90 (2 more healthy sit2stand.ai videos).
+    upside_down |= np.nan_to_num(90.0 - f["trunk_from_horizontal"], nan=0.0) > 120.0
+    return (np.nan_to_num(ratio, nan=0.0) >= 0.6) & (np.nan_to_num(ratio, nan=9.0) <= 1.6) & ~upside_down \
+        & (f.t >= f.t[0] + FALL_WARMUP_SEC)
+
+
 def possible_fall(spec: ExerciseSpec, f: Features) -> float | None:
     """Time (s) of a possible fall in a standing or seated exercise, or None."""
     if spec.key in LYING_EXERCISES or len(f.t) < 3:
         return None
     lean = 90.0 - f["trunk_from_horizontal"]                  # trunk angle from upright
     hip = f["hip_rise"]                                        # + up, torso lengths from the clip median
+    ok = reliable_frames(f)
     for mask in (lean > FALL_LEAN_DEG, hip < -FALL_LOW_TORSO):
-        i = _held(np.nan_to_num(mask, nan=False), f.t, FALL_HOLD_SEC)
+        i = _held(np.nan_to_num(mask, nan=False) & ok, f.t, FALL_HOLD_SEC)
         if i is not None:
             return float(f.t[i])
     v = np.gradient(np.nan_to_num(hip), f.t)
-    for i in np.where(-v > FALL_DROP_SPEED)[0]:
-        stop = int(np.searchsorted(f.t, f.t[i] + 1.5))
-        if np.nanmin(hip[i:max(stop, i + 1)]) < -FALL_DROP_DEPTH:
+    for i in np.where((-v > FALL_DROP_SPEED) & ok)[0]:
+        stop = max(int(np.searchsorted(f.t, f.t[i] + 1.5)), i + 1)
+        if np.mean(ok[i:stop]) < 0.7:
+            continue                                   # the drop is mostly on a misfitted skeleton
+        if np.nanmin(np.where(ok[i:stop], hip[i:stop], np.nan)) < -FALL_DROP_DEPTH:
             return float(f.t[i])
     return None
 
