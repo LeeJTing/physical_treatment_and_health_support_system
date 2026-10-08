@@ -9,6 +9,9 @@ Gestures (read from the joint motion, see the 8 Oct log): 0 / 1 elbow flexion ri
 forwards, 7 / 8 side taps. Tested: 0+1 -> elbow_flexion, 6 -> shoulder_flexion (both arms, as ours),
 4+5 -> shoulder abduction with one arm (the REHAB24-6 variant: uneven_arms dropped).
 
+shoulder_shrug is left out: it is measured from the nose, and the Kinect has only a head-centre
+joint, so its values are not comparable (it fired on 163 of 217 correct raises).
+
 Each file is one repetition. It is called incorrect when a rule fires, or when no repetition is
 found (the app then says it saw no full repetition).
 
@@ -39,6 +42,7 @@ MAP = {0: "Head", **{i: "Head" for i in range(1, 11)}, 11: "ShoulderLeft", 12: "
        25: "KneeLeft", 26: "KneeRight", 27: "AnkleLeft", 28: "AnkleRight", 29: "AnkleLeft", 30: "AnkleRight",
        31: "FootLeft", 32: "FootRight"}
 TRACKED = {"Tracked": 1.0, "Inferred": 0.6, "NotTracked": 0.1}
+NOT_COMPARABLE = {"shoulder_shrug"}
 SCALE = 400.0          # pixels per metre on the virtual camera
 TESTS = {"elbow_flexion": ({"0", "1"}, "side"), "shoulder_flexion": ({"6"}, "side"),
          "shoulder_abduction_1arm": ({"4", "5"}, "front")}
@@ -77,7 +81,7 @@ def main():
     report = {}
     for name, (gestures, view) in TESTS.items():
         spec = specs[name]
-        labels = [m.label for m in spec.mistakes]
+        labels = [m.label for m in spec.mistakes if m.label not in NOT_COMPARABLE]
         conf = [[0, 0], [0, 0]]                     # rows true incorrect/correct, cols called incorrect/correct
         fires = {"correct": defaultdict(int), "incorrect": defaultdict(int)}
         measures = {"correct": defaultdict(list), "incorrect": defaultdict(list)}
@@ -100,11 +104,12 @@ def main():
                     conf[0 if truth == "incorrect" else 1][0] += 1
                     continue
                 r = max(reps, key=lambda x: x.end - x.start)
-                ms = check_rep(spec, f, r, scale)
+                ms = [m for m in check_rep(spec, f, r, scale) if m not in NOT_COMPARABLE]
                 for m in ms:
                     fires[truth][m] += 1
                 for m in spec.mistakes:
-                    measures[truth][m.label].append(m.value(f, r))
+                    if m.label in labels:
+                        measures[truth][m.label].append(m.value(f, r))
                 conf[0 if truth == "incorrect" else 1][0 if ms else 1] += 1
         n = sum(map(sum, conf))
         sens = conf[0][0] / max(sum(conf[0]), 1)
@@ -119,7 +124,7 @@ def main():
             "measure_p10_p50_p90_correct_vs_incorrect": {
                 k: [[round(float(x), 3) for x in np.percentile(measures[q][k], [10, 50, 90])] if measures[q][k] else None
                     for q in ("correct", "incorrect")] for k in labels},
-            "limits": {m.label: m.limit for m in spec.mistakes},
+            "limits": {m.label: m.limit for m in spec.mistakes if m.label in labels},
         }
         r = report[name]
         print(f"== {name} (gestures {sorted(gestures)}, {view} view): correct {counts['correct']}, incorrect {counts['incorrect']}")

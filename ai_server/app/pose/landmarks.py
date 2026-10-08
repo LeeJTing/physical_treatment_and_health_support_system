@@ -71,6 +71,18 @@ def read_video_info(path: str | Path) -> VideoInfo:
         cap.release()
 
 
+def _pad_square(rgb: np.ndarray) -> np.ndarray:
+    """Pads the frame on the right or bottom to a square, so landmark x and y stay in pixels of the
+    original frame. In VIDEO mode MediaPipe placed the skeleton upside down on some portrait phone
+    videos (5 of 377 sit2stand.ai videos, 8 Oct; its log warns that NORM_RECT without image size is
+    only supported for a square ROI); the same frames padded to a square came out right."""
+    h, w = rgb.shape[:2]
+    s = max(h, w)
+    out = np.zeros((s, s, 3), dtype=rgb.dtype)
+    out[:h, :w] = rgb
+    return out
+
+
 def _make_landmarker(model_path: Path):
     from mediapipe.tasks.python import vision
     from mediapipe.tasks.python.core.base_options import BaseOptions
@@ -113,6 +125,7 @@ def extract_many(
     model_path: Path = DEFAULT_MODEL,
     start_frame: int = 0,
     end_frame: int | None = None,
+    pad_square: bool = True,
 ) -> list[PoseSequence]:
     """Like extract, but transform_batch(frame_bgr) -> n frames, each tracked by its own
     landmarker: the video is decoded once for n augmented versions of it."""
@@ -142,10 +155,13 @@ def extract_many(
                     h, w = fr.shape[:2]
                     info.width, info.height = w, h  # the size actually analysed
                     rgb = np.ascontiguousarray(cv2.cvtColor(fr, cv2.COLOR_BGR2RGB))
+                    if pad_square and h != w:
+                        rgb = _pad_square(rgb)
+                    side_w, side_h = (max(h, w), max(h, w)) if pad_square else (w, h)
                     result = lmk.detect_for_video(mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb), ts_ms)
                     if result.pose_landmarks:
                         lm = result.pose_landmarks[0]
-                        xs.append([[p.x * w, p.y * h] for p in lm])
+                        xs.append([[p.x * side_w, p.y * side_h] for p in lm])
                         vs.append([float(getattr(p, "visibility", 1.0) or 0.0) for p in lm])
                     else:
                         xs.append(np.full((33, 2), np.nan).tolist())

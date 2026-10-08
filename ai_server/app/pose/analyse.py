@@ -30,11 +30,30 @@ class PoseError(Exception):
         self.message = message
 
 
+# Sit-to-stand filmed at an angle (sit2stand.ai home videos, 8 Oct): from 45 degrees a seated knee
+# looks 115-130 degrees, never below the 112 "seated" level, so five stands merged into one (97 of
+# 377 videos). When the clip's own seated level stays above it, the levels come from the clip.
+ADAPTIVE_REST = {"sit_to_stand"}
+
+
+def rep_levels(spec: ExerciseSpec, sig: np.ndarray) -> tuple[float, float]:
+    rest, active = spec.rest, spec.active
+    if spec.key in ADAPTIVE_REST:
+        s = sig[~np.isnan(sig)]
+        if len(s) > 10:
+            lo, hi = np.percentile(s, [5, 95])
+            if lo > rest - 5 and hi - lo > 25:
+                rest = float(lo + 0.25 * (hi - lo))
+                active = max(active, float(lo + 0.5 * (hi - lo)))
+    return rest, active
+
+
 def detect_reps(spec: ExerciseSpec, f: Features) -> list[Rep]:
     if spec.side_signals is not None:
         sig = spec.side_signals(f)
         return merge_sides(*(find_reps(s, f.t, spec.rest, spec.active, side=k) for k, s in sig.items()))
-    return find_reps(spec.signal(f), f.t, spec.rest, spec.active)
+    sig = spec.signal(f)
+    return find_reps(sig, f.t, *rep_levels(spec, sig))
 
 
 def check_rep(spec: ExerciseSpec, f: Features, rep: Rep, rom_scale: float = 1.0) -> list[str]:
