@@ -177,6 +177,34 @@ def _fall_only(pose_key: str, at: float, visible_ratio: float) -> dict:
             "safety_alert": {"type": "possible_fall", "at_sec": round(at, 1), "message": FALL_MESSAGE}}
 
 
+# Camera position for side-view exercises (8 Oct: camera-angle test on Elwin's clips, sit2stand.ai):
+# shoulder width / torso length in the image is 0.04-0.16 (p10-p90) side-on, 0.37 with the phone 30
+# degrees round towards the front, 0.52 at 45 degrees; the sit2stand.ai home videos (about 45
+# degrees) have a median of 0.50. Front-view exercises are not checked: other people filmed from the
+# front ranged down to 0.36 (MobiPhysio p5) with an arm raised, too close to a turned camera.
+SIDE_VIEW_TIP = 0.30           # about 25 degrees off: tell the patient
+SIDE_VIEW_WRONG = 0.42         # about 35 degrees off: the checks below are no longer reliable
+SIDE_VIEW_MESSAGE = ("Your phone seems to be more in front of you than at your side, so this result may be "
+                     "less accurate. For this exercise, place the phone at your side.")
+# Checks that fired on most of Elwin's correct clips with the phone 45 degrees round; they are not
+# counted when the camera is clearly not at the side (the trained model is not used then either).
+VIEW_SENSITIVE = {"sit_to_stand": {"hands_used", "feet_forward", "no_forward_lean"},
+                  "shoulder_flexion": {"back_arch", "swinging"},
+                  "knee_extension": {"incomplete_extension", "thigh_lift"},
+                  "wall_push_up": {"hips_sag"},
+                  "bird_dog": {"arm_leg_low"}}
+
+
+def side_view_ratio(seq: PoseSequence) -> float:
+    xy = seq.xy
+    width = np.linalg.norm(xy[:, L_SHOULDER] - xy[:, R_SHOULDER], axis=1)
+    torso = np.linalg.norm((xy[:, L_SHOULDER] + xy[:, R_SHOULDER]) / 2 - (xy[:, L_HIP] + xy[:, R_HIP]) / 2, axis=1)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        r = width / torso
+    r = r[np.isfinite(r)]
+    return float(np.median(r)) if len(r) else 0.0
+
+
 def body_height_share(seq: PoseSequence) -> float:
     """Median share of the frame height the body covers (1st to 99th percentile of the points)."""
     y = seq.xy[..., 1]
@@ -203,6 +231,10 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
             return _fall_only(pose_key, fall_at, visible_ratio)
         raise PoseError("full_body_not_visible", "The whole body was not visible for most of the video.")
 
+    view_ratio = side_view_ratio(seq) if spec.view == "side" else 0.0
+    camera_wrong = view_ratio > SIDE_VIEW_WRONG
+    ignore = VIEW_SENSITIVE.get(spec.key, set()) if camera_wrong else set()
+
     rep_details, all_mistakes = [], Counter()
     hold = None
     method = RULES_VERSION
@@ -210,7 +242,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
 
     if spec.kind == "hold":
         whole = Rep(start=0, peak=len(f.t) // 2, end=len(f.t) - 1)
-        mistakes = check_rep(spec, f, whole, rom_scale)
+        mistakes = [m for m in check_rep(spec, f, whole, rom_scale) if m not in ignore]
         hold = longest_true_seconds((f["feet_gap"] < 0.6) & visible, f.t)
         target = spec.hold_target_sec * min(rom_scale, 1.0)        # shorter hold for frail patients
         score = max(0.0, min(1.0, hold / target) * 100 - MISTAKE_PENALTY * len(mistakes))
@@ -235,11 +267,12 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
             raise PoseError("no_repetitions", "No complete repetition was found in the video.")
         # The trained model learned full-range movement: it would mark every shortened rep wrong, so
         # it is not used for adjusted targets or partial repetitions; the rules judge those.
-        model = classifier.predict(pose_key, f, reps) if use_model and rom_scale >= 1.0 and not partial else None
+        model = (classifier.predict(pose_key, f, reps)
+                 if use_model and rom_scale >= 1.0 and not partial and not camera_wrong else None)
         if model:
             method = f"{RULES_VERSION}+{model['version']}"
         for i, rep in enumerate(reps):
-            mistakes = check_rep(spec, f, rep, rom_scale)
+            mistakes = [m for m in check_rep(spec, f, rep, rom_scale) if m not in ignore]
             score = max(0.0, 100.0 - MISTAKE_PENALTY * len(mistakes))
             detail = {"start_sec": round(float(f.t[rep.start]), 2), "end_sec": round(float(f.t[rep.end]), 2),
                       "side": rep.side or None, "rule_score": score, "mistakes": mistakes}
@@ -276,6 +309,9 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     if rom_scale < 1.0:
         extra["rom_scale"] = rom_scale
     tips = []
+    if view_ratio > SIDE_VIEW_TIP:
+        tips.append(SIDE_VIEW_MESSAGE)
+        extra["camera_not_at_side"] = round(view_ratio, 2)
     if brightness is not None and brightness < DARK_BRIGHTNESS:
         tips.append(DARK_MESSAGE)
     if spec.key not in LYING_EXERCISES and body_height_share(seq) < SMALL_BODY:
