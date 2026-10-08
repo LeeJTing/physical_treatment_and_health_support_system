@@ -1,5 +1,5 @@
--- PROPOSED, NOT APPLIED. Kept out of supabase/migrations/ so `supabase db push` cannot run it by accident.
--- Needs review and OK from Elwin and Jun Ting; then move it to migrations/ (PROJECT_STATE §11).
+-- APPLIED on 9 Oct 2026 by Elwin in the Supabase SQL editor (reviewed by the PC session); moved here from
+-- supabase/proposed/. Idempotent: safe if `supabase db push` runs it again.
 --
 -- Multiple active plans (Elwin, 9 Oct 2026): a patient may follow several treatment plans at once,
 -- within the app's PlanRules (no two plans with an overlapping body area AND the same goal; at most
