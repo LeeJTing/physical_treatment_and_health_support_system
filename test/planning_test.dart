@@ -415,55 +415,84 @@ void main() {
       return h;
     }
 
-    testWidgets(
-      'selecting another plan asks before replacing the current one',
-      (tester) async {
-        // Following catalogue plan 5; the fake server offers plans 0-2.
-        final h = await pump(tester, following: 5);
-        final current = h.vm.currentPlan!;
-        final offered = h.vm.candidates.first;
-        await tester.tap(find.text('Select').first);
-        await tester.pumpAndSettle();
-        expect(find.text('Replace your current plan?'), findsOneWidget);
-        expect(
-          find.textContaining('${current.plan.planName} (33% done)'),
-          findsOneWidget,
-        );
-        await tester.tap(find.text('Keep current plan'));
-        await tester.pumpAndSettle();
-        final still = await tester.runAsync(
-          () async =>
-              (await h.treatments.getActivePlan(current.accountId)).dataOrNull,
-        );
-        expect(still?.plan.planId, current.plan.planId);
+    Future<List<PatientTreatmentPlan>> activeOf(
+      WidgetTester tester,
+      Harness h,
+    ) async => (await tester.runAsync(
+      () async => (await h.treatments.getActivePlans(
+        h.vm.activePlans.first.accountId,
+      )).dataOrNull!,
+    ))!;
 
-        await tester.tap(find.text('Select').first);
-        await tester.pumpAndSettle();
-        await tester.tap(find.text('Replace'));
-        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
-        await tester.pumpAndSettle();
-        final now = await tester.runAsync(
-          () async =>
-              (await h.treatments.getActivePlan(current.accountId)).dataOrNull,
-        );
-        expect(now?.plan.planId, offered.planId);
-      },
-    );
+    testWidgets('a plan for another area is added beside the current one', (
+      tester,
+    ) async {
+      // Following Core and Back Care (6); Early Knee Recovery (0) is offered first.
+      final h = await pump(tester, following: 6);
+      expect(
+        find.text('Can be followed together with your current plans.'),
+        findsWidgets,
+      );
+      await tester.tap(find.text('Select').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Add Early Knee Recovery?'), findsOneWidget);
+      await tester.tap(find.text('Add plan'));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      final active = await activeOf(tester, h);
+      expect(
+        [for (final a in active) a.plan.planName],
+        ['Core and Back Care', 'Early Knee Recovery'],
+      );
+    });
 
-    testWidgets('selecting the plan already followed does not restart it', (
+    testWidgets('same area and goal: replace, and Keep changes nothing', (
+      tester,
+    ) async {
+      // Following Advanced Leg Function (9, legs + strength); Lower Limb
+      // Strength Builder (1, legs + strength) is offered second.
+      final h = await pump(tester, following: 9);
+      expect(
+        find.textContaining('Clashes with Advanced Leg Function'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Select').at(1));
+      await tester.pumpAndSettle();
+      expect(find.text('Replace your plan?'), findsOneWidget);
+      expect(
+        find.textContaining('This stops Advanced Leg Function (33% done)'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(
+        [for (final a in await activeOf(tester, h)) a.plan.planName],
+        ['Advanced Leg Function'],
+      );
+
+      await tester.tap(find.text('Select').at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Replace'));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      expect(
+        [for (final a in await activeOf(tester, h)) a.plan.planName],
+        ['Lower Limb Strength Builder'],
+      );
+    });
+
+    testWidgets('the plan already followed is blocked with an explanation', (
       tester,
     ) async {
       final h = await pump(tester, following: 0);
+      expect(find.text('You are already following this plan.'), findsWidgets);
       await tester.tap(find.text('Select').first);
       await tester.pumpAndSettle();
-      expect(find.text('Replace your current plan?'), findsNothing);
-      expect(find.text('You are already following this plan.'), findsOneWidget);
-      final still = await tester.runAsync(
-        () async => (await h.treatments.getActivePlan(
-          h.vm.currentPlan!.accountId,
-        )).dataOrNull,
-      );
-      expect(still?.patientPlanId, 'current');
+      expect(find.text('You cannot add Early Knee Recovery'), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      final active = await activeOf(tester, h);
+      expect(active.single.patientPlanId, 'current');
     });
 
     testWidgets('shows three plans as in the design', (tester) async {

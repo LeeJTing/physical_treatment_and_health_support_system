@@ -24,14 +24,22 @@ abstract interface class ITreatmentRepository {
   /// the collaborative score. An empty list or a failure means cold start.
   Future<Result<List<PlanOutcome>>> getPlanOutcomes();
 
-  /// The ACTIVE plan with its pathway, or null when none is assigned.
+  /// Every ACTIVE plan with its pathway, oldest first. A patient may follow
+  /// several plans at once (PlanRules; PROJECT_STATE section 11).
+  Future<Result<List<PatientTreatmentPlan>>> getActivePlans(String accountId);
+
+  /// The most recently selected ACTIVE plan, or null when none is assigned.
   Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId);
 
   /// Every catalogue plan with its ordered exercises (FR500_04).
   Future<Result<List<TreatmentPlan>>> getCatalogue();
 
-  /// Saves the selected plan and abandons any previous ACTIVE one (FR500_09).
-  Future<Result<void>> assignPlan(PatientTreatmentPlan p);
+  /// Saves the selected plan (FR500_09) and abandons only the assignments in
+  /// [replacing]; other ACTIVE plans keep running.
+  Future<Result<void>> assignPlan(
+    PatientTreatmentPlan p, {
+    List<String> replacing = const [],
+  });
 
   /// Writes the attempt and, when given, the advanced plan progress in one
   /// transaction (FR300_21, ASR_04).

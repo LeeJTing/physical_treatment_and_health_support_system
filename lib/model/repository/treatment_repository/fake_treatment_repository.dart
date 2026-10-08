@@ -12,7 +12,9 @@ import 'package:physical_treatment_and_health_support_system/model/repository/tr
 /// Supabase (assets/seed/catalogue.json, built by supabase/seed/build_seed.py).
 class FakeTreatmentRepository implements ITreatmentRepository {
   final List<TreatmentPlan> _catalogue;
-  final Map<String, PatientTreatmentPlan> _assigned = {};
+
+  /// Every assignment by patientPlanId (several can be ACTIVE per patient).
+  final Map<String, PatientTreatmentPlan> _plans = {};
   final List<ExerciseSession> sessions = [];
   final List<ChatMessage> chat = [];
 
@@ -26,10 +28,21 @@ class FakeTreatmentRepository implements ITreatmentRepository {
     return FakeTreatmentRepository(plans);
   }
 
+  List<PatientTreatmentPlan> _active(String accountId) =>
+      _plans.values
+          .where((p) => p.accountId == accountId && p.isActive())
+          .toList()
+        ..sort((a, b) => a.selectedAt.compareTo(b.selectedAt));
+
+  @override
+  Future<Result<List<PatientTreatmentPlan>>> getActivePlans(
+    String accountId,
+  ) async => Success(_active(accountId));
+
   @override
   Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId) async {
-    final p = _assigned[accountId];
-    return Success(p != null && p.isActive() ? p : null);
+    final all = _active(accountId);
+    return Success(all.isEmpty ? null : all.last);
   }
 
   @override
@@ -44,10 +57,28 @@ class FakeTreatmentRepository implements ITreatmentRepository {
       Success(List<PlanOutcome>.unmodifiable(planOutcomes));
 
   @override
-  Future<Result<void>> assignPlan(PatientTreatmentPlan p) async {
-    _assigned[p.accountId] = p; // replaces (abandons) any previous plan
+  Future<Result<void>> assignPlan(
+    PatientTreatmentPlan p, {
+    List<String> replacing = const [],
+  }) async {
+    for (final id in replacing) {
+      final old = _plans[id];
+      if (old != null) _plans[id] = _abandoned(old);
+    }
+    _plans[p.patientPlanId] = p;
     return const Success(null);
   }
+
+  static PatientTreatmentPlan _abandoned(PatientTreatmentPlan p) =>
+      PatientTreatmentPlan(
+        patientPlanId: p.patientPlanId,
+        accountId: p.accountId,
+        plan: p.plan,
+        suitabilityScore: p.suitabilityScore,
+        progressPercentage: p.progressPercentage,
+        status: PlanStatus.abandoned,
+        selectedAt: p.selectedAt,
+      );
 
   @override
   Future<Result<void>> saveSession(
@@ -55,7 +86,7 @@ class FakeTreatmentRepository implements ITreatmentRepository {
     PatientTreatmentPlan? advancedPlan,
   }) async {
     sessions.add(s);
-    if (advancedPlan != null) _assigned[advancedPlan.accountId] = advancedPlan;
+    if (advancedPlan != null) _plans[advancedPlan.patientPlanId] = advancedPlan;
     return const Success(null);
   }
 
@@ -67,15 +98,7 @@ class FakeTreatmentRepository implements ITreatmentRepository {
 
   @override
   Future<Result<void>> endPlan(PatientTreatmentPlan p) async {
-    _assigned[p.accountId] = PatientTreatmentPlan(
-      patientPlanId: p.patientPlanId,
-      accountId: p.accountId,
-      plan: p.plan,
-      suitabilityScore: p.suitabilityScore,
-      progressPercentage: p.progressPercentage,
-      status: PlanStatus.abandoned,
-      selectedAt: p.selectedAt,
-    );
+    _plans[p.patientPlanId] = _abandoned(p);
     return const Success(null);
   }
 

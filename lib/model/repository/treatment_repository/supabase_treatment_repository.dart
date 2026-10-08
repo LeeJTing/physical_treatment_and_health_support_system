@@ -18,15 +18,33 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
   SupabaseTreatmentRepository(this._sb);
 
   @override
+  Future<Result<List<PatientTreatmentPlan>>> getActivePlans(String accountId) =>
+      supabaseGuard(
+        () async =>
+            (await _sb
+                    .from('patient_plan')
+                    .select('*, treatment_plan($_planWithExercises)')
+                    .eq('account_id', accountId)
+                    .eq('status', PlanStatus.active.db)
+                    .order('selected_at'))
+                .map(PatientTreatmentPlan.fromJson)
+                .toList(),
+        failMessage: Messages.planRetrieveFailed,
+      );
+
+  /// The newest ACTIVE plan. Not maybeSingle(): with several active plans
+  /// that would throw.
+  @override
   Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId) =>
       supabaseGuard(() async {
-        final row = await _sb
+        final rows = await _sb
             .from('patient_plan')
             .select('*, treatment_plan($_planWithExercises)')
             .eq('account_id', accountId)
             .eq('status', PlanStatus.active.db)
-            .maybeSingle();
-        return row == null ? null : PatientTreatmentPlan.fromJson(row);
+            .order('selected_at', ascending: false)
+            .limit(1);
+        return rows.isEmpty ? null : PatientTreatmentPlan.fromJson(rows.first);
       }, failMessage: Messages.planRetrieveFailed);
 
   @override
@@ -61,18 +79,24 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
         ];
       });
 
-  /// Only one ACTIVE plan per patient (unique partial index), so the old one is
-  /// abandoned before the new one is inserted (FR500_09).
+  /// Abandons only the plans being replaced, then inserts the new one
+  /// (FR500_09). Until supabase/proposed/..._multiple_active_plans.sql is
+  /// applied, the unique index 'one ACTIVE plan per patient' rejects a second
+  /// ACTIVE plan with Postgres code 23505.
   @override
-  Future<Result<void>> assignPlan(PatientTreatmentPlan p) =>
-      supabaseGuard(() async {
-        await _sb
-            .from('patient_plan')
-            .update({'status': PlanStatus.abandoned.db})
-            .eq('account_id', p.accountId)
-            .eq('status', PlanStatus.active.db);
-        await _sb.from('patient_plan').insert(p.toJson());
-      });
+  Future<Result<void>> assignPlan(
+    PatientTreatmentPlan p, {
+    List<String> replacing = const [],
+  }) => supabaseGuard(() async {
+    if (replacing.isNotEmpty) {
+      await _sb
+          .from('patient_plan')
+          .update({'status': PlanStatus.abandoned.db})
+          .eq('account_id', p.accountId)
+          .inFilter('patient_plan_id', replacing);
+    }
+    await _sb.from('patient_plan').insert(p.toJson());
+  });
 
   /// One RPC, so the attempt and the plan's new progress are written in one
   /// transaction (ASR_04).

@@ -1,5 +1,6 @@
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/base_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/plan_rules/plan_rules.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
@@ -48,10 +49,30 @@ class PlanningViewModel extends BaseViewModel {
   String? _notice;
   String? get notice => _notice;
 
-  /// The plan the patient is already following, if any. Selecting another
-  /// plan stops it, so the view asks first.
-  PatientTreatmentPlan? _currentPlan;
-  PatientTreatmentPlan? get currentPlan => _currentPlan;
+  /// Plans the patient is already following. Several can run at once within
+  /// PlanRules; the view shows each plan's checks before Select.
+  List<PatientTreatmentPlan> _activePlans = const [];
+  List<PatientTreatmentPlan> get activePlans => _activePlans;
+
+  /// Shown when the database still allows only one ACTIVE plan (unique index,
+  /// Postgres 23505) - until supabase/proposed/..._multiple_active_plans.sql
+  /// is applied.
+  static const multiPlanNotEnabled =
+      'Following more than one plan at a time is not switched on yet. You can '
+      'replace your current plan instead.';
+
+  /// Checks for adding [p] beside the plans already followed, under the
+  /// CURRENT risk level and safety limit (PlanRules.checkAdd).
+  List<PlanIssue> issuesFor(TreatmentPlan p) {
+    final s = _snapshot;
+    if (s == null) return const [];
+    return PlanRules.checkAdd(
+      candidate: p,
+      active: _activePlans,
+      risk: s.riskLevel,
+      limit: s.safetyLimit,
+    );
+  }
 
   /// The three highest-ranked plans (FR500_07).
   List<TreatmentPlan> get candidates => switch (_recommendation) {
@@ -80,9 +101,9 @@ class PlanningViewModel extends BaseViewModel {
     }
     _snapshot = snapshot;
     final accountId = snapshot.accountId;
-    _currentPlan = accountId == null
-        ? null
-        : (await _repo.getActivePlan(accountId)).dataOrNull;
+    _activePlans = accountId == null
+        ? const []
+        : (await _repo.getActivePlans(accountId)).dataOrNull ?? const [];
     _notice = switch (snapshot.status) {
       ProfileStatus.notConfigured ||
       ProfileStatus.incomplete => Messages.profileNotConfigured,
@@ -132,7 +153,13 @@ class PlanningViewModel extends BaseViewModel {
 
   /// Saves the plan with the patient and selection date, then the exercise
   /// reminder built from its weekly frequency (FR500_09, FR500_11).
-  Future<bool> select(TreatmentPlan p) async {
+  /// Saves [p] (FR500_09) and its reminder (FR500_11). [replacing] are the
+  /// patientPlanIds the patient chose to stop for it (a clash or the risk
+  /// cap); every other active plan keeps running.
+  Future<bool> select(
+    TreatmentPlan p, {
+    List<String> replacing = const [],
+  }) async {
     final accountId = _snapshot?.accountId;
     if (accountId == null) {
       _saving = const UiError(Messages.sessionExpired);
@@ -142,6 +169,9 @@ class PlanningViewModel extends BaseViewModel {
     _saving = const Loading();
     notifyListeners();
 
+    final kept = _activePlans
+        .where((a) => !replacing.contains(a.patientPlanId))
+        .length;
     final assignment = PatientTreatmentPlan(
       patientPlanId: newId(),
       accountId: accountId,
@@ -155,25 +185,38 @@ class PlanningViewModel extends BaseViewModel {
       patientPlanId: assignment.patientPlanId,
       reminderType: ReminderType.exercise,
       title: 'Time for ${p.planName}',
-      hour: AppConstants.defaultReminderHour,
+      // One hour later per plan that keeps running, so reminders of
+      // different plans do not ring at the same time.
+      hour: (AppConstants.defaultReminderHour + kept).clamp(0, 20),
       minute: AppConstants.defaultReminderMinute,
       repeatDays: Reminder.maskForFrequency(p.frequencyPerWeek),
     );
 
-    final previous = (await _repo.getActivePlan(accountId)).dataOrNull;
-    final saved = await _repo.assignPlan(assignment);
+    final saved = await _repo.assignPlan(assignment, replacing: replacing);
     final scheduled = saved.isSuccess
         ? await _notifications.saveReminder(reminder)
         : null;
     final ok = saved.isSuccess && (scheduled?.isSuccess ?? false);
-    // FR500_11, M600.1: the new plan's reminder goes on the device; the old plan's are removed.
+    // FR500_11, M600.1: the new plan's reminder goes on the device; only the
+    // replaced plans' reminders are removed.
     if (ok) {
-      await _reminders?.planSelected(
-        reminder,
-        previousPatientPlanId: previous?.patientPlanId,
-      );
+      for (final id in replacing) {
+        await _reminders?.removeForPlan(accountId, id);
+      }
+      await _reminders?.planSelected(reminder);
+      _activePlans = [
+        for (final a in _activePlans)
+          if (!replacing.contains(a.patientPlanId)) a,
+        assignment,
+      ];
     }
-    _saving = ok ? UiSuccess(p) : const UiError(Messages.dbUnavailable);
+    _saving = ok
+        ? UiSuccess(p)
+        : UiError(
+            saved is Failure<void> && saved.code == '23505'
+                ? multiPlanNotEnabled
+                : Messages.dbUnavailable,
+          );
     notifyListeners();
     return ok;
   }

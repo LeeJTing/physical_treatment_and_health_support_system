@@ -15,6 +15,10 @@ class PlanCard extends StatelessWidget {
   final VoidCallback onDetails;
   final VoidCallback onSelect;
 
+  /// How this plan fits the plans already followed, e.g. 'Clashes with ...'
+  /// (multiple active plans); null when there is nothing to say.
+  final String? note;
+
   const PlanCard({
     super.key,
     required this.plan,
@@ -22,6 +26,7 @@ class PlanCard extends StatelessWidget {
     required this.onSelect,
     this.best = false,
     this.busy = false,
+    this.note,
   });
 
   @override
@@ -65,6 +70,26 @@ class PlanCard extends StatelessWidget {
             color: AppTokens.textBody,
           ),
         ),
+        if (note != null) ...[
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Icon(Icons.info_outline, size: 18, color: AppTokens.onWarn),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  note!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppTokens.onWarn,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 12),
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
