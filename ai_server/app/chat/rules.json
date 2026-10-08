@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.30",
+  "version": "chat-rules-3.31",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -1764,6 +1764,70 @@
       "time_aware": false
     },
     {
+      "key": "eating_concern",
+      "title": "Eating and exercise",
+      "show": false,
+      "priority": 9,
+      "keywords": [
+        "make myself vomit",
+        "make myself sick",
+        "make myself throw up",
+        "made myself vomit",
+        "made myself sick",
+        "throw up after eating",
+        "throwing up after eating",
+        "vomit after eating",
+        "vomit after meals",
+        "purge",
+        "purging",
+        "haven't eaten",
+        "have not eaten",
+        "not eaten for",
+        "didn't eat for",
+        "did not eat for",
+        "no food for",
+        "skip meals",
+        "skipping meals",
+        "skip meal",
+        "skip my meals",
+        "skipped meals",
+        "starve",
+        "starving myself",
+        "starve myself",
+        "stop eating",
+        "stopped eating",
+        "not eating",
+        "not eat",
+        "eat nothing",
+        "eaten nothing",
+        "barely eat",
+        "hardly eat",
+        "too fat",
+        "hate my body",
+        "binge",
+        "bingeing",
+        "binging",
+        "laxative",
+        "laxatives",
+        "burn off what i ate",
+        "earn my food",
+        "exercise to burn off"
+      ],
+      "examples": [
+        "I make myself vomit after eating",
+        "I haven't eaten for 2 days, can I exercise",
+        "I skip meals so I can exercise more"
+      ],
+      "answer": "Please eat regular meals and do not exercise on an empty stomach or to make up for what you ate: your body needs food to recover and to keep you steady. If you have not been able to eat for a day or more, rest today and talk to your doctor. If you feel you have to make yourself vomit, skip meals or exercise to control your weight, you are not alone: talk to your doctor, or call Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight). I cannot give calorie or weight-loss advice.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
       "key": "low_mood",
       "title": "Feeling low",
       "show": false,
@@ -2340,7 +2404,12 @@
         "cream",
         "ointment",
         "injection",
-        "inhaler dose"
+        "inhaler dose",
+        "antibiotic",
+        "antibiotics",
+        "antibiotik",
+        "which medicine",
+        "what medicine"
       ],
       "examples": [
         "can I take painkillers before exercising",
@@ -2400,7 +2469,12 @@
         "go to the doctor",
         "go to hospital",
         "see a physiotherapist",
-        "should i see"
+        "should i see",
+        "cancer",
+        "tumour",
+        "tumor",
+        "covid",
+        "dengue"
       ],
       "examples": [
         "what is wrong with my knee",
@@ -5224,7 +5298,42 @@
     "my daughter just fainted",
     "my daughter has fainted",
     "dia fell",
-    "baru fell"
+    "baru fell",
+    "anaphylaxis",
+    "allergic reaction",
+    "epipen",
+    "epi pen",
+    "throat closing",
+    "throat is closing",
+    "throat feels tight",
+    "throat is tight",
+    "worst headache",
+    "thunderclap headache",
+    "cannot pee",
+    "can't pee",
+    "cant pee",
+    "unable to pee",
+    "not able to pee",
+    "cannot urinate",
+    "can't urinate",
+    "unable to urinate",
+    "tak boleh kencing",
+    "not can kencing",
+    "black stool",
+    "black stools",
+    "black poo",
+    "black poop",
+    "tarry stool",
+    "blood in my stool",
+    "blood in stool",
+    "bloody stool",
+    "blood in my poo",
+    "vomiting blood",
+    "vomit blood",
+    "vomited blood",
+    "throwing up blood",
+    "berak hitam",
+    "najis hitam"
   ],
   "crisis": [
     "end my life",
@@ -5342,6 +5451,180 @@
   ],
   "crisis_answer": "I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you are in danger now or might act on these thoughts, call 999 or go to the nearest emergency department. You can talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or Talian HEAL 15555 (8 am to midnight daily). Please also tell a family member or your doctor how you feel. I am only an exercise assistant, but these people can help you.",
   "red_flag_combos": [
+    [
+      [
+        "lips",
+        "lip",
+        "tongue",
+        "face",
+        "throat",
+        "eyelids",
+        "bibir"
+      ],
+      [
+        "swelling",
+        "swollen",
+        "swell",
+        "swells",
+        "puffy",
+        "closing"
+      ],
+      3,
+      [
+        "knee",
+        "ankle",
+        "joint"
+      ]
+    ],
+    [
+      [
+        "swallow",
+        "swallowing",
+        "telan"
+      ],
+      [
+        "hard",
+        "difficult",
+        "difficulty",
+        "can't",
+        "cannot",
+        "unable",
+        "tight",
+        "suddenly",
+        "susah"
+      ],
+      3,
+      [
+        "pill",
+        "pills",
+        "tablet",
+        "tablets",
+        "capsule",
+        "capsules",
+        "big",
+        "ubat"
+      ]
+    ],
+    [
+      [
+        "headache",
+        "head pain"
+      ],
+      [
+        "worst",
+        "sudden",
+        "suddenly",
+        "severe",
+        "exploding",
+        "explosive",
+        "thunderclap",
+        "like being hit",
+        "very bad"
+      ],
+      4,
+      [
+        "mild",
+        "slight",
+        "little",
+        "sikit",
+        "hangover",
+        "for years"
+      ]
+    ],
+    [
+      [
+        "suddenly cold",
+        "cold and pale",
+        "pale and cold",
+        "turned white",
+        "turned blue",
+        "gone white",
+        "gone pale",
+        "turned pale",
+        "cold pale"
+      ],
+      [
+        "leg",
+        "legs",
+        "foot",
+        "feet",
+        "arm",
+        "hand",
+        "toes",
+        "fingers",
+        "kaki",
+        "tangan"
+      ],
+      5,
+      [
+        "winter",
+        "weather",
+        "aircon",
+        "air con",
+        "raynaud",
+        "raynauds",
+        "always",
+        "every morning"
+      ]
+    ],
+    [
+      [
+        "calf",
+        "calves",
+        "betis"
+      ],
+      [
+        "swollen",
+        "swelling",
+        "hot",
+        "red"
+      ],
+      4,
+      [
+        "cramp",
+        "cramps",
+        "sore muscles"
+      ]
+    ],
+    [
+      [
+        "confused",
+        "confusion",
+        "keliru",
+        "not making sense",
+        "delirious"
+      ],
+      [
+        "fever",
+        "feverish",
+        "high temperature",
+        "temperature",
+        "demam",
+        "shivering",
+        "chills"
+      ],
+      6
+    ],
+    [
+      [
+        "wound",
+        "incision",
+        "stitches",
+        "scar",
+        "luka"
+      ],
+      [
+        "pus",
+        "oozing",
+        "fever",
+        "demam",
+        "smells",
+        "spreading",
+        "red streaks",
+        "nanah"
+      ],
+      6
+    ],
     [
       [
         "blurry",

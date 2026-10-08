@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.30"
+VERSION = "chat-rules-3.31"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -430,6 +430,24 @@ INTENTS = [
            "my answers with you. Keep using your own account and health profile so your plan stays matched to "
            "you, and do the exercises yourself; they can stay close by in case you lose your balance.",
            show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
+    # 8 Oct (laptop pass 11): eating-disorder signs and not eating. Never calorie or weight-loss tips.
+    intent("eating_concern", "Eating and exercise", 9,
+           ["make myself vomit", "make myself sick", "make myself throw up", "made myself vomit", "made myself sick",
+            "throw up after eating", "throwing up after eating", "vomit after eating", "vomit after meals",
+            "purge", "purging", "haven't eaten", "have not eaten", "not eaten for", "didn't eat for",
+            "did not eat for", "no food for", "skip meals", "skipping meals", "skip meal", "skip my meals",
+            "skipped meals", "starve", "starving myself", "starve myself", "stop eating", "stopped eating",
+            "not eating", "not eat", "eat nothing", "eaten nothing", "barely eat", "hardly eat", "too fat",
+            "hate my body", "binge", "bingeing", "binging", "laxative", "laxatives", "burn off what i ate",
+            "earn my food", "exercise to burn off"],
+           ["I make myself vomit after eating", "I haven't eaten for 2 days, can I exercise",
+            "I skip meals so I can exercise more"],
+           "Please eat regular meals and do not exercise on an empty stomach or to make up for what you ate: "
+           "your body needs food to recover and to keep you steady. If you have not been able to eat for a "
+           "day or more, rest today and talk to your doctor. If you feel you have to make yourself vomit, "
+           "skip meals or exercise to control your weight, you are not alone: talk to your doctor, or call "
+           "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight). I cannot give "
+           "calorie or weight-loss advice.", show=False),
     intent("low_mood", "Feeling low", 7,
            ["sad", "so sad", "depressed", "depression", "feeling down", "feel down", "low mood", "lonely",
             "grief", "grieving", "passed away", "hopeless", "feel empty", "keep crying", "sedih", "murung",
@@ -562,7 +580,8 @@ INTENTS = [
            ["medicine", "medicines", "medication", "medications", "pill", "pills", "tablet", "tablets", "painkiller",
             "painkillers", "pain killer", "panadol", "paracetamol", "ibuprofen", "aspirin", "insulin", "drug", "drugs",
             "dose", "dosage", "prescription", "supplement", "supplements", "vitamin", "vitamins", "cream", "ointment",
-            "injection", "inhaler dose"],
+            "injection", "inhaler dose", "antibiotic", "antibiotics", "antibiotik", "which medicine",
+            "what medicine"],
            ["can I take painkillers before exercising", "should I stop my medicine", "what medicine should I take"],
            "I cannot give advice about medicines. Please ask your doctor or pharmacist, and keep taking your "
            "medicines as prescribed unless they tell you otherwise. If a dose was taken twice by mistake, call "
@@ -574,7 +593,9 @@ INTENTS = [
             "injured", "injury", "do i have arthritis", "do i have osteoporosis", "is it arthritis", "tendonitis",
             "sciatica", "slipped disc", "ligament", "meniscus", "x-ray", "xray", "scan", "mri", "surgery",
             "operation", "see a doctor", "see the doctor", "visit a doctor", "go to the doctor",
-            "go to hospital", "see a physiotherapist", "should i see"],
+            "go to hospital", "see a physiotherapist", "should i see",
+            # laptop pass 11: illnesses the assistant cannot diagnose
+            "cancer", "tumour", "tumor", "covid", "dengue"],
            ["what is wrong with my knee", "is my bone broken", "do I have arthritis", "do I need surgery",
             "should I see a doctor"],
            "I cannot diagnose conditions or injuries. If you are worried, or a problem is not improving, please "
@@ -744,6 +765,15 @@ RED_FLAGS += [f"{w} {v}" for w in _WHO for v in (
     "has fainted")]
 # "fell today", "fell just now" without a person are judged by _recent_fall() in the engine (not "my phone fell today").
 RED_FLAGS += ["dia fell", "baru fell"]
+# Laptop pass 11 (8 Oct): emergencies in less obvious words. Allergic reaction, sudden severe
+# headache, unable to pass urine, bleeding from the gut.
+RED_FLAGS += ["anaphylaxis", "allergic reaction", "epipen", "epi pen", "throat closing", "throat is closing",
+              "throat feels tight", "throat is tight", "worst headache", "thunderclap headache",
+              "cannot pee", "can't pee", "cant pee", "unable to pee", "not able to pee", "cannot urinate",
+              "can't urinate", "unable to urinate", "tak boleh kencing", "not can kencing", "black stool",
+              "black stools", "black poo", "black poop", "tarry stool", "blood in my stool", "blood in stool",
+              "bloody stool", "blood in my poo", "vomiting blood", "vomit blood", "vomited blood",
+              "throwing up blood", "berak hitam", "najis hitam"]
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
@@ -786,6 +816,28 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
+    # Laptop pass 11: swelling of the lips, tongue, face or throat (allergic reaction).
+    [["lips", "lip", "tongue", "face", "throat", "eyelids", "bibir"],
+     ["swelling", "swollen", "swell", "swells", "puffy", "closing"], 3, ["knee", "ankle", "joint"]],
+    [["swallow", "swallowing", "telan"], ["hard", "difficult", "difficulty", "can't", "cannot", "unable", "tight",
+                                          "suddenly", "susah"], 3,
+     ["pill", "pills", "tablet", "tablets", "capsule", "capsules", "big", "ubat"]],
+    # A sudden, severe headache (bleeding in the brain), not a mild one.
+    [["headache", "head pain"], ["worst", "sudden", "suddenly", "severe", "exploding", "explosive", "thunderclap",
+                                 "like being hit", "very bad"], 4,
+     ["mild", "slight", "little", "sikit", "hangover", "for years"]],
+    # A limb suddenly cold and pale (blocked artery), not cold hands in winter.
+    [["suddenly cold", "cold and pale", "pale and cold", "turned white", "turned blue", "gone white", "gone pale",
+      "turned pale", "cold pale"], ["leg", "legs", "foot", "feet", "arm", "hand", "toes", "fingers", "kaki", "tangan"],
+     5, ["winter", "weather", "aircon", "air con", "raynaud", "raynauds", "always", "every morning"]],
+    # A swollen, hot calf (blood clot), not a sore calf after heel raises.
+    [["calf", "calves", "betis"], ["swollen", "swelling", "hot", "red"], 4, ["cramp", "cramps", "sore muscles"]],
+    # Confusion with a fever (infection; delirium in older people).
+    [["confused", "confusion", "keliru", "not making sense", "delirious"],
+     ["fever", "feverish", "high temperature", "temperature", "demam", "shivering", "chills"], 6],
+    # An infected wound with pus or a fever.
+    [["wound", "incision", "stitches", "scar", "luka"],
+     ["pus", "oozing", "fever", "demam", "smells", "spreading", "red streaks", "nanah"], 6],
     # Sudden blurred or double vision (round 14: stroke, very high blood pressure or low sugar), not a
     # blurry video or long-standing cataracts.
     [["blurry", "blurred", "kabur", "double vision", "seeing double", "see double", "can't see properly",

@@ -47,7 +47,7 @@ def unstretch(w: str) -> str:
 NEGATORS = {"no", "not", "without", "never", "don't", "dont", "didn't", "didnt", "haven't", "havent", "isn't",
             "isnt", "wasn't", "wasnt", "nor"}
 # Everyday words mapped onto the words the rules use.
-SYNONYMS = {"workout": "exercise", "workouts": "exercises", "train": "exercise", "training": "exercising",
+SYNONYMS = {"pane": "pain", "panes": "pains", "workout": "exercise", "workouts": "exercises", "train": "exercise", "training": "exercising",
             "lift": "raise", "lifts": "raises", "lifting": "raising", "lifted": "raised", "high": "height",
             "physio": "physiotherapist", "doc": "doctor", "vid": "video", "pic": "photo"}
 # Common Malay words patients mix into English (Malaysian users). Single words; phrases are in
@@ -270,9 +270,19 @@ def find_phrase(phrase: str, words: list[str]) -> list[int]:
     return [i for i in range(len(ws) - n + 1) if ws[i:i + n] == p]
 
 
+NEGATION_FILLER = {"have", "has", "had", "got", "any", "feel", "felt", "get", "really", "much", "chest", "knee",
+                   "back", "leg", "legs", "arm", "arms", "hip", "shoulder", "real", "a"}
+
+
 def negated(words: list[str], i: int) -> bool:
-    """A negator in the two words before position i ('no chest pain', 'not dizzy')."""
-    return bool(NEGATORS & set(words[max(0, i - 2):i]))
+    """A negator in the two words before position i ('no chest pain', 'not dizzy'), or further back
+    across filler words ('i don't have chest pain', 'i do not have any pain')."""
+    if NEGATORS & set(words[max(0, i - 2):i]):
+        return True
+    k = i - 1
+    while k >= 0 and i - k <= 4 and words[k] in NEGATION_FILLER:
+        k -= 1
+    return k >= 0 and i - k <= 4 and words[k] in NEGATORS
 
 
 COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
@@ -293,7 +303,10 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("text_size", "recording_help"), ("text_size", "app_help"), ("language", "text_size"),
           ("family_help", "for_someone_else"), ("family_help", "plan_progress"), ("family_help", "recording_help"),
           ("family_help", "app_help"), ("partial_reps", "difficulty"), ("partial_reps", "posture_result"),
-          ("recording_help", "fear_of_falling"), ("missed_session", "muscle_loss")]
+          ("recording_help", "fear_of_falling"), ("missed_session", "muscle_loss"),
+          ("eating_concern", "missed_session"), ("eating_concern", "diet"), ("eating_concern", "best_time"),
+          ("eating_concern", "tired"), ("eating_concern", "motivation"), ("eating_concern", "difficulty"),
+          ("eating_concern", "low_mood"), ("eating_concern", "medication")]
 
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
@@ -471,6 +484,19 @@ def low_sugar(text: str) -> bool:
         if x < 4.0 or 20 <= x < 70:
             return True
     return False
+
+
+HIGH_SUGAR_SIGNS = ("vomit", "sick", "nausea", "thirsty", "drowsy", "confused", "breath", "unwell", "muntah",
+                    "dahaga", "pening", "very weak", "keliru")
+
+
+def high_sugar(text: str) -> bool:
+    """A very high blood sugar reading with symptoms (laptop pass 11: 'my sugar is 25 and i feel very
+    sick'): 20-35 mmol/L or 360-1000 mg/dL. 20-69 with a low-sugar sign is caught by low_sugar."""
+    low = text.lower()
+    if not any(w in low for w in HIGH_SUGAR_SIGNS):
+        return False
+    return any(20 <= float(v) <= 35 or 360 <= float(v) <= 1000 for v in SUGAR_READING.findall(low))
 
 
 def high_bp(text: str) -> bool:
@@ -659,7 +685,7 @@ OD_CLAUSE_BREAKS = {"and", "then", "but", "dan", "lepas", "after", "before", "so
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
-    if high_bp(text) or low_sugar(text):
+    if high_bp(text) or low_sugar(text) or high_sugar(text):
         return True
     r = rules()
     # Neutralise phrases that look like a fall first, then spell-correct the result: correction can
