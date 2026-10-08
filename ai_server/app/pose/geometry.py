@@ -145,6 +145,31 @@ class Features:
         S["body_line_ankle"] = signed_line_offset(hip_mid, sh_mid, an_mid, fwd) / self.torso
         S["bridge_line"] = signed_line_offset(hip_mid, sh_mid, kn_mid, UP) / self.torso
 
+        # Wrist and hand exercises (9 Oct). wrist_ext: angle of the hand (wrist -> middle of the index and
+        # little-finger points) above the forearm line (elbow -> wrist), + when the hand is lifted up,
+        # whichever way the forearm points; forearm_tilt: forearm angle from level (lifting the whole arm).
+        for k, (el, wr, ix, pk) in {"L": (L_ELBOW, L_WRIST, 19, 17), "R": (R_ELBOW, R_WRIST, 20, 18)}.items():
+            fore = p(wr) - p(el)
+            hand = (p(ix) + p(pk)) / 2 - p(wr)
+            cross = fore[:, 0] * hand[:, 1] - fore[:, 1] * hand[:, 0]
+            dot = np.sum(fore * hand, axis=1)
+            S[f"wrist_ext_{k}"] = np.degrees(np.arctan2(cross, dot)) * -np.sign(fore[:, 0] + 1e-9)
+            S[f"forearm_tilt_{k}"] = np.degrees(np.arctan2(-fore[:, 1], np.abs(fore[:, 0]) + 1e-9))
+        if seq.hands is not None and len(seq.hands) == len(seq.t):
+            # Hand openness: mean fingertip distance from the wrist over the palm length (wrist -> middle
+            # knuckle): about 1.1 in a fist, about 2 with the fingers stretched (MediaPipe hand points).
+            hd = fill_gaps(seq.hands)
+            for slot, name in ((0, "A"), (1, "B")):
+                a = hd[:, slot]
+                palm = dist(a[:, 9], a[:, 0])
+                tips = np.mean([dist(a[:, j], a[:, 0]) for j in (8, 12, 16, 20)], axis=0)
+                S[f"hand_open_{name}"] = tips / (palm + 1e-9)
+                # Hand lift: angle of the hand (wrist -> middle knuckle) above level, + up. With the forearm
+                # resting on a table it is the wrist extension (Upper Limb Stroke dataset: complete lifts
+                # reach 67-86 deg, p10-p90; the hand hangs at about -30 deg).
+                v = a[:, 9] - a[:, 0]
+                S[f"hand_lift_{name}"] = np.degrees(np.arctan2(-v[:, 1], np.abs(v[:, 0]) + 1e-9))
+
         self.s = {k: smooth(v) for k, v in S.items()}
 
     def __getitem__(self, key: str) -> np.ndarray:

@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.32",
+  "version": "chat-rules-3.33",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -2792,6 +2792,27 @@
       "time_aware": false
     },
     {
+      "key": "mistake:not_closed",
+      "title": "Not closed",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does not closed mean",
+        "the result said not closed"
+      ],
+      "answer": "“Not closed” in your posture result means your hand did not close into a fist between openings. Between openings, close your hand into a gentle fist.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      }
+    },
+    {
       "key": "mistake:arm_leg_low",
       "title": "Arm leg low",
       "show": false,
@@ -3696,6 +3717,7 @@
     }
   ],
   "glossary": {
+    "not closed": "mistake:not_closed",
     "arm leg low": "mistake:arm_leg_low",
     "back arch": "mistake:back_arch",
     "back sag": "mistake:back_sag",
@@ -3739,6 +3761,7 @@
     "uneven arms": "mistake:uneven_arms",
     "upper arm moves": "mistake:upper_arm_moves",
     "using hands": "mistake:using_hands",
+    "not_closed": "mistake:not_closed",
     "arm_leg_low": "mistake:arm_leg_low",
     "back_arch": "mistake:back_arch",
     "back_sag": "mistake:back_sag",
@@ -4017,6 +4040,41 @@
       ],
       "instruction": "Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
       "camera": "side view, whole body in frame"
+    },
+    "wrist_extension": {
+      "name": "Wrist Extension",
+      "aliases": [
+        "wrist extension",
+        "wrist lift",
+        "lift my wrist",
+        "lifting the wrist",
+        "wrist exercise",
+        "wrist exercises",
+        "bend my wrist up",
+        "wrist up"
+      ],
+      "instruction": "Sit at a table and rest your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles.",
+      "camera": "at table height on the side of your arm, forearm and hand in the picture"
+    },
+    "hand_open_close": {
+      "name": "Hand Open and Close",
+      "aliases": [
+        "hand open and close",
+        "open and close",
+        "open my hand",
+        "opening the hand",
+        "hand opening",
+        "make a fist",
+        "open close hand",
+        "finger exercise",
+        "finger exercises",
+        "fingers",
+        "hand exercise",
+        "hand exercises",
+        "grip exercise"
+      ],
+      "instruction": "Sit at a table with your forearms resting on it. Make a gentle fist, then open and spread your fingers as wide as is comfortable, and close the hand again slowly. Safety: stop if it hurts or tingles.",
+      "camera": "facing you at table height, your hands in the picture"
     }
   },
   "plans": {
@@ -4313,6 +4371,35 @@
           "name": "Standing Hip Abduction",
           "repetitions": 12,
           "duration": "1 minute 30 seconds",
+          "order": 3
+        }
+      ]
+    },
+    "665e8567-b75b-565f-b6e3-85bdb1e6538b": {
+      "plan_name": "Hand and Wrist Recovery",
+      "goal": "MOBILITY",
+      "frequency_per_week": 5,
+      "goal_text": "move your joints more freely",
+      "exercises": [
+        {
+          "pose_key": "wrist_extension",
+          "name": "Wrist Extension",
+          "repetitions": 10,
+          "duration": "1 minute",
+          "order": 1
+        },
+        {
+          "pose_key": "hand_open_close",
+          "name": "Hand Open and Close",
+          "repetitions": 10,
+          "duration": "1 minute",
+          "order": 2
+        },
+        {
+          "pose_key": "elbow_flexion",
+          "name": "Elbow Flexion",
+          "repetitions": 10,
+          "duration": "1 minute",
           "order": 3
         }
       ]

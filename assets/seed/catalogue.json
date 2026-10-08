@@ -149,6 +149,26 @@
       "default_repetitions": 30,
       "default_duration_sec": 120,
       "pose_key": "march_in_place"
+    },
+    {
+      "exercise_id": "d0a54f13-94f7-5f98-820a-b9ea0b9818ab",
+      "exercise_name": "Wrist Extension",
+      "instruction_text": "Camera: at table height on the side of your arm, forearm and hand in the picture. Sit at a table and rest your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 60,
+      "pose_key": "wrist_extension"
+    },
+    {
+      "exercise_id": "00c205b4-5b48-5ceb-828a-e7b6366a4128",
+      "exercise_name": "Hand Open and Close",
+      "instruction_text": "Camera: facing you at table height, your hands in the picture. Sit at a table with your forearms resting on it. Make a gentle fist, then open and spread your fingers as wide as is comfortable, and close the hand again slowly. Safety: stop if it hurts or tingles.",
+      "target_body_area": "BOTH_ARMS",
+      "intensity_level": "LOW",
+      "default_repetitions": 10,
+      "default_duration_sec": 60,
+      "pose_key": "hand_open_close"
     }
   ],
   "plans": [
@@ -795,6 +815,69 @@
             "default_repetitions": 10,
             "default_duration_sec": 90,
             "pose_key": "hip_abduction"
+          }
+        }
+      ]
+    },
+    {
+      "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+      "plan_name": "Hand and Wrist Recovery",
+      "aim": "Regain hand and wrist movement for daily tasks such as gripping and lifting a cup.",
+      "target_body_area": "BOTH_ARMS",
+      "recovery_stage": "EARLY",
+      "mobility_level": "LOW",
+      "frequency_per_week": 5,
+      "goal": "MOBILITY",
+      "plan_exercise": [
+        {
+          "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+          "exercise_id": "d0a54f13-94f7-5f98-820a-b9ea0b9818ab",
+          "sequence_order": 1,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "d0a54f13-94f7-5f98-820a-b9ea0b9818ab",
+            "exercise_name": "Wrist Extension",
+            "instruction_text": "Camera: at table height on the side of your arm, forearm and hand in the picture. Sit at a table and rest your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "wrist_extension"
+          }
+        },
+        {
+          "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+          "exercise_id": "00c205b4-5b48-5ceb-828a-e7b6366a4128",
+          "sequence_order": 2,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "00c205b4-5b48-5ceb-828a-e7b6366a4128",
+            "exercise_name": "Hand Open and Close",
+            "instruction_text": "Camera: facing you at table height, your hands in the picture. Sit at a table with your forearms resting on it. Make a gentle fist, then open and spread your fingers as wide as is comfortable, and close the hand again slowly. Safety: stop if it hurts or tingles.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 10,
+            "default_duration_sec": 60,
+            "pose_key": "hand_open_close"
+          }
+        },
+        {
+          "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+          "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+          "sequence_order": 3,
+          "prescribed_repetitions": 10,
+          "prescribed_duration_sec": 60,
+          "exercise": {
+            "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
+            "exercise_name": "Elbow Flexion",
+            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
+            "target_body_area": "BOTH_ARMS",
+            "intensity_level": "LOW",
+            "default_repetitions": 12,
+            "default_duration_sec": 60,
+            "pose_key": "elbow_flexion"
           }
         }
       ]

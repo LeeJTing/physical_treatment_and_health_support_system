@@ -431,6 +431,52 @@ add(ExerciseSpec(
     ]))
 
 
+def _moving_hand(f: Features, prefix: str) -> np.ndarray:
+    """The hand slot that moves most (hand exercises use one hand or both; slots are by image side)."""
+    best, best_range = None, -1.0
+    for slot in ("A", "B"):
+        key = f"{prefix}_{slot}"
+        if key not in f.s:
+            continue
+        x = f[key]
+        ok = np.isfinite(x)
+        if ok.sum() > 3:
+            r = float(np.percentile(x[ok], 95) - np.percentile(x[ok], 5))
+            if r > best_range:
+                best, best_range = x, r
+    return best if best is not None else np.full(len(f.t), np.nan)
+
+
+def hand_lift(f):        return _moving_hand(f, "hand_lift")
+def hand_open(f):        return _moving_hand(f, "hand_open")
+
+
+# Wrist and hand (9 Oct, Elwin chose to add them). Set from the Upper Limb Stroke Rehabilitation Exercise
+# Video Dataset (Mendeley 49h9dcwx5v, CC BY 4.0; 10 volunteers, 121 + 120 cycles marked complete or
+# incomplete, training/evaluate_wrist_hand.py). Seated at a table: no fall, balance or body-size checks.
+add(ExerciseSpec(
+    key="wrist_extension", name="Wrist Extension", view="side", required=[L_WRIST, R_WRIST],
+    # Hand angle above level: hangs at about -30 deg; complete lifts peak at 67-86 (p10-p90), incomplete
+    # ones at 10-36. A lift past 30 is a repetition; smaller ones count as partial repetitions.
+    signal=hand_lift, rest=0, active=30, target=60,
+    mistakes=[
+        M("low_range", "Lift your hand a little higher, only as far as is comfortable, keeping your forearm "
+                       "resting on the table.", peak_of(hand_lift), 55, False, "degrees"),
+    ]))
+
+add(ExerciseSpec(
+    key="hand_open_close", name="Hand Open and Close", view="front", required=[L_WRIST, R_WRIST],
+    # Openness (fingertips from the wrist / palm length): a fist is about 0.9, complete openings peak at
+    # 1.74-2.25 (p10-p90), incomplete ones at a median of 1.68.
+    signal=hand_open, rest=1.25, active=1.55, target=1.9,
+    mistakes=[
+        M("low_range", "Open your fingers a little wider, only as far as is comfortable.",
+          peak_of(hand_open), 1.75, False, "of the palm length"),
+        M("not_closed", "Between openings, close your hand into a gentle fist.",
+          lambda f, r: float(np.nanmin(hand_open(f)[r.start:r.end + 1])), 1.3, True, "of the palm length"),
+    ]))
+
+
 # ---------------------------------------------------------------------------
 # tuned limits
 # ---------------------------------------------------------------------------
@@ -461,6 +507,7 @@ ROM_BASE = {
     "knee_extension.incomplete_extension": 90.0, "heel_raise.low_raise": 0.0,
     "seated_marching.low_knee_lift": 0.0, "march_in_place.low_knee_lift": 0.0,
     "glute_bridge.low_hips": -0.35, "bird_dog.arm_leg_low": 0.0,
+    "wrist_extension.low_range": -30.0, "hand_open_close.low_range": 0.9,
 }
 for _name, _base in ROM_BASE.items():
     _key, _, _label = _name.partition(".")

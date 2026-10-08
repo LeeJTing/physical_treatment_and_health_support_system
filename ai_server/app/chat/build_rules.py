@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.32"
+VERSION = "chat-rules-3.33"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -684,6 +684,11 @@ ALIASES = {
                       "leg raise to the side", "lift my leg to the side", "leg sideways"],
     "knee_extension": ["knee extension", "seated knee extension", "knee extensions", "straighten my knee",
                        "straightening my knee", "leg extension", "seated leg raise", "leg straightening"],
+    "wrist_extension": ["wrist extension", "wrist lift", "lift my wrist", "lifting the wrist", "wrist exercise",
+                        "wrist exercises", "bend my wrist up", "wrist up"],
+    "hand_open_close": ["hand open and close", "open and close", "open my hand", "opening the hand", "hand opening",
+                        "make a fist", "open close hand", "finger exercise", "finger exercises", "fingers",
+                        "hand exercise", "hand exercises", "grip exercise"],
     "elbow_flexion": ["elbow flexion", "bicep curl", "bicep curls", "biceps curl", "arm curl", "arm curls", "curl",
                       "curls", "elbow bend", "bend my elbow"],
     "wall_push_up": ["wall push up", "wall push-up", "wall pushup", "wall push ups", "wall push-ups", "wall pushups",
@@ -1060,6 +1065,8 @@ TIME_NOTES = {
 # (meaning, what to do). The "what to do" lines are the posture check's own feedback where the name
 # belongs to one exercise; names shared by several exercises get a general line.
 MISTAKE_MEANING = {
+    "not_closed": ("your hand did not close into a fist between openings",
+                   "Between openings, close your hand into a gentle fist."),
     "arm_leg_low": ("your arm and leg did not reach the level of your back",
                     "Stretch your arm and leg a little further, towards the level of your back, only as far as feels steady."),
     "back_arch": ("your lower back bent backwards as your arms went up",

@@ -98,6 +98,8 @@ RULES: dict[str, list[tuple[str, str, float, str]]] = {
     "shoulder_abduction": [("arm_raise", ">=", 25.0, "no arm raising was seen"), LEGS_STILL, UPRIGHT],
     "shoulder_flexion": [("arm_raise", ">=", 25.0, "no arm raising was seen"), LEGS_STILL, UPRIGHT],
     "elbow_flexion": [("elbow_bend", ">=", 45.0, "no elbow bending was seen"), LEGS_STILL, UPRIGHT],
+    # Hand exercises (wrist_extension, hand_open_close): no rules here. The body is half hidden by the
+    # table, so the body signature is unreliable; a repetition found on the hand points is the evidence.
     "wall_push_up": [("elbow_bend", ">=", 25.0, "no elbow bending was seen"),
                      ("arm_raise", ">=", 20.0, "your arms were not up at the wall"),
                      ("heels_together", ">=", 0.4, "your feet moved"), LEGS_STILL, UPRIGHT],

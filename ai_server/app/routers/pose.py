@@ -20,8 +20,8 @@ from fastapi.responses import JSONResponse
 
 from ..auth import current_account_id
 from ..pose import exercises
-from ..pose.analyse import PoseError, analyse
-from ..pose.landmarks import extract, read_video_info
+from ..pose.analyse import HAND_EXERCISES, PoseError, analyse
+from ..pose.landmarks import extract, extract_with_hands, read_video_info
 
 router = APIRouter(tags=["M300 posture"])
 
@@ -95,7 +95,8 @@ def pose(
         if min(info.width, info.height) < MIN_SHORT_SIDE:
             return _error("invalid_video", "The video resolution must be at least 720p.")
         try:
-            return analyse(exercise_key, extract(path), rom_scale=exercises.rom_scale_for(risk_level, age),
+            seq = extract_with_hands(path) if exercise_key in HAND_EXERCISES else extract(path)
+            return analyse(exercise_key, seq, rom_scale=exercises.rom_scale_for(risk_level, age),
                            brightness=_brightness(path))
         except PoseError as e:
             return _error(e.code, e.message)

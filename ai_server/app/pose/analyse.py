@@ -22,7 +22,7 @@ GOOD_FORM = "Good form. Keep it up!"
 
 
 class PoseError(Exception):
-    """code: pose_not_detected | full_body_not_visible | no_repetitions | wrong_exercise"""
+    """code: pose_not_detected | full_body_not_visible | hand_not_visible | no_repetitions | wrong_exercise"""
 
     def __init__(self, code: str, message: str):
         super().__init__(message)
@@ -83,6 +83,9 @@ def longest_true_seconds(mask: np.ndarray, t: np.ndarray) -> float:
 # most 68 deg of trunk lean held for 0.7 s (sit-to-stand), a hip drop of 1.8 torso lengths per
 # second (sitting down fast) and hips 0.67 torso lengths below their usual height (deep squat).
 LYING_EXERCISES = {"glute_bridge", "bird_dog"}
+# Seated at a table, filmed close: the hands are tracked by MediaPipe's hand model, and the fall,
+# balance, body-size and camera-angle checks do not apply.
+HAND_EXERCISES = {"wrist_extension", "hand_open_close"}
 FALL_LEAN_DEG = 80.0           # trunk nearly horizontal ...
 FALL_HOLD_SEC = 0.7            # ... for this long
 FALL_LOW_TORSO = 1.2           # or hips this far below their usual height for as long
@@ -150,7 +153,7 @@ def reliable_frames(f: Features) -> np.ndarray:
 
 def possible_fall(spec: ExerciseSpec, f: Features) -> float | None:
     """Time (s) of a possible fall in a standing or seated exercise, or None."""
-    if spec.key in LYING_EXERCISES or len(f.t) < 3:
+    if spec.key in LYING_EXERCISES or spec.key in HAND_EXERCISES or len(f.t) < 3:
         return None
     lean = 90.0 - f["trunk_from_horizontal"]                  # trunk angle from upright
     hip = f["hip_rise"]                                        # + up, torso lengths from the clip median
@@ -259,18 +262,30 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     """rom_scale < 1 (from rom_scale_for: older / high-risk patients) lowers the range-of-motion
     targets only. A possible fall is reported in "safety_alert" even when nothing else can be scored."""
     spec = get(pose_key)
-    if seq.detected_ratio < MIN_DETECTED:
+    hands_only = spec.key in HAND_EXERCISES
+    if hands_only:
+        # Close-up at a table: the hand model is what matters, the body may be half hidden.
+        if seq.hands is None or not np.isfinite(seq.hands[:, :, 0, 0]).any():
+            raise PoseError("hand_not_visible", "No hand was detected in the video. Keep your whole hand in the "
+                                                "picture, with a light on in front of you.")
+    elif seq.detected_ratio < MIN_DETECTED:
         raise PoseError("pose_not_detected", "No body posture was detected in the video.")
     f = Features(seq)
     fall_at = possible_fall(spec, f)
-    visible = f.visible(spec.required, either_side=spec.view == "side")
+    if hands_only:
+        visible = ~np.all(np.isnan(seq.hands[:, :, 0, 0]), axis=1)             # a hand seen in the frame
+    else:
+        visible = f.visible(spec.required, either_side=spec.view == "side")
     visible_ratio = float(np.mean(visible)) if len(visible) else 0.0
     if visible_ratio < MIN_VISIBLE:
         if fall_at is not None:
             return _fall_only(pose_key, fall_at, visible_ratio)
+        if hands_only:
+            raise PoseError("hand_not_visible", "Your hand was not visible for most of the video. Keep your whole "
+                                                "hand in the picture.")
         raise PoseError("full_body_not_visible", "The whole body was not visible for most of the video.")
 
-    view_ratio = side_view_ratio(seq) if spec.view == "side" else 0.0
+    view_ratio = side_view_ratio(seq) if spec.view == "side" and spec.key not in HAND_EXERCISES else 0.0
     camera_wrong = view_ratio > SIDE_VIEW_WRONG
     ignore = VIEW_SENSITIVE.get(spec.key, set()) if camera_wrong else set()
 
@@ -338,7 +353,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     if fall_at is not None:
         feedback = [FALL_MESSAGE] + [x for x in feedback if x != GOOD_FORM]
     extra = {}
-    if fall_at is None and spec.view == "front" and spec.key not in LYING_EXERCISES:
+    if fall_at is None and spec.view == "front" and spec.key not in LYING_EXERCISES | HAND_EXERCISES:
         sway = f["hip_sway"]
         if float(np.nanpercentile(sway, 97) - np.nanpercentile(sway, 3)) > BALANCE_SWAY:
             feedback = feedback + [BALANCE_MESSAGE]
@@ -355,7 +370,7 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
         extra["camera_not_at_side"] = round(view_ratio, 2)
     if brightness is not None and brightness < DARK_BRIGHTNESS:
         tips.append(DARK_MESSAGE)
-    if spec.key not in LYING_EXERCISES and body_height_share(seq) < SMALL_BODY:
+    if spec.key not in LYING_EXERCISES | HAND_EXERCISES and body_height_share(seq) < SMALL_BODY:
         tips.append(SMALL_MESSAGE)
     if tips:
         feedback = feedback + tips

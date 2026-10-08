@@ -264,7 +264,7 @@ def test_pose_empty_scene_is_pose_not_detected(tmp_path):
 
 def test_pose_exercise_list():
     r = client.get("/pose/exercises", headers=DEV)
-    assert r.status_code == 200 and len(r.json()["exercises"]) == 15
+    assert r.status_code == 200 and len(r.json()["exercises"]) == 17   # + wrist extension, hand open/close (9 Oct)
 
 
 def test_descent_time_runs_from_top_to_seated_not_to_rep_end():

@@ -116,7 +116,7 @@ def test_later_stage_and_higher_mobility_plans_are_dropped():
 def test_plans_for_other_body_areas_are_dropped():
     res = post(area="LEFT_ARM", stage="EARLY", mobility="LOW", goal="MOBILITY")
     assert "Early Knee Recovery" not in names(res)
-    assert names(res)[0] == "Shoulder Mobility Starter"
+    assert names(res)[0] in ARM_TWINS
 
 
 # ---- FR500_14 / FR500_15 ---------------------------------------------------
@@ -161,6 +161,10 @@ from app.recommend import engine as E  # noqa: E402
 
 ID = {p["plan_name"]: p["plan_id"] for p in CATALOGUE["plans"]}
 TWINS = {"Lower Limb Strength Builder", "Advanced Leg Function"}    # the only pair above DUPLICATE_SIM
+# 9 Oct: the new Hand and Wrist Recovery plan has the same area, stage, mobility and goal as Shoulder
+# Mobility Starter, so the content score cannot tell them apart (a body-part focus block is planned).
+ARM_TWINS = {"Shoulder Mobility Starter", "Hand and Wrist Recovery"}
+TWIN_PAIRS = [TWINS, ARM_TWINS]
 
 
 def hybrid_1(req):
@@ -208,9 +212,15 @@ def test_diversity_only_ever_splits_the_near_twin_plans():
         after = [NAME[r.plan_id] for r in recommend(req).ranked]
         if before != after:
             changed += 1
-            assert TWINS <= set(before) and len(TWINS & set(after)) == 1
-            assert set(after) - set(before)           # a different kind of plan took the twin's place
-    assert 0 < changed < 100                           # 42 of 3240 on the seed catalogue
+            split = any(pair <= set(before) and len(pair & set(after)) == 1 for pair in TWIN_PAIRS)
+            # With only three suitable plans (e.g. all three arm plans) the twin just moves to third place.
+            reordered = set(after) == set(before) and any(pair <= set(before) for pair in TWIN_PAIRS)
+            assert split or reordered
+            if split:
+                assert set(after) - set(before)       # a different kind of plan took the twin's place
+    # 42 of 3240 on the 10-plan catalogue; 981 with the Hand and Wrist plan, mostly arm patients where
+    # the twins are content-identical. A body-part focus block (planned) should bring this back down.
+    assert 0 < changed < 1100
 
 
 def test_diversity_never_returns_an_excluded_plan():
@@ -221,7 +231,7 @@ def test_diversity_never_returns_an_excluded_plan():
 
 
 def test_diversity_keeps_order_when_plans_are_already_diverse():
-    plans = [p for p in RecommendRequest.model_validate(body()).plans if p.plan_name not in TWINS]
+    plans = [p for p in RecommendRequest.model_validate(body()).plans if p.plan_name not in TWINS | ARM_TWINS]
     scored = [(1 - i * 0.01, p) for i, p in enumerate(plans)]
     assert [p.plan_id for _, p in E.diversify(scored)] == [p.plan_id for _, p in scored[:3]]
 
@@ -230,7 +240,7 @@ def test_redundancy_is_zero_below_threshold_and_one_for_identical():
     p = RecommendRequest.model_validate(body()).plans
     assert E.redundancy(p[0], p[0]) == pytest.approx(1.0)
     assert all(E.redundancy(a, b) == 0 for a, b in itertools.combinations(p, 2)
-               if {a.plan_name, b.plan_name} != TWINS)
+               if {a.plan_name, b.plan_name} not in TWIN_PAIRS)
 
 
 def test_cell_outcome_clamped_and_missing_values_neutral():

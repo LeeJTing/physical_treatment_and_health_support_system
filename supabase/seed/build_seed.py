@@ -71,6 +71,15 @@ EXERCISES = [
     ("March in Place", "FULL_BODY", "MODERATE", 30, 120, "march_in_place",
      "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if "
      "comfortable and swinging the arms, at a steady pace."),
+    # 9 Oct: wrist and hand (posture checks on the hand model; Elwin chose to add them).
+    ("Wrist Extension", "BOTH_ARMS", "LOW", 10, 60, "wrist_extension",
+     "Camera: at table height on the side of your arm, forearm and hand in the picture. Sit at a table and rest "
+     "your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, "
+     "keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles."),
+    ("Hand Open and Close", "BOTH_ARMS", "LOW", 10, 60, "hand_open_close",
+     "Camera: facing you at table height, your hands in the picture. Sit at a table with your forearms resting "
+     "on it. Make a gentle fist, then open and spread your fingers as wide as is comfortable, and close the hand "
+     "again slowly. Safety: stop if it hurts or tingles."),
 ]
 
 # name, aim, body area, stage, mobility, freq/week, goal, [(exercise, reps, duration_sec)]
@@ -105,6 +114,9 @@ PLANS = [
     ("Advanced Leg Function", "Restore full leg strength and control for an active daily routine.",
      "BOTH_LEGS", "ADVANCED", "HIGH", 3, "STRENGTH",
      [("Mini Squat", 12, 90), ("Step-Up", 12, 120), ("Standing Hip Abduction", 12, 90)]),
+    ("Hand and Wrist Recovery", "Regain hand and wrist movement for daily tasks such as gripping and lifting a cup.",
+     "BOTH_ARMS", "EARLY", "LOW", 5, "MOBILITY",
+     [("Wrist Extension", 10, 60), ("Hand Open and Close", 10, 60), ("Elbow Flexion", 10, 60)]),
 ]
 
 
