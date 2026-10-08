@@ -215,6 +215,12 @@ class _BodyPainter extends CustomPainter {
       ..color = AppTokens.outline
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2 * px;
+    // Regions that cannot be chosen (the neck): grey, not hidden.
+    final greyed = Paint()..color = AppTokens.border;
+    final greyedOutline = Paint()
+      ..color = AppTokens.textMuted
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2 * px;
     final chosen = Paint()..color = AppTokens.highlight;
     final chosenOutline = Paint()
       ..color = AppTokens.primary
@@ -237,12 +243,14 @@ class _BodyPainter extends CustomPainter {
     final regions = BodyRegions.of(view);
     for (final r in regions) {
       canvas
-        ..drawPath(BodyShapes.of(r), base)
-        ..drawPath(BodyShapes.of(r), outline);
+        ..drawPath(BodyShapes.of(r), r.available ? base : greyed)
+        ..drawPath(BodyShapes.of(r), r.available ? outline : greyedOutline);
     }
     _muscleLines(canvas, muscle);
     // Selected on top: fill plus a thick outline, so colour is not the only cue.
-    for (final r in regions.where((r) => selected.contains(r.id))) {
+    for (final r in regions.where(
+      (r) => r.available && selected.contains(r.id),
+    )) {
       canvas
         ..drawPath(BodyShapes.of(r), chosen)
         ..drawPath(BodyShapes.of(r), chosenOutline);
@@ -318,13 +326,23 @@ class _BodyPainter extends CustomPainter {
           CustomPainterSemantics(
             key: ValueKey(r.id),
             rect: _atLeast(l.rectOf(BodyShapes.of(r)), BodyShapes.minTarget),
-            properties: SemanticsProperties(
-              label: r.label,
-              selected: selected.contains(r.id),
-              button: true,
-              textDirection: TextDirection.ltr,
-              onTap: () => toggle(r),
-            ),
+            properties: r.available
+                ? SemanticsProperties(
+                    label: r.label,
+                    selected: selected.contains(r.id),
+                    button: true,
+                    textDirection: TextDirection.ltr,
+                    onTap: () => toggle(r),
+                  )
+                : SemanticsProperties(
+                    label: '${r.label}, not available',
+                    hint: r.unavailableNote,
+                    button: true,
+                    enabled: false,
+                    textDirection: TextDirection.ltr,
+                    // Reads the note out instead of selecting.
+                    onTap: () => toggle(r),
+                  ),
           ),
       ];
     };
@@ -368,7 +386,22 @@ class BodyMap extends StatefulWidget {
 class _BodyMapState extends State<BodyMap> {
   BodyView _view = BodyView.front;
 
+  /// Note of the last unavailable region tapped (the neck), shown under the map.
+  String? _note;
+
+  static const noteKey = ValueKey('body-map-note');
+
   void _toggle(BodyRegion r) {
+    if (!r.available) {
+      setState(() => _note = r.unavailableNote);
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        r.unavailableNote!,
+        TextDirection.ltr,
+      );
+      return;
+    }
+    if (_note != null) setState(() => _note = null);
     final next = {...widget.selected};
     if (!next.remove(r.id)) next.add(r.id);
     widget.onChanged(next);
@@ -376,8 +409,10 @@ class _BodyMapState extends State<BodyMap> {
 
   @override
   Widget build(BuildContext context) {
+    // An unavailable id (e.g. from an older draft) is never shown as chosen.
     final selectedRegions = [
-      for (final id in widget.selected) ?BodyRegions.byId[id],
+      for (final id in widget.selected)
+        if (BodyRegions.byId[id] case final r? when r.available) r,
     ];
     final area = BodyRegions.areaFor(selectedRegions);
     return Column(
@@ -456,6 +491,37 @@ class _BodyMapState extends State<BodyMap> {
             },
           ),
         ),
+        if (_note case final note?) ...[
+          const SizedBox(height: 8),
+          Container(
+            key: noteKey,
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppTokens.cautionContainer,
+              borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.info_outline,
+                  size: 20,
+                  color: AppTokens.caution,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    note,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTokens.caution,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
         const SizedBox(height: 8),
         Text(
           'Tap where it hurts or feels weak. You can choose more than one place.',

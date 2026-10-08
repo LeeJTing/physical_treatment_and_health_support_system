@@ -80,7 +80,24 @@ void main() {
       expect(area(['front_left_hip', 'back_right_heel']), 'BOTH_LEGS');
     });
     test('core only', () {
-      expect(area(['front_neck', 'back_lower_back', 'front_chest']), 'CORE');
+      expect(area(['back_lower_back', 'front_chest']), 'CORE');
+    });
+    test('the neck is never part of the area', () {
+      expect(r('front_neck').available, isFalse);
+      expect(r('back_neck').available, isFalse);
+      expect(r('front_neck').unavailableNote, BodyRegions.neckNote);
+      expect(area(['front_neck']), isNull);
+      expect(area(['front_neck', 'back_neck']), isNull);
+      expect(area(['back_neck', 'front_left_knee']), 'LEFT_LEG');
+      // Neck + an arm is the arm alone, not full body.
+      expect(area(['front_neck', 'front_right_elbow']), 'RIGHT_ARM');
+      expect(area(['front_neck', 'back_upper_back']), 'CORE');
+    });
+    test('only the two neck regions are unavailable', () {
+      expect([
+        for (final x in BodyRegions.byId.values)
+          if (!x.available) x.id,
+      ], unorderedEquals(['front_neck', 'back_neck']));
     });
     test('two or more groups give full body', () {
       expect(area(['front_left_knee', 'front_left_elbow']), 'FULL_BODY');
@@ -91,8 +108,8 @@ void main() {
       );
     });
     test('nothing selected', () => expect(area([]), isNull));
-    test('every region maps to one of the eight areas', () {
-      for (final reg in BodyRegions.byId.values) {
+    test('every available region maps to one of the eight areas', () {
+      for (final reg in BodyRegions.byId.values.where((x) => x.available)) {
         expect(RehabInfo.bodyAreas, contains(BodyRegions.areaFor([reg])));
       }
     });
@@ -227,7 +244,7 @@ void main() {
       var sel = <String>{'front_right_knee'};
       await t.pumpWidget(host(() => sel, (s) => sel = s));
       // The regions are semantics nodes of the painter, so search the tree.
-      for (final reg in BodyRegions.front) {
+      for (final reg in BodyRegions.front.where((x) => x.available)) {
         expect(
           find.semantics.byLabel(reg.label),
           findsAtLeast(1),
@@ -257,6 +274,60 @@ void main() {
       await t.pump();
       expect(sel, {'front_right_knee', 'front_right_shin'});
       handle.dispose();
+    });
+
+    testWidgets('tapping the neck shows the note and selects nothing', (
+      t,
+    ) async {
+      phone(t);
+      var sel = <String>{};
+      await t.pumpWidget(host(() => sel, (s) => sel = s));
+      await tapRegion(t, 'front_neck');
+      expect(sel, isEmpty);
+      expect(find.text(BodyRegions.neckNote), findsOneWidget);
+      expect(find.textContaining('Your plan will focus on'), findsNothing);
+      // The back of the neck too.
+      await t.tap(find.text('Back'));
+      await t.pumpAndSettle();
+      await tapRegion(t, 'back_neck');
+      expect(sel, isEmpty);
+      expect(find.text(BodyRegions.neckNote), findsOneWidget);
+      // Choosing an available region hides the note.
+      await tapRegion(t, 'back_upper_back');
+      expect(sel, {'back_upper_back'});
+      expect(find.text(BodyRegions.neckNote), findsNothing);
+    });
+
+    testWidgets('the neck says not available to screen readers', (t) async {
+      phone(t);
+      final handle = t.ensureSemantics();
+      var sel = <String>{};
+      await t.pumpWidget(host(() => sel, (s) => sel = s));
+      final neck = find.semantics.byLabel('Neck, not available');
+      expect(
+        neck.evaluate().single,
+        isSemantics(
+          hint: BodyRegions.neckNote,
+          hasEnabledState: true,
+          isEnabled: false,
+          hasSelectedState: false,
+        ),
+      );
+      t.semantics.tap(neck);
+      await t.pump();
+      expect(sel, isEmpty);
+      expect(find.text(BodyRegions.neckNote), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('a neck id left in the selection is not shown as chosen', (
+      t,
+    ) async {
+      phone(t);
+      var sel = <String>{'front_neck', 'front_left_knee'};
+      await t.pumpWidget(host(() => sel, (s) => sel = s));
+      expect(find.byType(InputChip), findsOneWidget);
+      expect(find.text('Your plan will focus on: Left leg'), findsOneWidget);
     });
 
     testWidgets('no overflow with 2x text on 360x800', (t) async {
@@ -389,7 +460,17 @@ void main() {
         expect(BodyRegions.areaFor(got), e.key);
       }
       final full = BodyMapThumbnail(area: 'FULL_BODY').highlighted;
-      expect(full.length, BodyRegions.front.length);
+      // Everything but the neck.
+      expect(full.length, BodyRegions.front.length - 1);
+      for (final a in [...expected.keys, 'FULL_BODY']) {
+        for (final v in BodyView.values) {
+          expect(
+            BodyRegions.forArea(a, v).where((x) => !x.available),
+            isEmpty,
+            reason: '$a $v',
+          );
+        }
+      }
       expect(BodyRegions.areaFor(full), 'FULL_BODY');
     });
 

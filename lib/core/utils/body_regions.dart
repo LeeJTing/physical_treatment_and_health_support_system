@@ -28,6 +28,10 @@ class BodyRegion {
   /// Label with a `{side}` placeholder, e.g. '{Side} knee', 'Back of {side} thigh'.
   final String _template;
 
+  /// Why the region cannot be chosen, or null when it can. Such a region is
+  /// drawn greyed out and a tap shows this note instead of selecting it.
+  final String? unavailableNote;
+
   const BodyRegion(
     this.id,
     this._template, {
@@ -35,7 +39,10 @@ class BodyRegion {
     required this.view,
     required this.side,
     required this.group,
+    this.unavailableNote,
   });
+
+  bool get available => unavailableNote == null;
 
   /// Patient-facing name, always with the person's own side: 'Right knee'.
   String get label => _template
@@ -56,6 +63,12 @@ class BodyRegion {
 /// Regions of both views and the mapping to the recommender's body areas.
 class BodyRegions {
   BodyRegions._();
+
+  /// No neck exercises in the catalogue: neck problems are left to a doctor
+  /// or physiotherapist (PC review, 9 Oct).
+  static const neckNote =
+      "Neck problems need a doctor or physiotherapist to guide the exercises, "
+      "so this app doesn't include neck exercises.";
 
   static List<BodyRegion> _paired(
     String name,
@@ -83,6 +96,7 @@ class BodyRegions {
       view: BodyView.front,
       side: BodySide.centre,
       group: BodyGroup.core,
+      unavailableNote: BodyRegions.neckNote,
     ),
     const BodyRegion(
       'front_chest',
@@ -180,6 +194,7 @@ class BodyRegions {
       view: BodyView.back,
       side: BodySide.centre,
       group: BodyGroup.core,
+      unavailableNote: BodyRegions.neckNote,
     ),
     const BodyRegion(
       'back_upper_back',
@@ -268,7 +283,12 @@ class BodyRegions {
   ///  - legs only: LEFT_LEG, RIGHT_LEG or BOTH_LEGS
   ///  - core only: CORE
   ///  - two or more of arms, legs and core: FULL_BODY
+  /// Regions that cannot be chosen (the neck) are ignored.
   static String? areaFor(Iterable<BodyRegion> regions) {
+    regions = [
+      for (final r in regions)
+        if (r.available) r,
+    ];
     final groups = {for (final r in regions) r.group};
     if (groups.isEmpty) return null;
     if (groups.length > 1) return 'FULL_BODY';
@@ -295,7 +315,7 @@ class BodyRegions {
     };
     return {
       for (final r in of(view))
-        if (wanted(r)) r,
+        if (r.available && wanted(r)) r,
     };
   }
 }
