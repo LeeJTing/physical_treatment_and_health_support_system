@@ -29,6 +29,39 @@ class RecommendedPlansView extends StatelessWidget {
   Future<void> _select(BuildContext context, TreatmentPlan plan) async {
     final vm = context.read<PlanningViewModel>();
     final messenger = ScaffoldMessenger.of(context);
+    // Selecting a plan stops the one being followed, so never do it silently.
+    final current = vm.currentPlan;
+    if (current != null) {
+      if (current.plan.planId == plan.planId) {
+        messenger.showSnackBar(
+          const SnackBar(content: Text('You are already following this plan.')),
+        );
+        return;
+      }
+      final pct = current.progressPercentage.round();
+      final yes = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Replace your current plan?'),
+          content: Text(
+            'You are following ${current.plan.planName} ($pct% done). '
+            'Choosing ${plan.planName} will stop it. Your past sessions stay '
+            'in your history.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Keep current plan'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Replace'),
+            ),
+          ],
+        ),
+      );
+      if (yes != true || !context.mounted) return;
+    }
     if (await vm.select(plan)) {
       messenger.showSnackBar(
         const SnackBar(content: Text(Messages.planSaved)),

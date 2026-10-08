@@ -391,6 +391,18 @@ class _BodyMapState extends State<BodyMap> {
             ],
             selected: {_view},
             showSelectedIcon: false,
+            // App colours instead of the Material default purple.
+            style: SegmentedButton.styleFrom(
+              selectedBackgroundColor: AppTokens.primary,
+              selectedForegroundColor: Colors.white,
+              foregroundColor: AppTokens.primary,
+              side: const BorderSide(color: AppTokens.primary),
+              minimumSize: const Size(96, AppTokens.minTarget),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             onSelectionChanged: (s) => setState(() => _view = s.single),
           ),
         ),
@@ -467,6 +479,15 @@ class _BodyMapState extends State<BodyMap> {
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton(
+              // App green, not the theme's default text-button colour.
+              style: TextButton.styleFrom(
+                foregroundColor: AppTokens.accent,
+                minimumSize: const Size(48, AppTokens.minTarget),
+                textStyle: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               onPressed: () => widget.onChanged(<String>{}),
               child: const Text('Clear'),
             ),
@@ -516,7 +537,9 @@ class _BodyMapState extends State<BodyMap> {
           );
       var nextTop = 0.0;
       for (final r in side) {
-        final width = left ? leftWidth : rightWidth;
+        // Measure at exactly the width the label is drawn at, or a label that
+        // wraps on the device is clipped to its first line.
+        final width = math.max(0.0, (left ? leftWidth : rightWidth) - 4);
         final tp = TextPainter(
           text: TextSpan(text: r.label, style: _labelStyle),
           textScaler: scaler,
@@ -525,10 +548,10 @@ class _BodyMapState extends State<BodyMap> {
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: width);
         final anchor = l.toScreen(BodyShapes.centreOf(r));
-        final h = tp.height;
+        final h = tp.height + 2;
         final top = math.max(anchor.dy - h / 2, nextTop);
         nextTop = top + h + 4;
-        final rect = Rect.fromLTWH(left ? 4 : rightX, top, width - 4, h);
+        final rect = Rect.fromLTWH(left ? 4 : rightX, top, width, h);
         final lineFrom = Offset(
           left ? rect.right + 2 : rect.left - 2,
           rect.center.dy,

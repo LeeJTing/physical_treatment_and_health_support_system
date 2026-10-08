@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
@@ -374,7 +375,11 @@ void main() {
   });
 
   group('RecommendedPlansView', () {
-    Future<Harness> pump(WidgetTester tester, {int n = 3}) async {
+    Future<Harness> pump(
+      WidgetTester tester, {
+      int n = 3,
+      int? following,
+    }) async {
       // Phone width, tall enough that all three cards (with their body
       // thumbnails) are built by the ListView.
       tester.view.physicalSize = const Size(1080, 3600);
@@ -382,7 +387,20 @@ void main() {
       addTearDown(tester.view.reset);
       final h = Harness()..server.n = n;
       await tester.runAsync(() async {
-        await h.signIn();
+        final accountId = await h.signIn();
+        // Optionally already following catalogue plan [following] (33% done).
+        if (following != null) {
+          final catalogue = (await h.treatments.getCatalogue()).dataOrNull!;
+          await h.treatments.assignPlan(
+            PatientTreatmentPlan(
+              patientPlanId: 'current',
+              accountId: accountId,
+              plan: catalogue[following],
+              progressPercentage: 33,
+              selectedAt: DateTime(2026, 10, 1),
+            ),
+          );
+        }
         await h.vm.recommend(rehab);
       });
       await tester.pumpWidget(
@@ -396,6 +414,57 @@ void main() {
       await tester.pumpAndSettle();
       return h;
     }
+
+    testWidgets(
+      'selecting another plan asks before replacing the current one',
+      (tester) async {
+        // Following catalogue plan 5; the fake server offers plans 0-2.
+        final h = await pump(tester, following: 5);
+        final current = h.vm.currentPlan!;
+        final offered = h.vm.candidates.first;
+        await tester.tap(find.text('Select').first);
+        await tester.pumpAndSettle();
+        expect(find.text('Replace your current plan?'), findsOneWidget);
+        expect(
+          find.textContaining('${current.plan.planName} (33% done)'),
+          findsOneWidget,
+        );
+        await tester.tap(find.text('Keep current plan'));
+        await tester.pumpAndSettle();
+        final still = await tester.runAsync(
+          () async =>
+              (await h.treatments.getActivePlan(current.accountId)).dataOrNull,
+        );
+        expect(still?.plan.planId, current.plan.planId);
+
+        await tester.tap(find.text('Select').first);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Replace'));
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+        await tester.pumpAndSettle();
+        final now = await tester.runAsync(
+          () async =>
+              (await h.treatments.getActivePlan(current.accountId)).dataOrNull,
+        );
+        expect(now?.plan.planId, offered.planId);
+      },
+    );
+
+    testWidgets('selecting the plan already followed does not restart it', (
+      tester,
+    ) async {
+      final h = await pump(tester, following: 0);
+      await tester.tap(find.text('Select').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Replace your current plan?'), findsNothing);
+      expect(find.text('You are already following this plan.'), findsOneWidget);
+      final still = await tester.runAsync(
+        () async => (await h.treatments.getActivePlan(
+          h.vm.currentPlan!.accountId,
+        )).dataOrNull,
+      );
+      expect(still?.patientPlanId, 'current');
+    });
 
     testWidgets('shows three plans as in the design', (tester) async {
       final h = await pump(tester);

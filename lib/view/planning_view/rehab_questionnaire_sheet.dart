@@ -149,6 +149,14 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTokens.accent,
+                          minimumSize: const Size(48, AppTokens.minTarget),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                         onPressed: _chooseFromList,
                         child: const Text("Can't find it? Choose from a list"),
                       ),

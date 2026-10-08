@@ -48,6 +48,11 @@ class PlanningViewModel extends BaseViewModel {
   String? _notice;
   String? get notice => _notice;
 
+  /// The plan the patient is already following, if any. Selecting another
+  /// plan stops it, so the view asks first.
+  PatientTreatmentPlan? _currentPlan;
+  PatientTreatmentPlan? get currentPlan => _currentPlan;
+
   /// The three highest-ranked plans (FR500_07).
   List<TreatmentPlan> get candidates => switch (_recommendation) {
     UiSuccess(:final data) => data.plans,
@@ -74,6 +79,10 @@ class PlanningViewModel extends BaseViewModel {
       return;
     }
     _snapshot = snapshot;
+    final accountId = snapshot.accountId;
+    _currentPlan = accountId == null
+        ? null
+        : (await _repo.getActivePlan(accountId)).dataOrNull;
     _notice = switch (snapshot.status) {
       ProfileStatus.notConfigured ||
       ProfileStatus.incomplete => Messages.profileNotConfigured,
