@@ -1,0 +1,14 @@
+{
+  "all inputs": {
+    "accuracy": 0.578,
+    "balanced_accuracy": 0.606
+  },
+  "rule inputs + thigh (current)": {
+    "accuracy": 0.477,
+    "balanced_accuracy": 0.518
+  },
+  "rule inputs + thigh + hip + trunk": {
+    "accuracy": 0.494,
+    "balanced_accuracy": 0.532
+  }
+}

@@ -149,8 +149,8 @@ EVAL = [
     ("how do i change my plan", "plan_and_reminders"),
     ("can I get a different plan", "plan_and_reminders"),
     ("I want to stop this plan", "plan_and_reminders"),
-    ("how do I change the reminder time", "plan_and_reminders"),
-    ("i am not getting any notifications", "plan_and_reminders"),
+    ("how do I change the reminder time", "reminders_help"),
+    ("i am not getting any notifications", "reminders_help"),
 
     # ---- medicines and diagnosis: must NOT give advice ----
     ("can I take panadol before exercising", "medication"),

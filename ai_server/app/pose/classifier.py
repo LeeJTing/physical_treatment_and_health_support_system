@@ -25,6 +25,28 @@ FEATURES = [
 ]
 ANGLE_FEATURES = {f for f in FEATURES if not f.startswith(("shrug", "heel_lift", "wrist_thigh", "leg_len"))}
 
+# Inputs each exercise's model reads (8 Oct): only what its rules look at. With one person in the
+# training data, the extra series (legs during an arm exercise, and so on) let the model learn
+# that person's stance and outfit instead of the movement. Older checkpoints list all FEATURES.
+INPUTS = {
+    "sit_to_stand": ["knee_L", "knee_R", "hip_L", "hip_R", "lean_sagittal", "shin_forward_L", "shin_forward_R",
+                     "wrist_thigh_L", "wrist_thigh_R"],
+    "shoulder_abduction": ["elbow_L", "elbow_R", "shoulder_elev_L", "shoulder_elev_R", "lean_lateral", "shrug"],
+    "shoulder_flexion": ["elbow_L", "elbow_R", "shoulder_elev_L", "shoulder_elev_R", "lean_sagittal", "shrug"],
+    # hip_abduction reads ALL inputs: unlike the arm exercises, every reduced set did worse, both in
+    # cross-validation on Elwin's clips (3 fold seeds: all 92.9 %, rule + thigh 90.4 %) and on the
+    # REHAB24-6 people doing the same leg raise (balanced accuracy all 60.6 %, rule + thigh 51.8 %;
+    # experiment_hip_crossperson.json).
+    # + whole-leg angle and length: 88.3 -> 95.5 % (all inputs 94.7 %).
+    "knee_extension": ["knee_L", "knee_R", "thigh_from_down_L", "thigh_from_down_R", "hip_L", "hip_R",
+                       "lean_sagittal", "leg_from_down_L", "leg_from_down_R", "leg_len_L", "leg_len_R"],
+}
+
+
+def columns(names: list[str]) -> list[int]:
+    """Column indices of `names` in a rep_tensor, plus the duration column (always last)."""
+    return [FEATURES.index(n) for n in names] + [len(FEATURES)]
+
 
 def rep_tensor(f: Features, rep: Rep) -> np.ndarray:
     """(SEQ_LEN, len(FEATURES) + 1): the rep resampled to a fixed length, plus its duration."""
@@ -72,7 +94,7 @@ def _load(path: str):
     import torch
 
     ckpt = torch.load(path, map_location="cpu", weights_only=False)
-    model = build_model(len(FEATURES) + 1, len(ckpt["mistakes"]))
+    model = build_model(len(ckpt.get("features", FEATURES)) + 1, len(ckpt["mistakes"]))
     model.load_state_dict(ckpt["state"])
     model.eval()
     return model, ckpt
@@ -86,7 +108,8 @@ def predict(pose_key: str, f: Features, reps: list[Rep]) -> dict | None:
     import torch
 
     model, ckpt = _load(str(path))
-    x = torch.from_numpy(np.stack([rep_tensor(f, r) for r in reps]))
+    cols = columns(ckpt.get("features", FEATURES))
+    x = torch.from_numpy(np.stack([rep_tensor(f, r)[:, cols] for r in reps]))
     with torch.no_grad():
         c_logit, m_logit = model(x)
     p_correct = torch.sigmoid(c_logit).numpy().tolist()

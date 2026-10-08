@@ -1,0 +1,1 @@
+Cross-cutting code not drawn as a layer: constants and report messages, routes, themes and design tokens, helpers.

@@ -11,6 +11,8 @@ direction. Rules with fewer than MIN_PER_CLASS repetitions on either side are le
     ai_server\\.venv\\Scripts\\python training\\tune_rules.py --write      (save thresholds.json)
     ai_server\\.venv\\Scripts\\python training\\tune_rules.py --rehab      (also REHAB24-6: hip_abduction,
                                                                            all incorrect reps as positives)
+    ai_server\\.venv\\Scripts\\python training\\tune_rules.py --everyone   (also the second person's labelled
+                                                                           clips and REHAB24-6 correct leg abductions)
 
 thresholds.json (ai_server/app/pose/) is read by the server at start-up. Report:
 training/reports/rule_tuning.json (for Chapter 5).
@@ -22,7 +24,7 @@ from datetime import datetime
 
 import numpy as np
 
-from common import REPORTS, cached_sequence, own_clips
+from common import DATA, REPORTS, cached_sequence, own_clips
 from app.pose.analyse import detect_reps
 from app.pose.exercises import EXERCISES, THRESHOLDS_FILE
 from app.pose.geometry import Features
@@ -35,15 +37,48 @@ MIN_GAIN = 0.05
 # Limits reviewed by hand after tuning on Elwin's clips (7 Oct): the tuned value sat at the edge
 # of the correct reps, so a value with more margin and nearly the same score is used.
 REVIEWED = {
-    "shoulder_abduction.bent_elbow": (165, "classes overlap (some 'bent elbow' reps reach 172 deg); 170 would flag "
-                                           "normal arms; 165 scores 85%, the trained model handles the rest"),
-    "shoulder_flexion.bent_elbow": (160, "94%, same as the tuned 162, rounder and with more margin"),
+    # 8 Oct, other people: REHAB24-6's physiotherapist-approved arm raises keep the elbow at 154-163 deg
+    # (p10/p50; measured overhead, so only partly comparable); 165 flagged 60 % of them.
+    "shoulder_abduction.bent_elbow": (158, "158 catches 62% of Elwin's bent-elbow reps (165: 69%) and flags 23% of "
+                                           "REHAB24's approved reps (165: 60%); no correct rep of Elwin or p02; "
+                                           "the trained model handles subtler bends"),
+    # 8 Oct, other people: REHAB24-6's approved leg abductions lean 12.3 deg (median), p90 19.3; 13.5
+    # flagged 46 % of them. Elwin's 'trunk lean' reps are mild (median 15.9).
+    # 8 Oct: REHAB24-6's approved push-ups (on a table, 10 people) sit at -0.18 (median), p10 -0.29;
+    # -0.12 flagged 77 % of them. Elwin's hips-back reps are at -0.58.
+    "wall_push_up.hips_back": (-0.3, "catches all of Elwin's hips-back reps and 62% of REHAB24's incorrect "
+                                     "push-ups; flags 4% of REHAB24's approved ones (-0.12: 77%)"),
+    # 8 Oct: REHAB24-6's approved leg abductions keep the knee at 166-168 deg (p5/p10); 170 flagged 25 %.
+    "hip_abduction.bent_knee": (166, "catches 96% of Elwin's bent-knee reps (max 168 deg), flags none of his "
+                                     "correct reps and 6% of REHAB24's approved ones (170: 25%)"),
+    "hip_abduction.trunk_lean": (16, "flags 4% of Elwin's correct reps and 27% of REHAB24's approved ones "
+                                     "(13.5: 11% and 46%); catches 81% of REHAB24's incorrect reps and half of "
+                                     "Elwin's mild leans; the trained model also judges lean"),
+    # 8 Oct, second person (p02) blind test: her correct flexion keeps the elbow at 160-164 deg and
+    # her shoulders at 0.84-0.86; both fired at 160 / 0.85. Elwin's correct reps stay >= 163 / >= 0.86.
+    "shoulder_flexion.bent_elbow": (157, "two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; "
+                                         "157 still catches 84% of bent-elbow reps (160: 88%)"),
+    "shoulder_flexion.shoulder_shrug": (0.82, "two people: p02's correct reps 0.84-0.86 fired at 0.85; 0.82 "
+                                              "catches the same 93% of Elwin's shrug reps with no false flags"),
     "sit_to_stand.incomplete_stand": (170, "98% vs 100% at 174, which is 2 deg below Elwin's own correct reps"),
     # No shrug clips for abduction: raising the arms to the side rotates the shoulder blades up,
     # so correct reps sit at 0.80-0.85 (p5 0.80) and the default 0.85 fired on half of them.
     # 0.75 is below every correct rep and above the shrug reps recorded for flexion (median 0.67).
     "shoulder_abduction.shoulder_shrug": (0.75, "correct reps p5 0.80 (arms to the side lift the shoulder blades); "
                                                 "flexion shrug reps median 0.67; no abduction shrug clips yet"),
+    # The tuner's -0.03 only catches a 0.6 s partial rep at the end of the leaning clip (already
+    # upright again); correct reps lean -1.4 deg (median), leaning reps 31 deg.
+    "heel_raise.leaning_forward": (12, "correct median -1.4 deg, leaning median 31 deg; the one missed rep is a "
+                                       "0.6 s partial rep at the end of the clip; -0.03 would flag any lean"),
+    # -12 flagged a normal rep at -13 deg (sitting back against the chair); leaning reps -31 to -34.
+    "seated_marching.leaning_back": (-20, "correct reps down to -13 deg (back against the chair), leaning reps "
+                                          "-31 to -34 deg; -20 leaves margin on both sides"),
+    # Only 3 leaning reps (near leg); -10 flagged normal marching at -10.6 deg.
+    "march_in_place.leaning_back": (-20, "correct reps down to -10.6 deg, leaning reps -28 to -35 deg; "
+                                         "-10 flagged normal marching"),
+    # The tuner's -4 only chases a 0.5 s partial rep at the end of the clip.
+    "mini_squat.trunk_forward": (15, "correct -7 to -2 deg, leaning reps 25-38 deg; the one missed rep is a 0.5 s "
+                                     "partial rep at the end of the clip; -4 would flag any forward lean"),
 }
 
 
@@ -94,10 +129,35 @@ def rehab_samples():
     return {"hip_abduction": [(f, r, ok, "*") for f, r, ok in labelled_reps(4)]}
 
 
+def other_people_samples():
+    """Reps from people other than Elwin, so limits do not drift towards one person's habits:
+      * the second person's labelled clips (training/data/test_p02: labels.json + landmark caches),
+      * REHAB24-6 leg abduction, CORRECT reps only (a physiotherapist approved them; its incorrect
+        reps carry no mistake type, so they cannot count as examples of any one rule).
+    REHAB24-6 push-ups are left out: on a table, not a wall, so depth and hip line differ."""
+    import json
+    from app.pose import landmarks
+    out = defaultdict(list)
+    p02 = DATA / "test_p02"
+    imported = any(c.person == "p02" for c in own_clips())   # already counted by own_samples()
+    if (p02 / "labels.json").exists() and not imported:
+        for stem, (key, label) in json.loads((p02 / "labels.json").read_text(encoding="utf-8")).items():
+            f = Features(landmarks.load(p02 / f"{stem}.npz"))
+            spec = EXERCISES[key]
+            reps = [Rep(0, len(f.t) // 2, len(f.t) - 1)] if spec.kind == "hold" else detect_reps(spec, f)
+            out[key] += [(f, r, label == "ok", label) for r in reps]
+    from evaluate_rehab import labelled_reps
+    out["hip_abduction"] += [(f, r, True, "ok") for f, r, ok in labelled_reps(4) if ok]
+    return out
+
+
 def main():
     samples = own_samples()
     if "--rehab" in sys.argv:
         for k, v in rehab_samples().items():
+            samples[k].extend(v)
+    if "--everyone" in sys.argv:
+        for k, v in other_people_samples().items():
             samples[k].extend(v)
     if not samples:
         print("No labelled clips yet (training/data/<exercise>/<correct|incorrect>/).")

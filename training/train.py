@@ -17,7 +17,7 @@ from datetime import datetime
 import numpy as np
 
 from common import DATA, REPORTS
-from app.pose.classifier import FEATURES, SEQ_LEN, WEIGHTS_DIR, build_model
+from app.pose.classifier import FEATURES, INPUTS, SEQ_LEN, WEIGHTS_DIR, build_model, columns
 
 
 def person_split(groups: np.ndarray, y: np.ndarray, test_share: float, seed: int,
@@ -73,7 +73,10 @@ def synthetic(n=400, seed=0):
 
 
 def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_name: str | None = None,
-          clips=None, aug=None):
+          clips=None, aug=None, inputs: list[str] | None = None):
+    """inputs: the series the model reads (default all FEATURES); X always holds all of them."""
+    inputs = list(inputs or FEATURES)
+    X = X[:, :, columns(inputs)]
     import torch
     from torch import nn
 
@@ -158,7 +161,8 @@ def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_
     WEIGHTS_DIR.mkdir(parents=True, exist_ok=True)
     n = 1 + max([int(p.stem.rsplit("_v", 1)[1]) for p in WEIGHTS_DIR.glob(f"{key}_v*.pt")] or [0])
     name = out_name or f"{key}_v{n}"
-    ckpt = {"state": best_state, "mistakes": list(mistakes), "features": FEATURES, "seq_len": SEQ_LEN,
+    res["inputs"] = inputs
+    ckpt = {"state": best_state, "mistakes": list(mistakes), "features": inputs, "seq_len": SEQ_LEN,
             "metrics": res, "trained_at": datetime.now().isoformat(timespec="seconds")}
     torch.save(ckpt, WEIGHTS_DIR / f"{name}.pt")
     rep_dir = REPORTS / name
@@ -196,6 +200,8 @@ def main():
     ap.add_argument("--epochs", type=int, default=300)
     ap.add_argument("--synthetic", action="store_true")
     ap.add_argument("--own-only", action="store_true", help="train on Elwin's recordings only (drop REHAB24-6)")
+    ap.add_argument("--all-inputs", action="store_true",
+                    help="read every FEATURES series instead of the exercise's INPUTS (the pre-8 Oct models)")
     a = ap.parse_args()
     if a.synthetic:
         X, y, ym, g, mistakes = synthetic()
@@ -209,7 +215,8 @@ def main():
                 if k in d:
                     d[k] = d[k][keep]
         name, res = train(a.key, d["X"], d["y_correct"], d["y_mistake"], d["groups"], d["mistakes"].tolist(), a.epochs,
-                          clips=d.get("clip"), aug=d.get("aug"))
+                          clips=d.get("clip"), aug=d.get("aug"),
+                          inputs=None if a.all_inputs else INPUTS.get(a.key))
     print(json.dumps({k: v for k, v in res.items() if k != "confusion_matrix"}, indent=2))
     print("confusion matrix [true incorrect, true correct] x [pred incorrect, pred correct]:",
           res["confusion_matrix"]["rows_true_cols_pred"])

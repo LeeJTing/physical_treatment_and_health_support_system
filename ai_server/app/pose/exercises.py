@@ -43,13 +43,22 @@ class Mistake:
     limit: float
     above: bool          # True: mistake when measure > limit; False: when measure < limit
     unit: str = ""
+    # Range-of-motion rules only: the measure's value at rest (arm down 0 deg, seated knee 90 deg...).
+    # For frail users the limit moves towards it (rom_scale < 1); form rules (bent elbow, lean)
+    # stay as they are.
+    rom_base: float | None = None
 
     def value(self, f: Features, r: Rep) -> float:
         return float(self.measure(f, r))
 
-    def check(self, f: Features, r: Rep) -> bool:
-        v = self.value(f, r)
-        return v > self.limit if self.above else v < self.limit
+    def limit_for(self, rom_scale: float = 1.0) -> float:
+        if self.rom_base is None or rom_scale >= 1.0:
+            return self.limit
+        return self.rom_base + (self.limit - self.rom_base) * rom_scale
+
+    def check(self, f: Features, r: Rep, rom_scale: float = 1.0) -> bool:
+        v, limit = self.value(f, r), self.limit_for(rom_scale)
+        return v > limit if self.above else v < limit
 
     def describe(self) -> str:
         return f"{self.label}: mistake when {'above' if self.above else 'below'} {self.limit:g} {self.unit}".strip()
@@ -122,7 +131,11 @@ def elbow_flex(f):       return 180 - f.both("elbow", "min")
 def leg_raise(f):        return f.both("leg_from_down", "max")
 def knee_ext(f):         return f.both("knee", "max")
 def squat_depth(f):      return 180 - f.both("knee", "mean")
-def heel_lift(f):        return f.both("heel_lift", "mean")
+def heel_lift(f):
+    """Heel lift above the clip's own flat-standing level (10th percentile): with the camera a
+    little high or low, flat feet already read 0.02-0.07 shin lengths, which merged reps."""
+    s = f.both("heel_lift", "mean")
+    return s - np.nanpercentile(s, 10) if np.isfinite(s).any() else s
 def bridge(f):           return f["bridge_line"]
 def hip_rise(f):         return f["hip_rise"]
 
@@ -143,12 +156,40 @@ def descent_seconds(signal, f, r: Rep, margin: float = 5.0, look_ahead: float = 
     return float(f.t[i1] - f.t[i0]) if i1 > i0 else float("inf")
 
 
+def near_side(f) -> str:
+    """The leg nearer the camera in a side view (its knee is seen better). The far leg is hidden
+    behind it, and its estimated lifts are unreliable (phantom 13-23 deg lifts in Elwin's clips)."""
+    vis = f.seq.vis
+    return "L" if np.nanmean(vis[:, L_KNEE]) >= np.nanmean(vis[:, R_KNEE]) else "R"
+
+
 def thigh_lift_seated(f):
-    return {k: f[f"thigh_from_down_{k}"] - 90 for k in ("L", "R")}
+    """Near leg only (7 Oct): from the side the far leg cannot be judged."""
+    k = near_side(f)
+    return {k: f[f"thigh_from_down_{k}"] - 90}
 
 
 def thigh_lift_standing(f):
-    return {k: f[f"thigh_from_down_{k}"] for k in ("L", "R")}
+    """Near leg only (7 Oct): the far leg's estimated lifts gave 0.5 s phantom reps."""
+    k = near_side(f)
+    return {k: f[f"thigh_from_down_{k}"]}
+
+
+def bridge_rise(f):
+    """Hip lift above the clip's own lying level (10th percentile). Lying flat reads -0.27 to
+    -0.35 torso lengths depending on where the feet are, which merged reps (feet_far) or missed
+    low bridges. The mistakes still use the absolute shoulder-hip-knee line (bridge)."""
+    s = f["bridge_line"]
+    return s - np.nanpercentile(s, 10)
+
+
+def drop_speed(f, r: Rep, look_ahead: float = 1.5) -> float:
+    """Fastest downward speed of the hips after the top of a step-up, torso lengths per second.
+    Timing the descent did not work: at 10 frames/s every step-down took 0.3-0.4 s."""
+    stop = int(np.searchsorted(f.t, f.t[r.end] + look_ahead))
+    seg = slice(r.peak, max(stop, r.end + 1))
+    v = np.gradient(hip_rise(f), f.t)
+    return float(-np.nanmin(v[seg])) if len(v[seg]) else 0.0
 
 
 def bird_dog_sides(f):
@@ -226,7 +267,8 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="hip_abduction", name="Standing Hip Abduction", view="front", required=LOWER + [L_SHOULDER, R_SHOULDER],
-    signal=leg_raise, rest=10, active=18, target=25,
+    # rest/active lowered 7 Oct: low_range clips peak at 14-18 deg and were not counted at 18.
+    signal=leg_raise, rest=8, active=12, target=25,
     mistakes=[
         M("trunk_lean", "Keep your body upright; do not lean away from the lifting leg.",
           lambda f, r: rep_max(f["lean_lateral"], r), 10, True, "degrees"),
@@ -250,8 +292,11 @@ add(ExerciseSpec(
         M("thigh_lift", "Keep your thigh resting on the seat; only the lower leg moves.",
           lambda f, r: rep_max(f[f"thigh_from_down_{moving(f, r, 'knee')}"], r) - 90, 15, True, "degrees"),
         M("no_hold", "Hold the straight leg for 2 seconds before lowering it.", hold_of(knee_ext, 8), 1.5, False, "seconds"),
+        # 7 Oct: forward lean gained during the lift, so a reclined chair back does not matter
+        # (Elwin's chair reclines ~20 deg). Correct reps gain 0-1.6 deg, leaning reps 15-39 deg.
         M("leaning_forward", "Keep your upper body upright; do not lean towards your knee.",
-          lambda f, r: rep_max(f["lean_sagittal"], r), 15, True, "degrees"),
+          lambda f, r: rep_max(f["lean_sagittal"], r) - float(f["lean_sagittal"][r.start]), 10, True,
+          "degrees gained"),
     ]))
 
 # ---- Angle-rule exercises ---------------------------------------------------
@@ -281,7 +326,8 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="heel_raise", name="Heel Raise", view="side", required=LOWER + FEET,
-    signal=heel_lift, rest=0.03, active=0.06, target=0.10,
+    # 7 Oct, from Elwin's clips: 5 reps in every correct clip, low raises (0.04-0.065) counted too.
+    signal=heel_lift, rest=0.025, active=0.04, target=0.10,
     mistakes=[
         M("low_raise", "Rise higher onto your toes.", peak_of(heel_lift), 0.08, False, "shin lengths"),
         M("knees_bend", "Keep your knees straight as you rise.",
@@ -301,20 +347,24 @@ add(ExerciseSpec(
 
 add(ExerciseSpec(
     key="seated_marching", name="Seated Marching", view="side", required=LOWER + [L_SHOULDER, R_SHOULDER, L_WRIST, R_WRIST],
-    side_signals=thigh_lift_seated, rest=6, active=12, target=20,
+    # rest/active lowered 7 Oct: low knee lifts peak at 10-18 deg (near leg); flat thigh rests at -3 to 0.
+    side_signals=thigh_lift_seated, rest=4, active=8, target=20,
     mistakes=[
         M("low_knee_lift", "Lift your knees higher.",
           lambda f, r: rep_max(f[f"thigh_from_down_{r.side or 'L'}"] - 90, r), 16, False, "degrees"),
         M("leaning_back", "Sit upright; do not lean back against the chair.",
           lambda f, r: rep_min(f["lean_sagittal"], r), -12, False, "degrees"),
+        # 7 Oct: hands resting on the thighs are normal (they sit 0-0.5 of the way to the knee);
+        # pulling the leg up puts a hand at the knee (0.8-1.0).
         M("using_hands", "Lift your legs without pulling them up with your hands.",
-          lambda f, r: at_peak(f.both("wrist_thigh", "min"), r), 0.2, False, "torso lengths"),
+          lambda f, r: at_peak(f[f"wrist_along_thigh_{r.side or 'L'}"], r), 0.7, True, "of the thigh"),
     ]))
 
 add(ExerciseSpec(
     key="glute_bridge", name="Glute Bridge", view="side",
     required=[L_SHOULDER, R_SHOULDER, L_HIP, R_HIP, L_KNEE, R_KNEE, L_ANKLE, R_ANKLE],
-    signal=bridge, rest=-0.30, active=-0.15, target=-0.05,
+    # 7 Oct: reps counted from the clip's own lying level (bridge_rise); mistakes on the absolute line.
+    signal=bridge_rise, rest=0.05, active=0.10, target=0.30,
     mistakes=[
         M("low_hips", "Lift your hips higher, until your body is straight from shoulders to knees.",
           peak_of(bridge), -0.10, False, "torso lengths"),
@@ -333,8 +383,10 @@ add(ExerciseSpec(
           lambda f, r: float(np.mean(f["feet_gap"] < 0.6)), 0.7, False, "share of time"),
         M("stepping_out", "Try to hold the position without stepping out.",
           lambda f, r: float(np.sum(np.diff((f["feet_gap"] < 0.6).astype(int)) != 0)), 1.5, True, "changes"),
+        # 7 Oct: the median missed a real lean (3.6 deg); the most-leaning 10 % of the hold
+        # separates it (correct 1.5-2.2 deg, leaning 9.4 deg).
         M("leaning", "Stand upright; do not lean on the counter or to the side.",
-          lambda f, r: float(np.median(f["lean_lateral"])), 8, True, "degrees"),
+          lambda f, r: float(np.percentile(f["lean_lateral"], 90)), 5, True, "degrees"),
     ]))
 
 add(ExerciseSpec(
@@ -343,8 +395,11 @@ add(ExerciseSpec(
     mistakes=[
         M("arm_leg_low", "Stretch your arm and leg further, until both are level with your back.",
           lambda f, r: rep_max(bird_dog_sides(f)[r.side or "L"], r), 70, False, "degrees"),
+        # 7 Oct, from Elwin's clips: on all fours the shoulder-hip line normally tilts up 12-18 deg
+        # (arms longer than thighs); sagging flattens it to 0-6 deg. The old check (tilt above
+        # 15 deg) fired on correct reps and never on sagging ones.
         M("back_sag", "Keep your back flat and your hips level.",
-          lambda f, r: rep_max(np.abs(f["trunk_from_horizontal"]), r), 15, True, "degrees"),
+          lambda f, r: at_peak(f["trunk_from_horizontal"], r), 9, False, "degrees"),
         M("no_hold", "Hold the stretched position for 2 seconds.",
           lambda f, r: hold_seconds(bird_dog_sides(f)[r.side or "L"], f.t, r, 10), 1.5, False, "seconds"),
     ]))
@@ -356,7 +411,7 @@ add(ExerciseSpec(
         M("trunk_forward", "Keep your chest up as you step.", lambda f, r: rep_max(f["lean_sagittal"], r), 25, True, "degrees"),
         M("knee_not_straight", "Straighten your leading leg fully at the top.",
           lambda f, r: at_peak(f.both("knee", "max"), r), 165, False, "degrees"),
-        M("drop_down", "Step down slowly and with control.", lambda f, r: phase_seconds(f.t, r)[1], 0.6, False, "seconds"),
+        M("drop_down", "Step down slowly and with control.", drop_speed, 0.8, True, "torso lengths/s"),
     ]))
 
 add(ExerciseSpec(
@@ -392,6 +447,33 @@ def apply_thresholds(path: Path = THRESHOLDS_FILE) -> dict:
             if m.label == part:
                 m.limit = float(value)
     return data
+
+
+# Range-of-motion rules and the value of their measure at rest (see Mistake.rom_base).
+ROM_BASE = {
+    "shoulder_abduction.low_range": 0.0, "shoulder_flexion.low_range": 0.0, "elbow_flexion.low_range": 0.0,
+    "wall_push_up.low_range": 0.0, "hip_abduction.low_range": 0.0, "sit_to_stand.incomplete_stand": 90.0,
+    "knee_extension.incomplete_extension": 90.0, "heel_raise.low_raise": 0.0,
+    "seated_marching.low_knee_lift": 0.0, "march_in_place.low_knee_lift": 0.0,
+    "glute_bridge.low_hips": -0.35, "bird_dog.arm_leg_low": 0.0,
+}
+for _name, _base in ROM_BASE.items():
+    _key, _, _label = _name.partition(".")
+    for _m in EXERCISES[_key].mistakes:
+        if _m.label == _label:
+            _m.rom_base = _base
+
+
+def rom_scale_for(risk_level: str | None = None, age: int | None = None) -> float:
+    """How much of the full range of movement to expect (8 Oct). Older or high-risk patients often
+    have muscles weakened by disuse; asking for the full range on day one makes them fail every rep
+    and give up. 1.0 = full targets."""
+    risk = (risk_level or "").strip().upper()
+    if risk == "HIGH" or (age is not None and age >= 75):
+        return 0.7
+    if risk == "MODERATE" or (age is not None and age >= 65):
+        return 0.85
+    return 1.0
 
 
 # The physiotherapy defaults written above, kept for comparison with the tuned limits (Chapter 5).

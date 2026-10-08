@@ -1,0 +1,1 @@
+Entities named as in the Chapter 4 class diagram (Account, HealthProfile, TreatmentPlan, ...), plus team models.

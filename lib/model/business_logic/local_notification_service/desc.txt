@@ -1,0 +1,1 @@
+LocalNotificationService: exercise reminders scheduled on the phone (uses device_platform/notification_scheduler).

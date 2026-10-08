@@ -1,2 +1,0 @@
-features based MVVM.
-for each feature have own view, viewmodel, model and widgets

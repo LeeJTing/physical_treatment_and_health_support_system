@@ -1,0 +1,1 @@
+RecommendationService: calls /recommend on the AI server. recommendation.dart = its result.

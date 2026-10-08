@@ -1,4 +1,0 @@
-call the datasource to get data
-example:
-update user profile VM(business logic) will call respository.updateProfile(...)
-in the updateProfile function will call the data source to update local and remote data

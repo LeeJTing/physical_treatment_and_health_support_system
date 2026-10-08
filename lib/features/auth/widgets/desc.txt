@@ -1,3 +1,0 @@
-reusable widget uses independently in this feature.
-example:
-reusable container and sharing design

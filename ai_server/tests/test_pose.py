@@ -156,7 +156,9 @@ def test_knee_extension_correct_with_hold():
 
 
 def test_knee_extension_no_hold_and_incomplete():
-    no_hold = analyse("knee_extension", sequence([side_seated(k) for k in wave(4, 90, 175)]), use_model=False)
+    # A real no-hold kick is quick (Elwin's clips: 0.3 s near the top; limit tuned to 0.59 s).
+    no_hold = analyse("knee_extension", sequence([side_seated(k) for k in wave(4, 90, 175, rep_sec=1.5)]),
+                      use_model=False)
     assert "no_hold" in no_hold["mistakes"]
     half = analyse("knee_extension", sequence([side_seated(k) for k in wave(4, 90, 148, hold_sec=2.0)]), use_model=False)
     assert "incomplete_extension" in half["mistakes"]
@@ -164,7 +166,8 @@ def test_knee_extension_no_hold_and_incomplete():
 
 def test_knee_extension_slouching():
     res = analyse("knee_extension",
-                  sequence([side_seated(k, lean=-18) for k in wave(4, 90, 175, hold_sec=2.0)]), use_model=False)
+                  # limit tuned to -29 deg on Elwin's clips (his chair reclines ~20 deg, slouching ~-39)
+                  sequence([side_seated(k, lean=-35) for k in wave(4, 90, 175, hold_sec=2.0)]), use_model=False)
     assert "slouching" in res["mistakes"]
 
 
@@ -281,3 +284,92 @@ def test_descent_time_runs_from_top_to_seated_not_to_rep_end():
 
     assert run(2.0) == pytest.approx(1.7, abs=0.25)   # slow, controlled: well above the 0.7 s limit
     assert run(0.5) < 0.7                             # dropping into the chair
+
+
+# ---- elderly users: possible fall, gentler targets, partial repetitions (8 Oct) ----------------
+
+def test_possible_fall_is_reported():
+    frames = [front_pose(a, a) for a in wave(3, 5, 88)] + [front_pose(0, 0, lean=85)] * 20
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert res["safety_alert"]["type"] == "possible_fall"
+    assert res["feedback"][0].startswith("It looks like you may have lost your balance")
+
+
+def test_normal_exercise_has_no_fall_alert():
+    res = analyse("shoulder_abduction", sequence([front_pose(a, a) for a in wave(5, 5, 88)]), use_model=False)
+    assert "safety_alert" not in res
+
+
+def test_fall_is_reported_even_without_repetitions():
+    frames = [front_pose(0, 0)] * 30 + [front_pose(0, 0, lean=85)] * 20
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert res["safety_alert"]["type"] == "possible_fall" and res["repetitions"] == 0
+
+
+def test_older_patients_get_gentler_range_targets():
+    frames = [front_pose(a, a) for a in wave(4, 5, 75)]
+    assert "low_range" in analyse("shoulder_abduction", sequence(frames), use_model=False)["mistakes"]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False, rom_scale=exercises.rom_scale_for("HIGH"))
+    assert "low_range" not in res["mistakes"] and res["rom_scale"] == 0.7
+
+
+def test_gentler_targets_keep_the_form_rules():
+    frames = [front_pose(a, a, elbow_bend=60 * a / 88) for a in wave(4, 5, 88)]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False, rom_scale=0.7)
+    assert "bent_elbow" in res["mistakes"]
+
+
+def test_small_movements_count_as_partial_repetitions():
+    res = analyse("shoulder_abduction", sequence([front_pose(a, a) for a in wave(4, 5, 48)]), use_model=False)
+    assert res["partial_repetitions"] is True and res["repetitions"] == 4
+    assert res["feedback"][0].startswith("We saw small movements")
+
+
+def test_rom_scale_for_risk_and_age():
+    assert exercises.rom_scale_for() == 1.0 and exercises.rom_scale_for("LOW", 40) == 1.0
+    assert exercises.rom_scale_for("MODERATE") == 0.85 and exercises.rom_scale_for(None, 68) == 0.85
+    assert exercises.rom_scale_for("high") == 0.7 and exercises.rom_scale_for("LOW", 80) == 0.7
+
+
+def _shift(frames, dx):
+    out = []
+    for p, d in zip(frames, dx):
+        q = p.copy()
+        q[:, 0] += d
+        out.append(q)
+    return out
+
+
+def test_large_side_to_side_sway_gives_a_balance_tip():
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    sway = [85 * math.sin(i / 6) for i in range(len(frames))]      # about +-0.3 torso lengths
+    res = analyse("shoulder_abduction", sequence(_shift(frames, sway)), use_model=False)
+    assert res.get("balance_tip") is True
+    assert res["feedback"][-1].startswith("You swayed quite a lot")
+    calm = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert "balance_tip" not in calm
+
+
+def test_frail_patients_get_a_shorter_hold_target():
+    full = analyse("tandem_stance", sequence([front_pose(feet_gap=10)] * 110), use_model=False)
+    gentle = analyse("tandem_stance", sequence([front_pose(feet_gap=10)] * 110), use_model=False, rom_scale=0.7)
+    assert gentle["accuracy"] >= full["accuracy"]
+
+
+def test_dark_video_gives_a_quality_tip():
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False, brightness=50)
+    assert res["quality_tips"] and res["feedback"][-1].startswith("Your video is quite dark")
+    assert "quality_tips" not in analyse("shoulder_abduction", sequence(frames), use_model=False, brightness=130)
+
+
+def test_small_figure_gives_a_quality_tip():
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    small = []
+    for p in frames:                                   # shrink the person to a third, around the centre
+        q = p.copy()
+        q[:, 0] = W / 2 + (q[:, 0] - W / 2) / 3
+        q[:, 1] = H / 2 + (q[:, 1] - H / 2) / 3
+        small.append(q)
+    res = analyse("shoulder_abduction", sequence(small), use_model=False)
+    assert any(t.startswith("You look small") for t in res["quality_tips"])
