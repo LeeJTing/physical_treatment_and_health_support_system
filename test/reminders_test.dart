@@ -7,6 +7,10 @@ import 'package:physical_treatment_and_health_support_system/model/entity/exerci
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/result.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/notification_view_model/notification_view_model.dart';
 
 /// Records what would be scheduled on the phone.
 class FakeScheduler implements NotificationScheduler {
@@ -27,6 +31,28 @@ class FakeScheduler implements NotificationScheduler {
   @override
   Future<void> cancel(int id) async => pending.remove(id);
 }
+
+/// A notification plugin that fails on every call (no permission service, a platform error).
+class ThrowingScheduler implements NotificationScheduler {
+  @override
+  Future<void> init() async {}
+  @override
+  Future<bool> requestPermission() async => true;
+  @override
+  Future<void> scheduleOnce(int id, String title, String body, DateTime at) =>
+      Future.error(Exception('plugin failed'));
+  @override
+  Future<void> cancel(int id) => Future.error(Exception('plugin failed'));
+}
+
+Reminder healthLog({String id = 'h1', String account = 'a1'}) => Reminder(
+  reminderId: id,
+  accountId: account,
+  reminderType: ReminderType.healthLog,
+  title: 'Log your health readings',
+  hour: 20,
+  minute: 0,
+);
 
 // Monday 5 October 2026, 08:00: before the 09:00 reminder.
 final DateTime now = DateTime(2026, 10, 5, 8);
@@ -179,5 +205,116 @@ void main() {
         expect(moved.isEnabled, isTrue);
       },
     );
+  });
+
+  group('Reminder management (M600.1, 9 Oct)', () {
+    test('changing the days reschedules on the new days only (FR600_003)', () async {
+      final r = reminder(); // Mon/Wed/Fri at 9:00
+      await repo.saveReminder(r);
+      await local.schedule(r);
+      final moved = (await service.update(r, repeatDays: '0100000')).dataOrNull!;
+      expect(moved.repeatDays, '0100000');
+      expect(repo.reminders['r1']!.repeatDays, '0100000');
+      expect(device.pending, hasLength(2)); // Tuesday 6 and Tuesday 13 October
+      expect(
+        device.pending.values.every((t) => t.weekday == DateTime.tuesday),
+        isTrue,
+      );
+    });
+
+    test(
+      'a health-logging reminder is not suppressed by a finished exercise (FR600_002)',
+      () async {
+        final h = healthLog();
+        await repo.saveReminder(h);
+        await local.schedule(h);
+        await service.exerciseDone('a1', 'pp1');
+        expect(device.pending, hasLength(14)); // every evening for two weeks
+        expect(repo.log, isEmpty);
+      },
+    );
+
+    test('removing a reminder cancels it on the phone and deletes it', () async {
+      final h = healthLog();
+      await repo.saveReminder(h);
+      await local.schedule(h);
+      expect(await service.remove(h), isA<Success<void>>());
+      expect(device.pending, isEmpty);
+      expect(repo.reminders, isEmpty);
+    });
+
+    test('a failing phone plugin never reaches the caller (services never throw)', () async {
+      final broken = LocalNotificationService(
+        repo,
+        treatments,
+        scheduler: ThrowingScheduler(),
+        now: () => now,
+      );
+      expect(await broken.schedule(reminder()), 0);
+      await broken.cancel('r1');
+      await repo.saveReminder(reminder());
+      final off = await broken.update(reminder(), enabled: false);
+      expect(off.dataOrNull?.isEnabled, isFalse);
+    });
+  });
+
+  group('NotificationViewModel (Table 4.49)', () {
+    late FakeAuthRepository auth;
+    late NotificationViewModel vm;
+
+    setUp(() async {
+      auth = FakeAuthRepository();
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      await repo.saveReminder(
+        Reminder(
+          reminderId: 'plan-r',
+          accountId: id,
+          patientPlanId: 'pp1',
+          reminderType: ReminderType.exercise,
+          title: 'Time for Early Knee Recovery',
+          hour: 9,
+          minute: 0,
+          repeatDays: '1010100',
+        ),
+      );
+      vm = NotificationViewModel(repo, local, auth);
+      await vm.load();
+    });
+
+    test('adds one health-logging reminder, every day at 8 pm (FR600_002)', () async {
+      expect(vm.hasHealthLogReminder, isFalse);
+      await vm.addHealthLogReminder();
+      await vm.addHealthLogReminder(); // a second tap adds nothing
+      final logs = repo.reminders.values
+          .where((r) => r.reminderType == ReminderType.healthLog)
+          .toList();
+      expect(logs, hasLength(1));
+      expect(logs.single.hour, 20);
+      expect(logs.single.repeatDays, '1111111');
+      expect(vm.hasHealthLogReminder, isTrue);
+    });
+
+    test('a day can be turned off, but not the last one (FR600_003)', () async {
+      await vm.toggleDay('plan-r', DateTime.monday);
+      expect(repo.reminders['plan-r']!.repeatDays, '0010100');
+      await vm.toggleDay('plan-r', DateTime.wednesday);
+      await vm.toggleDay('plan-r', DateTime.friday); // would leave no day
+      expect(repo.reminders['plan-r']!.repeatDays, '0000100');
+      expect(vm.errorMessage, Messages.reminderNeedsADay);
+    });
+
+    test('only reminders the patient added can be deleted', () async {
+      await vm.deleteReminder('plan-r'); // a plan's reminder stays with the plan
+      expect(repo.reminders.containsKey('plan-r'), isTrue);
+      await vm.addHealthLogReminder();
+      final id = repo.reminders.values
+          .firstWhere((r) => r.reminderType == ReminderType.healthLog)
+          .reminderId;
+      await vm.deleteReminder(id);
+      expect(repo.reminders.containsKey(id), isFalse);
+    });
   });
 }

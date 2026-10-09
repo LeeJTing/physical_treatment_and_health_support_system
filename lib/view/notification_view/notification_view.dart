@@ -8,9 +8,10 @@ import 'package:physical_treatment_and_health_support_system/model/entity/remind
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/notification_view_model/notification_view_model.dart';
 
-/// Exercise reminders (M600.1): time, days, on/off (FR600_003, FR600_004, FR600_006), and the
-/// last two weeks of notifications (FR600_013, FR600_015, FR600_016). No Figma frame exists for
-/// it, so it uses the planning screens' tokens.
+/// Reminders (M600.1): the treatment plan's exercise reminders and an optional health-logging
+/// reminder (FR600_001, FR600_002); time, days and on/off for each (FR600_003, FR600_004,
+/// FR600_006); and the last two weeks of notifications (FR600_013, FR600_015, FR600_016). No Figma
+/// frame exists for it, so it uses the planning screens' tokens.
 class NotificationView extends StatefulWidget {
   const NotificationView({super.key});
 
@@ -20,6 +21,15 @@ class NotificationView extends StatefulWidget {
 
 class _NotificationViewState extends State<NotificationView> {
   static const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  static const dayNames = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
 
   @override
   void initState() {
@@ -59,7 +69,7 @@ class _NotificationViewState extends State<NotificationView> {
           children: [
             PlanningHeader(
               title: 'Reminders',
-              subtitle: 'When we remind you to exercise',
+              subtitle: 'When we remind you to exercise and log your health',
               onBack: () => Navigator.of(context).maybePop(),
             ),
             const SizedBox(height: 16),
@@ -83,7 +93,7 @@ class _NotificationViewState extends State<NotificationView> {
                     ),
                     UiSuccess(:final data) when data.isEmpty =>
                       const NoticeBanner(
-                        'No reminders yet. They are created when you select a treatment plan.',
+                        'No reminders yet. Exercise reminders are created when you select a treatment plan.',
                       ),
                     UiSuccess(:final data) => Column(
                       children: [
@@ -97,6 +107,20 @@ class _NotificationViewState extends State<NotificationView> {
                   if (vm.errorMessage case final e?) ...[
                     const SizedBox(height: 8),
                     NoticeBanner(e, warning: true),
+                  ],
+                  if (vm.reminders is UiSuccess && !vm.hasHealthLogReminder) ...[
+                    const SizedBox(height: 4),
+                    OutlinedButton.icon(
+                      onPressed: vm.addHealthLogReminder,
+                      icon: const Icon(Icons.monitor_heart_outlined),
+                      label: const Text(
+                        'Remind me to log my health readings',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTokens.accent,
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                    ),
                   ],
                   const SizedBox(height: 20),
                   Row(
@@ -176,6 +200,15 @@ class _NotificationViewState extends State<NotificationView> {
                   ),
                 ),
               ),
+              if (r.patientPlanId == null)
+                IconButton(
+                  tooltip: 'Delete this reminder',
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: AppTokens.textMuted,
+                  ),
+                  onPressed: () => _confirmDelete(r),
+                ),
               Switch(
                 value: r.isEnabled,
                 activeTrackColor: AppTokens.progress,
@@ -220,33 +253,70 @@ class _NotificationViewState extends State<NotificationView> {
               for (var i = 0; i < 7; i++)
                 Padding(
                   padding: const EdgeInsets.only(right: 6),
-                  child: Container(
-                    width: 32,
-                    height: 32,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: r.repeatDays[i] == '1'
-                          ? AppTokens.accentContainer
-                          : AppTokens.background,
-                    ),
-                    child: Text(
-                      days[i],
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: r.repeatDays[i] == '1'
-                            ? AppTokens.accent
-                            : AppTokens.textMuted,
+                  child: Semantics(
+                    button: true,
+                    selected: r.repeatDays[i] == '1',
+                    label: dayNames[i],
+                    child: InkWell(
+                      customBorder: const CircleBorder(),
+                      onTap: () => vm.toggleDay(r.reminderId, i + 1),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: r.repeatDays[i] == '1'
+                              ? AppTokens.accentContainer
+                              : AppTokens.background,
+                        ),
+                        child: Text(
+                          days[i],
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: r.repeatDays[i] == '1'
+                                ? AppTokens.accent
+                                : AppTokens.textMuted,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 ),
             ],
           ),
+          const SizedBox(height: 4),
+          const Text(
+            'Tap a day to turn it on or off.',
+            style: TextStyle(fontSize: 13, color: AppTokens.textMuted),
+          ),
         ],
       ),
     );
+  }
+
+  Future<void> _confirmDelete(Reminder r) async {
+    final vm = context.read<NotificationViewModel>();
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete this reminder?'),
+        content: Text('"${r.title}" will no longer remind you.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Keep'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: TextButton.styleFrom(foregroundColor: AppTokens.danger),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (yes == true) await vm.deleteReminder(r.reminderId);
   }
 
   Widget _logTile(NotificationLog n, NotificationViewModel vm) {

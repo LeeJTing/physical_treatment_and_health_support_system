@@ -3,6 +3,8 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/i_notification_repository.dart';
@@ -64,6 +66,62 @@ class NotificationViewModel extends BaseViewModel {
   /// Changes the time of day it fires (FR600_004).
   Future<void> changeTime(String id, int hour, int minute) =>
       _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute));
+
+  /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
+  /// off: switch the reminder off instead.
+  Future<void> toggleDay(String id, int weekday) async {
+    final r = _find(id);
+    if (r == null) return;
+    final days = r.repeatDays.split('');
+    days[weekday - 1] = days[weekday - 1] == '1' ? '0' : '1';
+    if (!days.contains('1')) {
+      setError(Messages.reminderNeedsADay);
+      return;
+    }
+    setError(null);
+    await _change(id, (r) => _scheduler.update(r, repeatDays: days.join()));
+  }
+
+  /// Whether the patient already has a health-logging reminder (FR600_002).
+  bool get hasHealthLogReminder => switch (_reminders) {
+    UiSuccess(:final data) => data.any(
+      (r) => r.reminderType == ReminderType.healthLog,
+    ),
+    _ => false,
+  };
+
+  /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
+  Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
+    final id = _accountId;
+    if (id == null || hasHealthLogReminder) return;
+    final res = await _scheduler.update(
+      Reminder(
+        reminderId: newId(),
+        accountId: id,
+        reminderType: ReminderType.healthLog,
+        title: 'Log your health readings',
+        hour: hour,
+        minute: minute,
+      ),
+    );
+    if (res is Failure) setError(Messages.dbUnavailable);
+    await load();
+  }
+
+  /// Deletes a reminder the patient added. A treatment plan's exercise reminders stay with the
+  /// plan (switch them off instead); they go when the plan is stopped or replaced.
+  Future<void> deleteReminder(String id) async {
+    final r = _find(id);
+    if (r == null || r.patientPlanId != null) return;
+    final res = await _scheduler.remove(r);
+    if (res is Failure) setError(Messages.dbUnavailable);
+    await load();
+  }
+
+  Reminder? _find(String id) => switch (_reminders) {
+    UiSuccess(:final data) => data.where((r) => r.reminderId == id).firstOrNull,
+    _ => null,
+  };
 
   Future<void> _change(
     String id,

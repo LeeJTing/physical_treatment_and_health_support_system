@@ -36,6 +36,12 @@ class SupabaseNotificationRepository implements INotificationRepository {
       });
 
   @override
+  Future<Result<void>> deleteReminder(String reminderId) =>
+      supabaseGuard(() async {
+        await _sb.from('reminder').delete().eq('reminder_id', reminderId);
+      });
+
+  @override
   Future<Result<void>> logNotification(NotificationLog n) =>
       supabaseGuard(() async {
         await _sb.from('notification_log').insert(n.toJson());

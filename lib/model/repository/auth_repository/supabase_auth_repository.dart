@@ -1,7 +1,9 @@
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/session_policy.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
@@ -26,6 +28,38 @@ class SupabaseAuthRepository implements IAuthRepository {
 
   GoTrueClient get _auth => _sb.client.auth;
 
+  /// When the session was last used on this phone (FR100_034). Kept in the app's own preferences,
+  /// which other apps cannot read (FR100_033); Supabase keeps the session itself the same way.
+  static const _lastRenewedKey = 'apths.session.last_renewed';
+
+  Future<void> _renew() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_lastRenewedKey, _now().toIso8601String());
+    } catch (_) {
+      // Preferences unavailable: the session simply does not expire on this phone.
+    }
+  }
+
+  /// Ends the session when it was not used for SessionPolicy.lifetime (FR100_034).
+  Future<bool> _expiredSession() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      var last = DateTime.tryParse(prefs.getString(_lastRenewedKey) ?? '');
+      // Any sign-in (password, code, Google) after the last record renews the session.
+      final signedIn = DateTime.tryParse(_auth.currentUser?.lastSignInAt ?? '');
+      if (signedIn != null && (last == null || signedIn.isAfter(last))) {
+        last = signedIn;
+      }
+      if (!SessionPolicy.expired(last, _now())) return false;
+      await prefs.remove(_lastRenewedKey);
+      await _auth.signOut();
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   Future<Account> _accountRow(String uid) async {
     final row = await _sb
         .from('account')
@@ -39,6 +73,8 @@ class SupabaseAuthRepository implements IAuthRepository {
   Future<Result<Account?>> currentAccount() => supabaseGuard(() async {
     final uid = _sb.currentAccountId;
     if (uid == null) return null;
+    if (await _expiredSession()) return null; // log in again (FR100_034)
+    await _renew();
     final row = await _sb
         .from('account')
         .select()
@@ -148,6 +184,7 @@ class SupabaseAuthRepository implements IAuthRepository {
     }
     if (res case Failure f) return f.cast<Account>();
     _failures.remove(e);
+    await _renew();
     final uid = res.dataOrNull?.user?.id;
     if (uid == null) {
       return const Failure(Messages.loginUnavailable, code: 'unknown');
@@ -207,6 +244,41 @@ class SupabaseAuthRepository implements IAuthRepository {
     return supabaseGuard(() => _auth.signOut(scope: SignOutScope.global));
   }
 
+  /// FR100_061: the current password is checked by signing in with it again, then replaced.
+  /// Other devices are signed out; this one stays signed in.
   @override
-  Future<Result<void>> signOut() => supabaseGuard(() => _auth.signOut());
+  Future<Result<void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final email = _auth.currentUser?.email;
+    if (email == null) {
+      return const Failure(Messages.sessionExpired, code: 'no_session');
+    }
+    final check = await supabaseGuard(
+      () => _auth.signInWithPassword(email: email, password: currentPassword),
+    );
+    if (check case Failure(:final code) when code == 'invalid_credentials') {
+      return const Failure(
+        Messages.currentPasswordIncorrect,
+        code: 'wrong_password',
+      );
+    }
+    if (check case Failure f) return f.cast<void>();
+    final updated = await supabaseGuard(
+      () => _auth.updateUser(UserAttributes(password: newPassword)),
+    );
+    if (updated case Failure f) return f.cast<void>();
+    return supabaseGuard(() => _auth.signOut(scope: SignOutScope.others));
+  }
+
+  @override
+  Future<Result<void>> signOut() => supabaseGuard(() async {
+    await _auth.signOut();
+    try {
+      await (await SharedPreferences.getInstance()).remove(_lastRenewedKey);
+    } catch (_) {
+      // Nothing recorded: nothing to clear.
+    }
+  });
 }

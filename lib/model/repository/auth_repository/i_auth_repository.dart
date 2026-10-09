@@ -30,5 +30,8 @@ abstract interface class IAuthRepository {
     String newPassword,
   );
 
+  /// Replaces the signed-in patient's password after checking the current one (FR100_061).
+  Future<Result<void>> changePassword(String currentPassword, String newPassword);
+
   Future<Result<void>> signOut();
 }

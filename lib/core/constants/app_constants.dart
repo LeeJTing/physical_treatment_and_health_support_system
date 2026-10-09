@@ -77,6 +77,10 @@ class AppConstants {
 class Messages {
   Messages._();
 
+  // UC600 reminders (not in the report's message list, PROJECT_STATE section 11)
+  static const reminderNeedsADay =
+      'Keep at least one day. To stop this reminder, switch it off.';
+
   // UC100 Register Account
   static const registrationUnavailable =
       'Registration service is temporarily unavailable. Please try again later.';
@@ -139,6 +143,8 @@ class Messages {
       'Your password has been updated. You have been signed out of your other devices.';
   static const currentPasswordIncorrect =
       'The current password you entered is incorrect.';
+  static const passwordSameAsCurrent =
+      'Your new password must be different from your current password.';
   static const confirmLogout = 'Log out of your account?';
   static const discardChanges = 'Discard your unsaved changes?';
   static const profileLoadFailed =

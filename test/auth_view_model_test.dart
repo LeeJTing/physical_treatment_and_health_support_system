@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/session_policy.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
@@ -175,5 +176,62 @@ void main() {
   test('coming back without a session (not waiting for Google) stays on login quietly', () async {
     expect(await vm.completeGoogleSignIn(), isFalse);
     expect(vm.googleState, isA<Idle<void>>());
+  });
+
+  group('Change password from Profile (FR100_061)', () {
+    setUp(() async => auth.login('demo@apths.test', 'password123'));
+
+    test('the current password must be right', () async {
+      expect(await vm.changePassword('wrong-one1', 'newPass123', 'newPass123'), isFalse);
+      expect(
+        vm.changePasswordState,
+        isA<UiError<void>>().having((e) => e.message, 'message', Messages.currentPasswordIncorrect),
+      );
+    });
+
+    test('the new password follows the registration rule and must match', () async {
+      expect(await vm.changePassword('password123', 'short', 'short'), isFalse);
+      expect((vm.changePasswordState as UiError<void>).message, Messages.passwordInvalid);
+      expect(await vm.changePassword('password123', 'newPass123', 'newPass124'), isFalse);
+      expect(await vm.changePassword('password123', 'password123', 'password123'), isFalse);
+      expect((vm.changePasswordState as UiError<void>).message, Messages.passwordSameAsCurrent);
+    });
+
+    test('a valid change replaces the password', () async {
+      expect(await vm.changePassword('password123', 'newPass123', 'newPass123'), isTrue);
+      expect(vm.changePasswordState, isA<UiSuccess<void>>());
+      await auth.signOut();
+      expect(await auth.login('demo@apths.test', 'password123'), isA<Failure<Object?>>());
+      expect(await auth.login('demo@apths.test', 'newPass123'), isA<Success<Object?>>());
+    });
+  });
+
+  group('A session ends after 3 days without use (FR100_034)', () {
+    test('the rule', () {
+      final t = DateTime(2026, 10, 9, 9);
+      expect(SessionPolicy.expired(null, t), isFalse);
+      expect(
+        SessionPolicy.expired(t.subtract(const Duration(days: 2, hours: 23)), t),
+        isFalse,
+      );
+      expect(
+        SessionPolicy.expired(t.subtract(const Duration(days: 3, minutes: 1)), t),
+        isTrue,
+      );
+    });
+
+    test('using the app keeps the session; four idle days lead to login', () async {
+      var clock = DateTime(2026, 10, 9, 9);
+      final a = FakeAuthRepository(now: () => clock);
+      final model = AuthViewModel(a, profiles);
+      await a.login('demo@apths.test', 'password123');
+      clock = clock.add(const Duration(days: 2));
+      expect((await a.currentAccount()).dataOrNull, isNotNull); // renewed
+      clock = clock.add(const Duration(days: 2));
+      expect((await a.currentAccount()).dataOrNull, isNotNull); // 2 days since
+      clock = clock.add(const Duration(days: 4));
+      expect(await model.decideStartRoute(), Routes.loginScreen);
+      model.dispose();
+    });
   });
 }

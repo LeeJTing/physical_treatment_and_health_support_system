@@ -298,10 +298,8 @@ class _ProfileViewState extends State<ProfileView> {
                 SettingsCard(
                   title: 'Change password',
                   subtitle: 'Update your password',
-                  onTap: () => Navigator.of(context).pushNamed(
-                    Routes.resetPassword,
-                    arguments: vm.account?.email,
-                  ),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.changePassword),
                 ),
                 const SizedBox(height: 10),
                 SettingsCard(

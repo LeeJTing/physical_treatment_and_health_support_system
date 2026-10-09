@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/core/themes/theme_constants.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/login_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/register_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/change_password_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/reset_password_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/verify_code_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
@@ -54,6 +55,7 @@ class MainApp extends StatelessWidget {
           Routes.register: (_) => const RegisterView(),
           Routes.verifyCode: (_) => const VerifyCodeView(),
           Routes.resetPassword: (_) => const ResetPasswordView(),
+          Routes.changePassword: (_) => const ChangePasswordView(),
           Routes.healthProfile: (_) => ChangeNotifierProvider(
             create: (c) => ProfileViewModel(c.read(), c.read(), c.read())..loadProfile(),
             child: const ProfileView(),

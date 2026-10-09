@@ -4,6 +4,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
@@ -37,6 +38,7 @@ class AuthViewModel extends BaseViewModel {
   UiState<void> resendState = const Idle();
   UiState<void> resetRequestState = const Idle();
   UiState<void> resetConfirmState = const Idle();
+  UiState<void> changePasswordState = const Idle();
   UiState<void> googleState = const Idle();
 
   /// Where to go after a successful login or verification (FR100_035).
@@ -184,6 +186,34 @@ class AuthViewModel extends BaseViewModel {
     return res.isSuccess;
   }
 
+  /// Changes the password from Profile (FR100_061): the current password is re-entered and the
+  /// new one follows the same rule as registration.
+  Future<bool> changePassword(
+    String current,
+    String newPassword,
+    String confirm,
+  ) async {
+    final invalid = current.isEmpty
+        ? Messages.passwordEmpty
+        : FormValidators.password(newPassword) ??
+              FormValidators.confirmPassword(newPassword, confirm) ??
+              (newPassword == current ? Messages.passwordSameAsCurrent : null);
+    if (invalid != null) {
+      changePasswordState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
+    changePasswordState = const Loading();
+    notifyListeners();
+    final res = await _auth.changePassword(current, newPassword);
+    changePasswordState = switch (res) {
+      Success() => const UiSuccess(null),
+      Failure f => UiError(messageFor(f)),
+    };
+    notifyListeners();
+    return res.isSuccess;
+  }
+
   /// Opens the Google page in the browser (FR100_018). The session arrives when the
   /// browser returns to the app; the login screen then calls [checkSignedIn].
   Future<void> signInWithGoogle() async {
@@ -244,6 +274,7 @@ class AuthViewModel extends BaseViewModel {
     if (registerState is UiError) registerState = const Idle();
     if (verifyState is UiError) verifyState = const Idle();
     if (resetConfirmState is UiError) resetConfirmState = const Idle();
+    if (changePasswordState is UiError) changePasswordState = const Idle();
     if (googleState is UiError) googleState = const Idle();
     lastErrorCode = null;
     notifyListeners();

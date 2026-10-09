@@ -71,13 +71,18 @@ class LocalNotificationService {
       if (!at.isAfter(now) || !r.firesOn(day) || skipDays.contains(day)) {
         continue;
       }
-      await _scheduler.scheduleOnce(
-        idFor(r.reminderId, day),
-        r.title,
-        body ?? 'Open the app to do today\'s exercises and check your posture.',
-        at,
-      );
-      count++;
+      try {
+        await _scheduler.scheduleOnce(
+          idFor(r.reminderId, day),
+          r.title,
+          body ?? _bodyFor(r),
+          at,
+        );
+        count++;
+      } catch (_) {
+        // A plugin failure must not stop the other days or reach the caller (services never
+        // throw); the count says how many were scheduled.
+      }
     }
     return count;
   }
@@ -86,18 +91,30 @@ class LocalNotificationService {
   Future<void> cancel(String reminderId) async {
     final now = _now();
     for (var i = -1; i <= windowDays; i++) {
-      await _scheduler.cancel(
+      await _cancelOne(
         idFor(reminderId, DateTime(now.year, now.month, now.day + i)),
       );
     }
   }
 
+  Future<void> _cancelOne(int id) async {
+    try {
+      await _scheduler.cancel(id);
+    } catch (_) {
+      // Nothing scheduled under that id, or the plugin is unavailable: nothing to undo.
+    }
+  }
+
+  String _bodyFor(Reminder r) => switch (r.reminderType) {
+    ReminderType.healthLog =>
+      'Open the app and record today\'s health readings.',
+    _ => 'Open the app to do today\'s exercises and check your posture.',
+  };
+
   /// Cancels only today's occurrence (FR600_005: the day's exercise is already done).
   Future<void> cancelToday(String reminderId) async {
     final now = _now();
-    await _scheduler.cancel(
-      idFor(reminderId, DateTime(now.year, now.month, now.day)),
-    );
+    await _cancelOne(idFor(reminderId, DateTime(now.year, now.month, now.day)));
   }
 
   // ---- Reminders of the treatment plan (formerly a separate ReminderService) ----------------
@@ -188,14 +205,21 @@ class LocalNotificationService {
     }
   }
 
-  /// Switch a reminder on or off without deleting it (FR600_006), or change its time (FR600_004).
+  /// Switch a reminder on or off without deleting it (FR600_006), or change its time (FR600_004)
+  /// or the days it fires on (FR600_003). Also saves and schedules a new reminder.
   Future<Result<Reminder>> update(
     Reminder r, {
     bool? enabled,
     int? hour,
     int? minute,
+    String? repeatDays,
   }) async {
-    final updated = r.copyWith(isEnabled: enabled, hour: hour, minute: minute);
+    final updated = r.copyWith(
+      isEnabled: enabled,
+      hour: hour,
+      minute: minute,
+      repeatDays: repeatDays,
+    );
     final saved = await _repo.saveReminder(updated);
     if (saved is Failure<void>) return saved.cast<Reminder>();
     if (updated.isEnabled) {
@@ -210,5 +234,11 @@ class LocalNotificationService {
       await cancel(updated.reminderId);
     }
     return Success(updated);
+  }
+
+  /// Cancels a reminder on the phone and deletes it.
+  Future<Result<void>> remove(Reminder r) async {
+    await cancel(r.reminderId);
+    return _repo.deleteReminder(r.reminderId);
   }
 }

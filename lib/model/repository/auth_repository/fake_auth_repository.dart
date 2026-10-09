@@ -1,4 +1,6 @@
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/session_policy.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -12,8 +14,11 @@ class FakeAuthRepository implements IAuthRepository {
   final Map<String, Account> _accounts = {};
   final Map<String, String> _passwords = {};
   Account? _current;
+  DateTime? _lastRenewed;
+  final DateTime Function() _now;
 
-  FakeAuthRepository({bool seedDemoUser = true}) {
+  FakeAuthRepository({bool seedDemoUser = true, DateTime Function()? now})
+    : _now = now ?? DateTime.now {
     if (seedDemoUser) {
       const email = 'demo@apths.test';
       _accounts[email] = Account(
@@ -27,8 +32,16 @@ class FakeAuthRepository implements IAuthRepository {
     }
   }
 
+  /// The same session rule as the Supabase repository (FR100_034).
   @override
-  Future<Result<Account?>> currentAccount() async => Success(_current);
+  Future<Result<Account?>> currentAccount() async {
+    if (_current != null && SessionPolicy.expired(_lastRenewed, _now())) {
+      _current = null;
+      _lastRenewed = null;
+    }
+    if (_current != null) _lastRenewed = _now();
+    return Success(_current);
+  }
 
   @override
   Future<Result<void>> register(
@@ -67,6 +80,7 @@ class FakeAuthRepository implements IAuthRepository {
     final verified = a.copyWith(isEmailVerified: true);
     _accounts[e] = verified;
     _current = verified;
+    _lastRenewed = _now();
     return Success(verified);
   }
 
@@ -96,6 +110,7 @@ class FakeAuthRepository implements IAuthRepository {
       );
     }
     _current = a;
+    _lastRenewed = _now();
     return Success(a);
   }
 
@@ -124,6 +139,25 @@ class FakeAuthRepository implements IAuthRepository {
     }
     _passwords[e] = newPassword;
     _current = null; // FR100_041: every session is invalidated
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> changePassword(
+    String currentPassword,
+    String newPassword,
+  ) async {
+    final a = _current;
+    if (a == null) {
+      return const Failure(Messages.sessionExpired, code: 'no_session');
+    }
+    if (_passwords[a.email] != currentPassword) {
+      return const Failure(
+        Messages.currentPasswordIncorrect,
+        code: 'wrong_password',
+      );
+    }
+    _passwords[a.email] = newPassword;
     return const Success(null);
   }
 
