@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     supabase_jwks_url: str = ""
     dev_auth_bypass: bool = True
     model_dir: str = "models/weights"
+    # Where new models run (app/device.py): "auto" = the GPU when torch sees one (Elwin's PC: RTX 3050),
+    # else the CPU; "cpu" or "cuda" to force it.
+    torch_device: str = "auto"
     api_version: str = "0.1.0"
     # Development viewer (devtools/, 9 Oct). Off by default: when on, every /pose request's video,
     # landmarks and step-by-step trace are kept in dev_runs_dir (newest dev_runs_keep) so they can be

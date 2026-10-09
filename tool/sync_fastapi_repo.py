@@ -138,33 +138,35 @@ def main() -> int:
     if git(["status", "--porcelain"], target).stdout.strip():
         sys.exit(f"{target} has uncommitted changes: they would be lost.")
 
-    # A clean copy: files removed here disappear there too. Only these two folders are replaced.
-    for sub in ("ai_server", "training", "assets"):
-        if (target / sub).exists():
-            shutil.rmtree(target / sub)
-    files = git(["ls-files", *COPIED], ROOT).stdout.splitlines()
-    for rel in files:
-        dst = target / rel
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / rel, dst)
-
+    # What the copy should hold: every tracked file of COPIED, plus the model files.
     weights = ROOT / "ai_server" / "models" / "weights"
     models = newest_models(weights)
+    wanted = {rel: ROOT / rel for rel in git(["ls-files", *COPIED], ROOT).stdout.splitlines()}
     for p in [weights / n for n in MEDIAPIPE] + models:
         if not p.exists():
             sys.exit(f"Missing model file: {p}")
-        shutil.copy2(p, target / "ai_server" / "models" / "weights" / p.name)
+        wanted[f"ai_server/models/weights/{p.name}"] = p
+
+    # Files removed here disappear there too, but only files git tracks there: whatever is local and
+    # git-ignored in the copy (its .venv, .env, dev_runs: the PC runs the server from it) stays.
+    for rel in git(["ls-files", *COPIED], target).stdout.splitlines():
+        if rel not in wanted and rel != "ai_server/.gitignore":
+            (target / rel).unlink(missing_ok=True)
+    for rel, src in wanted.items():
+        dst = target / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(src, dst)
 
     gi = target / "ai_server" / ".gitignore"
     gi.write_text(re.sub(r"(?m)^(models/weights/\*|!models/weights/\.gitkeep)\n", "",
                          gi.read_text(encoding="utf-8")), encoding="utf-8")
     (target / "README.md").write_text(readme(commit, subject, models), encoding="utf-8")
 
-    for secret in (".env",):
-        if list(target.rglob(secret)):
-            sys.exit(f"Refusing: a {secret} file is in the copy.")
-
     git(["add", "-A"], target)
+    tracked = git(["ls-files"], target).stdout.splitlines()
+    if any(Path(rel).name == ".env" for rel in tracked):
+        git(["reset", "-q"], target)
+        sys.exit("Refusing: a .env file would be committed.")
     if not git(["status", "--porcelain"], target).stdout.strip():
         print("Nothing changed.")
     else:

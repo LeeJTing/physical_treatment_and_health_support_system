@@ -46,13 +46,28 @@ copy .env.example .env
 3. **Errors** the app has to tell apart: HTTP 422 with `{"error": {"code": "...", "message": "..."}}`
    (as `/pose` does); the app maps each code to the report's message. Never return a stack trace.
 4. **Model files** go in `models/weights/` with a version in the name (`<name>_v<N>.<ext>`), loaded
-   once and cached (see `app/pose/classifier.py`). Write down where each model's training data came
+   once and cached (see `app/pose/classifier.py`). A torch model runs on `app.device.torch_device()`
+   (`model.to(torch_device())`, the inputs too): the GPU on Elwin's PC, the CPU elsewhere. Write down where each model's training data came
    from and its licence in the README.
 5. **Tests** in `tests/test_<name>.py` with FastAPI's `TestClient` and the token `dev-token`
    (see `tests/test_recommend.py`): the happy path, a bad request, and each error code.
 6. **Contract**: run `.venv\Scripts\python export_openapi.py` and commit `docs/openapi.json`
    (`tests/test_api_docs.py` fails until you do); add the endpoint to `docs/API.md`.
 7. New packages go in `requirements.txt`.
+
+## Running on Elwin's PC
+
+- The PC runs the server the app uses: port 8000, reached from the phone through `run_tunnel.ps1`
+  (a `trycloudflare.com` address). Only one server can hold port 8000.
+- This repo is at `C:\Users\KOH Family\FYP\fyp-fastapi`. Its `ai_server\.venv` has the CUDA build
+  of torch (RTX 3050), so `TORCH_DEVICE=auto` uses the GPU; its `.env` is local (not in git). To
+  rebuild that environment: `.venv\Scripts\python -m pip install -r requirements.txt
+  --extra-index-url https://download.pytorch.org/whl/cu128`.
+- To try a new endpoint without disturbing the app, start a second server on another port and call
+  that one: `.venv\Scripts\python -m uvicorn app.main:app --port 8002` (8001 is the posture viewer).
+- Training uses the GPU; keep CPU-heavy jobs to at most 3 workers, so the app's server stays quick.
+- With `DEV_TOOLS=true` the server keeps the uploaded videos in `dev_runs/`: only for your own test
+  videos, never real patients'.
 
 ## Rules that keep the system as the report describes it
 
