@@ -299,8 +299,8 @@ class PlanRules {
             PlanIssueLevel.warning,
             'same_area',
             '${a.plan.planName} and ${candidate.planName} both work your '
-                '${_area(candidate.targetBodyArea)}, so you may exercise it '
-                'twice a day. Rest if it feels tiring or sore.',
+                '${_area(candidate.targetBodyArea)}, so you may exercise that '
+                'area twice a day. Rest if it feels tiring or sore.',
             patientPlanId: a.patientPlanId,
           ),
         );
