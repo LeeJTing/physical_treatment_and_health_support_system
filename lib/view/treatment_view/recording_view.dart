@@ -71,23 +71,37 @@ class _RecordingViewState extends State<RecordingView>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final c = _controller;
-    if (c == null || !c.value.isInitialized) return;
     if (state == AppLifecycleState.inactive) {
+      if (c == null || !c.value.isInitialized) return;
       _stopTimer();
       _release(c, wasRecording: _recording);
-      _recording = false;
-      _controller = null;
-    } else if (state == AppLifecycleState.resumed) {
+      setState(() {
+        _recording = false;
+        _controller = null;
+      });
+    } else if (state == AppLifecycleState.resumed && c == null) {
+      // The camera was released when the app left the screen (photo picker,
+      // notification shade, Home): open it again. Before, this returned early
+      // because the controller was already null, so Record did nothing after
+      // "Upload video" or a trip to Home (Android 15 emulator, 10 Oct).
       _initCamera();
     }
   }
 
+  /// True while a camera is being opened: the permission dialog sends the app
+  /// through inactive / resumed, which must not open a second one.
+  bool _opening = false;
+
   Future<void> _initCamera() async {
+    if (_opening) return;
+    _opening = true;
     try {
+      final firstTime = _cameras.isEmpty;
       _cameras = await availableCameras();
       if (_cameras.isEmpty) throw CameraException('none', 'No camera');
       // Start on the back camera; the switch button flips to the front one.
-      if (_controller == null) {
+      // Only the first time: a re-open keeps the camera the patient chose.
+      if (firstTime) {
         final back = _cameras.indexWhere(
           (c) => c.lensDirection == CameraLensDirection.back,
         );
@@ -120,6 +134,8 @@ class _RecordingViewState extends State<RecordingView>
       if (mounted) {
         setState(() => _cameraError = Messages.cameraFailed); // FR300_24
       }
+    } finally {
+      _opening = false;
     }
   }
 
@@ -182,7 +198,11 @@ class _RecordingViewState extends State<RecordingView>
     }
     final seconds = _seconds;
     if (!mounted) return;
-    setState(() => _recording = false);
+    // Back at 00:00 for "Record again", not the last clip's length.
+    setState(() {
+      _recording = false;
+      _seconds = 0;
+    });
     if (seconds < AppConstants.minVideoSeconds) {
       _showProblem(Messages.videoInvalid); // FR300_16, before any upload
       return;
