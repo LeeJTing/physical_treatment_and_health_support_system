@@ -61,8 +61,10 @@ copy .env.example .env
   (a `trycloudflare.com` address). Only one server can hold port 8000.
 - This repo is at `C:\Users\KOH Family\FYP\fyp-fastapi`. Its `ai_server\.venv` has the CUDA build
   of torch (RTX 3050), so `TORCH_DEVICE=auto` uses the GPU; its `.env` is local (not in git). To
-  rebuild that environment: `.venv\Scripts\python -m pip install -r requirements.txt
-  --extra-index-url https://download.pytorch.org/whl/cu128`.
+  rebuild that environment, install the requirements, then replace torch with the CUDA build (an
+  extra index is not enough: pip prefers PyPI's newer CPU build):
+  `.venv\Scripts\python -m pip install -r requirements.txt`, then
+  `.venv\Scripts\python -m pip install --force-reinstall --no-deps torch --index-url https://download.pytorch.org/whl/cu128`.
 - To try a new endpoint without disturbing the app, start a second server on another port and call
   that one: `.venv\Scripts\python -m uvicorn app.main:app --port 8002` (8001 is the posture viewer).
 - Training uses the GPU; keep CPU-heavy jobs to at most 3 workers, so the app's server stays quick.
