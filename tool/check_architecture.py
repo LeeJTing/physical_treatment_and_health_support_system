@@ -10,8 +10,9 @@ Chapter 4 class tables:
   * Services and repositories return Future<Result<T>> and never throw; LocalNotificationService and
     PoseEstimationService.validateVideo keep the return types of Tables 4.75 and 4.76.
   * provider + ChangeNotifier only; every folder under lib/ has a desc.txt.
-The "forbidden layer import" list therefore shows the allowed ViewModel -> repository interface and
-View -> service result type imports too; anything else in it is a real problem.
+Output: "problems" (must be empty; exit code 1 otherwise), then "allowed by the report", listed for the
+record: ViewModel -> repository interface, View -> a service folder's result types, and the return types
+of Tables 4.75 / 4.76.
 
     python tool/check_architecture.py
 """
@@ -51,8 +52,8 @@ def layer(rel: str) -> str:
 
 
 FORBIDDEN = {
-    "view": {"service", "repo_iface", "repo_impl", "shared_client"},
-    "viewmodel": {"view", "repo_iface", "repo_impl", "shared_client"},
+    "view": {"repo_iface", "repo_impl", "shared_client"},  # service folders: see VIEW_CALLS_SERVICE
+    "viewmodel": {"view", "repo_impl", "shared_client"},
     "service": {"view", "viewmodel", "repo_impl"},
     "repo_iface": {"view", "viewmodel", "service", "repo_impl", "shared_client", "device"},
     "repo_impl": {"view", "viewmodel", "service"},
@@ -69,8 +70,31 @@ FORBIDDEN_PKGS = {
     "entity": ["package:supabase_flutter", "package:http/", "package:flutter/material.dart"],
 }
 
+# A View may use the result types kept in a service folder (ChatReply, Recommendation, PlanIssue) but
+# never a service itself: the app's classes named ...Service, and PlanRules.
+SERVICE_CLASSES = sorted({
+    m.group(1)
+    for f in (LIB / "model" / "business_logic").rglob("*.dart")
+    for m in re.finditer(r"^(?:abstract\s+)?class\s+(\w+Service|PlanRules)\b", f.read_text(encoding="utf-8"), re.M)
+})
+VIEW_CALLS_SERVICE = re.compile(r"\b(" + "|".join(SERVICE_CLASSES) + r")\b") if SERVICE_CLASSES else None
+
+
+def code_only(src: str) -> str:
+    """The source without // comments (/// docs included), so a comment naming a service is not a use."""
+    return "\n".join(line.split("//", 1)[0] for line in src.splitlines())
+
+# Return types the report gives: Table 4.75 LocalNotificationService (bool / void / counts), Table 4.76
+# validateVideo -> VideoCheck and the VideoProbe seam it wraps.
+REPORT_RETURN_TYPES = (
+    "model/business_logic/local_notification_service/local_notification_service.dart",
+    "model/business_logic/pose_estimation_service/pose_estimation_service.dart: Future<VideoCheck> validateVideo(",
+    "model/business_logic/pose_estimation_service/pose_estimation_service.dart: Future<VideoInfo> probe(",
+)
+
 files = sorted(LIB.rglob("*.dart"))
 problems = defaultdict(list)
+allowed = defaultdict(list)
 counts = defaultdict(int)
 for f in files:
     rel = f.relative_to(LIB).as_posix()
@@ -88,13 +112,25 @@ for f in files:
             continue
         else:
             tl = layer((f.parent / target).resolve().relative_to(LIB.resolve()).as_posix())
+        short = target[len(PKG):] if target.startswith(PKG) else target
         if tl in FORBIDDEN.get(lay, set()):
-            problems["forbidden layer import"].append(f"{rel} ({lay}) -> {target} ({tl})")
+            problems["forbidden layer import"].append(f"{rel} ({lay}) -> {short} ({tl})")
+        elif lay == "viewmodel" and tl == "repo_iface":
+            allowed["ViewModel -> repository interface (class tables 4.44-4.52)"].append(f"{rel} -> {short}")
+        elif lay == "view" and tl == "service":
+            allowed["View -> result types in a service folder"].append(f"{rel} -> {short}")
+    if lay == "view" and VIEW_CALLS_SERVICE:
+        for m in VIEW_CALLS_SERVICE.finditer(code_only(src)):
+            problems["View uses a service"].append(f"{rel}: {m.group(1)}")
     if lay == "viewmodel" and re.search(r"\bBuildContext\b", src):
         problems["BuildContext in ViewModel"].append(rel)
     if lay in ("service", "repo_impl", "repo_iface") and rel.split("/")[-1] != "supabase_guard.dart":
         for m in re.finditer(r"^\s*(?!return\b)(Future<(?!Result<)[^\n]*?>)\s+([a-z]\w*)\s*\(", src, re.M):
-            problems["Future not Result"].append(f"{rel}: {m.group(1)} {m.group(2)}(")
+            line = f"{rel}: {m.group(1)} {m.group(2)}("
+            if line.startswith(REPORT_RETURN_TYPES):
+                allowed["return types of Tables 4.75 / 4.76"].append(line)
+            else:
+                problems["Future not Result"].append(line)
         for m in re.finditer(r"^\s*(?:Stream<[^\n]*?>)\s+([a-z]\w*)\s*\(", src, re.M):
             problems["Stream method (check)"].append(f"{rel}: {m.group(0).strip()[:80]}")
         for i, line in enumerate(src.splitlines(), 1):
@@ -118,10 +154,16 @@ for d in sorted(p for p in LIB.rglob("*") if p.is_dir()):
         problems["folder without desc.txt"].append(rel)
 
 print("files per layer:", dict(counts))
+print("\n# problems:", "none" if not problems else sum(len(set(v)) for v in problems.values()))
 for k, v in problems.items():
     uniq = sorted(set(v))
     print(f"\n## {k}: {len(uniq)}")
     for x in uniq[:40]:
         print("  ", x)
-if not problems:
-    print("no problems found")
+print("\n# allowed by the report (for the record)")
+for k, v in allowed.items():
+    uniq = sorted(set(v))
+    print(f"\n## {k}: {len(uniq)}")
+    for x in uniq[:40]:
+        print("  ", x)
+sys.exit(1 if problems else 0)
