@@ -149,7 +149,11 @@ class AuthViewModel extends BaseViewModel {
             : f.message,
       ),
     };
-    if (res.isSuccess) _startCooldown();
+    if (res.isSuccess) {
+      // The old "incorrect" or "expired" message is about the previous code.
+      verifyState = const Idle();
+      _startCooldown();
+    }
     notifyListeners();
   }
 
