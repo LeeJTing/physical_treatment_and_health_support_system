@@ -28,6 +28,14 @@ SAFETY_PASS14 = [
     (KNEE, "breathing hard and my chest is tight", "red_flag"),
     (KNEE, "breathing hard and it is hard to breathe now", "red_flag"),
     (KNEE, "i was breathing hard and now my lips are blue", "red_flag"),
+    # negatives that are not negations (PC check after pass 15)
+    (KNEE, "my chest is not just tight, it is crushing", "red_flag"),
+    (KNEE, "no, my chest really hurts", "red_flag"),
+    (KNEE, "i am not able to breathe properly", "red_flag"),
+    (KNEE, "no chest pain, just tired legs", "NOT_URGENT"),
+    (KNEE, "my neck is stiff but no fever", "NOT_URGENT"),
+    (KNEE, "no my chest doesnt hurt", "NOT_URGENT"),
+    (KNEE, "my chest doesn't feel tight", "NOT_URGENT"),
     # not emergencies
     (KNEE, "breathing hard after the mini squat, is that ok", "tired"),
     (KNEE, "i am gasping a bit after climbing stairs", "tired"),

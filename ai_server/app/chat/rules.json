@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.41",
+  "version": "chat-rules-3.42",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -5752,6 +5752,11 @@
     "lost a lot of blood",
     "i have collapsed",
     "i've collapsed",
+    "not able to breathe",
+    "unable to breathe",
+    "cannot breathe properly",
+    "can't breathe properly",
+    "not able to breath",
     "having a hypo",
     "having hypo",
     "going hypo",

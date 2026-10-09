@@ -306,6 +306,20 @@ def negated(words: list[str], i: int) -> bool:
 
 COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
 
+
+def _combo_negated(words: list[str], i: int) -> bool:
+    """A negator in the two words before position i ("no chest pain", "no fever"), but not "not just" /
+    "not only" (more, not less: "not just tight, it is crushing") nor an answer word before the person's
+    own words ("No, my chest really hurts"; PC check, 9 Oct)."""
+    before = words[max(0, i - 2):i]
+    if not (COMBO_NEGATORS | {"doesn't", "doesnt", "aren't", "arent", "hasn't", "hasnt"}) & set(before):
+        return False
+    if len(before) == 2 and before[0] == "not" and before[1] in ("just", "only"):
+        return False
+    if len(before) == 2 and before[0] == "no" and before[1] in ("my", "his", "her", "the", "our"):
+        return False
+    return True
+
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
 PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
@@ -792,13 +806,13 @@ def red_flag(text: str | None) -> bool:
                 if fall and _when(anchor, clauses, words)[0]:
                     continue                           # "she fell last year and couldn't stand for a week"
                 for i in find_phrase(anchor, words):
-                    if COMBO_NEGATORS & set(words[max(0, i - 2):i]):
+                    if _combo_negated(words, i):
                         continue                       # "no chest pain", "never had breathing trouble"
                     lo = max(0, i - window)
                     near = words[lo:i + window + 1]
                     for s in symptoms:
                         for j in find_phrase(s, near):
-                            if COMBO_NEGATORS & set(near[max(0, j - 2):j]):
+                            if _combo_negated(near, j):
                                 continue               # "neck pain is better, no fever"
                             if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)) \
                                     and not _when(anchor, clauses, words)[1]:
