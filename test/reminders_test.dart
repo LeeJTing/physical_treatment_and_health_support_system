@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
@@ -5,6 +8,8 @@ import 'package:physical_treatment_and_health_support_system/device_platform/not
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/reminder_tap.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
@@ -35,15 +40,36 @@ class FakeScheduler implements NotificationScheduler {
     openedSettings++;
     return true;
   }
+  final Map<int, String> bodies = {};
+  final Map<int, String?> payloads = {};
   @override
   Future<void> scheduleOnce(
     int id,
     String title,
     String body,
-    DateTime at,
-  ) async => pending[id] = at;
+    DateTime at, {
+    String? payload,
+  }) async {
+    pending[id] = at;
+    bodies[id] = body;
+    payloads[id] = payload;
+  }
+
   @override
   Future<void> cancel(int id) async => pending.remove(id);
+
+  final tapController = StreamController<String>.broadcast();
+  String? launch;
+  bool exact = true;
+  int openedExact = 0;
+  @override
+  Stream<String> get taps => tapController.stream;
+  @override
+  Future<String?> launchPayload() async => launch;
+  @override
+  Future<bool> canRingOnTime() async => exact;
+  @override
+  Future<void> openExactAlarmSettings() async => openedExact++;
 }
 
 /// A notification plugin that fails on every call (no permission service, a platform error).
@@ -57,10 +83,24 @@ class ThrowingScheduler implements NotificationScheduler {
   @override
   Future<bool> openSettings() => Future.error(Exception('plugin failed'));
   @override
-  Future<void> scheduleOnce(int id, String title, String body, DateTime at) =>
-      Future.error(Exception('plugin failed'));
+  Future<void> scheduleOnce(
+    int id,
+    String title,
+    String body,
+    DateTime at, {
+    String? payload,
+  }) => Future.error(Exception('plugin failed'));
   @override
   Future<void> cancel(int id) => Future.error(Exception('plugin failed'));
+  @override
+  Stream<String> get taps => const Stream.empty();
+  @override
+  Future<String?> launchPayload() => Future.error(Exception('plugin failed'));
+  @override
+  Future<bool> canRingOnTime() => Future.error(Exception('plugin failed'));
+  @override
+  Future<void> openExactAlarmSettings() =>
+      Future.error(Exception('plugin failed'));
 }
 
 Reminder healthLog({String id = 'h1', String account = 'a1'}) => Reminder(
@@ -149,6 +189,61 @@ void main() {
         expect(local.permissionGranted, isFalse);
       },
     );
+
+    test('a tap opens the plan; the text names today\'s exercise and its length', () async {
+      final catalogue = File('assets/seed/catalogue.json').readAsStringSync();
+      final plans = FakeTreatmentRepository.fromJson(catalogue);
+      final knee = (await plans.getCatalogue()).dataOrNull!.firstWhere(
+        (p) => p.planName == 'Early Knee Recovery',
+      );
+      await plans.assignPlan(
+        PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: 'a1',
+          plan: knee,
+          selectedAt: now,
+        ),
+      );
+      final named = LocalNotificationService(
+        repo,
+        plans,
+        scheduler: device,
+        now: () => now,
+      );
+      expect(await named.schedule(reminder()), 6);
+      final first = knee.orderedExercises().first;
+      final min = (first.prescribedDurationSec / 60).ceil().clamp(1, 60);
+      expect(
+        device.bodies.values.toSet(),
+        {
+          'Today: ${first.exercise.exerciseName}, about $min '
+              'minute${min == 1 ? '' : 's'}. Tap to open it.',
+        },
+      );
+      expect(device.payloads.values.toSet(), {'EXERCISE|pp1'});
+
+      expect(await named.schedule(healthLog()), greaterThan(0));
+      expect(
+        device.bodies.values,
+        contains('Tap to open HealthGuide and record today\'s health readings.'),
+      );
+    });
+
+    test('payloads read back; taps and the launch tap arrive as ReminderTap', () async {
+      final t = ReminderTap.fromPayload('EXERCISE|pp1')!;
+      expect((t.type, t.patientPlanId), (ReminderType.exercise, 'pp1'));
+      expect(ReminderTap.fromPayload('HEALTH_LOG|')!.patientPlanId, isNull);
+      expect(ReminderTap.fromPayload('nonsense'), isNull);
+      expect(ReminderTap.fromPayload(null), isNull);
+
+      final next = local.taps().first;
+      device.tapController.add('junk');
+      device.tapController.add('EXERCISE|pp2');
+      expect((await next).patientPlanId, 'pp2');
+
+      device.launch = 'HEALTH_LOG|';
+      expect((await local.launchTap())!.type, ReminderType.healthLog);
+    });
 
     test('a refusal is asked once, not on every change', () async {
       device.allow = false;
@@ -353,6 +448,19 @@ void main() {
       device.allow = true; // switched on in Settings
       await vm.recheckPermission();
       expect(vm.notificationsBlocked, isFalse);
+      expect(device.pending, isNotEmpty);
+    });
+
+    test('reminders that may come late say so; allowing on-time alarms reschedules them', () async {
+      device.exact = false;
+      await vm.load();
+      expect(vm.remindersOnTime, isFalse);
+      await vm.openOnTimeSettings();
+      expect(device.openedExact, 1);
+      device.exact = true; // "Alarms & reminders" turned on
+      device.pending.clear();
+      await vm.recheckPermission();
+      expect(vm.remindersOnTime, isTrue);
       expect(device.pending, isNotEmpty);
     });
 

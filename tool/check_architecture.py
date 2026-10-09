@@ -93,6 +93,12 @@ REPORT_RETURN_TYPES = (
 )
 
 files = sorted(LIB.rglob("*.dart"))
+# Events from the phone that a Future cannot carry: reminder taps (LocalNotificationService.taps
+# swallows plugin errors, so nothing reaches the listener as an exception).
+EVENT_STREAMS = (
+    "model/business_logic/local_notification_service/local_notification_service.dart: Stream<ReminderTap> taps(",
+)
+
 problems = defaultdict(list)
 allowed = defaultdict(list)
 counts = defaultdict(int)
@@ -132,7 +138,11 @@ for f in files:
             else:
                 problems["Future not Result"].append(line)
         for m in re.finditer(r"^\s*(?:Stream<[^\n]*?>)\s+([a-z]\w*)\s*\(", src, re.M):
-            problems["Stream method (check)"].append(f"{rel}: {m.group(0).strip()[:80]}")
+            line = f"{rel}: {m.group(0).strip()[:80]}"
+            if line in EVENT_STREAMS:
+                allowed["event streams from the phone (errors handled inside)"].append(line)
+            else:
+                problems["Stream method (check)"].append(line)
         for i, line in enumerate(src.splitlines(), 1):
             if re.search(r"\bthrow\b", line) and not line.strip().startswith("//") and "rethrow" not in line:
                 problems["throw in service/repository"].append(f"{rel}:{i}: {line.strip()[:90]}")

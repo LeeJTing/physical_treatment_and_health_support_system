@@ -29,6 +29,8 @@ import 'package:physical_treatment_and_health_support_system/l10n/l10n.dart';
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
 
+  static final _navigator = GlobalKey<NavigatorState>();
+
   @override
   Widget build(BuildContext context) {
     // One AuthViewModel for all the sign-in screens, so the resend-code cooldown
@@ -62,6 +64,10 @@ class MainApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
+        navigatorKey: _navigator,
+        // A reminder tapped while the app runs opens its plan (AuthViewModel.takeReminderOpen).
+        builder: (context, child) =>
+            _ReminderOpener(navigator: _navigator, child: child!),
         initialRoute: Routes.init,
         routes: {
           Routes.init: (_) => const StartupView(), // uses the app-wide AuthViewModel
@@ -86,7 +92,8 @@ class MainApp extends StatelessWidget {
             ),
             child: const PlanningView(),
           ),
-          Routes.physicalTreatment: (_) => ChangeNotifierProvider(
+          // Argument: the patient plan to show first (a tapped reminder, "Open this plan").
+          Routes.physicalTreatment: (ctx) => ChangeNotifierProvider(
             create: (c) => TreatmentViewModel(
               c.read(),
               c.read(),
@@ -94,7 +101,7 @@ class MainApp extends StatelessWidget {
               c.read(),
               c.read(),
               c.read(),
-            ),
+            )..preferPlan(ModalRoute.of(ctx)?.settings.arguments as String?),
             child: const TreatmentView(),
           ),
           Routes.reminders: (_) => ChangeNotifierProvider(
@@ -116,4 +123,43 @@ class MainApp extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Opens what a tapped reminder is about when the app is already running; at start-up the
+/// StartupView does it.
+class _ReminderOpener extends StatefulWidget {
+  final GlobalKey<NavigatorState> navigator;
+  final Widget child;
+  const _ReminderOpener({required this.navigator, required this.child});
+
+  @override
+  State<_ReminderOpener> createState() => _ReminderOpenerState();
+}
+
+class _ReminderOpenerState extends State<_ReminderOpener> {
+  late final AuthViewModel _auth = context.read<AuthViewModel>();
+
+  @override
+  void initState() {
+    super.initState();
+    _auth.addListener(_open);
+  }
+
+  @override
+  void dispose() {
+    _auth.removeListener(_open);
+    super.dispose();
+  }
+
+  void _open() {
+    final open = _auth.takeReminderOpen();
+    if (open == null) return;
+    widget.navigator.currentState?.pushNamed(
+      open.route,
+      arguments: open.argument,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

@@ -45,6 +45,7 @@ class NotificationViewModel extends BaseViewModel {
     if (await _scheduler.checkPermission() && wasDenied) {
       await _scheduler.sync(id);
     }
+    _onTime = await _scheduler.canRingOnTime();
     final res = await _repo.getReminders(id);
     _reminders = switch (res) {
       Success(:final data) => UiSuccess(
@@ -67,12 +68,28 @@ class NotificationViewModel extends BaseViewModel {
     await _scheduler.openNotificationSettings();
   }
 
-  /// Back in the app (e.g. from Settings): reads the setting again and, if notifications are now
-  /// allowed, puts the reminders back on the phone.
+  bool _onTime = true;
+
+  /// False when this phone may deliver reminders up to an hour late (Android 14+ without
+  /// "Alarms & reminders"); the screen offers to turn it on.
+  bool get remindersOnTime => _onTime;
+
+  /// "Turn on Alarms & reminders".
+  Future<void> openOnTimeSettings() => _scheduler.openOnTimeSettings();
+
+  /// Back in the app (e.g. from Settings): reads the settings again. Notifications now allowed, or
+  /// on-time alarms newly allowed: the reminders are put on the phone again (exact this time).
   Future<void> recheckPermission() async {
     final id = _accountId;
-    if (!_scheduler.permissionDenied || id == null) return;
-    if (await _scheduler.checkPermission()) await _scheduler.sync(id);
+    if (id == null) return;
+    var resync = false;
+    if (_scheduler.permissionDenied && await _scheduler.checkPermission()) {
+      resync = true;
+    }
+    final onTime = await _scheduler.canRingOnTime();
+    if (onTime && !_onTime) resync = true;
+    _onTime = onTime;
+    if (resync) await _scheduler.sync(id);
     notifyListeners();
   }
 

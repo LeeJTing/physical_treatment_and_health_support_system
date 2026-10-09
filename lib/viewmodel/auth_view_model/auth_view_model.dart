@@ -7,6 +7,8 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/reminder_tap.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
@@ -20,7 +22,40 @@ class AuthViewModel extends BaseViewModel {
   final IProfileRepository _profiles;
   final LocalNotificationService? _notifications;
 
-  AuthViewModel(this._auth, this._profiles, [this._notifications]);
+  AuthViewModel(this._auth, this._profiles, [this._notifications]) {
+    _tapSub = _notifications?.taps().listen(_onReminderTap);
+  }
+
+  StreamSubscription<ReminderTap>? _tapSub;
+  ({String route, Object? argument})? _reminderOpen;
+
+  /// A tapped reminder while the app runs: the app root opens what it is about.
+  Future<void> _onReminderTap(ReminderTap tap) async {
+    final open = await _destinationFor(tap);
+    if (open == null || isDisposed) return;
+    _reminderOpen = open;
+    notifyListeners();
+  }
+
+  /// An exercise reminder opens its plan; other reminders just open the app. Nothing is opened
+  /// for a signed-out patient or an unfinished Google account (they see login or setup first).
+  Future<({String route, Object? argument})?> _destinationFor(
+    ReminderTap tap,
+  ) async {
+    if (tap.type != ReminderType.exercise || tap.patientPlanId == null) {
+      return null;
+    }
+    if ((await _auth.currentAccount()).dataOrNull == null) return null;
+    if ((await _auth.needsAccountSetup()).dataOrNull ?? false) return null;
+    return (route: Routes.physicalTreatment, argument: tap.patientPlanId);
+  }
+
+  /// The screen a tapped reminder asked for, once (then null).
+  ({String route, Object? argument})? takeReminderOpen() {
+    final open = _reminderOpen;
+    _reminderOpen = null;
+    return open;
+  }
 
   /// First screen when the app opens (FR100_024, FR100_025, FR100_035): no stored
   /// session -> login; signed in without a complete profile -> profile; else home.
@@ -33,7 +68,13 @@ class AuthViewModel extends BaseViewModel {
     }
     // Refresh the phone's reminder schedule; it must not hold up start-up.
     _notifications?.sync(account.accountId).ignore();
-    return _routeAfterSignIn(account);
+    final route = await _routeAfterSignIn(account);
+    // Started by tapping a reminder: its plan opens above Home (takeReminderOpen).
+    final tap = await _notifications?.launchTap();
+    if (tap != null && route == Routes.home) {
+      _reminderOpen = await _destinationFor(tap);
+    }
+    return route;
   }
 
   UiState<void> loginState = const Idle();
@@ -353,6 +394,7 @@ class AuthViewModel extends BaseViewModel {
   @override
   void dispose() {
     _timer?.cancel();
+    _tapSub?.cancel();
     super.dispose();
   }
 }

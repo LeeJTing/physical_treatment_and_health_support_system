@@ -87,6 +87,10 @@ class Messages {
   static const notificationsOff =
       'Notifications are turned off for HealthGuide, so your reminders cannot ring. Tap Turn on '
       'notifications, switch them on, then come back to the app.';
+  // Not a report message: Android 14+ without "Alarms & reminders" may deliver up to an hour late.
+  static const remindersMayBeLate =
+      'This phone may deliver reminders up to an hour late to save battery. For reminders on '
+      'time, turn on Alarms & reminders for HealthGuide.';
   static const reminderNeedsADay =
       'Keep at least one day. To stop this reminder, switch it off.';
 

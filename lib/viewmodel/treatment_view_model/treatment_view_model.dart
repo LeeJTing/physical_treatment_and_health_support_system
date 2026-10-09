@@ -136,7 +136,7 @@ class TreatmentViewModel extends BaseViewModel {
               (await _repo.getSessions(a.patientPlanId)).dataOrNull ??
               const <ExerciseSession>[],
       };
-      final keep = activePlan?.patientPlanId;
+      final keep = activePlan?.patientPlanId ?? _preferredPlanId;
       final data =
           all.where((a) => a.patientPlanId == keep).firstOrNull ??
           all.lastOrNull;
@@ -166,6 +166,11 @@ class TreatmentViewModel extends BaseViewModel {
     }
     notifyListeners();
   }
+
+  String? _preferredPlanId;
+
+  /// The plan to show first, e.g. the one a tapped reminder is about.
+  void preferPlan(String? patientPlanId) => _preferredPlanId = patientPlanId;
 
   /// Shows another of the active plans (its pathway, sessions and lock).
   void selectPlan(String patientPlanId) {

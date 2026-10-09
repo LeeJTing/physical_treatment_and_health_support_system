@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
@@ -11,6 +13,42 @@ import 'package:physical_treatment_and_health_support_system/model/entity/health
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+
+/// Only the parts of the phone's scheduler that tapping a reminder uses.
+class _TapScheduler implements NotificationScheduler {
+  final tapController = StreamController<String>.broadcast();
+  String? launch;
+  @override
+  Future<void> init() async {}
+  @override
+  Future<bool> requestPermission() async => true;
+  @override
+  Future<bool> isPermitted() async => true;
+  @override
+  Future<bool> openSettings() async => true;
+  @override
+  Future<void> scheduleOnce(
+    int id,
+    String title,
+    String body,
+    DateTime at, {
+    String? payload,
+  }) async {}
+  @override
+  Future<void> cancel(int id) async {}
+  @override
+  Stream<String> get taps => tapController.stream;
+  @override
+  Future<String?> launchPayload() async => launch;
+  @override
+  Future<bool> canRingOnTime() async => true;
+  @override
+  Future<void> openExactAlarmSettings() async {}
+}
 
 void main() {
   late FakeAuthRepository auth;
@@ -412,6 +450,49 @@ void main() {
       await later.resendCode('mei@apths.test');
       expect(later.resendState, isA<UiSuccess<void>>());
       expect(later.verifyState, isA<Idle<void>>());
+    });
+  });
+
+  group('Tapping a reminder opens its plan (6.1)', () {
+    late _TapScheduler device;
+    late AuthViewModel m;
+
+    setUp(() {
+      device = _TapScheduler();
+      final notes = LocalNotificationService(
+        FakeNotificationRepository(),
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+      );
+      m = AuthViewModel(auth, profiles, notes);
+    });
+    tearDown(() => m.dispose());
+
+    test('while the app runs', () async {
+      await auth.login('demo@apths.test', 'password123');
+      device.tapController.add('EXERCISE|pp9');
+      await pumpEventQueue();
+      final open = m.takeReminderOpen();
+      expect(open?.route, Routes.physicalTreatment);
+      expect(open?.argument, 'pp9');
+      expect(m.takeReminderOpen(), isNull); // once
+
+      device.tapController.add('HEALTH_LOG|');
+      await pumpEventQueue();
+      expect(m.takeReminderOpen(), isNull); // just the app
+
+      await auth.signOut();
+      device.tapController.add('EXERCISE|pp9');
+      await pumpEventQueue();
+      expect(m.takeReminderOpen(), isNull); // signed out: login first
+    });
+
+    test('when the tap started the app', () async {
+      await giveDemoACompleteProfile();
+      await auth.login('demo@apths.test', 'password123');
+      device.launch = 'EXERCISE|pp7';
+      expect(await m.decideStartRoute(), Routes.home);
+      expect(m.takeReminderOpen()?.argument, 'pp7');
     });
   });
 }

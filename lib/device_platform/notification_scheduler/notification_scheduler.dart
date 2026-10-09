@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
@@ -17,14 +19,43 @@ abstract interface class NotificationScheduler {
 
   /// Opens the phone's notification settings for this app; false when it could not.
   Future<bool> openSettings();
-  Future<void> scheduleOnce(int id, String title, String body, DateTime at);
+
+  /// [payload] comes back in [taps] / [launchPayload] when the patient taps the notification.
+  Future<void> scheduleOnce(
+    int id,
+    String title,
+    String body,
+    DateTime at, {
+    String? payload,
+  });
   Future<void> cancel(int id);
+
+  /// Payloads of notifications tapped while the app is running.
+  Stream<String> get taps;
+
+  /// The payload of the notification whose tap started the app, if one did.
+  Future<String?> launchPayload();
+
+  /// False when Android may deliver reminders up to an hour late (no exact alarms allowed).
+  Future<bool> canRingOnTime();
+
+  /// Opens "Alarms & reminders" for this app.
+  Future<void> openExactAlarmSettings();
 }
 
 class PluginScheduler implements NotificationScheduler {
   final FlutterLocalNotificationsPlugin _plugin =
       FlutterLocalNotificationsPlugin();
   bool _ready = false;
+  final _taps = StreamController<String>.broadcast();
+
+  @override
+  Stream<String> get taps => _taps.stream;
+
+  AndroidFlutterLocalNotificationsPlugin? get _android => _plugin
+      .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin
+      >();
 
   static const _details = NotificationDetails(
     android: AndroidNotificationDetails(
@@ -45,8 +76,32 @@ class PluginScheduler implements NotificationScheduler {
       const InitializationSettings(
         android: AndroidInitializationSettings('@mipmap/ic_launcher'),
       ),
+      onDidReceiveNotificationResponse: (r) {
+        final p = r.payload;
+        if (p != null && p.isNotEmpty) _taps.add(p);
+      },
     );
     _ready = true;
+  }
+
+  @override
+  Future<String?> launchPayload() async {
+    await init();
+    final d = await _plugin.getNotificationAppLaunchDetails();
+    if (d == null || !d.didNotificationLaunchApp) return null;
+    return d.notificationResponse?.payload;
+  }
+
+  @override
+  Future<bool> canRingOnTime() async {
+    await init();
+    return await _android?.canScheduleExactNotifications() ?? true;
+  }
+
+  @override
+  Future<void> openExactAlarmSettings() async {
+    await init();
+    await _android?.requestExactAlarmsPermission();
   }
 
   @override
@@ -89,8 +144,9 @@ class PluginScheduler implements NotificationScheduler {
     int id,
     String title,
     String body,
-    DateTime at,
-  ) async {
+    DateTime at, {
+    String? payload,
+  }) async {
     await init();
     // On time where the phone allows exact alarms (SCHEDULE_EXACT_ALARM: on by default up to
     // Android 13, on 14+ only if the patient turned on "Alarms & reminders"). Otherwise inexact:
@@ -110,6 +166,7 @@ class PluginScheduler implements NotificationScheduler {
       androidScheduleMode: exact
           ? AndroidScheduleMode.exactAllowWhileIdle
           : AndroidScheduleMode.inexactAllowWhileIdle,
+      payload: payload,
     );
   }
 

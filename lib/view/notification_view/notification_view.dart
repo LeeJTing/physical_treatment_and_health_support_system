@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
@@ -110,6 +111,30 @@ class _NotificationViewState extends State<NotificationView>
                         icon: const Icon(Icons.notifications_active_outlined),
                         label: const Text(
                           'Turn on notifications',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ] else if (!vm.remindersOnTime &&
+                      (vm.reminders is UiSuccess<List<Reminder>>) &&
+                      (vm.reminders as UiSuccess<List<Reminder>>).data.any(
+                        (r) => r.isEnabled,
+                      )) ...[
+                    const NoticeBanner(Messages.remindersMayBeLate),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: vm.openOnTimeSettings,
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(48, AppTokens.minTarget),
+                        ),
+                        icon: const Icon(Icons.alarm_on_outlined),
+                        label: const Text(
+                          'Turn on Alarms & reminders',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -344,6 +369,26 @@ class _NotificationViewState extends State<NotificationView>
             'Tap a day to turn it on or off.',
             style: TextStyle(fontSize: 13, color: AppTokens.textMuted),
           ),
+          // The plan this reminder is for: the same place a tapped notification opens.
+          if (r.patientPlanId != null)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                onPressed: () => Navigator.of(context).pushNamed(
+                  Routes.physicalTreatment,
+                  arguments: r.patientPlanId,
+                ),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(48, AppTokens.minTarget),
+                  padding: EdgeInsets.zero,
+                ),
+                icon: const Icon(Icons.chevron_right),
+                label: const Text(
+                  'Open this plan',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                ),
+              ),
+            ),
         ],
       ),
     );
