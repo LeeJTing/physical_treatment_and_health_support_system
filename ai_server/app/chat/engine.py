@@ -57,6 +57,8 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
+         "pitam": "fainted", "senget": "crooked", "herot": "crooked", "pelat": "slurred", "kebas": "numb",
+         "lumpuh": "paralysed",
          "jatuh": "fell", "terjatuh": "fell", "tergelincir": "slipped", "tersandung": "tripped",
          "tersadung": "tripped", "tergolek": "fell", "rebah": "collapsed", "tadi": "just now", "mengecil": "shrank", "otot": "muscles", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
          "susah": "hard", "duduk": "sitting", "sambil": "while",
@@ -89,7 +91,15 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  "tak dapat bernafas": "can't breathe", "tidak dapat bernafas": "can't breathe",
                  "sukar bernafas": "hard to breathe", "susah bernafas": "hard to breathe",
                  "dah ok": "fine now", "sekarang ok": "fine now", "hari ni": "today", "hari ini": "today",
-                 "hampir jatuh": "nearly fell", "nyaris jatuh": "nearly fell"}
+                 "hampir jatuh": "nearly fell", "nyaris jatuh": "nearly fell",
+                 # PC safety pass 14: stroke signs, fainting, bleeding
+                 "nak pitam": "feel like fainting", "rasa nak pitam": "feel like fainting",
+                 "mulut senget": "mouth crooked", "muka senget": "face crooked", "mulut herot": "mouth crooked",
+                 "muka herot": "face crooked", "cakap pelat": "slurred speech", "percakapan pelat": "slurred speech",
+                 "hilang kesedaran": "lost consciousness", "tak sedarkan diri": "unconscious",
+                 "tidak sedarkan diri": "unconscious", "darah tak berhenti": "bleeding won't stop",
+                 "darah tidak berhenti": "bleeding won't stop", "banyak darah": "bleeding a lot",
+                 "berdarah banyak": "bleeding a lot"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -333,7 +343,10 @@ PREFER_UNLESS = [("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not
                                                  "bed rest", "wait", "until"]),
                  # round 15: "afraid of getting hurt after a fall" is the fear, unless something hurts now
                  ("fear_of_falling", "pain_or_discomfort", ["pain", "painful", "sakit", "ache", "aching", "sore",
-                                                            "swollen"])]   # not "hurts": it stems to "hurt"
+                                                            "swollen"]),   # not "hurts": it stems to "hurt"
+                 # PC pass 14: "gasping a bit after climbing stairs" is effort, unless something hurts
+                 ("tired", "pain_mild", ["pain", "painful", "sore", "ache", "aching", "hurt", "sakit", "stiff",
+                                         "swollen", "tender"])]
 
 
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
@@ -417,6 +430,8 @@ CHRONIC = {"numb": ["years ago", "for years", "since the operation", "since my o
            "vomit": ["after eating", "right after eating", "after a meal", "after meals", "full stomach",
                      "after lunch", "after dinner", "after breakfast", "lepas makan"]}
 CHRONIC["numbness"] = CHRONIC["numb"]
+for _p in ['cannot talk properly', "can't talk properly", 'cannot speak properly', "can't speak properly", 'cannot get my words out', "can't get my words out", 'cannot get the words out', "can't get the words out", 'words come out wrong', 'words are jumbled', 'talking funny', 'speech is strange']:
+    CHRONIC[_p] = CHRONIC["numb"]                   # "cannot talk properly since my stroke" is not new
 CHRONIC["vomiting"] = CHRONIC["vomit"]
 
 

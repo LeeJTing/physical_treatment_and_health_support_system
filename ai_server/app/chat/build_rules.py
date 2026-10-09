@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.36"
+VERSION = "chat-rules-3.37"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -168,7 +168,10 @@ INTENTS = [
     intent("tired", "Feeling tired or unwell", 6,
            ["didn't sleep well", "did not sleep well", "not sleep well", "slept badly", "slept poorly", "poor sleep",
             "bad sleep", "no sleep", "sleepy", "not enough sleep", "tired", "tiring", "exhausted", "exhausting", "fatigue", "fatigued", "no energy", "low energy",
-            "worn out", "sleepy", "drained", "fell asleep", "out of breath", "breathing hard", "panting", "not feeling well", "feel unwell", "unwell", "sick", "ill", "fever",
+            "worn out", "sleepy", "drained", "fell asleep", "out of breath", "breathing hard", "panting", "not feeling well",
+            # PC pass 14: panting after an exercise is effort, not the exercise's how-to
+            "breathing hard after the", "out of breath after the", "panting after the", "breathing hard after doing",
+            "gasping a bit", "gasping a little", "puffing", "huffing and puffing", "feel unwell", "unwell", "sick", "ill", "fever",
             "cold", "flu", "cough", "headache", "period", "bad day"],
            ["I feel too tired to exercise", "I am exhausted after the session", "I'm not feeling well today",
             "should I exercise when I am sick"],
@@ -857,6 +860,15 @@ RED_FLAGS += ["anaphylaxis", "allergic reaction", "epipen", "epi pen", "throat c
               "black stools", "black poo", "black poop", "tarry stool", "blood in my stool", "blood in stool",
               "bloody stool", "blood in my poo", "vomiting blood", "vomit blood", "vomited blood",
               "throwing up blood", "berak hitam", "najis hitam"]
+# PC safety pass 14 (9 Oct, generated probe of emergencies in everyday words): gasping, losing
+# consciousness, bleeding that will not stop, speech that suddenly goes wrong (not when long-standing:
+# engine CHRONIC).
+RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
+              "lost consciousness", "loss of consciousness", "lose consciousness", "losing consciousness",
+              "bleeding a lot", "bleeding heavily", "heavy bleeding", "bleeding won't stop", "bleeding will not stop",
+              "won't stop bleeding", "will not stop bleeding", "can't stop the bleeding", "cannot stop the bleeding",
+              "bleeding badly", "losing a lot of blood", "lost a lot of blood",
+              "i have collapsed", "i've collapsed"] + ['cannot talk properly', "can't talk properly", 'cannot speak properly', "can't speak properly", 'cannot get my words out', "can't get my words out", 'cannot get the words out', "can't get the words out", 'words come out wrong', 'words are jumbled', 'talking funny', 'speech is strange']
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
@@ -990,13 +1002,23 @@ RED_FLAG_COMBOS = [
     # Someone found on the floor ("found my mum on the floor"): a person must be named.
     [["found"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
                  "grandmother", "grandfather", "him", "her", "son", "daughter"], 3],
+    # PC safety pass 14: one side of the body suddenly weak or numb (stroke), not a long-standing weaker side.
+    [["one side", "sebelah", "half of my body", "half my body", "half of his body", "half of her body"],
+     ["weak", "weakness", "numb", "numbness", "cannot move", "can't move", "paralysed", "paralyzed", "lumpuh",
+      "drooping", "droop", "heavy", "no feeling"], 5,
+     ["since my stroke", "since the stroke", "after my stroke", "from my stroke", "old stroke", "for years",
+      "years ago", "always", "stronger", "weaker than", "since birth", "for a long time", "exercise one side",
+      "one side at a time"]],
     # One side of the face drooping (stroke), in everyday words ("face one side drop").
     [["face", "mouth"], ["drop", "droop", "drooping", "dropping", "dropped", "crooked", "lopsided",
                          "one side"], 3],
     [["chest"], ["pain", "painful", "hurt", "hurts", "hurting", "heavy", "heaviness", "pressure", "tight",
                  "tightness", "squeeze", "squeezing", "ache", "aching", "burning", "crushing"], 4],
+    # Not "breathing hard after sit to stand" (PC pass 14: panting after effort is the tired answer's;
+    # "hard to breathe" and "can't breathe" are urgent phrases of their own).
     [["breathe", "breath", "breathing"], ["hardly", "barely", "can't", "cannot", "difficult", "difficulty",
-                                          "trouble", "struggle", "struggling", "hard", "gasping"], 3],
+                                          "trouble", "struggle", "struggling", "hard", "gasping"], 3,
+     ["breathing hard", "breathe hard", "breathing heavily", "breathing heavy", "breathe heavily"]],
     [["suddenly", "sudden"], ["weak", "weakness", "numb", "numbness", "can't move", "cannot move",
                               "paralysed", "paralyzed", "drooping", "droop", "slurred", "can't speak",
                               "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see",

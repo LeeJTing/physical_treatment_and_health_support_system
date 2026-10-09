@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.36",
+  "version": "chat-rules-3.37",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -667,6 +667,14 @@
         "breathing hard",
         "panting",
         "not feeling well",
+        "breathing hard after the",
+        "out of breath after the",
+        "panting after the",
+        "breathing hard after doing",
+        "gasping a bit",
+        "gasping a little",
+        "puffing",
+        "huffing and puffing",
         "feel unwell",
         "unwell",
         "sick",
@@ -5699,7 +5707,40 @@
     "vomited blood",
     "throwing up blood",
     "berak hitam",
-    "najis hitam"
+    "najis hitam",
+    "gasping for air",
+    "gasping for breath",
+    "gasp for air",
+    "lost consciousness",
+    "loss of consciousness",
+    "lose consciousness",
+    "losing consciousness",
+    "bleeding a lot",
+    "bleeding heavily",
+    "heavy bleeding",
+    "bleeding won't stop",
+    "bleeding will not stop",
+    "won't stop bleeding",
+    "will not stop bleeding",
+    "can't stop the bleeding",
+    "cannot stop the bleeding",
+    "bleeding badly",
+    "losing a lot of blood",
+    "lost a lot of blood",
+    "i have collapsed",
+    "i've collapsed",
+    "cannot talk properly",
+    "can't talk properly",
+    "cannot speak properly",
+    "can't speak properly",
+    "cannot get my words out",
+    "can't get my words out",
+    "cannot get the words out",
+    "can't get the words out",
+    "words come out wrong",
+    "words are jumbled",
+    "talking funny",
+    "speech is strange"
   ],
   "crisis": [
     "end my life",
@@ -6394,6 +6435,48 @@
     ],
     [
       [
+        "one side",
+        "sebelah",
+        "half of my body",
+        "half my body",
+        "half of his body",
+        "half of her body"
+      ],
+      [
+        "weak",
+        "weakness",
+        "numb",
+        "numbness",
+        "cannot move",
+        "can't move",
+        "paralysed",
+        "paralyzed",
+        "lumpuh",
+        "drooping",
+        "droop",
+        "heavy",
+        "no feeling"
+      ],
+      5,
+      [
+        "since my stroke",
+        "since the stroke",
+        "after my stroke",
+        "from my stroke",
+        "old stroke",
+        "for years",
+        "years ago",
+        "always",
+        "stronger",
+        "weaker than",
+        "since birth",
+        "for a long time",
+        "exercise one side",
+        "one side at a time"
+      ]
+    ],
+    [
+      [
         "face",
         "mouth"
       ],
@@ -6452,7 +6535,14 @@
         "hard",
         "gasping"
       ],
-      3
+      3,
+      [
+        "breathing hard",
+        "breathe hard",
+        "breathing heavily",
+        "breathing heavy",
+        "breathe heavily"
+      ]
     ],
     [
       [
