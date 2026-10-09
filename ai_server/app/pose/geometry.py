@@ -169,6 +169,9 @@ class Features:
                 palm = dist(a[:, 9], a[:, 0])
                 tips = np.mean([dist(a[:, j], a[:, 0]) for j in (8, 12, 16, 20)], axis=0)
                 S[f"hand_open_{name}"] = tips / (palm + 1e-9)
+                # Finger spread: index to little fingertip over the palm length (9 Oct: tells complete openings
+                # from incomplete ones better than openness, AUC 0.90 against 0.80; a fist is about 0.67).
+                S[f"hand_spread_{name}"] = dist(a[:, 8], a[:, 20]) / (palm + 1e-9)
                 # Hand lift: angle of the hand (wrist -> middle knuckle) above level, + up. With the forearm
                 # resting on a table it is the wrist extension (Upper Limb Stroke dataset: complete lifts
                 # reach 67-86 deg, p10-p90; the hand hangs at about -30 deg).

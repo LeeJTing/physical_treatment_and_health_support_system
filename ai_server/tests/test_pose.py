@@ -170,6 +170,60 @@ def test_shoulder_abduction_head_tilt_beyond_the_trunk():
     assert "trunk_lean" in m and "head_tilt" not in m
 
 
+# ---- wrist and hand (hand landmarks, 9 Oct) ------------------------------------
+
+def _hand(openness=1.0, spread_deg=0.0, lift_deg=90.0, origin=(360.0, 900.0), palm=80.0):
+    """21 MediaPipe hand points: wrist at origin, the hand pointing lift_deg above level (90 = up),
+    fingertips at openness x palm from the wrist, index and little finger spread_deg either side."""
+    h = np.full((21, 2), np.nan)
+    o = np.array(origin)
+
+    def towards(deg, length):
+        a = math.radians(deg)
+        return o + length * np.array([math.cos(a), -math.sin(a)])
+
+    h[0] = o
+    for mcp, tip, off in ((5, 8, -1.0), (9, 12, -1 / 3), (13, 16, 1 / 3), (17, 20, 1.0)):
+        h[mcp] = towards(lift_deg - off * 12, palm)
+        h[tip] = towards(lift_deg - off * spread_deg, openness * palm)
+        for k, w in ((1, 1 / 3), (2, 2 / 3)):
+            h[mcp + k] = h[mcp] + w * (h[tip] - h[mcp])
+    h[1:5] = [towards(lift_deg + 40, palm * s) for s in (0.3, 0.6, 0.8, 1.0)]
+    return h
+
+
+def _hand_sequence(hands):
+    seq = sequence([front_pose()] * len(hands))
+    seq.hands = np.full((len(hands), 2, 21, 2), np.nan, np.float32)
+    seq.hands[:, 0] = np.stack(hands)
+    return seq
+
+
+def test_hand_open_close_counts_openings_and_checks_the_spread():
+    good = [_hand(o, 20 * (o - 0.95)) for o in wave(5, 0.95, 2.0)]
+    res = analyse("hand_open_close", _hand_sequence(good), use_model=False)
+    assert res["repetitions"] == 5 and res["mistakes"] == {}, res["mistakes"]
+    together = [_hand(o, 3) for o in wave(5, 0.95, 2.0)]          # opens fully, fingers kept together
+    res = analyse("hand_open_close", _hand_sequence(together), use_model=False)
+    assert "fingers_not_spread" in res["mistakes"] and "low_range" not in res["mistakes"]
+    small = [_hand(o, 20 * (o - 0.95)) for o in wave(5, 0.95, 1.65)]
+    assert "low_range" in analyse("hand_open_close", _hand_sequence(small), use_model=False)["mistakes"]
+
+
+def test_wrist_extension_counts_lifts_and_low_ones():
+    full = [_hand(1.9, 10, lift) for lift in wave(5, -30, 75)]
+    res = analyse("wrist_extension", _hand_sequence(full), use_model=False)
+    assert res["repetitions"] == 5 and res["mistakes"] == {}, res["mistakes"]
+    low = [_hand(1.9, 10, lift) for lift in wave(5, -30, 45)]
+    assert "low_range" in analyse("wrist_extension", _hand_sequence(low), use_model=False)["mistakes"]
+
+
+def test_hand_exercises_need_a_hand_in_the_picture():
+    with pytest.raises(PoseError) as e:
+        analyse("hand_open_close", sequence([front_pose()] * 60), use_model=False)
+    assert e.value.code == "hand_not_visible"
+
+
 # ---- seated knee extension (side view) --------------------------------------
 
 def test_knee_extension_correct_with_hold():

@@ -444,7 +444,7 @@ add(ExerciseSpec(
     ]))
 
 
-def _moving_hand(f: Features, prefix: str) -> np.ndarray:
+def _moving_slot(f: Features, prefix: str) -> str | None:
     """The hand slot that moves most (hand exercises use one hand or both; slots are by image side)."""
     best, best_range = None, -1.0
     for slot in ("A", "B"):
@@ -456,12 +456,19 @@ def _moving_hand(f: Features, prefix: str) -> np.ndarray:
         if ok.sum() > 3:
             r = float(np.percentile(x[ok], 95) - np.percentile(x[ok], 5))
             if r > best_range:
-                best, best_range = x, r
-    return best if best is not None else np.full(len(f.t), np.nan)
+                best, best_range = slot, r
+    return best
+
+
+def _moving_hand(f: Features, prefix: str, of: str | None = None) -> np.ndarray:
+    """Series `prefix` of the hand that moves most in `of` (default: in the same series)."""
+    slot = _moving_slot(f, of or prefix)
+    return f[f"{prefix}_{slot}"] if slot else np.full(len(f.t), np.nan)
 
 
 def hand_lift(f):        return _moving_hand(f, "hand_lift")
 def hand_open(f):        return _moving_hand(f, "hand_open")
+def hand_spread(f):      return _moving_hand(f, "hand_spread", of="hand_open")
 
 
 # Wrist and hand (9 Oct, Elwin chose to add them). Set from the Upper Limb Stroke Rehabilitation Exercise
@@ -487,6 +494,10 @@ add(ExerciseSpec(
           peak_of(hand_open), 1.75, False, "of the palm length"),
         M("not_closed", "Between openings, close your hand into a gentle fist.",
           lambda f, r: float(np.nanmin(hand_open(f)[r.start:r.end + 1])), 1.3, True, "of the palm length"),
+        # 9 Oct: complete openings spread the fingers to 1.10-1.75 (p10-p90), incomplete ones to a median of
+        # 0.93. At 1.0 no complete cycle is lost and incomplete cycles passing drop 21 -> 15 of 60.
+        M("fingers_not_spread", "Spread your fingers wide as you open your hand, only as far as is comfortable.",
+          peak_of(hand_spread), 1.0, False, "of the palm length"),
     ]))
 
 
@@ -521,6 +532,7 @@ ROM_BASE = {
     "seated_marching.low_knee_lift": 0.0, "march_in_place.low_knee_lift": 0.0,
     "glute_bridge.low_hips": -0.35, "bird_dog.arm_leg_low": 0.0,
     "wrist_extension.low_range": -30.0, "hand_open_close.low_range": 0.9,
+    "hand_open_close.fingers_not_spread": 0.67,
 }
 for _name, _base in ROM_BASE.items():
     _key, _, _label = _name.partition(".")

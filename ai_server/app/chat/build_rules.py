@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.37"
+VERSION = "chat-rules-3.38"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -1215,6 +1215,8 @@ MISTAKE_MEANING = {
                              "Straighten your knee so your leg is straight out in front, as far as is comfortable."),
     "incomplete_stand": ("you did not stand up fully straight at the top",
                          "Stand up fully: straighten your hips and knees at the top."),
+    "fingers_not_spread": ("your fingers stayed close together when your hand opened",
+                           "Spread your fingers wide as you open your hand, only as far as is comfortable."),
     "head_tilt": ("your head tilted to one side as you lifted", "Keep your head level and look straight ahead."),
     "knee_not_straight": ("your leading leg was not fully straight at the top of the step",
                           "Straighten your leading leg at the top, holding the rail, as far as is comfortable."),
