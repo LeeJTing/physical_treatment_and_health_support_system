@@ -14,6 +14,8 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_view.dart';
@@ -370,6 +372,89 @@ void main() {
         expect(h.vm.canStart(second), isFalse);
       },
     );
+  });
+
+  group('Exit and missing exercises (FR300_13, FR300_23)', () {
+    test('Exit while the clip is checked: nothing is sent or saved', () async {
+      final h = Harness();
+      await h.setUp(tmp);
+      await h.vm.startExercise(h.vm.pathway.first.item.exercise);
+      final pending = h.vm.submitVideo(h.clip, clipSeconds: 15);
+      h.vm.cancelExercise();
+      expect(await pending, isNull);
+      expect(h.server.calls, 0);
+      expect(h.treatments.sessions, isEmpty);
+      expect(h.vm.analysis, isA<Idle<PostureResult>>());
+      expect(h.vm.current, isNull);
+      expect(h.vm.activePlan!.completedStages, 0);
+    });
+
+    test('Exit after a failing result leaves it unsaved', () async {
+      final h = Harness();
+      await h.setUp(tmp);
+      h.server.accuracy = 60;
+      await h.recordFirst();
+      h.vm.cancelExercise();
+      expect(h.vm.lastResult, isNull);
+      expect(h.treatments.sessions, isEmpty);
+      expect(await h.vm.acceptResult(), isFalse); // nothing left to save
+    });
+
+    test('a plan that comes without its exercises shows the FR300_23 message', () async {
+      final h = Harness();
+      final account = (await h.auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!;
+      final p = (await h.treatments.getCatalogue()).dataOrNull!.first;
+      await h.treatments.assignPlan(
+        PatientTreatmentPlan(
+          patientPlanId: 'pp-empty',
+          accountId: account.accountId,
+          plan: TreatmentPlan(
+            planId: p.planId,
+            planName: p.planName,
+            aim: p.aim,
+            targetBodyArea: p.targetBodyArea,
+            recoveryStage: p.recoveryStage,
+            mobilityLevel: p.mobilityLevel,
+            frequencyPerWeek: p.frequencyPerWeek,
+            goal: p.goal,
+          ),
+          selectedAt: DateTime.now(),
+        ),
+      );
+      await h.vm.loadPlan();
+      expect(
+        (h.vm.plan as UiError<PatientTreatmentPlan?>).message,
+        Messages.exerciseRetrieveFailed,
+      );
+    });
+
+    testWidgets('Exit on the result screen goes back to the home page', (
+      tester,
+    ) async {
+      final h = Harness();
+      h.server.accuracy = 70;
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        await h.recordFirst();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          routes: {Routes.home: (_) => const Text('HOME PAGE')},
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const PostureResultView(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.tap(find.text('Exit'));
+      await tester.pumpAndSettle();
+      expect(find.text('HOME PAGE'), findsOneWidget);
+      expect(h.treatments.sessions, isEmpty); // the failing attempt was not kept
+    });
   });
 
   group('posture result (FR300_09 to FR300_21)', () {

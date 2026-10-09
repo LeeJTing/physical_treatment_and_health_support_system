@@ -1,11 +1,64 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
+
+/// "Exit" on the recording, analysing and result screens (FR300_13): cancels the exercise in
+/// progress and goes back to the home page. Asks first when [confirm] is given (while
+/// recording or analysing, when something would be lost).
+class ExitExerciseButton extends StatelessWidget {
+  final String? confirm;
+  const ExitExerciseButton({super.key, this.confirm});
+
+  Future<void> _exit(BuildContext context) async {
+    final question = confirm;
+    if (question != null) {
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (c) => AlertDialog(
+          content: Text(question, style: const TextStyle(fontSize: 17)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(c, false),
+              child: const Text('Keep going'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(c, true),
+              child: const Text('Exit', style: TextStyle(color: AppTokens.cta)),
+            ),
+          ],
+        ),
+      );
+      if (ok != true || !context.mounted) return;
+    }
+    context.read<TreatmentViewModel>().cancelExercise();
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(Routes.home, (_) => false);
+  }
+
+  @override
+  Widget build(BuildContext context) => TextButton(
+    onPressed: () => _exit(context),
+    style: TextButton.styleFrom(
+      minimumSize: const Size(AppTokens.minTarget, AppTokens.minTarget),
+    ),
+    child: const Text(
+      'Exit',
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w600,
+        color: AppTokens.brandDeepAccent,
+      ),
+    ),
+  );
+}
 
 /// White rounded card used across the treatment screens.
 class TreatmentCard extends StatelessWidget {

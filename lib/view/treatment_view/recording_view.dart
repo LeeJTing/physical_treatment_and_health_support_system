@@ -10,6 +10,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/analysing_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// "Record exercise" (UI Design, Recording Screen; FR300_05, FR300_06, FR300_15, FR300_18, FR300_24):
@@ -236,6 +237,11 @@ class _RecordingViewState extends State<RecordingView>
                       subtitle: name,
                       onBack: () => Navigator.of(context).maybePop(),
                     ),
+                  ),
+                  ExitExerciseButton(
+                    confirm: _recording
+                        ? 'Stop recording and leave this exercise? This recording will not be saved.'
+                        : null,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 6),

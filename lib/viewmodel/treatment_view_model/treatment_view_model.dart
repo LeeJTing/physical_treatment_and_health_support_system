@@ -140,7 +140,10 @@ class TreatmentViewModel extends BaseViewModel {
       final data =
           all.where((a) => a.patientPlanId == keep).firstOrNull ??
           all.lastOrNull;
-      _plan = UiSuccess(data);
+      // FR300_23: the exercises come with the plan; a plan without them could not be read.
+      _plan = data != null && data.plan.exercises.isEmpty
+          ? const UiError(Messages.exerciseRetrieveFailed)
+          : UiSuccess(data);
       _sessions = data == null
           ? const []
           : _sessionsByPlan[data.patientPlanId] ?? const [];
@@ -299,8 +302,25 @@ class TreatmentViewModel extends BaseViewModel {
 
   /// Opens the recorder with the recording instructions (FR300_05).
   Future<void> startExercise(Exercise e) async {
+    _attempt++;
     _current = e;
     _analysis = const Idle();
+    _autoAdvanced = false;
+    notifyListeners();
+  }
+
+  /// Bumped by every start and exit, so a /pose reply that arrives after the patient left
+  /// is dropped instead of saved.
+  int _attempt = 0;
+
+  /// "Exit" (FR300_13): the exercise in progress is cancelled. A clip still being analysed is
+  /// not saved; an attempt already saved (a passing result) stays saved.
+  void cancelExercise() {
+    _attempt++;
+    _current = null;
+    _analysis = const Idle();
+    _lastResult = null;
+    _saving = const Idle();
     _autoAdvanced = false;
     notifyListeners();
   }
@@ -311,12 +331,14 @@ class TreatmentViewModel extends BaseViewModel {
     final e = _current;
     final p = activePlan;
     if (e == null || p == null) return null;
+    final attempt = _attempt;
     _recordedAt = DateTime.now();
     _clipSeconds = clipSeconds;
     _analysis = const Loading();
     notifyListeners();
 
     final check = await _pose.validateVideo(v);
+    if (attempt != _attempt) return null; // exited (FR300_13)
     if (!check.ok) {
       _analysis = UiError(check.message ?? Messages.videoInvalid);
       notifyListeners();
@@ -324,6 +346,7 @@ class TreatmentViewModel extends BaseViewModel {
     }
     final (riskLevel, age) = await _patientContext();
     final res = await _pose.analyse(v, e, riskLevel: riskLevel, age: age);
+    if (attempt != _attempt) return null; // exited while analysing: nothing is saved
     switch (res) {
       case Failure(:final message):
         _analysis = UiError(message);

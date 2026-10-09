@@ -69,13 +69,20 @@ class PostureResultView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppTokens.gutter),
           children: [
-            const Text(
-              'Posture result',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: AppTokens.text,
-              ),
+            const Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Posture result',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: AppTokens.text,
+                    ),
+                  ),
+                ),
+                ExitExerciseButton(), // FR300_13
+              ],
             ),
             const SizedBox(height: 2),
             Text(
