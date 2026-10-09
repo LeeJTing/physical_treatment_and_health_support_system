@@ -92,14 +92,24 @@ class PluginScheduler implements NotificationScheduler {
     DateTime at,
   ) async {
     await init();
-    // Inexact delivery needs no exact-alarm permission and is fine for a reminder.
+    // On time where the phone allows exact alarms (SCHEDULE_EXACT_ALARM: on by default up to
+    // Android 13, on 14+ only if the patient turned on "Alarms & reminders"). Otherwise inexact:
+    // Android may deliver a far-off alarm up to an hour late to save battery (seen on the emulator:
+    // window +1 h). No extra prompt either way.
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    final exact = await android?.canScheduleExactNotifications() ?? false;
     await _plugin.zonedSchedule(
       id,
       title,
       body,
       tz.TZDateTime.from(at, tz.local),
       _details,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: exact
+          ? AndroidScheduleMode.exactAllowWhileIdle
+          : AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }
 
