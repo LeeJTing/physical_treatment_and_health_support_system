@@ -474,6 +474,7 @@ from chat_safety_pass12_set import SAFETY_PASS12  # noqa: E402
 from chat_safety_pass13_set import SAFETY_PASS13  # noqa: E402
 from chat_safety_pass14_set import SAFETY_PASS14  # noqa: E402
 from chat_safety_pass15_set import SAFETY_PASS15  # noqa: E402
+from chat_safety_pass16_set import SAFETY_PASS16  # noqa: E402
 
 
 @pytest.mark.parametrize("plan, question, expected", SAFETY_PASS12, ids=[q[:40] for _, q, _ in SAFETY_PASS12])
@@ -510,3 +511,12 @@ def test_safety_pass15(plan, question, expected):
         assert got != "crisis", got
     else:
         assert got == expected, got
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS16, ids=[q[:40] for _, q, _ in SAFETY_PASS16])
+def test_safety_pass16(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert (got if got is not None else "None") in expected.split("/"), got

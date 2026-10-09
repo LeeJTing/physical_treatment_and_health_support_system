@@ -527,6 +527,9 @@ LOW_SUGAR_SIGNS = ("shaky", "shaking", "shake", "sweaty", "sweating", "dizzy", "
 
 def low_sugar(text: str) -> bool:
     low = text.lower()
+    # PC safety pass 16: under 3.0 mmol/L is a severe low whether or not symptoms are told ("my glucose is 2.8").
+    if any(float(v) < 3.0 for v in SUGAR_READING.findall(low)):
+        return True
     if not any(w in low for w in LOW_SUGAR_SIGNS):
         return False
     for v in SUGAR_READING.findall(low):
@@ -614,7 +617,14 @@ OD_NOT_TAKING = [("took me off", "removed"), ("took him off", "removed"), ("took
 OD_CHILD = {"grandson", "granddaughter", "grandchild", "child", "kid", "baby", "toddler", "cucu", "anak"}
 OD_DOUBLE = ["double my insulin", "double insulin", "double dose of insulin", "twice my insulin",
              "extra insulin", "insulin twice", "insulin two times", "insulin 2 times", "double my warfarin",
-             "double warfarin", "extra warfarin", "warfarin twice", "double my blood thinner"]
+             "double warfarin", "extra warfarin", "warfarin twice", "double my blood thinner",
+             # PC safety pass 16: three or more times a dose, and extra sleeping pills. A regular medicine
+             # taken twice by mistake stays a pharmacist question (decided in laptop pass 6).
+             "three times my dose", "3 times my dose", "four times my dose", "4 times my dose",
+             "five times my dose", "5 times my dose", "three times the dose", "3 times the dose", "triple dose",
+             "triple my dose", "extra sleeping pills", "extra sleeping tablets",
+             # Malay puts the amount after the medicine ("makan ubat terlalu banyak")
+             "ubat terlalu banyak", "terlebih makan ubat", "terlebih ubat", "ubat berlebihan", "telan ubat banyak"]
 OD_BOXES = ["medicine box", "pill box", "pillbox", "medicine cabinet", "kotak ubat"]
 OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now. Call 999 or go to the nearest "
                    "emergency department now, and take the medicine packets with you; do not wait for symptoms. "
@@ -622,8 +632,11 @@ OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine
                    "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
 # Household chemicals swallowed (laptop pass 7): Dettol, bleach, floor cleaner, pesticide...
 POISONS = ["dettol", "clorox", "bleach", "floor cleaner", "cleaner", "pesticide", "insecticide", "racun",
-           "kerosene", "minyak tanah", "antifreeze", "weed killer", "detergent", "toilet cleaner", "lysol"]
-POISON_VERBS = {"drank", "drink", "drinks", "swallowed", "swallow", "ate", "eaten", "minum", "telan", "took", "had"}
+           "kerosene", "minyak tanah", "antifreeze", "weed killer", "detergent", "toilet cleaner", "lysol",
+           # PC safety pass 16
+           "cleaning liquid", "cleaning fluid", "cleaning product", "dishwashing liquid", "pencuci", "sabun cecair"]
+POISON_VERBS = {"drank", "drink", "drinks", "swallowed", "swallow", "ate", "eaten", "minum", "telan", "took", "had",
+                "terminum", "tertelan"}
 POISON_ANSWER = ("Swallowing a cleaning product, pesticide or other chemical is an emergency. Call 999 now or go "
                  "to the nearest emergency department, and take the bottle with you. Do not try to make them "
                  "vomit. If it was on purpose, or you are thinking of harming yourself, you are not alone: "

@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.39"
+VERSION = "chat-rules-3.40"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -868,7 +868,11 @@ RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
               "bleeding a lot", "bleeding heavily", "heavy bleeding", "bleeding won't stop", "bleeding will not stop",
               "won't stop bleeding", "will not stop bleeding", "can't stop the bleeding", "cannot stop the bleeding",
               "bleeding badly", "losing a lot of blood", "lost a lot of blood",
-              "i have collapsed", "i've collapsed"] + ['cannot talk properly', "can't talk properly", 'cannot speak properly', "can't speak properly", 'cannot get my words out', "can't get my words out", 'cannot get the words out', "can't get the words out", 'words come out wrong', 'words are jumbled', 'talking funny', 'speech is strange']
+              "i have collapsed", "i've collapsed",
+              # PC safety pass 16: a low blood sugar told in words
+              "having a hypo", "having hypo", "going hypo", "i'm hypo", "i am hypo", "hypo now", "hypo attack",
+              "feeling hypo", "feel hypo", "kena hypo", "sugar very low", "sugar is very low", "sugar too low",
+              "sugar is too low", "sugar so low", "gula rendah sangat", "gula sangat rendah", "gula terlalu rendah"] + ['cannot talk properly', "can't talk properly", 'cannot speak properly', "can't speak properly", 'cannot get my words out', "can't get my words out", 'cannot get the words out', "can't get the words out", 'words come out wrong', 'words are jumbled', 'talking funny', 'speech is strange']
 # Crisis (8 Oct, laptop review): thoughts of suicide or self-harm. Checked before everything else,
 # including the red flags. "hurt myself" on its own is left out: "will I hurt myself doing squats"
 # is about injury. Overdose wording must be a statement ("going to take all my pills"), not "can I
