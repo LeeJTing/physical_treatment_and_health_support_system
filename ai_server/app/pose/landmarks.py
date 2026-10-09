@@ -257,6 +257,117 @@ def extract_many(
             for info, (xs, vs, ts) in zip(infos, out)]
 
 
+def _hand_landmarker():
+    from mediapipe.tasks.python import vision
+    from mediapipe.tasks.python.core.base_options import BaseOptions
+
+    options = vision.HandLandmarkerOptions(base_options=BaseOptions(model_asset_path=str(HAND_MODEL)),
+                                           running_mode=vision.RunningMode.VIDEO, num_hands=2,
+                                           min_hand_detection_confidence=0.5, min_hand_presence_confidence=0.5,
+                                           min_tracking_confidence=0.5)
+    return vision.HandLandmarker.create_from_options(options)
+
+
+def _hand_slots(res, s: float, nose_x: float) -> np.ndarray:
+    """Up to two hands in fixed slots by image side (slot 0 = the hand further left in the picture);
+    a single hand goes by which side of the nose it is on (as in extract_with_hands)."""
+    slots = np.full((2, 21, 2), np.nan)
+    found = [np.array([[p.x * s, p.y * s] for p in hand]) for hand in (res.hand_landmarks or [])][:2]
+    found.sort(key=lambda a: float(a[H_WRIST, 0]))
+    if len(found) == 1:
+        slot = 0 if np.isnan(nose_x) or found[0][H_WRIST, 0] < nose_x else 1
+        slots[slot] = found[0]
+    else:
+        for k, a in enumerate(found):
+            slots[k] = a
+    return slots
+
+
+def _extract_part(path: str, first: int, stop: int, step: int, src_fps: float, hands: bool):
+    """Body (and hand) points on every step-th frame from first (a multiple of step) up to stop. Frames
+    before first are skipped with grab() (decoded in order, so frame numbers stay exact; no seeking)."""
+    import mediapipe as mp
+
+    cap = cv2.VideoCapture(path)
+    pose = _make_landmarker(DEFAULT_MODEL)
+    hand = _hand_landmarker() if hands else None
+    xs, vs, ts, hs, grey, size = [], [], [], [], [], None
+    try:
+        idx = 0
+        while idx < stop:
+            if idx < first or idx % step:
+                if not cap.grab():
+                    break
+                idx += 1
+                continue
+            ok, frame = cap.read()
+            if not ok:
+                break
+            h, w = frame.shape[:2]
+            size = (w, h)
+            rgb = np.ascontiguousarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+            if h != w:
+                rgb = _pad_square(rgb)
+            s = max(h, w)
+            ts_ms = int(round(idx * 1000.0 / src_fps))
+            image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
+            result = pose.detect_for_video(image, ts_ms)
+            if result.pose_landmarks:
+                lm = result.pose_landmarks[0]
+                xs.append([[p.x * s, p.y * s] for p in lm])
+                vs.append([float(getattr(p, "visibility", 1.0) or 0.0) for p in lm])
+            else:
+                xs.append(np.full((33, 2), np.nan).tolist())
+                vs.append([0.0] * 33)
+            ts.append(idx / src_fps)
+            if hand is not None:
+                hs.append(_hand_slots(hand.detect_for_video(image, ts_ms), s, xs[-1][0][0]))
+            if len(ts) % 10 == 1:                               # for the 'video is dark' tip
+                grey.append(float(cv2.cvtColor(cv2.resize(frame, (160, 160)), cv2.COLOR_BGR2GRAY).mean()))
+            idx += 1
+    finally:
+        pose.close()
+        if hand is not None:
+            hand.close()
+        cap.release()
+    return xs, vs, ts, hs, grey, size
+
+
+def extract_parallel(path: str | Path, hands: bool = False, target_fps: float = 10.0,
+                     workers: int = 2) -> tuple[PoseSequence, float | None]:
+    """The /pose path (9 Oct timing check: MediaPipe was 5 of the ~7 s for a 25 s 720p clip). The clip
+    is split into `workers` parts, each read and tracked by its own landmarkers on its own thread
+    (MediaPipe runs outside Python's lock: 1 thread 5.2 s, 2 threads 2.9 s for 300 frames). Each part
+    starts afresh, like a new clip, so the points can differ slightly at the join from extract();
+    returns the sequence and the mean brightness of the frames it read (for the dark-video tip)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    info = read_video_info(path)
+    src_fps = info.fps if info.fps > 0 else 30.0
+    step = max(1, round(src_fps / target_fps))
+    n = info.frame_count if info.frame_count > 0 else 0
+    if n < 60 * step or workers < 2:
+        bounds = [(0, 1 << 30)]
+    else:
+        cut = [round(n * k / workers / step) * step for k in range(workers)] + [1 << 30]
+        bounds = list(zip(cut[:-1], cut[1:]))
+    with ThreadPoolExecutor(len(bounds)) as ex:
+        parts = list(ex.map(lambda b: _extract_part(str(path), b[0], b[1], step, src_fps, hands), bounds))
+    xs = [x for p in parts for x in p[0]]
+    vs = [v for p in parts for v in p[1]]
+    ts = [t for p in parts for t in p[2]]
+    grey = [g for p in parts for g in p[4]]
+    size = next((p[5] for p in parts if p[5]), (info.width, info.height))
+    seq = PoseSequence(xy=np.asarray(xs, dtype=np.float32).reshape(-1, 33, 2),
+                       vis=np.asarray(vs, dtype=np.float32).reshape(-1, 33),
+                       t=np.asarray(ts, dtype=np.float32),
+                       info=replace(info, width=size[0], height=size[1]))
+    if hands:
+        hs = [h for p in parts for h in p[3]]
+        seq.hands = (np.asarray(hs, dtype=np.float32) if hs else np.full((len(ts), 2, 21, 2), np.nan, np.float32))
+    return seq, (sum(grey) / len(grey) if grey else None)
+
+
 def save(seq: PoseSequence, path: str | Path) -> None:
     i = seq.info
     extra = {"hands": seq.hands} if seq.hands is not None else {}

@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse
 from ..auth import current_account_id
 from ..pose import exercises
 from ..pose.analyse import HAND_EXERCISES, PoseError, analyse
-from ..pose.landmarks import extract, extract_with_hands, read_video_info, turned
+from ..pose.landmarks import extract_parallel, read_video_info, turned
 
 router = APIRouter(tags=["M300 posture"])
 
@@ -29,23 +29,6 @@ ALLOWED_EXT = {".mp4", ".mov"}
 MAX_BYTES = 100 * 1024 * 1024
 MIN_SEC, MAX_SEC, TOLERANCE_SEC = 10.0, 30.0, 0.5
 MIN_SHORT_SIDE = 720
-
-
-def _brightness(path: str, samples: int = 5) -> float | None:
-    """Mean grey level (0-255) of a few frames, for the 'video is dark' tip."""
-    import cv2
-    cap = cv2.VideoCapture(path)
-    try:
-        n = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
-        vals = []
-        for i in range(samples):
-            cap.set(cv2.CAP_PROP_POS_FRAMES, int(n * (i + 0.5) / samples))
-            ok, frame = cap.read()
-            if ok:
-                vals.append(float(cv2.cvtColor(cv2.resize(frame, (160, 160)), cv2.COLOR_BGR2GRAY).mean()))
-        return sum(vals) / len(vals) if vals else None
-    finally:
-        cap.release()
 
 
 def _error(code: str, message: str) -> JSONResponse:
@@ -98,11 +81,11 @@ def pose(
         if min(info.width, info.height) < MIN_SHORT_SIDE:
             return _error("invalid_video", "The video resolution must be at least 720p.")
         try:
-            seq = extract_with_hands(path) if exercise_key in HAND_EXERCISES else extract(path)
+            seq, brightness = extract_parallel(path, hands=exercise_key in HAND_EXERCISES)
             if upright_turn_deg is not None and abs(upright_turn_deg) <= 30:
                 seq = turned(seq, upright_turn_deg)
             return analyse(exercise_key, seq, rom_scale=exercises.rom_scale_for(risk_level, age),
-                           brightness=_brightness(path))
+                           brightness=brightness)
         except PoseError as e:
             return _error(e.code, e.message)
     finally:
