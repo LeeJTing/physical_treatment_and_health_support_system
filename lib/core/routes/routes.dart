@@ -7,6 +7,7 @@ class Routes {
   static const String resetPassword =
       '/reset-password'; // argument: optional email address
   static const String changePassword = '/change-password';
+  static const String accountSetup = '/account-setup';
 
   // Elwin's modules (M300.1, M500, M600.1) and the shared home/profile
   static const String home = '/home';

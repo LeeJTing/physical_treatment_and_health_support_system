@@ -27,6 +27,10 @@ class AuthViewModel extends BaseViewModel {
   Future<String> decideStartRoute() async {
     final account = (await _auth.currentAccount()).dataOrNull;
     if (account == null) return Routes.loginScreen;
+    // The app was closed during Google account setup: finish it first (FR100_022).
+    if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
+      return Routes.accountSetup;
+    }
     // Refresh the phone's reminder schedule; it must not hold up start-up.
     _notifications?.sync(account.accountId).ignore();
     return _routeAfterSignIn(account);
@@ -40,6 +44,11 @@ class AuthViewModel extends BaseViewModel {
   UiState<void> resetConfirmState = const Idle();
   UiState<void> changePasswordState = const Idle();
   UiState<void> googleState = const Idle();
+  UiState<void> setupState = const Idle();
+
+  /// One-time message for the next screen, e.g. UC100 M12 after Google was linked to the
+  /// existing account. The screen that shows it sets it back to null.
+  String? notice;
 
   /// Where to go after a successful login or verification (FR100_035).
   String? nextRoute;
@@ -61,6 +70,7 @@ class AuthViewModel extends BaseViewModel {
         'email_taken' => Messages.emailExists,
         'use_google' => Messages.useGoogle,
         'otp_invalid' || 'invalid_code' => Messages.codeIncorrect,
+        'code_attempts' => Messages.codeExpired,
         'offline' || 'timeout' || 'unknown' =>
           registering
               ? Messages.registrationUnavailable
@@ -216,21 +226,26 @@ class AuthViewModel extends BaseViewModel {
 
   /// Opens the Google page in the browser (FR100_018). The session arrives when the
   /// browser returns to the app; the login screen then calls [checkSignedIn].
+  /// The repository says when Google is not set up yet ('unsupported').
   Future<void> signInWithGoogle() async {
-    if (!AppConstants.googleSignInEnabled) {
-      googleState = const UiError(Messages.googleNotAvailable);
-      notifyListeners();
-      return;
-    }
     googleState = const Loading();
     notifyListeners();
     final res = await _auth.signInWithGoogle();
+    if (res case Failure f) {
+      googleState = UiError(
+        f.code == 'unsupported' ? f.message : messageFor(f),
+      );
+      notifyListeners();
+      return;
+    }
     // On success the browser is open; the spinner stays until the patient comes back.
-    _awaitingGoogle = res.isSuccess;
-    googleState = switch (res) {
-      Success() => const Loading(),
-      Failure f => UiError(f.code == 'unsupported' ? f.message : messageFor(f)),
-    };
+    // (Without a browser, as in the offline demo, the session is already here.)
+    _awaitingGoogle = true;
+    if (await checkSignedIn()) {
+      _awaitingGoogle = false;
+      return;
+    }
+    googleState = const Loading();
     notifyListeners();
   }
 
@@ -263,10 +278,60 @@ class AuthViewModel extends BaseViewModel {
   Future<bool> checkSignedIn() async {
     final account = (await _auth.currentAccount()).dataOrNull;
     if (account == null) return false;
-    nextRoute = await _routeAfterSignIn(account);
+    if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
+      nextRoute = Routes.accountSetup; // FR100_022
+    } else {
+      if ((await _auth.googleJustLinked()).dataOrNull ?? false) {
+        notice = Messages.googleLinked; // FR100_021, UC100 M12
+      }
+      nextRoute = await _routeAfterSignIn(account);
+    }
     googleState = const UiSuccess(null);
     notifyListeners();
     return true;
+  }
+
+  /// Complete Account Setup (FR100_022): the same username and password rules as manual
+  /// registration (UC100 A1.1 to A1.3).
+  Future<bool> completeAccountSetup(
+    String username,
+    String password,
+    String confirm,
+  ) async {
+    final invalid =
+        FormValidators.username(username) ??
+        FormValidators.password(password) ??
+        FormValidators.confirmPassword(password, confirm);
+    if (invalid != null) {
+      setupState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
+    setupState = const Loading();
+    notifyListeners();
+    final res = await _auth.completeAccountSetup(username.trim(), password);
+    switch (res) {
+      case Success(:final data):
+        nextRoute = await _routeAfterSignIn(data);
+        _notifications?.sync(data.accountId).ignore();
+        setupState = const UiSuccess(null);
+      case Failure f:
+        setupState = UiError(messageFor(f, registering: true));
+    }
+    notifyListeners();
+    return res.isSuccess;
+  }
+
+  /// UC100 A1.4 (FR100_023): signs out, removes the unfinished account and goes back to
+  /// the login screen, where Google sign-in started.
+  Future<void> cancelAccountSetup() async {
+    setupState = const Loading();
+    notifyListeners();
+    await _auth.discardIncompleteAccount();
+    nextRoute = Routes.loginScreen;
+    setupState = const Idle();
+    googleState = const Idle();
+    notifyListeners();
   }
 
   void clearErrors() {
@@ -276,6 +341,7 @@ class AuthViewModel extends BaseViewModel {
     if (resetConfirmState is UiError) resetConfirmState = const Idle();
     if (changePasswordState is UiError) changePasswordState = const Idle();
     if (googleState is UiError) googleState = const Idle();
+    if (setupState is UiError) setupState = const Idle();
     lastErrorCode = null;
     notifyListeners();
   }

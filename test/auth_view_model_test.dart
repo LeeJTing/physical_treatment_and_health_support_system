@@ -162,8 +162,10 @@ void main() {
   });
 
   test('Google sign-in explains itself while it is not set up (no broken browser page)', () async {
-    await vm.signInWithGoogle();
-    expect((vm.googleState as UiError).message, Messages.googleNotAvailable);
+    final off = AuthViewModel(FakeAuthRepository(googleEmail: null), profiles);
+    await off.signInWithGoogle();
+    expect((off.googleState as UiError).message, Messages.googleNotAvailable);
+    off.dispose();
   });
 
   test('coming back to the app with a session already present continues sign-in', () async {
@@ -232,6 +234,77 @@ void main() {
       clock = clock.add(const Duration(days: 4));
       expect(await model.decideStartRoute(), Routes.loginScreen);
       model.dispose();
+    });
+  });
+
+  group('Google account setup (FR100_019 to FR100_023)', () {
+    test('a new Google address goes to Complete Account Setup', () async {
+      await vm.signInWithGoogle();
+      expect(vm.googleState, isA<UiSuccess<void>>());
+      expect(vm.nextRoute, Routes.accountSetup);
+      final a = (await auth.currentAccount()).dataOrNull!;
+      expect(a.isEmailVerified, isTrue); // FR100_019
+      expect(a.authProvider, AuthProvider.google); // FR100_020
+      // Closing the app half-way: setup comes first next time.
+      expect(await vm.decideStartRoute(), Routes.accountSetup);
+    });
+
+    test('setup uses the registration rules, then the patient can log in by email', () async {
+      await vm.signInWithGoogle();
+      expect(await vm.completeAccountSetup('  ', 'newPass123', 'newPass123'), isFalse);
+      expect((vm.setupState as UiError).message, Messages.usernameBlank);
+      expect(await vm.completeAccountSetup('Ali', 'short', 'short'), isFalse);
+      expect((vm.setupState as UiError).message, Messages.passwordInvalid);
+      expect(await vm.completeAccountSetup('Ali', 'newPass123', 'newPass124'), isFalse);
+      expect((vm.setupState as UiError).message, Messages.passwordMismatch);
+
+      expect(await vm.completeAccountSetup(' Ali ', 'newPass123', 'newPass123'), isTrue);
+      expect(vm.setupState, isA<UiSuccess<void>>());
+      expect(vm.nextRoute, Routes.healthProfile); // no health profile yet
+      expect((await auth.currentAccount()).dataOrNull!.username, 'Ali');
+      expect((await auth.needsAccountSetup()).dataOrNull, isFalse);
+
+      await auth.signOut();
+      expect(
+        await auth.login(FakeAuthRepository.defaultGoogleEmail, 'newPass123'),
+        isA<Success<Object?>>(),
+      );
+    });
+
+    test('cancelling removes the unfinished account and returns to login', () async {
+      await vm.signInWithGoogle();
+      await vm.cancelAccountSetup();
+      expect(vm.nextRoute, Routes.loginScreen);
+      expect((await auth.currentAccount()).dataOrNull, isNull);
+      // Removed: the same Google address is a new account again.
+      await vm.signInWithGoogle();
+      expect(vm.nextRoute, Routes.accountSetup);
+    });
+
+    test('an address that already has an account is linked, with M12', () async {
+      final a = FakeAuthRepository(googleEmail: 'demo@apths.test');
+      final m = AuthViewModel(a, profiles);
+      await m.signInWithGoogle();
+      expect(m.nextRoute, Routes.healthProfile); // no setup: username and password exist
+      expect(m.notice, Messages.googleLinked);
+      expect((await a.currentAccount()).dataOrNull!.authProvider, AuthProvider.both);
+      expect((await a.googleJustLinked()).dataOrNull, isFalse); // told once
+      m.dispose();
+    });
+  });
+
+  group('Verification attempt limit (FR100_016)', () {
+    test('five wrong codes end the code; a new code works', () async {
+      expect(await vm.register('Mei', 'mei@apths.test', 'goodPass1'), isTrue);
+      for (var i = 0; i < AppConstants.maxCodeAttempts; i++) {
+        expect(await vm.verify('mei@apths.test', '000000'), isFalse);
+        expect((vm.verifyState as UiError).message, Messages.codeIncorrect);
+      }
+      expect(await vm.verify('mei@apths.test', FakeAuthRepository.devCode), isFalse);
+      expect((vm.verifyState as UiError).message, Messages.codeExpired);
+
+      await auth.resendCode('mei@apths.test');
+      expect(await vm.verify('mei@apths.test', FakeAuthRepository.devCode), isTrue);
     });
   });
 }

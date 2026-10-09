@@ -47,6 +47,7 @@ class AppConstants {
   static const int passwordMin = 8;
   static const int otpLength = 6;
   static const int maxLoginFailures = 5; // FR100_031
+  static const int maxCodeAttempts = 5; // FR100_016, UC100 C13: wrong codes per issued code
   static const Duration loginLockout = Duration(minutes: 15);
 
   // ---- Profile accepted ranges (Table 3.3) ---------------------------------
