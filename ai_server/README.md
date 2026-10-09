@@ -1,5 +1,8 @@
 # AI Server (FastAPI)
 
+> **Also in its own repo:** `Lvin331/fyp-fastapi` (private) is a copy of this folder with the trained models,
+> made by `python tool/sync_fastapi_repo.py ../fyp-fastapi --push`. Change the server here, then run that.
+
 Stateless: never reads or writes Supabase. See `../supabase/HANDOFF.md` for what the app expects.
 
 ```powershell
