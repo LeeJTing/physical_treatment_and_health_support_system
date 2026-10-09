@@ -20,7 +20,8 @@ class NotificationView extends StatefulWidget {
   State<NotificationView> createState() => _NotificationViewState();
 }
 
-class _NotificationViewState extends State<NotificationView> {
+class _NotificationViewState extends State<NotificationView>
+    with WidgetsBindingObserver {
   static const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   static const dayNames = [
     'Monday',
@@ -35,9 +36,24 @@ class _NotificationViewState extends State<NotificationView> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => context.read<NotificationViewModel>().load(),
     );
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// Back from the phone's Settings: the notice goes away once notifications are on.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<NotificationViewModel>().recheckPermission();
+    }
   }
 
   String _time(int h, int m) {
@@ -86,14 +102,18 @@ class _NotificationViewState extends State<NotificationView> {
                     ),
                     Align(
                       alignment: Alignment.centerLeft,
-                      child: TextButton(
-                        onPressed: vm.askNotificationPermission,
+                      child: TextButton.icon(
+                        onPressed: vm.openNotificationSettings,
                         style: TextButton.styleFrom(
                           minimumSize: const Size(48, AppTokens.minTarget),
                         ),
-                        child: const Text(
-                          'Allow notifications',
-                          style: TextStyle(fontWeight: FontWeight.w600),
+                        icon: const Icon(Icons.notifications_active_outlined),
+                        label: const Text(
+                          'Turn on notifications',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),

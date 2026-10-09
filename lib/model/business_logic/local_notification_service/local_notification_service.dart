@@ -49,6 +49,16 @@ class LocalNotificationService {
     return permissionGranted;
   }
 
+  /// Opens HealthGuide's notification settings (after a refusal Android may not show its dialog
+  /// again). False when they could not be opened.
+  Future<bool> openNotificationSettings() async {
+    try {
+      return await _scheduler.openSettings();
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Reads the phone's setting without asking, e.g. after the patient turned notifications on in
   /// Settings. True when allowed.
   Future<bool> checkPermission() async {

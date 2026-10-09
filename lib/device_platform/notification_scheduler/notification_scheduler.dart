@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -13,6 +14,9 @@ abstract interface class NotificationScheduler {
 
   /// Whether notifications are allowed now, without showing the system dialog.
   Future<bool> isPermitted();
+
+  /// Opens the phone's notification settings for this app; false when it could not.
+  Future<bool> openSettings();
   Future<void> scheduleOnce(int id, String title, String body, DateTime at);
   Future<void> cancel(int id);
 }
@@ -63,6 +67,21 @@ class PluginScheduler implements NotificationScheduler {
           AndroidFlutterLocalNotificationsPlugin
         >();
     return await android?.areNotificationsEnabled() ?? true;
+  }
+
+  /// MainActivity's "apths/settings" channel (no extra package).
+  static const _settings = MethodChannel('apths/settings');
+
+  @override
+  Future<bool> openSettings() async {
+    try {
+      return await _settings.invokeMethod<bool>('openNotificationSettings') ??
+          false;
+    } on PlatformException {
+      return false;
+    } on MissingPluginException {
+      return false;
+    }
   }
 
   @override

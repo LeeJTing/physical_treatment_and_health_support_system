@@ -61,12 +61,18 @@ class NotificationViewModel extends BaseViewModel {
   /// Notifications are refused for the app: reminders are saved but cannot ring (FR600_008).
   bool get notificationsBlocked => _scheduler.permissionDenied;
 
-  /// "Allow notifications": asks again, and puts the reminders on the phone when allowed.
-  Future<void> askNotificationPermission() async {
+  /// "Turn on notifications": opens HealthGuide's notification settings. Asking again would often
+  /// do nothing: after two refusals Android no longer shows its dialog.
+  Future<void> openNotificationSettings() async {
+    await _scheduler.openNotificationSettings();
+  }
+
+  /// Back in the app (e.g. from Settings): reads the setting again and, if notifications are now
+  /// allowed, puts the reminders back on the phone.
+  Future<void> recheckPermission() async {
     final id = _accountId;
-    if (await _scheduler.requestPermission() && id != null) {
-      await _scheduler.sync(id);
-    }
+    if (!_scheduler.permissionDenied || id == null) return;
+    if (await _scheduler.checkPermission()) await _scheduler.sync(id);
     notifyListeners();
   }
 

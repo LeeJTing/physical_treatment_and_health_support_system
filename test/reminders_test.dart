@@ -28,6 +28,13 @@ class FakeScheduler implements NotificationScheduler {
 
   @override
   Future<bool> isPermitted() async => allow;
+
+  int openedSettings = 0;
+  @override
+  Future<bool> openSettings() async {
+    openedSettings++;
+    return true;
+  }
   @override
   Future<void> scheduleOnce(
     int id,
@@ -47,6 +54,8 @@ class ThrowingScheduler implements NotificationScheduler {
   Future<bool> requestPermission() async => true;
   @override
   Future<bool> isPermitted() async => true;
+  @override
+  Future<bool> openSettings() => Future.error(Exception('plugin failed'));
   @override
   Future<void> scheduleOnce(int id, String title, String body, DateTime at) =>
       Future.error(Exception('plugin failed'));
@@ -321,7 +330,7 @@ void main() {
       await vm.load();
     });
 
-    test('a refusal shows on the screen; allowing puts the reminders back (FR600_008)', () async {
+    test('a refusal shows on the screen; turning them on puts the reminders back (FR600_008)', () async {
       device.allow = false;
       local.permissionGranted = false; // the phone's setting is off; the app has not asked yet
       await vm.toggleReminder('plan-r', true); // asks once, refused
@@ -336,7 +345,13 @@ void main() {
       local.permissionDenied = true; // refused again later
       local.permissionGranted = false;
       device.pending.clear();
-      await vm.askNotificationPermission(); // "Allow notifications"
+      device.allow = false;
+      await vm.openNotificationSettings(); // "Turn on notifications"
+      expect(device.openedSettings, 1);
+      await vm.recheckPermission(); // back in the app, still off
+      expect(vm.notificationsBlocked, isTrue);
+      device.allow = true; // switched on in Settings
+      await vm.recheckPermission();
       expect(vm.notificationsBlocked, isFalse);
       expect(device.pending, isNotEmpty);
     });
