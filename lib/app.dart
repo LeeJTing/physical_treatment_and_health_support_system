@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/theme_constants.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/login_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/register_view.dart';
@@ -36,7 +37,15 @@ class MainApp extends StatelessWidget {
       child: MaterialApp(
         title: 'HealthGuide',
         debugShowCheckedModeBanner: false,
-        theme: lightTheme,
+        // Flutter's own widgets (dialog buttons, time picker, spinners, text cursor) take the
+        // theme's primary colour; the yellow AppColors.primaryLight gives about 1.9:1 contrast on
+        // white, so they use the Figma brand green. Jun Ting's theme files are unchanged.
+        theme: lightTheme.copyWith(
+          colorScheme: lightTheme.colorScheme.copyWith(
+            primary: AppTokens.brandDeep,
+            onPrimary: Colors.white,
+          ),
+        ),
         darkTheme: darkTheme,
         // The Figma screens are light-only and hard-code light backgrounds; following
         // the phone's dark mode made theme-coloured text white on them.

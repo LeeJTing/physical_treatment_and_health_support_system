@@ -248,11 +248,12 @@ class _NotificationViewState extends State<NotificationView> {
             ),
           ),
           const SizedBox(height: 8),
+          // On = filled, white letter; off = outline only, so the two differ by more than a tint.
+          // Each day takes an equal share of the row and a 48 px tall tap area.
           Row(
             children: [
               for (var i = 0; i < 7; i++)
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
+                Expanded(
                   child: Semantics(
                     button: true,
                     selected: r.repeatDays[i] == '1',
@@ -260,24 +261,35 @@ class _NotificationViewState extends State<NotificationView> {
                     child: InkWell(
                       customBorder: const CircleBorder(),
                       onTap: () => vm.toggleDay(r.reminderId, i + 1),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: r.repeatDays[i] == '1'
-                              ? AppTokens.accentContainer
-                              : AppTokens.background,
-                        ),
-                        child: Text(
-                          days[i],
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: r.repeatDays[i] == '1'
-                                ? AppTokens.accent
-                                : AppTokens.textMuted,
+                      child: SizedBox(
+                        height: AppTokens.minTarget,
+                        child: Center(
+                          child: Container(
+                            width: 36,
+                            height: 36,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: r.repeatDays[i] == '1'
+                                  ? AppTokens.accent
+                                  : AppTokens.surface,
+                              border: Border.all(
+                                color: r.repeatDays[i] == '1'
+                                    ? AppTokens.accent
+                                    : AppTokens.outline,
+                                width: 1.5,
+                              ),
+                            ),
+                            child: Text(
+                              days[i],
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: r.repeatDays[i] == '1'
+                                    ? Colors.white
+                                    : AppTokens.textMuted,
+                              ),
+                            ),
                           ),
                         ),
                       ),
