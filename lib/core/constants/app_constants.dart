@@ -83,6 +83,10 @@ class Messages {
   Messages._();
 
   // UC600 reminders (not in the report's message list, PROJECT_STATE section 11)
+  // Not a report message (FR600_008 asks for the permission; this says what a refusal means).
+  static const notificationsOff =
+      'Notifications are turned off for HealthGuide, so your reminders cannot ring. Tap Allow '
+      'notifications, or turn them on in your phone\'s Settings > Apps > HealthGuide > Notifications.';
   static const reminderNeedsADay =
       'Keep at least one day. To stop this reminder, switch it off.';
 

@@ -16,11 +16,18 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/notificat
 class FakeScheduler implements NotificationScheduler {
   final Map<int, DateTime> pending = {};
   bool allow = true;
+  int asked = 0; // system dialogs shown
 
   @override
   Future<void> init() async {}
   @override
-  Future<bool> requestPermission() async => allow;
+  Future<bool> requestPermission() async {
+    asked++;
+    return allow;
+  }
+
+  @override
+  Future<bool> isPermitted() async => allow;
   @override
   Future<void> scheduleOnce(
     int id,
@@ -38,6 +45,8 @@ class ThrowingScheduler implements NotificationScheduler {
   Future<void> init() async {}
   @override
   Future<bool> requestPermission() async => true;
+  @override
+  Future<bool> isPermitted() async => true;
   @override
   Future<void> scheduleOnce(int id, String title, String body, DateTime at) =>
       Future.error(Exception('plugin failed'));
@@ -131,6 +140,14 @@ void main() {
         expect(local.permissionGranted, isFalse);
       },
     );
+
+    test('a refusal is asked once, not on every change', () async {
+      device.allow = false;
+      expect(await local.schedule(reminder()), 0);
+      expect(await local.schedule(reminder(id: 'r2')), 0);
+      expect(device.asked, 1);
+      expect(local.permissionDenied, isTrue);
+    });
 
     test('rescheduling replaces, never duplicates', () async {
       await local.schedule(reminder());
@@ -302,6 +319,26 @@ void main() {
       );
       vm = NotificationViewModel(repo, local, auth);
       await vm.load();
+    });
+
+    test('a refusal shows on the screen; allowing puts the reminders back (FR600_008)', () async {
+      device.allow = false;
+      local.permissionGranted = false; // the phone's setting is off; the app has not asked yet
+      await vm.toggleReminder('plan-r', true); // asks once, refused
+      expect(vm.notificationsBlocked, isTrue);
+      expect(device.pending, isEmpty);
+
+      device.allow = true; // turned on in Settings
+      await vm.load();
+      expect(vm.notificationsBlocked, isFalse);
+      expect(device.pending, isNotEmpty);
+
+      local.permissionDenied = true; // refused again later
+      local.permissionGranted = false;
+      device.pending.clear();
+      await vm.askNotificationPermission(); // "Allow notifications"
+      expect(vm.notificationsBlocked, isFalse);
+      expect(device.pending, isNotEmpty);
     });
 
     test(

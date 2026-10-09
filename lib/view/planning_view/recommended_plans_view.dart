@@ -102,8 +102,10 @@ class RecommendedPlansView extends StatelessWidget {
     if (code.contains('risk_cap')) {
       return 'You would need to replace one of your plans.';
     }
-    return 'Can be followed together with your current plans.';
+    return fitsTogether;
   }
+
+  static const fitsTogether = 'Can be followed together with your current plans.';
 
   Future<void> _explain(
     BuildContext context,
@@ -335,6 +337,7 @@ class _PlanList extends StatelessWidget {
             onDetails: () => onDetails(plans[i]),
             onSelect: () => onSelect(plans[i]),
             note: noteFor(plans[i]),
+            noteOk: noteFor(plans[i]) == RecommendedPlansView.fitsTogether,
           ),
           const SizedBox(height: AppTokens.gap),
         ],

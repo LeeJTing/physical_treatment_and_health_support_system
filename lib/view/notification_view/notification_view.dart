@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
@@ -78,6 +79,26 @@ class _NotificationViewState extends State<NotificationView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (vm.notificationsBlocked) ...[
+                    const NoticeBanner(
+                      Messages.notificationsOff,
+                      warning: true,
+                    ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: vm.askNotificationPermission,
+                        style: TextButton.styleFrom(
+                          minimumSize: const Size(48, AppTokens.minTarget),
+                        ),
+                        child: const Text(
+                          'Allow notifications',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                  ],
                   switch (vm.reminders) {
                     Idle() || Loading() => const Padding(
                       padding: EdgeInsets.all(32),

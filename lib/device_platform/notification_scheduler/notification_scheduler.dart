@@ -10,6 +10,9 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 abstract interface class NotificationScheduler {
   Future<void> init();
   Future<bool> requestPermission();
+
+  /// Whether notifications are allowed now, without showing the system dialog.
+  Future<bool> isPermitted();
   Future<void> scheduleOnce(int id, String title, String body, DateTime at);
   Future<void> cancel(int id);
 }
@@ -50,6 +53,16 @@ class PluginScheduler implements NotificationScheduler {
           AndroidFlutterLocalNotificationsPlugin
         >();
     return await android?.requestNotificationsPermission() ?? true;
+  }
+
+  @override
+  Future<bool> isPermitted() async {
+    await init();
+    final android = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    return await android?.areNotificationsEnabled() ?? true;
   }
 
   @override

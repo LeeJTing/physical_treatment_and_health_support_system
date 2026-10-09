@@ -45,6 +45,11 @@ class MainApp extends StatelessWidget {
           colorScheme: lightTheme.colorScheme.copyWith(
             primary: AppTokens.brandDeep,
             onPrimary: Colors.white,
+            // Time picker: the hour / minute box and the AM / PM switch (were yellow and purple).
+            primaryContainer: AppTokens.accentContainer,
+            onPrimaryContainer: AppTokens.brandDeep,
+            tertiaryContainer: AppTokens.accentContainer,
+            onTertiaryContainer: AppTokens.brandDeep,
           ),
         ),
         darkTheme: darkTheme,

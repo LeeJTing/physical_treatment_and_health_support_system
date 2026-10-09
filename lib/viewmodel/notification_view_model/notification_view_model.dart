@@ -40,6 +40,11 @@ class NotificationViewModel extends BaseViewModel {
       notifyListeners();
       return;
     }
+    // Turned on in Settings since the refusal: put the reminders on the phone again.
+    final wasDenied = _scheduler.permissionDenied;
+    if (await _scheduler.checkPermission() && wasDenied) {
+      await _scheduler.sync(id);
+    }
     final res = await _repo.getReminders(id);
     _reminders = switch (res) {
       Success(:final data) => UiSuccess(
@@ -51,6 +56,18 @@ class NotificationViewModel extends BaseViewModel {
     };
     final now = DateTime.now();
     await loadLog(now.subtract(const Duration(days: 14)), now);
+  }
+
+  /// Notifications are refused for the app: reminders are saved but cannot ring (FR600_008).
+  bool get notificationsBlocked => _scheduler.permissionDenied;
+
+  /// "Allow notifications": asks again, and puts the reminders on the phone when allowed.
+  Future<void> askNotificationPermission() async {
+    final id = _accountId;
+    if (await _scheduler.requestPermission() && id != null) {
+      await _scheduler.sync(id);
+    }
+    notifyListeners();
   }
 
   /// Saves and schedules a reminder (FR600_001 to FR600_003).

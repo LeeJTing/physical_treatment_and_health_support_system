@@ -19,6 +19,9 @@ class PlanCard extends StatelessWidget {
   /// (multiple active plans); null when there is nothing to say.
   final String? note;
 
+  /// The note is good news ("Can be followed together"): green with a tick, not amber.
+  final bool noteOk;
+
   const PlanCard({
     super.key,
     required this.plan,
@@ -27,6 +30,7 @@ class PlanCard extends StatelessWidget {
     this.best = false,
     this.busy = false,
     this.note,
+    this.noteOk = false,
   });
 
   @override
@@ -75,15 +79,19 @@ class PlanCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline, size: 18, color: AppTokens.onWarn),
+              Icon(
+                noteOk ? Icons.check_circle_outline : Icons.info_outline,
+                size: 18,
+                color: noteOk ? AppTokens.good : AppTokens.onWarn,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   note!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppTokens.onWarn,
+                    color: noteOk ? AppTokens.good : AppTokens.onWarn,
                   ),
                 ),
               ),

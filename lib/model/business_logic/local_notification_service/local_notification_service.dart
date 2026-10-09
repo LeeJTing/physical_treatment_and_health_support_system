@@ -33,6 +33,11 @@ class LocalNotificationService {
   /// Requested before the first reminder is scheduled (FR600_008).
   bool permissionGranted = false;
 
+  /// The patient refused notifications: reminders are kept but cannot ring. Set by a refusal and
+  /// not asked again on every change (Android would show its dialog once more); the Reminders
+  /// screen says so and offers to ask again.
+  bool permissionDenied = false;
+
   /// Asks before the first schedule (FR600_008).
   Future<bool> requestPermission() async {
     try {
@@ -40,6 +45,19 @@ class LocalNotificationService {
     } catch (_) {
       permissionGranted = false;
     }
+    permissionDenied = !permissionGranted;
+    return permissionGranted;
+  }
+
+  /// Reads the phone's setting without asking, e.g. after the patient turned notifications on in
+  /// Settings. True when allowed.
+  Future<bool> checkPermission() async {
+    try {
+      permissionGranted = await _scheduler.isPermitted();
+    } catch (_) {
+      // Unknown: keep what we had.
+    }
+    if (permissionGranted) permissionDenied = false;
     return permissionGranted;
   }
 
@@ -62,7 +80,10 @@ class LocalNotificationService {
   }) async {
     await cancel(r.reminderId);
     if (!r.isEnabled) return 0;
-    if (!permissionGranted && !await requestPermission()) return 0;
+    if (!permissionGranted &&
+        (permissionDenied || !await requestPermission())) {
+      return 0; // refused: asked once, not on every change
+    }
     final now = _now();
     var count = 0;
     for (var i = 0; i < windowDays; i++) {
