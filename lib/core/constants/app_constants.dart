@@ -185,8 +185,10 @@ class Messages {
       'Please Make Sure the video captured is between 10 - 30 seconds and under 100MB';
   static const progressSaveFailed =
       'Unable to save your exercise progress. Please try again later.';
+  // UC500 M8, word for word.
   static const fullBodyNotVisible =
-      'Unable to detect full body in the frame. Please position yourself so that your entire body is visible.';
+      'Unable to detect full body in the frame. Please position yourself so that your entire body '
+      '(head to feet) is clearly visible within the camera frame.';
 
   // UC1000
   static const profileNotConfigured =
