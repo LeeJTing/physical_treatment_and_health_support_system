@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.44",
+  "version": "chat-rules-3.45",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -1270,14 +1270,29 @@
         "missed reminder",
         "too loud",
         "volume",
-        "ringtone"
+        "ringtone",
+        "change the days",
+        "days of my reminder",
+        "weekdays",
+        "weekends",
+        "last day",
+        "turn off the last day",
+        "delete a reminder",
+        "delete reminder",
+        "delete my reminder",
+        "remove a reminder",
+        "remove reminder",
+        "delete button",
+        "bin icon"
       ],
       "examples": [
         "how do I change my reminder time",
         "I am not getting reminders",
-        "how do I turn off reminders"
+        "how do I turn off reminders",
+        "how do I change the days of my reminder",
+        "how do I delete a reminder"
       ],
-      "answer": "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, the reminder is skipped. The reminder sound and volume follow your phone's notification settings.",
+      "answer": "Open Reminders. Tap the time to change it, and tap a day to turn it on or off; one day must stay on, so to stop a reminder, switch it off instead. “Remind me to log my health readings” adds a daily reminder to record your blood pressure, sugar or weight. Reminders you added yourself can be deleted with the bin button; a plan's reminders stay with the plan and stop when the plan stops. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, that day's exercise reminder is skipped. The sound follows your phone's notification settings.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2144,7 +2159,14 @@
         "dua pelan",
         "pelan serentak",
         "pelan lain",
-        "tambah pelan"
+        "tambah pelan",
+        "plan together",
+        "plans together",
+        "not clash",
+        "doesn't clash",
+        "dont clash",
+        "do not clash",
+        "does not clash"
       ],
       "examples": [
         "can I follow two plans at the same time",
@@ -2300,6 +2322,196 @@
       "time_aware": false
     },
     {
+      "key": "change_password",
+      "title": "Changing your password",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "change my password",
+        "change password",
+        "change pasword",
+        "change the password",
+        "changing my password",
+        "update my password",
+        "update password",
+        "still know the old",
+        "know my old password",
+        "old password",
+        "current password",
+        "password in profile",
+        "tukar kata laluan",
+        "ubah kata laluan",
+        "tukar password",
+        "tukar pasword"
+      ],
+      "examples": [
+        "how do I change my password",
+        "I want a new password but I know the old one"
+      ],
+      "answer": "To change your password while you still know it, open Profile and tap Change password: type your current password, then the new one twice (at least 8 characters, with a letter and a number). Your other phones are then signed out; this one stays signed in. If you have forgotten your current password, tap “Forgot your current password?” there, or Forgot password? on the login screen, to get a reset code by email.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_profile",
+        "label": "Open Profile"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "session_expired",
+      "title": "Why you were logged out",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "logged out",
+        "logged me out",
+        "log me out",
+        "signed me out",
+        "kicked out",
+        "kick me out",
+        "log in again",
+        "login again",
+        "sign in again",
+        "log in every time",
+        "login every time",
+        "have to log in",
+        "need to log in",
+        "session expired",
+        "session ended",
+        "stay logged in",
+        "keep me logged in",
+        "stay signed in"
+      ],
+      "examples": [
+        "why was I logged out",
+        "why do I have to log in again"
+      ],
+      "answer": "To keep your health details safe, you stay signed in on this phone only while you use the app: after 3 days without opening it you are signed out, and you log in again with your email and password (or Continue with Google). Opening the app at least once every 3 days keeps you signed in. Changing or resetting your password also signs you out on your other phones.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
+      "key": "health_log_reminder",
+      "title": "A reminder to log your health readings",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "reminder to log",
+        "remind me to log",
+        "reminder to record",
+        "remind me to record",
+        "reminder to check",
+        "remind me to check",
+        "health readings",
+        "health log",
+        "log my readings",
+        "readings reminder",
+        "blood pressure reminder",
+        "sugar reminder"
+      ],
+      "examples": [
+        "can I get a reminder to log my blood pressure",
+        "remind me to record my health readings"
+      ],
+      "answer": "Yes. Open Reminders and tap “Remind me to log my health readings”: it reminds you every day at 8 pm to record your blood pressure, sugar or weight, and it is never skipped. Tap the time or the days to change them, switch it off for a while, or delete it with the bin button.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_reminders",
+        "label": "Open reminders"
+      },
+      "time_aware": false
+    },
+    {
+      "key": "exit_exercise",
+      "title": "Leaving an exercise",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "exit the recording",
+        "exit the exercise",
+        "exit recording",
+        "exit exercise",
+        "exit button",
+        "if i exit",
+        "tap exit",
+        "press exit",
+        "exit halfway",
+        "exercise halfway",
+        "recording halfway",
+        "exercise half way",
+        "quit the exercise",
+        "quit exercise",
+        "leave the exercise",
+        "cancel the exercise",
+        "cancel recording",
+        "cancel the recording"
+      ],
+      "examples": [
+        "how do I stop the exercise halfway",
+        "how do I exit the recording"
+      ],
+      "answer": "Tap Exit at the top of the recording, analysing or result screen to stop the exercise and go back to the home page. While you are recording or the video is being checked, the app asks first, and that attempt is not saved; a result of 80% or more that was already saved stays saved. You can do the exercise again later from Physical Treatment. If you feel pain, dizziness or unwell, stop at once, sit down and rest.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
+      "key": "google_setup",
+      "title": "Signing in with Google",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "signed in with google",
+        "sign in with google",
+        "continue with google",
+        "using google",
+        "after google",
+        "google account",
+        "google sign in",
+        "google login",
+        "log in with google",
+        "login with google",
+        "account setup",
+        "complete account setup",
+        "complete my account",
+        "finish setup",
+        "finish the setup",
+        "cancel the setup",
+        "has been linked",
+        "been linked",
+        "google linked",
+        "username after"
+      ],
+      "examples": [
+        "I signed in with Google, why does it ask for a password",
+        "what happens if I cancel the account setup"
+      ],
+      "answer": "You can sign in with Continue with Google on the login screen. The first time, the app asks you to complete your account: choose a username and a password (at least 8 characters, with a letter and a number), so you can also log in with your email and password later. If you tap Cancel, nothing is kept and you return to the login screen; you can start again any time. If your Google email already has an account here, Google is linked to it and the app says “Your Google account has been linked to your existing account.”: your plans and results stay as they are.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "time_aware": false
+    },
+    {
       "key": "plan_and_reminders",
       "title": "Changing your plan or reminders",
       "show": true,
@@ -2370,8 +2582,8 @@
         "reset password",
         "reset my password",
         "password reset",
-        "change password",
-        "change my password",
+        "lupa kata laluan",
+        "lupa password",
         "new password",
         "cant remember my password",
         "can't remember my password",
@@ -2391,8 +2603,7 @@
       "examples": [
         "I forgot my password",
         "how do I reset my password",
-        "I can't log in",
-        "how do I change my password"
+        "I can't log in"
       ],
       "answer": "You can set a new password with a 6-digit code sent to your email: tap the button below (or Forgot password? on the login screen), enter your email, then type the code and your new password. If the code does not arrive, check your spam folder and wait a minute before asking for a new one. After too many wrong passwords the account is locked for 15 minutes.",
       "follow_ups": [],
@@ -2456,14 +2667,17 @@
         "email never came",
         "no email from you",
         "didn't get email",
-        "didnt get email"
+        "didnt get email",
+        "wrong code many times",
+        "too many wrong",
+        "code has expired"
       ],
       "examples": [
         "I did not get the verification code",
         "the code is not working",
         "how do I verify my email"
       ],
-      "answer": "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working after a while, so always use the newest one. If you clicked a link in the email instead, return to the app and log in.",
+      "answer": "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working after a while, and after 5 wrong tries (the app then says it has expired), so tap Resend code and always use the newest one. If you clicked a link in the email instead, return to the app and log in.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,

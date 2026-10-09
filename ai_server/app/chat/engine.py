@@ -348,6 +348,10 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("multiple_plans", "plan_exercises"), ("multiple_plans", "plan_and_reminders"),
           ("multiple_plans", "plan_progress"), ("body_map", "plan_exercises"), ("body_map", "getting_started"),
           ("wrong_exercise", "posture_result"), ("wrong_exercise", "how_to"), ("wrong_exercise", "difficulty"),
+          # round 16 (account and Exit, 9 Oct): "every time" in "log in every time" is not about pain
+          ("session_expired", "pain_sharp"), ("exit_exercise", "difficulty"), ("exit_exercise", "plan_and_reminders"),
+          ("exit_exercise", "history_help"), ("exit_exercise", "recording_help"), ("exit_exercise", "posture_result"),
+          ("google_setup", "account_help"), ("change_password", "account_help"), ("session_expired", "account_help"),
           ("wrong_exercise", "recording_help")]
 
 

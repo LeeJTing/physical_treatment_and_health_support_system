@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.44"
+VERSION = "chat-rules-3.45"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -302,12 +302,18 @@ INTENTS = [
             "remindr", "reminer", "remider", "remainder", "remainders", "reminde", "notifcation", "notication",
             "notifications not", "reminder time", "change time", "wrong time", "not getting reminders", "no reminder",
             "turn off reminders", "stop reminders", "turn on reminders", "missed reminder", "too loud",
-            "volume", "ringtone"],
-           ["how do I change my reminder time", "I am not getting reminders", "how do I turn off reminders"],
-           "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a "
-           "reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your "
-           "phone settings. If you have already exercised that day, the reminder is skipped. The reminder "
-           "sound and volume follow your phone's notification settings.",
+            "volume", "ringtone", "change the days", "days of my reminder", "weekdays",
+            "weekends", "last day", "turn off the last day", "delete a reminder", "delete reminder",
+            "delete my reminder", "remove a reminder", "remove reminder", "delete button", "bin icon"],
+           ["how do I change my reminder time", "I am not getting reminders", "how do I turn off reminders",
+            "how do I change the days of my reminder", "how do I delete a reminder"],
+           "Open Reminders. Tap the time to change it, and tap a day to turn it on or off; one day must stay on, "
+           "so to stop a reminder, switch it off instead. \u201cRemind me to log my health readings\u201d adds a "
+           "daily reminder to record your blood pressure, sugar or weight. Reminders you added yourself can be "
+           "deleted with the bin button; a plan's reminders stay with the plan and stop when the plan stops. If "
+           "none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you "
+           "have already exercised that day, that day's exercise reminder is skipped. The sound follows your "
+           "phone's notification settings.",
            show=False, action={"key": "open_reminders", "label": "Open reminders"}),
     # 8 Oct: the posture check's new messages (fall alert, adjusted targets, partial reps, video tips).
     intent("fall_alert", "The possible-fall message", 8,
@@ -530,7 +536,8 @@ INTENTS = [
             "plan at the same time", "plans at once", "clash", "clashes", "clashing", "conflict", "conflicts",
             "in both plans", "in both my plans", "both of my plans", "one of my plans", "stop one plan",
             "replace one", "replace a plan", "replace my plan", "dua pelan", "pelan serentak", "pelan lain",
-            "tambah pelan"],
+            "tambah pelan", "plan together", "plans together", "not clash", "doesn't clash", "dont clash",
+            "do not clash", "does not clash"],
            ["can I follow two plans at the same time", "how many plans can I have", "why does it say the plan clashes",
             "the same exercise is in both my plans"],
            "You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and "
@@ -580,6 +587,65 @@ INTENTS = [
            "recorded, then record it again following its steps, with the phone where the exercise says (in front "
            "of you or at your side) and your whole body in the picture. If you are sure it was the right exercise, "
            "try again with slower, clearer movements.", show=False),
+    # Round 16 (9 Oct): change password from Profile, the 3-day session, Exit on the posture screens,
+    # the Google account setup, the health-log reminder.
+    intent("change_password", "Changing your password", 8,
+           ["change my password", "change password", "change pasword", "change the password",
+            "changing my password", "update my password", "update password", "still know the old",
+            "know my old password", "old password", "current password", "password in profile",
+            "tukar kata laluan", "ubah kata laluan", "tukar password", "tukar pasword"],
+           ["how do I change my password", "I want a new password but I know the old one"],
+           "To change your password while you still know it, open Profile and tap Change password: type your "
+           "current password, then the new one twice (at least 8 characters, with a letter and a number). Your "
+           "other phones are then signed out; this one stays signed in. If you have forgotten your current "
+           "password, tap \u201cForgot your current password?\u201d there, or Forgot password? on the login "
+           "screen, to get a reset code by email.",
+           show=False, action={"key": "open_profile", "label": "Open Profile"}),
+    intent("session_expired", "Why you were logged out", 7,
+           ["logged out", "logged me out", "log me out", "signed me out", "kicked out", "kick me out",
+            "log in again", "login again", "sign in again", "log in every time", "login every time",
+            "have to log in", "need to log in", "session expired", "session ended", "stay logged in",
+            "keep me logged in", "stay signed in"],
+           ["why was I logged out", "why do I have to log in again"],
+           "To keep your health details safe, you stay signed in on this phone only while you use the app: "
+           "after 3 days without opening it you are signed out, and you log in again with your email and "
+           "password (or Continue with Google). Opening the app at least once every 3 days keeps you signed in. "
+           "Changing or resetting your password also signs you out on your other phones.", show=False),
+    intent("health_log_reminder", "A reminder to log your health readings", 8,
+           ["reminder to log", "remind me to log", "reminder to record", "remind me to record",
+            "reminder to check", "remind me to check", "health readings", "health log", "log my readings",
+            "readings reminder", "blood pressure reminder", "sugar reminder"],
+           ["can I get a reminder to log my blood pressure", "remind me to record my health readings"],
+           "Yes. Open Reminders and tap \u201cRemind me to log my health readings\u201d: it reminds you every day "
+           "at 8 pm to record your blood pressure, sugar or weight, and it is never skipped. Tap the time or the "
+           "days to change them, switch it off for a while, or delete it with the bin button.",
+           show=False, action={"key": "open_reminders", "label": "Open reminders"}),
+    # Below the pain rules (8): "my knee hurts, how do I exit" gets the pain answer first.
+    intent("exit_exercise", "Leaving an exercise", 7,
+           ["exit the recording", "exit the exercise", "exit recording", "exit exercise", "exit button",
+            "if i exit", "tap exit", "press exit", "exit halfway", "exercise halfway", "recording halfway",
+            "exercise half way",
+            "quit the exercise", "quit exercise", "leave the exercise", "cancel the exercise",
+            "cancel recording", "cancel the recording"],
+           ["how do I stop the exercise halfway", "how do I exit the recording"],
+           "Tap Exit at the top of the recording, analysing or result screen to stop the exercise and go back "
+           "to the home page. While you are recording or the video is being checked, the app asks first, and "
+           "that attempt is not saved; a result of 80% or more that was already saved stays saved. You can do "
+           "the exercise again later from Physical Treatment. If you feel pain, dizziness or unwell, stop at "
+           "once, sit down and rest.", show=False),
+    intent("google_setup", "Signing in with Google", 8,
+           ["signed in with google", "sign in with google", "continue with google", "using google",
+            "after google", "google account", "google sign in", "google login", "log in with google",
+            "login with google", "account setup", "complete account setup", "complete my account",
+            "finish setup", "finish the setup", "cancel the setup", "has been linked", "been linked",
+            "google linked", "username after"],
+           ["I signed in with Google, why does it ask for a password", "what happens if I cancel the account setup"],
+           "You can sign in with Continue with Google on the login screen. The first time, the app asks you to "
+           "complete your account: choose a username and a password (at least 8 characters, with a letter and "
+           "a number), so you can also log in with your email and password later. If you tap Cancel, nothing "
+           "is kept and you return to the login screen; you can start again any time. If your Google email "
+           "already has an account here, Google is linked to it and the app says \u201cYour Google account has "
+           "been linked to your existing account.\u201d: your plans and results stay as they are.", show=False),
     intent("plan_and_reminders", "Changing your plan or reminders", 5,
            ["get a new plan", "new plan",
             "change plan", "change my plan", "new plan", "different plan", "another plan", "switch plan",
@@ -596,11 +662,11 @@ INTENTS = [
             "forgot pasword", "forgot passwrod", "forgot pass", "pasword", "passwrod", "passward", "pass word",
             "password", "my password", "help with my password",
             "change pasword", "reset pasword",
-            "reset password", "reset my password", "password reset", "change password", "change my password",
+            "reset password", "reset my password", "password reset", "lupa kata laluan", "lupa password",
             "new password", "cant remember my password", "can't remember my password", "lost my password",
             "wrong password", "password not working", "locked out", "account locked", "cannot log in",
             "can't log in", "cant log in", "unable to log in", "cannot login", "can't login", "cant login"],
-           ["I forgot my password", "how do I reset my password", "I can't log in", "how do I change my password"],
+           ["I forgot my password", "how do I reset my password", "I can't log in"],
            "You can set a new password with a 6-digit code sent to your email: tap the button below (or "
            "Forgot password? on the login screen), enter your email, then type the code and your new password. "
            "If the code does not arrive, check your spam folder and wait a minute before asking for a new one. "
@@ -615,12 +681,14 @@ INTENTS = [
             "confirm my email", "verify my email", "email verification", "receive email", "receive any email",
             "not get code", "not get the code", "not get any code", "no otp", "code not come", "code never came",
             "receive the email", "never receive", "never received", "not receive", "not received", "email not coming",
-            "email never came", "no email from you", "didn't get email", "didnt get email"],
+            "email never came", "no email from you", "didn't get email", "didnt get email",
+            "wrong code many times", "too many wrong", "code has expired"],
            ["I did not get the verification code", "the code is not working", "how do I verify my email"],
            "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make "
            "sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working "
-           "after a while, so always use the newest one. If you clicked a link in the email instead, return to "
-           "the app and log in.", show=False),
+           "after a while, and after 5 wrong tries (the app then says it has expired), so tap Resend code and "
+           "always use the newest one. If you clicked a link in the email instead, return to the app and log "
+           "in.", show=False),
     intent("account_help", "Account and login", 6,
            ["my information", "my info", "my data", "who can see", "privacy", "private", "personal data", "data safe", "delete my account", "delete account",
             "log in", "login", "log out", "logout", "sign in", "sign out", "account", "email",
