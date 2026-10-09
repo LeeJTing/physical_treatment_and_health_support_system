@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.38"
+VERSION = "chat-rules-3.39"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -900,6 +900,15 @@ CRISIS = [
     "sleep forever", "end things tonight", "end things", "end everything", "goodbye letter", "goodbye letters",
     "wrote goodbye", "said my goodbyes", "saying my goodbyes", "giving away my things", "give away my things",
     "giving my things away",
+    # PC safety pass 15 (9 Oct, generated probe: 800/960 before): life not worth living, cannot go on,
+    # ending it, and Malay "tamatkan hidup". Not "can't go on with the exercise".
+    "life is not worth living", "life isn't worth living", "life not worth living", "not worth living",
+    "no longer worth living", "can't go on anymore", "cannot go on anymore", "cant go on anymore",
+    "can't go on any more", "cannot go on any more", "can't go on like this", "cannot go on like this",
+    "can't carry on anymore", "cannot carry on anymore", "don't want to go on living", "do not want to go on living",
+    "thinking about ending it", "thinking of ending it", "think about ending it", "ending it all", "end it all",
+    "want to end it all", "going to end it all", "tamatkan hidup", "tamatkan nyawa", "akhiri hidup",
+    "mengakhiri hidup", "tamatkan riwayat", "hidup tak berguna", "tak guna hidup", "tidak guna hidup",
 ]
 CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
                  "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
