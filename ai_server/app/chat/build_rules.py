@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.35"
+VERSION = "chat-rules-3.36"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -964,6 +964,22 @@ RED_FLAG_COMBOS = [
       "can't put weight", "cannot put weight"], 6,
      ["what if", "in case", "prevent", "avoid", "how to get up", "how do i get up", "afraid of", "scared of",
       "worried about", "fear of", "get hurt", "getting hurt"]],
+    # PC safety pass 13 (generated probe of 6,160 fall messages): a fall, trip or slip with an injury word
+    # close by, told without a time word or without a person ("dad tripped on the stairs and cannot stand
+    # up", "fell, hip hurts", "jatuh, kepala sakit"). Not in questions about preventing or fearing falls,
+    # and not "my pain fell to 3".
+    [["fell", "fall", "fallen", "tripped", "slipped", "collapsed"],
+     ["hurts", "hurt", "pain", "painful", "sakit", "swollen", "swelling", "bengkak", "bruise", "bruised",
+      "bleeding", "berdarah", "cannot stand", "can't stand", "cant stand", "cannot get up", "can't get up",
+      "cant get up", "tak boleh bangun", "cannot walk", "can't walk", "limp", "limping", "pening", "dizzy",
+      "confused", "keliru", "vomiting", "muntah", "looks bent", "deformed", "broken", "patah", "numb",
+      "headache", "hit my head", "hit her head", "hit his head"], 12,
+     ["what if", "in case", "prevent", "prevention", "avoid", "afraid of", "scared of", "worried about",
+      "fear of", "get hurt", "getting hurt", "risk of", "how to get up", "how do i get up", "pain fell",
+      "pain has fallen", "pain level fell", "pain score fell", "swelling has fallen", "swelling fell",
+      "score fell", "accuracy fell", "phone fell", "fell asleep", "slept", "will fall", "might fall", "may fall",
+      "could fall", "would fall", "going to fall", "afraid she", "afraid he", "afraid i", "scared she",
+      "scared he", "worried she", "worried he"]],
     # Round 15: a stiff or painful neck with a fever (meningitis), whatever the neck answer says.
     [["neck", "leher", "tengkuk"], ["fever", "feverish", "high temperature", "demam", "rash"], 6],
     # A person lying on the floor, not doing the exercise ("my father is lying on the kitchen floor").
