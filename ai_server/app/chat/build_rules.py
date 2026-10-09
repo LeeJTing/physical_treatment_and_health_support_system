@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.45"
+VERSION = "chat-rules-3.46"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -611,6 +611,22 @@ INTENTS = [
            "after 3 days without opening it you are signed out, and you log in again with your email and "
            "password (or Continue with Google). Opening the app at least once every 3 days keeps you signed in. "
            "Changing or resetting your password also signs you out on your other phones.", show=False),
+    # Round 17: late or silent reminders (exact alarms only where allowed; "Turn on notifications").
+    intent("reminder_late_or_off", "Reminders that come late or not at all", 8,
+           ["came late", "come late", "comes late", "coming late", "one hour late", "an hour late", "hour late",
+            "minutes late", "not on time", "reminder on time", "notification on time", "reminder late",
+            "reminder is late", "notification late", "reminder delayed", "reminder is delayed",
+            "notification delayed", "delayed reminder", "turn on notifications", "turn on notification",
+            "notifications are turned off", "notifications turned off", "notifications are off",
+            "notification is off", "cannot ring", "can't ring", "cant ring", "allow notifications",
+            "dont allow", "don't allow", "do not allow", "peringatan lambat", "notifikasi lambat"],
+           ["why did my reminder come late", "how do I turn on notifications"],
+           "If the Reminders page says notifications are turned off, tap Turn on notifications, switch them on "
+           "for HealthGuide and come back to the app: your reminders are set again (this also fixes pressing "
+           "Don't allow by mistake). If reminders come late, Android may hold them back by up to an hour to save "
+           "battery. To get them on time, open your phone's Settings, find HealthGuide under Apps (on some phones "
+           "under Special app access) and turn on Alarms & reminders, then close and reopen HealthGuide.",
+           show=False, action={"key": "open_reminders", "label": "Open reminders"}),
     intent("health_log_reminder", "A reminder to log your health readings", 8,
            ["reminder to log", "remind me to log", "reminder to record", "remind me to record",
             "reminder to check", "remind me to check", "health readings", "health log", "log my readings",

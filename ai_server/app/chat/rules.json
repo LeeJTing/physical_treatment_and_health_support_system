@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.45",
+  "version": "chat-rules-3.46",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -2396,6 +2396,62 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "time_aware": false
+    },
+    {
+      "key": "reminder_late_or_off",
+      "title": "Reminders that come late or not at all",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "came late",
+        "come late",
+        "comes late",
+        "coming late",
+        "one hour late",
+        "an hour late",
+        "hour late",
+        "minutes late",
+        "not on time",
+        "reminder on time",
+        "notification on time",
+        "reminder late",
+        "reminder is late",
+        "notification late",
+        "reminder delayed",
+        "reminder is delayed",
+        "notification delayed",
+        "delayed reminder",
+        "turn on notifications",
+        "turn on notification",
+        "notifications are turned off",
+        "notifications turned off",
+        "notifications are off",
+        "notification is off",
+        "cannot ring",
+        "can't ring",
+        "cant ring",
+        "allow notifications",
+        "dont allow",
+        "don't allow",
+        "do not allow",
+        "peringatan lambat",
+        "notifikasi lambat"
+      ],
+      "examples": [
+        "why did my reminder come late",
+        "how do I turn on notifications"
+      ],
+      "answer": "If the Reminders page says notifications are turned off, tap Turn on notifications, switch them on for HealthGuide and come back to the app: your reminders are set again (this also fixes pressing Don't allow by mistake). If reminders come late, Android may hold them back by up to an hour to save battery. To get them on time, open your phone's Settings, find HealthGuide under Apps (on some phones under Special app access) and turn on Alarms & reminders, then close and reopen HealthGuide.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_reminders",
+        "label": "Open reminders"
+      },
       "time_aware": false
     },
     {
