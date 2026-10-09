@@ -7,6 +7,10 @@ For Elwin and Jun Ting. The report's AI server has seven endpoints (Table 4.2.4)
 
 ## Set up and check
 
+On Windows, clone into a short path (e.g. `C:\dev\fyp-fastapi`): from a very deep folder a
+library MediaPipe loads (`kiwisolver`) fails with "The filename or extension is too long".
+Tested with Python 3.11.
+
 ```
 cd ai_server
 python -m venv .venv

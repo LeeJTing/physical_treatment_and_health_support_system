@@ -69,6 +69,9 @@ the Flutter app sends what is needed and stores what comes back.
 
 ## Run
 
+On Windows, clone into a short path (e.g. `C:\\dev\\fyp-fastapi`): from a very deep folder a library
+MediaPipe loads fails with "The filename or extension is too long". Tested with Python 3.11.
+
 ```
 cd ai_server
 python -m venv .venv
