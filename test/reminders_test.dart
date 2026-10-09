@@ -86,7 +86,12 @@ void main() {
     device = FakeScheduler();
     repo = FakeNotificationRepository();
     treatments = FakeTreatmentRepository(const []);
-    local = LocalNotificationService(repo, treatments, scheduler: device, now: () => now);
+    local = LocalNotificationService(
+      repo,
+      treatments,
+      scheduler: device,
+      now: () => now,
+    );
     service = local;
   });
 
@@ -208,19 +213,28 @@ void main() {
   });
 
   group('Reminder management (M600.1, 9 Oct)', () {
-    test('changing the days reschedules on the new days only (FR600_003)', () async {
-      final r = reminder(); // Mon/Wed/Fri at 9:00
-      await repo.saveReminder(r);
-      await local.schedule(r);
-      final moved = (await service.update(r, repeatDays: '0100000')).dataOrNull!;
-      expect(moved.repeatDays, '0100000');
-      expect(repo.reminders['r1']!.repeatDays, '0100000');
-      expect(device.pending, hasLength(2)); // Tuesday 6 and Tuesday 13 October
-      expect(
-        device.pending.values.every((t) => t.weekday == DateTime.tuesday),
-        isTrue,
-      );
-    });
+    test(
+      'changing the days reschedules on the new days only (FR600_003)',
+      () async {
+        final r = reminder(); // Mon/Wed/Fri at 9:00
+        await repo.saveReminder(r);
+        await local.schedule(r);
+        final moved = (await service.update(
+          r,
+          repeatDays: '0100000',
+        )).dataOrNull!;
+        expect(moved.repeatDays, '0100000');
+        expect(repo.reminders['r1']!.repeatDays, '0100000');
+        expect(
+          device.pending,
+          hasLength(2),
+        ); // Tuesday 6 and Tuesday 13 October
+        expect(
+          device.pending.values.every((t) => t.weekday == DateTime.tuesday),
+          isTrue,
+        );
+      },
+    );
 
     test(
       'a health-logging reminder is not suppressed by a finished exercise (FR600_002)',
@@ -234,28 +248,34 @@ void main() {
       },
     );
 
-    test('removing a reminder cancels it on the phone and deletes it', () async {
-      final h = healthLog();
-      await repo.saveReminder(h);
-      await local.schedule(h);
-      expect(await service.remove(h), isA<Success<void>>());
-      expect(device.pending, isEmpty);
-      expect(repo.reminders, isEmpty);
-    });
+    test(
+      'removing a reminder cancels it on the phone and deletes it',
+      () async {
+        final h = healthLog();
+        await repo.saveReminder(h);
+        await local.schedule(h);
+        expect(await service.remove(h), isA<Success<void>>());
+        expect(device.pending, isEmpty);
+        expect(repo.reminders, isEmpty);
+      },
+    );
 
-    test('a failing phone plugin never reaches the caller (services never throw)', () async {
-      final broken = LocalNotificationService(
-        repo,
-        treatments,
-        scheduler: ThrowingScheduler(),
-        now: () => now,
-      );
-      expect(await broken.schedule(reminder()), 0);
-      await broken.cancel('r1');
-      await repo.saveReminder(reminder());
-      final off = await broken.update(reminder(), enabled: false);
-      expect(off.dataOrNull?.isEnabled, isFalse);
-    });
+    test(
+      'a failing phone plugin never reaches the caller (services never throw)',
+      () async {
+        final broken = LocalNotificationService(
+          repo,
+          treatments,
+          scheduler: ThrowingScheduler(),
+          now: () => now,
+        );
+        expect(await broken.schedule(reminder()), 0);
+        await broken.cancel('r1');
+        await repo.saveReminder(reminder());
+        final off = await broken.update(reminder(), enabled: false);
+        expect(off.dataOrNull?.isEnabled, isFalse);
+      },
+    );
   });
 
   group('NotificationViewModel (Table 4.49)', () {
@@ -284,18 +304,21 @@ void main() {
       await vm.load();
     });
 
-    test('adds one health-logging reminder, every day at 8 pm (FR600_002)', () async {
-      expect(vm.hasHealthLogReminder, isFalse);
-      await vm.addHealthLogReminder();
-      await vm.addHealthLogReminder(); // a second tap adds nothing
-      final logs = repo.reminders.values
-          .where((r) => r.reminderType == ReminderType.healthLog)
-          .toList();
-      expect(logs, hasLength(1));
-      expect(logs.single.hour, 20);
-      expect(logs.single.repeatDays, '1111111');
-      expect(vm.hasHealthLogReminder, isTrue);
-    });
+    test(
+      'adds one health-logging reminder, every day at 8 pm (FR600_002)',
+      () async {
+        expect(vm.hasHealthLogReminder, isFalse);
+        await vm.addHealthLogReminder();
+        await vm.addHealthLogReminder(); // a second tap adds nothing
+        final logs = repo.reminders.values
+            .where((r) => r.reminderType == ReminderType.healthLog)
+            .toList();
+        expect(logs, hasLength(1));
+        expect(logs.single.hour, 20);
+        expect(logs.single.repeatDays, '1111111');
+        expect(vm.hasHealthLogReminder, isTrue);
+      },
+    );
 
     test('a day can be turned off, but not the last one (FR600_003)', () async {
       await vm.toggleDay('plan-r', DateTime.monday);
@@ -306,8 +329,30 @@ void main() {
       expect(vm.errorMessage, Messages.reminderNeedsADay);
     });
 
+    test('the last-day notice goes once anything else succeeds', () async {
+      await vm.addHealthLogReminder();
+      final id = repo.reminders.values
+          .firstWhere((r) => r.reminderType == ReminderType.healthLog)
+          .reminderId;
+      for (final d in [1, 2, 3, 4, 5, 6]) {
+        await vm.toggleDay(id, d);
+      }
+      await vm.toggleDay(id, DateTime.sunday);
+      expect(vm.errorMessage, Messages.reminderNeedsADay);
+      await vm.deleteReminder(id); // phone test, 9 Oct: the notice stayed
+      expect(vm.errorMessage, isNull);
+      await vm.toggleDay('plan-r', DateTime.monday);
+      await vm.toggleDay('plan-r', DateTime.wednesday);
+      await vm.toggleDay('plan-r', DateTime.friday);
+      expect(vm.errorMessage, Messages.reminderNeedsADay);
+      await vm.toggleReminder('plan-r', false);
+      expect(vm.errorMessage, isNull);
+    });
+
     test('only reminders the patient added can be deleted', () async {
-      await vm.deleteReminder('plan-r'); // a plan's reminder stays with the plan
+      await vm.deleteReminder(
+        'plan-r',
+      ); // a plan's reminder stays with the plan
       expect(repo.reminders.containsKey('plan-r'), isTrue);
       await vm.addHealthLogReminder();
       final id = repo.reminders.values

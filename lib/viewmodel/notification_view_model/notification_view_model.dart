@@ -104,7 +104,8 @@ class NotificationViewModel extends BaseViewModel {
         minute: minute,
       ),
     );
-    if (res is Failure) setError(Messages.dbUnavailable);
+    // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
+    setError(res is Failure ? Messages.dbUnavailable : null);
     await load();
   }
 
@@ -114,7 +115,8 @@ class NotificationViewModel extends BaseViewModel {
     final r = _find(id);
     if (r == null || r.patientPlanId != null) return;
     final res = await _scheduler.remove(r);
-    if (res is Failure) setError(Messages.dbUnavailable);
+    // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
+    setError(res is Failure ? Messages.dbUnavailable : null);
     await load();
   }
 
@@ -136,6 +138,7 @@ class NotificationViewModel extends BaseViewModel {
     final res = await op(list[i]);
     if (res case Success(:final data)) {
       _reminders = UiSuccess([...list]..[i] = data);
+      setError(null);
     } else {
       setError(Messages.dbUnavailable);
     }
