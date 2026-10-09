@@ -109,7 +109,8 @@ def main() -> int:
     if target == ROOT or ROOT in target.parents:
         sys.exit("The target must be outside this repo.")
 
-    if git(["status", "--porcelain", "--", *COPIED], ROOT).stdout.strip():
+    # Changes to tracked files only: untracked logs in training/reports are never copied anyway.
+    if git(["status", "--porcelain", "--untracked-files=no", "--", *COPIED], ROOT).stdout.strip():
         sys.exit("ai_server/ or training/ has uncommitted changes here: commit them first, so the copy "
                  "matches a commit.")
     commit = git(["rev-parse", "--short", "HEAD"], ROOT).stdout.strip()
