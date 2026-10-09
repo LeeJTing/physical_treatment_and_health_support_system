@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
@@ -73,6 +74,18 @@ class FakeChatServer {
       );
     }
     final pain = text.contains('hurt');
+    // Answers that name two screens carry two buttons (chat-rules-3.48).
+    final buttons = text.contains('password')
+        ? [
+            {'key': 'open_profile', 'label': 'Open Profile'},
+            {'key': 'open_reset_password', 'label': 'Reset by email'},
+          ]
+        : text.contains('two plans')
+        ? [
+            {'key': 'open_planning', 'label': 'Open treatment planning'},
+            {'key': 'open_treatment', 'label': 'Open my treatment plan'},
+          ]
+        : const <Map<String, String>>[];
     return http.Response(
       jsonEncode({
         'answer': pain
@@ -94,6 +107,7 @@ class FakeChatServer {
             : [],
         'categories': cats,
         'rules_version': 'test',
+        'actions': buttons,
       }),
       200,
     );
@@ -273,6 +287,80 @@ void main() {
     },
   );
 
+  testWidgets(
+    'a button opens its screen above the chat, so Back returns to the chat; '
+    'the screen the chat came from is not stacked twice',
+    (tester) async {
+      final h = Harness();
+      await tester.runAsync(() async {
+        await h.signInWithPlan();
+        await h.vm.loadCategories();
+      });
+      Widget page(String text) => Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text(text)),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          initialRoute: Routes.treatmentPlanning,
+          routes: {
+            Routes.treatmentPlanning: (c) => Scaffold(
+              body: Center(
+                child: TextButton(
+                  onPressed: () => Navigator.of(c).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ChangeNotifierProvider.value(
+                        value: h.vm,
+                        child: const ChatView(
+                          openedFrom: Routes.treatmentPlanning,
+                        ),
+                      ),
+                    ),
+                  ),
+                  child: const Text('PLANNING PAGE'),
+                ),
+              ),
+            ),
+            Routes.healthProfile: (_) => page('PROFILE PAGE'),
+            Routes.resetPassword: (_) => page('RESET PAGE'),
+            Routes.physicalTreatment: (_) => page('TREATMENT PAGE'),
+          },
+        ),
+      );
+      await tester.tap(find.text('PLANNING PAGE'));
+      await tester.pumpAndSettle();
+
+      await tester.runAsync(() => h.vm.ask('how do i change my password'));
+      await tester.pumpAndSettle();
+      for (final (button, screen) in [
+        ('Open Profile', 'PROFILE PAGE'),
+        ('Reset by email', 'RESET PAGE'),
+      ]) {
+        await tester.tap(find.text(button));
+        await tester.pumpAndSettle();
+        expect(find.text(screen), findsOneWidget);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        expect(find.text('Chat bot'), findsOneWidget, reason: button);
+      }
+
+      await tester.runAsync(
+        () => h.vm.ask('can i follow two plans at the same time'),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Open my treatment plan'));
+      await tester.pumpAndSettle();
+      expect(find.text('TREATMENT PAGE'), findsOneWidget);
+      await tester.pageBack();
+      await tester.pumpAndSettle();
+      // The chat was opened from the planning page: go back to it.
+      await tester.tap(find.text('Open treatment planning'));
+      await tester.pumpAndSettle();
+      expect(find.text('PLANNING PAGE'), findsOneWidget);
+      expect(find.text('Chat bot'), findsNothing);
+    },
+  );
+
   test(
     'a reply can carry a button (chat-rules-3.2), and older replies without one still parse',
     () {
@@ -291,7 +379,10 @@ void main() {
       });
       expect(plain.action, isNull);
       expect(plain.actions, isEmpty);
-      expect(withButton.actions.single.key, 'open_reset_password'); // older server: "action" only
+      expect(
+        withButton.actions.single.key,
+        'open_reset_password',
+      ); // older server: "action" only
 
       final two = ChatReply.fromJson({
         'answer': 'a',
@@ -308,10 +399,10 @@ void main() {
           {'key': 'open_reset_password', 'label': 'Reset by email'},
         ],
       });
-      expect([for (final a in two.actions) a.key], [
-        'open_profile',
-        'open_reset_password',
-      ]);
+      expect(
+        [for (final a in two.actions) a.key],
+        ['open_profile', 'open_reset_password'],
+      );
     },
   );
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/chat_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/chat_view_model/chat_view_model.dart';
@@ -71,7 +72,9 @@ class PlanningView extends StatelessWidget {
                       builder: (_) => ChangeNotifierProvider(
                         create: (c) =>
                             ChatViewModel(c.read(), c.read(), c.read()),
-                        child: const ChatView(),
+                        child: const ChatView(
+                          openedFrom: Routes.treatmentPlanning,
+                        ),
                       ),
                     ),
                   ),

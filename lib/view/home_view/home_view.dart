@@ -38,7 +38,7 @@ class _HomeViewState extends State<HomeView> {
     MaterialPageRoute<void>(
       builder: (_) => ChangeNotifierProvider(
         create: (c) => ChatViewModel(c.read(), c.read(), c.read()),
-        child: const ChatView(),
+        child: const ChatView(openedFrom: Routes.home),
       ),
     ),
   );

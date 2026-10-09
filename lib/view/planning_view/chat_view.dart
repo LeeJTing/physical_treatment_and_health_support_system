@@ -11,7 +11,11 @@ import 'package:physical_treatment_and_health_support_system/view/planning_view/
 /// Chatbot interface within the AI-assisted planning module (FR500_17 to FR500_23).
 /// No Figma frame exists for it, so it uses the planning screens' tokens.
 class ChatView extends StatefulWidget {
-  const ChatView({super.key});
+  /// Route of the screen that opened the chat (the planning page or Home). A
+  /// button for that screen goes back to it instead of stacking a second copy.
+  final String? openedFrom;
+
+  const ChatView({super.key, this.openedFrom});
 
   @override
   State<ChatView> createState() => _ChatViewState();
@@ -32,19 +36,21 @@ class _ChatViewState extends State<ChatView> {
     'open_history': Routes.sessionHistory,
   };
 
-  /// Opens the screen behind a chatbot button. If that screen is already open under the
-  /// chat (the chat is started from the planning page), go back to it instead of stacking
-  /// a second copy.
+  /// Opens the screen behind a chatbot button, on top of the chat so Back
+  /// returns to it. If the button is for the screen the chat was opened from,
+  /// go back to that screen instead of stacking a second copy.
+  ///
+  /// Before, it popped every route down to Home first, so after "Open
+  /// Profile" Back skipped the chat (Android 15 emulator, 10 Oct).
   void _openAction(ChatAction action) {
     final route = _actionRoutes[action.key];
     if (route == null) return;
     final nav = Navigator.of(context);
-    var below = false;
-    nav.popUntil((r) {
-      if (r.settings.name == route) below = true;
-      return r.isFirst || r.settings.name == route || r.settings.name == Routes.home;
-    });
-    if (!below) nav.pushNamed(route);
+    if (route == widget.openedFrom && nav.canPop()) {
+      nav.pop();
+    } else {
+      nav.pushNamed(route);
+    }
   }
 
   @override
