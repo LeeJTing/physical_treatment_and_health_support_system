@@ -620,7 +620,7 @@ def test_frail_targets_keep_the_models_form_verdicts_but_not_its_range_verdicts(
 
 
 def test_the_model_leaves_much_slower_repetitions_to_the_rules(monkeypatch):
-    import torch
+    pytest.importorskip("torch")  # the laptop's server venv has no torch
     from app.pose import classifier
     frames = [front_pose(a, a) for a in wave(4, 5, 88, rep_sec=3.0)]
     f = Features(sequence(frames))
