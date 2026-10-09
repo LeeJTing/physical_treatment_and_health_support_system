@@ -375,14 +375,18 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
                 detail["p_correct"] = round(p, 3)
                 likely = model["likely_mistake"][i]
                 if frail:
-                    # Only on repetitions that reached the full range: on shortened ones the model blamed
-                    # form for the short range (weak correct movements at rom 0.7 passing 87 -> 69 %).
-                    full_range = not any(m in range_rules for m in check_rep(spec, f, rep, 1.0))
-                    if (full_range and p < 0.5 and not mistakes and likely and likely not in range_rules
-                            and likely not in ignore):
-                        mistakes = [likely]
-                        detail["mistakes"] = mistakes
-                        score = max(0.0, 100.0 - MISTAKE_PENALTY)
+                    # Only on repetitions that reached the full range, and then scored as with full
+                    # targets (never its range verdicts): on shortened ones the model blamed form for the
+                    # short range (weak correct movements at rom 0.7 passing 87 -> 69 %), and without the
+                    # model's half of the score a full-range repetition scored lower than at full targets
+                    # (9 Oct viewer: the same correct sit-to-stand 88.5 % normally, 77.5 % at rom 0.7).
+                    if not any(m in range_rules for m in check_rep(spec, f, rep, 1.0)):
+                        if p < 0.5 and not mistakes and likely and likely not in range_rules and likely not in ignore:
+                            mistakes = [likely]
+                            detail["mistakes"] = mistakes
+                        score = 0.5 * score + 0.5 * 100 * p
+                    else:
+                        detail.pop("p_correct")
                 else:
                     if p < 0.5 and not mistakes and likely:
                         mistakes = [likely]

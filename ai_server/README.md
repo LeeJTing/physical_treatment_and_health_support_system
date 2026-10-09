@@ -23,3 +23,18 @@ The hand model is only used for the wrist and hand exercises (`wrist_extension`,
 
 The Flutter app on the emulator reaches it at `http://10.0.2.2:8000` (default `AI_BASE_URL`).
 A real phone: `flutter run --dart-define=AI_BASE_URL=https://xxxx.trycloudflare.com`.
+
+## Posture check viewer (development only)
+
+See what the posture check did, step by step: the body points MediaPipe found on each frame, the measured
+signal and repetitions, the right-exercise check, every rule on every repetition, the model's verdicts and the
+result.
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ai_server\run_server.ps1 -DevTools   # keep the phone's /pose requests
+powershell -ExecutionPolicy Bypass -File ai_server\run_devtools.ps1           # then open http://127.0.0.1:8001
+```
+
+The viewer listens on this PC only and refuses requests that came through the Cloudflare tunnel. Without
+`-DevTools` the AI server keeps nothing (stateless); with it, the newest 20 requests (video, landmarks, trace)
+are kept in `ai_server/dev_runs/` (git-ignored). Never use `-DevTools` with real patients' videos.

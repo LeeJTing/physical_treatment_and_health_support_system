@@ -26,6 +26,7 @@ from app.pose.analyse import PoseError, analyse, rep_levels
 from app.pose.exercises import EXERCISES
 from app.pose.geometry import Features
 from app.pose.landmarks import extract_parallel, read_video_info
+from app.pose.trace import SIGNAL_NAMES
 
 # MediaPipe's 33-point body skeleton.
 BODY = [(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5), (5, 6), (6, 8), (9, 10), (11, 12), (11, 13), (13, 15),
@@ -35,11 +36,6 @@ BODY = [(0, 1), (1, 2), (2, 3), (3, 7), (0, 4), (4, 5), (5, 6), (6, 8), (9, 10),
 HAND = [(0, 1), (1, 2), (2, 3), (3, 4), (0, 5), (5, 6), (6, 7), (7, 8), (5, 9), (9, 10), (10, 11), (11, 12),
         (9, 13), (13, 14), (14, 15), (15, 16), (13, 17), (0, 17), (17, 18), (18, 19), (19, 20)]
 GREEN, ORANGE, RED, WHITE, DARK = (80, 200, 80), (0, 165, 255), (60, 60, 230), (255, 255, 255), (30, 30, 30)
-SIGNAL_NAMES = {"knees": "knee angle (deg)", "arm_elev": "arm raise (deg)", "arm_elev_max": "arm raise (deg)",
-                "leg_raise": "leg out to the side (deg)", "knee_ext": "knee straightening (deg)",
-                "elbow_flex": "elbow bend (deg)", "heel_lift": "heel lift (shin lengths)",
-                "squat_depth": "knee bend (deg)", "bridge": "hip lift", "hip_rise": "hip rise",
-                "hand_lift": "hand lift (deg)", "hand_open": "hand openness"}
 
 
 def signal_of(spec, f):

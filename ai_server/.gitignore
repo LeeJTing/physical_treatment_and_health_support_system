@@ -5,3 +5,5 @@ __pycache__/
 models/weights/*
 !models/weights/.gitkeep
 .pytest_cache/
+# development viewer runs (videos of whoever tested)
+dev_runs/

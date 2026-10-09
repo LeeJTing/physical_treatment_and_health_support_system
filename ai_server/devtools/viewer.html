@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Posture check viewer (development)</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2433; --mute:#667085; --line:#e4e7ec; --good:#1f9d55; --bad:#d64545;
+          --warn:#e08a00; --accent:#2f6fde; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.45 system-ui, Segoe UI, Roboto, sans-serif; color:var(--ink); background:var(--bg); }
+  header { padding:10px 16px; background:#1d2433; color:#fff; display:flex; gap:12px; align-items:center; }
+  header b { font-size:15px; } header span { color:#c9d1e3; font-size:12px; }
+  .wrap { display:grid; grid-template-columns: 290px 1fr; gap:14px; padding:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px; }
+  h3 { margin:0 0 8px; font-size:14px; } h4 { margin:12px 0 6px; font-size:13px; }
+  .runs { max-height: calc(100vh - 330px); overflow:auto; }
+  .run { padding:8px; border-radius:8px; cursor:pointer; border:1px solid transparent; margin-bottom:4px; }
+  .run:hover { background:#f0f4fb; } .run.sel { border-color:var(--accent); background:#eef3fd; }
+  .run small { color:var(--mute); display:block; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:99px; font-size:12px; font-weight:600; color:#fff; }
+  .ok { background:var(--good); } .no { background:var(--bad); } .err { background:var(--warn); }
+  label { display:block; font-size:12px; color:var(--mute); margin-top:6px; }
+  input, select, button { font:inherit; width:100%; padding:6px; border:1px solid var(--line); border-radius:6px; }
+  button { background:var(--accent); color:#fff; border:none; cursor:pointer; margin-top:8px; }
+  button.light { background:#eef1f6; color:var(--ink); width:auto; margin:0; padding:5px 12px; }
+  .main { display:grid; grid-template-columns: minmax(320px, 560px) 1fr; gap:14px; align-items:start; }
+  canvas { display:block; max-width:100%; background:#111; border-radius:8px; }
+  #chart { background:#fff; border:1px solid var(--line); width:100%; height:200px; cursor:crosshair; }
+  .controls { display:flex; gap:8px; align-items:center; margin-top:8px; }
+  .controls input[type=range] { flex:1; }
+  .live div { padding:3px 0; border-bottom:1px dashed var(--line); }
+  .live b { display:inline-block; min-width:150px; color:var(--mute); font-weight:500; }
+  table { border-collapse:collapse; width:100%; font-size:12.5px; }
+  th, td { border-bottom:1px solid var(--line); padding:4px 6px; text-align:left; vertical-align:top; }
+  th { color:var(--mute); font-weight:600; }
+  td.fire { color:var(--bad); font-weight:600; } td.pass { color:var(--good); }
+  .step { border-left:3px solid var(--accent); padding-left:10px; margin-bottom:14px; }
+  .step .time { float:right; color:var(--mute); font-size:12px; }
+  .muted { color:var(--mute); } .empty { color:var(--mute); padding:30px; text-align:center; }
+</style>
+</head>
+<body>
+<header><b>Posture check viewer</b><span>development only &middot; this PC only &middot; runs from the phone appear when the AI
+server runs with -DevTools</span></header>
+<div class="wrap">
+  <div>
+    <div class="card">
+      <h3>Analyse a video</h3>
+      <form id="up">
+        <label>Video (MP4 / MOV)</label><input type="file" name="file" accept="video/*" required>
+        <label>Exercise</label><select name="exercise_key" id="ex"></select>
+        <label>Risk level (optional)</label>
+        <select name="risk_level"><option value="">none</option><option>LOW</option><option>MODERATE</option><option>HIGH</option></select>
+        <label>Age (optional)</label><input type="number" name="age" min="1" max="120">
+        <button type="submit" id="go">Analyse</button>
+        <div id="status" class="muted" style="margin-top:6px"></div>
+      </form>
+    </div>
+    <div class="card" style="margin-top:14px">
+      <h3>Runs <span class="muted" style="font-weight:400">(newest first)</span></h3>
+      <div class="runs" id="runs"><div class="muted">none yet</div></div>
+    </div>
+  </div>
+  <div id="detail"><div class="card empty">Choose a run, or analyse a video.</div></div>
+</div>
+<script>
+const BODY = [[0,1],[1,2],[2,3],[3,7],[0,4],[4,5],[5,6],[6,8],[9,10],[11,12],[11,13],[13,15],[15,17],[15,19],[15,21],
+  [17,19],[12,14],[14,16],[16,18],[16,20],[16,22],[18,20],[11,23],[12,24],[23,24],[23,25],[24,26],[25,27],[26,28],
+  [27,29],[28,30],[29,31],[30,32],[27,31],[28,32]];
+const HAND = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],
+  [15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+let run = null, k = 0, timer = null, imgs = {}, selected = null;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const f1 = v => v === null || v === undefined ? "–" : (Math.abs(v) >= 10 ? v.toFixed(1) : v.toFixed(2));
+
+async function init() {
+  const ex = await (await fetch("/api/exercises")).json();
+  $("#ex").innerHTML = ex.map(e => `<option value="${e.key}">${esc(e.name)} (${e.view} view)</option>`).join("");
+  await loadRuns();
+  setInterval(loadRuns, 5000);
+}
+async function loadRuns() {
+  const rs = await (await fetch("/api/runs")).json();
+  if (!rs.length) return;
+  $("#runs").innerHTML = rs.map(r => {
+    const badge = r.error ? `<span class="pill err">${esc(r.error)}</span>`
+      : `<span class="pill ${r.accuracy >= 80 ? "ok" : "no"}">${r.accuracy}%</span>`;
+    return `<div class="run ${r.id === selected ? "sel" : ""}" onclick="openRun('${r.id}')">${badge} <b>${esc(r.exercise)}</b>
+      ${r.repetitions !== null && r.repetitions !== undefined ? `&middot; ${r.repetitions} reps` : ""}
+      <small>${esc(r.saved_at?.replace("T", " "))} &middot; ${esc(r.source)}</small></div>`;
+  }).join("");
+}
+$("#up").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  $("#go").disabled = true; $("#status").textContent = "Analysing (MediaPipe, then the checks)...";
+  const t0 = performance.now();
+  const r = await fetch("/api/analyse", {method: "POST", body: new FormData(ev.target)});
+  $("#go").disabled = false;
+  if (!r.ok) { $("#status").textContent = "Failed: " + (await r.text()); return; }
+  $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s`;
+  const {id} = await r.json(); await loadRuns(); openRun(id);
+});
+
+async function openRun(id) {
+  stop(); selected = id; imgs = {}; k = 0;
+  run = await (await fetch(`/api/runs/${id}`)).json();
+  loadRuns(); render();
+}
+function repAt(t) { return (run.repetitions || []).find(r => r.start_sec <= t && t <= r.end_sec); }
+function resultRep(n) { return (run.result?.rep_details || [])[n - 1]; }
+
+function render() {
+  const F = run.frames, res = run.result, err = run.error, sig = run.signal;
+  const found = run.video.body_found_frames, n = run.video.frames_analysed;
+  const tm = run.timings_sec || {};
+  const verdict = err ? `<span class="pill err">${esc(err.code)}</span> ${esc(err.message)}`
+    : `<span class="pill ${res.accuracy >= 80 ? "ok" : "no"}">${res.accuracy}%</span> ${res.repetitions} repetitions
+       ${res.accuracy >= 80 ? "(passes)" : "(below 80: retry)"}`;
+  $("#detail").innerHTML = `
+  <div class="card"><h3>${esc(run.exercise_name)} &middot; ${esc(run.source)} &middot; ${esc(run.saved_at?.replace("T"," "))}</h3>
+    <div style="margin-bottom:10px">${verdict}</div>
+    <div class="main">
+      <div><canvas id="cv" width="540" height="540"></canvas>
+        <div class="controls"><button class="light" id="play">Play</button>
+          <input type="range" id="seek" min="0" max="${n - 1}" value="0"><span id="tlabel" class="muted"></span></div>
+      </div>
+      <div class="live" id="live"></div>
+    </div>
+    <h4>${esc(sig.name || "no signal (hold exercise)")} over time
+      <span class="muted" style="font-weight:400">&mdash; dashed: start level ${f1(sig.start_level)}, dotted: count level
+      ${f1(sig.count_level)}; green / red: repetitions without / with a mistake; click to jump</span></h4>
+    <canvas id="chart" width="1100" height="200"></canvas>
+  </div>
+  <div class="card" style="margin-top:14px"><h3>The process, step by step</h3>
+    <div class="step"><span class="time">${tm.mediapipe ? tm.mediapipe.toFixed(2) + " s" : ""}</span>
+      <b>1. Video and MediaPipe body points</b><br>
+      ${run.video.width}&times;${run.video.height}, ${f1(run.video.duration_sec)} s at ${f1(run.video.fps)} fps &rarr;
+      ${n} frames analysed (10 per second); a body found in <b>${found}</b> (${Math.round(100 * found / Math.max(1, n))} %).
+      ${run.video.brightness ? `Brightness ${f1(run.video.brightness)} (tip below 80).` : ""}
+      Shoulder width / torso ${f1(run.camera.shoulder_width_to_torso)} (${run.view} view exercise).
+      ${run.fall_at_sec !== null && run.fall_at_sec !== undefined ? `<br><b style="color:var(--bad)">Possible fall at ${f1(run.fall_at_sec)} s</b>` : ""}
+    </div>
+    <div class="step"><b>2. Measurement and repetitions</b><br>
+      Signal: ${esc(sig.name || "none")}; a repetition starts above ${f1(sig.start_level)} and counts once it passes
+      ${f1(sig.count_level)}. ${run.partial_repetitions ? "<b>No full repetition: half-way movements counted as partial.</b>" : ""}
+      ${table(["#", "start s", "top s", "end s", "peak", "note"], (run.repetitions || []).map(r =>
+        [r.n, f1(r.start_sec), f1(r.peak_sec), f1(r.end_sec), f1(r.peak_value), r.unfinished ? "recording stopped: counted, not judged" : (r.side || "")]))}
+    </div>
+    <div class="step"><b>3. Is it the chosen exercise?</b> ${run.identity.refused_because
+        ? `<span class="pill err">refused</span> ${esc(run.identity.refused_because)}${run.identity.only_too_small ? " (only too small)" : ""}`
+        : (run.identity.rules.length ? `<span class="pill ok">accepted</span>` : `<span class="muted">no rules for this exercise</span>`)}
+      ${table(["signature", "measured", "must be", "passed"], run.identity.rules.map(r =>
+        [r.signature, f1(r.value), `${r.op} ${r.limit}`, r.passed === null ? "not measurable" : (r.passed ? "yes" : "no: " + esc(r.reason_if_failed))]),
+        (row, i) => run.identity.rules[i].passed === false ? "fire" : "")}
+    </div>
+    <div class="step"><b>4. Posture rules on each repetition</b>
+      <span class="muted">(value, with the limit in brackets; red = mistake found${run.rom_scale < 1 ? `; targets &times;${run.rom_scale} for this patient` : ""})</span>
+      ${ruleTable()}
+    </div>
+    <div class="step"><b>5. Trained model</b> ${run.model ? `${esc(run.model.version)}
+      ${run.model.used_in_result ? "" : '<span class="muted">(not used for this result)</span>'}
+      <span class="muted">trained on repetitions of ${run.model.duration_range_sec ? run.model.duration_range_sec.join("-") + " s" : "?"}</span>
+      ${table(["#", "chance correct", "likely mistake", "note"], run.model.reps.map(r =>
+        [r.n, r.p_correct === null ? "–" : Math.round(100 * r.p_correct) + " %", r.p_correct !== null && r.p_correct < 0.5 ? esc(r.likely_mistake) : "",
+         r.left_to_rules ? "slower than any training repetition: rules only" : ""]))}`
+      : '<span class="muted">no trained model for this exercise (rules only)</span>'}
+    </div>
+    <div class="step"><span class="time">${tm.analysis ? tm.analysis.toFixed(2) + " s" : ""}</span><b>6. Result sent to the app</b><br>
+      ${err ? `<b>${esc(err.code)}</b>: ${esc(err.message)}` : `Accuracy <b>${res.accuracy}%</b> (average of the repetition scores:
+      100, minus 30 per mistake${res.model_version.includes("+") ? ", half rules and half the model" : ""}); ${res.repetitions} repetitions; method ${esc(res.model_version)}
+      ${table(["#", "score", "mistakes"], (res.rep_details || []).map((d, i) => [i + 1, d.score, (d.mistakes || []).join(", ") || "none"]))}
+      <h4>Feedback shown</h4><ul>${res.feedback.map(t => `<li>${esc(t)}</li>`).join("")}</ul>
+      ${res.safety_alert ? `<b style="color:var(--bad)">Safety alert: ${esc(res.safety_alert.message)}</b>` : ""}`}
+    </div>
+  </div>`;
+  $("#seek").oninput = e => show(+e.target.value);
+  $("#play").onclick = () => timer ? stop() : play();
+  $("#chart").onclick = e => {
+    const c = $("#chart"), x = (e.offsetX / c.clientWidth) * c.width, T = F.t[F.t.length - 1] || 1;
+    const t = ((x - 40) / (c.width - 50)) * T; let best = 0;
+    F.t.forEach((v, i) => { if (Math.abs(v - t) < Math.abs(F.t[best] - t)) best = i; }); show(best);
+  };
+  show(0);
+}
+function table(head, rows, cls) {
+  if (!rows.length) return '<div class="muted">none</div>';
+  return `<table><tr>${head.map(h => `<th>${h}</th>`).join("")}</tr>${rows.map((r, i) =>
+    `<tr>${r.map(c => `<td class="${cls ? cls(r, i) : ""}">${c}</td>`).join("")}</tr>`).join("")}</table>`;
+}
+function ruleTable() {
+  const reps = (run.repetitions || []).filter(r => r.rules.length);
+  if (!reps.length) return '<div class="muted">no judged repetitions</div>';
+  const labels = reps[0].rules.map(c => c.label);
+  return `<table><tr><th>#</th>${labels.map(l => `<th>${esc(l)}</th>`).join("")}</tr>${reps.map(r =>
+    `<tr><td>${r.n}</td>${r.rules.map(c => `<td class="${c.fired ? "fire" : "pass"}" title="${esc(c.unit)}; mistake when ${c.above ? "above" : "below"} the limit${c.frail_ok ? "; allowed for frail patients" : ""}">
+      ${f1(c.value)} <span class="muted">(${c.above ? "&le;" : "&ge;"} ${f1(c.limit)})</span></td>`).join("")}</tr>`).join("")}</table>`;
+}
+
+function frameImg(i) {
+  if (!imgs[i] && run.frames.has_video) { const im = new Image(); im.src = `/api/runs/${run.id}/frames/${i}.jpg`; imgs[i] = im; }
+  return imgs[i];
+}
+function show(i) {
+  k = i; $("#seek").value = i;
+  const im = frameImg(i);
+  if (im && !im.complete) { im.onload = () => { if (k === i) draw(im); }; draw(null); } else draw(im);
+  for (let j = 1; j <= 8; j++) if (i + j < run.frames.t.length) frameImg(i + j);       // fetch ahead
+  live(); chart();
+}
+function draw(im) {
+  const F = run.frames, cv = $("#cv"), ctx = cv.getContext("2d");
+  const s = Math.min(540 / F.width, 540 / F.height);
+  cv.width = Math.round(F.width * s); cv.height = Math.round(F.height * s);
+  ctx.fillStyle = "#111"; ctx.fillRect(0, 0, cv.width, cv.height);
+  if (im && im.complete && im.naturalWidth) ctx.drawImage(im, 0, 0, cv.width, cv.height);
+  const xy = F.xy[k], vis = F.vis[k];
+  const ok = p => p && p[0] >= 0 && p[1] >= 0;
+  ctx.lineWidth = 3;
+  for (const [a, b] of BODY) {
+    if (!ok(xy[a]) || !ok(xy[b])) continue;
+    ctx.strokeStyle = Math.min(vis[a], vis[b]) > 0.5 ? "#ffffff" : "#ffa500";
+    ctx.beginPath(); ctx.moveTo(xy[a][0] * s, xy[a][1] * s); ctx.lineTo(xy[b][0] * s, xy[b][1] * s); ctx.stroke();
+  }
+  xy.forEach((p, j) => { if (!ok(p)) return; ctx.fillStyle = vis[j] > 0.5 ? "#2ecc71" : "#ffa500";
+    ctx.beginPath(); ctx.arc(p[0] * s, p[1] * s, 4, 0, 7); ctx.fill(); });
+  if (F.hands) for (const hand of F.hands[k]) {
+    ctx.strokeStyle = "#5dade2"; ctx.lineWidth = 2;
+    for (const [a, b] of HAND) { if (!ok(hand[a]) || !ok(hand[b])) continue;
+      ctx.beginPath(); ctx.moveTo(hand[a][0] * s, hand[a][1] * s); ctx.lineTo(hand[b][0] * s, hand[b][1] * s); ctx.stroke(); }
+  }
+  if (!F.has_video) { ctx.fillStyle = "#fff"; ctx.fillText("no video kept: points only", 10, 20); }
+}
+function live() {
+  const F = run.frames, t = F.t[k], sig = run.signal.values, rep = repAt(t);
+  const done = (run.repetitions || []).filter(r => r.end_sec <= t + 1e-6);
+  const conf = F.vis[k].filter(v => v > 0.5).length, found = F.xy[k].some(p => p[0] >= 0);
+  let note = "";
+  if (rep) { const rr = resultRep(rep.n); note = rep.unfinished ? "unfinished (not judged)"
+      : rr ? (rr.mistakes.length ? `<span style="color:var(--bad)">${esc(rr.mistakes.join(", "))}</span> (score ${rr.score})`
+              : `<span style="color:var(--good)">good</span> (score ${rr.score})`) : ""; }
+  $("#tlabel").textContent = `${t.toFixed(1)} s`;
+  $("#live").innerHTML = `
+    <div><b>time</b> ${t.toFixed(1)} s (frame ${k + 1} of ${F.t.length})</div>
+    <div><b>MediaPipe</b> ${found ? `body found, ${conf} of 33 points confident` : '<span style="color:var(--bad)">no body found</span>'}</div>
+    <div><b>${esc(run.signal.name || "signal")}</b> ${sig ? f1(sig[k]) : "–"}</div>
+    <div><b>repetitions done</b> ${done.length}</div>
+    <div><b>now</b> ${rep ? `in repetition ${rep.n} ${note}` : "between repetitions"}</div>
+    <div class="muted" style="border:0;padding-top:8px">green dots: confident points &middot; orange: unsure &middot; blue: hands</div>`;
+}
+function chart() {
+  const c = $("#chart"), ctx = c.getContext("2d"), F = run.frames, v = run.signal.values;
+  ctx.clearRect(0, 0, c.width, c.height);
+  const T = F.t[F.t.length - 1] || 1, L = 40, W = c.width - 50, H = c.height - 30;
+  const X = t => L + (t / T) * W;
+  for (const r of run.repetitions || []) {
+    const rr = resultRep(r.n);
+    ctx.fillStyle = r.unfinished ? "rgba(150,150,150,.18)" : rr && rr.mistakes.length ? "rgba(214,69,69,.18)" : "rgba(31,157,85,.18)";
+    ctx.fillRect(X(r.start_sec), 5, X(r.end_sec) - X(r.start_sec), H);
+    ctx.fillStyle = "#333"; ctx.fillText(String(r.n), (X(r.start_sec) + X(r.end_sec)) / 2 - 3, 16);
+  }
+  F.xy.forEach((p, i) => { if (!p.some(q => q[0] >= 0)) { ctx.fillStyle = "#d64545"; ctx.fillRect(X(F.t[i]) - 1, H + 2, 2, 6); } });
+  if (v && v.some(x => x !== null)) {
+    const vals = v.filter(x => x !== null).concat([run.signal.start_level, run.signal.count_level].filter(x => x !== null));
+    const lo = Math.min(...vals), hi = Math.max(...vals), Y = y => 5 + H - ((y - lo) / ((hi - lo) || 1)) * (H - 10);
+    ctx.fillStyle = "#667085"; ctx.fillText(f1(hi), 2, 14); ctx.fillText(f1(lo), 2, H);
+    for (const [lvl, dash] of [[run.signal.start_level, [6, 4]], [run.signal.count_level, [2, 3]]]) {
+      if (lvl === null) continue; ctx.setLineDash(dash); ctx.strokeStyle = "#8a94a6"; ctx.beginPath();
+      ctx.moveTo(L, Y(lvl)); ctx.lineTo(L + W, Y(lvl)); ctx.stroke(); }
+    ctx.setLineDash([]); ctx.strokeStyle = "#1d2433"; ctx.lineWidth = 1.6; ctx.beginPath();
+    let pen = false;
+    v.forEach((y, i) => { if (y === null) { pen = false; return; } const px = X(F.t[i]), py = Y(y);
+      pen ? ctx.lineTo(px, py) : ctx.moveTo(px, py); pen = true; });
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "#2f6fde"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(X(F.t[k]), 0); ctx.lineTo(X(F.t[k]), H + 10); ctx.stroke();
+  ctx.fillStyle = "#667085"; ctx.fillText("0 s", L, c.height - 4); ctx.fillText(`${T.toFixed(0)} s`, L + W - 20, c.height - 4);
+}
+function play() {
+  $("#play").textContent = "Pause";
+  timer = setInterval(() => { if (k >= run.frames.t.length - 1) return stop(); show(k + 1); }, 100);
+}
+function stop() { if (timer) clearInterval(timer); timer = null; const b = $("#play"); if (b) b.textContent = "Play"; }
+init();
+</script>
+</body>
+</html>

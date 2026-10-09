@@ -2,7 +2,8 @@
 
 Multipart upload: `file` (MP4 or MOV, 10-30 s, <= 100 MB, >= 720p) and
 `exercise_key` (the exercise's pose_key). The clip is written to a
-temporary file, analysed, and deleted; nothing is stored (stateless).
+temporary file, analysed, and deleted; nothing is stored (stateless), except on a development
+machine with DEV_TOOLS on (config.py), which keeps the run for the development viewer (devtools/).
 
 Errors use the shared contract {"error": {"code", "message"}} with HTTP 422:
   invalid_video          format, length, size or resolution not allowed (FR300_14-16)
@@ -13,15 +14,18 @@ Errors use the shared contract {"error": {"code", "message"}} with HTTP 422:
 """
 import os
 import tempfile
+import time
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, File, Form, UploadFile
 from fastapi.responses import JSONResponse
 
 from ..auth import current_account_id
+from ..config import get_settings
 from ..pose import exercises
 from ..pose.analyse import HAND_EXERCISES, PoseError, analyse
 from ..pose.landmarks import extract_parallel, read_video_info, turned
+from ..pose.trace import save_run, trace
 
 router = APIRouter(tags=["M300 posture"])
 
@@ -29,6 +33,19 @@ ALLOWED_EXT = {".mp4", ".mov"}
 MAX_BYTES = 100 * 1024 * 1024
 MIN_SEC, MAX_SEC, TOLERANCE_SEC = 10.0, 30.0, 0.5
 MIN_SHORT_SIDE = 720
+
+
+def _dev_run(path: str, seq, key: str, rom: float, brightness, t_extract: float):
+    """DEV_TOOLS only: the same answer as analyse(), with the run kept for the development viewer."""
+    tr = trace(key, seq, rom, brightness, {"mediapipe": round(t_extract, 3)})
+    try:
+        s = get_settings()
+        save_run(Path(s.dev_runs_dir), Path(path), seq, tr, "phone", s.dev_runs_keep)
+    except OSError:
+        pass                                           # the viewer is a convenience; the answer is not
+    if tr["error"]:
+        return _error(tr["error"]["code"], tr["error"]["message"])
+    return tr["result"]
 
 
 def _error(code: str, message: str) -> JSONResponse:
@@ -81,11 +98,15 @@ def pose(
         if min(info.width, info.height) < MIN_SHORT_SIDE:
             return _error("invalid_video", "The video resolution must be at least 720p.")
         try:
+            t0 = time.perf_counter()
             seq, brightness = extract_parallel(path, hands=exercise_key in HAND_EXERCISES)
+            t_extract = time.perf_counter() - t0
             if upright_turn_deg is not None and abs(upright_turn_deg) <= 30:
                 seq = turned(seq, upright_turn_deg)
-            return analyse(exercise_key, seq, rom_scale=exercises.rom_scale_for(risk_level, age),
-                           brightness=brightness)
+            rom = exercises.rom_scale_for(risk_level, age)
+            if get_settings().dev_tools:
+                return _dev_run(path, seq, exercise_key, rom, brightness, t_extract)
+            return analyse(exercise_key, seq, rom_scale=rom, brightness=brightness)
         except PoseError as e:
             return _error(e.code, e.message)
     finally:

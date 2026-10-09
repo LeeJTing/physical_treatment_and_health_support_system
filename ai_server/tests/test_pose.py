@@ -608,11 +608,15 @@ def test_frail_targets_keep_the_models_form_verdicts_but_not_its_range_verdicts(
         return lambda key, f, reps: {"p_correct": [0.2] * len(reps), "likely_mistake": [label] * len(reps),
                                      "version": "fake_v1"}
     monkeypatch.setattr(classifier, "predict", fake("bent_elbow"))
+    frail = analyse("shoulder_abduction", sequence(frames), rom_scale=0.7)
+    full = analyse("shoulder_abduction", sequence(frames))
+    assert frail["mistakes"] == full["mistakes"] == {"bent_elbow": 4} and frail["accuracy"] == full["accuracy"]
+    monkeypatch.setattr(classifier, "predict", fake("low_range"))        # a range verdict is never added
     res = analyse("shoulder_abduction", sequence(frames), rom_scale=0.7)
-    assert res["mistakes"] == {"bent_elbow": 4} and res["accuracy"] == 70
-    monkeypatch.setattr(classifier, "predict", fake("low_range"))        # a range verdict: rules only
-    res = analyse("shoulder_abduction", sequence(frames), rom_scale=0.7)
-    assert res["mistakes"] == {} and res["accuracy"] == 100
+    assert res["mistakes"] == {}
+    short = [front_pose(a, a) for a in wave(4, 5, 62)]                  # shortened reps: rules only
+    res = analyse("shoulder_abduction", sequence(short), rom_scale=0.7)
+    assert res["mistakes"] == {} and res["accuracy"] == 100 and "p_correct" not in res["rep_details"][0]
 
 
 def test_the_model_leaves_much_slower_repetitions_to_the_rules(monkeypatch):
