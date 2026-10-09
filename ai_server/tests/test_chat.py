@@ -172,7 +172,7 @@ def test_request_validation():
 def test_response_fields():
     res = ask(text="how often should I exercise")
     assert set(res) == {"answer", "category", "title", "is_matched", "matched_by", "follow_ups", "notes",
-                        "categories", "rules_version", "action"}
+                        "categories", "rules_version", "action", "actions"}
     assert res["matched_by"] == "keyword"
 
 
@@ -214,6 +214,16 @@ def test_rules_file_matches_catalogue():
 def test_everyday_questions(text, key):
     res = client.post("/chat", json={"plan_id": KNEE, "text": text}, headers=DEV).json()
     assert res["category"] == key, res["answer"][:80]
+
+
+def test_a_second_button_when_the_answer_names_a_second_screen():
+    res = ask("how do i change my password")
+    assert [a["key"] for a in res["actions"]] == ["open_profile", "open_reset_password"]
+    assert res["action"]["key"] == "open_profile"           # older apps read only this
+    res = ask("how do i exit the recording")
+    assert [a["key"] for a in res["actions"]] == ["open_treatment"]
+    res = ask("asdfgh")
+    assert res["actions"] == []
 
 
 def test_password_and_start_answers_offer_a_button():

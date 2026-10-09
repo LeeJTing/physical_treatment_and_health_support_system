@@ -22,21 +22,23 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.47"
+VERSION = "chat-rules-3.48"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
 
 def intent(key, title, priority, keywords, examples, answer, show=True, follow_ups=(), tailor=False,
-           negatable=False, anchor_start=False, small_talk=False, action=None):
+           negatable=False, anchor_start=False, small_talk=False, action=None, more_actions=()):
     """negatable: a keyword right after "no"/"not" does not count ("I have no pain").
     anchor_start: keywords count only at the start of the message (greetings).
     small_talk: wins outright when the whole message is three words or fewer ("good morning", "help").
     action: a button the app shows under the answer, {"key": ..., "label": ...}; the app maps the key
-    to a screen (open_reset_password, open_planning, open_profile, open_treatment)."""
+    to a screen (open_reset_password, open_planning, open_profile, open_treatment, open_reminders,
+    open_history). more_actions: a second button when the answer names a second screen (3.48)."""
     return {"key": key, "title": title, "show": show, "priority": priority, "keywords": list(keywords),
             "examples": list(examples), "answer": answer, "follow_ups": list(follow_ups), "tailor": tailor,
-            "negatable": negatable, "anchor_start": anchor_start, "small_talk": small_talk, "action": action}
+            "negatable": negatable, "anchor_start": anchor_start, "small_talk": small_talk, "action": action,
+            "more_actions": list(more_actions)}
 
 
 INTENTS = [
@@ -55,7 +57,8 @@ INTENTS = [
            "plans that suit you, then select one. 3) Open My treatment plan from the Treatment tab and start the "
            "first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; reach "
            "80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
-           action={"key": "open_planning", "label": "Open treatment planning"}),
+           action={"key": "open_planning", "label": "Open treatment planning"},
+           more_actions=[{"key": "open_profile", "label": "Open Profile"}]),
     intent("how_to", "How to do the exercises", 4,
            ["knee goes in", "knees go in", "knee goes inward", "knees go inward", "knee inwards", "knees inwards", "caving in", "knees together",
             "rest between", "between reps", "between sets", "between exercises", "break between", "how to do", "how do i do", "how should i do", "how to perform", "correct way", "right way", "proper way",
@@ -252,7 +255,8 @@ INTENTS = [
            "check your posture. Profile holds your health details, which keep your advice safe. You can ask me "
            "about any of these at any time. You need an internet connection to sign in, check your posture "
            "and chat with me; your reminders still arrive without one.", show=False,
-           action={"key": "open_planning", "label": "Open treatment planning"}),
+           action={"key": "open_planning", "label": "Open treatment planning"},
+           more_actions=[{"key": "open_profile", "label": "Open Profile"}]),
     # Priority 8: the patient's own doctor outranks everything except red flags and medicines.
     intent("doctor_said", "Your doctor's advice", 8,
            ["doctor said", "doctor told me", "doctor advised", "doctor asked me", "physiotherapist said",
@@ -601,7 +605,8 @@ INTENTS = [
            "other phones are then signed out; this one stays signed in. If you have forgotten your current "
            "password, tap \u201cForgot your current password?\u201d there, or Forgot password? on the login "
            "screen, to get a reset code by email.",
-           show=False, action={"key": "open_profile", "label": "Open Profile"}),
+           show=False, action={"key": "open_profile", "label": "Open Profile"},
+           more_actions=[{"key": "open_reset_password", "label": "Reset by email"}]),
     intent("session_expired", "Why you were logged out", 7,
            ["logged out", "logged me out", "log me out", "signed me out", "kicked out", "kick me out",
             "log in again", "login again", "sign in again", "log in every time", "login every time",
@@ -649,7 +654,8 @@ INTENTS = [
            "to the home page. While you are recording or the video is being checked, the app asks first, and "
            "that attempt is not saved; a result of 80% or more that was already saved stays saved. You can do "
            "the exercise again later from Physical Treatment. If you feel pain, dizziness or unwell, stop at "
-           "once, sit down and rest.", show=False),
+           "once, sit down and rest.", show=False,
+           action={"key": "open_treatment", "label": "Open my treatment plan"}),
     intent("google_setup", "Signing in with Google", 8,
            ["signed in with google", "sign in with google", "continue with google", "using google",
             "after google", "google account", "google sign in", "google login", "log in with google",
@@ -1158,6 +1164,13 @@ ACTIONS = {
     "account_help": {"key": "open_profile", "label": "Open my profile"},
 }
 
+# A second button when the answer names a second screen (3.48).
+MORE_ACTIONS = {
+    "account_help": [{"key": "open_reset_password", "label": "Reset password"}],
+    "multiple_plans": [{"key": "open_treatment", "label": "Open my treatment plan"}],
+    "plan_and_reminders": [{"key": "open_reminders", "label": "Open reminders"}],
+}
+
 # Rules about doing the exercises: the reply also considers the patient's local time of day
 # (late at night -> advise to rest; condition-specific timing).
 # Also tailored to the patient's conditions (besides the rules created with tailor=True).
@@ -1400,6 +1413,8 @@ def build() -> dict:
     for i in INTENTS:
         if i["key"] in ACTIONS and not i.get("action"):
             i["action"] = ACTIONS[i["key"]]
+        if i["key"] in MORE_ACTIONS and not i.get("more_actions"):
+            i["more_actions"] = MORE_ACTIONS[i["key"]]
         i["time_aware"] = i["key"] in TIME_AWARE
         if i["key"] in TAILORED:
             i["tailor"] = True

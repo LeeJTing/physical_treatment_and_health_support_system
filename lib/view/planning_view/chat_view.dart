@@ -298,22 +298,48 @@ class _MessageTile extends StatelessWidget {
               child: NoticeBanner(reply.notes.join(' '), warning: true),
             ),
           ],
-          if (reply?.action case final action?) ...[
+          // Buttons to the screens the answer names: the first filled, a second outlined. An
+          // arrow, not "open in new": they open a screen in the app, and Back returns here.
+          if (reply != null && reply.actions.isNotEmpty) ...[
             const SizedBox(height: 8),
-            FilledButton.icon(
-              onPressed: () => onAction(action),
-              icon: const Icon(Icons.open_in_new, size: 18),
-              label: Text(action.label),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppTokens.primary,
-                foregroundColor: Colors.white,
-                minimumSize: const Size(48, AppTokens.minTarget),
-                shape: const StadiumBorder(),
-                textStyle: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: mine ? WrapAlignment.end : WrapAlignment.start,
+              children: [
+                for (final (i, action) in reply.actions.indexed)
+                  i == 0
+                      ? FilledButton.icon(
+                          onPressed: () => onAction(action),
+                          icon: const Icon(Icons.arrow_forward, size: 18),
+                          label: Text(action.label),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: AppTokens.primary,
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(48, AppTokens.minTarget),
+                            shape: const StadiumBorder(),
+                            textStyle: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                      : OutlinedButton.icon(
+                          onPressed: () => onAction(action),
+                          icon: const Icon(Icons.arrow_forward, size: 18),
+                          label: Text(action.label),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppTokens.primary,
+                            side: const BorderSide(color: AppTokens.primary),
+                            minimumSize: const Size(48, AppTokens.minTarget),
+                            shape: const StadiumBorder(),
+                            textStyle: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+              ],
             ),
           ],
           if (reply != null && reply.followUps.isNotEmpty) ...[

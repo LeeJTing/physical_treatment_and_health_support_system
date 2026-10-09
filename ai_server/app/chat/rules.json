@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.47",
+  "version": "chat-rules-3.48",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -58,6 +58,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_profile",
+          "label": "Open Profile"
+        }
+      ],
       "time_aware": true
     },
     {
@@ -126,6 +132,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -182,6 +189,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -257,6 +265,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -304,6 +313,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -378,6 +388,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -458,6 +469,7 @@
         "key": "open_profile",
         "label": "Update my health conditions"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -525,6 +537,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -633,6 +646,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -700,6 +714,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -771,6 +786,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -853,6 +869,7 @@
         "key": "open_treatment",
         "label": "Record an exercise"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -931,6 +948,7 @@
         "key": "open_history",
         "label": "See my results"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -995,6 +1013,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -1041,6 +1060,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_profile",
+          "label": "Open Profile"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -1078,6 +1103,7 @@
         "key": "open_reminders",
         "label": "Pause my reminders"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1115,6 +1141,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1161,6 +1188,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -1234,6 +1262,7 @@
         "key": "open_profile",
         "label": "Open my profile"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1302,6 +1331,7 @@
         "key": "open_reminders",
         "label": "Open reminders"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1338,6 +1368,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1369,6 +1400,7 @@
         "key": "open_profile",
         "label": "Open health profile"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1402,6 +1434,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1436,6 +1469,7 @@
         "key": "open_treatment",
         "label": "Record an exercise"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1469,6 +1503,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1523,6 +1558,7 @@
         "key": "open_profile",
         "label": "Open health profile"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1607,6 +1643,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1711,6 +1748,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1760,6 +1798,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1803,6 +1842,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1867,6 +1907,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1903,6 +1944,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1949,6 +1991,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1978,6 +2021,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2010,6 +2054,7 @@
         "key": "open_history",
         "label": "See my progress"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2060,6 +2105,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2116,6 +2162,7 @@
         "key": "open_history",
         "label": "See my results"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2184,6 +2231,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_treatment",
+          "label": "Open my treatment plan"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -2214,6 +2267,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2276,6 +2330,7 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2319,6 +2374,7 @@
         "key": "open_treatment",
         "label": "Record an exercise"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2358,6 +2414,12 @@
         "key": "open_profile",
         "label": "Open Profile"
       },
+      "more_actions": [
+        {
+          "key": "open_reset_password",
+          "label": "Reset by email"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -2396,6 +2458,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2452,6 +2515,7 @@
         "key": "open_reminders",
         "label": "Open reminders"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2487,6 +2551,7 @@
         "key": "open_reminders",
         "label": "Open reminders"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2524,7 +2589,11 @@
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
-      "action": null,
+      "action": {
+        "key": "open_treatment",
+        "label": "Open my treatment plan"
+      },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2565,6 +2634,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2610,6 +2680,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_reminders",
+          "label": "Open reminders"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -2671,6 +2747,7 @@
         "key": "open_reset_password",
         "label": "Reset password"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2740,6 +2817,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2788,6 +2866,12 @@
         "key": "open_profile",
         "label": "Open my profile"
       },
+      "more_actions": [
+        {
+          "key": "open_reset_password",
+          "label": "Reset password"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -2821,6 +2905,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2858,6 +2943,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2893,6 +2979,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2957,6 +3044,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3024,6 +3112,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3068,6 +3157,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3102,6 +3192,7 @@
       "anchor_start": true,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3150,6 +3241,7 @@
       "anchor_start": false,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3184,6 +3276,7 @@
       "anchor_start": true,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3217,6 +3310,7 @@
       "anchor_start": false,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3273,6 +3367,7 @@
       "anchor_start": false,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -3294,7 +3389,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:arm_leg_low",
@@ -3315,7 +3411,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:back_arch",
@@ -3336,7 +3433,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:back_sag",
@@ -3357,7 +3455,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:bent_elbow",
@@ -3378,7 +3477,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:bent_knee",
@@ -3399,7 +3499,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:body_swing",
@@ -3420,7 +3521,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:drop_down",
@@ -3441,7 +3543,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:feet_far",
@@ -3462,7 +3565,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:feet_forward",
@@ -3483,7 +3587,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:feet_not_in_line",
@@ -3504,7 +3609,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:hands_used",
@@ -3525,7 +3631,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:heels_lift",
@@ -3546,7 +3653,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:hips_back",
@@ -3567,7 +3675,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:hips_sag",
@@ -3588,7 +3697,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:incomplete_extension",
@@ -3609,7 +3719,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:incomplete_stand",
@@ -3630,7 +3741,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:fingers_not_spread",
@@ -3651,7 +3763,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:head_tilt",
@@ -3672,7 +3785,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:knee_not_straight",
@@ -3693,7 +3807,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:knees_bend",
@@ -3714,7 +3829,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leaning",
@@ -3735,7 +3851,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leaning_back",
@@ -3756,7 +3873,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leaning_forward",
@@ -3777,7 +3895,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leg_forward",
@@ -3798,7 +3917,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_hips",
@@ -3819,7 +3939,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_knee_lift",
@@ -3840,7 +3961,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_raise",
@@ -3861,7 +3983,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_range",
@@ -3882,7 +4005,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:no_arm_swing",
@@ -3903,7 +4027,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:no_forward_lean",
@@ -3924,7 +4049,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:no_hold",
@@ -3945,7 +4071,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:over_arch",
@@ -3966,7 +4093,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:shoulder_shrug",
@@ -3987,7 +4115,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:slouching",
@@ -4008,7 +4137,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:stepping_out",
@@ -4029,7 +4159,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:swinging",
@@ -4050,7 +4181,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:thigh_lift",
@@ -4071,7 +4203,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:toes_up",
@@ -4092,7 +4225,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:too_deep",
@@ -4113,7 +4247,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:trunk_forward",
@@ -4134,7 +4269,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:trunk_lean",
@@ -4155,7 +4291,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:uncontrolled_sit",
@@ -4176,7 +4313,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:uneven_arms",
@@ -4197,7 +4335,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:upper_arm_moves",
@@ -4218,7 +4357,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:using_hands",
@@ -4239,7 +4379,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     }
   ],
   "glossary": {

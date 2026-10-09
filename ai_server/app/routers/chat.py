@@ -59,6 +59,9 @@ class ChatResponse(BaseModel):
     notes: list[str]                # condition-specific safety lines already appended to answer
     categories: list[Category]      # shown again after every reply (FR500_21, FR500_22)
     action: ChatAction | None = None  # optional button under the answer (e.g. "Reset password")
+    # Every button, first = action (3.48: a second one when the answer names a second screen).
+    # Older apps read only "action".
+    actions: list[ChatAction] = []
     rules_version: str
 
 
@@ -73,5 +76,7 @@ def categories(plan_id: str | None = None, account_id: str = Depends(current_acc
 def chat(body: ChatRequest, account_id: str = Depends(current_account_id)):
     """Answer a tapped category or a typed question (FR500_19 to FR500_22)."""
     local = (body.local_hour, body.local_minute or 0) if body.local_hour is not None else None
-    return engine.reply(body.plan_id, body.category, body.text, body.conditions, body.limitations, body.risk_level,
-                        local_time=local, previous_category=body.previous_category)
+    res = engine.reply(body.plan_id, body.category, body.text, body.conditions, body.limitations, body.risk_level,
+                       local_time=local, previous_category=body.previous_category)
+    res["actions"] = [a for a in [res.get("action"), *res.pop("more_actions", [])] if a]
+    return res

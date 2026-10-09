@@ -1199,4 +1199,5 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     answer = base_answer + ("\n\n" + " ".join(notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,
-            "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action")}
+            "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action"),
+            "more_actions": chosen.get("more_actions", [])}

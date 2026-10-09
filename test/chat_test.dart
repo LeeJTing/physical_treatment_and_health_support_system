@@ -290,6 +290,28 @@ void main() {
         'is_matched': true,
       });
       expect(plain.action, isNull);
+      expect(plain.actions, isEmpty);
+      expect(withButton.actions.single.key, 'open_reset_password'); // older server: "action" only
+
+      final two = ChatReply.fromJson({
+        'answer': 'a',
+        'category': 'change_password',
+        'title': 't',
+        'is_matched': true,
+        'matched_by': 'keyword',
+        'follow_ups': [],
+        'notes': [],
+        'categories': [],
+        'action': {'key': 'open_profile', 'label': 'Open Profile'},
+        'actions': [
+          {'key': 'open_profile', 'label': 'Open Profile'},
+          {'key': 'open_reset_password', 'label': 'Reset by email'},
+        ],
+      });
+      expect([for (final a in two.actions) a.key], [
+        'open_profile',
+        'open_reset_password',
+      ]);
     },
   );
 
