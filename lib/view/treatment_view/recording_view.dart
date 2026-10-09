@@ -77,6 +77,7 @@ class _RecordingViewState extends State<RecordingView>
         _cameras[_cameraIndex],
         ResolutionPreset.high,
         enableAudio: false,
+        videoBitrate: AppConstants.recordingBitrate, // smaller upload, same result
       );
       await c.initialize();
       // FR300_15: at least 720p.

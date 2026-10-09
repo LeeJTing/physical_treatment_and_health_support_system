@@ -61,6 +61,10 @@ class AppConstants {
   // ---- Exercise video (UC500 C4, C5) ---------------------------------------
   static const int minVideoSeconds = 10;
   static const int maxVideoSeconds = 30;
+  /// Recording bitrate (NFR_07: the upload is most of the wait). 9 Oct test on 60 own clips at 720p
+  /// (training/experiment_bitrate.py): 2.5 Mbps gave the same pass / fail as 5 Mbps on 60 of 60 at half
+  /// the size; 3 Mbps leaves room for a phone encoder, which does a little worse per bit.
+  static const int recordingBitrate = 3000000;
   static const int maxVideoBytes = 100 * 1024 * 1024;
   static const int minVideoHeightPx = 720;
   static const List<String> allowedVideoExtensions = ['mp4', 'mov'];

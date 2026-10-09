@@ -1,0 +1,2190 @@
+{
+ "summary": {
+  "5000 kbit/s": {
+   "verdict_agrees_with_5000": "60/60",
+   "mean_abs_accuracy_diff": 0.0,
+   "mean_abs_rep_diff": 0.0,
+   "errors": 2,
+   "mean_mb": 14.66,
+   "upload_sec_at_10_mbit": 11.7,
+   "per_exercise": {
+    "sit_to_stand": "12/12",
+    "shoulder_abduction": "12/12",
+    "shoulder_flexion": "12/12",
+    "hip_abduction": "12/12",
+    "knee_extension": "12/12"
+   }
+  },
+  "2500 kbit/s": {
+   "verdict_agrees_with_5000": "60/60",
+   "mean_abs_accuracy_diff": 0.95,
+   "mean_abs_rep_diff": 0.07,
+   "errors": 2,
+   "mean_mb": 7.24,
+   "upload_sec_at_10_mbit": 5.8,
+   "per_exercise": {
+    "sit_to_stand": "12/12",
+    "shoulder_abduction": "12/12",
+    "shoulder_flexion": "12/12",
+    "hip_abduction": "12/12",
+    "knee_extension": "12/12"
+   }
+  },
+  "1500 kbit/s": {
+   "verdict_agrees_with_5000": "59/60",
+   "mean_abs_accuracy_diff": 0.86,
+   "mean_abs_rep_diff": 0.07,
+   "errors": 1,
+   "mean_mb": 4.24,
+   "upload_sec_at_10_mbit": 3.4,
+   "per_exercise": {
+    "sit_to_stand": "11/12",
+    "shoulder_abduction": "12/12",
+    "shoulder_flexion": "12/12",
+    "hip_abduction": "12/12",
+    "knee_extension": "12/12"
+   }
+  }
+ },
+ "rows": [
+  {
+   "clip": "sit_to_stand__correct__ok__p01__both__01.mp4",
+   "key": "sit_to_stand",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 90.8,
+     "reps": 5,
+     "mistakes": [
+      "no_forward_lean"
+     ],
+     "sec": 8.92,
+     "mb": 20.48,
+     "encode_sec": 5.2
+    },
+    "2500": {
+     "acc": 90.7,
+     "reps": 5,
+     "mistakes": [
+      "no_forward_lean"
+     ],
+     "sec": 5.07,
+     "mb": 10.23,
+     "encode_sec": 4.7
+    },
+    "1500": {
+     "acc": 90.7,
+     "reps": 5,
+     "mistakes": [
+      "no_forward_lean"
+     ],
+     "sec": 5.03,
+     "mb": 6.01,
+     "encode_sec": 4.6
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__correct__ok__p01__both__02.mp4",
+   "key": "sit_to_stand",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 6.61,
+     "mb": 26.72,
+     "encode_sec": 6.7
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 6.44,
+     "mb": 13.37,
+     "encode_sec": 6.0
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 6.44,
+     "mb": 7.92,
+     "encode_sec": 6.0
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__correct__ok__p01__both__03.mp4",
+   "key": "sit_to_stand",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 7.45,
+     "mb": 29.74,
+     "encode_sec": 7.2
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 7.2,
+     "mb": 14.87,
+     "encode_sec": 6.8
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 7.06,
+     "mb": 8.84,
+     "encode_sec": 6.5
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__correct__ok__p01__both__04.mp4",
+   "key": "sit_to_stand",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.47,
+     "mb": 26.09,
+     "encode_sec": 6.3
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.3,
+     "mb": 12.98,
+     "encode_sec": 5.8
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.23,
+     "mb": 7.63,
+     "encode_sec": 5.8
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__correct__ok__p01__both__05.mp4",
+   "key": "sit_to_stand",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.5,
+     "mb": 26.8,
+     "encode_sec": 6.5
+    },
+    "2500": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.45,
+     "mb": 13.42,
+     "encode_sec": 5.9
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.36,
+     "mb": 7.97,
+     "encode_sec": 5.9
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__correct__ok__p01__both__06.mp4",
+   "key": "sit_to_stand",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.75,
+     "mb": 27.25,
+     "encode_sec": 6.7
+    },
+    "2500": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.56,
+     "mb": 13.67,
+     "encode_sec": 6.2
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 6.46,
+     "mb": 8.09,
+     "encode_sec": 5.9
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__incorrect__feet_forward__p01__both__01.mp4",
+   "key": "sit_to_stand",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 30.8,
+     "reps": 7,
+     "mistakes": [
+      "feet_forward",
+      "hands_used",
+      "incomplete_stand",
+      "uncontrolled_sit"
+     ],
+     "sec": 6.57,
+     "mb": 26.95,
+     "encode_sec": 6.8
+    },
+    "2500": {
+     "acc": 36.1,
+     "reps": 6,
+     "mistakes": [
+      "feet_forward",
+      "hands_used"
+     ],
+     "sec": 6.48,
+     "mb": 13.47,
+     "encode_sec": 6.4
+    },
+    "1500": {
+     "acc": 32.5,
+     "reps": 6,
+     "mistakes": [
+      "feet_forward",
+      "hands_used"
+     ],
+     "sec": 6.25,
+     "mb": 7.99,
+     "encode_sec": 6.2
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__incorrect__feet_forward__p01__both__02.mp4",
+   "key": "sit_to_stand",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 31.6,
+     "reps": 5,
+     "mistakes": [
+      "feet_forward",
+      "hands_used",
+      "uncontrolled_sit"
+     ],
+     "sec": 4.82,
+     "mb": 18.87,
+     "encode_sec": 4.8
+    },
+    "2500": {
+     "acc": 33.2,
+     "reps": 5,
+     "mistakes": [
+      "feet_forward",
+      "hands_used",
+      "uncontrolled_sit"
+     ],
+     "sec": 4.89,
+     "mb": 9.4,
+     "encode_sec": 4.9
+    },
+    "1500": {
+     "acc": 33.6,
+     "reps": 5,
+     "mistakes": [
+      "feet_forward",
+      "hands_used",
+      "uncontrolled_sit"
+     ],
+     "sec": 4.52,
+     "mb": 5.53,
+     "encode_sec": 4.6
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__incorrect__feet_forward__p01__both__03.mp4",
+   "key": "sit_to_stand",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "error": "full_body_not_visible",
+     "sec": 2.39,
+     "mb": 8.71,
+     "encode_sec": 2.3
+    },
+    "2500": {
+     "error": "full_body_not_visible",
+     "sec": 2.26,
+     "mb": 4.31,
+     "encode_sec": 2.0
+    },
+    "1500": {
+     "acc": 2.5,
+     "reps": 2,
+     "mistakes": [
+      "feet_forward",
+      "hands_used",
+      "incomplete_stand",
+      "uncontrolled_sit"
+     ],
+     "sec": 2.16,
+     "mb": 2.51,
+     "encode_sec": 2.1
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__incorrect__feet_forward__p01__both__04.mp4",
+   "key": "sit_to_stand",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "error": "full_body_not_visible",
+     "sec": 3.66,
+     "mb": 14.69,
+     "encode_sec": 3.8
+    },
+    "2500": {
+     "error": "full_body_not_visible",
+     "sec": 3.5,
+     "mb": 7.32,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "error": "full_body_not_visible",
+     "sec": 3.45,
+     "mb": 4.31,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__incorrect__hands_used__p01__both__01.mp4",
+   "key": "sit_to_stand",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.1,
+     "reps": 5,
+     "mistakes": [
+      "hands_used"
+     ],
+     "sec": 5.62,
+     "mb": 14.79,
+     "encode_sec": 4.0
+    },
+    "2500": {
+     "acc": 35.1,
+     "reps": 5,
+     "mistakes": [
+      "hands_used"
+     ],
+     "sec": 7.21,
+     "mb": 7.36,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "acc": 35.1,
+     "reps": 5,
+     "mistakes": [
+      "hands_used"
+     ],
+     "sec": 3.6,
+     "mb": 4.33,
+     "encode_sec": 3.7
+    }
+   }
+  },
+  {
+   "clip": "sit_to_stand__incorrect__hands_used__p01__both__02.mp4",
+   "key": "sit_to_stand",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "hands_used"
+     ],
+     "sec": 3.73,
+     "mb": 15.02,
+     "encode_sec": 3.9
+    },
+    "2500": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "hands_used"
+     ],
+     "sec": 3.66,
+     "mb": 7.49,
+     "encode_sec": 3.6
+    },
+    "1500": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "hands_used"
+     ],
+     "sec": 3.55,
+     "mb": 4.4,
+     "encode_sec": 3.5
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__correct__ok__p01__both__01.mp4",
+   "key": "shoulder_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.44,
+     "mb": 12.76,
+     "encode_sec": 3.1
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 4.54,
+     "mb": 6.39,
+     "encode_sec": 3.2
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.31,
+     "mb": 3.79,
+     "encode_sec": 3.0
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__correct__ok__p01__both__02.mp4",
+   "key": "shoulder_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.1,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.78,
+     "mb": 15.11,
+     "encode_sec": 3.9
+    },
+    "2500": {
+     "acc": 98.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.69,
+     "mb": 7.54,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "acc": 98.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.99,
+     "mb": 4.44,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__correct__ok__p01__both__03.mp4",
+   "key": "shoulder_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.9,
+     "mb": 15.34,
+     "encode_sec": 3.9
+    },
+    "2500": {
+     "acc": 99.7,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.77,
+     "mb": 7.63,
+     "encode_sec": 3.6
+    },
+    "1500": {
+     "acc": 99.7,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.7,
+     "mb": 4.46,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__correct__ok__p01__both__04.mp4",
+   "key": "shoulder_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.8,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 4.49,
+     "mb": 17.87,
+     "encode_sec": 4.6
+    },
+    "2500": {
+     "acc": 99.8,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 4.26,
+     "mb": 8.92,
+     "encode_sec": 3.9
+    },
+    "1500": {
+     "acc": 99.8,
+     "reps": 6,
+     "mistakes": [],
+     "sec": 4.45,
+     "mb": 5.24,
+     "encode_sec": 4.1
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__correct__ok__p01__both__05.mp4",
+   "key": "shoulder_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.95,
+     "mb": 11.53,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.87,
+     "mb": 5.72,
+     "encode_sec": 2.7
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.24,
+     "mb": 3.33,
+     "encode_sec": 2.7
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__correct__ok__p01__both__06.mp4",
+   "key": "shoulder_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.19,
+     "mb": 12.41,
+     "encode_sec": 3.1
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.21,
+     "mb": 6.15,
+     "encode_sec": 2.8
+    },
+    "1500": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.03,
+     "mb": 3.62,
+     "encode_sec": 2.7
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__incorrect__bent_elbow__p01__both__01.mp4",
+   "key": "shoulder_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 40.7,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.55,
+     "mb": 12.48,
+     "encode_sec": 3.2
+    },
+    "2500": {
+     "acc": 45.3,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.47,
+     "mb": 6.17,
+     "encode_sec": 2.9
+    },
+    "1500": {
+     "acc": 45.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.11,
+     "mb": 3.61,
+     "encode_sec": 2.9
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__incorrect__bent_elbow__p01__both__02.mp4",
+   "key": "shoulder_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 42.9,
+     "reps": 4,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.42,
+     "mb": 13.45,
+     "encode_sec": 3.4
+    },
+    "2500": {
+     "acc": 46.6,
+     "reps": 4,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.48,
+     "mb": 6.72,
+     "encode_sec": 3.2
+    },
+    "1500": {
+     "acc": 46.4,
+     "reps": 4,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.55,
+     "mb": 3.94,
+     "encode_sec": 3.0
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__incorrect__bent_elbow__p01__both__03.mp4",
+   "key": "shoulder_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 28.5,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.14,
+     "mb": 11.6,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 29.7,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.12,
+     "mb": 5.73,
+     "encode_sec": 2.8
+    },
+    "1500": {
+     "acc": 28.9,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range",
+      "shoulder_shrug"
+     ],
+     "sec": 3.05,
+     "mb": 3.38,
+     "encode_sec": 2.7
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__incorrect__bent_elbow__p01__both__04.mp4",
+   "key": "shoulder_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 44.6,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.12,
+     "mb": 11.66,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 43.7,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.24,
+     "mb": 5.75,
+     "encode_sec": 2.8
+    },
+    "1500": {
+     "acc": 44.4,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.1,
+     "mb": 3.37,
+     "encode_sec": 2.7
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__incorrect__bent_elbow__p01__both__05.mp4",
+   "key": "shoulder_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 31.8,
+     "reps": 6,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.72,
+     "mb": 14.05,
+     "encode_sec": 3.7
+    },
+    "2500": {
+     "acc": 29.4,
+     "reps": 6,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.65,
+     "mb": 6.97,
+     "encode_sec": 3.4
+    },
+    "1500": {
+     "acc": 31.9,
+     "reps": 6,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.59,
+     "mb": 4.08,
+     "encode_sec": 3.3
+    }
+   }
+  },
+  {
+   "clip": "shoulder_abduction__incorrect__low_range__p01__both__01.mp4",
+   "key": "shoulder_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "low_range"
+     ],
+     "sec": 2.72,
+     "mb": 9.8,
+     "encode_sec": 2.6
+    },
+    "2500": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "low_range"
+     ],
+     "sec": 2.68,
+     "mb": 4.82,
+     "encode_sec": 2.5
+    },
+    "1500": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "low_range"
+     ],
+     "sec": 2.65,
+     "mb": 2.82,
+     "encode_sec": 2.4
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__correct__ok__p01__both__01.mp4",
+   "key": "shoulder_flexion",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.85,
+     "mb": 13.46,
+     "encode_sec": 3.8
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.86,
+     "mb": 6.57,
+     "encode_sec": 3.6
+    },
+    "1500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.85,
+     "mb": 3.86,
+     "encode_sec": 3.6
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__correct__ok__p01__both__02.mp4",
+   "key": "shoulder_flexion",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.83,
+     "mb": 12.92,
+     "encode_sec": 3.5
+    },
+    "2500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.76,
+     "mb": 6.34,
+     "encode_sec": 3.3
+    },
+    "1500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.76,
+     "mb": 3.72,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__correct__ok__p01__both__03.mp4",
+   "key": "shoulder_flexion",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.74,
+     "mb": 12.33,
+     "encode_sec": 3.4
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.58,
+     "mb": 6.06,
+     "encode_sec": 3.3
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 4.32,
+     "mb": 3.55,
+     "encode_sec": 3.2
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__correct__ok__p01__both__04.mp4",
+   "key": "shoulder_flexion",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 100.0,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 3.21,
+     "mb": 14.81,
+     "encode_sec": 4.1
+    },
+    "2500": {
+     "acc": 100.0,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 3.1,
+     "mb": 7.25,
+     "encode_sec": 3.8
+    },
+    "1500": {
+     "acc": 100.0,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 2.98,
+     "mb": 4.26,
+     "encode_sec": 3.9
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__correct__ok__p01__both__05.mp4",
+   "key": "shoulder_flexion",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.77,
+     "mb": 13.4,
+     "encode_sec": 3.8
+    },
+    "2500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.88,
+     "mb": 6.59,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "acc": 99.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.88,
+     "mb": 3.87,
+     "encode_sec": 3.5
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__correct__ok__p01__both__06.mp4",
+   "key": "shoulder_flexion",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 100.0,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 4.59,
+     "mb": 13.51,
+     "encode_sec": 3.8
+    },
+    "2500": {
+     "acc": 100.0,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 5.18,
+     "mb": 6.65,
+     "encode_sec": 3.9
+    },
+    "1500": {
+     "acc": 100.0,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 2.76,
+     "mb": 3.89,
+     "encode_sec": 3.6
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__incorrect__back_arch__p01__both__01.mp4",
+   "key": "shoulder_flexion",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.0,
+     "reps": 4,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.23,
+     "mb": 9.78,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 35.0,
+     "reps": 4,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.09,
+     "mb": 4.78,
+     "encode_sec": 2.8
+    },
+    "1500": {
+     "acc": 35.0,
+     "reps": 4,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.25,
+     "mb": 2.78,
+     "encode_sec": 2.8
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__incorrect__back_arch__p01__both__02.mp4",
+   "key": "shoulder_flexion",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.15,
+     "mb": 8.9,
+     "encode_sec": 2.7
+    },
+    "2500": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 1.99,
+     "mb": 4.38,
+     "encode_sec": 2.7
+    },
+    "1500": {
+     "acc": 35.0,
+     "reps": 5,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.54,
+     "mb": 2.54,
+     "encode_sec": 2.5
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__incorrect__back_arch__p01__both__03.mp4",
+   "key": "shoulder_flexion",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 27.6,
+     "reps": 4,
+     "mistakes": [
+      "back_arch",
+      "shoulder_shrug"
+     ],
+     "sec": 1.98,
+     "mb": 8.47,
+     "encode_sec": 2.5
+    },
+    "2500": {
+     "acc": 27.6,
+     "reps": 4,
+     "mistakes": [
+      "back_arch",
+      "shoulder_shrug"
+     ],
+     "sec": 1.88,
+     "mb": 4.14,
+     "encode_sec": 2.4
+    },
+    "1500": {
+     "acc": 27.6,
+     "reps": 4,
+     "mistakes": [
+      "back_arch",
+      "shoulder_shrug"
+     ],
+     "sec": 2.0,
+     "mb": 2.41,
+     "encode_sec": 2.3
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__incorrect__back_arch__p01__both__04.mp4",
+   "key": "shoulder_flexion",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.0,
+     "reps": 4,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.44,
+     "mb": 9.99,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 35.0,
+     "reps": 4,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.32,
+     "mb": 4.87,
+     "encode_sec": 2.8
+    },
+    "1500": {
+     "acc": 35.0,
+     "reps": 4,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.35,
+     "mb": 2.86,
+     "encode_sec": 2.7
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__incorrect__back_arch__p01__both__05.mp4",
+   "key": "shoulder_flexion",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 35.2,
+     "reps": 5,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 4.32,
+     "mb": 14.71,
+     "encode_sec": 4.4
+    },
+    "2500": {
+     "acc": 32.3,
+     "reps": 5,
+     "mistakes": [
+      "back_arch",
+      "swinging"
+     ],
+     "sec": 2.97,
+     "mb": 7.24,
+     "encode_sec": 4.2
+    },
+    "1500": {
+     "acc": 35.3,
+     "reps": 5,
+     "mistakes": [
+      "back_arch"
+     ],
+     "sec": 2.91,
+     "mb": 4.24,
+     "encode_sec": 4.1
+    }
+   }
+  },
+  {
+   "clip": "shoulder_flexion__incorrect__bent_elbow__p01__both__01.mp4",
+   "key": "shoulder_flexion",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 20.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.86,
+     "mb": 10.66,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 20.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 3.82,
+     "mb": 5.17,
+     "encode_sec": 3.1
+    },
+    "1500": {
+     "acc": 20.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_elbow",
+      "low_range"
+     ],
+     "sec": 2.62,
+     "mb": 3.04,
+     "encode_sec": 3.0
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__correct__ok__p01__both__01.mp4",
+   "key": "hip_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.55,
+     "mb": 11.76,
+     "encode_sec": 3.3
+    },
+    "2500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.54,
+     "mb": 5.76,
+     "encode_sec": 3.1
+    },
+    "1500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.64,
+     "mb": 3.39,
+     "encode_sec": 3.0
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__correct__ok__p01__both__02.mp4",
+   "key": "hip_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 97.4,
+     "reps": 6,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 2.93,
+     "mb": 13.19,
+     "encode_sec": 3.9
+    },
+    "2500": {
+     "acc": 97.4,
+     "reps": 6,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 2.82,
+     "mb": 6.44,
+     "encode_sec": 3.6
+    },
+    "1500": {
+     "acc": 97.3,
+     "reps": 6,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 2.84,
+     "mb": 3.79,
+     "encode_sec": 3.6
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__correct__ok__p01__both__03.mp4",
+   "key": "hip_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 97.5,
+     "reps": 6,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 3.17,
+     "mb": 15.2,
+     "encode_sec": 4.3
+    },
+    "2500": {
+     "acc": 95.0,
+     "reps": 6,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 3.4,
+     "mb": 7.47,
+     "encode_sec": 4.2
+    },
+    "1500": {
+     "acc": 95.0,
+     "reps": 6,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 2.98,
+     "mb": 4.42,
+     "encode_sec": 4.3
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__correct__ok__p01__both__04.mp4",
+   "key": "hip_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 97.0,
+     "reps": 5,
+     "mistakes": [
+      "trunk_lean"
+     ],
+     "sec": 3.58,
+     "mb": 14.2,
+     "encode_sec": 3.9
+    },
+    "2500": {
+     "acc": 94.0,
+     "reps": 5,
+     "mistakes": [
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 2.99,
+     "mb": 6.92,
+     "encode_sec": 3.7
+    },
+    "1500": {
+     "acc": 94.0,
+     "reps": 5,
+     "mistakes": [
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 3.09,
+     "mb": 4.04,
+     "encode_sec": 3.5
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__correct__ok__p01__both__05.mp4",
+   "key": "hip_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.97,
+     "mb": 13.35,
+     "encode_sec": 3.7
+    },
+    "2500": {
+     "acc": 99.8,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.78,
+     "mb": 6.5,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "acc": 96.8,
+     "reps": 5,
+     "mistakes": [
+      "toes_up"
+     ],
+     "sec": 2.73,
+     "mb": 3.81,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__correct__ok__p01__both__06.mp4",
+   "key": "hip_abduction",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.05,
+     "mb": 13.49,
+     "encode_sec": 3.7
+    },
+    "2500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.9,
+     "mb": 6.6,
+     "encode_sec": 3.4
+    },
+    "1500": {
+     "acc": 100.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.81,
+     "mb": 3.86,
+     "encode_sec": 3.3
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__incorrect__bent_knee__p01__both__01.mp4",
+   "key": "hip_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 16.2,
+     "reps": 4,
+     "mistakes": [
+      "bent_knee",
+      "leg_forward",
+      "toes_up"
+     ],
+     "sec": 2.62,
+     "mb": 11.65,
+     "encode_sec": 3.2
+    },
+    "2500": {
+     "acc": 16.2,
+     "reps": 4,
+     "mistakes": [
+      "bent_knee",
+      "leg_forward",
+      "toes_up"
+     ],
+     "sec": 2.51,
+     "mb": 5.68,
+     "encode_sec": 3.0
+    },
+    "1500": {
+     "acc": 12.5,
+     "reps": 4,
+     "mistakes": [
+      "bent_knee",
+      "leg_forward",
+      "toes_up"
+     ],
+     "sec": 2.5,
+     "mb": 3.31,
+     "encode_sec": 2.9
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__incorrect__bent_knee__p01__both__02.mp4",
+   "key": "hip_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 20.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up"
+     ],
+     "sec": 2.7,
+     "mb": 12.78,
+     "encode_sec": 3.4
+    },
+    "2500": {
+     "acc": 20.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up"
+     ],
+     "sec": 2.65,
+     "mb": 6.29,
+     "encode_sec": 3.1
+    },
+    "1500": {
+     "acc": 20.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up"
+     ],
+     "sec": 2.67,
+     "mb": 3.63,
+     "encode_sec": 3.1
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__incorrect__bent_knee__p01__both__03.mp4",
+   "key": "hip_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 17.4,
+     "reps": 4,
+     "mistakes": [
+      "bent_knee",
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 2.55,
+     "mb": 12.03,
+     "encode_sec": 3.3
+    },
+    "2500": {
+     "acc": 17.5,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 2.56,
+     "mb": 5.93,
+     "encode_sec": 3.1
+    },
+    "1500": {
+     "acc": 17.8,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 2.56,
+     "mb": 3.47,
+     "encode_sec": 3.0
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__incorrect__bent_knee__p01__both__04.mp4",
+   "key": "hip_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 26.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up"
+     ],
+     "sec": 2.67,
+     "mb": 12.21,
+     "encode_sec": 3.4
+    },
+    "2500": {
+     "acc": 29.6,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up"
+     ],
+     "sec": 2.62,
+     "mb": 5.97,
+     "encode_sec": 3.1
+    },
+    "1500": {
+     "acc": 28.8,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up"
+     ],
+     "sec": 2.62,
+     "mb": 3.47,
+     "encode_sec": 3.1
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__incorrect__bent_knee__p01__both__05.mp4",
+   "key": "hip_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 20.6,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 4.1,
+     "mb": 12.86,
+     "encode_sec": 3.5
+    },
+    "2500": {
+     "acc": 19.8,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 2.6,
+     "mb": 6.3,
+     "encode_sec": 3.3
+    },
+    "1500": {
+     "acc": 20.9,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "toes_up",
+      "trunk_lean"
+     ],
+     "sec": 2.59,
+     "mb": 3.67,
+     "encode_sec": 3.1
+    }
+   }
+  },
+  {
+   "clip": "hip_abduction__incorrect__leg_forward__p01__both__01.mp4",
+   "key": "hip_abduction",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 40.0,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "leg_forward",
+      "trunk_lean"
+     ],
+     "sec": 2.51,
+     "mb": 11.9,
+     "encode_sec": 3.3
+    },
+    "2500": {
+     "acc": 46.6,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "leg_forward",
+      "trunk_lean"
+     ],
+     "sec": 2.48,
+     "mb": 5.75,
+     "encode_sec": 3.1
+    },
+    "1500": {
+     "acc": 43.2,
+     "reps": 5,
+     "mistakes": [
+      "bent_knee",
+      "leg_forward",
+      "trunk_lean"
+     ],
+     "sec": 2.57,
+     "mb": 3.31,
+     "encode_sec": 3.1
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__correct__ok__p01__both__01.mp4",
+   "key": "knee_extension",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 98.1,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 2.87,
+     "mb": 13.31,
+     "encode_sec": 3.7
+    },
+    "2500": {
+     "acc": 97.4,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 2.84,
+     "mb": 6.52,
+     "encode_sec": 3.4
+    },
+    "1500": {
+     "acc": 97.5,
+     "reps": 4,
+     "mistakes": [],
+     "sec": 2.82,
+     "mb": 3.78,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__correct__ok__p01__both__02.mp4",
+   "key": "knee_extension",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.3,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.14,
+     "mb": 14.69,
+     "encode_sec": 3.9
+    },
+    "2500": {
+     "acc": 99.2,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.1,
+     "mb": 7.18,
+     "encode_sec": 3.6
+    },
+    "1500": {
+     "acc": 99.2,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.07,
+     "mb": 4.16,
+     "encode_sec": 3.7
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__correct__ok__p01__both__03.mp4",
+   "key": "knee_extension",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 84.2,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension",
+      "no_hold"
+     ],
+     "sec": 3.12,
+     "mb": 14.39,
+     "encode_sec": 4.1
+    },
+    "2500": {
+     "acc": 87.2,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension",
+      "no_hold"
+     ],
+     "sec": 3.0,
+     "mb": 7.04,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "acc": 93.2,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension",
+      "no_hold"
+     ],
+     "sec": 3.0,
+     "mb": 4.11,
+     "encode_sec": 3.5
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__correct__ok__p01__both__04.mp4",
+   "key": "knee_extension",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 97.9,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.96,
+     "mb": 14.18,
+     "encode_sec": 4.0
+    },
+    "2500": {
+     "acc": 98.2,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.99,
+     "mb": 6.9,
+     "encode_sec": 3.7
+    },
+    "1500": {
+     "acc": 98.0,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 2.85,
+     "mb": 4.03,
+     "encode_sec": 3.5
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__correct__ok__p01__both__05.mp4",
+   "key": "knee_extension",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 93.3,
+     "reps": 5,
+     "mistakes": [
+      "no_hold"
+     ],
+     "sec": 2.85,
+     "mb": 13.65,
+     "encode_sec": 3.6
+    },
+    "2500": {
+     "acc": 96.3,
+     "reps": 5,
+     "mistakes": [
+      "no_hold"
+     ],
+     "sec": 2.82,
+     "mb": 6.67,
+     "encode_sec": 3.4
+    },
+    "1500": {
+     "acc": 96.2,
+     "reps": 5,
+     "mistakes": [
+      "no_hold"
+     ],
+     "sec": 2.69,
+     "mb": 3.89,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__correct__ok__p01__both__06.mp4",
+   "key": "knee_extension",
+   "correct": true,
+   "by_rate": {
+    "5000": {
+     "acc": 99.4,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.25,
+     "mb": 14.67,
+     "encode_sec": 4.1
+    },
+    "2500": {
+     "acc": 99.5,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.17,
+     "mb": 7.15,
+     "encode_sec": 3.9
+    },
+    "1500": {
+     "acc": 99.4,
+     "reps": 5,
+     "mistakes": [],
+     "sec": 3.1,
+     "mb": 4.21,
+     "encode_sec": 3.7
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__incorrect__incomplete_extension__p01__both__01.mp4",
+   "key": "knee_extension",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 63.7,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.75,
+     "mb": 17.66,
+     "encode_sec": 4.7
+    },
+    "2500": {
+     "acc": 62.0,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.71,
+     "mb": 8.75,
+     "encode_sec": 4.3
+    },
+    "1500": {
+     "acc": 62.3,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 4.01,
+     "mb": 5.09,
+     "encode_sec": 4.3
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__incorrect__incomplete_extension__p01__both__02.mp4",
+   "key": "knee_extension",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 39.3,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 5.83,
+     "mb": 17.37,
+     "encode_sec": 4.4
+    },
+    "2500": {
+     "acc": 39.3,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.85,
+     "mb": 8.63,
+     "encode_sec": 4.2
+    },
+    "1500": {
+     "acc": 39.5,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.72,
+     "mb": 5.06,
+     "encode_sec": 4.0
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__incorrect__incomplete_extension__p01__both__03.mp4",
+   "key": "knee_extension",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 41.5,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 2.78,
+     "mb": 12.05,
+     "encode_sec": 3.5
+    },
+    "2500": {
+     "acc": 41.8,
+     "reps": 5,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.3,
+     "mb": 5.87,
+     "encode_sec": 3.3
+    },
+    "1500": {
+     "acc": 42.2,
+     "reps": 4,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 2.62,
+     "mb": 3.41,
+     "encode_sec": 3.2
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__incorrect__incomplete_extension__p01__both__04.mp4",
+   "key": "knee_extension",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 36.0,
+     "reps": 3,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 2.95,
+     "mb": 13.36,
+     "encode_sec": 3.7
+    },
+    "2500": {
+     "acc": 36.0,
+     "reps": 4,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 2.92,
+     "mb": 6.58,
+     "encode_sec": 3.5
+    },
+    "1500": {
+     "acc": 36.0,
+     "reps": 4,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.06,
+     "mb": 3.85,
+     "encode_sec": 3.5
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__incorrect__incomplete_extension__p01__both__05.mp4",
+   "key": "knee_extension",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 36.7,
+     "reps": 2,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 3.04,
+     "mb": 13.02,
+     "encode_sec": 3.7
+    },
+    "2500": {
+     "acc": 36.5,
+     "reps": 3,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 2.94,
+     "mb": 6.32,
+     "encode_sec": 3.6
+    },
+    "1500": {
+     "acc": 36.6,
+     "reps": 2,
+     "mistakes": [
+      "incomplete_extension"
+     ],
+     "sec": 2.99,
+     "mb": 3.65,
+     "encode_sec": 3.4
+    }
+   }
+  },
+  {
+   "clip": "knee_extension__incorrect__leaning_forward__p01__both__01.mp4",
+   "key": "knee_extension",
+   "correct": false,
+   "by_rate": {
+    "5000": {
+     "acc": 29.0,
+     "reps": 5,
+     "mistakes": [
+      "leaning_forward",
+      "no_hold"
+     ],
+     "sec": 2.29,
+     "mb": 9.4,
+     "encode_sec": 3.0
+    },
+    "2500": {
+     "acc": 23.0,
+     "reps": 5,
+     "mistakes": [
+      "leaning_forward",
+      "no_hold"
+     ],
+     "sec": 2.53,
+     "mb": 4.54,
+     "encode_sec": 2.8
+    },
+    "1500": {
+     "acc": 26.0,
+     "reps": 5,
+     "mistakes": [
+      "leaning_forward",
+      "no_hold"
+     ],
+     "sec": 2.32,
+     "mb": 2.62,
+     "encode_sec": 2.8
+    }
+   }
+  }
+ ]
+}
