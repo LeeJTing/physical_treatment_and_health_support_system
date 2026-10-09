@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.34"
+VERSION = "chat-rules-3.35"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -183,10 +183,11 @@ INTENTS = [
             "lost my balance", "feel like falling", "jelly", "no strength", "not strong", "heavy legs"],
            ["my leg feels wobbly when standing", "my legs feel weak", "I feel unsteady on my feet",
             "my knee gives way", "I lose my balance"],
-           "Legs that feel weak or wobbly are common after a long period of less activity, and this is what your "
-           "exercises are building up. Always keep one hand on a sturdy chair or counter, do fewer repetitions, "
-           "and rest when the shaking starts. If weakness comes on suddenly, or affects one side of your body, "
-           "stop and get medical help straight away.", tailor=True, negatable=True),
+           "Legs, arms or hands that feel weak, wobbly or shaky are common after a long period of less activity, "
+           "and this is what your exercises are building up. For standing exercises always keep one hand on a "
+           "sturdy chair or counter; for any exercise do fewer repetitions and rest when the shaking starts. If "
+           "weakness comes on suddenly, or affects one side of your body, stop and get medical help straight away; "
+           "if your hand shakes even when it is resting, tell your doctor.", tailor=True, negatable=True),
     intent("recording_help", "Recording your exercise video", 5,
            ["record", "recording", "recorded", "video", "videos", "camera", "film", "filming", "phone position",
             "put my phone", "put the phone", "where to put", "tripod", "stand for my phone", "full body",
@@ -195,6 +196,8 @@ INTENTS = [
             "in front or", "at the side", "lighting", "dark", "someone record", "record for me",
             "no repetition", "no repetitions", "no reps found", "repetition found", "no complete repetition",
             "landscape", "portrait", "horizontal or vertical", "sideways or upright", "phone stand",
+            "place the phone", "place my phone", "phone at my side", "at my side", "phone in front",
+            "hand not visible", "hand is not visible",
             "without a stand", "no stand", "no tripod"],
            ["how do I record my exercise", "where should I put my phone", "the app cannot detect my body",
             "why does it say my full body is not visible", "how long should the video be"],
@@ -389,6 +392,8 @@ INTENTS = [
             "worried i will fall", "worried i'll fall", "scared to fall", "afraid to fall", "if i fall",
             "what if i fall", "in case i fall", "if she falls", "if he falls", "if she fall", "if he fall",
             "after a fall", "get up after a fall", "get up from the floor", "get up if i fall", "nobody is home",
+            "afraid of getting hurt", "scared of getting hurt", "worried about getting hurt", "afraid of a fall",
+            "scared of a fall", "afraid of getting injured", "scared of getting injured",
             "no one is home", "no one at home", "nobody at home", "alone at home", "home alone", "live alone",
             "living alone", "stay alone", "staying alone", "someone with me", "someone be with me",
             "anyone with me", "scared to stand", "afraid to stand", "scared to exercise",
@@ -510,15 +515,77 @@ INTENTS = [
            "Every exercise you record is saved with its posture score and tips. Session history shows them all, "
            "with your average, your best score and a chart of how your posture accuracy is changing.",
            show=False, action={"key": "open_history", "label": "See my results"}),
+    # Round 15 (9 Oct): the features added on 9 Oct. Several active plans (Elwin's rules: clash = same
+    # body area and same goal; at most 3 / 2 / 1 plans for Low / Medium / High risk; one exercise per plan
+    # a day, a shared exercise done once and counted for both), the body map with the neck left out
+    # (high risk), and the posture check's "does not look like" message. Not shown as categories (the list
+    # stays as it was for older users); typed questions reach them.
+    intent("multiple_plans", "Following more than one plan", 7,
+           ["two plans", "2 plans", "three plans", "3 plans", "more than one plan", "several plans", "many plans",
+            "how many plans", "both plans", "both my plans", "second plan", "add a plan",
+            "add another plan", "add plan", "extra plan", "other plan", "plans at the same time",
+            "plan at the same time", "plans at once", "clash", "clashes", "clashing", "conflict", "conflicts",
+            "in both plans", "in both my plans", "both of my plans", "one of my plans", "stop one plan",
+            "replace one", "replace a plan", "replace my plan", "dua pelan", "pelan serentak", "pelan lain",
+            "tambah pelan"],
+           ["can I follow two plans at the same time", "how many plans can I have", "why does it say the plan clashes",
+            "the same exercise is in both my plans"],
+           "You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and "
+           "1 if it is High. Two plans for the same body area with the same goal clash, so the app asks you to "
+           "replace one instead of adding the second. Each plan gives you one exercise a day; an exercise that is "
+           "in two of your plans is done once and counts for both. To add a plan, open AI-assisted planning and "
+           "choose Retrieve physical treatment. To stop one, open it on the Physical Treatment page and tap Stop "
+           "this plan; your progress so far is kept.", show=False),
+    intent("neck_not_covered", "Neck problems", 7,
+           ["neck", "necks", "leher", "tengkuk", "cervical", "stiff neck", "neck pain", "neck exercise",
+            "neck exercises"],
+           ["why can I not select my neck", "is there an exercise for my neck", "I have neck pain"],
+           "This app does not include neck exercises, which is why the neck is greyed out on the body map: neck "
+           "problems need a doctor or physiotherapist to guide the exercises. If you have neck pain, see your "
+           "doctor or physiotherapist, and get medical help straight away if it comes with numbness, tingling or "
+           "weakness in your arms, or after a fall or injury. If your neck hurts during another exercise, stop "
+           "that exercise and tell your doctor or physiotherapist.", show=False),
+    intent("body_map", "Choosing the body area", 6,
+           ["body map", "body picture", "body figure", "the figure", "the body diagram", "picture of the body",
+            "choose the part", "choose a part", "choose body part", "choose the area", "choose my area",
+            "select body part", "select the part", "select the area", "pick the area", "pick the part",
+            "tap the body", "part of my body", "parts of my body", "which body part", "front and back",
+            "choose both", "select both", "more than one area", "more than one part", "two areas", "two parts",
+            "can't find my", "cannot find my", "exercise for my hand", "exercises for my hand",
+            "exercise for my wrist", "exercises for my wrist", "exercise for my fingers", "any exercise for",
+            "anggota badan", "bahagian badan"],
+           ["how do I choose the part I want to recover", "where is the body map", "can I choose more than one part",
+            "is there any exercise for my hand"],
+           "Open AI-assisted planning and choose Retrieve physical treatment. The first question shows a body "
+           "figure: tap each part you want to recover (you can choose more than one; its name appears on the "
+           "picture), tap it again to remove it, and use Front and Back to turn the figure. If you cannot find the "
+           "place, tap \u201cCan't find it? Choose from a list\u201d. The plans suggested then focus on the parts you "
+           "chose; wrists and hands have their own plan, Hand and Wrist Recovery. The neck is greyed out: neck "
+           "problems need a doctor or physiotherapist, so the app has no neck exercises.", show=False),
+    intent("wrong_exercise", "\u201cDoes not look like\u201d the exercise", 7,
+           ["wrong exercise", "does not look like", "doesn't look like", "dont look like", "don't look like",
+            "not look like", "did not look like", "does not seem like", "not the right exercise",
+            "chose the right exercise", "choose the right exercise", "choosing the right exercise",
+            "went backwards", "arm went backwards", "your knees bent a lot", "you were sitting",
+            "you were standing", "you were lying down", "legs moved one at a time"],
+           ["it says this video does not look like the exercise", "why does it say wrong exercise",
+            "it said my arm went backwards"],
+           "The posture check first makes sure the video shows the exercise you chose. When it says the video does "
+           "not look like that exercise, nothing is saved and the reason in brackets says what looked different, "
+           "for example \u201cyour arm went backwards, not forwards\u201d. Check that you picked the exercise you "
+           "recorded, then record it again following its steps, with the phone where the exercise says (in front "
+           "of you or at your side) and your whole body in the picture. If you are sure it was the right exercise, "
+           "try again with slower, clearer movements.", show=False),
     intent("plan_and_reminders", "Changing your plan or reminders", 5,
-           ["two plans", "more than one plan", "both plans", "second plan", "get a new plan", "new plan",
+           ["get a new plan", "new plan",
             "change plan", "change my plan", "new plan", "different plan", "another plan", "switch plan",
             "switch to", "stop plan", "stop the plan", "stop this plan", "change this plan", "end this plan",
             "quit this plan", "leave this plan", "stop my plan", "end my plan", "delete plan", "cancel plan", "quit"],
            ["how do I change my plan", "can I get a different plan", "how do I stop this plan"],
            "To change plan, open AI-assisted planning and choose Retrieve physical treatment to get new "
-           "recommendations; selecting a new plan replaces the current one. You can stop a plan from the "
-           "Physical Treatment page. Reminders follow your plan's weekly schedule; check that notifications are "
+           "recommendations. You can follow up to 3 plans at once, depending on your risk level; a new plan for "
+           "the same body area and goal replaces the one you have. You can stop a plan from the Physical "
+           "Treatment page with Stop this plan. Reminders follow your plan's weekly schedule; check that notifications are "
            "allowed for the app in your phone settings if they do not appear."),
     intent("forgot_password", "Forgot password", 7,
            ["forgot password", "forgot my password", "forget password", "forget my password", "forgotten password",
@@ -885,6 +952,20 @@ RED_FLAG_COMBOS = [
       "cant walk", "unable to walk", "not answering", "not responding", "still on"], 6,
      ["any easier", "easier exercise", "which plan", "where do i", "where should i", "is there a",
       "chair version"]],
+    # Round 15 (9 Oct): pain after a fall told with no person in front ("hip pain after falling this
+    # morning", "after the fall my leg hurts", Malay "sakit lepas jatuh tadi" -> "pain after fell just now")
+    # was not urgent: only "I fell" / "she fell" counted. In older people it can be a broken hip. Only
+    # with pain or an injury word, so "what if I can't get up after a fall" stays a question.
+    [["after a fall", "after the fall", "after my fall", "after her fall", "after his fall", "after falling",
+      "after fell", "selepas fell", "since the fall", "since my fall", "since falling", "from the fall",
+      "from falling", "fall yesterday", "fall this morning", "fall just now", "fall today"],
+     ["pain", "painful", "hurt", "hurts", "hurting", "sakit", "swollen", "swelling", "bruise", "bruised",
+      "can't walk", "cannot walk", "limp", "limping", "numb", "headache", "dizzy", "confused", "bleeding",
+      "can't put weight", "cannot put weight"], 6,
+     ["what if", "in case", "prevent", "avoid", "how to get up", "how do i get up", "afraid of", "scared of",
+      "worried about", "fear of", "get hurt", "getting hurt"]],
+    # Round 15: a stiff or painful neck with a fever (meningitis), whatever the neck answer says.
+    [["neck", "leher", "tengkuk"], ["fever", "feverish", "high temperature", "demam", "rash"], 6],
     # A person lying on the floor, not doing the exercise ("my father is lying on the kitchen floor").
     [["lying"], ["mum", "mom", "mother", "dad", "father", "husband", "wife", "grandma", "grandpa",
                  "grandmother", "grandfather", "he", "she", "son", "daughter"], 3,
@@ -932,6 +1013,9 @@ ACTIONS = {
     "recording_help": {"key": "open_treatment", "label": "Record an exercise"},
     "posture_result": {"key": "open_history", "label": "See my results"},
     "plan_and_reminders": {"key": "open_planning", "label": "Open treatment planning"},
+    "multiple_plans": {"key": "open_planning", "label": "Open treatment planning"},
+    "body_map": {"key": "open_planning", "label": "Open treatment planning"},
+    "wrong_exercise": {"key": "open_treatment", "label": "Record an exercise"},
     "condition_advice": {"key": "open_profile", "label": "Update my health conditions"},
     "account_help": {"key": "open_profile", "label": "Open my profile"},
 }

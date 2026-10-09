@@ -36,7 +36,7 @@ ROUND6 = [
     (KNEE, "i feel like giving up", ("plan_progress", "tired", "missed_session")),
     (KNEE, "i am so frustrated my score is always low", "posture_result"),
     # plan management
-    (KNEE, "can i do two plans at the same time", "plan_and_reminders"),
+    (KNEE, "can i do two plans at the same time", ("plan_and_reminders", "multiple_plans")),  # several plans since 9 Oct (3.35)
     (KNEE, "i finished all exercises what now", ("plan_progress", "plan_and_reminders")),
     (KNEE, "how do i get a new plan", "plan_and_reminders"),
     (KNEE, "delete my account", "account_help"),

@@ -211,6 +211,10 @@ def vocabulary() -> tuple[str, ...]:
     # "information" is not "inflammation").
     words = set(STOP) | set(NEGATORS) | set(COMMON_WORDS)
     phrases = list(r["red_flags"])
+    # The free-word emergency rules' words too (round 15: "prevent", an exception there, was "corrected"
+    # to "parent", so "how to prevent pain after a fall" read as an emergency).
+    for combo in r.get("red_flag_combos", []):
+        phrases += combo[0] + combo[1] + (combo[3] if len(combo) > 3 else [])
     for i in r["intents"]:
         phrases += i["keywords"] + i["examples"]
     for i in r["intents"]:
@@ -311,13 +315,24 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("eating_concern", "missed_session"), ("eating_concern", "diet"), ("eating_concern", "best_time"),
           ("eating_concern", "tired"), ("eating_concern", "motivation"), ("eating_concern", "difficulty"),
           ("eating_concern", "low_mood"), ("eating_concern", "medication"), ("bladder_leak", "difficulty"),
-          ("bladder_leak", "pain_or_discomfort")]
+          ("bladder_leak", "pain_or_discomfort"),
+          # round 15 (9 Oct features): the neck is not covered, whatever is asked about it; several plans
+          ("neck_not_covered", "pain_or_discomfort"), ("neck_not_covered", "pain_mild"),
+          ("neck_not_covered", "condition_advice"), ("neck_not_covered", "plan_exercises"),
+          ("neck_not_covered", "how_to"), ("neck_not_covered", "getting_started"), ("neck_not_covered", "body_map"),
+          ("multiple_plans", "plan_exercises"), ("multiple_plans", "plan_and_reminders"),
+          ("multiple_plans", "plan_progress"), ("body_map", "plan_exercises"), ("body_map", "getting_started"),
+          ("wrong_exercise", "posture_result"), ("wrong_exercise", "how_to"), ("wrong_exercise", "difficulty"),
+          ("wrong_exercise", "recording_help")]
 
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
 # muscle loss, but "the doctor told me to rest after hospital" is the doctor's advice).
 PREFER_UNLESS = [("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not to", "don't", "avoid", "no exercise",
-                                                 "bed rest", "wait", "until"])]
+                                                 "bed rest", "wait", "until"]),
+                 # round 15: "afraid of getting hurt after a fall" is the fear, unless something hurts now
+                 ("fear_of_falling", "pain_or_discomfort", ["pain", "painful", "sakit", "ache", "aching", "sore",
+                                                            "swollen"])]   # not "hurts": it stems to "hurt"
 
 
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
@@ -754,6 +769,8 @@ def red_flag(text: str | None) -> bool:
                     near = words[lo:i + window + 1]
                     for s in symptoms:
                         for j in find_phrase(s, near):
+                            if COMBO_NEGATORS & set(near[max(0, j - 2):j]):
+                                continue               # "neck pain is better, no fever"
                             if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)) \
                                     and not _when(anchor, clauses, words)[1]:
                                 continue               # "what if i can't get up after a fall"
