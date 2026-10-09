@@ -223,6 +223,12 @@ def _fall_only(pose_key: str, at: float, visible_ratio: float) -> dict:
 # 0.07 in profile, 0.22-0.26 at 20 degrees off, 0.34-0.39 at 30, 0.42-0.48 at 40, 0.5-0.52 at 45, 0.7 facing.
 SIDE_VIEW_TIP = 0.30           # about 25 degrees off: tell the patient
 SIDE_VIEW_WRONG = 0.42         # about 35-40 degrees off: the checks below are no longer reliable
+# Front-view exercises filmed from the side (9 Oct condition audit): facing the phone the ratio is
+# 0.65 or more in every own clip (REHAB26 p10 0.58-0.62 within 20 deg), about 0.6 at 30 deg round and
+# 0.5 at 45 deg. Below 0.5 the patient is told (room for narrow shoulders); the result is still given.
+FRONT_VIEW_TIP = 0.5
+FRONT_VIEW_MESSAGE = ("Your phone seems to be more at your side than in front of you, so this result may be less "
+                      "accurate. For this exercise, face the phone.")
 CAMERA_FRONT_HINT = ("Your phone also seems to be in front of you: for this exercise, place the phone at your "
                      "side.")
 SIDE_VIEW_MESSAGE = ("Your phone seems to be more in front of you than at your side, so this result may be "
@@ -256,13 +262,22 @@ def body_height_share(seq: PoseSequence) -> float:
     return float(np.median(ext) / (seq.info.height or 1))
 
 
-def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None, camera_wrong: bool = False) -> None:
+def _same_exercise(spec: ExerciseSpec, f: Features, fall_at: float | None, camera_wrong: bool = False,
+                   partial: bool = False) -> None:
     """Is the movement the selected exercise? (8 Oct: another exercise's video passed as shoulder
     abduction.) Checked only once movement was found (no movement stays "no repetition"), and never
     when a possible fall was seen: the fall is reported first, whatever the exercise."""
     if fall_at is not None:
         return
-    why = identity.check(spec.key, identity.signature(f))
+    why, small = identity.check_detail(spec.key, identity.signature(f))
+    if why and small and partial:
+        # Only a small movement, too small to tell which exercise it is (9 Oct condition audit: weak
+        # sit-to-stands at a third of the range were told "does not look like Sit-to-Stand ... check that
+        # you chose the right exercise"). Nothing is saved, as for a wrong exercise.
+        raise PoseError("wrong_exercise", f"We could only see a small movement, so this did not count as "
+                                          f"{spec.name} yet ({why}). That is a start: move a little further "
+                                          f"each time, only as far as is comfortable, and keep your whole body "
+                                          f"in the picture.")
     if why:
         # A side-view exercise filmed from the front hides the bend it is checked on (REHAB26, 9 Oct:
         # squats facing the phone read "no knee bending was seen"), so say where the phone goes.
@@ -335,27 +350,44 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
             if fall_at is not None:
                 return _fall_only(pose_key, fall_at, visible_ratio)
             raise PoseError("no_repetitions", "No complete repetition was found in the video.")
-        _same_exercise(spec, f, fall_at, camera_wrong)
+        _same_exercise(spec, f, fall_at, camera_wrong, partial)
         # The trained model learned full-range movement: it would mark every shortened rep wrong, so
-        # it is not used for adjusted targets or partial repetitions; the rules judge those.
-        model = (classifier.predict(pose_key, f, reps)
-                 if use_model and rom_scale >= 1.0 and not partial and not camera_wrong else None)
+        # for adjusted targets (frail users) only its form verdicts count (bent elbow, swinging, ...), on
+        # repetitions that reached the full range, never its range verdicts or its score (9 Oct condition
+        # audit: with the model off, 9 of 26 bent-elbow, shrug and swinging clips passed at rom_scale 0.7).
+        # Not for partial repetitions.
+        frail = rom_scale < 1.0
+        judged = [r for r in reps if not r.unfinished]
+        model = (classifier.predict(pose_key, f, judged)
+                 if use_model and not partial and not camera_wrong else None)
+        range_rules = {m.label for m in spec.mistakes if m.rom_base is not None or m.frail_ok}
         if model:
             method = f"{RULES_VERSION}+{model['version']}"
-        for i, rep in enumerate(reps):
+        for i, rep in enumerate(judged):
             mistakes = [m for m in check_rep(spec, f, rep, rom_scale) if m not in ignore]
             score = max(0.0, 100.0 - MISTAKE_PENALTY * len(mistakes))
             detail = {"start_sec": round(float(f.t[rep.start]), 2), "end_sec": round(float(f.t[rep.end]), 2),
                       "side": rep.side or None, "rule_score": score, "mistakes": mistakes}
             if partial:
                 detail["partial"] = True
-            if model:
+            if model and model["p_correct"][i] is not None:
                 p = float(model["p_correct"][i])
                 detail["p_correct"] = round(p, 3)
-                if p < 0.5 and not mistakes and model["likely_mistake"][i]:
-                    mistakes = [model["likely_mistake"][i]]
-                    detail["mistakes"] = mistakes
-                score = 0.5 * score + 0.5 * 100 * p
+                likely = model["likely_mistake"][i]
+                if frail:
+                    # Only on repetitions that reached the full range: on shortened ones the model blamed
+                    # form for the short range (weak correct movements at rom 0.7 passing 87 -> 69 %).
+                    full_range = not any(m in range_rules for m in check_rep(spec, f, rep, 1.0))
+                    if (full_range and p < 0.5 and not mistakes and likely and likely not in range_rules
+                            and likely not in ignore):
+                        mistakes = [likely]
+                        detail["mistakes"] = mistakes
+                        score = max(0.0, 100.0 - MISTAKE_PENALTY)
+                else:
+                    if p < 0.5 and not mistakes and likely:
+                        mistakes = [likely]
+                        detail["mistakes"] = mistakes
+                    score = 0.5 * score + 0.5 * 100 * p
             detail["score"] = round(score, 1)
             all_mistakes.update(mistakes)
             rep_details.append(detail)
@@ -383,6 +415,11 @@ def analyse(pose_key: str, seq: PoseSequence, use_model: bool = True, rom_scale:
     if view_ratio > SIDE_VIEW_TIP:
         tips.append(SIDE_VIEW_MESSAGE)
         extra["camera_not_at_side"] = round(view_ratio, 2)
+    if spec.view == "front" and spec.key not in LYING_EXERCISES | HAND_EXERCISES:
+        front_ratio = side_view_ratio(seq)
+        if 0 < front_ratio < FRONT_VIEW_TIP:
+            tips.append(FRONT_VIEW_MESSAGE)
+            extra["camera_not_in_front"] = round(front_ratio, 2)
     if brightness is not None and brightness < DARK_BRIGHTNESS:
         tips.append(DARK_MESSAGE)
     if spec.key not in LYING_EXERCISES | HAND_EXERCISES and body_height_share(seq) < SMALL_BODY:

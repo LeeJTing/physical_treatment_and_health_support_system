@@ -1,0 +1,6 @@
+== shoulder_abduction own-only 
+shoulder_abduction: 260 original reps (+2599 augmented), 2 people, 54 clips, 131 correct / 129 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  GRU                  accuracy 98%  precision 0.96  recall 1.00  F1 0.98  confusion [[123, 6], [0, 131]]
+== shoulder_abduction own-only --no-landmark-aug
+shoulder_abduction: 260 original reps (+2075 augmented), 2 people, 54 clips, 131 correct / 129 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  GRU                  accuracy 95%  precision 0.91  recall 1.00  F1 0.95  confusion [[116, 13], [0, 131]]

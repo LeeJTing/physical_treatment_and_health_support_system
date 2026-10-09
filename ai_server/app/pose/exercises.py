@@ -232,7 +232,7 @@ add(ExerciseSpec(
     mistakes=[
         M("hands_used", "If you can, stand up with your arms crossed. If you need your hands to stand safely, that is fine: keep using them.",
           lambda f, r: min(rep_min(f["wrist_thigh_L"], r), rep_min(f["wrist_thigh_R"], r)), 0.25, False, "torso lengths"),
-        M("incomplete_stand", "Stand up fully: straighten your hips and knees at the top.",
+        M("incomplete_stand", "Stand up fully: straighten your hips and knees at the top, as far as you safely can.",
           peak_of(knees), 160, False, "degrees"),
         M("no_forward_lean", "Lean your chest forward a little before you stand up.",
           lambda f, r: rep_max(f["lean_sagittal"], r), 12, False, "degrees"),
@@ -555,7 +555,7 @@ def rom_scale_for(risk_level: str | None = None, age: int | None = None) -> floa
     risk = (risk_level or "").strip().upper()
     if risk == "HIGH" or (age is not None and age >= 75):
         return 0.7
-    if risk == "MODERATE" or (age is not None and age >= 65):
+    if risk in ("MODERATE", "MEDIUM") or (age is not None and age >= 65):
         return 0.85
     return 1.0
 

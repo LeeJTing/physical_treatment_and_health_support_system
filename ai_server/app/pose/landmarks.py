@@ -62,6 +62,19 @@ class PoseSequence:
         return float(np.mean(~np.isnan(self.xy[:, 0, 0]))) if len(self.t) else 0.0
 
 
+def turned(seq: PoseSequence, deg: float) -> PoseSequence:
+    """The points turned deg clockwise about the picture's centre (9 Oct condition audit: a phone tilted
+    10 degrees failed 31 % of correct clips; the phone's own tilt sensor tells how far to turn back)."""
+    if not deg:
+        return seq
+    c = np.array([seq.info.width / 2, seq.info.height / 2])
+    a = np.radians(deg)
+    r = np.array([[np.cos(a), -np.sin(a)], [np.sin(a), np.cos(a)]])
+    hands = None if seq.hands is None else ((seq.hands - c) @ r.T + c).astype(np.float32)
+    return PoseSequence(xy=((seq.xy - c) @ r.T + c).astype(np.float32), vis=seq.vis, t=seq.t, info=seq.info,
+                        hands=hands)
+
+
 def read_video_info(path: str | Path) -> VideoInfo:
     cap = cv2.VideoCapture(str(path))
     try:

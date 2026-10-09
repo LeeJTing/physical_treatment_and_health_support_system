@@ -103,6 +103,9 @@ def main():
     if "--no-aug" in sys.argv:               # same folds, augmented copies left out of training
         keep = aug == 0
         X, y, ym, groups, clips, aug = X[keep], y[keep], ym[keep], groups[keep], clips[keep], aug[keep]
+    if "--no-landmark-aug" in sys.argv:      # same folds, the slower / tilted copies (codes >= 100) left out
+        keep = aug < 100
+        X, y, ym, groups, clips, aug = X[keep], y[keep], ym[keep], groups[keep], clips[keep], aug[keep]
     orig = aug == 0
     splits, method = folds(y, groups, clips, aug)
     print(f"{key}: {int(orig.sum())} original reps (+{int((~orig).sum())} augmented), {len(np.unique(groups))} people, "
@@ -115,7 +118,7 @@ def main():
         print(f"  {name:20s} accuracy {m['accuracy']:.0%}  precision {m['precision']:.2f}  recall {m['recall']:.2f}  "
               f"F1 {m['f1']:.2f}  confusion {m['confusion_matrix']['rows_true_cols_pred']}")
     REPORTS.mkdir(exist_ok=True)
-    tag = ("_own" if "--own-only" in sys.argv else "") + ("_noaug" if "--no-aug" in sys.argv else "") +         ("_ruleinputs" if "--rule-inputs" in sys.argv else "")
+    tag = ("_own" if "--own-only" in sys.argv else "") + ("_noaug" if "--no-aug" in sys.argv else "") +         ("_ruleinputs" if "--rule-inputs" in sys.argv else "") + ("_nolmaug" if "--no-landmark-aug" in sys.argv else "")
     (REPORTS / f"cv_{key}{tag}.json").write_text(json.dumps(
         {"method": method, "reps_scored": int(orig.sum()), "reps_augmented_in_training": int((~orig).sum()),
          "people": int(len(np.unique(groups))), "clips": int(len(np.unique(clips))), "results": results},

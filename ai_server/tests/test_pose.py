@@ -405,6 +405,7 @@ def test_rom_scale_for_risk_and_age():
     assert exercises.rom_scale_for() == 1.0 and exercises.rom_scale_for("LOW", 40) == 1.0
     assert exercises.rom_scale_for("MODERATE") == 0.85 and exercises.rom_scale_for(None, 68) == 0.85
     assert exercises.rom_scale_for("high") == 0.7 and exercises.rom_scale_for("LOW", 80) == 0.7
+    assert exercises.rom_scale_for("MEDIUM") == 0.85                 # the app's own name for it
 
 
 def test_frail_patients_may_use_their_hands_and_step_out():
@@ -547,3 +548,103 @@ def test_wrong_exercise_is_reported_only_after_movement_was_found():
     with pytest.raises(PoseError) as e:
         analyse("shoulder_abduction", sequence([front_pose()] * 120), use_model=False)
     assert e.value.code == "no_repetitions"
+
+
+# ---- condition audit (9 Oct, training/audit_conditions.py) ------------------------------
+
+def test_an_unfinished_last_repetition_is_not_judged():
+    # The recording stopped half way up the last repetition.
+    sig = np.array(wave(3, 0, 60) + [0, 5, 10, 20, 30, 40, 50], dtype=float)
+    t = np.arange(len(sig)) / FPS
+    reps = find_reps(sig, t, 10, 30)
+    assert len(reps) == 4 and reps[-1].unfinished and not any(r.unfinished for r in reps[:3])
+    frames = [front_pose(a, a) for a in wave(3, 5, 88)] + [front_pose(a, a) for a in (5, 15, 25, 30, 40, 50, 60, 70, 80)]
+    res = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    assert res["repetitions"] == 4 and len(res["rep_details"]) == 3 and res["mistakes"] == {}
+    only = np.array([0, 0, 0, 5, 10, 20, 30, 40, 45, 50], dtype=float)   # a single one is kept as evidence
+    assert len(find_reps(only, np.arange(len(only)) / FPS, 10, 30)) == 1
+
+
+def test_a_tilted_phone_turned_back_gives_the_same_result():
+    from app.pose.landmarks import turned
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+    upright = analyse("shoulder_abduction", sequence(frames), use_model=False)
+    tilted = turned(sequence(frames), 12)
+    back = analyse("shoulder_abduction", turned(tilted, -12), use_model=False)
+    assert back["repetitions"] == upright["repetitions"] and back["mistakes"] == upright["mistakes"] == {}
+    assert np.allclose(turned(tilted, -12).xy, sequence(frames).xy, atol=1e-3)
+
+
+def test_a_small_movement_is_not_called_the_wrong_exercise(monkeypatch):
+    from app.pose import analyse as analyse_module
+    from app.pose import identity
+    spec = exercises.EXERCISES["sit_to_stand"]
+    f = Features(sequence([front_pose()] * 30))
+    monkeypatch.setattr(identity, "check_detail", lambda key, sig: ("no standing up from the chair was seen", True))
+    with pytest.raises(PoseError) as e:
+        analyse_module._same_exercise(spec, f, None, partial=True)
+    assert e.value.code == "wrong_exercise" and e.value.message.startswith("We could only see a small movement")
+    with pytest.raises(PoseError) as e:                                # full repetitions: another exercise
+        analyse_module._same_exercise(spec, f, None, partial=False)
+    assert "check that you chose the right exercise" in e.value.message
+    monkeypatch.setattr(identity, "check_detail", lambda key, sig: ("you were sitting", False))
+    with pytest.raises(PoseError) as e:                                # not about size: another exercise
+        analyse_module._same_exercise(spec, f, None, partial=True)
+    assert "check that you chose the right exercise" in e.value.message
+
+
+def test_identity_tells_a_too_small_movement_from_another_exercise():
+    from app.pose.identity import check_detail
+    assert check_detail("shoulder_abduction", _sig(arm_raise=10)) == ("no arm raising was seen", True)
+    assert check_detail("knee_extension", _sig(knee_bend=60, knee_median=170, hip_rise=0.05))[1] is False
+    assert check_detail("shoulder_abduction", _sig(arm_raise=90, arm_sideways=1.0, view_ratio=0.67)) == (None, False)
+
+
+def test_frail_targets_keep_the_models_form_verdicts_but_not_its_range_verdicts(monkeypatch):
+    from app.pose import classifier
+    frames = [front_pose(a, a) for a in wave(4, 5, 88)]
+
+    def fake(label):
+        return lambda key, f, reps: {"p_correct": [0.2] * len(reps), "likely_mistake": [label] * len(reps),
+                                     "version": "fake_v1"}
+    monkeypatch.setattr(classifier, "predict", fake("bent_elbow"))
+    res = analyse("shoulder_abduction", sequence(frames), rom_scale=0.7)
+    assert res["mistakes"] == {"bent_elbow": 4} and res["accuracy"] == 70
+    monkeypatch.setattr(classifier, "predict", fake("low_range"))        # a range verdict: rules only
+    res = analyse("shoulder_abduction", sequence(frames), rom_scale=0.7)
+    assert res["mistakes"] == {} and res["accuracy"] == 100
+
+
+def test_the_model_leaves_much_slower_repetitions_to_the_rules(monkeypatch):
+    import torch
+    from app.pose import classifier
+    frames = [front_pose(a, a) for a in wave(4, 5, 88, rep_sec=3.0)]
+    f = Features(sequence(frames))
+    reps = analyse_reps = __import__("app.pose.analyse", fromlist=["detect_reps"]).detect_reps(
+        exercises.EXERCISES["shoulder_abduction"], f)
+    n_in = len(classifier.INPUTS["shoulder_abduction"]) + 1
+    model = classifier.build_model(n_in, 5)
+    ckpt = {"mistakes": ["low_range", "bent_elbow", "uneven_arms", "trunk_lean", "shoulder_shrug"],
+            "features": classifier.INPUTS["shoulder_abduction"], "duration_range": [0.5, 1.5]}
+    monkeypatch.setattr(classifier, "latest_weights", lambda key: __import__("pathlib").Path("fake_v1.pt"))
+    monkeypatch.setattr(classifier, "_load", lambda path: (model, ckpt))
+    out = classifier.predict("shoulder_abduction", f, analyse_reps)
+    assert all(p is None for p in out["p_correct"]) and len(reps) == 4      # 3 s reps, trained on <= 1.5 s
+    ckpt["duration_range"] = [1.0, 4.0]
+    out = classifier.predict("shoulder_abduction", f, analyse_reps)
+    assert all(p is not None for p in out["p_correct"])
+    del torch
+
+
+def test_a_front_view_exercise_filmed_from_the_side_gets_a_tip():
+    facing = [front_pose(a, a) for a in wave(4, 5, 88)]
+    assert "camera_not_in_front" not in analyse("shoulder_abduction", sequence(facing), use_model=False)
+    side_on = []
+    for p in facing:                                    # shoulders and hips seen narrower, as from 45+ deg round
+        q = p.copy()
+        cx = (p[L_SHOULDER, 0] + p[R_SHOULDER, 0]) / 2
+        for j in (L_SHOULDER, R_SHOULDER, L_HIP, R_HIP):
+            q[j, 0] = cx + (p[j, 0] - cx) * 0.75
+        side_on.append(q)
+    res = analyse("shoulder_abduction", sequence(side_on), use_model=False)
+    assert res["camera_not_in_front"] < 0.5 and any("face the phone" in tip for tip in res["quality_tips"])

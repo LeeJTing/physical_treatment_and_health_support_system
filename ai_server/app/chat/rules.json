@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.42",
+  "version": "chat-rules-3.43",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -3351,7 +3351,7 @@
         "what does incomplete stand mean",
         "the result said incomplete stand"
       ],
-      "answer": "“Incomplete stand” in your posture result means you did not stand up fully straight at the top. Stand up fully: straighten your hips and knees at the top.",
+      "answer": "“Incomplete stand” in your posture result means you did not stand up fully straight at the top. Stand up fully: straighten your hips and knees at the top, as far as you safely can.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,

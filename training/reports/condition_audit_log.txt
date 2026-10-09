@@ -1,0 +1,95 @@
+  25/328
+  50/328
+  75/328
+  100/328
+  125/328
+  150/328
+  175/328
+  200/328
+  225/328
+  250/328
+  275/328
+  300/328
+  325/328
+
+condition                                 evidence  pass ok  fail bad  reps±1 partial falls  errors
+original                                       98%      99%       98%    100%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+mirrored                                       98%      97%       98%    100%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+tilted_5                                       94%      92%       97%     90%       0     0  {'no_repetitions': 8, 'wrong_exercise': 8, 'full_body_not_visible': 1}
+tilted_10                                      89%      68%       97%     84%       7     0  {'no_repetitions': 20, 'full_body_not_visible': 1, 'wrong_exercise': 5}
+far_away                                       98%      99%       98%    100%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+fps_5                                          97%      96%       99%     98%       0     0  {'wrong_exercise': 6, 'full_body_not_visible': 1, 'no_repetitions': 2}
+shaky_landmarks                                97%      97%       99%     96%       0     0  {'wrong_exercise': 9, 'full_body_not_visible': 1}
+frames_lost_15pct                              97%      96%       98%     98%       0     0  {'full_body_not_visible': 6, 'wrong_exercise': 5}
+camera_turned_30                               84%      50%       86%     68%       3     0  {'wrong_exercise': 18, 'no_repetitions': 32, 'full_body_not_visible': 2}
+feet_out_of_picture                            37%      37%       99%     38%       0     0  {'full_body_not_visible': 199, 'wrong_exercise': 5}
+slow_1.5x                                      98%      96%       98%     99%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+slow_2x                                        98%      99%       96%     99%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+fast_0.6x                                      98%      85%       99%     99%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5, 'no_repetitions': 2}
+started_mid_rep                                97%      98%       98%    100%       1     0  {'wrong_exercise': 6, 'full_body_not_visible': 1}
+first_45pct_only                               98%      98%       99%      6%       0     0  {'wrong_exercise': 6, 'no_repetitions': 3, 'full_body_not_visible': 2}
+weak_60pct                                     92%      22%       92%     79%      31     0  {'no_repetitions': 28, 'wrong_exercise': 5, 'full_body_not_visible': 1}
+weak_35pct                                     38%       3%       94%     29%      34     0  {'no_repetitions': 139, 'wrong_exercise': 68, 'full_body_not_visible': 1}
+no_movement                                     0%       1%       99%      2%       0     0  {'no_repetitions': 321, 'full_body_not_visible': 1}
+rom_0.85 (65+ / moderate) original             98%      99%       85%    100%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+rom_0.85 (65+ / moderate) weak_60pct           92%      45%       89%     79%      31     0  {'no_repetitions': 28, 'wrong_exercise': 5, 'full_body_not_visible': 1}
+rom_0.7 (75+ / high) original                  98%      99%       76%    100%       0     0  {'full_body_not_visible': 1, 'wrong_exercise': 5}
+rom_0.7 (75+ / high) weak_60pct                92%      87%       80%     79%      31     0  {'no_repetitions': 28, 'wrong_exercise': 5, 'full_body_not_visible': 1}
+
+incorrect clips that pass only with the 0.7 frail targets:
+  bird_dog.arm_leg_low                          1/1
+  bird_dog.back_sag                             0/1
+  bird_dog.no_hold                              0/1
+  elbow_flexion.body_swing                      0/1
+  elbow_flexion.low_range                       3/3
+  elbow_flexion.upper_arm_moves                 0/2
+  glute_bridge.feet_far                         0/1
+  glute_bridge.low_hips                         0/1
+  glute_bridge.over_arch                        0/1
+  heel_raise.knees_bend                         0/1
+  heel_raise.leaning_forward                    0/1
+  heel_raise.low_raise                          1/1
+  hip_abduction.bent_knee                       0/5
+  hip_abduction.leg_forward                     1/5
+  hip_abduction.low_range                       3/5
+  hip_abduction.toes_up                         0/6
+  hip_abduction.trunk_lean                      0/5
+  knee_extension.incomplete_extension           5/5
+  knee_extension.leaning_forward                0/5
+  knee_extension.no_hold                        0/5
+  knee_extension.slouching                      0/5
+  knee_extension.thigh_lift                     0/5
+  march_in_place.leaning_back                   0/1
+  march_in_place.low_knee_lift                  0/1
+  march_in_place.no_arm_swing                   0/1
+  mini_squat.heels_lift                         0/1
+  mini_squat.too_deep                           0/1
+  mini_squat.trunk_forward                      0/1
+  seated_marching.leaning_back                  0/1
+  seated_marching.low_knee_lift                 0/1
+  shoulder_abduction.bent_elbow                 0/5
+  shoulder_abduction.low_range                  6/6
+  shoulder_abduction.shoulder_shrug             0/5
+  shoulder_abduction.trunk_lean                 0/6
+  shoulder_abduction.uneven_arms                0/6
+  shoulder_flexion.back_arch                    0/5
+  shoulder_flexion.bent_elbow                   0/6
+  shoulder_flexion.low_range                    6/6
+  shoulder_flexion.swinging                     1/5
+  shoulder_flexion.trunk_forward                0/5
+  sit_to_stand.feet_forward                     0/4
+  sit_to_stand.hands_used                       5/5
+  sit_to_stand.incomplete_stand                 4/6
+  sit_to_stand.no_forward_lean                  0/5
+  sit_to_stand.uncontrolled_sit                 0/4
+  step_up.drop_down                             0/1
+  step_up.knee_not_straight                     0/1
+  step_up.trunk_forward                         0/1
+  tandem_stance.feet_not_in_line                0/1
+  tandem_stance.leaning                         0/1
+  tandem_stance.stepping_out                    0/1
+  wall_push_up.hips_back                        0/1
+  wall_push_up.hips_sag                         0/1
+  wall_push_up.low_range                        1/1
+
+Written C:\Users\KOH Family\FYP\physical_treatment_and_health_support_system\training\reports\condition_audit.json

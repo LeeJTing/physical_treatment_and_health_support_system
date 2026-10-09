@@ -21,7 +21,7 @@ from fastapi.responses import JSONResponse
 from ..auth import current_account_id
 from ..pose import exercises
 from ..pose.analyse import HAND_EXERCISES, PoseError, analyse
-from ..pose.landmarks import extract, extract_with_hands, read_video_info
+from ..pose.landmarks import extract, extract_with_hands, read_video_info, turned
 
 router = APIRouter(tags=["M300 posture"])
 
@@ -65,10 +65,13 @@ def pose(
     exercise_key: str = Form(...),
     risk_level: str | None = Form(None),
     age: int | None = Form(None),
+    upright_turn_deg: float | None = Form(None),
     account_id: str = Depends(current_account_id),
 ):
     """risk_level (LOW / MODERATE / HIGH, from the health profile) and age are optional: for older or
-    high-risk patients the range-of-motion targets are lowered (exercises.rom_scale_for)."""
+    high-risk patients the range-of-motion targets are lowered (exercises.rom_scale_for).
+    upright_turn_deg (optional, -30..30): how far to turn the picture clockwise to make it upright, from
+    the phone's tilt sensor while recording; the body points are turned back before they are measured."""
     if exercise_key not in exercises.EXERCISES:
         return _error("unknown_exercise", f"No posture analysis exists for '{exercise_key}'.")
     ext = Path(file.filename or "").suffix.lower()
@@ -96,6 +99,8 @@ def pose(
             return _error("invalid_video", "The video resolution must be at least 720p.")
         try:
             seq = extract_with_hands(path) if exercise_key in HAND_EXERCISES else extract(path)
+            if upright_turn_deg is not None and abs(upright_turn_deg) <= 30:
+                seq = turned(seq, upright_turn_deg)
             return analyse(exercise_key, seq, rom_scale=exercises.rom_scale_for(risk_level, age),
                            brightness=_brightness(path))
         except PoseError as e:

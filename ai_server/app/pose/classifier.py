@@ -115,4 +115,13 @@ def predict(pose_key: str, f: Features, reps: list[Rep]) -> dict | None:
     p_correct = torch.sigmoid(c_logit).numpy().tolist()
     mistakes = ckpt["mistakes"]
     likely = [mistakes[i] if mistakes else None for i in m_logit.argmax(dim=1).tolist()]
+    # A repetition slower than any the model learned from (or much quicker) is left to the rules (9 Oct
+    # condition audit: at half speed the models failed 26 of 128 correct clips, the rules 1; with this,
+    # 124-128 of 128 pass from normal speed to 2.5 times slower).
+    lo, hi = ckpt.get("duration_range") or (None, None)
+    if lo is not None:
+        for i, r in enumerate(reps):
+            d = float(f.t[r.end] - f.t[r.start])
+            if d > hi or d < lo * 0.75:
+                p_correct[i], likely[i] = None, None
     return {"p_correct": p_correct, "likely_mistake": likely, "version": f"{path.stem}"}

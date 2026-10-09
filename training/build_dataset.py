@@ -23,6 +23,7 @@ from pathlib import Path
 import numpy as np
 
 from common import CACHE, DATA, MISLABELLED, cached_sequence, own_clips
+from landmark_aug import COPIES, copies, retimed
 from app.pose import landmarks
 from app.pose.analyse import detect_reps
 from app.pose.classifier import rep_tensor
@@ -35,7 +36,7 @@ REHAB = DATA / "public" / "rehab24_6"
 REHAB_MAP = {1: "shoulder_abduction", 4: "hip_abduction", 3: "wall_push_up"}
 
 
-def own_samples(key: str):
+def own_samples(key: str, slow: bool = False):
     spec = EXERCISES[key]
     mistakes = [m.label for m in spec.mistakes]
     X, yc, ym, groups, clips, aug, src = [], [], [], [], [], [], []
@@ -52,11 +53,19 @@ def own_samples(key: str):
             continue
         versions = [(0, seq)] + [(int(p.stem.rsplit("__aug", 1)[1]), landmarks.load(p))
                                  for p in sorted((CACHE / key / "aug").glob(f"{clip.path.stem}__aug*.npz"))]
+        # Slower copies of the original (landmark_aug.py, 9 Oct condition audit), only when asked: in
+        # cross-validation they helped knee extension (93 -> 96 %) but cost shoulder abduction on other
+        # people (79 -> 73 %), so the deployed models were not retrained with them; slow repetitions are
+        # left to the rules instead (classifier duration_range).
+        if slow:
+            versions += list(copies(seq, clip.mistake))
         for k, s in versions:
             if s.detected_ratio < 0.5:
                 continue
             f = Features(s)
             for r in detect_reps(spec, f):
+                if r.unfinished:
+                    continue                 # the clip ended before this repetition came back down
                 X.append(rep_tensor(f, r))
                 yc.append(1 if clip.is_correct else 0)
                 ym.append(mistakes.index(clip.mistake) if (not clip.is_correct and clip.mistake in mistakes) else -1)
@@ -74,7 +83,7 @@ def find_video(video_id: str, camera: str) -> Path | None:
     return None
 
 
-def rehab_samples(key: str):
+def rehab_samples(key: str, slow: bool = False):
     ids = [i for i, k in REHAB_MAP.items() if k == key]
     seg = REHAB / "Segmentation.csv"
     if not ids or not seg.exists() or not (REHAB / "videos").exists():
@@ -105,26 +114,31 @@ def rehab_samples(key: str):
             landmarks.save(seq, cache)
         if seq.detected_ratio < 0.5:
             continue
-        f = Features(seq)
         fps = seq.info.fps or 30.0
-        for r in reps:
-            t0, t1 = int(r["first_frame"]) / fps, int(r["last_frame"]) / fps
-            idx = np.where((f.t >= t0) & (f.t <= t1))[0]
-            if len(idx) < 4:
-                continue
-            rep = Rep(start=int(idx[0]), peak=int(idx[len(idx) // 2]), end=int(idx[-1]))
-            X.append(rep_tensor(f, rep))
-            yc.append(int(r["correctness"]))
-            ym.append(-1)
-            groups.append(f"rehab-{r['person_id']}")
-            clips.append(f"rehab-{vid}-{cam}")
-            aug.append(0)
-            src.append(f"REHAB24-6/{vid}/{cam}#{r['repetition_number']}")
+        # Slower copies as for own clips (landmark_aug.py): with them only on own clips, repetition length
+        # told own two-arm clips from the long one-arm REHAB24-6 raises (person-held-out CV 79 -> 55 %).
+        versions = [(0, seq, 1.0)] + ([(code, retimed(seq, k), k) for code, (kind, k) in COPIES.items()
+                                       if kind == "slower"] if slow else [])
+        for code, s, k in versions:
+            f = Features(s)
+            for r in reps:
+                t0, t1 = int(r["first_frame"]) / fps * k, int(r["last_frame"]) / fps * k
+                idx = np.where((f.t >= t0) & (f.t <= t1))[0]
+                if len(idx) < 4:
+                    continue
+                rep = Rep(start=int(idx[0]), peak=int(idx[len(idx) // 2]), end=int(idx[-1]))
+                X.append(rep_tensor(f, rep))
+                yc.append(int(r["correctness"]))
+                ym.append(-1)
+                groups.append(f"rehab-{r['person_id']}")
+                clips.append(f"rehab-{vid}-{cam}")
+                aug.append(code)
+                src.append(f"REHAB24-6/{vid}/{cam}#{r['repetition_number']}{f'~aug{code}' if code else ''}")
     return X, yc, ym, groups, clips, aug, src
 
 
-def build(key: str, public: bool = True) -> Path:
-    parts = [own_samples(key)] + ([rehab_samples(key)] if public else [])
+def build(key: str, public: bool = True, slow: bool = False) -> Path:
+    parts = [own_samples(key, slow)] + ([rehab_samples(key, slow)] if public else [])
     X, yc, ym, groups, clips, aug, src = (sum((list(p[i]) for p in parts), []) for i in range(7))
     out = DATA / "datasets" / f"{key}.npz"
     out.parent.mkdir(parents=True, exist_ok=True)
@@ -146,6 +160,7 @@ if __name__ == "__main__":
     ap.add_argument("keys", nargs="*", default=["sit_to_stand", "shoulder_abduction", "shoulder_flexion",
                                                  "hip_abduction", "knee_extension"])
     ap.add_argument("--no-public", action="store_true")
+    ap.add_argument("--slow-copies", action="store_true", help="add x1.6 and x2.2 slower copies (landmark_aug.py)")
     a = ap.parse_args()
     for k in a.keys:
-        build(k, public=not a.no_public)
+        build(k, public=not a.no_public, slow=a.slow_copies)

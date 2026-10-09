@@ -22,6 +22,19 @@ def _med(x: np.ndarray) -> float:
     return float(np.median(x)) if len(x) else float("nan")
 
 
+def _together(a: np.ndarray, b: np.ndarray, k: int = 7) -> float:
+    """Correlation of two sides' movement, each averaged over k frames first (0.7 s at 10 fps): a heel
+    lifts only a few pixels, and landmark jitter (dim light, low resolution) took correct heel raises
+    from 0.95 to 0.46 against the 0.5 limit (9 Oct condition audit); averaged, 0.68."""
+    ok = np.isfinite(a) & np.isfinite(b)
+    a, b = a[ok], b[ok]
+    if len(a) <= k + 5:
+        return 0.0
+    ker = np.ones(k) / k
+    a, b = np.convolve(a, ker, mode="valid"), np.convolve(b, ker, mode="valid")
+    return float(np.corrcoef(a, b)[0, 1]) if np.std(a) > 0 and np.std(b) > 0 else 0.0
+
+
 def signature(f: Features) -> dict[str, float]:
     s = {}
     s["arm_raise"] = max(_rng(f["shoulder_elev_L"]), _rng(f["shoulder_elev_R"]))          # degrees
@@ -33,12 +46,8 @@ def signature(f: Features) -> dict[str, float]:
     s["thigh_lift"] = max(_rng(f["thigh_from_down_L"]), _rng(f["thigh_from_down_R"]))     # degrees
     s["leg_side"] = max(_rng(f["leg_from_down_L"]), _rng(f["leg_from_down_R"]))           # degrees
     s["heel_lift"] = max(_rng(f["heel_lift_L"]), _rng(f["heel_lift_R"]))                   # shin lengths
-    hl, hr = f["heel_lift_L"], f["heel_lift_R"]
-    ok = np.isfinite(hl) & np.isfinite(hr)
-    s["heels_together"] = float(np.corrcoef(hl[ok], hr[ok])[0, 1]) if ok.sum() > 5 and np.std(hl[ok]) > 0 and np.std(hr[ok]) > 0 else 0.0
-    tl, tr = f["thigh_from_down_L"], f["thigh_from_down_R"]
-    ok = np.isfinite(tl) & np.isfinite(tr)
-    s["thighs_together"] = float(np.corrcoef(tl[ok], tr[ok])[0, 1]) if ok.sum() > 5 and np.std(tl[ok]) > 0 and np.std(tr[ok]) > 0 else 0.0
+    s["heels_together"] = _together(f["heel_lift_L"], f["heel_lift_R"])
+    s["thighs_together"] = _together(f["thigh_from_down_L"], f["thigh_from_down_R"])
     # Direction of the arm raise at its highest: wrist off to the side of the shoulder (abduction seen
     # from the front) versus in line with it (flexion seen from the front), as a share of arm length.
     xy = f.seq.xy
@@ -96,13 +105,16 @@ RULES: dict[str, list[tuple[str, str, float, str]]] = {
                         ("knee_bend", "<", 50.0, "your knee straightened out in front"), SEATED, UPRIGHT],
     "march_in_place": [("thigh_lift", ">=", 20.0, "no knee lifting was seen"),
                        ("thighs_together", "<", 0.6, "both legs moved together"), STANDING, UPRIGHT],
+    # leg_side: squats stay at 23 deg or less from any angle (REHAB26 deep squats, own mini squats 21);
+    # a bent-knee hip abduction moves the leg 32-39 deg sideways (9 Oct condition audit).
     "mini_squat": [("knee_bend", ">=", 20.0, "no knee bending was seen"),
                    ("hip_rise", ">=", 0.1, "your hips did not lower"),
-                   ("thighs_together", ">=", 0.2, "your legs moved one at a time"), STANDING, UPRIGHT],
+                   ("thighs_together", ">=", 0.2, "your legs moved one at a time"),
+                   ("leg_side", "<", 28.0, "a leg moved out to the side"), STANDING, UPRIGHT],
     "step_up": [("hip_rise", ">=", 0.12, "no stepping up was seen"),
                 ("thighs_together", "<", 0.5, "both legs moved together"), UPRIGHT],
     "heel_raise": [("heel_lift", ">=", 0.04, "your heels hardly lifted"),
-                   ("heels_together", ">=", 0.5, "your heels did not rise together"),
+                   ("heels_together", ">=", 0.6, "your heels did not rise together"),   # own 0.95+, 0.68+ jittery
                    ("leg_side", "<", 12.0, "a leg moved out to the side"),
                    ("arm_raise", "<", 45.0, "your arms were raised"), STANDING, UPRIGHT],
     "hip_abduction": [("leg_side", ">=", 8.0, "no leg lifting to the side was seen"),
@@ -123,27 +135,37 @@ RULES: dict[str, list[tuple[str, str, float, str]]] = {
 }
 
 
+# Signatures that measure how much something moved: failing ">=" on one of them means the movement was
+# too small, not that it was another exercise.
+AMOUNT = {"arm_raise", "elbow_bend", "knee_bend", "hip_rise", "thigh_lift", "leg_side", "heel_lift"}
+
+
 def check(key: str, sig: dict[str, float]) -> str | None:
     """None when the clip can be the exercise, else a short reason ("your knees bent a lot")."""
+    return check_detail(key, sig)[0]
+
+
+def check_detail(key: str, sig: dict[str, float]) -> tuple[str | None, bool]:
+    """(reason or None, whether the reason is only that the movement was too small)."""
     for name, op, limit, why in RULES.get(key, []):
         v = sig.get(name, float("nan"))
         if not np.isfinite(v):
             continue                                      # not measurable: never refuse on it
         if (op == ">=" and v < limit) or (op == "<" and v >= limit):
-            return why
+            return why, op == ">=" and name in AMOUNT
     # Arms raised sideways or forwards: from the front, abduction moves the wrists out to the side
     # of the shoulders (0.96-1.0 of the arm's length in Elwin's and p02's clips) and flexion keeps them
     # in front of the body; from the side it is the other way round.
     side, view = sig.get("arm_sideways", float("nan")), sig.get("view_ratio", float("nan"))
     if np.isfinite(side) and np.isfinite(view):
         if key == "shoulder_flexion" and view > 0.45 and side > 0.7:
-            return "your arms went out to the side, not forwards"
+            return "your arms went out to the side, not forwards", False
         if key == "shoulder_abduction" and view < 0.3 and side > 0.7:
-            return "your arms went forwards, not out to the side"
+            return "your arms went forwards, not out to the side", False
     # Flexion raises the arm in front (wrist ahead of the shoulder: +0.71 to +1.0 of the arm's length in
     # Elwin's clips); shoulder extension swings it back (-0.51 or less from 45 degrees round, REHAB26).
     # Only when the face direction is clear: from the front, forwards and back look the same.
     facing, fwd = sig.get("facing", float("nan")), sig.get("arm_forward", float("nan"))
     if key == "shoulder_flexion" and np.isfinite(facing) and abs(facing) >= 0.08 and np.isfinite(fwd) and fwd < 0:
-        return "your arm went backwards, not forwards"
-    return None
+        return "your arm went backwards, not forwards", False
+    return None, False
