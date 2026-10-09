@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.46"
+VERSION = "chat-rules-3.47"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -307,7 +307,8 @@ INTENTS = [
             "delete my reminder", "remove a reminder", "remove reminder", "delete button", "bin icon"],
            ["how do I change my reminder time", "I am not getting reminders", "how do I turn off reminders",
             "how do I change the days of my reminder", "how do I delete a reminder"],
-           "Open Reminders. Tap the time to change it, and tap a day to turn it on or off; one day must stay on, "
+           "An exercise reminder says which exercise is next, and tapping it opens that plan. Open Reminders "
+           "to change things: tap the time to change it, and tap a day to turn it on or off; one day must stay on, "
            "so to stop a reminder, switch it off instead. \u201cRemind me to log my health readings\u201d adds a "
            "daily reminder to record your blood pressure, sugar or weight. Reminders you added yourself can be "
            "deleted with the bin button; a plan's reminders stay with the plan and stop when the plan stops. If "
