@@ -1,0 +1,1278 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "APTHS AI Server",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Health",
+        "description": "Unauthenticated liveness check, used before a demo to wake the server.",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": [
+          "health"
+        ],
+        "summary": "Root",
+        "description": "Opening the bare tunnel address in a browser shows that the server is up\n(otherwise FastAPI answers \"Not Found\", which looks like a failure).",
+        "operationId": "root__get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/recommend": {
+      "post": {
+        "tags": [
+          "M500 planning"
+        ],
+        "summary": "Recommend",
+        "operationId": "recommend_recommend_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecommendRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecommendResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/chat/categories": {
+      "get": {
+        "tags": [
+          "M500 chat"
+        ],
+        "summary": "Categories",
+        "description": "Question categories for the patient's plan (FR500_18).",
+        "operationId": "categories_chat_categories_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "plan_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Plan Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CategoriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat": {
+      "post": {
+        "tags": [
+          "M500 chat"
+        ],
+        "summary": "Chat",
+        "description": "Answer a tapped category or a typed question (FR500_19 to FR500_22).",
+        "operationId": "chat_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/pose/exercises": {
+      "get": {
+        "tags": [
+          "M300 posture"
+        ],
+        "summary": "Pose Exercises",
+        "description": "The exercise keys the server can analyse, with their camera view.",
+        "operationId": "pose_exercises_pose_exercises_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/pose": {
+      "post": {
+        "tags": [
+          "M300 posture"
+        ],
+        "summary": "Pose",
+        "description": "risk_level (LOW / MODERATE / HIGH, from the health profile) and age are optional: for older or\nhigh-risk patients the range-of-motion targets are lowered (exercises.rom_scale_for).\nupright_turn_deg (optional, -30..30): how far to turn the picture clockwise to make it upright, from\nthe phone's tilt sensor while recording; the body points are turned back before they are measured.",
+        "operationId": "pose_pose_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_pose_pose_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Body_pose_pose_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "File"
+          },
+          "exercise_key": {
+            "type": "string",
+            "title": "Exercise Key"
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Level"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "upright_turn_deg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Upright Turn Deg"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "exercise_key"
+        ],
+        "title": "Body_pose_pose_post"
+      },
+      "CategoriesResponse": {
+        "properties": {
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Id"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "rules_version": {
+            "type": "string",
+            "title": "Rules Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "categories",
+          "rules_version"
+        ],
+        "title": "CategoriesResponse"
+      },
+      "Category": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "title"
+        ],
+        "title": "Category"
+      },
+      "ChatAction": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "label"
+        ],
+        "title": "ChatAction"
+      },
+      "ChatRequest": {
+        "properties": {
+          "plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan Id"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Text"
+          },
+          "conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Conditions"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations"
+          },
+          "risk_level": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "Low",
+                  "Medium",
+                  "High"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Risk Level"
+          },
+          "local_hour": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 23.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Hour"
+          },
+          "local_minute": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 59.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Minute"
+          },
+          "utc_offset_minutes": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 840.0,
+                "minimum": -840.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Utc Offset Minutes"
+          },
+          "timezone": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timezone"
+          },
+          "previous_category": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Previous Category"
+          }
+        },
+        "type": "object",
+        "title": "ChatRequest"
+      },
+      "ChatResponse": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "is_matched": {
+            "type": "boolean",
+            "title": "Is Matched"
+          },
+          "matched_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched By"
+          },
+          "follow_ups": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Follow Ups"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Notes"
+          },
+          "categories": {
+            "items": {
+              "$ref": "#/components/schemas/Category"
+            },
+            "type": "array",
+            "title": "Categories"
+          },
+          "action": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChatAction"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "actions": {
+            "items": {
+              "$ref": "#/components/schemas/ChatAction"
+            },
+            "type": "array",
+            "title": "Actions",
+            "default": []
+          },
+          "rules_version": {
+            "type": "string",
+            "title": "Rules Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer",
+          "category",
+          "title",
+          "is_matched",
+          "matched_by",
+          "follow_ups",
+          "notes",
+          "categories",
+          "rules_version"
+        ],
+        "title": "ChatResponse"
+      },
+      "CohortIn": {
+        "properties": {
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk Level"
+          },
+          "age_band": {
+            "type": "string",
+            "enum": [
+              "<60",
+              "60-74",
+              "75+"
+            ],
+            "title": "Age Band"
+          }
+        },
+        "type": "object",
+        "required": [
+          "risk_level",
+          "age_band"
+        ],
+        "title": "CohortIn",
+        "description": "The patient's own cohort features, compared with the outcome cells."
+      },
+      "ExcludedPlan": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "reasons": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Reasons"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "reasons"
+        ],
+        "title": "ExcludedPlan"
+      },
+      "ExerciseIn": {
+        "properties": {
+          "exercise_id": {
+            "type": "string",
+            "title": "Exercise Id"
+          },
+          "exercise_name": {
+            "type": "string",
+            "title": "Exercise Name",
+            "default": ""
+          },
+          "target_body_area": {
+            "type": "string",
+            "enum": [
+              "LEFT_ARM",
+              "RIGHT_ARM",
+              "BOTH_ARMS",
+              "LEFT_LEG",
+              "RIGHT_LEG",
+              "BOTH_LEGS",
+              "CORE",
+              "FULL_BODY"
+            ],
+            "title": "Target Body Area"
+          },
+          "intensity_level": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "VIGOROUS"
+            ],
+            "title": "Intensity Level"
+          },
+          "pose_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pose Key"
+          }
+        },
+        "type": "object",
+        "required": [
+          "exercise_id",
+          "target_body_area",
+          "intensity_level"
+        ],
+        "title": "ExerciseIn"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "PlanExerciseIn": {
+        "properties": {
+          "exercise": {
+            "$ref": "#/components/schemas/ExerciseIn"
+          },
+          "prescribed_duration_sec": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Prescribed Duration Sec"
+          }
+        },
+        "type": "object",
+        "required": [
+          "exercise",
+          "prescribed_duration_sec"
+        ],
+        "title": "PlanExerciseIn"
+      },
+      "PlanIn": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "plan_name": {
+            "type": "string",
+            "title": "Plan Name",
+            "default": ""
+          },
+          "target_body_area": {
+            "type": "string",
+            "enum": [
+              "LEFT_ARM",
+              "RIGHT_ARM",
+              "BOTH_ARMS",
+              "LEFT_LEG",
+              "RIGHT_LEG",
+              "BOTH_LEGS",
+              "CORE",
+              "FULL_BODY"
+            ],
+            "title": "Target Body Area"
+          },
+          "recovery_stage": {
+            "type": "string",
+            "enum": [
+              "EARLY",
+              "INTERMEDIATE",
+              "ADVANCED"
+            ],
+            "title": "Recovery Stage"
+          },
+          "mobility_level": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "HIGH"
+            ],
+            "title": "Mobility Level"
+          },
+          "goal": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "STRENGTH",
+                  "MOBILITY",
+                  "BALANCE",
+                  "PAIN_RELIEF",
+                  "ENDURANCE"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Goal"
+          },
+          "frequency_per_week": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 7.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Frequency Per Week"
+          },
+          "plan_exercise": {
+            "items": {
+              "$ref": "#/components/schemas/PlanExerciseIn"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Plan Exercise"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "target_body_area",
+          "recovery_stage",
+          "mobility_level",
+          "plan_exercise"
+        ],
+        "title": "PlanIn"
+      },
+      "PlanOutcomeIn": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "risk_level": {
+            "type": "string",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ],
+            "title": "Risk Level"
+          },
+          "age_band": {
+            "type": "string",
+            "enum": [
+              "<60",
+              "60-74",
+              "75+"
+            ],
+            "title": "Age Band"
+          },
+          "patients": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Patients"
+          },
+          "completion_rate": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Completion Rate"
+          },
+          "mean_accuracy": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Accuracy"
+          },
+          "mean_progress": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Progress"
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "risk_level",
+          "age_band",
+          "patients",
+          "completion_rate"
+        ],
+        "title": "PlanOutcomeIn",
+        "description": "One anonymised cohort cell from the plan_outcome_stats() RPC: how patients with this risk\nlevel and age band did on a plan. Never contains account ids; cells under MIN_PATIENTS are\ndropped by the RPC and again by the engine."
+      },
+      "RankedPlan": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "suitability_score": {
+            "type": "number",
+            "title": "Suitability Score"
+          },
+          "breakdown": {
+            "$ref": "#/components/schemas/ScoreBreakdown"
+          },
+          "content_score": {
+            "type": "number",
+            "title": "Content Score",
+            "default": 0.0
+          },
+          "alpha": {
+            "type": "number",
+            "title": "Alpha",
+            "default": 0.0
+          },
+          "evidence_patients": {
+            "type": "integer",
+            "title": "Evidence Patients",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "suitability_score",
+          "breakdown"
+        ],
+        "title": "RankedPlan"
+      },
+      "RecommendRequest": {
+        "properties": {
+          "rehab": {
+            "$ref": "#/components/schemas/RehabInfo"
+          },
+          "safety_limit": {
+            "$ref": "#/components/schemas/SafetyLimitIn"
+          },
+          "limitations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Limitations",
+            "default": []
+          },
+          "plans": {
+            "items": {
+              "$ref": "#/components/schemas/PlanIn"
+            },
+            "type": "array",
+            "minItems": 1,
+            "title": "Plans"
+          },
+          "cohort": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CohortIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "plan_outcomes": {
+            "items": {
+              "$ref": "#/components/schemas/PlanOutcomeIn"
+            },
+            "type": "array",
+            "title": "Plan Outcomes",
+            "default": []
+          },
+          "focus_parts": {
+            "items": {
+              "type": "string",
+              "enum": [
+                "shoulder",
+                "elbow",
+                "wrist_hand",
+                "hip",
+                "knee",
+                "ankle_foot",
+                "back"
+              ]
+            },
+            "type": "array",
+            "title": "Focus Parts",
+            "default": []
+          },
+          "pace": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "SLOW",
+                  "MEDIUM",
+                  "FAST"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pace"
+          }
+        },
+        "type": "object",
+        "required": [
+          "rehab",
+          "safety_limit",
+          "plans"
+        ],
+        "title": "RecommendRequest"
+      },
+      "RecommendResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "OK",
+              "ONLY_ONE",
+              "NONE"
+            ],
+            "title": "Status"
+          },
+          "ranked": {
+            "items": {
+              "$ref": "#/components/schemas/RankedPlan"
+            },
+            "type": "array",
+            "title": "Ranked"
+          },
+          "excluded": {
+            "items": {
+              "$ref": "#/components/schemas/ExcludedPlan"
+            },
+            "type": "array",
+            "title": "Excluded"
+          },
+          "suitable_count": {
+            "type": "integer",
+            "title": "Suitable Count"
+          },
+          "model_version": {
+            "type": "string",
+            "title": "Model Version"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "ranked",
+          "excluded",
+          "suitable_count",
+          "model_version"
+        ],
+        "title": "RecommendResponse"
+      },
+      "RehabInfo": {
+        "properties": {
+          "affected_body_area": {
+            "type": "string",
+            "enum": [
+              "LEFT_ARM",
+              "RIGHT_ARM",
+              "BOTH_ARMS",
+              "LEFT_LEG",
+              "RIGHT_LEG",
+              "BOTH_LEGS",
+              "CORE",
+              "FULL_BODY"
+            ],
+            "title": "Affected Body Area"
+          },
+          "recovery_stage": {
+            "type": "string",
+            "enum": [
+              "EARLY",
+              "INTERMEDIATE",
+              "ADVANCED"
+            ],
+            "title": "Recovery Stage"
+          },
+          "mobility_level": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "HIGH"
+            ],
+            "title": "Mobility Level"
+          },
+          "goal": {
+            "type": "string",
+            "enum": [
+              "STRENGTH",
+              "MOBILITY",
+              "BALANCE",
+              "PAIN_RELIEF",
+              "ENDURANCE"
+            ],
+            "title": "Goal"
+          }
+        },
+        "type": "object",
+        "required": [
+          "affected_body_area",
+          "recovery_stage",
+          "mobility_level",
+          "goal"
+        ],
+        "title": "RehabInfo"
+      },
+      "SafetyLimitIn": {
+        "properties": {
+          "max_exercise_intensity": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MODERATE",
+              "VIGOROUS"
+            ],
+            "title": "Max Exercise Intensity"
+          },
+          "max_session_duration_min": {
+            "type": "integer",
+            "exclusiveMinimum": 0.0,
+            "title": "Max Session Duration Min"
+          }
+        },
+        "type": "object",
+        "required": [
+          "max_exercise_intensity",
+          "max_session_duration_min"
+        ],
+        "title": "SafetyLimitIn"
+      },
+      "ScoreBreakdown": {
+        "properties": {
+          "body_area": {
+            "type": "number",
+            "title": "Body Area"
+          },
+          "goal": {
+            "type": "number",
+            "title": "Goal"
+          },
+          "recovery_stage": {
+            "type": "number",
+            "title": "Recovery Stage"
+          },
+          "mobility_level": {
+            "type": "number",
+            "title": "Mobility Level"
+          },
+          "collaborative": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Collaborative"
+          },
+          "focus": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Focus"
+          },
+          "pace": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pace"
+          }
+        },
+        "type": "object",
+        "required": [
+          "body_area",
+          "goal",
+          "recovery_stage",
+          "mobility_level"
+        ],
+        "title": "ScoreBreakdown"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  }
+}

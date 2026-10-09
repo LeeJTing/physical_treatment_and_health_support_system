@@ -3,6 +3,8 @@
 > **Also in its own repo:** `Lvin331/fyp-fastapi` (private) is a copy of this folder with the trained models,
 > made by `python tool/sync_fastapi_repo.py ../fyp-fastapi --push`. Change the server here, then run that.
 
+**API contract:** [docs/API.md](docs/API.md) (and the generated [docs/openapi.json](docs/openapi.json)). **Adding an endpoint (Jun Ting's /forecast, /analyse, /recognise, /plan):** [CONTRIBUTING.md](CONTRIBUTING.md).
+
 Stateless: never reads or writes Supabase. See `../supabase/HANDOFF.md` for what the app expects.
 
 ```powershell

@@ -4,12 +4,18 @@ deployed on its own. This team repo stays the main copy: change the server here,
     python tool/sync_fastapi_repo.py ../fyp-fastapi [--push]
 
 What goes in, in the same layout as here so no code path changes:
-  ai_server/                   every file git tracks here (never .env, dev_runs or exported chats)
-  assets/seed/catalogue.json   the plan catalogue the chatbot rules and the tests read
+  ai_server/                   every file git tracks here (never .env, dev_runs or exported chats),
+                               with docs/API.md, docs/openapi.json and CONTRIBUTING.md
   ai_server/models/weights/    the files the server loads, git-ignored here: MediaPipe's pose and
                                hand models and the newest trained model of each exercise
+  training/                    how the posture models were trained and evaluated (scripts and the
+                               committed reports; the clips themselves are git-ignored)
+  assets/seed/catalogue.json   the plan catalogue the chatbot rules and the tests read
 The copy's ai_server/.gitignore lets those weights in. Some models were trained on CC BY-NC data
 (REHAB24-6, REHAB26): the repo must stay private.
+
+It never overwrites anyone's work: if fyp-fastapi's main has a commit this script did not make
+(e.g. Jun Ting's), it stops and says so.
 """
 import argparse
 import re
@@ -21,6 +27,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 REMOTE = "https://github.com/Lvin331/fyp-fastapi.git"
 MEDIAPIPE = ["pose_landmarker_full.task", "hand_landmarker.task"]
+SYNC_PREFIX = "Server from team repo "
+COPIED = ["ai_server", "training", "assets/seed/catalogue.json"]
 
 
 def git(args, cwd, check=True):
@@ -40,21 +48,24 @@ def readme(commit: str, subject: str, models: list[Path]) -> str:
     names = "\n".join(f"- `{p.name}`" for p in models)
     return f"""# fyp-fastapi
 
-FastAPI AI server of the FYP *AI-Assisted Physical Treatment and Health Support System*
-(Elwin Koh Soon Yit, Lee Jun Ting). Stateless: it never touches Supabase.
+The AI server of the FYP *AI-Assisted Physical Treatment and Health Support System* (APTHS;
+Elwin Koh Soon Yit and Lee Jun Ting). FastAPI, Python 3.11, stateless: it never touches Supabase;
+the Flutter app sends what is needed and stores what comes back.
 
-| Endpoint | What it does |
-|---|---|
-| `GET /health` | up check |
-| `POST /recommend` | ranks treatment plans for the questionnaire (hybrid recommender) |
-| `GET /chat/categories`, `POST /chat` | rule-based rehabilitation chatbot |
-| `POST /pose` | posture check of an exercise video (MediaPipe + angle rules + trained models) |
+| Endpoint | Module | What it does | Status |
+|---|---|---|---|
+| `POST /recommend` | M500.1 | ranks treatment plans for the questionnaire (hybrid recommender) | built |
+| `GET /chat/categories`, `POST /chat` | M500.2 | rule-based rehabilitation chatbot | built |
+| `GET /pose/exercises`, `POST /pose` | M300.1 | posture check of an exercise video | built |
+| `POST /forecast`, `POST /analyse` | M400 | forecaster, anomaly detector and health score | to build (Jun Ting) |
+| `POST /recognise`, `POST /plan` | M700 | food recognition, condition-aware diet planner | to build (Jun Ting) |
 
-**This is a copy.** The main copy is `ai_server/` in the team repo
-(LeeJTing/physical_treatment_and_health_support_system, branch `Elwin`), copied here by
-`tool/sync_fastapi_repo.py`. Change the server there, not here.
-
-Copied from team repo commit `{commit}`: {subject}
+- **API contract:** [`ai_server/docs/API.md`](ai_server/docs/API.md), exact schema in
+  [`ai_server/docs/openapi.json`](ai_server/docs/openapi.json) (also `/docs` on a running server)
+- **Adding an endpoint, rules, how changes travel:** [`ai_server/CONTRIBUTING.md`](ai_server/CONTRIBUTING.md)
+- **Server details** (posture pipeline, chatbot rounds, development viewer): [`ai_server/README.md`](ai_server/README.md)
+- **How the posture models were trained and evaluated:** [`training/README.md`](training/README.md) and
+  `training/reports/` (the training clips are not in git)
 
 ## Run
 
@@ -62,21 +73,30 @@ Copied from team repo commit `{commit}`: {subject}
 cd ai_server
 python -m venv .venv
 .venv\\Scripts\\python -m pip install -r requirements.txt
-copy .env.example .env        (then fill it in; never commit .env)
+copy .env.example .env
 .venv\\Scripts\\python -m pytest -q
 .venv\\Scripts\\python -m uvicorn app.main:app --port 8000
 ```
 
-Every request needs `Authorization: Bearer <Supabase access token>`; `.env` sets how tokens are
-checked (`SUPABASE_JWKS_URL`). `DEV_AUTH_BYPASS` must be false anywhere reachable from outside.
+`run_server.ps1` starts it the same way; `run_tunnel.ps1` gives it a public `trycloudflare.com`
+address for the phone (the demo setup: the server on the PC, the app anywhere). Every request needs
+`Authorization: Bearer <Supabase access token>`; with `DEV_AUTH_BYPASS=true` the token `dev-token`
+also works (development only; set it false when the server is reachable with real accounts).
 
 ## Models (`ai_server/models/weights/`)
 
 - `pose_landmarker_full.task`, `hand_landmarker.task`: Google MediaPipe (Apache 2.0)
-{names}: trained for this project (training scripts in the team repo, `training/`)
+{names}: trained for this project (`training/train.py`)
 
-Some training data is CC BY-NC 4.0 (REHAB24-6, REHAB26-ViewAngles): keep this repo private and
+Some training data is CC BY-NC 4.0 (REHAB24-6, REHAB26-ViewAngles): this repo stays private and
 non-commercial.
+
+## Where this copy comes from
+
+Copied by `tool/sync_fastapi_repo.py` from `ai_server/`, `training/` and the plan catalogue of the
+team repo (LeeJTing/physical_treatment_and_health_support_system, branch `Elwin`), commit
+`{commit}`: {subject}. The script refuses to run when this repo has commits it did not make, so
+nothing pushed here is overwritten.
 """
 
 
@@ -89,8 +109,9 @@ def main() -> int:
     if target == ROOT or ROOT in target.parents:
         sys.exit("The target must be outside this repo.")
 
-    if git(["status", "--porcelain", "--", "ai_server", "assets/seed/catalogue.json"], ROOT).stdout.strip():
-        sys.exit("ai_server/ has uncommitted changes here: commit them first, so the copy matches a commit.")
+    if git(["status", "--porcelain", "--", *COPIED], ROOT).stdout.strip():
+        sys.exit("ai_server/ or training/ has uncommitted changes here: commit them first, so the copy "
+                 "matches a commit.")
     commit = git(["rev-parse", "--short", "HEAD"], ROOT).stdout.strip()
     subject = git(["log", "-1", "--format=%s"], ROOT).stdout.strip()
 
@@ -99,11 +120,25 @@ def main() -> int:
         git(["init", "-b", "main"], target)
         git(["remote", "add", "origin", REMOTE], target)
 
+    # Never overwrite someone else's work: stop if GitHub's main has a commit this script did not make.
+    git(["fetch", "-q", "origin"], target, check=False)
+    if git(["rev-parse", "--verify", "-q", "origin/main"], target, check=False).returncode == 0:
+        foreign = [s for s in git(["log", "--format=%h %an: %s", "origin/main"], target).stdout.splitlines()
+                   if SYNC_PREFIX not in s]
+        if foreign:
+            sys.exit("fyp-fastapi has commits not made by this script, so copying would overwrite them:\n  "
+                     + "\n  ".join(foreign) + "\nBring those changes into the team repo first (or decide "
+                     "which repo is the main home of the server).")
+        if git(["merge", "-q", "--ff-only", "origin/main"], target, check=False).returncode != 0:
+            sys.exit("The local fyp-fastapi copy and GitHub have diverged; sort that out first.")
+    if git(["status", "--porcelain"], target).stdout.strip():
+        sys.exit(f"{target} has uncommitted changes: they would be lost.")
+
     # A clean copy: files removed here disappear there too. Only these two folders are replaced.
-    for sub in ("ai_server", "assets"):
+    for sub in ("ai_server", "training", "assets"):
         if (target / sub).exists():
             shutil.rmtree(target / sub)
-    files = git(["ls-files", "ai_server"], ROOT).stdout.splitlines() + ["assets/seed/catalogue.json"]
+    files = git(["ls-files", *COPIED], ROOT).stdout.splitlines()
     for rel in files:
         dst = target / rel
         dst.parent.mkdir(parents=True, exist_ok=True)
@@ -129,7 +164,7 @@ def main() -> int:
     if not git(["status", "--porcelain"], target).stdout.strip():
         print("Nothing changed.")
     else:
-        git(["commit", "-q", "-m", f"Server from team repo {commit}: {subject}"], target)
+        git(["commit", "-q", "-m", f"{SYNC_PREFIX}{commit}: {subject}"], target)
         print(git(["log", "--oneline", "-1"], target).stdout.strip())
     if a.push:
         r = git(["push", "-u", "origin", "main"], target, check=False)
