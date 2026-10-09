@@ -407,6 +407,11 @@ class _BodyMapState extends State<BodyMap> {
     widget.onChanged(next);
   }
 
+  void _removeAll(List<BodyRegion> regions) {
+    if (_note != null) setState(() => _note = null);
+    widget.onChanged({...widget.selected}..removeAll(regions.map((r) => r.id)));
+  }
+
   @override
   Widget build(BuildContext context) {
     // An unavailable id (e.g. from an older draft) is never shown as chosen.
@@ -475,7 +480,7 @@ class _BodyMapState extends State<BodyMap> {
                         rect: l.rect,
                         child: ExcludeSemantics(
                           child: Text(
-                            l.region.label,
+                            l.text,
                             maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                             textAlign: l.left
@@ -530,15 +535,18 @@ class _BodyMapState extends State<BodyMap> {
         ),
         if (selectedRegions.isNotEmpty) ...[
           const SizedBox(height: 10),
+          // One chip per limb (and one for the trunk); its x removes that
+          // whole group. Single places keep their own name.
           Wrap(
             spacing: 6,
             runSpacing: 6,
             children: [
-              for (final r in selectedRegions)
+              for (final c in BodyRegions.clusters(selectedRegions))
                 InputChip(
-                  label: Text(r.label),
-                  onDeleted: () => _toggle(r),
-                  deleteButtonTooltipMessage: 'Remove ${r.label}',
+                  label: Text(c.summary),
+                  onDeleted: () => _removeAll(c.regions),
+                  deleteButtonTooltipMessage:
+                      'Remove ${c.regions.length == 1 ? c.regions.single.label : c.title}',
                 ),
             ],
           ),
@@ -578,9 +586,10 @@ class _BodyMapState extends State<BodyMap> {
     color: AppTokens.primary,
   );
 
-  /// Places a label per selected region of the current view in the side
-  /// margins (the region's own screen side; centre regions on the right),
-  /// stacked so they do not overlap, with a leader line to the region.
+  /// Places one label per limb group of the current view (the region's own
+  /// name when it is alone) in the side margins: the group's own screen side,
+  /// trunk on the right. Stacked so they do not overlap, with a leader line
+  /// to the group's middle region.
   List<_Label> _layoutLabels(
     BuildContext context,
     Size size,
@@ -588,41 +597,63 @@ class _BodyMapState extends State<BodyMap> {
   ) {
     final l = BodyMapLayout(size);
     final scaler = MediaQuery.textScalerOf(context);
+    // Measure with the style the Text is drawn with (the theme adds letter
+    // spacing and line height): measuring the bare style cut 'Left shoulder'
+    // to 'Left' on the phone (Elwin, 9 Oct).
+    final style = DefaultTextStyle.of(context).style.merge(_labelStyle);
     final leftWidth = math.max(0.0, l.origin.dx - 12);
     final rightX = l.figureRight + 12;
     final rightWidth = math.max(0.0, size.width - rightX);
+    final groups = [
+      for (final c in BodyRegions.clusters(
+        selected.where((r) => r.view == _view),
+      ))
+        (
+          text: RegionCluster.mapLabel(c),
+          // The middle region by height anchors the leader line; the trunk
+          // uses its top region so its line clears the elbows.
+          anchorRegion: c.group == BodyGroup.core
+              ? c.regions.first
+              : ([...c.regions]..sort(
+                  (a, b) => BodyShapes.centreOf(
+                    a,
+                  ).dy.compareTo(BodyShapes.centreOf(b).dy),
+                ))[c.regions.length ~/ 2],
+          left: c.regions.first.onScreenLeft,
+        ),
+    ];
     final out = <_Label>[];
     for (final left in [true, false]) {
       final side =
           [
-            for (final r in selected)
-              if (r.view == _view && r.onScreenLeft == left) r,
+            for (final g in groups)
+              if (g.left == left) g,
           ]..sort(
-            (a, b) =>
-                BodyShapes.centreOf(a).dy.compareTo(BodyShapes.centreOf(b).dy),
+            (a, b) => BodyShapes.centreOf(
+              a.anchorRegion,
+            ).dy.compareTo(BodyShapes.centreOf(b.anchorRegion).dy),
           );
       var nextTop = 0.0;
-      for (final r in side) {
-        // Measure at exactly the width the label is drawn at, or a label that
-        // wraps on the device is clipped to its first line.
+      for (final g in side) {
         final width = math.max(0.0, (left ? leftWidth : rightWidth) - 4);
         final tp = TextPainter(
-          text: TextSpan(text: r.label, style: _labelStyle),
+          text: TextSpan(text: g.text, style: style),
           textScaler: scaler,
           maxLines: 3,
           ellipsis: '…',
           textDirection: TextDirection.ltr,
         )..layout(maxWidth: width);
-        final anchor = l.toScreen(BodyShapes.centreOf(r));
+        final anchor = l.toScreen(BodyShapes.centreOf(g.anchorRegion));
         final h = tp.height + 2;
+        // At least 8 px between labels so groups read apart.
         final top = math.max(anchor.dy - h / 2, nextTop);
-        nextTop = top + h + 4;
+        nextTop = top + h + 8;
         final rect = Rect.fromLTWH(left ? 4 : rightX, top, width, h);
         final lineFrom = Offset(
           left ? rect.right + 2 : rect.left - 2,
           rect.center.dy,
         );
-        out.add(_Label(r, rect, lineFrom, anchor, left));
+        out.add(_Label(g.text, rect, lineFrom, anchor, left));
       }
     }
     return out;
@@ -630,19 +661,19 @@ class _BodyMapState extends State<BodyMap> {
 }
 
 class _Label {
-  final BodyRegion region;
+  final String text;
   final Rect rect;
   final Offset lineFrom;
   final Offset anchor;
   final bool left;
-  const _Label(this.region, this.rect, this.lineFrom, this.anchor, this.left);
+  const _Label(this.text, this.rect, this.lineFrom, this.anchor, this.left);
 
   @override
   bool operator ==(Object other) =>
-      other is _Label && other.region.id == region.id && other.rect == rect;
+      other is _Label && other.text == text && other.rect == rect;
 
   @override
-  int get hashCode => Object.hash(region.id, rect);
+  int get hashCode => Object.hash(text, rect);
 }
 
 // ---- plan card thumbnail ---------------------------------------------------

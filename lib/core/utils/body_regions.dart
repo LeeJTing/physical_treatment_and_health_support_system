@@ -49,6 +49,15 @@ class BodyRegion {
       .replaceAll('{Side}', side == BodySide.left ? 'Left' : 'Right')
       .replaceAll('{side}', side == BodySide.left ? 'left' : 'right');
 
+  /// Name without the side, for a limb's chip: 'upper arm', 'back of thigh'.
+  String get partName {
+    final t = _template
+        .replaceAll('{Side} ', '')
+        .replaceAll('{side} ', '')
+        .trim();
+    return '${t[0].toLowerCase()}${t.substring(1)}';
+  }
+
   /// Whether the region is drawn on the screen's left half.
   bool get onScreenLeft => switch (side) {
     BodySide.centre => false,
@@ -58,6 +67,47 @@ class BodyRegion {
 
   @override
   String toString() => id;
+}
+
+/// The selected regions of one limb (arm or leg on one side) or of the trunk,
+/// so a long selection reads as a few groups (Elwin, 9 Oct: 22 separate
+/// labels and chips were too crowded).
+class RegionCluster {
+  final BodyGroup group;
+  final BodySide side;
+
+  /// In BodyRegions order: front view first, then back.
+  final List<BodyRegion> regions;
+
+  const RegionCluster(this.group, this.side, this.regions);
+
+  /// 'Right arm', 'Left leg' or 'Trunk'.
+  String get title => switch (group) {
+    BodyGroup.core => 'Trunk',
+    BodyGroup.arm => '${side == BodySide.left ? 'Left' : 'Right'} arm',
+    BodyGroup.leg => '${side == BodySide.left ? 'Left' : 'Right'} leg',
+  };
+
+  /// Chip text: the region's own label when it is the only one, otherwise
+  /// 'Right arm: shoulder, elbow, forearm' or '... and 3 more'.
+  String get summary {
+    if (regions.length == 1) return regions.single.label;
+    final names = {for (final r in regions) r.partName}.toList();
+    final shown = names.length <= 3 ? names : names.take(2).toList();
+    final more = names.length - shown.length;
+    return '$title: ${shown.join(', ')}${more > 0 ? ' and $more more' : ''}';
+  }
+
+  /// Label on the figure for the regions of one view: the region's own name,
+  /// up to two trunk names ('Chest, abdomen'), or 'Right arm (5)'.
+  static String mapLabel(RegionCluster c) {
+    final rs = c.regions;
+    if (rs.length == 1) return rs.single.label;
+    if (c.group == BodyGroup.core && rs.length == 2) {
+      return '${rs.first.label}, ${rs.last.partName}';
+    }
+    return '${c.title} (${rs.length})';
+  }
 }
 
 /// Regions of both views and the mapping to the recommender's body areas.
@@ -276,6 +326,28 @@ class BodyRegions {
   static final Map<String, BodyRegion> byId = {
     for (final r in [...front, ...back]) r.id: r,
   };
+
+  /// The selected available regions grouped by limb: right arm, left arm,
+  /// trunk, right leg, left leg (only the groups that have a region).
+  static List<RegionCluster> clusters(Iterable<BodyRegion> regions) {
+    final chosen = {for (final r in regions) r.id};
+    final ordered = [
+      for (final r in [...front, ...back])
+        if (r.available && chosen.contains(r.id)) r,
+    ];
+    return [
+      for (final (group, side) in const [
+        (BodyGroup.arm, BodySide.right),
+        (BodyGroup.arm, BodySide.left),
+        (BodyGroup.core, BodySide.centre),
+        (BodyGroup.leg, BodySide.right),
+        (BodyGroup.leg, BodySide.left),
+      ])
+        if (ordered.where((r) => r.group == group && r.side == side).toList()
+            case final rs when rs.isNotEmpty)
+          RegionCluster(group, side, rs),
+    ];
+  }
 
   /// The one affected body area for the selected regions (RehabInfo.bodyAreas),
   /// or null when nothing is selected.

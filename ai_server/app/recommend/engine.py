@@ -38,6 +38,11 @@ the same block joins the plan similarity used by the diversity re-rank. Without 
 neither changes, so the result equals hybrid-2.0. This separates plans the four blocks cannot,
 e.g. Shoulder Mobility Starter and Hand and Wrist Recovery (both BOTH_ARMS, EARLY, LOW, MOBILITY).
 
+Pace (hybrid-2.2, optional): the questionnaire's optional "How fast would you like to go?" (SLOW,
+MEDIUM, FAST = about 3, 4, 5 days a week) is compared with the plan's frequency_per_week as soft
+one-hot ordinals, weight PACE_WEIGHT, only when the request has a pace. It only re-orders plans
+that passed the rules; it is not part of the diversity similarity.
+
 Stage 4, rank by score and keep the best three, with a light MMR diversity re-rank (report para
 944, 950): a plan that nearly duplicates one already picked (plan similarity above DUPLICATE_SIM)
 is penalised, so the three picks are not the same plan three times. Below that similarity the
@@ -48,7 +53,7 @@ import math
 from .schemas import (PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest, RecommendResponse, ExcludedPlan,
                       ScoreBreakdown)
 
-MODEL_VERSION = "hybrid-2.1"
+MODEL_VERSION = "hybrid-2.2"
 TOP_N = 3
 
 # Collaborative part.
@@ -69,6 +74,11 @@ WEIGHTS = {"body_area": 0.40, "goal": 0.25, "recovery_stage": 0.20, "mobility_le
 # Body-part focus block: modest, so it separates otherwise equal plans more than it overrides
 # the area, goal, stage and mobility match.
 FOCUS_WEIGHT = 0.20
+# Pace block: lighter than focus, a preference rather than a need.
+PACE_WEIGHT = 0.10
+PACES = ("SLOW", "MEDIUM", "FAST")
+NEUTRAL_PACE = 0.5        # a plan without frequency_per_week
+
 FOCUS_PARTS = ("shoulder", "elbow", "wrist_hand", "hip", "knee", "ankle_foot", "back")
 POSE_PARTS = {
     "shoulder_abduction": ("shoulder",),
@@ -183,6 +193,23 @@ def focus_vec(parts) -> tuple[float, ...]:
     return tuple(1.0 if p in parts else 0.0 for p in FOCUS_PARTS)
 
 
+def plan_pace(plan: PlanIn) -> int | None:
+    """0, 1 or 2 for about 3 (or fewer), 4, or 5+ days a week; None when unknown."""
+    f = plan.frequency_per_week
+    if f is None:
+        return None
+    return 0 if f <= 3 else 1 if f == 4 else 2
+
+
+def pace_score(req: RecommendRequest, plan: PlanIn) -> float | None:
+    if req.pace is None:
+        return None
+    i = plan_pace(plan)
+    if i is None:
+        return NEUTRAL_PACE
+    return cosine(_ORDINAL[PACES.index(req.pace)], _ORDINAL[i])
+
+
 def score(req: RecommendRequest, plan: PlanIn) -> ScoreBreakdown:
     r = req.rehab
     return ScoreBreakdown(
@@ -191,15 +218,18 @@ def score(req: RecommendRequest, plan: PlanIn) -> ScoreBreakdown:
         recovery_stage=cosine(_ORDINAL[STAGES.index(r.recovery_stage)], _ORDINAL[STAGES.index(plan.recovery_stage)]),
         mobility_level=cosine(_ORDINAL[MOBILITY.index(r.mobility_level)], _ORDINAL[MOBILITY.index(plan.mobility_level)]),
         focus=cosine(focus_vec(req.focus_parts), plan_parts(plan)) if req.focus_parts else None,
+        pace=pace_score(req, plan),
     )
 
 
 def weighted(b: ScoreBreakdown) -> float:
-    """Weighted mean of the blocks; the focus block only counts when the request has one."""
-    total = sum(WEIGHTS[k] * getattr(b, k) for k in WEIGHTS)
-    if b.focus is None:
-        return total / sum(WEIGHTS.values())
-    return (total + FOCUS_WEIGHT * b.focus) / (sum(WEIGHTS.values()) + FOCUS_WEIGHT)
+    """Weighted mean of the blocks; the focus and pace blocks only count when the request has them."""
+    total, weight = sum(WEIGHTS[k] * getattr(b, k) for k in WEIGHTS), sum(WEIGHTS.values())
+    for value, w in ((b.focus, FOCUS_WEIGHT), (b.pace, PACE_WEIGHT)):
+        if value is not None:
+            total += w * value
+            weight += w
+    return total / weight
 
 
 # ---- collaborative part ---------------------------------------------------------------------

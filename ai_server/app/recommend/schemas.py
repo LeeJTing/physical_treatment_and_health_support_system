@@ -15,6 +15,8 @@ Mobility = Literal["LOW", "MODERATE", "HIGH"]
 Goal = Literal["STRENGTH", "MOBILITY", "BALANCE", "PAIN_RELIEF", "ENDURANCE"]
 Intensity = Literal["LOW", "MODERATE", "VIGOROUS"]
 # Finer body parts from the body map (BodyRegions.focusParts in the app).
+# Optional pace from the questionnaire: about 3, 4 or 5 exercise days a week.
+Pace = Literal["SLOW", "MEDIUM", "FAST"]
 FocusPart = Literal["shoulder", "elbow", "wrist_hand", "hip", "knee", "ankle_foot", "back"]
 
 
@@ -55,6 +57,8 @@ class PlanIn(_In):
     recovery_stage: Stage
     mobility_level: Mobility
     goal: Goal | None = None
+    # Sessions a week (treatment_plan.frequency_per_week); used by the pace block.
+    frequency_per_week: int | None = Field(default=None, ge=1, le=7)
     plan_exercise: list[PlanExerciseIn] = Field(min_length=1)
 
 
@@ -94,6 +98,8 @@ class RecommendRequest(_In):
     # Body parts the patient tapped on the body map. Optional: empty means no focus block, and the
     # result equals hybrid-2.0.
     focus_parts: list[FocusPart] = []
+    # How fast the patient wants to go (optional question). None: no pace block.
+    pace: Pace | None = None
 
 
 class ScoreBreakdown(BaseModel):
@@ -106,6 +112,8 @@ class ScoreBreakdown(BaseModel):
     # Match between the tapped body parts and the parts the plan's exercises train, or None
     # when the request has no focus parts.
     focus: float | None = None
+    # Match between the wanted pace and the plan's days a week, or None without a pace.
+    pace: float | None = None
 
 
 class RankedPlan(BaseModel):

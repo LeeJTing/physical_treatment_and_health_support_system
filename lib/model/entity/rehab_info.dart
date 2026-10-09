@@ -17,12 +17,19 @@ class RehabInfo {
   /// Sent next to `rehab` as focus_parts, not part of [toJson].
   final List<String> focusParts;
 
+  /// Optional pace (SLOW, MEDIUM, FAST): about 3, 4 or 5 days a week. Not an
+  /// FR500_03 answer; sent beside `rehab` as `pace`, null when skipped.
+  final String? pace;
+
+  static const paces = ['SLOW', 'MEDIUM', 'FAST'];
+
   const RehabInfo({
     required this.affectedBodyArea,
     required this.recoveryStage,
     required this.mobilityLevel,
     required this.goal,
     this.focusParts = const [],
+    this.pace,
   });
 
   Map<String, dynamic> toJson() => {

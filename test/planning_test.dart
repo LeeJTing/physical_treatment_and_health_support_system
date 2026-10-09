@@ -162,6 +162,25 @@ class Harness {
 
 void main() {
   group('RecommendationService', () {
+    test('sends the optional pace beside rehab', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(
+        const RehabInfo(
+          affectedBodyArea: 'BOTH_LEGS',
+          recoveryStage: RecoveryStage.early,
+          mobilityLevel: MobilityLevel.low,
+          goal: 'MOBILITY',
+          pace: 'SLOW',
+        ),
+      );
+      final body = h.server.lastBody!;
+      expect(body['pace'], 'SLOW');
+      expect((body['rehab'] as Map).containsKey('pace'), isFalse);
+      // The plans carry frequency_per_week, which the pace is compared with.
+      expect((body['plans'] as List).first['frequency_per_week'], isA<int>());
+    });
+
     test('sends the body-map parts as focus_parts', () async {
       final h = Harness();
       await h.signIn();
@@ -176,6 +195,7 @@ void main() {
       );
       final body = h.server.lastBody!;
       expect(body['focus_parts'], ['wrist_hand']);
+      expect(body.containsKey('pace'), isFalse); // skipped: no pace block
       // Not inside rehab: RehabInfo.toJson keeps the four FR500_03 answers.
       expect((body['rehab'] as Map).containsKey('focus_parts'), isFalse);
     });

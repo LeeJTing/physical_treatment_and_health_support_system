@@ -33,6 +33,8 @@ class RecommendationService {
       'rehab': rehab.toJson(),
       // Body-map parts (hybrid-2.1 focus block); left out for a list choice.
       if (rehab.focusParts.isNotEmpty) 'focus_parts': rehab.focusParts,
+      // Optional pace (hybrid-2.2): prefers plans with about that many days a week.
+      if (rehab.pace != null) 'pace': rehab.pace,
       'safety_limit': snapshot.safetyLimit.toJson(),
       'limitations': [
         for (final l in snapshot.profile?.limitations ?? const [])

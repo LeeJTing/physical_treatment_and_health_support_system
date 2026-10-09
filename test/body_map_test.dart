@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/utils/body_regions.dart';
@@ -155,6 +156,44 @@ void main() {
         expect(BodyRegions.focusParts([x]), isNotEmpty, reason: x.id);
         expect(known.containsAll(BodyRegions.focusParts([x])), isTrue);
       }
+    });
+  });
+
+  group('grouping by limb (Elwin, 9 Oct)', () {
+    List<RegionCluster> groups(List<String> ids) =>
+        BodyRegions.clusters([for (final id in ids) r(id)]);
+    const rightArm = [
+      'front_right_shoulder',
+      'front_right_upper_arm',
+      'front_right_elbow',
+      'front_right_forearm',
+      'front_right_hand',
+    ];
+    test('places on one limb form one group, in a fixed order', () {
+      final g = groups([...rightArm, 'front_left_knee', 'front_chest']);
+      expect([for (final c in g) c.title], ['Right arm', 'Trunk', 'Left leg']);
+      expect(g.first.regions, hasLength(5));
+    });
+    test('chip text names the parts, or the region when alone', () {
+      expect(groups(['front_left_knee']).single.summary, 'Left knee');
+      expect(
+        groups(['front_right_elbow', 'back_right_elbow']).single.summary,
+        'Right arm: elbow, back of elbow',
+      );
+      expect(
+        groups(rightArm).single.summary,
+        'Right arm: shoulder, upper arm and 3 more',
+      );
+    });
+    test('map label: own name, two trunk names, or a count', () {
+      String label(List<String> ids) =>
+          RegionCluster.mapLabel(groups(ids).single);
+      expect(label(['front_left_shoulder']), 'Left shoulder');
+      expect(label(['front_chest', 'front_abdomen']), 'Chest, abdomen');
+      expect(label(rightArm), 'Right arm (5)');
+    });
+    test('the neck never forms a group', () {
+      expect(groups(['front_neck', 'back_neck']), isEmpty);
     });
   });
 
@@ -365,6 +404,71 @@ void main() {
       expect(find.text('Your plan will focus on: Left leg'), findsOneWidget);
     });
 
+    testWidgets(
+      'everything selected: a few grouped labels, none cut or overlapping',
+      (t) async {
+        phone(t);
+        var sel = {
+          for (final x in BodyRegions.front)
+            if (x.available) x.id,
+        };
+        await t.pumpWidget(host(() => sel, (s) => sel = s));
+        await t.pumpAndSettle();
+        final labels = [
+          for (final text in [
+            'Right arm (5)',
+            'Left arm (5)',
+            'Chest, abdomen',
+            'Right leg (5)',
+            'Left leg (5)',
+          ])
+            find.text(text),
+        ];
+        for (final l in labels) {
+          expect(l, findsOneWidget);
+        }
+        // Every label's text fits its box (the 'Left' for 'Left shoulder' bug).
+        for (final e in find.byType(Text).evaluate()) {
+          final para = e.renderObject;
+          if (para is RenderParagraph && para.didExceedMaxLines) {
+            fail('cut text: ${para.text.toPlainText()}');
+          }
+        }
+        final rects = [for (final l in labels) t.getRect(l)];
+        for (var i = 0; i < rects.length; i++) {
+          for (var j = i + 1; j < rects.length; j++) {
+            expect(rects[i].overlaps(rects[j]), isFalse);
+          }
+        }
+        // One chip per group, not one per place.
+        expect(find.byType(InputChip), findsNWidgets(5));
+      },
+    );
+
+    testWidgets('a single long label is shown whole', (t) async {
+      phone(t);
+      var sel = <String>{'front_left_shoulder'};
+      await t.pumpWidget(host(() => sel, (s) => sel = s));
+      await t.pumpAndSettle();
+      for (final e in find.text('Left shoulder').evaluate()) {
+        expect((e.renderObject! as RenderParagraph).didExceedMaxLines, isFalse);
+      }
+    });
+
+    testWidgets('a limb chip removes the whole limb', (t) async {
+      phone(t);
+      var sel = <String>{
+        'front_right_shoulder',
+        'front_right_elbow',
+        'back_right_elbow',
+        'front_left_knee',
+      };
+      await t.pumpWidget(host(() => sel, (s) => sel = s));
+      await t.tap(find.byTooltip('Remove Right arm'));
+      await t.pump();
+      expect(sel, {'front_left_knee'});
+    });
+
     testWidgets('no overflow with 2x text on 360x800', (t) async {
       phone(t, textScale: 2);
       var sel = <String>{};
@@ -386,8 +490,9 @@ void main() {
   group('questionnaire', () {
     Future<RehabInfo?> answer(
       WidgetTester t,
-      Future<void> Function() pickArea,
-    ) async {
+      Future<void> Function() pickArea, {
+      Future<void> Function()? then,
+    }) async {
       RehabInfo? result;
       await t.pumpWidget(
         MaterialApp(
@@ -410,6 +515,7 @@ void main() {
         await t.tap(find.text(option));
         await t.pump();
       }
+      await then?.call();
       await t.tap(find.text('Find my plans'));
       await t.pumpAndSettle();
       return result;
@@ -423,6 +529,69 @@ void main() {
       });
       expect(rehab?.affectedBodyArea, 'BOTH_LEGS');
       expect(rehab?.focusParts, ['knee']);
+    });
+
+    Future<RehabInfo?> withPaceTaps(WidgetTester t, List<String> taps) =>
+        answer(
+          t,
+          () => tapRegion(t, 'front_left_knee'),
+          then: () async {
+            for (final label in taps) {
+              await reveal(t, find.text(label));
+              await t.tap(find.text(label));
+              await t.pump();
+            }
+          },
+        );
+
+    testWidgets('the pace is optional', (t) async {
+      phone(t);
+      expect((await withPaceTaps(t, []))?.pace, isNull);
+    });
+
+    testWidgets('the chosen pace is returned', (t) async {
+      phone(t);
+      expect((await withPaceTaps(t, ['Faster', 'Steady']))?.pace, 'MEDIUM');
+    });
+
+    testWidgets('tapping the chosen pace again clears it', (t) async {
+      phone(t);
+      expect((await withPaceTaps(t, ['Faster', 'Faster']))?.pace, isNull);
+    });
+
+    testWidgets('answer cards say which one is chosen', (t) async {
+      phone(t);
+      final handle = t.ensureSemantics();
+      await t.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showRehabQuestionnaire(context),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+      await reveal(t, find.text('Early'));
+      await t.tap(find.text('Early'));
+      await t.pump();
+      expect(
+        t.getSemantics(
+          find
+              .ancestor(
+                of: find.text('Early'),
+                matching: find.byType(Semantics),
+              )
+              .first,
+        ),
+        isSemantics(isSelected: true, hasSelectedState: true, isButton: true),
+      );
+      expect(find.byIcon(Icons.check_circle), findsOneWidget);
+      handle.dispose();
     });
 
     testWidgets('Find my plans stays disabled until a part is chosen', (

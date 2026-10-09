@@ -300,7 +300,7 @@ def test_endpoint_accepts_evidence_and_reports_it():
     r = client.post("/recommend", json=b, headers=DEV)
     assert r.status_code == 200, r.text
     res = r.json()
-    assert res["model_version"] == "hybrid-2.1"
+    assert res["model_version"] == "hybrid-2.2"
     top = next(x for x in res["ranked"] if NAME[x["plan_id"]] == "Early Knee Recovery")
     assert top["evidence_patients"] == 30 and 0 < top["alpha"] <= 0.3
     assert top["breakdown"]["collaborative"] is not None
@@ -395,3 +395,62 @@ def test_endpoint_reports_the_focus_score():
     assert r.status_code == 200
     assert names(r.json())[0] == "Hand and Wrist Recovery"
     assert r.json()["ranked"][0]["breakdown"]["focus"] == pytest.approx(0.894, abs=1e-3)
+
+
+# ---- hybrid-2.2: optional pace ---------------------------------------------------------------
+
+def paced(pace, **kw):
+    b = body(**kw)
+    b["pace"] = pace
+    return RecommendRequest.model_validate(b)
+
+
+def test_no_pace_changes_nothing():
+    for req in grid():
+        assert all(r.breakdown.pace is None for r in recommend(req).ranked)
+
+
+def test_plan_pace_buckets():
+    plans = {p.plan_name: p for p in RecommendRequest.model_validate(body()).plans}
+    assert E.plan_pace(plans["Early Knee Recovery"]) == 0          # 3 days
+    assert E.plan_pace(plans["Core and Back Care"]) == 1           # 4 days
+    assert E.plan_pace(plans["Hand and Wrist Recovery"]) == 2      # 5 days
+
+
+def test_pace_prefers_plans_with_that_many_days():
+    # Arm, early, low, mobility: Shoulder Mobility Starter and Hand and Wrist are 5 days a week.
+    fast = recommend(paced("FAST", **ARM_EARLY))
+    slow = recommend(paced("SLOW", **ARM_EARLY))
+    top_fast = {NAME[r.plan_id]: r.suitability_score for r in fast.ranked}
+    top_slow = {NAME[r.plan_id]: r.suitability_score for r in slow.ranked}
+    hand = "Hand and Wrist Recovery"
+    assert top_fast[hand] > top_slow[hand]
+    assert fast.ranked[0].breakdown.pace == pytest.approx(1.0)
+
+
+def test_pace_never_brings_back_an_excluded_plan():
+    for pace in ("SLOW", "MEDIUM", "FAST"):
+        res = recommend(paced(pace, area="BOTH_LEGS"))
+        assert not {"Hand and Wrist Recovery", "Shoulder Mobility Starter"} & set(names(res.model_dump()))
+
+
+def test_pace_weight_is_modest():
+    # A full pace mismatch costs at most PACE_WEIGHT / 1.1 of a perfect score.
+    res = recommend(paced("FAST", area="BOTH_LEGS"))          # Early Knee Recovery is 3 days a week
+    assert NAME[res.ranked[0].plan_id] == "Early Knee Recovery"
+    assert res.ranked[0].suitability_score >= round(1 - E.PACE_WEIGHT / (1 + E.PACE_WEIGHT), 3)
+
+
+def test_unknown_frequency_is_neutral():
+    b = copy.deepcopy(body(**ARM_EARLY))
+    for p in b["plans"]:
+        p.pop("frequency_per_week", None)
+    b["pace"] = "FAST"
+    res = recommend(RecommendRequest.model_validate(b))
+    assert all(r.breakdown.pace == E.NEUTRAL_PACE for r in res.ranked)
+
+
+def test_unknown_pace_is_an_invalid_request():
+    b = body()
+    b["pace"] = "VERY_FAST"
+    assert client.post("/recommend", json=b, headers=DEV).status_code == 422
