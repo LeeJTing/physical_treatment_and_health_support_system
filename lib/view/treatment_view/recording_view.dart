@@ -44,9 +44,29 @@ class _RecordingViewState extends State<RecordingView>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
-    _controller?.dispose();
+    _release(_controller, wasRecording: _recording);
     super.dispose();
   }
+
+  /// Stops a clip still being recorded (and deletes it) before closing the
+  /// camera. Closing it mid-recording left CameraX's recorder broken, so the
+  /// next recording never stopped (Android 15 emulator, 10 Oct).
+  static void _release(CameraController? c, {required bool wasRecording}) {
+    if (c == null) return;
+    if (!wasRecording) {
+      c.dispose();
+      return;
+    }
+    c
+        .stopVideoRecording()
+        .timeout(_stopTimeout)
+        .then((f) => File(f.path).delete())
+        .then<void>((_) {}, onError: (Object _) {})
+        .whenComplete(c.dispose);
+  }
+
+  /// How long stopping a clip may take before it counts as failed.
+  static const _stopTimeout = Duration(seconds: 5);
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
@@ -54,8 +74,8 @@ class _RecordingViewState extends State<RecordingView>
     if (c == null || !c.value.isInitialized) return;
     if (state == AppLifecycleState.inactive) {
       _stopTimer();
+      _release(c, wasRecording: _recording);
       _recording = false;
-      c.dispose();
       _controller = null;
     } else if (state == AppLifecycleState.resumed) {
       _initCamera();
@@ -77,7 +97,8 @@ class _RecordingViewState extends State<RecordingView>
         _cameras[_cameraIndex],
         ResolutionPreset.high,
         enableAudio: false,
-        videoBitrate: AppConstants.recordingBitrate, // smaller upload, same result
+        videoBitrate:
+            AppConstants.recordingBitrate, // smaller upload, same result
       );
       await c.initialize();
       // FR300_15: at least 720p.
@@ -122,7 +143,13 @@ class _RecordingViewState extends State<RecordingView>
     final c = _controller;
     if (c == null || !c.value.isInitialized) return;
     if (!_recording) {
-      await c.startVideoRecording();
+      try {
+        await c.startVideoRecording();
+      } on CameraException {
+        _showProblem(Messages.recordingFailed);
+        return;
+      }
+      if (!mounted) return;
       setState(() {
         _recording = true;
         _seconds = 0;
@@ -136,8 +163,25 @@ class _RecordingViewState extends State<RecordingView>
       return;
     }
     _stopTimer();
-    final file = await c.stopVideoRecording();
+    final XFile file;
+    try {
+      // Never wait for ever: a stop that does not finish leaves the screen
+      // stuck on "Stop" with the timer frozen.
+      file = await c.stopVideoRecording().timeout(_stopTimeout);
+    } on Object {
+      if (!mounted) return;
+      setState(() {
+        _recording = false;
+        _controller = null;
+      });
+      _showProblem(Messages.recordingFailed);
+      // A fresh camera, so the next try starts clean.
+      _release(c, wasRecording: false);
+      await _initCamera();
+      return;
+    }
     final seconds = _seconds;
+    if (!mounted) return;
     setState(() => _recording = false);
     if (seconds < AppConstants.minVideoSeconds) {
       _showProblem(Messages.videoInvalid); // FR300_16, before any upload

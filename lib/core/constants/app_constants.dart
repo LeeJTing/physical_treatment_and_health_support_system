@@ -47,7 +47,8 @@ class AppConstants {
   static const int passwordMin = 8;
   static const int otpLength = 6;
   static const int maxLoginFailures = 5; // FR100_031
-  static const int maxCodeAttempts = 5; // FR100_016, UC100 C13: wrong codes per issued code
+  static const int maxCodeAttempts =
+      5; // FR100_016, UC100 C13: wrong codes per issued code
   static const Duration loginLockout = Duration(minutes: 15);
 
   // ---- Profile accepted ranges (Table 3.3) ---------------------------------
@@ -61,6 +62,7 @@ class AppConstants {
   // ---- Exercise video (UC500 C4, C5) ---------------------------------------
   static const int minVideoSeconds = 10;
   static const int maxVideoSeconds = 30;
+
   /// Recording bitrate (NFR_07: the upload is most of the wait). 9 Oct test on 60 own clips at 720p
   /// (training/experiment_bitrate.py): 2.5 Mbps gave the same pass / fail as 5 Mbps on 60 of 60 at half
   /// the size; 3 Mbps leaves room for a phone encoder, which does a little worse per bit.
@@ -179,6 +181,11 @@ class Messages {
       "Are you sure that you don't want to select any plan?";
   static const questionNotRecognised =
       'The question is not recognised, please try asking other question.';
+
+  /// The camera did not finish the clip (seen on Android 15 after leaving a
+  /// recording). Not in the UC500 list (PROJECT_STATE §11).
+  static const recordingFailed =
+      'The recording could not be saved. Please record again.';
 
   // UC500 (M300)
   static const cameraFailed =

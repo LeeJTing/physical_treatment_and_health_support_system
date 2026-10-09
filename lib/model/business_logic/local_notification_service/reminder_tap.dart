@@ -8,7 +8,7 @@ class ReminderTap {
   final String? patientPlanId;
   const ReminderTap(this.type, [this.patientPlanId]);
 
-  /// "EXERCISE|<patientPlanId>" or "HEALTH_LOG|".
+  /// `EXERCISE|<patientPlanId>` or `HEALTH_LOG|`.
   String toPayload() => '${type.db}|${patientPlanId ?? ''}';
 
   /// Null for anything that is not a payload written by [toPayload].
