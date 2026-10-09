@@ -11,6 +11,7 @@ Exercise ex(
   String id, {
   ExerciseIntensity intensity = ExerciseIntensity.low,
   String area = 'BOTH_LEGS',
+  String? poseKey,
 }) => Exercise(
   exerciseId: id,
   exerciseName: id,
@@ -19,7 +20,19 @@ Exercise ex(
   intensityLevel: intensity,
   defaultRepetitions: 10,
   defaultDurationSec: 60,
+  poseKey: poseKey,
 );
+
+/// A plan built from posture exercises, named by pose key (as in the catalogue).
+TreatmentPlan posePlan(String id, String area, String goal, List<String> keys) =>
+    plan(
+      id,
+      area: area,
+      goal: goal,
+      exercises: [
+        for (final k in keys) (ex(k, area: area, poseKey: k), 60),
+      ],
+    );
 
 TreatmentPlan plan(
   String id, {
@@ -95,6 +108,56 @@ void main() {
       expect(PlanRules.areasOverlap('LEFT_ARM', 'RIGHT_ARM'), isFalse);
       expect(PlanRules.areasOverlap('CORE', 'BOTH_LEGS'), isFalse);
     });
+    test('clash also needs mostly the same joints (Elwin, 9 Oct)', () {
+      // Catalogue plans (assets/seed/catalogue.json), both BOTH_ARMS + MOBILITY.
+      final shoulder = posePlan('shoulder', 'BOTH_ARMS', 'MOBILITY', [
+        'shoulder_flexion',
+        'shoulder_abduction',
+        'elbow_flexion',
+      ]);
+      final hand = posePlan('hand', 'BOTH_ARMS', 'MOBILITY', [
+        'wrist_extension',
+        'hand_open_close',
+        'elbow_flexion',
+      ]);
+      expect(PlanRules.jointOverlap(shoulder, hand), closeTo(0.2, 1e-9));
+      expect(PlanRules.clashes(shoulder, hand), isFalse);
+      expect(
+        codes(check(hand, [shoulder])),
+        allOf(contains('same_area'), isNot(contains('clash'))),
+      );
+
+      // Both BOTH_LEGS + STRENGTH and knee + hip: still a clash.
+      final builder = posePlan('builder', 'BOTH_LEGS', 'STRENGTH', [
+        'sit_to_stand',
+        'mini_squat',
+        'step_up',
+      ]);
+      final advanced = posePlan('advanced', 'BOTH_LEGS', 'STRENGTH', [
+        'mini_squat',
+        'step_up',
+        'hip_abduction',
+      ]);
+      expect(PlanRules.clashes(builder, advanced), isTrue);
+
+      // FULL_BODY vs BOTH_LEGS balance, sharing Tandem Stance: 0.67, a clash.
+      final falls = posePlan('falls', 'FULL_BODY', 'BALANCE', [
+        'tandem_stance',
+        'heel_raise',
+        'sit_to_stand',
+      ]);
+      final hip = posePlan('hip', 'BOTH_LEGS', 'BALANCE', [
+        'hip_abduction',
+        'tandem_stance',
+        'glute_bridge',
+      ]);
+      expect(PlanRules.jointOverlap(falls, hip), closeTo(4 / 6, 1e-9));
+      expect(PlanRules.clashes(falls, hip), isTrue);
+
+      // Unknown joints: area and goal decide, as before.
+      expect(PlanRules.jointOverlap(plan('a'), plan('b')), isNull);
+    });
+
     test('clash needs overlapping area AND the same goal', () {
       expect(PlanRules.clashes(plan('a'), plan('b', area: 'LEFT_LEG')), isTrue);
       expect(PlanRules.clashes(plan('a'), plan('b', goal: 'BALANCE')), isFalse);

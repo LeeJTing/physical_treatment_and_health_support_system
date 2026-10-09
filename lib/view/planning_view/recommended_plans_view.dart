@@ -97,7 +97,7 @@ class RecommendedPlansView extends StatelessWidget {
                 .plan
                 .planName,
       ];
-      return 'Clashes with ${names.join(' and ')} (same goal for the same body area).';
+      return 'Clashes with ${names.join(' and ')} (same goal, same joints).';
     }
     if (code.contains('risk_cap')) {
       return 'You would need to replace one of your plans.';

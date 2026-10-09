@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.43",
+  "version": "chat-rules-3.44",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -2152,7 +2152,7 @@
         "why does it say the plan clashes",
         "the same exercise is in both my plans"
       ],
-      "answer": "You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and 1 if it is High. Two plans for the same body area with the same goal clash, so the app asks you to replace one instead of adding the second. Each plan gives you one exercise a day; an exercise that is in two of your plans is done once and counts for both. To add a plan, open AI-assisted planning and choose Retrieve physical treatment. To stop one, open it on the Physical Treatment page and tap Stop this plan; your progress so far is kept.",
+      "answer": "You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and 1 if it is High. Two plans with the same goal that train the same joints clash, so the app asks you to replace one instead of adding the second; a shoulder plan and a hand plan can be followed together. Each plan gives you one exercise a day; an exercise that is in two of your plans is done once and counts for both. To add a plan, open AI-assisted planning and choose Retrieve physical treatment. To stop one, open it on the Physical Treatment page and tap Stop this plan; your progress so far is kept.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,

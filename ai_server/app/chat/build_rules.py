@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.43"
+VERSION = "chat-rules-3.44"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -519,7 +519,7 @@ INTENTS = [
            "with your average, your best score and a chart of how your posture accuracy is changing.",
            show=False, action={"key": "open_history", "label": "See my results"}),
     # Round 15 (9 Oct): the features added on 9 Oct. Several active plans (Elwin's rules: clash = same
-    # body area and same goal; at most 3 / 2 / 1 plans for Low / Medium / High risk; one exercise per plan
+    # body area, same goal and mostly the same joints (3.44); at most 3 / 2 / 1 plans for Low / Medium / High risk; one exercise per plan
     # a day, a shared exercise done once and counted for both), the body map with the neck left out
     # (high risk), and the posture check's "does not look like" message. Not shown as categories (the list
     # stays as it was for older users); typed questions reach them.
@@ -534,8 +534,9 @@ INTENTS = [
            ["can I follow two plans at the same time", "how many plans can I have", "why does it say the plan clashes",
             "the same exercise is in both my plans"],
            "You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and "
-           "1 if it is High. Two plans for the same body area with the same goal clash, so the app asks you to "
-           "replace one instead of adding the second. Each plan gives you one exercise a day; an exercise that is "
+           "1 if it is High. Two plans with the same goal that train the same joints clash, so the app asks you "
+           "to replace one instead of adding the second; a shoulder plan and a hand plan can be followed "
+           "together. Each plan gives you one exercise a day; an exercise that is "
            "in two of your plans is done once and counts for both. To add a plan, open AI-assisted planning and "
            "choose Retrieve physical treatment. To stop one, open it on the Physical Treatment page and tap Stop "
            "this plan; your progress so far is kept.", show=False),

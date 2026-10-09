@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
@@ -39,7 +41,9 @@ class PlanIssue {
 }
 
 /// Rules for following several treatment plans at once (Elwin, 9 Oct 2026):
-///  - two plans clash when their body areas overlap AND their goals match;
+///  - two plans clash when their body areas overlap AND their goals match AND they
+///    work mostly the same joints (Elwin, 9 Oct: a shoulder plan and a hand plan
+///    for both arms can be followed together);
 ///  - at most 3 / 2 / 1 active plans for Low / Medium / High risk;
 ///  - one exercise per plan per day, an exercise shared by two plans is done
 ///    once and counts for both;
@@ -70,11 +74,72 @@ class PlanRules {
   static bool areasOverlap(String a, String b) =>
       (_parts[a] ?? const {}).intersection(_parts[b] ?? const {}).isNotEmpty;
 
-  /// Same body area (overlapping) AND the same goal.
-  static bool clashes(TreatmentPlan a, TreatmentPlan b) =>
-      areasOverlap(a.targetBodyArea, b.targetBodyArea) &&
-      a.goal != null &&
-      a.goal == b.goal;
+  // Joints each posture exercise trains: the recommender's POSE_PARTS
+  // (ai_server/app/recommend/engine.py), keep the two the same.
+  static const _poseJoints = {
+    'shoulder_abduction': ['shoulder'],
+    'shoulder_flexion': ['shoulder'],
+    'elbow_flexion': ['elbow'],
+    'wall_push_up': ['elbow'],
+    'wrist_extension': ['wrist_hand'],
+    'hand_open_close': ['wrist_hand'],
+    'hip_abduction': ['hip'],
+    'seated_marching': ['hip'],
+    'march_in_place': ['hip'],
+    'glute_bridge': ['hip', 'back'],
+    'bird_dog': ['back'],
+    'knee_extension': ['knee'],
+    'sit_to_stand': ['knee', 'hip'],
+    'mini_squat': ['knee', 'hip'],
+    'step_up': ['knee', 'hip'],
+    'heel_raise': ['ankle_foot'],
+    'tandem_stance': ['ankle_foot'],
+  };
+
+  /// How many of the plan's exercises train each joint.
+  static Map<String, int> jointCounts(TreatmentPlan p) {
+    final counts = <String, int>{};
+    for (final pe in p.exercises) {
+      for (final j in _poseJoints[pe.exercise.poseKey] ?? const <String>[]) {
+        counts[j] = (counts[j] ?? 0) + 1;
+      }
+    }
+    return counts;
+  }
+
+  /// How much two plans work the same joints, 0 to 1 (cosine of their joint
+  /// counts, as the recommender compares plans). Null when either plan has no
+  /// exercise with a known joint.
+  static double? jointOverlap(TreatmentPlan a, TreatmentPlan b) {
+    final x = jointCounts(a);
+    final y = jointCounts(b);
+    if (x.isEmpty || y.isEmpty) return null;
+    var dot = 0;
+    for (final e in x.entries) {
+      dot += e.value * (y[e.key] ?? 0);
+    }
+    double norm(Map<String, int> m) =>
+        math.sqrt(m.values.fold<int>(0, (s, n) => s + n * n));
+    return dot / (norm(x) * norm(y));
+  }
+
+  /// From this joint overlap up, two plans "work the same joints". On the
+  /// catalogue: Shoulder Mobility Starter vs Hand and Wrist Recovery 0.2 (no
+  /// clash); the two balance plans 0.67, the two endurance plans 0.87 and the
+  /// two leg-strength plans 0.98 (clash).
+  static const sameJoints = 0.5;
+
+  /// Same body area (overlapping) AND the same goal AND mostly the same joints.
+  /// Plans whose joints are unknown clash on area and goal alone.
+  static bool clashes(TreatmentPlan a, TreatmentPlan b) {
+    if (!areasOverlap(a.targetBodyArea, b.targetBodyArea) ||
+        a.goal == null ||
+        a.goal != b.goal) {
+      return false;
+    }
+    final overlap = jointOverlap(a, b);
+    return overlap == null || overlap >= sameJoints;
+  }
 
   /// Worst-case minutes a day with one exercise per plan per day; an exercise
   /// shared by several plans is done once, so it counts once (its longest
@@ -170,7 +235,7 @@ class PlanRules {
       );
     }
 
-    // 3. Same body area and goal: only one of the two can stay.
+    // 3. Same body area, goal and joints: only one of the two can stay.
     final clashing = [
       for (final a in active)
         if (clashes(a.plan, candidate)) a,
@@ -180,8 +245,9 @@ class PlanRules {
         PlanIssue(
           PlanIssueLevel.replace,
           'clash',
-          '${a.plan.planName} already works on the same goal for your '
-              '${_area(a.plan.targetBodyArea)}. You can follow one of them: '
+          '${a.plan.planName} already trains the same joints of your '
+              '${_area(a.plan.targetBodyArea)} for the same goal. You can follow '
+              'one of them: '
               'replace it with ${candidate.planName}?',
           patientPlanId: a.patientPlanId,
         ),
