@@ -64,4 +64,10 @@ ROUND15 = [
     (KNEE, "my neck pain is better, no fever", "neck_not_covered"),
     (KNEE, "i am afraid of getting hurt after a fall", ("fear_of_falling", "safety")),
     (KNEE, "what if i cannot get up after a fall", ("fear_of_falling", "safety")),
+    # an exercise named in full wins over a general phrase inside its name (PC probe of exercise
+    # questions: 970/1010 before)
+    (KNEE, "how do i do the marching while sitting", "exercise:seated_marching"),
+    (KNEE, "is balance stand safe for me", "exercise:tandem_stance"),
+    (KNEE, "i keep losing my balance in the balance stand", ("weakness_balance", "exercise:tandem_stance")),
+    (KNEE, "can i do the step up while sitting", ("difficulty", "exercise:step_up")),
 ]

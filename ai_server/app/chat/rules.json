@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.40",
+  "version": "chat-rules-3.41",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {

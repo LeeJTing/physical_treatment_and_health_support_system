@@ -1003,6 +1003,29 @@ def glossary_match(text: str) -> dict | None:
     return next((i for i in rules()["intents"] if i["key"] == key), None)
 
 
+def _spans(text: str, phrases: list[str]) -> list[tuple[int, int]]:
+    words = clean(text).split()
+    return [(i, i + len(clean(p).split())) for p in phrases for i in find_phrase(p, words)]
+
+
+def _inside_exercise_names(text: str, hits: list) -> list:
+    """Drop a general rule whose every keyword found lies inside an exercise's name ("marching while
+    sitting" is not the "while sitting" question, "balance stand" is not about balance; PC probe of
+    exercise questions, 9 Oct). A keyword found outside the name keeps the rule ("I lose my balance in
+    the balance stand")."""
+    names = [s for h in hits if h[2]["key"].startswith("exercise:") for s in _spans(text, h[2]["keywords"])]
+    if not names:
+        return hits
+    out = []
+    for h in hits:
+        if not h[2]["key"].startswith("exercise:"):
+            own = _spans(text, h[2]["keywords"])
+            if own and all(any(a <= i and j <= b and (b - a) > (j - i) for a, b in names) for i, j in own):
+                continue
+        out.append(h)
+    return out
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched."""
     g = glossary_match(text)
@@ -1044,6 +1067,7 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         small = [h for h in hits if h[2].get("small_talk")]
         if small:                                    # "good morning", "help", "ok thanks"
             return max(small, key=lambda h: (h[0], h[1]))[2], "keyword"
+    hits = _inside_exercise_names(text, hits)
     keys = {h[2]["key"] for h in hits}
     if "difficulty" in keys:
         # "My arm cannot go up to shoulder height" is about not managing it, not how the exercise goes.
