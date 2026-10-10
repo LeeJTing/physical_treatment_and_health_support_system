@@ -42,6 +42,23 @@ class PlanningViewModel extends BaseViewModel {
 
   ProfileSnapshot? _snapshot;
 
+  /// The profile age of the last request, for the age-limit page.
+  int? get age => _snapshot?.profile?.age;
+
+  /// Whether plans may be generated for the patient, from the profile age
+  /// (Terms of Use, section 2: none from 65). Checked before the
+  /// questionnaire so a restricted patient is not asked for nothing; a
+  /// failure to read the profile is not a restriction (the request then
+  /// reports it).
+  Future<PlanRestriction?> checkRestriction() async {
+    final snap = await _riskAssessment.retrieve();
+    if (snap case Success(:final data)) {
+      _snapshot = data;
+      return PlanRestriction.forAge(data.profile?.age);
+    }
+    return null;
+  }
+
   /// Questionnaire answers of the last request, kept for "Try again".
   RehabInfo? _lastRehab;
   RehabInfo? get lastRehab => _lastRehab;
@@ -164,6 +181,12 @@ class PlanningViewModel extends BaseViewModel {
       return;
     }
     _snapshot = snapshot;
+    // No plan from 65, also for "Find my next plan" (Terms of Use, section 2).
+    if (PlanRestriction.forAge(snapshot.profile?.age) case final r?) {
+      _recommendation = UiSuccess(Recommendation.restricted(r));
+      notifyListeners();
+      return;
+    }
     final accountId = snapshot.accountId;
     _activePlans = accountId == null
         ? const []

@@ -12,6 +12,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/viewmodel/planning_view_model/planning_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_card.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_reasons.dart';
 
 /// Recommended plans page (UI Design "Recommended Treatment Page"): the top
 /// three plans with View details / Select, and Reject all plans (UC400).
@@ -278,6 +279,19 @@ class RecommendedPlansView extends StatelessWidget {
                     actionLabel: 'Try again',
                     onAction: vm.retry,
                   ),
+                  // 65 and over (Terms of Use, section 2): the reasons page instead.
+                  UiSuccess(:final data) when data.restriction != null =>
+                    _Problem(
+                      message:
+                          'Exercise plans are for users under '
+                          '${AppConstants.planAgeLimit}, as stated in the '
+                          'Terms of Use (section 2).',
+                      actionLabel: 'Why',
+                      onAction: () => Navigator.of(context).pushNamed(
+                        Routes.ageLimit,
+                        arguments: vm.age,
+                      ),
+                    ),
                   UiSuccess(:final data) when data.plans.isEmpty => _Problem(
                     // FR500_14; after a next step the server says why nothing fits
                     // (e.g. no gentler plan for this area within the safety limits).
@@ -289,6 +303,7 @@ class RecommendedPlansView extends StatelessWidget {
                         : Messages.conditionNotMet,
                     actionLabel: vm.from == null ? 'Back to planning' : 'Back',
                     onAction: () => _exit(context),
+                    excluded: data.excluded,
                   ),
                   UiSuccess(:final data) => _PlanList(
                     recommendation: data,
@@ -370,8 +385,18 @@ class _PlanList extends StatelessWidget {
             onSelect: () => onSelect(plans[i]),
             note: noteFor(plans[i]),
             noteOk: noteFor(plans[i]) == RecommendedPlansView.fitsTogether,
+            why: recommendation.why[plans[i].planId] ?? const [],
           ),
           const SizedBox(height: AppTokens.gap),
+        ],
+        if (recommendation.excluded.isNotEmpty) ...[
+          TextButton(
+            onPressed: () => showWhyNot(context, recommendation.excluded),
+            child: Text(
+              'Why not the other ${recommendation.excluded.length} plans?',
+            ),
+          ),
+          const SizedBox(height: 4),
         ],
         const SizedBox(height: 4),
         TokenButton(
@@ -408,10 +433,14 @@ class _Problem extends StatelessWidget {
   final String actionLabel;
   final VoidCallback onAction;
 
+  /// When no plan fits: the plans left out and why.
+  final List<ExcludedPlan> excluded;
+
   const _Problem({
     required this.message,
     required this.actionLabel,
     required this.onAction,
+    this.excluded = const [],
   });
 
   @override
@@ -427,6 +456,11 @@ class _Problem extends StatelessWidget {
           color: AppTokens.primary,
           onPressed: onAction,
         ),
+        if (excluded.isNotEmpty)
+          TextButton(
+            onPressed: () => showWhyNot(context, excluded),
+            child: const Text('Why no plan fits'),
+          ),
       ],
     ),
   );

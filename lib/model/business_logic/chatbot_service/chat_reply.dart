@@ -18,7 +18,7 @@ class ChatCategory {
 /// [key] to a screen.
 class ChatAction {
   final String
-  key; // open_reset_password | open_planning | open_profile | open_treatment | open_reminders | open_history
+  key; // open_reset_password | open_planning | open_profile | open_treatment | open_reminders | open_history | open_age_limit
   final String label;
 
   const ChatAction(this.key, this.label);

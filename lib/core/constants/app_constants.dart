@@ -53,6 +53,12 @@ class AppConstants {
 
   // ---- Profile accepted ranges (Table 3.3) ---------------------------------
   static const int ageMin = 13, ageMax = 120;
+
+  /// No exercise plan from this age (Terms of Use, section 2): the programmes
+  /// proven for older adults were set up and followed by health
+  /// professionals, and this app has none. Existing plans are paused.
+  /// Same number as PLAN_AGE_LIMIT on the AI server.
+  static const int planAgeLimit = 65;
   static const double weightMin = 20, weightMax = 300;
   static const double heightMin = 80, heightMax = 250;
   static const Duration profileStaleAfter = Duration(

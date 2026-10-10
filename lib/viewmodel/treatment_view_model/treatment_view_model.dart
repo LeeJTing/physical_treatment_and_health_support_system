@@ -7,6 +7,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -69,6 +70,15 @@ class TreatmentViewModel extends BaseViewModel {
     return (risk, profile.age);
   }
 
+  /// Plans are paused from 65 (Terms of Use, section 2): nothing can be
+  /// started, the progress is kept and the exercise reminders stop ringing.
+  PlanRestriction? _restriction;
+  PlanRestriction? get restriction => _restriction;
+
+  /// The profile age, for the age-limit page.
+  int? _age;
+  int? get age => _age;
+
   /// The next exercise reminder for the active plan, for the Treatment screen card.
   DateTime? _nextReminderAt;
   DateTime? get nextReminderAt => _nextReminderAt;
@@ -111,7 +121,9 @@ class TreatmentViewModel extends BaseViewModel {
   /// The current exercise did not pass several times: offer plans that may
   /// suit better (the server's EASE step).
   bool get suggestEasier =>
-      !planComplete && failsAtCurrent >= RecommendationService.easeAfterFails;
+      _restriction == null &&
+      !planComplete &&
+      failsAtCurrent >= RecommendationService.easeAfterFails;
 
   /// Sessions of every active plan (for the shared-exercise and rest-day rules).
   Map<String, List<ExerciseSession>> _sessionsByPlan = const {};
@@ -152,6 +164,11 @@ class TreatmentViewModel extends BaseViewModel {
       notifyListeners();
       return;
     }
+    final risk = _risk;
+    _age = risk == null
+        ? null
+        : (await risk.retrieve()).dataOrNull?.profile?.age;
+    _restriction = PlanRestriction.forAge(_age);
     final res = await _repo.getActivePlans(account.accountId);
     if (res case Success(data: final all)) {
       _plans = all;
@@ -251,7 +268,7 @@ class TreatmentViewModel extends BaseViewModel {
   /// anything the pathway offers; afterwards only today's own exercise, and
   /// only when today's attempt at it did not pass (a retry).
   bool canStart(String exerciseId) {
-    if (restDayToday) return false;
+    if (_restriction != null || restDayToday) return false;
     if (!doneToday) return true;
     final today = [
       for (final s in _sessions)

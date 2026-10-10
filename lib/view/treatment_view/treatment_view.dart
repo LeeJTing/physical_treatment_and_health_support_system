@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
@@ -176,12 +177,31 @@ class _TreatmentViewState extends State<TreatmentView> {
                 padding: const EdgeInsets.only(left: 8),
                 child: Column(
                   children: [
+                    // 65 and over: paused, nothing deleted (Terms of Use, section 2).
+                    if (vm.restriction != null) ...[
+                      const NoticeBanner(
+                        'This plan is paused: exercise plans are for users '
+                        'under ${AppConstants.planAgeLimit}, as stated in the '
+                        'Terms of Use (section 2). Your progress is kept.',
+                        warning: true,
+                      ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton(
+                          onPressed: () => Navigator.of(context).pushNamed(
+                            Routes.ageLimit,
+                            arguments: vm.age,
+                          ),
+                          child: const Text('Why plans are paused'),
+                        ),
+                      ),
+                    ],
                     ProgressBlock(
                       label: 'Overall progress',
                       done: plan.completedStages,
                       total: plan.plan.exercises.length,
                     ),
-                    if (vm.planComplete) ...[
+                    if (vm.planComplete && vm.restriction == null) ...[
                       const SizedBox(height: AppTokens.gap),
                       const NoticeBanner(
                         'Plan complete. Well done! Your next plan can build on it.',

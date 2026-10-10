@@ -3,6 +3,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
@@ -32,6 +33,9 @@ class HomeData {
   /// The followed plans no longer fit the current health profile
   /// (PlanRules.checkActive): the patient reviews them, nothing is stopped.
   final List<PlanIssue> planIssues;
+
+  /// Plans are paused from 65 (Terms of Use, section 2).
+  bool get plansPaused => PlanRestriction.forAge(profile.profile?.age) != null;
 
   const HomeData({
     required this.username,

@@ -39,6 +39,9 @@ class ChatViewModel extends BaseViewModel {
   /// The plan the conversation is about (FR500_18); null before any plan is selected.
   String? get planId => _chatbot.planId;
 
+  /// The profile age, for the age-limit page the chat can open.
+  int? get age => _snapshot?.profile?.age;
+
   final List<ChatEntry> _messages = [];
 
   /// Transcript in order.
@@ -65,7 +68,10 @@ class ChatViewModel extends BaseViewModel {
         _patientPlanId = active?.patientPlanId;
       }
     }
-    final res = await _chatbot.categoriesFor(_chatbot.planId);
+    final res = await _chatbot.categoriesFor(
+      _chatbot.planId,
+      age: _snapshot?.profile?.age,
+    );
     _categories = switch (res) {
       Success(:final data) => UiSuccess(data),
       Failure(:final message) => UiError(message),

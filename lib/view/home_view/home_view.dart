@@ -195,6 +195,10 @@ class _HomeViewState extends State<HomeView> {
                 data: d,
                 onStart: () => _open(Routes.physicalTreatment),
                 onGetPlan: () => _open(Routes.treatmentPlanning),
+                onWhyPaused: () => Navigator.of(context).pushNamed(
+                  Routes.ageLimit,
+                  arguments: d.profile.profile?.age,
+                ),
               ),
               const SizedBox(height: AppTokens.gap),
               _LimitsCard(
@@ -373,10 +377,14 @@ class _SessionCard extends StatelessWidget {
   final HomeData data;
   final VoidCallback onStart;
   final VoidCallback onGetPlan;
+
+  /// The age-limit page (plans paused from 65).
+  final VoidCallback onWhyPaused;
   const _SessionCard({
     required this.data,
     required this.onStart,
     required this.onGetPlan,
+    required this.onWhyPaused,
   });
 
   @override
@@ -389,6 +397,22 @@ class _SessionCard extends StatelessWidget {
       String button,
       VoidCallback action,
     ) = switch (plan) {
+      // 65 and over (Terms of Use, section 2).
+      null when data.plansPaused => (
+        'No exercise plan',
+        'Exercise plans are for users under ${AppConstants.planAgeLimit} '
+            '(Terms of Use, section 2).',
+        'Why',
+        onWhyPaused,
+      ),
+      final PatientTreatmentPlan p when data.plansPaused => (
+        p.plan.planName,
+        'Paused: exercise plans are for users under '
+            '${AppConstants.planAgeLimit} (Terms of Use, section 2). Your '
+            'progress is kept.',
+        'Why',
+        onWhyPaused,
+      ),
       null => (
         'No treatment plan yet',
         'Get a plan matched to your health profile.',
@@ -475,7 +499,10 @@ class _SessionCard extends StatelessWidget {
               style: const TextStyle(color: Colors.white, fontSize: 16),
             ),
           ],
-          if (plan != null && next != null && !data.doneToday) ...[
+          if (plan != null &&
+              next != null &&
+              !data.doneToday &&
+              !data.plansPaused) ...[
             const SizedBox(height: 4),
             Text(
               'Next: ${next.exercise.exerciseName}',

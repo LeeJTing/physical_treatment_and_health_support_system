@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_reasons.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
@@ -22,6 +24,9 @@ class PlanCard extends StatelessWidget {
   /// The note is good news ("Can be followed together"): green with a tick, not amber.
   final bool noteOk;
 
+  /// "Why this plan", from the recommender, with sources (11 Oct).
+  final List<PlanReason> why;
+
   const PlanCard({
     super.key,
     required this.plan,
@@ -31,6 +36,7 @@ class PlanCard extends StatelessWidget {
     this.busy = false,
     this.note,
     this.noteOk = false,
+    this.why = const [],
   });
 
   @override
@@ -117,7 +123,26 @@ class PlanCard extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 14),
+        if (why.isNotEmpty)
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: const EdgeInsets.only(bottom: 4),
+              expandedCrossAxisAlignment: CrossAxisAlignment.start,
+              title: const Text(
+                'Why this plan',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                  color: AppTokens.primary,
+                ),
+              ),
+              children: [ReasonList(why)],
+            ),
+          )
+        else
+          const SizedBox(height: 14),
         Row(
           children: [
             Expanded(

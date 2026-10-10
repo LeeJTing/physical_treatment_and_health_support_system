@@ -64,6 +64,7 @@ Future<void> main() async {
     tokenProvider: tokenProvider,
   );
 
+  final risk = RiskAssessmentService(authRepo, profileRepo);
   runApp(
     MultiProvider(
       providers: [
@@ -73,9 +74,7 @@ Future<void> main() async {
         Provider<INotificationRepository>.value(value: notificationRepo),
         Provider<ApiClient>.value(value: api),
         // Services are added here module by module; ViewModels are created per route in app.dart.
-        Provider<RiskAssessmentService>.value(
-          value: RiskAssessmentService(authRepo, profileRepo),
-        ),
+        Provider<RiskAssessmentService>.value(value: risk),
         Provider<RecommendationService>.value(
           value: RecommendationService(api),
         ),
@@ -84,7 +83,13 @@ Future<void> main() async {
           value: PoseEstimationService(api),
         ),
         Provider<LocalNotificationService>.value(
-          value: LocalNotificationService(notificationRepo, treatmentRepo),
+          value: LocalNotificationService(
+            notificationRepo,
+            treatmentRepo,
+            // Exercise reminders stop from 65, when plans are paused.
+            profileAge: () async =>
+                (await risk.retrieve()).dataOrNull?.profile?.age,
+          ),
         ),
       ],
       child: const MainApp(),

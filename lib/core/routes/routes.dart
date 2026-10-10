@@ -20,4 +20,8 @@ class Routes {
   static const String physicalTreatment = '/physical-treatment';
   static const String reminders = '/reminders';
   static const String sessionHistory = '/session-history';
+
+  /// Why there is no plan from 65 (Terms of Use, section 2). Argument: the
+  /// profile age (int), optional.
+  static const String ageLimit = '/age-limit';
 }

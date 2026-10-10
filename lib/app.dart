@@ -12,6 +12,7 @@ import 'package:physical_treatment_and_health_support_system/view/login_view/res
 import 'package:physical_treatment_and_health_support_system/view/login_view/verify_code_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/planning_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/age_limit_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/recommended_plans_view.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/planning_view_model/planning_view_model.dart';
@@ -118,6 +119,9 @@ class MainApp extends StatelessWidget {
               c.read(),
             )..preferPlan(ModalRoute.of(ctx)?.settings.arguments as String?),
             child: const TreatmentView(),
+          ),
+          Routes.ageLimit: (ctx) => AgeLimitView(
+            age: ModalRoute.of(ctx)?.settings.arguments as int?,
           ),
           Routes.reminders: (_) => ChangeNotifierProvider(
             create: (c) => NotificationViewModel(c.read(), c.read(), c.read()),

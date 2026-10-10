@@ -1,4 +1,5 @@
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -24,13 +25,20 @@ class LocalNotificationService {
   final DateTime Function() _now;
   static const windowDays = 14;
 
+  /// The profile age, read when a reminder is scheduled: exercise reminders
+  /// do not ring from 65, when plans are paused (Terms of Use, section 2).
+  /// They are kept, not deleted. Null = no age check.
+  final Future<int?> Function()? _profileAge;
+
   LocalNotificationService(
     this._repo,
     this._treatments, {
     NotificationScheduler? scheduler,
     DateTime Function()? now,
+    Future<int?> Function()? profileAge,
   }) : _scheduler = scheduler ?? PluginScheduler(),
-       _now = now ?? DateTime.now;
+       _now = now ?? DateTime.now,
+       _profileAge = profileAge;
 
   /// Requested before the first reminder is scheduled (FR600_008).
   bool permissionGranted = false;
@@ -92,6 +100,12 @@ class LocalNotificationService {
   }) async {
     await cancel(r.reminderId);
     if (!r.isEnabled) return 0;
+    final ageOf = _profileAge;
+    if (ageOf != null &&
+        r.reminderType == ReminderType.exercise &&
+        PlanRestriction.forAge(await ageOf()) != null) {
+      return 0; // plans paused from 65
+    }
     if (!permissionGranted &&
         (permissionDenied || !await requestPermission())) {
       return 0; // refused: asked once, not on every change

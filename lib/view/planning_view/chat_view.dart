@@ -34,6 +34,7 @@ class _ChatViewState extends State<ChatView> {
     'open_treatment': Routes.physicalTreatment,
     'open_reminders': Routes.reminders,
     'open_history': Routes.sessionHistory,
+    'open_age_limit': Routes.ageLimit, // chat-rules-3.49
   };
 
   /// Opens the screen behind a chatbot button, on top of the chat so Back
@@ -49,7 +50,12 @@ class _ChatViewState extends State<ChatView> {
     if (route == widget.openedFrom && nav.canPop()) {
       nav.pop();
     } else {
-      nav.pushNamed(route);
+      nav.pushNamed(
+        route,
+        arguments: route == Routes.ageLimit
+            ? context.read<ChatViewModel>().age
+            : null,
+      );
     }
   }
 

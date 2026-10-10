@@ -17,9 +17,18 @@ class PlanningView extends StatelessWidget {
   const PlanningView({super.key});
 
   Future<void> _retrieve(BuildContext context) async {
+    final vm = context.read<PlanningViewModel>();
+    // 65 and over: the reasons page instead of the questionnaire (Terms of
+    // Use, section 2).
+    if (await vm.checkRestriction() != null) {
+      if (context.mounted) {
+        await Navigator.of(context).pushNamed(Routes.ageLimit, arguments: vm.age);
+      }
+      return;
+    }
+    if (!context.mounted) return;
     final rehab = await showRehabQuestionnaire(context);
     if (rehab == null || !context.mounted) return;
-    final vm = context.read<PlanningViewModel>();
     vm.recommend(rehab);
     await Navigator.of(context).push(
       MaterialPageRoute<void>(

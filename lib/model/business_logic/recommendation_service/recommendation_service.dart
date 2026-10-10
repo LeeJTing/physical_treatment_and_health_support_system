@@ -44,6 +44,13 @@ class RecommendationService {
     final age = snapshot.profile?.age;
     final res = await _api.post(AppConstants.recommendPath, {
       'rehab': rehab.toJson(),
+      // No plan from 65 (Terms of Use, section 2); the conditions choose the
+      // sources shown with the safety reasons.
+      'age': ?age,
+      'conditions': [
+        for (final c in snapshot.profile?.conditions ?? const [])
+          c.conditionCode,
+      ],
       // Body-map parts (hybrid-2.1 focus block); left out for a list choice.
       if (rehab.focusParts.isNotEmpty) 'focus_parts': rehab.focusParts,
       // Optional pace (hybrid-2.2): prefers plans with about that many days a week.
@@ -98,12 +105,27 @@ class RecommendationService {
               p.withScore((r['suitability_score'] as num).toDouble()),
         ];
         modelVersion = body['model_version'] as String? ?? modelVersion;
+        final ranked = (body['ranked'] as List).cast<Map<String, dynamic>>();
         return Recommendation(
           status: RecommendationStatus.fromWire(body['status'] as String?),
           plans: plans,
           modelVersion: modelVersion,
           nextStep: NextStep.fromWire(body['next_step'] as String?),
           nextStepReason: body['next_step_reason'] as String? ?? '',
+          why: {
+            for (final r in ranked)
+              r['plan_id'] as String: PlanReason.listFrom(r['why']),
+          },
+          excluded: [
+            for (final e
+                in ((body['excluded'] as List?) ?? const [])
+                    .cast<Map<String, dynamic>>())
+              if (byId[e['plan_id']] case final p?)
+                ExcludedPlan(p, PlanReason.listFrom(e['why'])),
+          ],
+          restriction: PlanRestriction.fromWire(
+            body['restriction'] as String?,
+          ),
         );
       },
       message: Messages.recommendFailed,
