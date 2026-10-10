@@ -1,0 +1,31 @@
+{
+ "combinations": 720,
+ "exact_query_empty": 706,
+ "recommender_empty": 0,
+ "recommender_three": 675,
+ "completed": {
+  "cases": 720,
+  "static_same_plan_first": 720,
+  "adaptive_same_plan_offered": 0,
+  "adaptive_higher_stage_offered": 304,
+  "adaptive_no_plan": 0,
+  "adaptive_progress_step": 720,
+  "higher_stage_exists_within_limits": 304
+ },
+ "struggling": {
+  "cases": 720,
+  "static_same_plan_first": 720,
+  "adaptive_same_plan_offered": 0,
+  "adaptive_ease_step": 720,
+  "adaptive_no_harder_plan": 720,
+  "adaptive_no_plan": 0
+ },
+ "doing_well": {
+  "cases": 720,
+  "order_changed": 48,
+  "top_changed": 13
+ },
+ "unsafe_plans_returned": 0,
+ "distinct_completed_plan_and_limit_pairs": 14,
+ "model_version": "hybrid-3.0"
+}
