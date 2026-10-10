@@ -106,7 +106,8 @@ def reasonableness():
             failed = sorted(top["plan_exercise"], key=lambda pe: pe["sequence_order"])[0]["exercise"]["exercise_id"]
             prog = {"plans": [{"plan_id": top["plan_id"], "status": "ACTIVE", "consecutive_fails": 3,
                                "current_exercise_id": failed}],
-                    "exercises": [{"exercise_id": failed, "attempts": 3, "passes": 0, "mean_accuracy": 55}]}
+                    "exercises": [{"exercise_id": failed, "attempts": 3, "passes": 0, "mean_accuracy": 55}],
+                    "from_plan_id": top["plan_id"]}
             eased = E.recommend(request(plan_rehab(top), cap, prog))
             out["easing_cases"] += 1
             out["easing_reoffers_failed_exercise"] += any(
@@ -144,7 +145,8 @@ def main():
         c = stats["completed"]
         c["cases"] += 1
         progress = {"plans": [{"plan_id": top["plan_id"], "status": "COMPLETED", "progress_percentage": 100}],
-                    "exercises": [{"exercise_id": e, "attempts": 2, "passes": 2, "mean_accuracy": 88} for e in ex_ids]}
+                    "exercises": [{"exercise_id": e, "attempts": 2, "passes": 2, "mean_accuracy": 88} for e in ex_ids],
+                    "from_plan_id": top["plan_id"]}
         static = E.recommend(request(plan_rehab(top), cap))
         adaptive = E.recommend(request(plan_rehab(top), cap, progress))
         stats["unsafe_plans_returned"] += not safe(adaptive, cap)
@@ -166,8 +168,9 @@ def main():
         s = stats["struggling"]
         s["cases"] += 1
         progress = {"plans": [{"plan_id": top["plan_id"], "status": "ACTIVE", "progress_percentage": 0,
-                               "consecutive_fails": 3}],
-                    "exercises": [{"exercise_id": ex_ids[0], "attempts": 3, "passes": 0, "mean_accuracy": 55}]}
+                               "consecutive_fails": 3, "current_exercise_id": ex_ids[0]}],
+                    "exercises": [{"exercise_id": ex_ids[0], "attempts": 3, "passes": 0, "mean_accuracy": 55}],
+                    "from_plan_id": top["plan_id"]}
         adaptive = E.recommend(request(plan_rehab(top), cap, progress))
         stats["unsafe_plans_returned"] += not safe(adaptive, cap)
         s["static_same_plan_first"] += bool(static.ranked) and static.ranked[0].plan_id == top["plan_id"]

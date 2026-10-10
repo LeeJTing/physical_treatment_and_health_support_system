@@ -115,6 +115,10 @@ class ProgressIn(_In):
     no schema change and no other patient's data."""
     plans: list[PlanHistoryIn] = []
     exercises: list[ExerciseResultIn] = []
+    # The catalogue plan the patient is moving on from ("Find my next plan", "See gentler plans").
+    # Only then is a next step taken, relative to that plan; without it (the questionnaire) the
+    # history only ranks the plans and the patient's own answers decide the level.
+    from_plan_id: str | None = None
 
 
 class RecommendRequest(_In):

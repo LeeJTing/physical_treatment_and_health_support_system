@@ -480,11 +480,12 @@ def history(name, status="ACTIVE", progress=0.0, fails=0, falls=0):
 
 
 def from_plan(name, intensity="MODERATE", plans=(), exercises=(), limitations=()):
-    """Next-step request: the answers are the attributes of the plan the patient is on."""
+    """Next-step request ("Find my next plan" / "See gentler plans"): the answers are the attributes of
+    the plan the patient moves on from, which the request names."""
     p = PLAN[name]
     b = body(area=p["target_body_area"], stage=p["recovery_stage"], mobility=p["mobility_level"], goal=p["goal"],
              intensity=intensity, limitations=limitations)
-    b["progress"] = {"plans": list(plans), "exercises": list(exercises)}
+    b["progress"] = {"plans": list(plans), "exercises": list(exercises), "from_plan_id": p["plan_id"]}
     return RecommendRequest.model_validate(b)
 
 
@@ -541,18 +542,23 @@ def test_step_up_never_passes_the_safety_limit():
 
 def test_progress_never_lowers_the_answers():
     b = body(area="BOTH_LEGS", stage="ADVANCED", mobility="HIGH", goal="STRENGTH", intensity="VIGOROUS", minutes=60)
-    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": []}
+    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": [],
+                     "from_plan_id": PLAN["Early Knee Recovery"]["plan_id"]}
     res = recommend(RecommendRequest.model_validate(b))
     assert (res.effective_stage, res.effective_mobility) == ("ADVANCED", "HIGH")
     assert names(res.model_dump())[0] == "Advanced Leg Function"
 
 
-def test_progress_only_counts_plans_for_the_area_asked_about():
-    b = body(**ARM_EARLY)
-    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": KNEE_DONE}
-    res = recommend(RecommendRequest.model_validate(b))
-    assert res.next_step == "STAY"
-    assert res.effective_stage == "EARLY"
+def test_the_questionnaire_never_moves_the_patients_answers():
+    # History without a named plan (the questionnaire): no step up, no easing, no banner; it only ranks.
+    for plans in ([history("Early Knee Recovery", "COMPLETED", 100)],
+                  [history("Upper Limb Strength", fails=3)], [history("Hip Stability", falls=1)]):
+        b = body(**ARM_EARLY)
+        b["progress"] = {"plans": plans, "exercises": KNEE_DONE}
+        res = recommend(RecommendRequest.model_validate(b))
+        assert res.next_step == "STAY" and res.next_step_reason == ""
+        assert (res.effective_stage, res.effective_mobility) == ("EARLY", "LOW")
+        assert not any(r.startswith(("being eased", "already completed")) for e in res.excluded for r in e.reasons)
 
 
 def test_repeated_failures_ease_the_plan():
@@ -575,18 +581,17 @@ def test_two_failures_are_not_enough_to_ease():
     assert res.next_step == "STAY" and res.effective_stage == "INTERMEDIATE"
 
 
-def test_a_possible_fall_eases_whatever_the_area():
-    b = body(area="BOTH_ARMS", stage="INTERMEDIATE", mobility="MODERATE", goal="STRENGTH")
-    b["progress"] = {"plans": [history("Hip Stability", falls=1)], "exercises": []}
-    res = recommend(RecommendRequest.model_validate(b))
+def test_a_possible_fall_eases_the_plan_it_happened_in():
+    res = recommend(from_plan("Hip Stability", plans=[history("Hip Stability", falls=1)]))
     assert res.next_step == "EASE" and "fall" in res.next_step_reason
     assert (res.effective_stage, res.effective_mobility) == ("EARLY", "LOW")
 
 
-def test_failures_on_another_area_do_not_ease():
-    b = body(**ARM_EARLY)
-    b["progress"] = {"plans": [history("Early Knee Recovery", fails=5)], "exercises": []}
-    assert recommend(RecommendRequest.model_validate(b)).next_step == "STAY"
+def test_only_the_named_plan_decides_the_step():
+    # Moving on from Early Knee Recovery (not hard): failures in another plan do not ease it.
+    res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", progress=33.33),
+                                                            history("Upper Limb Strength", fails=5)]))
+    assert res.next_step == "STAY"
 
 
 def test_good_results_lift_a_plan_above_an_equal_one():
@@ -685,7 +690,8 @@ def test_history_never_lets_an_unsafe_plan_through():
 
 def test_endpoint_reports_the_next_step():
     b = body()
-    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": KNEE_DONE}
+    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": KNEE_DONE,
+                     "from_plan_id": PLAN["Early Knee Recovery"]["plan_id"]}
     r = client.post("/recommend", json=b, headers=DEV)
     assert r.status_code == 200, r.text
     res = r.json()
@@ -798,7 +804,7 @@ def test_easing_keeps_plans_with_the_failed_exercise_when_nothing_else_is_left()
     h = history("Balance and Fall Prevention", fails=3)
     h["current_exercise_id"] = failed
     b = body(area="BOTH_LEGS", goal="BALANCE", intensity="LOW")
-    b["progress"] = {"plans": [h], "exercises": []}
+    b["progress"] = {"plans": [h], "exercises": [], "from_plan_id": PLAN["Balance and Fall Prevention"]["plan_id"]}
     res = recommend(RecommendRequest.model_validate(b))
     assert res.next_step == "EASE" and res.ranked
 
@@ -811,10 +817,10 @@ def test_easing_with_no_gentler_plan_says_so():
     assert res.next_step_reason.startswith("The current exercise in Core and Back Care did not pass 3 times")
 
 
-def test_progress_counts_only_plans_whose_exercises_train_the_area():
-    # Balance and Fall Prevention is labelled FULL_BODY but trains legs only: completing it does not
-    # move an arm patient up a stage.
-    b = body(**ARM_EARLY)
-    b["progress"] = {"plans": [history("Balance and Fall Prevention", "COMPLETED", 100)], "exercises": []}
-    res = recommend(RecommendRequest.model_validate(b))
-    assert res.next_step == "STAY" and res.effective_stage == "EARLY"
+def test_completed_plans_left_out_only_when_they_train_the_area():
+    # Moving on from Early Knee Recovery: the completed Hand and Wrist plan (arms) is not left out
+    # for being completed, it is simply not a leg plan.
+    res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", "COMPLETED", 100),
+                                                            history("Hand and Wrist Recovery", "COMPLETED", 100)]))
+    hand = next(e for e in res.excluded if NAME[e.plan_id] == "Hand and Wrist Recovery")
+    assert hand.reasons[0] != "already completed"

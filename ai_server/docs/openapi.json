@@ -1032,6 +1032,17 @@
             "type": "array",
             "title": "Exercises",
             "default": []
+          },
+          "from_plan_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "From Plan Id"
           }
         },
         "type": "object",

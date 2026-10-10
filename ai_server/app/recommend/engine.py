@@ -59,17 +59,17 @@ Progress (hybrid-3.0, optional; report 2.7: the plan changes with the patient's 
 of staying static). The request may carry the patient's own history: their plans (status, progress,
 failed attempts in a row at the current exercise, fall alerts) and their results per exercise
 (attempts, passes, mean accuracy). Two things follow from it.
-  Next step, decided before the rules run:
-    EASE      a plan being followed has a possible fall, or EASE_FAILS attempts in a row that did
-              not pass and trains the requested body area: the stage and mobility the rules allow
-              go one level below that plan's (never above the patient's answers), and that plan is
-              left out.
-    PROGRESS  a plan that trains the requested body area was completed: the rules allow one level
-              above the highest such plan (never below the patient's answers), and completed plans
-              are left out.
+  Next step, decided before the rules run, and only when the request names the plan the patient is
+  moving on from (progress.from_plan_id; the questionnaire never moves the patient's own answers):
+    EASE      that plan is being followed and had a possible fall, or EASE_FAILS attempts in a row
+              that did not pass: the stage and mobility the rules allow go one level below that
+              plan's (never above the patient's answers), and that plan is left out.
+    PROGRESS  that plan was completed: the rules allow one level above it (never below the patient's
+              answers), and completed plans that train the requested area are left out.
   After failed attempts, plans that contain the exercise that did not pass are left out too
   (hybrid-3.1), unless that would leave nothing to offer.
-    STAY      history without either: the patient's answers are used as they are.
+    STAY      the questionnaire with history, or a named plan that is neither: the patient's
+              answers are used as they are, and the history only feeds the personal score.
     START     no history: same as hybrid-2.2.
   Only the stage and mobility move. Intensity, session time and physical limitations are checked
   exactly as before, so a step up can never bring in an exercise above the safety limit.
@@ -436,13 +436,16 @@ def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str], set[
     if p is None or (not p.plans and not p.exercises):
         return "START", "", stage, mob, set(), set()
     by_id = {plan.plan_id: plan for plan in req.plans}
+    if p.from_plan_id is None or p.from_plan_id not in by_id:
+        # The questionnaire: the patient's answers decide; the history only ranks (personal score).
+        return "STAY", "", stage, mob, set(), set()
 
     def same_area(plan_id: str) -> bool:
         return trains_area(by_id[plan_id], req.rehab.affected_body_area)
 
-    # A possible fall counts whatever the body area; failed attempts only for the area asked about.
-    hard = [h for h in p.plans if h.status == "ACTIVE" and h.plan_id in by_id
-            and (h.fall_alerts > 0 or (h.consecutive_fails >= EASE_FAILS and same_area(h.plan_id)))]
+    mine = [h for h in p.plans if h.plan_id == p.from_plan_id]
+    hard = [h for h in mine if h.status == "ACTIVE"
+            and (h.fall_alerts > 0 or h.consecutive_fails >= EASE_FAILS)]
     if hard:
         h = max(hard, key=lambda x: (x.fall_alerts, x.consecutive_fails))
         plan = by_id[h.plan_id]
@@ -458,15 +461,14 @@ def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str], set[
 
     completed = [by_id[h.plan_id] for h in p.plans
                  if h.status == "COMPLETED" and h.plan_id in by_id and same_area(h.plan_id)]
-    if completed:
-        top = max(completed, key=lambda x: (STAGES.index(x.recovery_stage), MOBILITY.index(x.mobility_level),
-                                            x.plan_name))
+    if any(h.status == "COMPLETED" for h in mine):
+        top = by_id[p.from_plan_id]
         s = max(stage, min(len(STAGES) - 1, STAGES.index(top.recovery_stage) + 1))
         m = max(mob, min(len(MOBILITY) - 1, MOBILITY.index(top.mobility_level) + 1))
         why = (f"You completed {top.plan_name}, so plans for the next stage are included."
                if (s, m) != (stage, mob) else
                f"You completed {top.plan_name}, so plans with new exercises come first.")
-        return "PROGRESS", why, s, m, {x.plan_id for x in completed}, set()
+        return "PROGRESS", why, s, m, {x.plan_id for x in completed} | {top.plan_id}, set()
 
     return "STAY", "Your results so far are used to put the plans that suit you first.", stage, mob, set(), set()
 

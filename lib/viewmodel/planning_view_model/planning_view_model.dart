@@ -198,6 +198,7 @@ class PlanningViewModel extends BaseViewModel {
       catalogue.dataOrNull!,
       outcomes: outcomes,
       progress: progress,
+      nextFromPlanId: _from?.plan.planId,
     );
     _recommendation = switch (result) {
       Success(:final data) => UiSuccess(data),

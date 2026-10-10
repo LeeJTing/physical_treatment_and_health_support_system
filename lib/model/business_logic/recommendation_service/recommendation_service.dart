@@ -39,6 +39,7 @@ class RecommendationService {
     List<TreatmentPlan> catalogue, {
     List<PlanOutcome> outcomes = const [],
     PatientProgress? progress,
+    String? nextFromPlanId,
   }) async {
     final age = snapshot.profile?.age;
     final res = await _api.post(AppConstants.recommendPath, {
@@ -60,7 +61,8 @@ class RecommendationService {
           'risk_level': snapshot.riskLevel.db,
           'age_band': ageBand(age),
         },
-      if (progress != null) 'progress': progressJson(progress),
+      if (progress != null)
+        'progress': progressJson(progress, fromPlanId: nextFromPlanId),
       'plan_outcomes': [
         for (final o in outcomes)
           {
@@ -137,10 +139,14 @@ class RecommendationService {
 
   /// The `progress` body of /recommend: each plan's status and difficulty,
   /// and the patient's results per exercise over all plans. An exercise shared
-  /// by two plans is saved once per plan; such copies count once.
+  /// by two plans is saved once per plan; such copies count once. [fromPlanId]
+  /// (the catalogue plan the patient moves on from) is sent only for "Find my
+  /// next plan" / "See gentler plans": only then does the server step up or
+  /// ease; for the questionnaire the history only ranks the plans.
   static Map<String, dynamic> progressJson(
     PatientProgress progress, {
     DateTime? now,
+    String? fromPlanId,
   }) {
     final today = now ?? DateTime.now();
     final seen = <String>{};
@@ -156,6 +162,7 @@ class RecommendationService {
       }
     }
     return {
+      'from_plan_id': ?fromPlanId,
       'plans': [
         for (final p in progress.plans)
           {

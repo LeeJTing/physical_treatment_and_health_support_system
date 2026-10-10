@@ -292,6 +292,7 @@ class RecommendedPlansView extends StatelessWidget {
                   ),
                   UiSuccess(:final data) => _PlanList(
                     recommendation: data,
+                    nextPlan: vm.from != null,
                     notice: vm.notice,
                     busy: vm.saving is Loading,
                     onDetails: (p) => showPlanDetails(context, p),
@@ -312,6 +313,9 @@ class RecommendedPlansView extends StatelessWidget {
 
 class _PlanList extends StatelessWidget {
   final Recommendation recommendation;
+
+  /// "Find my next plan" / "See gentler plans": only then is the step's reason shown.
+  final bool nextPlan;
   final String? notice;
   final bool busy;
   final void Function(TreatmentPlan) onDetails;
@@ -321,6 +325,7 @@ class _PlanList extends StatelessWidget {
 
   const _PlanList({
     required this.recommendation,
+    required this.nextPlan,
     required this.notice,
     required this.busy,
     required this.onDetails,
@@ -345,7 +350,7 @@ class _PlanList extends StatelessWidget {
           const SizedBox(height: AppTokens.gap),
         ],
         // hybrid-3.0: why these plans, from the patient's own progress.
-        if (recommendation.nextStepReason.isNotEmpty) ...[
+        if (nextPlan && recommendation.nextStepReason.isNotEmpty) ...[
           NoticeBanner(
             recommendation.nextStepReason,
             warning: recommendation.nextStep == NextStep.ease,

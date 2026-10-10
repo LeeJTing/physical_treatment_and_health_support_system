@@ -61,9 +61,14 @@ too:
 "progress": {
   "plans": [{"plan_id": "...", "status": "COMPLETED", "progress_percentage": 100,
              "consecutive_fails": 0, "fall_alerts": 0, "current_exercise_id": null}],
-  "exercises": [{"exercise_id": "...", "attempts": 3, "passes": 2, "mean_accuracy": 86.0}]
+  "exercises": [{"exercise_id": "...", "attempts": 3, "passes": 2, "mean_accuracy": 86.0}],
+  "from_plan_id": "..."
 }
 ```
+
+`from_plan_id` names the plan the patient is moving on from ("Find my next plan", "See gentler
+plans"); only then is a next step taken, relative to that plan. Without it (the questionnaire) the
+history only ranks the plans and `next_step` is `STAY` with no reason.
 
 With it the server decides the next step (`EASE` after a possible fall or 3 attempts in a row that
 did not pass, `PROGRESS` after a completed plan for the same body area, otherwise `STAY`), moves the

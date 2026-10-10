@@ -648,6 +648,8 @@ void main() {
         expect(plan['status'], 'ACTIVE');
         expect(plan['consecutive_fails'], 4);
         expect(plan['current_exercise_id'], ext);
+        // The questionnaire names no plan: the server only ranks with it.
+        expect(progress.containsKey('from_plan_id'), isFalse);
         expect(plan['fall_alerts'], 1); // the fall 10 days ago is too old
         final ex = (progress['exercises'] as List).single as Map;
         expect(ex['exercise_id'], ext);
@@ -710,6 +712,7 @@ void main() {
         });
         final plans = (body['progress'] as Map)['plans'] as List;
         expect((plans.single as Map)['status'], 'COMPLETED');
+        expect((body['progress'] as Map)['from_plan_id'], knee.planId);
         final r = (h.vm.recommendation as UiSuccess<Recommendation>).data;
         expect(r.nextStep, NextStep.progress);
         expect(r.nextStepReason, startsWith('You completed'));
