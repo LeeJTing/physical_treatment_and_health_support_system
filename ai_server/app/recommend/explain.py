@@ -5,6 +5,7 @@ full reference for each key (lib/core/constants/evidence_sources.dart). A rule t
 choice, with no paper behind its number, has no source: the app labels it "App safety rule".
 Sources: fyp-notes/Evidence_Plan_Tailoring.docx and Draft_Age_Explanations_Terms.docx.
 """
+from . import conditions as C
 from .schemas import PlanIn, Reason, RecommendRequest
 
 # Plans are not generated from this age (Terms of Use, section 2): the programmes proven for older
@@ -16,7 +17,10 @@ AGE_SOURCES = ["otago2003", "vivifrail2019", "lacroix2017", "who2020", "acsm2009
 # hold each one (tests/test_recommend.py checks).
 SOURCE_KEYS = {"acsm2009", "billinger2014", "colberg2016", "haff2016", "hk_doh", "icfsr2021", "lacroix2017",
                "martinez_velilla2019", "mehta2024", "otago2003", "sherrington2019", "vivifrail2019", "who2020",
-               "williams2007"}
+               "williams2007",
+               # 11 Oct: the conditions added to the profile (conditions.py)
+               "acog2020", "campbell2019", "eular2018", "gina2024", "kalb2020", "kdigo2024", "nice2020",
+               "osborne2022", "spruit2013"}
 
 AREA = {"LEFT_ARM": "left arm", "RIGHT_ARM": "right arm", "BOTH_ARMS": "arms", "LEFT_LEG": "left leg",
         "RIGHT_LEG": "right leg", "BOTH_LEGS": "legs", "CORE": "core and back", "FULL_BODY": "whole body"}
@@ -28,9 +32,7 @@ STAGE = {"EARLY": "early", "INTERMEDIATE": "intermediate", "ADVANCED": "advanced
 
 def intensity_sources(conditions: list[str]) -> list[str]:
     """Condition-specific guidance first, the general older-adult position stand otherwise."""
-    by = {"HEART_DISEASE": "williams2007", "HYPERTENSION": "hk_doh", "STROKE": "billinger2014",
-          "DIABETES": "colberg2016"}
-    keys = [by[c] for c in conditions if c in by]
+    keys = list(dict.fromkeys(C.CONDITION_SOURCES[c] for c in conditions if c in C.CONDITION_SOURCES))
     return keys or ["acsm2009"]
 
 
@@ -85,6 +87,13 @@ def why_excluded(req: RecommendRequest, plan: PlanIn, reasons: list[str]) -> lis
             out.append(Reason(code="LIMB_GENTLE",
                               text=f"Your {limb} is limited, so only gentle early-stage plans are offered for it.",
                               sources=["vivifrail2019", "mehta2024"]))
+        elif r.startswith("avoided with "):
+            code = r.removeprefix("avoided with ").split(":")[0]
+            card = C.AVOID_POSITIONS.get(code, {})
+            hit = [e for e in exercises if C.avoided([code], e.body_position)]
+            how = card.get("why", "in a position your health profile rules out")
+            out.append(Reason(code="CONDITION_AVOID", text=f"It includes {_names(hit)}, done {how}.",
+                              sources=card.get("sources", [])))
         elif r.startswith("plan is for"):
             out.append(Reason(code="LATER_STAGE",
                               text=f"It is for the {STAGE[plan.recovery_stage]} stage of recovery, later than yours.",

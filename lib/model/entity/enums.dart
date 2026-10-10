@@ -143,7 +143,13 @@ enum ConditionCategory {
   cardiovascular('CARDIOVASCULAR'),
   metabolic('METABOLIC'),
   musculoskeletal('MUSCULOSKELETAL'),
-  respiratory('RESPIRATORY');
+  respiratory('RESPIRATORY'),
+  // 11 Oct: the conditions added to the profile
+  neurological('NEUROLOGICAL'),
+  renal('RENAL'),
+  oncology('ONCOLOGY'),
+  reproductive('REPRODUCTIVE'),
+  other('OTHER');
 
   final String db;
   const ConditionCategory(this.db);

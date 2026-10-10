@@ -93,6 +93,7 @@ failed attempts in a row at the current exercise, fall alerts) and their results
 """
 import math
 
+from . import conditions as C
 from . import explain
 from .schemas import (ExerciseIn, ExerciseResultIn, PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest,
                       RecommendResponse, ExcludedPlan, ScoreBreakdown)
@@ -253,6 +254,12 @@ def exclusion_reasons(req: RecommendRequest, plan: PlanIn) -> list[str]:
                        or any(e.intensity_level != INTENSITY[0] for e in inside)):
             names = ", ".join(e.exercise_name or e.exercise_id for e in inside)
             reasons.append(f"{code}: the limited limb gets early-stage, low-intensity plans only ({names})")
+
+    # Health conditions that rule out a position (11 Oct: pregnancy, foot ulcer; conditions.py).
+    for code in req.conditions:
+        hit = [pe.exercise for pe in plan.plan_exercise if C.avoided([code], pe.exercise.body_position)]
+        if hit:
+            reasons.append(f"avoided with {code}: {', '.join(e.exercise_name or e.exercise_id for e in hit)}")
 
     if STAGES.index(plan.recovery_stage) > STAGES.index(req.rehab.recovery_stage):
         reasons.append(f"plan is for {plan.recovery_stage} stage, patient is {req.rehab.recovery_stage}")

@@ -10,7 +10,7 @@ shows the same at `/docs`.
 | Endpoint | Module | Component | Status |
 |---|---|---|---|
 | `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.1) |
-| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.49) |
+| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.50) |
 | `GET /pose/exercises`, `POST /pose` | M300.1 (Elwin) | Pose Estimation Model | built |
 | `POST /forecast` | M400 (Jun Ting) | Time-Series Forecaster | **to build** |
 | `POST /analyse` | M400 (Jun Ting) | Anomaly Detector and Health Scorer | **to build** |
@@ -94,6 +94,12 @@ references in `lib/core/constants/evidence_sources.dart`). An empty `sources` me
 ("App safety rule"). `excluded[].why` has one entry per `reasons` entry, in the same order. Optional
 request fields `conditions` (from the health profile) pick the sources for the safety reasons (heart
 disease, high blood pressure, stroke, diabetes; otherwise the ACSM position stand).
+
+**Health conditions (11 Oct).** Each exercise may carry `body_position` (`STANDING`, `SEATED`, `EITHER`,
+`SUPINE`, `ALL_FOURS`, `TABLE`). A condition in `conditions` can rule a position out
+(`app/recommend/conditions.py`: `PREGNANCY` lying on the back, `FOOT_ULCER` standing); such a plan is
+excluded with the code `CONDITION_AVOID` and the guideline. The safety reasons cite each condition's own
+guideline. The risk level and the doctor's-OK rule stay in the app (they set `safety_limit`).
 
 **Age limit (11 Oct, Terms of Use section 2).** With `age` 65 or over the answer is `status` `NONE`,
 `restriction` `AGE_65_PLUS`, no plans, every plan in `excluded` with the code `AGE_LIMIT`, and the

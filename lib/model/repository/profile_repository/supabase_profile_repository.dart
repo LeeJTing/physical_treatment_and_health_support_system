@@ -1,3 +1,6 @@
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show PostgrestException, PostgrestTransformBuilder;
+
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
@@ -14,6 +17,21 @@ class SupabaseProfileRepository implements IProfileRepository {
 
   SupabaseProfileRepository(this._sb);
 
+  /// The profile with its lists; [conditionColumns] adds the patient's answers
+  /// per condition (migration 20261011130000).
+  PostgrestTransformBuilder<Map<String, dynamic>?> _profileQuery(
+    String accountId,
+    String conditionColumns,
+  ) => _sb
+      .from('health_profile')
+      .select(
+        '*, profile_condition($conditionColumns health_condition(*)), '
+        'profile_limitation(physical_limitation(*)), '
+        'profile_restriction(dietary_restriction(*))',
+      )
+      .eq('account_id', accountId)
+      .maybeSingle();
+
   static List<T> _nested<T>(
     Object? rows,
     String key,
@@ -28,22 +46,25 @@ class SupabaseProfileRepository implements IProfileRepository {
   Future<Result<HealthProfile?>> getProfile(
     String accountId,
   ) => supabaseGuard(() async {
-    final row = await _sb
-        .from('health_profile')
-        .select(
-          '*, profile_condition(health_condition(*)), profile_limitation(physical_limitation(*)), '
-          'profile_restriction(dietary_restriction(*))',
-        )
-        .eq('account_id', accountId)
-        .maybeSingle();
+    Map<String, dynamic>? row;
+    try {
+      row = await _profileQuery(accountId, 'is_controlled, note,');
+    } on PostgrestException {
+      // Before migration 20261011130000 there are no answers: all controlled.
+      row = await _profileQuery(accountId, '');
+    }
     if (row == null) return null;
     return HealthProfile.fromJson(
       row,
-      conditions: _nested(
-        row['profile_condition'],
-        'health_condition',
-        HealthCondition.fromJson,
-      ),
+      conditions: [
+        for (final pc in ((row['profile_condition'] as List?) ?? const [])
+            .cast<Map<String, dynamic>>())
+          if (pc['health_condition'] case final Map<String, dynamic> h)
+            HealthCondition.fromJson(h).withStatus(
+              controlled: pc['is_controlled'] as bool? ?? true,
+              note: pc['note'] as String?,
+            ),
+      ],
       limitations: _nested(
         row['profile_limitation'],
         'physical_limitation',
@@ -77,12 +98,29 @@ class SupabaseProfileRepository implements IProfileRepository {
         .single();
     final profileId = saved['profile_id'] as String;
 
+    // Conditions with the patient's answers (11 Oct).
+    await _sb.from('profile_condition').delete().eq('profile_id', profileId);
+    final conditionRows = [
+      for (final c in p.conditions)
+        {
+          'profile_id': profileId,
+          'condition_id': c.conditionId,
+          'is_controlled': c.controlled,
+          'note': c.note,
+        },
+    ];
+    if (conditionRows.isNotEmpty) {
+      try {
+        await _sb.from('profile_condition').insert(conditionRows);
+      } on PostgrestException {
+        // Before migration 20261011130000 the answers cannot be stored yet.
+        await _sb.from('profile_condition').insert([
+          for (final r in conditionRows)
+            {'profile_id': r['profile_id'], 'condition_id': r['condition_id']},
+        ]);
+      }
+    }
     for (final (table, column, ids) in [
-      (
-        'profile_condition',
-        'condition_id',
-        p.conditions.map((c) => c.conditionId),
-      ),
       (
         'profile_limitation',
         'limitation_id',

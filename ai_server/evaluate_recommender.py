@@ -125,6 +125,36 @@ def reasonableness():
     return out
 
 
+def conditions():
+    """11 Oct: every profile condition over the same answer sets. For each: answer sets with no plan
+    (and how many more than without the condition), plans shown with an exercise in a position the
+    condition rules out (must be 0), and which guideline the safety reason cites."""
+    from app.recommend import conditions as CONDS
+    codes = ["HYPERTENSION", "DIABETES", "HEART_DISEASE", "STROKE", "ARTHRITIS", "OSTEOPOROSIS", "ASTHMA",
+             "PREGNANCY", "JOINT_REPLACEMENT", "RHEUMATOID_ARTHRITIS", "COPD", "CANCER", "KIDNEY_DISEASE",
+             "PARKINSONS", "MULTIPLE_SCLEROSIS", "FOOT_ULCER", "OTHER"]
+    grid = [({"affected_body_area": a, "recovery_stage": s, "mobility_level": m, "goal": g}, cap)
+            for a, s, m, g, cap in itertools.product(list(E._PARTS), E.STAGES, E.MOBILITY, E.GOALS,
+                                                     ("LOW", "MODERATE"))]
+    base_empty = sum(not E.recommend(request(r, c)).ranked for r, c in grid)
+    out = {}
+    for code in codes:
+        empty = avoided_shown = 0
+        cited = set()
+        for rehab, cap in grid:
+            req = request(rehab, cap)
+            req.conditions = [code]
+            res = E.recommend(req)
+            empty += not res.ranked
+            for r in res.ranked:
+                avoided_shown += any(CONDS.avoided([code], pe["exercise"].get("body_position"))
+                                     for pe in PLANS[r.plan_id]["plan_exercise"])
+                cited |= {s for w in r.why if w.code == "SAFE" for s in w.sources}
+        out[code] = {"no_plan": empty, "more_no_plan_than_without": empty - base_empty,
+                     "avoided_position_shown": avoided_shown, "safety_sources": sorted(cited - {"otago2003"})}
+    return {"answer_sets": len(grid), "no_plan_without_conditions": base_empty, "by_condition": out}
+
+
 def main():
     n = 0
     stats = {"combinations": 0, "exact_query_empty": 0, "recommender_empty": 0, "recommender_three": 0,
@@ -203,6 +233,7 @@ def main():
 
     stats["combinations"] = n
     stats["reasonableness"] = reasonableness()
+    stats["conditions"] = conditions()
     stats["distinct_completed_plan_and_limit_pairs"] = len(unique_cases)
     stats["model_version"] = E.MODEL_VERSION
     OUT.write_text(json.dumps(stats, indent=1) + "\n", encoding="utf-8")

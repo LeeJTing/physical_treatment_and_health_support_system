@@ -8,7 +8,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": "sit_to_stand"
+      "pose_key": "sit_to_stand",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "4ceb12e3-b3be-5dd2-afcc-95437849bf9c",
@@ -18,7 +19,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 60,
-      "pose_key": "shoulder_abduction"
+      "pose_key": "shoulder_abduction",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "2946137f-7a3a-5796-88da-ded8a02c3fcb",
@@ -28,7 +30,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 60,
-      "pose_key": "shoulder_flexion"
+      "pose_key": "shoulder_flexion",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "c70f199d-e077-5a20-bdd9-2423b7a85fe9",
@@ -38,7 +41,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": "hip_abduction"
+      "pose_key": "hip_abduction",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "aa576b35-c58d-5790-a9fc-a9e5056e15f4",
@@ -48,7 +52,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 12,
       "default_duration_sec": 90,
-      "pose_key": "knee_extension"
+      "pose_key": "knee_extension",
+      "body_position": "SEATED"
     },
     {
       "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
@@ -58,7 +63,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 12,
       "default_duration_sec": 60,
-      "pose_key": "elbow_flexion"
+      "pose_key": "elbow_flexion",
+      "body_position": "EITHER"
     },
     {
       "exercise_id": "1dc9d0e9-db44-5432-b1d1-7ac70680fe06",
@@ -68,7 +74,8 @@
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": "wall_push_up"
+      "pose_key": "wall_push_up",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "5dc92b58-acf9-5714-9098-ceae5de18c9d",
@@ -78,7 +85,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 12,
       "default_duration_sec": 60,
-      "pose_key": "heel_raise"
+      "pose_key": "heel_raise",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "de7a6671-c3bb-59c8-86d2-0f30c2da6983",
@@ -88,7 +96,8 @@
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": "mini_squat"
+      "pose_key": "mini_squat",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
@@ -98,7 +107,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 20,
       "default_duration_sec": 90,
-      "pose_key": "seated_marching"
+      "pose_key": "seated_marching",
+      "body_position": "SEATED"
     },
     {
       "exercise_id": "851a661b-6068-5a20-8521-d9648cfc7003",
@@ -108,7 +118,8 @@
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": "glute_bridge"
+      "pose_key": "glute_bridge",
+      "body_position": "SUPINE"
     },
     {
       "exercise_id": "e3b87b69-7059-590d-8977-8011373bcc2f",
@@ -118,7 +129,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 4,
       "default_duration_sec": 120,
-      "pose_key": "tandem_stance"
+      "pose_key": "tandem_stance",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "b56023cf-6125-5e6d-abc8-732551a61b2a",
@@ -128,7 +140,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 90,
-      "pose_key": "bird_dog"
+      "pose_key": "bird_dog",
+      "body_position": "ALL_FOURS"
     },
     {
       "exercise_id": "d0356cfa-b1a9-5ad1-9c35-c6cc923f7d4d",
@@ -138,7 +151,8 @@
       "intensity_level": "MODERATE",
       "default_repetitions": 10,
       "default_duration_sec": 120,
-      "pose_key": "step_up"
+      "pose_key": "step_up",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
@@ -148,7 +162,8 @@
       "intensity_level": "MODERATE",
       "default_repetitions": 30,
       "default_duration_sec": 120,
-      "pose_key": "march_in_place"
+      "pose_key": "march_in_place",
+      "body_position": "STANDING"
     },
     {
       "exercise_id": "d0a54f13-94f7-5f98-820a-b9ea0b9818ab",
@@ -158,7 +173,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 60,
-      "pose_key": "wrist_extension"
+      "pose_key": "wrist_extension",
+      "body_position": "TABLE"
     },
     {
       "exercise_id": "00c205b4-5b48-5ceb-828a-e7b6366a4128",
@@ -168,7 +184,8 @@
       "intensity_level": "LOW",
       "default_repetitions": 10,
       "default_duration_sec": 60,
-      "pose_key": "hand_open_close"
+      "pose_key": "hand_open_close",
+      "body_position": "TABLE"
     }
   ],
   "plans": [
@@ -196,7 +213,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 90,
-            "pose_key": "knee_extension"
+            "pose_key": "knee_extension",
+            "body_position": "SEATED"
           }
         },
         {
@@ -213,7 +231,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 20,
             "default_duration_sec": 90,
-            "pose_key": "seated_marching"
+            "pose_key": "seated_marching",
+            "body_position": "SEATED"
           }
         },
         {
@@ -230,7 +249,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": "heel_raise"
+            "pose_key": "heel_raise",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -259,7 +279,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "sit_to_stand"
+            "pose_key": "sit_to_stand",
+            "body_position": "STANDING"
           }
         },
         {
@@ -276,7 +297,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "mini_squat"
+            "pose_key": "mini_squat",
+            "body_position": "STANDING"
           }
         },
         {
@@ -293,7 +315,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 120,
-            "pose_key": "step_up"
+            "pose_key": "step_up",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -322,7 +345,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "shoulder_flexion"
+            "pose_key": "shoulder_flexion",
+            "body_position": "STANDING"
           }
         },
         {
@@ -339,7 +363,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "shoulder_abduction"
+            "pose_key": "shoulder_abduction",
+            "body_position": "STANDING"
           }
         },
         {
@@ -356,7 +381,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": "elbow_flexion"
+            "pose_key": "elbow_flexion",
+            "body_position": "EITHER"
           }
         }
       ]
@@ -385,7 +411,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": "elbow_flexion"
+            "pose_key": "elbow_flexion",
+            "body_position": "EITHER"
           }
         },
         {
@@ -402,7 +429,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "shoulder_flexion"
+            "pose_key": "shoulder_flexion",
+            "body_position": "STANDING"
           }
         },
         {
@@ -419,7 +447,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "shoulder_abduction"
+            "pose_key": "shoulder_abduction",
+            "body_position": "STANDING"
           }
         },
         {
@@ -436,7 +465,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "wall_push_up"
+            "pose_key": "wall_push_up",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -465,7 +495,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "hip_abduction"
+            "pose_key": "hip_abduction",
+            "body_position": "STANDING"
           }
         },
         {
@@ -482,7 +513,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 4,
             "default_duration_sec": 120,
-            "pose_key": "tandem_stance"
+            "pose_key": "tandem_stance",
+            "body_position": "STANDING"
           }
         },
         {
@@ -499,7 +531,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "glute_bridge"
+            "pose_key": "glute_bridge",
+            "body_position": "SUPINE"
           }
         }
       ]
@@ -528,7 +561,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 4,
             "default_duration_sec": 120,
-            "pose_key": "tandem_stance"
+            "pose_key": "tandem_stance",
+            "body_position": "STANDING"
           }
         },
         {
@@ -545,7 +579,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": "heel_raise"
+            "pose_key": "heel_raise",
+            "body_position": "STANDING"
           }
         },
         {
@@ -562,7 +597,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "sit_to_stand"
+            "pose_key": "sit_to_stand",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -591,7 +627,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "bird_dog"
+            "pose_key": "bird_dog",
+            "body_position": "ALL_FOURS"
           }
         },
         {
@@ -608,7 +645,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "glute_bridge"
+            "pose_key": "glute_bridge",
+            "body_position": "SUPINE"
           }
         }
       ]
@@ -637,7 +675,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 20,
             "default_duration_sec": 90,
-            "pose_key": "seated_marching"
+            "pose_key": "seated_marching",
+            "body_position": "SEATED"
           }
         },
         {
@@ -654,7 +693,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "sit_to_stand"
+            "pose_key": "sit_to_stand",
+            "body_position": "STANDING"
           }
         },
         {
@@ -671,7 +711,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "shoulder_abduction"
+            "pose_key": "shoulder_abduction",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -700,7 +741,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 30,
             "default_duration_sec": 120,
-            "pose_key": "march_in_place"
+            "pose_key": "march_in_place",
+            "body_position": "STANDING"
           }
         },
         {
@@ -717,7 +759,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 120,
-            "pose_key": "step_up"
+            "pose_key": "step_up",
+            "body_position": "STANDING"
           }
         },
         {
@@ -734,7 +777,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "mini_squat"
+            "pose_key": "mini_squat",
+            "body_position": "STANDING"
           }
         },
         {
@@ -751,7 +795,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "wall_push_up"
+            "pose_key": "wall_push_up",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -780,7 +825,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "mini_squat"
+            "pose_key": "mini_squat",
+            "body_position": "STANDING"
           }
         },
         {
@@ -797,7 +843,8 @@
             "intensity_level": "MODERATE",
             "default_repetitions": 10,
             "default_duration_sec": 120,
-            "pose_key": "step_up"
+            "pose_key": "step_up",
+            "body_position": "STANDING"
           }
         },
         {
@@ -814,7 +861,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 90,
-            "pose_key": "hip_abduction"
+            "pose_key": "hip_abduction",
+            "body_position": "STANDING"
           }
         }
       ]
@@ -843,7 +891,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "wrist_extension"
+            "pose_key": "wrist_extension",
+            "body_position": "TABLE"
           }
         },
         {
@@ -860,7 +909,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 10,
             "default_duration_sec": 60,
-            "pose_key": "hand_open_close"
+            "pose_key": "hand_open_close",
+            "body_position": "TABLE"
           }
         },
         {
@@ -877,7 +927,8 @@
             "intensity_level": "LOW",
             "default_repetitions": 12,
             "default_duration_sec": 60,
-            "pose_key": "elbow_flexion"
+            "pose_key": "elbow_flexion",
+            "body_position": "EITHER"
           }
         }
       ]

@@ -18,6 +18,10 @@ class Exercise {
   /// Null when the exercise has no posture model yet.
   final String? poseKey;
 
+  /// How it is done (11 Oct): STANDING, SEATED, EITHER, SUPINE, ALL_FOURS or
+  /// TABLE. Some health conditions rule a position out (AI server).
+  final String? bodyPosition;
+
   const Exercise({
     required this.exerciseId,
     required this.exerciseName,
@@ -27,6 +31,7 @@ class Exercise {
     required this.defaultRepetitions,
     required this.defaultDurationSec,
     this.poseKey,
+    this.bodyPosition,
   });
 
   static final RegExp _camera = RegExp(r'^Camera:\s*([^.]*)\.\s*');
@@ -76,6 +81,7 @@ class Exercise {
     defaultRepetitions: (j['default_repetitions'] as num).toInt(),
     defaultDurationSec: (j['default_duration_sec'] as num).toInt(),
     poseKey: j['pose_key'] as String?,
+    bodyPosition: j['body_position'] as String?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -87,5 +93,6 @@ class Exercise {
     'default_repetitions': defaultRepetitions,
     'default_duration_sec': defaultDurationSec,
     'pose_key': poseKey,
+    'body_position': bodyPosition,
   };
 }

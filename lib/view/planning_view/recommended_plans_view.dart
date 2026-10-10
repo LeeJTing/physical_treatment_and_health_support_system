@@ -280,6 +280,20 @@ class RecommendedPlansView extends StatelessWidget {
                     onAction: vm.retry,
                   ),
                   // 65 and over (Terms of Use, section 2): the reasons page instead.
+                  UiSuccess(:final data)
+                      when data.restriction ==
+                          PlanRestriction.clearanceNeeded =>
+                    _Problem(
+                      message: [
+                        Messages.clearanceNeeded,
+                        for (final c in vm.conditionsNeedingClearance)
+                          '•  ${c.conditionName}',
+                      ].join('\n'),
+                      actionLabel: 'Open profile',
+                      onAction: () => Navigator.of(
+                        context,
+                      ).pushNamed(Routes.healthProfile),
+                    ),
                   UiSuccess(:final data) when data.restriction != null =>
                     _Problem(
                       message:

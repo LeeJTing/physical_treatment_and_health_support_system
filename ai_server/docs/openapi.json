@@ -752,6 +752,17 @@
               }
             ],
             "title": "Pose Key"
+          },
+          "body_position": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Body Position"
           }
         },
         "type": "object",

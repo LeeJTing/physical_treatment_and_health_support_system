@@ -277,6 +277,7 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                 ],
               ),
+              _ConditionAnswers(vm: vm, profile: p),
               const SizedBox(height: 24),
               const SectionTitle('Physical limitations'),
               const SizedBox(height: 12),
@@ -626,3 +627,114 @@ String conditionLabel(HealthCondition c) =>
 
 String limitationLabel(PhysicalLimitation l) =>
     l.limitationName.replaceAll(' Limitation', '');
+
+/// The question under each selected condition, and what "Other" is (11 Oct).
+/// A condition that needs a doctor's OK and is answered "No" holds back new
+/// exercise plans.
+class _ConditionAnswers extends StatelessWidget {
+  final ProfileViewModel vm;
+  final HealthProfile? profile;
+  const _ConditionAnswers({required this.vm, required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    final asked = [
+      for (final c in profile?.conditions ?? const <HealthCondition>[])
+        if (c.statusQuestion != null || c.isOther) c,
+    ];
+    if (asked.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [for (final c in asked) _answer(c)],
+      ),
+    );
+  }
+
+  Widget _answer(HealthCondition c) {
+    final unanswered =
+        vm.isEditing && vm.unansweredConditions.contains(c.conditionId);
+    return Container(
+      key: ValueKey('condition-answer-${c.conditionId}'),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTokens.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+        border: Border.all(
+          color: unanswered ? AppTokens.cta : AppTokens.cardBorder,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            conditionLabel(c),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              color: AppTokens.ink,
+            ),
+          ),
+          if (c.isOther) ...[
+            const SizedBox(height: 6),
+            if (vm.isEditing)
+              TextFormField(
+                key: ValueKey('condition-note-${c.conditionId}'),
+                initialValue: c.note,
+                maxLength: 100,
+                decoration: const InputDecoration(
+                  hintText: 'What is the condition?',
+                ),
+                onChanged: (v) => vm.setConditionNote(c.conditionId, v),
+              )
+            else
+              Text(
+                c.note ?? '',
+                style: const TextStyle(color: AppTokens.inkMuted),
+              ),
+          ],
+          if (c.statusQuestion case final question?) ...[
+            const SizedBox(height: 6),
+            Text(question, style: const TextStyle(color: AppTokens.ink)),
+            const SizedBox(height: 6),
+            if (vm.isEditing)
+              Wrap(
+                spacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Yes'),
+                    selected: !unanswered && c.controlled,
+                    onSelected: (_) =>
+                        vm.setConditionControlled(c.conditionId, true),
+                  ),
+                  ChoiceChip(
+                    label: const Text('No'),
+                    selected: !unanswered && !c.controlled,
+                    onSelected: (_) =>
+                        vm.setConditionControlled(c.conditionId, false),
+                  ),
+                ],
+              )
+            else
+              Text(
+                c.controlled ? 'Yes' : 'No',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppTokens.ink,
+                ),
+              ),
+            if (!unanswered && c.blocksPlans)
+              const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: Text(
+                  'New exercise plans wait until your doctor agrees.',
+                  style: TextStyle(color: AppTokens.onWarn),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}

@@ -176,6 +176,14 @@ class Messages {
       'Your new password must be different from your current password.';
   static const confirmLogout = 'Log out of your account?';
 
+  // Health conditions (11 Oct; not in the report's message lists)
+  static const conditionQuestionUnanswered =
+      'Please answer the question under each health condition you selected.';
+  static const otherConditionNote = 'Please say what the other condition is.';
+  static const clearanceNeeded =
+      'Before an exercise plan, please check with your doctor about the conditions below. When they '
+      'agree, change your answer in your health profile.';
+
   // Terms of Use and account deletion (11 Oct; not in the report's message lists)
   static const termsSaveFailed =
       'Your agreement could not be saved. Please check your connection and try again.';

@@ -3,15 +3,26 @@
 
 begin;
 
--- Table 3.3 / UC300 C6: Health Condition List
-insert into public.health_condition (condition_id, condition_code, condition_name, category) values
-  (1, 'HYPERTENSION',  'High blood pressure', 'CARDIOVASCULAR'),
-  (2, 'DIABETES',      'Diabetes Mellitus',   'METABOLIC'),
-  (3, 'HEART_DISEASE', 'Heart Disease',       'CARDIOVASCULAR'),
-  (4, 'STROKE',        'Stroke',              'CARDIOVASCULAR'),
-  (5, 'ARTHRITIS',     'Arthritis',           'MUSCULOSKELETAL'),
-  (6, 'OSTEOPOROSIS',  'Osteoporosis',        'MUSCULOSKELETAL'),
-  (7, 'ASTHMA',        'Asthma',              'RESPIRATORY')
+-- Table 3.3 / UC300 C6, and the conditions added on 11 Oct (migration 20261011130000).
+insert into public.health_condition
+  (condition_id, condition_code, condition_name, category, status_question, needs_clearance) values
+  (1,  'HYPERTENSION',         'High blood pressure',                  'CARDIOVASCULAR', 'Is it under control with treatment?', true),
+  (2,  'DIABETES',             'Diabetes Mellitus',                    'METABOLIC',      'Is it under control (no frequent low blood sugar)?', true),
+  (3,  'HEART_DISEASE',        'Heart Disease',                        'CARDIOVASCULAR', 'Has your doctor said it is stable?', true),
+  (4,  'STROKE',               'Stroke',                               'CARDIOVASCULAR', null, false),
+  (5,  'ARTHRITIS',            'Arthritis',                            'MUSCULOSKELETAL', 'Is it settled now (no flare-up)?', false),
+  (6,  'OSTEOPOROSIS',         'Osteoporosis',                         'MUSCULOSKELETAL', null, false),
+  (7,  'ASTHMA',               'Asthma',                               'RESPIRATORY',    'Is it under control with treatment?', true),
+  (8,  'PREGNANCY',            'Pregnancy or recent birth',            'REPRODUCTIVE',   'Has your doctor or midwife said exercise is safe for you?', true),
+  (9,  'JOINT_REPLACEMENT',    'Hip, knee or shoulder replacement',    'MUSCULOSKELETAL', 'Has your surgeon or physiotherapist cleared you to exercise at home?', true),
+  (10, 'RHEUMATOID_ARTHRITIS', 'Rheumatoid arthritis',                 'MUSCULOSKELETAL', 'Is it settled now (no flare-up)?', false),
+  (11, 'COPD',                 'Chronic lung disease (COPD)',          'RESPIRATORY',    'Is it stable (no flare-up in the last 4 weeks)?', true),
+  (12, 'CANCER',               'Cancer (now or in the past)',          'ONCOLOGY',       'Has your doctor cleared you to exercise?', true),
+  (13, 'KIDNEY_DISEASE',       'Chronic kidney disease',               'RENAL',          'Is it stable under your doctor''s care?', false),
+  (14, 'PARKINSONS',           'Parkinson''s disease',                 'NEUROLOGICAL',   null, false),
+  (15, 'MULTIPLE_SCLEROSIS',   'Multiple sclerosis',                   'NEUROLOGICAL',   'Is it stable (no relapse in the last month)?', true),
+  (16, 'FOOT_ULCER',           'Foot ulcer or open wound on the foot', 'METABOLIC',      null, false),
+  (17, 'OTHER',                'Other condition (not listed)',         'OTHER',          'Has your doctor cleared you to exercise?', true)
 on conflict (condition_id) do nothing;
 
 -- Table 3.3 / UC300 C7: Physical Limitation List. BALANCE_IMPAIRMENT is not in

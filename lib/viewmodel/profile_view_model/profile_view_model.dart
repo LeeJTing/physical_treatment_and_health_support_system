@@ -44,6 +44,9 @@ class ProfileViewModel extends BaseViewModel {
   /// Field that failed validation last time Save was pressed ('age', 'weight', ...).
   List<String> invalidFields = const [];
 
+  /// Conditions picked in this edit whose question is not answered yet.
+  Set<int> unansweredConditions = {};
+
   /// What the screen shows: the draft while editing, else the saved profile.
   HealthProfile? get shown => isEditing ? draft : profile;
 
@@ -58,6 +61,15 @@ class ProfileViewModel extends BaseViewModel {
       a.heightCm == b.heightCm &&
       a.conditions.toSet().containsAll(b.conditions) &&
       b.conditions.toSet().containsAll(a.conditions) &&
+      // The answers too (equality is by condition id only).
+      a.conditions.every(
+        (c) => b.conditions.any(
+          (o) =>
+              o.conditionId == c.conditionId &&
+              o.controlled == c.controlled &&
+              o.note == c.note,
+        ),
+      ) &&
       a.limitations.toSet().containsAll(b.limitations) &&
       b.limitations.toSet().containsAll(a.limitations);
 
@@ -107,6 +119,7 @@ class ProfileViewModel extends BaseViewModel {
   }
 
   void startEdit() {
+    unansweredConditions = {};
     final p = profile;
     if (p == null && account == null) return;
     draft = p ?? HealthProfile.empty(account!.accountId);
@@ -149,8 +162,42 @@ class ProfileViewModel extends BaseViewModel {
     if (d == null || !isEditing) return;
     final c = conditions.firstWhere((c) => c.conditionId == id);
     final list = [...d.conditions];
-    list.contains(c) ? list.remove(c) : list.add(c);
+    if (list.contains(c)) {
+      list.remove(c);
+      unansweredConditions.remove(id);
+    } else {
+      list.add(c);
+      // A condition with a question waits for the answer (no default).
+      if (c.statusQuestion != null) unansweredConditions.add(id);
+    }
     draft = d.copyWith(conditions: list);
+    notifyListeners();
+  }
+
+  /// The answer to a condition's status question (11 Oct).
+  void setConditionControlled(int id, bool controlled) => _updateCondition(
+    id,
+    (c) => c.withStatus(controlled: controlled),
+    answered: true,
+  );
+
+  /// What the "Other" condition is.
+  void setConditionNote(int id, String note) =>
+      _updateCondition(id, (c) => c.withStatus(note: note.trim()));
+
+  void _updateCondition(
+    int id,
+    HealthCondition Function(HealthCondition) change, {
+    bool answered = false,
+  }) {
+    final d = draft;
+    if (d == null || !isEditing) return;
+    draft = d.copyWith(
+      conditions: [
+        for (final c in d.conditions) c.conditionId == id ? change(c) : c,
+      ],
+    );
+    if (answered) unansweredConditions.remove(id);
     notifyListeners();
   }
 
@@ -175,6 +222,7 @@ class ProfileViewModel extends BaseViewModel {
   /// Discards the draft (FR100_052). A patient without any saved profile stays in edit mode.
   void cancelEdit() {
     if (profile == null) return;
+    unansweredConditions = {};
     draft = null;
     isEditing = false;
     invalidFields = const [];
@@ -186,6 +234,17 @@ class ProfileViewModel extends BaseViewModel {
   Future<bool> saveProfile() async {
     final d = draft;
     if (d == null) return false;
+    // Every question answered, and the "Other" condition named (11 Oct).
+    final conditionProblem = unansweredConditions.isNotEmpty
+        ? Messages.conditionQuestionUnanswered
+        : d.conditions.any((c) => c.isOther && (c.note ?? '').isEmpty)
+        ? Messages.otherConditionNote
+        : null;
+    if (conditionProblem != null) {
+      saveState = UiError(conditionProblem);
+      notifyListeners();
+      return false;
+    }
     final errors = d.validate();
     if (errors.isNotEmpty) {
       invalidFields = errors;
@@ -213,6 +272,7 @@ class ProfileViewModel extends BaseViewModel {
     }
     isEditing = false;
     draft = null;
+    unansweredConditions = {};
     await loadProfile();
     saveState = const UiSuccess(null);
     notifyListeners();

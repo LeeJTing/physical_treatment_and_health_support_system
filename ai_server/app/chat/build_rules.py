@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.49"
+VERSION = "chat-rules-3.50"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -126,7 +126,12 @@ INTENTS = [
             "new knee", "replaced hip", "replaced knee", "wound", "stitches", "incision", "cast", "plaster",
             "fracture", "fractured",
             "broken bone", "broke my", "sprain", "sprained", "heart attack", "pacemaker", "stent",
-            "bypass surgery", "angioplasty"],
+            "bypass surgery", "angioplasty",
+            # 3.50 (11 Oct): the conditions added to the health profile
+            "rheumatoid", "copd", "lung disease", "chronic lung", "emphysema", "cancer", "chemo",
+            "chemotherapy", "radiotherapy", "kanser", "barah", "kidney disease", "kidney problem", "dialysis",
+            "buah pinggang", "parkinson", "parkinsons", "multiple sclerosis", "foot ulcer", "diabetic foot",
+            "wound on my foot"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "
@@ -933,6 +938,29 @@ CONDITION_NOTES = {
                     "within reach to prevent falls.",
     "ASTHMA": "Because you have asthma: keep your reliever inhaler nearby and stop if you start wheezing or your "
               "chest feels tight.",
+    # 3.50 (11 Oct): the conditions added to the health profile (sources: lib/core/constants/evidence_sources.dart)
+    "PREGNANCY": "Because you are pregnant or have recently given birth: do not lie flat on your back after the "
+                 "first months, keep a support nearby, drink water and do not overheat; stop and contact your "
+                 "doctor or midwife if you have bleeding, dizziness, pain or leaking fluid.",
+    "JOINT_REPLACEMENT": "Because you have had a joint replacement: your surgeon's and physiotherapist's movement "
+                         "advice comes first, and stop if the joint becomes red, hot, swollen or more painful.",
+    "RHEUMATOID_ARTHRITIS": "Because you have rheumatoid arthritis: move within a comfortable range, and during a "
+                            "flare rest hot, swollen joints and do fewer repetitions.",
+    "COPD": "Because you have chronic lung disease: go at a pace where you can still speak, breathe out slowly "
+            "through pursed lips, and stop if you are too breathless to talk.",
+    "CANCER": "Because you have or had cancer: follow your doctor's advice on exercise during treatment, go "
+              "gently on tired days, and stop if you have new bone pain, a fever or unusual tiredness.",
+    "KIDNEY_DISEASE": "Because you have kidney disease: keep to a comfortable, moderate effort, drink as your "
+                      "kidney team advises, and on dialysis days ask them when it is best to exercise.",
+    "PARKINSONS": "Because you have Parkinson's disease: exercise next to a sturdy support, take your time when "
+                  "standing up and turning, and stop if you feel unsteady.",
+    "MULTIPLE_SCLEROSIS": "Because you have multiple sclerosis: keep cool (a fan, cool water, a cool room), rest "
+                          "between sets, and stop if your symptoms get worse; they usually settle once you cool "
+                          "down.",
+    "FOOT_ULCER": "Because you have a foot ulcer or wound: do your exercises sitting or lying, keep weight off the "
+                  "foot, and check your feet every day.",
+    "OTHER": "Because of the other condition in your profile: follow your doctor's advice on exercise, and stop "
+             "if anything feels wrong.",
 }
 LIMITATION_NOTES = {
     "BALANCE_IMPAIRMENT": "Because you declared a balance limitation: always keep one hand on a sturdy support.",
@@ -1268,6 +1296,29 @@ CONDITION_DETAIL = {
                          "After a new hip, avoid bending it past 90 degrees (a right angle), crossing your legs and "
                          "twisting, and keep the leg facing forward, until they say it is safe. Ask them before starting this plan, and stop if the wound "
                          "becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
+    "RHEUMATOID_ARTHRITIS": "With rheumatoid arthritis, regular exercise is part of standard care: it keeps "
+                            "your joints moving and the muscles around them strong. Move within a comfortable "
+                            "range; during a flare, rest hot, swollen joints, do fewer repetitions and build up "
+                            "again as it settles.",
+    "COPD": "With chronic lung disease, exercise improves your breathing and strength. Go at a pace where you can "
+            "still speak, breathe out slowly through pursed lips, and rest between sets. Stop and contact your "
+            "doctor if you are much more breathless than usual, cough up blood or have chest pain.",
+    "CANCER": "During and after cancer treatment, staying active helps with tiredness and strength, but follow "
+              "your doctor's advice first, especially during treatment. Go gently on tired days, and stop and "
+              "tell your doctor if you have new bone pain, a fever, or feel unusually tired or breathless.",
+    "KIDNEY_DISEASE": "With chronic kidney disease, regular moderate exercise is recommended as you can manage it. "
+                      "Keep to a comfortable effort, drink as your kidney team advises, and on dialysis days ask "
+                      "them when it is best to exercise. Stop if you feel dizzy, breathless or have chest pain.",
+    "PARKINSONS": "With Parkinson's disease, strength and balance exercises help you move more easily and "
+                  "confidently. Exercise next to a sturdy support, take your time when standing up and turning, "
+                  "and stop if you feel unsteady or about to fall.",
+    "MULTIPLE_SCLEROSIS": "With multiple sclerosis, strength exercises help, but heat can make symptoms worse for "
+                          "a while. Keep cool with a fan, cool water and a cool room, rest between sets, and stop "
+                          "if symptoms get worse; they usually settle once you cool down. During a relapse, rest "
+                          "and ask your doctor before starting again.",
+    "FOOT_ULCER": "With a foot ulcer or an open wound on the foot, do not put weight on it: do your exercises "
+                  "sitting or lying until it has healed, check your feet every day, and see your doctor if the "
+                  "wound gets bigger, red, hot or smelly.",
     "SURGERY_WOUND": "A little oozing from a surgical wound can be normal in the first days, but if it keeps "
                      "bleeding, soaks the dressing, or turns red, hot, swollen or smelly, or you get a fever, "
                      "contact your surgeon or clinic today, and do not exercise that area until they have "

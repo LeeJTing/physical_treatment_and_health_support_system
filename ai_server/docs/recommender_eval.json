@@ -36,6 +36,148 @@
   "easing_cases": 675,
   "easing_keeps_failed_exercise_at_easier_dose": 275
  },
+ "conditions": {
+  "answer_sets": 720,
+  "no_plan_without_conditions": 45,
+  "by_condition": {
+   "HYPERTENSION": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "hk_doh"
+    ]
+   },
+   "DIABETES": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "colberg2016"
+    ]
+   },
+   "HEART_DISEASE": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "williams2007"
+    ]
+   },
+   "STROKE": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "billinger2014"
+    ]
+   },
+   "ARTHRITIS": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "eular2018"
+    ]
+   },
+   "OSTEOPOROSIS": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "acsm2009"
+    ]
+   },
+   "ASTHMA": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "gina2024"
+    ]
+   },
+   "PREGNANCY": {
+    "no_plan": 85,
+    "more_no_plan_than_without": 40,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "acog2020"
+    ]
+   },
+   "JOINT_REPLACEMENT": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "nice2020"
+    ]
+   },
+   "RHEUMATOID_ARTHRITIS": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "eular2018"
+    ]
+   },
+   "COPD": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "spruit2013"
+    ]
+   },
+   "CANCER": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "campbell2019"
+    ]
+   },
+   "KIDNEY_DISEASE": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "kdigo2024"
+    ]
+   },
+   "PARKINSONS": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "osborne2022"
+    ]
+   },
+   "MULTIPLE_SCLEROSIS": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "kalb2020"
+    ]
+   },
+   "FOOT_ULCER": {
+    "no_plan": 315,
+    "more_no_plan_than_without": 270,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "colberg2016"
+    ]
+   },
+   "OTHER": {
+    "no_plan": 45,
+    "more_no_plan_than_without": 0,
+    "avoided_position_shown": 0,
+    "safety_sources": [
+     "acsm2009"
+    ]
+   }
+  }
+ },
  "distinct_completed_plan_and_limit_pairs": 14,
  "model_version": "hybrid-3.1"
 }

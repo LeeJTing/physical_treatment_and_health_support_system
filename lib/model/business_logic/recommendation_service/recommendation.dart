@@ -1,11 +1,16 @@
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 
 /// Why no plan may be generated for this patient at all (Terms of Use,
 /// section 2): plans stop at [AppConstants.planAgeLimit]. Everything else in
 /// the app stays available.
 enum PlanRestriction {
-  age65Plus('AGE_65_PLUS');
+  age65Plus('AGE_65_PLUS'),
+
+  /// A condition that needs a doctor's OK was answered "No" in the health
+  /// profile (11 Oct): no new plan until the answer changes. App only.
+  clearanceNeeded('CLEARANCE_NEEDED');
 
   final String wire;
   const PlanRestriction(this.wire);
@@ -16,6 +21,13 @@ enum PlanRestriction {
   /// The restriction for a profile [age]; none when the age is not known.
   static PlanRestriction? forAge(int? age) =>
       age != null && age >= AppConstants.planAgeLimit ? age65Plus : null;
+
+  /// The age limit first, then a condition waiting for a doctor's OK.
+  static PlanRestriction? forProfile(HealthProfile? p) =>
+      forAge(p?.age) ??
+      (p != null && p.conditions.any((c) => c.blocksPlans)
+          ? clearanceNeeded
+          : null);
 }
 
 /// One reason a plan was or was not recommended, as the server words it for

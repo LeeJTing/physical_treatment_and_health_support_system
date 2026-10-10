@@ -111,6 +111,67 @@ class EvidenceSources {
           'without cardiovascular disease: 2007 update. Circulation, 116(5), 572-584.',
       'Strength exercise limits for heart conditions.',
     ),
+    // 11 Oct: guidelines for the conditions added to the health profile.
+    'acog2020': EvidenceSource(
+      'ACOG (2020)',
+      'American College of Obstetricians and Gynecologists. (2020). Physical activity and exercise during '
+          'pregnancy and the postpartum period: ACOG Committee Opinion, Number 804. Obstetrics & Gynecology, '
+          '135(4), e178-e188.',
+      'Exercise in pregnancy; no lying on the back after 20 weeks.',
+    ),
+    'campbell2019': EvidenceSource(
+      'Campbell et al. (2019)',
+      'Campbell, K. L., Winters-Stone, K. M., Wiskemann, J., et al. (2019). Exercise guidelines for cancer '
+          'survivors: Consensus statement from international multidisciplinary roundtable. Medicine & Science '
+          'in Sports & Exercise, 51(11), 2375-2390.',
+      'Exercise during and after cancer treatment; strength work twice a week.',
+    ),
+    'eular2018': EvidenceSource(
+      'Rausch Osthoff et al. (2018)',
+      'Rausch Osthoff, A.-K., Niedermann, K., Braun, J., et al. (2018). 2018 EULAR recommendations for '
+          'physical activity in people with inflammatory arthritis and osteoarthritis. Annals of the Rheumatic '
+          'Diseases, 77(9), 1251-1260.',
+      'Physical activity is part of standard care for rheumatoid arthritis and osteoarthritis.',
+    ),
+    'gina2024': EvidenceSource(
+      'Global Initiative for Asthma (2024)',
+      'Global Initiative for Asthma. (2024). Global strategy for asthma management and prevention.',
+      'Warm up gradually; a reliever inhaler before exercise if prescribed.',
+    ),
+    'kalb2020': EvidenceSource(
+      'Kalb et al. (2020)',
+      'Kalb, R., Brown, T. R., Coote, S., et al. (2020). Exercise and lifestyle physical activity '
+          'recommendations for people with multiple sclerosis throughout the disease course. Multiple '
+          'Sclerosis Journal, 26(12), 1459-1469.',
+      'Strength exercise in multiple sclerosis; keep cool (heat sensitivity).',
+    ),
+    'kdigo2024': EvidenceSource(
+      'KDIGO (2024)',
+      'Kidney Disease: Improving Global Outcomes CKD Work Group. (2024). KDIGO 2024 clinical practice '
+          'guideline for the evaluation and management of chronic kidney disease. Kidney International, '
+          '105(4S), S117-S314.',
+      'Moderate physical activity in chronic kidney disease, as tolerated.',
+    ),
+    'nice2020': EvidenceSource(
+      'NICE (2020)',
+      'National Institute for Health and Care Excellence. (2020). Joint replacement (primary): Hip, knee and '
+          'shoulder (NICE guideline NG157).',
+      "After a joint replacement, follow the surgeon's and physiotherapist's rehabilitation advice.",
+    ),
+    'osborne2022': EvidenceSource(
+      'Osborne et al. (2022)',
+      'Osborne, J. A., Botkin, R., Colon-Semenza, C., et al. (2022). Physical therapist management of '
+          'Parkinson disease: A clinical practice guideline from the American Physical Therapy Association. '
+          'Physical Therapy, 102(4), pzab302.',
+      "Resistance and balance training in Parkinson's disease.",
+    ),
+    'spruit2013': EvidenceSource(
+      'Spruit et al. (2013)',
+      'Spruit, M. A., Singh, S. J., Garvey, C., et al. (2013). An official American Thoracic Society/European '
+          'Respiratory Society statement: Key concepts and advances in pulmonary rehabilitation. American '
+          'Journal of Respiratory and Critical Care Medicine, 188(8), e13-e64.',
+      'Exercise in chronic lung disease, guided by breathlessness.',
+    ),
   };
 
   /// In-text names for [keys], or [appRuleLabel] when there are none.

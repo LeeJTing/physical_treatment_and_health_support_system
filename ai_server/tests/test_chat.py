@@ -594,3 +594,31 @@ def test_too_old_to_exercise_is_still_the_safety_answer():
 def test_unknown_restriction_is_rejected():
     r = client.post("/chat", headers=DEV, json={"text": "hello", "restriction": "UNDER_13"})
     assert r.status_code == 422
+
+
+# ---- chat-rules-3.50: the conditions added to the health profile -------------------------------------
+
+@pytest.mark.parametrize("question, condition", [
+    ("can I exercise with copd", "chronic lung disease"), ("I have rheumatoid arthritis any advice", "rheumatoid"),
+    ("I am on dialysis can I exercise", "kidney"), ("I have parkinsons", "Parkinson"),
+    ("I have cancer and chemo", "cancer"), ("is it safe with my foot ulcer", "foot ulcer"),
+    ("I have multiple sclerosis, can I exercise", "multiple sclerosis")])
+def test_new_conditions_get_their_own_advice(question, condition):
+    res = ask(question)
+    assert res["category"] == "condition_advice" and condition.lower() in res["answer"].lower()
+
+
+def test_do_i_have_cancer_stays_a_diagnosis_question():
+    assert ask("do I have cancer")["category"] == "diagnosis"
+
+
+@pytest.mark.parametrize("code", ["PREGNANCY", "JOINT_REPLACEMENT", "RHEUMATOID_ARTHRITIS", "COPD", "CANCER",
+                                  "KIDNEY_DISEASE", "PARKINSONS", "MULTIPLE_SCLEROSIS", "FOOT_ULCER", "OTHER"])
+def test_every_new_profile_condition_adds_a_safety_note(code):
+    res = ask("is it safe to exercise", conditions=[code])
+    assert any(n.startswith("Because") for n in res["notes"]), res["notes"]
+
+
+@pytest.mark.parametrize("question", ["do I have cancer", "could this lump be cancer", "what are the signs of cancer"])
+def test_cancer_diagnosis_questions_stay_diagnosis(question):
+    assert ask(question)["category"] == "diagnosis"

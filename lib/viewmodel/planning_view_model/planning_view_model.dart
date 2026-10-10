@@ -10,6 +10,7 @@ import 'package:physical_treatment_and_health_support_system/core/utils/id_utils
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
@@ -45,6 +46,12 @@ class PlanningViewModel extends BaseViewModel {
   /// The profile age of the last request, for the age-limit page.
   int? get age => _snapshot?.profile?.age;
 
+  /// The conditions waiting for a doctor's OK (PlanRestriction.clearanceNeeded).
+  List<HealthCondition> get conditionsNeedingClearance => [
+    for (final c in _snapshot?.profile?.conditions ?? const <HealthCondition>[])
+      if (c.blocksPlans) c,
+  ];
+
   /// Whether plans may be generated for the patient, from the profile age
   /// (Terms of Use, section 2: none from 65). Checked before the
   /// questionnaire so a restricted patient is not asked for nothing; a
@@ -54,7 +61,7 @@ class PlanningViewModel extends BaseViewModel {
     final snap = await _riskAssessment.retrieve();
     if (snap case Success(:final data)) {
       _snapshot = data;
-      return PlanRestriction.forAge(data.profile?.age);
+      return PlanRestriction.forProfile(data.profile);
     }
     return null;
   }
@@ -182,7 +189,7 @@ class PlanningViewModel extends BaseViewModel {
     }
     _snapshot = snapshot;
     // No plan from 65, also for "Find my next plan" (Terms of Use, section 2).
-    if (PlanRestriction.forAge(snapshot.profile?.age) case final r?) {
+    if (PlanRestriction.forProfile(snapshot.profile) case final r?) {
       _recommendation = UiSuccess(Recommendation.restricted(r));
       notifyListeners();
       return;

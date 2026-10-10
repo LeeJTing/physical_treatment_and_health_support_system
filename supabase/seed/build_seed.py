@@ -120,6 +120,17 @@ PLANS = [
 ]
 
 
+# How each exercise is done (11 Oct): conditions avoid positions (pregnancy: lying on the back after
+# 20 weeks, ACOG 2020; a foot ulcer: standing, Colberg et al. 2016). EITHER = standing or sitting.
+POSITIONS = {
+    "sit_to_stand": "STANDING", "shoulder_abduction": "STANDING", "shoulder_flexion": "STANDING",
+    "hip_abduction": "STANDING", "knee_extension": "SEATED", "elbow_flexion": "EITHER",
+    "wall_push_up": "STANDING", "heel_raise": "STANDING", "mini_squat": "STANDING", "seated_marching": "SEATED",
+    "glute_bridge": "SUPINE", "tandem_stance": "STANDING", "bird_dog": "ALL_FOURS", "step_up": "STANDING",
+    "march_in_place": "STANDING", "wrist_extension": "TABLE", "hand_open_close": "TABLE",
+}
+
+
 def build():
     ex = {}
     for name, area, intensity, reps, dur, pose, text in EXERCISES:
@@ -127,6 +138,7 @@ def build():
             "exercise_id": uid("exercise", name), "exercise_name": name, "instruction_text": text,
             "target_body_area": area, "intensity_level": intensity,
             "default_repetitions": reps, "default_duration_sec": dur, "pose_key": pose,
+            "body_position": POSITIONS[pose],
         }
     plans = []
     for name, aim, area, stage, mob, freq, goal, items in PLANS:

@@ -52,8 +52,10 @@ class HealthProfile {
   /// High = two or more conditions, any cardiovascular condition, or a balance limitation.
   /// Low = no condition and no limitation. Medium = all other cases.
   RiskLevel assignRiskLevel() {
+    // 11 Oct: also any neurological condition (balance and falls) and any
+    // condition the patient says is not controlled.
     if (conditions.length >= 2 ||
-        conditions.any((c) => c.isCardiovascular()) ||
+        conditions.any((c) => c.alwaysHighRisk || !c.controlled) ||
         limitations.any((l) => l.affectsBalance())) {
       return RiskLevel.high;
     }

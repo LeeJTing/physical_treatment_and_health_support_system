@@ -367,7 +367,11 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
 # muscle loss, but "the doctor told me to rest after hospital" is the doctor's advice).
-PREFER_UNLESS = [("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not to", "don't", "avoid", "no exercise",
+PREFER_UNLESS = [# 3.50: "I have cancer, can I exercise?" is condition advice; "do I have cancer?" stays diagnosis
+                 ("condition_advice", "diagnosis", ["do i have", "could it be", "could this be", "is it cancer",
+                                                    "is this cancer", "might be", "do you think", "am i getting",
+                                                    "be cancer", "lump", "signs of", "symptoms of"]),
+                 ("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not to", "don't", "avoid", "no exercise",
                                                  "bed rest", "wait", "until"]),
                  # round 15: "afraid of getting hurt after a fall" is the fear, unless something hurts now
                  ("fear_of_falling", "pain_or_discomfort", ["pain", "painful", "sakit", "ache", "aching", "sore",
@@ -932,14 +936,25 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "replaced knee": "JOINT_REPLACEMENT", "wound": "SURGERY_WOUND", "stitches": "SURGERY_WOUND",
                    "incision": "SURGERY_WOUND", "cast": "INJURY", "plaster": "INJURY",
                    "fracture": "INJURY", "fractured": "INJURY", "broken bone": "INJURY", "broke my": "INJURY",
-                   "sprain": "INJURY", "sprained": "INJURY"}
+                   "sprain": "INJURY", "sprained": "INJURY",
+                   # 3.50 (11 Oct): the conditions added to the health profile
+                   "rheumatoid": "RHEUMATOID_ARTHRITIS", "copd": "COPD", "lung disease": "COPD",
+                   "chronic lung": "COPD", "emphysema": "COPD", "cancer": "CANCER", "chemo": "CANCER",
+                   "chemotherapy": "CANCER", "radiotherapy": "CANCER", "kanser": "CANCER", "barah": "CANCER",
+                   "kidney disease": "KIDNEY_DISEASE", "kidney problem": "KIDNEY_DISEASE",
+                   "dialysis": "KIDNEY_DISEASE", "buah pinggang": "KIDNEY_DISEASE", "parkinson": "PARKINSONS",
+                   "parkinsons": "PARKINSONS", "multiple sclerosis": "MULTIPLE_SCLEROSIS",
+                   "foot ulcer": "FOOT_ULCER", "diabetic foot": "FOOT_ULCER", "wound on my foot": "FOOT_ULCER"}
 
 
 def conditions_in(text: str | None) -> list[str]:
     if not text:
         return []
     words = clean(text).split()
-    return list(dict.fromkeys(code for phrase, code in CONDITION_WORDS.items() if find_phrase(phrase, words)))
+    found = list(dict.fromkeys(code for phrase, code in CONDITION_WORDS.items() if find_phrase(phrase, words)))
+    if "RHEUMATOID_ARTHRITIS" in found and "ARTHRITIS" in found:
+        found.remove("ARTHRITIS")                  # "rheumatoid arthritis" is the one condition
+    return found
 
 
 def period(hour: int) -> str:

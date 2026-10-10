@@ -955,3 +955,51 @@ def test_the_app_lists_every_source_key():
     dart = path.read_text(encoding="utf-8")
     missing = [k for k in X.SOURCE_KEYS if f"'{k}'" not in dart]
     assert not missing, missing
+
+
+# ---- 11 Oct: more health conditions --------------------------------------------------------------
+
+from app.recommend import conditions as CONDS     # noqa: E402
+
+
+def test_every_catalogue_exercise_has_a_body_position():
+    assert all(e.get("body_position") in {"STANDING", "SEATED", "EITHER", "SUPINE", "ALL_FOURS", "TABLE"}
+               for e in CATALOGUE["exercises"])
+
+
+def test_pregnancy_leaves_out_exercises_on_the_back_with_the_reason():
+    b = body(area="BOTH_LEGS", stage="INTERMEDIATE", mobility="MODERATE", goal="BALANCE")
+    b["conditions"] = ["PREGNANCY"]
+    res = recommend(RecommendRequest.model_validate(b))
+    shown = names(res.model_dump())
+    assert shown and not any(pe["exercise"]["body_position"] == "SUPINE"
+                             for n in shown for pe in PLAN[n]["plan_exercise"])
+    why = {NAME[e.plan_id]: e.why for e in res.excluded}
+    hip = [w for w in why["Hip Stability"] if w.code == "CONDITION_AVOID"][0]
+    assert "Glute Bridge" in hip.text and "lying on your back" in hip.text and hip.sources == ["acog2020"]
+
+
+def test_a_foot_ulcer_leaves_out_standing_exercises_but_not_seated_ones():
+    b = body(area="BOTH_ARMS", stage="EARLY", mobility="LOW", goal="MOBILITY")
+    b["conditions"] = ["FOOT_ULCER"]
+    res = recommend(RecommendRequest.model_validate(b))
+    shown = names(res.model_dump())
+    assert "Hand and Wrist Recovery" in shown               # elbow flexion can be done sitting
+    assert "Shoulder Mobility Starter" not in shown          # standing arm raises
+    for n in shown:
+        assert all(pe["exercise"]["body_position"] != "STANDING" for pe in PLAN[n]["plan_exercise"])
+
+
+def test_conditions_without_a_position_rule_change_only_the_sources():
+    plain = recommend(RecommendRequest.model_validate(body()))
+    b = body()
+    b["conditions"] = ["COPD", "KIDNEY_DISEASE", "PARKINSONS"]
+    res = recommend(RecommendRequest.model_validate(b))
+    assert [r.plan_id for r in res.ranked] == [r.plan_id for r in plain.ranked]
+    safe = next(w for w in res.ranked[0].why if w.code == "SAFE")
+    assert safe.sources[:3] == ["spruit2013", "kdigo2024", "osborne2022"]
+
+
+def test_every_condition_source_is_a_known_key():
+    keys = set(CONDS.CONDITION_SOURCES.values()) | {s for c in CONDS.AVOID_POSITIONS.values() for s in c["sources"]}
+    assert keys <= X.SOURCE_KEYS

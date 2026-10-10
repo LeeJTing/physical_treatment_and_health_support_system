@@ -43,6 +43,8 @@ class ExerciseIn(_In):
     intensity_level: Intensity
     # Posture model key; tells which body parts the exercise trains (engine.POSE_PARTS).
     pose_key: str | None = None
+    # How it is done (11 Oct): STANDING, SEATED, EITHER, SUPINE, ALL_FOURS, TABLE; conditions avoid some.
+    body_position: str | None = None
 
 
 class PlanExerciseIn(_In):
