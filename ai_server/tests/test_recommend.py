@@ -300,7 +300,7 @@ def test_endpoint_accepts_evidence_and_reports_it():
     r = client.post("/recommend", json=b, headers=DEV)
     assert r.status_code == 200, r.text
     res = r.json()
-    assert res["model_version"] == "hybrid-2.2"
+    assert res["model_version"] == "hybrid-3.0"
     top = next(x for x in res["ranked"] if NAME[x["plan_id"]] == "Early Knee Recovery")
     assert top["evidence_patients"] == 30 and 0 < top["alpha"] <= 0.3
     assert top["breakdown"]["collaborative"] is not None
@@ -453,4 +453,235 @@ def test_unknown_frequency_is_neutral():
 def test_unknown_pace_is_an_invalid_request():
     b = body()
     b["pace"] = "VERY_FAST"
+    assert client.post("/recommend", json=b, headers=DEV).status_code == 422
+
+
+# ---- hybrid-3.0: the patient's own progress ------------------------------------------------------
+
+PLAN = {p["plan_name"]: p for p in CATALOGUE["plans"]}
+EXERCISE = {e["exercise_name"]: e for e in CATALOGUE["exercises"]}
+INTENSITY_ORDER = ("LOW", "MODERATE", "VIGOROUS")
+
+
+def result(name, attempts, passes, accuracy=None):
+    return {"exercise_id": EXERCISE[name]["exercise_id"], "attempts": attempts, "passes": passes,
+            "mean_accuracy": accuracy}
+
+
+def history(name, status="ACTIVE", progress=0.0, fails=0, falls=0):
+    return {"plan_id": PLAN[name]["plan_id"], "status": status, "progress_percentage": progress,
+            "consecutive_fails": fails, "fall_alerts": falls}
+
+
+def from_plan(name, intensity="MODERATE", plans=(), exercises=(), limitations=()):
+    """Next-step request: the answers are the attributes of the plan the patient is on."""
+    p = PLAN[name]
+    b = body(area=p["target_body_area"], stage=p["recovery_stage"], mobility=p["mobility_level"], goal=p["goal"],
+             intensity=intensity, limitations=limitations)
+    b["progress"] = {"plans": list(plans), "exercises": list(exercises)}
+    return RecommendRequest.model_validate(b)
+
+
+KNEE_DONE = [result("Seated Knee Extension", 3, 2, 86), result("Seated Marching", 2, 2, 90),
+             result("Heel Raise", 2, 1, 82)]
+
+
+def test_without_history_the_result_equals_hybrid_2_2():
+    plain = recommend(RecommendRequest.model_validate(body(**ARM_EARLY)))
+    empty = body(**ARM_EARLY)
+    empty["progress"] = {"plans": [], "exercises": []}
+    res = recommend(RecommendRequest.model_validate(empty))
+    assert res.next_step == plain.next_step == "START" and res.next_step_reason == ""
+    assert [(r.plan_id, r.suitability_score) for r in res.ranked] == \
+           [(r.plan_id, r.suitability_score) for r in plain.ranked]
+    assert all(r.beta == 0 and r.breakdown.personal is None for r in res.ranked)
+
+
+def test_completed_plan_moves_up_one_stage():
+    res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", "COMPLETED", 100)],
+                              exercises=KNEE_DONE))
+    assert res.next_step == "PROGRESS"
+    assert (res.effective_stage, res.effective_mobility) == ("INTERMEDIATE", "MODERATE")
+    assert "Early Knee Recovery" in res.next_step_reason
+    got = names(res.model_dump())
+    assert "Early Knee Recovery" not in got
+    assert {"Lower Limb Strength Builder", "Hip Stability"} <= set(got[:2])
+    left = next(e for e in res.excluded if NAME[e.plan_id] == "Early Knee Recovery")
+    assert left.reasons[0] == "already completed"
+
+
+def test_progress_is_learnt_from_similar_exercises():
+    # Knee extension and marching went well, so the strength plan (sit-to-stand, mini squat, step-up:
+    # knee and hip) is predicted to suit better than Hip Stability with the same content score.
+    res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", "COMPLETED", 100)],
+                              exercises=KNEE_DONE))
+    by = {NAME[r.plan_id]: r for r in res.ranked}
+    strength, hip = by["Lower Limb Strength Builder"], by["Hip Stability"]
+    assert strength.content_score == hip.content_score
+    assert strength.breakdown.personal > hip.breakdown.personal > 0.5
+    assert names(res.model_dump())[0] == "Lower Limb Strength Builder"
+
+
+def test_step_up_never_passes_the_safety_limit():
+    res = recommend(from_plan("Early Knee Recovery", intensity="LOW",
+                              plans=[history("Early Knee Recovery", "COMPLETED", 100)], exercises=KNEE_DONE))
+    assert res.next_step == "PROGRESS"
+    for r in res.ranked:
+        plan = PLAN[NAME[r.plan_id]]
+        assert plan["recovery_stage"] == "EARLY"
+        assert all(pe["exercise"]["intensity_level"] == "LOW" for pe in plan["plan_exercise"])
+    assert "not within your safety limits" in res.next_step_reason
+
+
+def test_progress_never_lowers_the_answers():
+    b = body(area="BOTH_LEGS", stage="ADVANCED", mobility="HIGH", goal="STRENGTH", intensity="VIGOROUS", minutes=60)
+    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": []}
+    res = recommend(RecommendRequest.model_validate(b))
+    assert (res.effective_stage, res.effective_mobility) == ("ADVANCED", "HIGH")
+    assert names(res.model_dump())[0] == "Advanced Leg Function"
+
+
+def test_progress_only_counts_plans_for_the_area_asked_about():
+    b = body(**ARM_EARLY)
+    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": KNEE_DONE}
+    res = recommend(RecommendRequest.model_validate(b))
+    assert res.next_step == "STAY"
+    assert res.effective_stage == "EARLY"
+
+
+def test_repeated_failures_ease_the_plan():
+    res = recommend(from_plan(
+        "Lower Limb Strength Builder",
+        plans=[history("Early Knee Recovery", "COMPLETED", 100),
+               history("Lower Limb Strength Builder", progress=33.33, fails=3)],
+        exercises=KNEE_DONE + [result("Sit-to-Stand", 2, 1, 81), result("Mini Squat", 3, 0, 58)]))
+    assert res.next_step == "EASE"
+    assert (res.effective_stage, res.effective_mobility) == ("EARLY", "LOW")
+    assert "Lower Limb Strength Builder" in res.next_step_reason and "3 times" in res.next_step_reason
+    assert "Lower Limb Strength Builder" not in names(res.model_dump())
+    eased = next(e for e in res.excluded if NAME[e.plan_id] == "Lower Limb Strength Builder")
+    assert eased.reasons[0].startswith("being eased")
+
+
+def test_two_failures_are_not_enough_to_ease():
+    res = recommend(from_plan("Lower Limb Strength Builder",
+                              plans=[history("Lower Limb Strength Builder", fails=E.EASE_FAILS - 1)]))
+    assert res.next_step == "STAY" and res.effective_stage == "INTERMEDIATE"
+
+
+def test_a_possible_fall_eases_whatever_the_area():
+    b = body(area="BOTH_ARMS", stage="INTERMEDIATE", mobility="MODERATE", goal="STRENGTH")
+    b["progress"] = {"plans": [history("Hip Stability", falls=1)], "exercises": []}
+    res = recommend(RecommendRequest.model_validate(b))
+    assert res.next_step == "EASE" and "fall" in res.next_step_reason
+    assert (res.effective_stage, res.effective_mobility) == ("EARLY", "LOW")
+
+
+def test_failures_on_another_area_do_not_ease():
+    b = body(**ARM_EARLY)
+    b["progress"] = {"plans": [history("Early Knee Recovery", fails=5)], "exercises": []}
+    assert recommend(RecommendRequest.model_validate(b)).next_step == "STAY"
+
+
+def test_good_results_lift_a_plan_above_an_equal_one():
+    # Shoulder Mobility Starter and Hand and Wrist Recovery match equally (both 1.0). Passing
+    # shoulder flexion puts the shoulder plan first; failing it puts it after the hand plan.
+    def order(passes, accuracy):
+        b = body(**ARM_EARLY)
+        b["progress"] = {"plans": [history("Shoulder Mobility Starter", progress=33.33)],
+                         "exercises": [result("Shoulder Flexion", 3, passes, accuracy)]}
+        return names(recommend(RecommendRequest.model_validate(b)).model_dump())
+    assert order(3, 92)[0] == "Shoulder Mobility Starter"
+    poor = order(0, 45)
+    assert poor.index("Shoulder Mobility Starter") > poor.index("Hand and Wrist Recovery")
+
+
+def test_personal_score_is_bounded_and_reported_within_0_and_1():
+    b = body(**ARM_EARLY)
+    b["progress"] = {"plans": [], "exercises": [result(n, 20, 20, 100) for n in
+                                                ("Shoulder Flexion", "Shoulder Abduction", "Elbow Flexion")]}
+    res = recommend(RecommendRequest.model_validate(b))
+    for r in res.ranked:
+        assert 0 <= r.suitability_score <= 1
+        assert r.beta <= E.BETA_MAX
+        if r.breakdown.personal is not None:
+            assert 0 <= r.breakdown.personal <= 1
+
+
+def test_exercise_similarity():
+    ex = {n: E.ExerciseIn.model_validate(e) for n, e in EXERCISE.items()}
+    assert E.exercise_similarity(ex["Shoulder Flexion"], ex["Shoulder Flexion"]) == 1
+    assert E.exercise_similarity(ex["Shoulder Flexion"], ex["Shoulder Abduction"]) == pytest.approx(1)
+    assert E.exercise_similarity(ex["Shoulder Flexion"], ex["Seated Knee Extension"]) < E.SIM_FLOOR
+    assert E.SIM_FLOOR < E.exercise_similarity(ex["Mini Squat"], ex["Sit-to-Stand"]) < 1
+
+
+def test_own_result_counts_more_than_a_similar_exercise():
+    # Case amplification: three good tries of the exercise itself outweigh three poor tries of a
+    # similar one.
+    plan = E.PlanIn.model_validate(PLAN["Early Knee Recovery"])
+    b = body()
+    b["progress"] = {"plans": [], "exercises": [result("Seated Knee Extension", 3, 3, 90),
+                                                result("Mini Squat", 3, 0, 50)]}
+    req = RecommendRequest.model_validate(b)
+    score, _ = E.personal(req, plan, "STAY", E.catalogue_exercises(req))
+    assert score > 0.5
+
+
+def test_unknown_exercises_in_the_history_are_ignored():
+    b = body(**ARM_EARLY)
+    b["progress"] = {"plans": [{"plan_id": "gone", "status": "COMPLETED"}],
+                     "exercises": [{"exercise_id": "gone", "attempts": 4, "passes": 4, "mean_accuracy": 95}]}
+    res = recommend(RecommendRequest.model_validate(b))
+    assert res.next_step == "STAY"
+    assert all(r.breakdown.personal is None for r in res.ranked)
+
+
+def test_history_never_lets_an_unsafe_plan_through():
+    """Whatever the history, every ranked plan keeps the intensity, session-time and limitation rules."""
+    import random
+    rng = random.Random(7)
+    all_ex = list(EXERCISE)
+    for _ in range(300):
+        cap = rng.choice(INTENSITY_ORDER[:2])
+        minutes = rng.choice((10, 15, 20, 30))
+        limits = rng.sample(["LEFT_ARM_MOBILITY", "RIGHT_LEG_MOBILITY", "BALANCE_IMPAIRMENT"], rng.randint(0, 2))
+        plans = [history(n, rng.choice(("ACTIVE", "COMPLETED", "ABANDONED")), fails=rng.randint(0, 4),
+                         falls=rng.choice((0, 0, 0, 1)))
+                 for n in rng.sample(list(PLAN), rng.randint(0, 4))]
+        exercises = []
+        for n in rng.sample(all_ex, rng.randint(0, 6)):
+            attempts = rng.randint(1, 6)
+            exercises.append(result(n, attempts, rng.randint(0, attempts), rng.choice((None, rng.uniform(30, 100)))))
+        b = body(area=rng.choice(list(E._PARTS)), stage=rng.choice(E.STAGES), mobility=rng.choice(E.MOBILITY),
+                 goal=rng.choice(E.GOALS), intensity=cap, minutes=minutes, limitations=limits)
+        b["progress"] = {"plans": plans, "exercises": exercises}
+        res = recommend(RecommendRequest.model_validate(b))
+        for r in res.ranked:
+            plan = PLAN[NAME[r.plan_id]]
+            assert all(INTENSITY_ORDER.index(pe["exercise"]["intensity_level"]) <= INTENSITY_ORDER.index(cap)
+                       for pe in plan["plan_exercise"])
+            assert sum(pe["prescribed_duration_sec"] for pe in plan["plan_exercise"]) <= minutes * 60
+            for code in limits:
+                area = E.blocked_area(code)
+                assert area is None or not any(conflicts(pe["exercise"]["target_body_area"], area)
+                                               for pe in plan["plan_exercise"])
+            assert E.STAGES.index(plan["recovery_stage"]) <= E.STAGES.index(res.effective_stage)
+
+
+def test_endpoint_reports_the_next_step():
+    b = body()
+    b["progress"] = {"plans": [history("Early Knee Recovery", "COMPLETED", 100)], "exercises": KNEE_DONE}
+    r = client.post("/recommend", json=b, headers=DEV)
+    assert r.status_code == 200, r.text
+    res = r.json()
+    assert res["next_step"] == "PROGRESS" and res["effective_stage"] == "INTERMEDIATE"
+    assert any(x["beta"] > 0 and x["breakdown"]["personal"] is not None for x in res["ranked"])
+
+
+def test_impossible_history_is_an_invalid_request():
+    b = body()
+    b["progress"] = {"plans": [], "exercises": [{"exercise_id": "x", "attempts": 0, "passes": 0}]}
+    assert client.post("/recommend", json=b, headers=DEV).status_code == 422
+    b["progress"] = {"plans": [{"plan_id": "x", "status": "PAUSED"}], "exercises": []}
     assert client.post("/recommend", json=b, headers=DEV).status_code == 422

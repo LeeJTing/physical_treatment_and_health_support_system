@@ -85,6 +85,35 @@ class PlanOutcomeIn(_In):
     mean_progress: float | None = Field(default=None, ge=0, le=100)
 
 
+PlanStatusIn = Literal["ACTIVE", "COMPLETED", "ABANDONED"]           # patient_plan.status
+
+
+class PlanHistoryIn(_In):
+    """One of the patient's own plans (patient_plan), for the next step (hybrid-3.0)."""
+    plan_id: str
+    status: PlanStatusIn
+    progress_percentage: float = Field(default=0, ge=0, le=100)
+    # Attempts in a row at the plan's current exercise that did not pass (below 80 %).
+    consecutive_fails: int = Field(default=0, ge=0)
+    # Recent attempts on the plan with a possible-fall alert.
+    fall_alerts: int = Field(default=0, ge=0)
+
+
+class ExerciseResultIn(_In):
+    """The patient's own results on one exercise, over every plan (exercise_session)."""
+    exercise_id: str
+    attempts: int = Field(ge=1)
+    passes: int = Field(ge=0)
+    mean_accuracy: float | None = Field(default=None, ge=0, le=100)
+
+
+class ProgressIn(_In):
+    """What the patient has done so far. Built by the app from patient_plan and exercise_session;
+    no schema change and no other patient's data."""
+    plans: list[PlanHistoryIn] = []
+    exercises: list[ExerciseResultIn] = []
+
+
 class RecommendRequest(_In):
     rehab: RehabInfo
     safety_limit: SafetyLimitIn
@@ -100,6 +129,9 @@ class RecommendRequest(_In):
     focus_parts: list[FocusPart] = []
     # How fast the patient wants to go (optional question). None: no pace block.
     pace: Pace | None = None
+    # The patient's own history (hybrid-3.0). None or empty: no personal score and no next step,
+    # so the result equals hybrid-2.2.
+    progress: ProgressIn | None = None
 
 
 class ScoreBreakdown(BaseModel):
@@ -114,6 +146,9 @@ class ScoreBreakdown(BaseModel):
     focus: float | None = None
     # Match between the wanted pace and the plan's days a week, or None without a pace.
     pace: float | None = None
+    # Predicted success from the patient's own results on similar exercises, or None without
+    # history that says anything about the plan's exercises.
+    personal: float | None = None
 
 
 class RankedPlan(BaseModel):
@@ -123,6 +158,7 @@ class RankedPlan(BaseModel):
     content_score: float = 0.0
     alpha: float = 0.0                 # weight given to the collaborative score (0 at cold start)
     evidence_patients: int = 0         # similarity-weighted number of similar patients behind it
+    beta: float = 0.0                  # weight given to the personal score (0 without history)
 
 
 class ExcludedPlan(BaseModel):
@@ -137,3 +173,11 @@ class RecommendResponse(BaseModel):
     excluded: list[ExcludedPlan]
     suitable_count: int
     model_version: str
+    # What the patient's history says to do next (hybrid-3.0): START without history, PROGRESS
+    # after a completed plan, EASE after repeated failed attempts or a possible fall, STAY otherwise.
+    next_step: Literal["START", "PROGRESS", "STAY", "EASE"] = "START"
+    # One plain sentence for the patient explaining next_step; empty for START.
+    next_step_reason: str = ""
+    # The recovery stage and mobility level the rules used after the next step.
+    effective_stage: Stage | None = None
+    effective_mobility: Mobility | None = None

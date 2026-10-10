@@ -28,6 +28,10 @@ abstract interface class ITreatmentRepository {
   /// several plans at once (PlanRules; PROJECT_STATE section 11).
   Future<Result<List<PatientTreatmentPlan>>> getActivePlans(String accountId);
 
+  /// Every plan the patient has had (ACTIVE, COMPLETED, ABANDONED), oldest
+  /// first: the history the recommender learns the next step from (hybrid-3.0).
+  Future<Result<List<PatientTreatmentPlan>>> getPlanHistory(String accountId);
+
   /// The most recently selected ACTIVE plan, or null when none is assigned.
   Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId);
 

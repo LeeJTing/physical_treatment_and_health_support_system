@@ -13,6 +13,10 @@ class Routes {
   static const String home = '/home';
   static const String healthProfile = '/profile';
   static const String treatmentPlanning = '/treatment-planning';
+
+  /// Recommended plans for the next step after a plan (argument: the
+  /// PatientTreatmentPlan to move on from).
+  static const String nextPlan = '/next-plan';
   static const String physicalTreatment = '/physical-treatment';
   static const String reminders = '/reminders';
   static const String sessionHistory = '/session-history';

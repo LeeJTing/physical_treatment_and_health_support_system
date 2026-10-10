@@ -41,8 +41,10 @@ class RecommendedPlansView extends StatelessWidget {
       await _explain(context, 'You cannot add ${plan.planName}', blocks);
       return;
     }
-    // 2. Plans to stop for it: clashes (same area and goal), then the risk cap.
+    // 2. Plans to stop for it: the plan being eased, clashes (same area and
+    // goal), then the risk cap.
     final replacing = [
+      ?vm.easingFrom,
       for (final i in issues)
         if (i.code == 'clash' && i.patientPlanId != null) i.patientPlanId!,
     ];
@@ -82,6 +84,14 @@ class RecommendedPlansView extends StatelessWidget {
     if (vm.activePlans.isEmpty) return null;
     final issues = vm.issuesFor(p);
     final code = {for (final i in issues) i.code};
+    final easing = vm.easingFrom;
+    if (easing != null && code.isEmpty) {
+      final name = vm.activePlans
+          .firstWhere((a) => a.patientPlanId == easing)
+          .plan
+          .planName;
+      return 'Replaces $name for now.';
+    }
     if (code.contains('already_following')) {
       return 'You are already following this plan.';
     }
@@ -254,7 +264,9 @@ class RecommendedPlansView extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(8, 8, AppTokens.gutter, 0),
                 child: PlanningHeader(
                   title: 'Recommended plans',
-                  subtitle: 'Based on your health profile',
+                  subtitle: vm.from == null
+                      ? 'Based on your health profile'
+                      : 'Your next step after ${vm.from!.plan.planName}',
                   onBack: () => _exit(context),
                 ),
               ),
@@ -323,6 +335,14 @@ class _PlanList extends StatelessWidget {
       children: [
         if (notice != null) ...[
           NoticeBanner(notice!, warning: true),
+          const SizedBox(height: AppTokens.gap),
+        ],
+        // hybrid-3.0: why these plans, from the patient's own progress.
+        if (recommendation.nextStepReason.isNotEmpty) ...[
+          NoticeBanner(
+            recommendation.nextStepReason,
+            warning: recommendation.nextStep == NextStep.ease,
+          ),
           const SizedBox(height: AppTokens.gap),
         ],
         if (recommendation.status == RecommendationStatus.onlyOne) ...[

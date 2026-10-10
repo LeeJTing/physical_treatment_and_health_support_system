@@ -32,6 +32,20 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
         failMessage: Messages.planRetrieveFailed,
       );
 
+  @override
+  Future<Result<List<PatientTreatmentPlan>>> getPlanHistory(String accountId) =>
+      supabaseGuard(
+        () async =>
+            (await _sb
+                    .from('patient_plan')
+                    .select('*, treatment_plan($_planWithExercises)')
+                    .eq('account_id', accountId)
+                    .order('selected_at'))
+                .map(PatientTreatmentPlan.fromJson)
+                .toList(),
+        failMessage: Messages.planRetrieveFailed,
+      );
+
   /// The newest ACTIVE plan. Not maybeSingle(): with several active plans
   /// that would throw.
   @override

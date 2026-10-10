@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
@@ -61,14 +62,39 @@ class PlanningViewModel extends BaseViewModel {
       'Following more than one plan at a time is not switched on yet. You can '
       'replace your current plan instead.';
 
+  /// The plan this recommendation moves on from ("Find my next plan"), or
+  /// null after the questionnaire.
+  PatientTreatmentPlan? _from;
+  PatientTreatmentPlan? get from => _from;
+
+  /// After an EASE step from a plan that is still being followed, that plan:
+  /// the chosen plan replaces it. The patient still confirms it in the dialog.
+  String? get easingFrom {
+    final f = _from;
+    final r = _recommendation;
+    if (f == null ||
+        r is! UiSuccess<Recommendation> ||
+        r.data.nextStep != NextStep.ease) {
+      return null;
+    }
+    return _activePlans.any((a) => a.patientPlanId == f.patientPlanId)
+        ? f.patientPlanId
+        : null;
+  }
+
   /// Checks for adding [p] beside the plans already followed, under the
-  /// CURRENT risk level and safety limit (PlanRules.checkAdd).
+  /// CURRENT risk level and safety limit (PlanRules.checkAdd). A plan being
+  /// eased is left out: the new plan replaces it.
   List<PlanIssue> issuesFor(TreatmentPlan p) {
     final s = _snapshot;
     if (s == null) return const [];
+    final easing = easingFrom;
     return PlanRules.checkAdd(
       candidate: p,
-      active: _activePlans,
+      active: [
+        for (final a in _activePlans)
+          if (a.patientPlanId != easing) a,
+      ],
       risk: s.riskLevel,
       limit: s.safetyLimit,
     );
@@ -82,7 +108,45 @@ class PlanningViewModel extends BaseViewModel {
 
   /// Scores the catalogue against the profile (FR500_02 to FR500_07).
   /// Errors map to UC400 E1 (M3), E2 (M4) and E3 (M5).
-  Future<void> recommend(RehabInfo rehab) async {
+  Future<void> recommend(RehabInfo rehab) {
+    _from = null;
+    return _run(rehab);
+  }
+
+  /// "Find my next plan" (hybrid-3.0): the questionnaire answered with the
+  /// plan the patient is moving on from, so the server's next step applies to
+  /// it (a step up after a completed plan, an easier plan after repeated
+  /// attempts that did not pass).
+  Future<void> recommendNext(PatientTreatmentPlan from) {
+    _from = from;
+    final p = from.plan;
+    return _run(
+      RehabInfo(
+        affectedBodyArea: p.targetBodyArea,
+        recoveryStage: p.recoveryStage,
+        mobilityLevel: p.mobilityLevel,
+        goal: p.goal ?? RehabInfo.goals.first,
+      ),
+    );
+  }
+
+  /// The patient's own plans and attempts (hybrid-3.0). Optional like the
+  /// cohort evidence: a failure means no history, never an error.
+  Future<PatientProgress?> _progress(String accountId) async {
+    final plans = (await _repo.getPlanHistory(accountId)).dataOrNull;
+    if (plans == null || plans.isEmpty) return null;
+    return (
+      plans: plans,
+      sessions: {
+        for (final p in plans)
+          p.patientPlanId:
+              (await _repo.getSessions(p.patientPlanId)).dataOrNull ??
+              const <ExerciseSession>[],
+      },
+    );
+  }
+
+  Future<void> _run(RehabInfo rehab) async {
     _lastRehab = rehab;
     _notice = null;
     _saving = const Idle();
@@ -126,12 +190,14 @@ class PlanningViewModel extends BaseViewModel {
     // Collaborative evidence is optional: a failure (e.g. the RPC is not
     // deployed) just means a cold start, never an error for the patient.
     final outcomes = (await _repo.getPlanOutcomes()).dataOrNull ?? const [];
+    final progress = accountId == null ? null : await _progress(accountId);
 
     final result = await _recommender.topThree(
       snapshot,
       rehab,
       catalogue.dataOrNull!,
       outcomes: outcomes,
+      progress: progress,
     );
     _recommendation = switch (result) {
       Success(:final data) => UiSuccess(data),
@@ -143,7 +209,7 @@ class PlanningViewModel extends BaseViewModel {
   /// Runs the last request again after an error (FR500_26 retry).
   Future<void> retry() async {
     final rehab = _lastRehab;
-    if (rehab != null) await recommend(rehab);
+    if (rehab != null) await _run(rehab);
   }
 
   void _fail(String message) {

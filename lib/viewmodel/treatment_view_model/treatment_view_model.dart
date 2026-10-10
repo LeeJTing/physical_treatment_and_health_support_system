@@ -6,6 +6,7 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -88,6 +89,30 @@ class TreatmentViewModel extends BaseViewModel {
   List<PatientTreatmentPlan> _plans = const [];
   List<PatientTreatmentPlan> get plans => _plans;
 
+  /// The most recently completed plan, for "Find my next plan" when no plan
+  /// is being followed (hybrid-3.0).
+  PatientTreatmentPlan? _lastCompleted;
+  PatientTreatmentPlan? get lastCompleted => _lastCompleted;
+
+  /// Every exercise of the plan on screen is done.
+  bool get planComplete {
+    final p = activePlan;
+    return p != null &&
+        p.plan.exercises.isNotEmpty &&
+        p.currentExercise() == null;
+  }
+
+  /// Attempts at the current exercise that did not pass.
+  int get failsAtCurrent {
+    final p = activePlan;
+    return p == null ? 0 : RecommendationService.failsAtCurrent(p, _sessions);
+  }
+
+  /// The current exercise did not pass several times: offer plans that may
+  /// suit better (the server's EASE step).
+  bool get suggestEasier =>
+      !planComplete && failsAtCurrent >= RecommendationService.easeAfterFails;
+
   /// Sessions of every active plan (for the shared-exercise and rest-day rules).
   Map<String, List<ExerciseSession>> _sessionsByPlan = const {};
 
@@ -130,6 +155,11 @@ class TreatmentViewModel extends BaseViewModel {
     final res = await _repo.getActivePlans(account.accountId);
     if (res case Success(data: final all)) {
       _plans = all;
+      _lastCompleted =
+          ((await _repo.getPlanHistory(account.accountId)).dataOrNull ??
+                  const <PatientTreatmentPlan>[])
+              .where((p) => p.status == PlanStatus.completed)
+              .lastOrNull;
       _sessionsByPlan = {
         for (final a in all)
           a.patientPlanId:
@@ -184,10 +214,6 @@ class TreatmentViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// Phrases of the server's possible-fall message (FALL_MESSAGE in
-  /// ai_server/app/pose/analyse.py), found in a saved attempt's feedback.
-  static const _fallPhrase = 'lost your balance or fallen';
-
   /// A possible fall today in ANY plan makes today a rest day for all plans.
   bool get restDayToday {
     final today = clock();
@@ -200,9 +226,7 @@ class TreatmentViewModel extends BaseViewModel {
     }
     return _sessionsByPlan.values.any(
       (list) => list.any(
-        (s) =>
-            s.completedOn(today) &&
-            (s.postureFeedback ?? '').contains(_fallPhrase),
+        (s) => s.completedOn(today) && s.hadFallAlert(),
       ),
     );
   }

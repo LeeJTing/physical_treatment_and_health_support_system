@@ -725,6 +725,45 @@
         ],
         "title": "ExerciseIn"
       },
+      "ExerciseResultIn": {
+        "properties": {
+          "exercise_id": {
+            "type": "string",
+            "title": "Exercise Id"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Attempts"
+          },
+          "passes": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Passes"
+          },
+          "mean_accuracy": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mean Accuracy"
+          }
+        },
+        "type": "object",
+        "required": [
+          "exercise_id",
+          "attempts",
+          "passes"
+        ],
+        "title": "ExerciseResultIn",
+        "description": "The patient's own results on one exercise, over every plan (exercise_session)."
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -755,6 +794,49 @@
           "prescribed_duration_sec"
         ],
         "title": "PlanExerciseIn"
+      },
+      "PlanHistoryIn": {
+        "properties": {
+          "plan_id": {
+            "type": "string",
+            "title": "Plan Id"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "COMPLETED",
+              "ABANDONED"
+            ],
+            "title": "Status"
+          },
+          "progress_percentage": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Progress Percentage",
+            "default": 0
+          },
+          "consecutive_fails": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Consecutive Fails",
+            "default": 0
+          },
+          "fall_alerts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Fall Alerts",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "plan_id",
+          "status"
+        ],
+        "title": "PlanHistoryIn",
+        "description": "One of the patient's own plans (patient_plan), for the next step (hybrid-3.0)."
       },
       "PlanIn": {
         "properties": {
@@ -922,6 +1004,29 @@
         "title": "PlanOutcomeIn",
         "description": "One anonymised cohort cell from the plan_outcome_stats() RPC: how patients with this risk\nlevel and age band did on a plan. Never contains account ids; cells under MIN_PATIENTS are\ndropped by the RPC and again by the engine."
       },
+      "ProgressIn": {
+        "properties": {
+          "plans": {
+            "items": {
+              "$ref": "#/components/schemas/PlanHistoryIn"
+            },
+            "type": "array",
+            "title": "Plans",
+            "default": []
+          },
+          "exercises": {
+            "items": {
+              "$ref": "#/components/schemas/ExerciseResultIn"
+            },
+            "type": "array",
+            "title": "Exercises",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "ProgressIn",
+        "description": "What the patient has done so far. Built by the app from patient_plan and exercise_session;\nno schema change and no other patient's data."
+      },
       "RankedPlan": {
         "properties": {
           "plan_id": {
@@ -949,6 +1054,11 @@
             "type": "integer",
             "title": "Evidence Patients",
             "default": 0
+          },
+          "beta": {
+            "type": "number",
+            "title": "Beta",
+            "default": 0.0
           }
         },
         "type": "object",
@@ -1033,6 +1143,16 @@
               }
             ],
             "title": "Pace"
+          },
+          "progress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProgressIn"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "type": "object",
@@ -1075,6 +1195,54 @@
           "model_version": {
             "type": "string",
             "title": "Model Version"
+          },
+          "next_step": {
+            "type": "string",
+            "enum": [
+              "START",
+              "PROGRESS",
+              "STAY",
+              "EASE"
+            ],
+            "title": "Next Step",
+            "default": "START"
+          },
+          "next_step_reason": {
+            "type": "string",
+            "title": "Next Step Reason",
+            "default": ""
+          },
+          "effective_stage": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "EARLY",
+                  "INTERMEDIATE",
+                  "ADVANCED"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Stage"
+          },
+          "effective_mobility": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "LOW",
+                  "MODERATE",
+                  "HIGH"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective Mobility"
           }
         },
         "type": "object",
@@ -1216,6 +1384,17 @@
               }
             ],
             "title": "Pace"
+          },
+          "personal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Personal"
           }
         },
         "type": "object",

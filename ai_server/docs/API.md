@@ -9,7 +9,7 @@ shows the same at `/docs`.
 
 | Endpoint | Module | Component | Status |
 |---|---|---|---|
-| `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-2.2) |
+| `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.0) |
 | `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.48) |
 | `GET /pose/exercises`, `POST /pose` | M300.1 (Elwin) | Pose Estimation Model | built |
 | `POST /forecast` | M400 (Jun Ting) | Time-Series Forecaster | **to build** |
@@ -54,9 +54,25 @@ Ranks the catalogue plans for the patient's questionnaire, within the safety lim
 ```
 
 `cohort` and `plan_outcomes` (anonymised results of similar patients) are optional; without them
-the ranking is content + rules only. Answer: `status` (`OK`, `ONLY_ONE`, `NONE`), `ranked` (best
-first: `plan_id`, `suitability_score`, `breakdown` per block), `excluded` (with `reasons`),
-`suitable_count`, `model_version`.
+the ranking is content + rules only. `progress` (the patient's own history, hybrid-3.0) is optional
+too:
+
+```json
+"progress": {
+  "plans": [{"plan_id": "...", "status": "COMPLETED", "progress_percentage": 100,
+             "consecutive_fails": 0, "fall_alerts": 0}],
+  "exercises": [{"exercise_id": "...", "attempts": 3, "passes": 2, "mean_accuracy": 86.0}]
+}
+```
+
+With it the server decides the next step (`EASE` after a possible fall or 3 attempts in a row that
+did not pass, `PROGRESS` after a completed plan for the same body area, otherwise `STAY`), moves the
+stage and mobility the rules allow by one level (intensity, session time and limitations are
+checked as before), and adds a personal score learnt from the patient's results on similar
+exercises. Answer: `status` (`OK`, `ONLY_ONE`, `NONE`), `ranked` (best first: `plan_id`,
+`suitability_score`, `breakdown` per block, `alpha`, `beta`), `excluded` (with `reasons`),
+`suitable_count`, `model_version`, `next_step`, `next_step_reason` (one sentence for the patient),
+`effective_stage`, `effective_mobility`.
 
 ## `GET /chat/categories?plan_id=...` and `POST /chat` (JSON)
 

@@ -12,6 +12,8 @@ import 'package:physical_treatment_and_health_support_system/view/login_view/res
 import 'package:physical_treatment_and_health_support_system/view/login_view/verify_code_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/planning_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/recommended_plans_view.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/planning_view_model/planning_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/profile_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
@@ -91,6 +93,19 @@ class MainApp extends StatelessWidget {
               c.read(),
             ),
             child: const PlanningView(),
+          ),
+          // Argument: the patient plan to move on from (complete, or too hard at the moment).
+          Routes.nextPlan: (ctx) => ChangeNotifierProvider(
+            create: (c) => PlanningViewModel(
+              c.read(),
+              c.read(),
+              c.read(),
+              c.read(),
+              c.read(),
+            )..recommendNext(
+                ModalRoute.of(ctx)!.settings.arguments! as PatientTreatmentPlan,
+              ),
+            child: const RecommendedPlansView(),
           ),
           // Argument: the patient plan to show first (a tapped reminder, "Open this plan").
           Routes.physicalTreatment: (ctx) => ChangeNotifierProvider(

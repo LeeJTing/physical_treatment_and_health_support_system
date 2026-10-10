@@ -15,6 +15,7 @@ import 'package:physical_treatment_and_health_support_system/shared_client/api_c
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
@@ -45,6 +46,8 @@ class FakeServer {
   Map<String, dynamic>? lastBody;
   int n = 3;
   int status = 200;
+  String nextStep = 'START';
+  String nextStepReason = '';
 
   late final client = MockClient((req) async {
     lastBody = jsonDecode(req.body) as Map<String, dynamic>;
@@ -75,6 +78,8 @@ class FakeServer {
         'excluded': [],
         'suitable_count': n,
         'model_version': 'hybrid-1.0',
+        'next_step': nextStep,
+        'next_step_reason': nextStepReason,
       }),
       200,
     );
@@ -577,6 +582,215 @@ void main() {
       await tester.tap(find.text('Reject all plans'));
       await tester.pumpAndSettle();
       expect(find.text(Messages.confirmReject), findsOneWidget);
+    });
+  });
+
+  group('progress (hybrid-3.0)', () {
+    Future<TreatmentPlan> planNamed(Harness h, String name) async =>
+        (await h.treatments.getCatalogue()).dataOrNull!.firstWhere(
+          (p) => p.planName == name,
+        );
+
+    test('no history: no progress is sent', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!.containsKey('progress'), isFalse);
+    });
+
+    test(
+      'sends each plan with its difficulty and the results per exercise',
+      () async {
+        final h = Harness();
+        final id = await h.signIn();
+        final knee = await planNamed(h, 'Early Knee Recovery');
+        await h.treatments.assignPlan(
+          PatientTreatmentPlan(
+            patientPlanId: 'pp1',
+            accountId: id,
+            plan: knee,
+            selectedAt: DateTime(2026, 9, 1),
+          ),
+        );
+        final ext = knee.orderedExercises().first.exerciseId;
+        ExerciseSession attempt(
+          String sid,
+          double accuracy, {
+          int? daysAgo,
+          String feedback = '',
+        }) => ExerciseSession(
+          sessionId: sid,
+          accountId: id,
+          patientPlanId: 'pp1',
+          exerciseId: ext,
+          completedAt: daysAgo == null
+              ? null
+              : DateTime.now().subtract(Duration(days: daysAgo)),
+          completionStatus: daysAgo == null
+              ? CompletionStatus.retried
+              : CompletionStatus.completed,
+          postureAccuracy: accuracy,
+          postureFeedback: feedback,
+        );
+        const fall = 'You may have lost your balance or fallen.';
+        await h.treatments.saveSession(attempt('a', 55));
+        await h.treatments.saveSession(attempt('b', 60));
+        await h.treatments.saveSession(
+          attempt('c', 70, daysAgo: 1, feedback: fall),
+        );
+        await h.treatments.saveSession(
+          attempt('d', 65, daysAgo: 10, feedback: fall),
+        );
+        await h.vm.recommend(rehab);
+        final progress = h.server.lastBody!['progress'] as Map;
+        final plan = (progress['plans'] as List).single as Map;
+        expect(plan['plan_id'], knee.planId);
+        expect(plan['status'], 'ACTIVE');
+        expect(plan['consecutive_fails'], 4);
+        expect(plan['fall_alerts'], 1); // the fall 10 days ago is too old
+        final ex = (progress['exercises'] as List).single as Map;
+        expect(ex['exercise_id'], ext);
+        expect(ex['attempts'], 4);
+        expect(ex['passes'], 0);
+        expect(ex['mean_accuracy'], 62.5);
+      },
+    );
+
+    test('an exercise saved for two plans counts once', () {
+      final at = DateTime(2026, 10, 1, 9);
+      ExerciseSession s(String plan) => ExerciseSession(
+        sessionId: 's-$plan',
+        accountId: 'a',
+        patientPlanId: plan,
+        exerciseId: 'e1',
+        completedAt: at,
+        completionStatus: CompletionStatus.completed,
+        postureAccuracy: 90,
+        repetitionsCompleted: 5,
+      );
+      final json = RecommendationService.progressJson((
+        plans: const [],
+        sessions: {
+          'p1': [s('p1')],
+          'p2': [s('p2')],
+        },
+      ));
+      final ex = (json['exercises'] as List).single as Map;
+      expect(ex['attempts'], 1);
+      expect(ex['passes'], 1);
+    });
+
+    test(
+      'Find my next plan answers with the plan and keeps the reason',
+      () async {
+        final h = Harness();
+        final id = await h.signIn();
+        final knee = await planNamed(h, 'Early Knee Recovery');
+        final done = PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: id,
+          plan: knee,
+          progressPercentage: 100,
+          status: PlanStatus.completed,
+          selectedAt: DateTime(2026, 9, 1),
+        );
+        await h.treatments.assignPlan(done);
+        h.server
+          ..nextStep = 'PROGRESS'
+          ..nextStepReason =
+              'You completed Early Knee Recovery, so plans for the next stage are included.';
+        await h.vm.recommendNext(done);
+        final body = h.server.lastBody!;
+        expect(body['rehab'], {
+          'affected_body_area': 'BOTH_LEGS',
+          'recovery_stage': 'EARLY',
+          'mobility_level': 'LOW',
+          'goal': 'MOBILITY',
+        });
+        final plans = (body['progress'] as Map)['plans'] as List;
+        expect((plans.single as Map)['status'], 'COMPLETED');
+        final r = (h.vm.recommendation as UiSuccess<Recommendation>).data;
+        expect(r.nextStep, NextStep.progress);
+        expect(r.nextStepReason, startsWith('You completed'));
+        expect(h.vm.from, same(done));
+        expect(h.vm.easingFrom, isNull); // nothing to replace after a step up
+        // Try again keeps the next-step request.
+        await h.vm.retry();
+        expect(h.vm.from, same(done));
+      },
+    );
+
+    test('an EASE step replaces the plan that is too hard', () async {
+      final h = Harness();
+      final id = await h.signIn();
+      final hard = PatientTreatmentPlan(
+        patientPlanId: 'pp1',
+        accountId: id,
+        plan: await planNamed(h, 'Lower Limb Strength Builder'),
+        progressPercentage: 33.33,
+        selectedAt: DateTime(2026, 9, 1),
+      );
+      await h.treatments.assignPlan(hard);
+      h.server.nextStep = 'EASE';
+      await h.vm.recommendNext(hard);
+      expect(h.vm.easingFrom, 'pp1');
+      // The checks treat pp1 as replaced: no issue is about it.
+      for (final p in h.vm.candidates) {
+        expect(
+          h.vm.issuesFor(p).where((i) => i.patientPlanId == 'pp1'),
+          isEmpty,
+        );
+      }
+      // A new questionnaire forgets the plan it moved on from.
+      await h.vm.recommend(rehab);
+      expect(h.vm.from, isNull);
+      expect(h.vm.easingFrom, isNull);
+    });
+
+    testWidgets('the plans screen says why and what the plan replaces', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 3600);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final h = Harness();
+      const why =
+          'The current exercise in Lower Limb Strength Builder did not pass 3 '
+          'times in a row, so plans that should suit you better are shown.';
+      await tester.runAsync(() async {
+        final id = await h.signIn();
+        final hard = PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: id,
+          plan: await planNamed(h, 'Lower Limb Strength Builder'),
+          progressPercentage: 33.33,
+          selectedAt: DateTime(2026, 9, 1),
+        );
+        await h.treatments.assignPlan(hard);
+        h.server
+          ..nextStep = 'EASE'
+          ..nextStepReason = why;
+        await h.vm.recommendNext(hard);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const RecommendedPlansView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Your next step after Lower Limb Strength Builder'),
+        findsOneWidget,
+      );
+      expect(find.text(why), findsOneWidget);
+      expect(
+        find.text('Replaces Lower Limb Strength Builder for now.'),
+        findsWidgets,
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 }

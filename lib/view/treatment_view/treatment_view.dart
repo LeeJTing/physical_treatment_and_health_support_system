@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
@@ -43,6 +44,13 @@ class _TreatmentViewState extends State<TreatmentView> {
         ),
       ),
     );
+  }
+
+  /// Recommended plans for the next step after [from] (hybrid-3.0). Back
+  /// returns here; choosing a plan goes home.
+  Future<void> _nextPlan(PatientTreatmentPlan from) async {
+    await Navigator.of(context).pushNamed(Routes.nextPlan, arguments: from);
+    if (mounted) await context.read<TreatmentViewModel>().loadPlan();
   }
 
   Future<void> _confirmEnd() async {
@@ -109,6 +117,8 @@ class _TreatmentViewState extends State<TreatmentView> {
           ),
           UiSuccess() when plan == null => _NoPlan(
             onBack: () => Navigator.of(context).maybePop(),
+            lastCompleted: vm.lastCompleted,
+            onNextPlan: _nextPlan,
           ),
           UiSuccess() => ListView(
             padding: const EdgeInsets.fromLTRB(
@@ -171,11 +181,30 @@ class _TreatmentViewState extends State<TreatmentView> {
                       done: plan.completedStages,
                       total: plan.plan.exercises.length,
                     ),
-                    if (plan.completedStages >= plan.plan.exercises.length &&
-                        plan.plan.exercises.isNotEmpty) ...[
+                    if (vm.planComplete) ...[
                       const SizedBox(height: AppTokens.gap),
                       const NoticeBanner(
-                        'Plan complete. Well done! Get your next plan from AI-assisted planning.',
+                        'Plan complete. Well done! Your next plan can build on it.',
+                      ),
+                      const SizedBox(height: AppTokens.gap),
+                      TokenButton(
+                        label: 'Find my next plan',
+                        color: AppTokens.action,
+                        onPressed: () => _nextPlan(plan),
+                      ),
+                    ] else if (vm.suggestEasier && !vm.restDayToday) ...[
+                      const SizedBox(height: AppTokens.gap),
+                      NoticeBanner(
+                        '${plan.currentExercise()?.exerciseName ?? 'This exercise'} '
+                        'has not passed ${vm.failsAtCurrent} times. You can keep '
+                        'trying, or see plans that may suit you better for now.',
+                        warning: true,
+                      ),
+                      const SizedBox(height: AppTokens.gap),
+                      TokenButton(
+                        label: 'See gentler plans',
+                        color: AppTokens.primary,
+                        onPressed: () => _nextPlan(plan),
                       ),
                     ],
                     // A possible fall in any plan: rest day for every plan.
@@ -225,7 +254,13 @@ class _TreatmentViewState extends State<TreatmentView> {
 
 class _NoPlan extends StatelessWidget {
   final VoidCallback onBack;
-  const _NoPlan({required this.onBack});
+  final PatientTreatmentPlan? lastCompleted;
+  final void Function(PatientTreatmentPlan) onNextPlan;
+  const _NoPlan({
+    required this.onBack,
+    required this.lastCompleted,
+    required this.onNextPlan,
+  });
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -244,17 +279,38 @@ class _NoPlan extends StatelessWidget {
           onBack: onBack,
         ),
         const Spacer(),
-        const NoticeBanner(
-          'You do not have a treatment plan yet. Get one from AI-assisted planning.',
-        ),
-        const SizedBox(height: AppTokens.gutter),
-        TokenButton(
-          label: 'Get a treatment plan',
-          color: AppTokens.action,
-          onPressed: () => Navigator.of(
-            context,
-          ).pushReplacementNamed(Routes.treatmentPlanning),
-        ),
+        if (lastCompleted case final done?) ...[
+          NoticeBanner(
+            'You completed ${done.plan.planName}. Well done! Your next plan '
+            'can build on it.',
+          ),
+          const SizedBox(height: AppTokens.gutter),
+          TokenButton(
+            label: 'Find my next plan',
+            color: AppTokens.action,
+            onPressed: () => onNextPlan(done),
+          ),
+          const SizedBox(height: AppTokens.gap),
+          TokenButton(
+            label: 'Answer the questions again',
+            color: AppTokens.primary,
+            onPressed: () => Navigator.of(
+              context,
+            ).pushReplacementNamed(Routes.treatmentPlanning),
+          ),
+        ] else ...[
+          const NoticeBanner(
+            'You do not have a treatment plan yet. Get one from AI-assisted planning.',
+          ),
+          const SizedBox(height: AppTokens.gutter),
+          TokenButton(
+            label: 'Get a treatment plan',
+            color: AppTokens.action,
+            onPressed: () => Navigator.of(
+              context,
+            ).pushReplacementNamed(Routes.treatmentPlanning),
+          ),
+        ],
         const Spacer(),
       ],
     ),

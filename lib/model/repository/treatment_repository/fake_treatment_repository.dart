@@ -40,6 +40,14 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   ) async => Success(_active(accountId));
 
   @override
+  Future<Result<List<PatientTreatmentPlan>>> getPlanHistory(
+    String accountId,
+  ) async => Success(
+    _plans.values.where((p) => p.accountId == accountId).toList()
+      ..sort((a, b) => a.selectedAt.compareTo(b.selectedAt)),
+  );
+
+  @override
   Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId) async {
     final all = _active(accountId);
     return Success(all.isEmpty ? null : all.last);

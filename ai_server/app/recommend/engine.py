@@ -47,13 +47,44 @@ Stage 4, rank by score and keep the best three, with a light MMR diversity re-ra
 944, 950): a plan that nearly duplicates one already picked (plan similarity above DUPLICATE_SIM)
 is penalised, so the three picks are not the same plan three times. Below that similarity the
 order is unchanged.
+
+Progress (hybrid-3.0, optional; report 2.7: the plan changes with the patient's situation instead
+of staying static). The request may carry the patient's own history: their plans (status, progress,
+failed attempts in a row at the current exercise, fall alerts) and their results per exercise
+(attempts, passes, mean accuracy). Two things follow from it.
+  Next step, decided before the rules run:
+    EASE      a plan being followed has a possible fall, or EASE_FAILS attempts in a row that did
+              not pass and trains the requested body area: the stage and mobility the rules allow
+              go one level below that plan's (never above the patient's answers), and that plan is
+              left out.
+    PROGRESS  a plan that trains the requested body area was completed: the rules allow one level
+              above the highest such plan (never below the patient's answers), and completed plans
+              are left out.
+    STAY      history without either: the patient's answers are used as they are.
+    START     no history: same as hybrid-2.2.
+  Only the stage and mobility move. Intensity, session time and physical limitations are checked
+  exactly as before, so a step up can never bring in an exercise above the safety limit.
+  Personal score, item-to-item over the patient's own results: an exercise the patient has not
+  done is predicted from the ones they have, weighted by exercise similarity (body parts trained,
+  body area, intensity) and by attempts, and shrunk towards neutral when evidence is thin:
+      performance(j) = 0.6 * passes/attempts + 0.4 * mean_accuracy/100
+      predicted(e)   = (sum w_j * performance(j) + K_PERSONAL * 0.5) / (sum w_j + K_PERSONAL),
+                       w_j = similarity(e, j) ** AMPLIFY * attempts_j for similarity >= SIM_FLOOR
+                       (case amplification, Breese et al., 1998: the exercise itself counts most)
+      personal(plan) = mean predicted(e) over the plan's exercises; after PROGRESS, multiplied by
+                       1 - NOVELTY * share of exercises already mastered (passed PASS_MASTERED times)
+      final          = hybrid-2.2 score + beta * (personal - 0.5)   (reported clamped to 0..1),
+                       beta = BETA_MAX * evidence / (evidence + K_PERSONAL)
+  Centred on 0.5, so a plan the history says nothing about keeps its score and good or poor
+  results move a plan up or down from there. Like the collaborative score, it only re-orders
+  plans that passed the rules.
 """
 import math
 
-from .schemas import (PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest, RecommendResponse, ExcludedPlan,
-                      ScoreBreakdown)
+from .schemas import (ExerciseIn, ExerciseResultIn, PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest,
+                      RecommendResponse, ExcludedPlan, ScoreBreakdown)
 
-MODEL_VERSION = "hybrid-2.2"
+MODEL_VERSION = "hybrid-3.0"
 TOP_N = 3
 
 # Collaborative part.
@@ -120,6 +151,18 @@ _ORDINAL = ((1.0, 0.5, 0.0), (0.5, 1.0, 0.5), (0.0, 0.5, 1.0))
 STAGES = ("EARLY", "INTERMEDIATE", "ADVANCED")
 MOBILITY = ("LOW", "MODERATE", "HIGH")
 INTENSITY = ("LOW", "MODERATE", "VIGOROUS")
+
+
+# Personal part (hybrid-3.0).
+EASE_FAILS = 3            # attempts in a row that did not pass before an easier plan is suggested
+PASS_MASTERED = 2         # an exercise passed this many times counts as mastered
+K_PERSONAL = 3.0          # shrinkage and beta half-saturation, in similarity-weighted attempts
+AMPLIFY = 2.5             # case amplification of the exercise similarity (Breese et al., 1998)
+BETA_MAX = 0.3            # the personal score never decides more than 30 % of the result
+SIM_FLOOR = 0.5           # exercises less similar than this say nothing about each other
+EXERCISE_WEIGHTS = {"parts": 0.6, "area": 0.25, "intensity": 0.15}
+NOVELTY = 0.5             # after PROGRESS a plan of only mastered exercises keeps half its personal score
+PERFORMANCE_WEIGHTS = {"pass_rate": 0.6, "accuracy": 0.4}
 
 
 def cosine(a, b) -> float:
@@ -274,6 +317,122 @@ def blend(content: float, cf: float | None, n: float) -> tuple[float, float]:
     return (1 - alpha) * content + alpha * cf, alpha
 
 
+# ---- personal part (hybrid-3.0) ---------------------------------------------------------------
+
+def exercise_similarity(a: ExerciseIn, b: ExerciseIn) -> float:
+    """1 for the same exercise; otherwise a weighted mean of the cosines of the body parts trained
+    (POSE_PARTS), the body area and the intensity. Parts count only when both exercises have them."""
+    if a.exercise_id == b.exercise_id:
+        return 1.0
+    blocks = {
+        "area": cosine(_PARTS[a.target_body_area], _PARTS[b.target_body_area]),
+        "intensity": cosine(_ORDINAL[INTENSITY.index(a.intensity_level)], _ORDINAL[INTENSITY.index(b.intensity_level)]),
+    }
+    pa, pb = POSE_PARTS.get(a.pose_key or ""), POSE_PARTS.get(b.pose_key or "")
+    if pa and pb:
+        blocks["parts"] = cosine(focus_vec(pa), focus_vec(pb))
+    return sum(EXERCISE_WEIGHTS[k] * v for k, v in blocks.items()) / sum(EXERCISE_WEIGHTS[k] for k in blocks)
+
+
+def performance(r: ExerciseResultIn) -> float:
+    """How well the patient did on one exercise, 0..1. Without an accuracy the pass rate alone."""
+    rate = min(1.0, r.passes / r.attempts)
+    if r.mean_accuracy is None:
+        return rate
+    return PERFORMANCE_WEIGHTS["pass_rate"] * rate + PERFORMANCE_WEIGHTS["accuracy"] * r.mean_accuracy / 100
+
+
+def catalogue_exercises(req: RecommendRequest) -> dict[str, ExerciseIn]:
+    return {pe.exercise.exercise_id: pe.exercise for plan in req.plans for pe in plan.plan_exercise}
+
+
+def personal(req: RecommendRequest, plan: PlanIn, step: str,
+             exercises: dict[str, ExerciseIn]) -> tuple[float | None, float]:
+    """(personal score or None, evidence per exercise) for one plan, item-to-item over the
+    patient's own results. Results for exercises not in the catalogue are ignored."""
+    if req.progress is None:
+        return None, 0.0
+    done = [(exercises[r.exercise_id], r) for r in req.progress.exercises if r.exercise_id in exercises]
+    if not done:
+        return None, 0.0
+    own = {r.exercise_id: r for _, r in done}
+    predicted, evidence, mastered = [], 0.0, 0
+    for pe in plan.plan_exercise:
+        n = acc = 0.0
+        for ex, r in done:
+            s = exercise_similarity(pe.exercise, ex)
+            if s < SIM_FLOOR:
+                continue
+            w = s ** AMPLIFY * r.attempts
+            n += w
+            acc += w * performance(r)
+        predicted.append((acc + K_PERSONAL * NEUTRAL) / (n + K_PERSONAL))
+        evidence += n
+        mine = own.get(pe.exercise.exercise_id)
+        if mine is not None and mine.passes >= PASS_MASTERED:
+            mastered += 1
+    if evidence == 0:
+        return None, 0.0
+    score = sum(predicted) / len(predicted)
+    if step == "PROGRESS":
+        score *= 1 - NOVELTY * mastered / len(plan.plan_exercise)
+    return score, evidence / len(plan.plan_exercise)
+
+
+def blend_personal(base: float, p: float | None, evidence: float) -> tuple[float, float]:
+    """(ranking score, beta). Centred on NEUTRAL: without evidence (beta = 0) or with neutral
+    evidence the hybrid-2.2 score passes unchanged. Not clamped, so good results can still lift a
+    plan that already matches fully above an equal plan without evidence; the reported
+    suitability_score is clamped to 0..1."""
+    if p is None:
+        return base, 0.0
+    beta = BETA_MAX * evidence / (evidence + K_PERSONAL)
+    return base + beta * (p - NEUTRAL), beta
+
+
+def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str]]:
+    """(step, reason for the patient, stage index, mobility index, plan ids to leave out).
+    Easing is checked before progressing: safety first."""
+    stage = STAGES.index(req.rehab.recovery_stage)
+    mob = MOBILITY.index(req.rehab.mobility_level)
+    p = req.progress
+    if p is None or (not p.plans and not p.exercises):
+        return "START", "", stage, mob, set()
+    by_id = {plan.plan_id: plan for plan in req.plans}
+    area = _PARTS[req.rehab.affected_body_area]
+
+    def same_area(plan_id: str) -> bool:
+        return cosine(_PARTS[by_id[plan_id].target_body_area], area) > 0
+
+    # A possible fall counts whatever the body area; failed attempts only for the area asked about.
+    hard = [h for h in p.plans if h.status == "ACTIVE" and h.plan_id in by_id
+            and (h.fall_alerts > 0 or (h.consecutive_fails >= EASE_FAILS and same_area(h.plan_id)))]
+    if hard:
+        h = max(hard, key=lambda x: (x.fall_alerts, x.consecutive_fails))
+        plan = by_id[h.plan_id]
+        s = max(0, min(stage, STAGES.index(plan.recovery_stage) - 1))
+        m = max(0, min(mob, MOBILITY.index(plan.mobility_level) - 1))
+        why = (f"A possible fall was seen during {plan.plan_name}"
+               if h.fall_alerts else
+               f"The current exercise in {plan.plan_name} did not pass {h.consecutive_fails} times in a row")
+        return ("EASE", f"{why}, so plans that should suit you better are shown.", s, m,
+                {x.plan_id for x in hard})
+
+    completed = [by_id[h.plan_id] for h in p.plans
+                 if h.status == "COMPLETED" and h.plan_id in by_id and same_area(h.plan_id)]
+    if completed:
+        top = max(completed, key=lambda x: (STAGES.index(x.recovery_stage), MOBILITY.index(x.mobility_level),
+                                            x.plan_name))
+        s = max(stage, min(len(STAGES) - 1, STAGES.index(top.recovery_stage) + 1))
+        m = max(mob, min(len(MOBILITY) - 1, MOBILITY.index(top.mobility_level) + 1))
+        why = (f"You completed {top.plan_name}, so plans for the next stage are included."
+               if (s, m) != (stage, mob) else
+               f"You completed {top.plan_name}, so plans with new exercises come first.")
+        return "PROGRESS", why, s, m, {x.plan_id for x in completed}
+
+    return "STAY", "Your results so far are used to put the plans that suit you first.", stage, mob, set()
+
+
 # ---- diversity re-rank ----------------------------------------------------------------------
 
 def plan_similarity(a: PlanIn, b: PlanIn, focus: bool = False) -> float:
@@ -313,28 +472,51 @@ def diversify(scored: list[tuple[float, PlanIn]], k: int = TOP_N,
 
 
 def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendResponse:
+    step, why, s, m, left_out = next_step(req)
+    asked = (STAGES.index(req.rehab.recovery_stage), MOBILITY.index(req.rehab.mobility_level))
+    # The rules and the content score use the stage and mobility after the next step.
+    req = req.model_copy(update={"rehab": req.rehab.model_copy(
+        update={"recovery_stage": STAGES[s], "mobility_level": MOBILITY[m]})})
+    exercises = catalogue_exercises(req)
     scored, excluded, details = [], [], {}
     for plan in req.plans:
         reasons = exclusion_reasons(req, plan)
+        if plan.plan_id in left_out:
+            reasons.insert(0, "already completed" if step == "PROGRESS" else "being eased: too hard at the moment")
         if reasons:
             excluded.append(ExcludedPlan(plan_id=plan.plan_id, reasons=reasons))
             continue
         b = score(req, plan)
         content = weighted(b)
         cf, n = collaborative(req, plan.plan_id)
-        final, alpha = blend(content, cf, n)
+        base, alpha = blend(content, cf, n)
+        pers, ev = personal(req, plan, step, exercises)
+        final, beta = blend_personal(base, pers, ev)
         b.collaborative = cf
-        details[plan.plan_id] = (b, content, alpha, n)
+        b.personal = pers
+        details[plan.plan_id] = (b, content, alpha, n, beta)
         scored.append((final, plan))
 
     # Highest score first; plan name breaks ties so the same input always gives the same order.
     scored.sort(key=lambda t: (-t[0], t[1].plan_name))
     top = []
     for final, plan in diversify(scored, TOP_N, lam, focus=bool(req.focus_parts)):
-        b, content, alpha, n = details[plan.plan_id]
+        b, content, alpha, n, beta = details[plan.plan_id]
         rounded = ScoreBreakdown(**{k: (None if v is None else round(v, 3)) for k, v in b.model_dump().items()})
-        top.append(RankedPlan(plan_id=plan.plan_id, suitability_score=round(final, 3), breakdown=rounded,
-                              content_score=round(content, 3), alpha=round(alpha, 3), evidence_patients=round(n)))
+        top.append(RankedPlan(plan_id=plan.plan_id, suitability_score=round(min(1.0, max(0.0, final)), 3),
+                              breakdown=rounded,
+                              content_score=round(content, 3), alpha=round(alpha, 3), evidence_patients=round(n),
+                              beta=round(beta, 3)))
     status = "NONE" if not top else "ONLY_ONE" if len(top) == 1 else "OK"
+    if step == "PROGRESS" and (s, m) != asked:
+        by_id = {plan.plan_id: plan for plan in req.plans}
+        raised = [r for r in top if STAGES.index(by_id[r.plan_id].recovery_stage) > asked[0]
+                  or MOBILITY.index(by_id[r.plan_id].mobility_level) > asked[1]]
+        if not raised:
+            name = why.removeprefix("You completed ").split(", so")[0]
+            why = (f"You completed {name}. Plans for the next stage are not within your safety limits yet, "
+                   "so plans at your current stage with new exercises are shown.")
     return RecommendResponse(status=status, ranked=top, excluded=excluded,
-                             suitable_count=len(scored), model_version=MODEL_VERSION)
+                             suitable_count=len(scored), model_version=MODEL_VERSION,
+                             next_step=step, next_step_reason=why,
+                             effective_stage=STAGES[s], effective_mobility=MOBILITY[m])

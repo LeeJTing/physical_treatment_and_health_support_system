@@ -35,6 +35,13 @@ class ExerciseSession {
   bool isCompleted() => completionStatus == CompletionStatus.completed;
   bool postureIsPassing() => (postureAccuracy ?? 0) >= passMark;
 
+  /// Phrase of the server's possible-fall message (FALL_MESSAGE in
+  /// ai_server/app/pose/analyse.py), found in a saved attempt's feedback.
+  static const fallPhrase = 'lost your balance or fallen';
+
+  /// Whether the posture result of this attempt warned of a possible fall.
+  bool hadFallAlert() => (postureFeedback ?? '').contains(fallPhrase);
+
   /// Whether this attempt was COMPLETED on [day]'s local calendar date.
   bool completedOn(DateTime day) {
     final at = completedAt?.toLocal();

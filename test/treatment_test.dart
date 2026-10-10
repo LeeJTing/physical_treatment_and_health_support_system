@@ -722,4 +722,112 @@ void main() {
       }
     });
   });
+
+  group('next plan (hybrid-3.0)', () {
+    test('three tries that did not pass suggest gentler plans', () async {
+      final h = Harness();
+      await h.setUp(tmp);
+      h.server.accuracy = 50;
+      for (var i = 0; i < 2; i++) {
+        await h.recordFirst();
+        await h.vm.retry();
+      }
+      expect(h.vm.failsAtCurrent, 2);
+      expect(h.vm.suggestEasier, isFalse);
+      await h.recordFirst();
+      await h.vm.retry();
+      expect(h.vm.failsAtCurrent, 3);
+      expect(h.vm.suggestEasier, isTrue);
+      expect(h.vm.planComplete, isFalse);
+    });
+
+    test(
+      'passing the last exercise completes the plan, which is remembered',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        final first = h.vm.activePlan!;
+        await h.treatments.assignPlan(
+          PatientTreatmentPlan(
+            patientPlanId: 'pp1',
+            accountId: first.accountId,
+            plan: first.plan,
+            progressPercentage: 66.67,
+            selectedAt: first.selectedAt,
+          ),
+        );
+        await h.vm.loadPlan();
+        final last = h.vm.activePlan!.currentExercise()!;
+        expect(last.exerciseName, 'Heel Raise');
+        await h.vm.startExercise(last);
+        await h.vm.submitVideo(h.clip, clipSeconds: 15); // 90 %: saved
+        expect(h.vm.planComplete, isTrue);
+        expect(h.vm.suggestEasier, isFalse);
+        await h.vm.loadPlan(); // a COMPLETED plan is no longer active
+        expect(h.vm.activePlan, isNull);
+        expect(h.vm.lastCompleted?.plan.planName, 'Early Knee Recovery');
+      },
+    );
+
+    Future<Harness> pumpTreatment(
+      WidgetTester tester,
+      Future<void> Function(Harness h) arrange,
+    ) async {
+      final h = Harness();
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        await arrange(h);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const TreatmentView(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      return h;
+    }
+
+    testWidgets('a completed plan offers Find my next plan', (tester) async {
+      await pumpTreatment(tester, (h) async {
+        final p = h.vm.activePlan!;
+        await h.treatments.assignPlan(
+          PatientTreatmentPlan(
+            patientPlanId: 'pp1',
+            accountId: p.accountId,
+            plan: p.plan,
+            progressPercentage: 100,
+            status: PlanStatus.completed,
+            selectedAt: p.selectedAt,
+          ),
+        );
+      });
+      expect(
+        find.textContaining('You completed Early Knee Recovery'),
+        findsOneWidget,
+      );
+      expect(find.text('Find my next plan'), findsOneWidget);
+      expect(find.text('Answer the questions again'), findsOneWidget);
+    });
+
+    testWidgets('three tries that did not pass offer gentler plans', (
+      tester,
+    ) async {
+      await pumpTreatment(tester, (h) async {
+        h.server.accuracy = 50;
+        for (var i = 0; i < 3; i++) {
+          await h.recordFirst();
+          await h.vm.retry();
+        }
+      });
+      expect(
+        find.textContaining('Seated Knee Extension has not passed 3 times'),
+        findsOneWidget,
+      );
+      expect(find.text('See gentler plans'), findsOneWidget);
+    });
+  });
 }
