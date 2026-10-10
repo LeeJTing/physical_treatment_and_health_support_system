@@ -241,6 +241,16 @@ class LocalNotificationService {
     return const Success(null);
   }
 
+  /// Cancels every reminder of the account on this phone (the stored ones are
+  /// left alone), e.g. before the account is deleted.
+  Future<void> cancelAllFor(String accountId) async {
+    final all =
+        (await _repo.getReminders(accountId)).dataOrNull ?? const <Reminder>[];
+    for (final r in all) {
+      await cancel(r.reminderId);
+    }
+  }
+
   /// Cancels and deletes the reminders of a plan that is no longer followed.
   Future<void> removeForPlan(String accountId, String patientPlanId) async {
     final all =

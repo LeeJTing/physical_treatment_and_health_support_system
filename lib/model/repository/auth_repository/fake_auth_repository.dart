@@ -259,4 +259,18 @@ class FakeAuthRepository implements IAuthRepository {
     _current = null;
     return const Success(null);
   }
+
+  @override
+  Future<Result<void>> deleteAccount() async {
+    final a = _current;
+    if (a == null) {
+      return const Failure(Messages.sessionExpired, code: 'no_session');
+    }
+    _accounts.remove(a.email);
+    _passwords.remove(a.email);
+    _setupPending.remove(a.email);
+    _current = null;
+    _lastRenewed = null;
+    return const Success(null);
+  }
 }

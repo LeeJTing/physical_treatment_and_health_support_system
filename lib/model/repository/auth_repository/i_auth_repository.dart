@@ -47,4 +47,8 @@ abstract interface class IAuthRepository {
   Future<Result<void>> changePassword(String currentPassword, String newPassword);
 
   Future<Result<void>> signOut();
+
+  /// Deletes the signed-in account and all its data, then signs out
+  /// ("Delete my account", Privacy Notice section 5; 11 Oct).
+  Future<Result<void>> deleteAccount();
 }

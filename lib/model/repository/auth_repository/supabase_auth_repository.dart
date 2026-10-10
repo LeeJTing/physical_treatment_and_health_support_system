@@ -373,6 +373,24 @@ class SupabaseAuthRepository implements IAuthRepository {
     return supabaseGuard(() => _auth.signOut(scope: SignOutScope.others));
   }
 
+  /// supabase/proposed/20261011120000_terms_and_account_deletion.sql: delete_my_account() deletes the
+  /// caller's auth user, and everything of theirs goes with it (on delete cascade). Signs out only when
+  /// the account was deleted.
+  @override
+  Future<Result<void>> deleteAccount() async {
+    final res = await supabaseGuard(
+      () async => await _sb.client.rpc('delete_my_account') as bool? ?? false,
+    );
+    if (res case Success(data: true)) {
+      await signOut();
+      return const Success(null);
+    }
+    return Failure(
+      Messages.accountDeleteFailed,
+      code: res is Failure<bool> ? res.code : 'not_deleted',
+    );
+  }
+
   @override
   Future<Result<void>> signOut() => supabaseGuard(() async {
     await _auth.signOut();

@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/core/utils/form_val
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/widgets/auth_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/terms_view.dart';
 
 /// Create an account with email and password (UC100).
 class RegisterView extends StatefulWidget {
@@ -24,6 +25,11 @@ class _RegisterViewState extends State<RegisterView> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
 
+  /// The Terms of Use and Privacy Notice, read from the link (11 Oct). The
+  /// full acceptance, with the health-data consent, is recorded after the
+  /// email code, once the account exists.
+  bool _agreed = false;
+
   @override
   void dispose() {
     for (final c in [_username, _email, _password, _confirm]) {
@@ -37,7 +43,8 @@ class _RegisterViewState extends State<RegisterView> {
       FormValidators.username(_username.text) == null &&
       FormValidators.email(_email.text) == null &&
       FormValidators.password(_password.text) == null &&
-      FormValidators.confirmPassword(_password.text, _confirm.text) == null;
+      FormValidators.confirmPassword(_password.text, _confirm.text) == null &&
+      _agreed;
 
   bool get _dirty =>
       [_username, _email, _password, _confirm].any((c) => c.text.isNotEmpty);
@@ -169,7 +176,42 @@ class _RegisterViewState extends State<RegisterView> {
                         onChanged: changed,
                         onSubmitted: (_) => _valid ? _submit() : null,
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Checkbox(
+                            key: const Key('register_agree'),
+                            value: _agreed,
+                            onChanged: (v) =>
+                                setState(() => _agreed = v ?? false),
+                          ),
+                          const Expanded(
+                            child: Text(
+                              'I agree to the Terms of Use and Privacy Notice.',
+                              style: TextStyle(
+                                fontSize: 15,
+                                color: AppTokens.ink,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) =>
+                                    const TermsView(readOnly: true),
+                              ),
+                            ),
+                            child: const Text(
+                              'Read',
+                              style: TextStyle(
+                                color: AppTokens.brandDeepAccent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       if (error != null) ...[
                         AuthErrorBanner(
                           error,

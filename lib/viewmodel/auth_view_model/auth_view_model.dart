@@ -12,6 +12,13 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+
+/// Why the terms screen is shown (11 Oct): never accepted, a new version, or
+/// the profile says the patient is under 18 but no guardian agreed.
+enum TermsReason { firstTime, updated, guardianNeeded }
 
 /// Register, verify, log in and reset the password (UC100, UC200; Table 4.50).
 /// One [UiState] per operation so each screen shows only its own spinner and error.
@@ -22,7 +29,15 @@ class AuthViewModel extends BaseViewModel {
   final IProfileRepository _profiles;
   final LocalNotificationService? _notifications;
 
-  AuthViewModel(this._auth, this._profiles, [this._notifications]) {
+  /// Terms of Use acceptances; null = no terms step (tests of other screens).
+  final ITermsRepository? _terms;
+
+  AuthViewModel(
+    this._auth,
+    this._profiles, [
+    this._notifications,
+    this._terms,
+  ]) {
     _tapSub = _notifications?.taps().listen(_onReminderTap);
   }
 
@@ -86,6 +101,13 @@ class AuthViewModel extends BaseViewModel {
   UiState<void> changePasswordState = const Idle();
   UiState<void> googleState = const Idle();
   UiState<void> setupState = const Idle();
+  UiState<void> termsState = const Idle();
+
+  /// Set when sign-in leads to the terms screen.
+  TermsReason? termsReason;
+
+  /// The profile age, when known, so a user under 18 cannot choose "18 or older".
+  int? termsProfileAge;
 
   /// One-time message for the next screen, e.g. UC100 M12 after Google was linked to the
   /// existing account. The screen that shows it sets it back to null.
@@ -119,10 +141,90 @@ class AuthViewModel extends BaseViewModel {
         _ => f.message,
       };
 
+  /// The terms first when they are needed (at registration, and at any sign-in
+  /// after the version changed or a guardian is needed; 11 Oct), then
+  /// [_profileRoute].
+  Future<String> _routeAfterSignIn(Account a) async {
+    termsReason = await _termsNeeded(a);
+    return termsReason != null ? Routes.terms : _profileRoute(a);
+  }
+
+  /// Null when the current terms are accepted. When the acceptances cannot be
+  /// read (offline, or the table not created yet) the patient is not locked
+  /// out, as with the profile.
+  Future<TermsReason?> _termsNeeded(Account a) async {
+    final terms = _terms;
+    if (terms == null) return null;
+    final res = await terms.latestAcceptance(a.accountId);
+    if (res is! Success<TermsAcceptance?>) return null;
+    final last = res.data;
+    termsProfileAge = (await _profiles.getProfile(a.accountId)).dataOrNull?.age;
+    if (last == null) return TermsReason.firstTime;
+    if (last.termsVersion != AppConstants.termsVersion) return TermsReason.updated;
+    final age = termsProfileAge;
+    if (last.ageGroup == TermsAgeGroup.adult &&
+        age != null &&
+        age < AppConstants.adultAge) {
+      return TermsReason.guardianNeeded;
+    }
+    return null;
+  }
+
+  /// Records the acceptance of the current terms, with the explicit consent
+  /// for health data and, for a user aged 13 to 17, the parent or guardian
+  /// who agreed; then sets [nextRoute].
+  Future<bool> acceptTerms({
+    required String language,
+    required bool minor,
+    String? guardianName,
+    String? guardianRelationship,
+  }) async {
+    final terms = _terms;
+    final account = (await _auth.currentAccount()).dataOrNull;
+    if (terms == null || account == null) {
+      termsState = const UiError(Messages.sessionExpired);
+      notifyListeners();
+      return false;
+    }
+    termsState = const Loading();
+    notifyListeners();
+    final res = await terms.saveAcceptance(
+      TermsAcceptance(
+        acceptanceId: newId(),
+        accountId: account.accountId,
+        termsVersion: AppConstants.termsVersion,
+        acceptedAt: DateTime.now(),
+        language: language,
+        healthDataConsent: true,
+        ageGroup: minor ? TermsAgeGroup.minor : TermsAgeGroup.adult,
+        guardianName: minor ? guardianName?.trim() : null,
+        guardianRelationship: minor ? guardianRelationship : null,
+      ),
+    );
+    if (res.isSuccess) {
+      termsReason = null;
+      nextRoute = await _profileRoute(account);
+      termsState = const UiSuccess(null);
+    } else {
+      termsState = const UiError(Messages.termsSaveFailed);
+    }
+    notifyListeners();
+    return res.isSuccess;
+  }
+
+  /// The terms were declined: the app cannot be used, so sign out.
+  Future<void> declineTerms() async {
+    await _auth.signOut();
+    termsReason = null;
+    termsState = const Idle();
+    nextRoute = Routes.loginScreen;
+    notifyListeners();
+  }
+
   /// Complete profile -> home; none or incomplete -> profile screen (FR100_035).
   /// If the profile cannot be read, go home: RiskAssessmentService then applies the
   /// conservative default limits (UC1000 C5).
-  Future<String> _routeAfterSignIn(Account a) async {
+  Future<String> _profileRoute(Account a) async {
     final res = await _profiles.getProfile(a.accountId);
     if (res case Success(:final data)) {
       return data != null && data.isComplete
@@ -387,6 +489,7 @@ class AuthViewModel extends BaseViewModel {
     if (changePasswordState is UiError) changePasswordState = const Idle();
     if (googleState is UiError) googleState = const Idle();
     if (setupState is UiError) setupState = const Idle();
+    if (termsState is UiError) termsState = const Idle();
     lastErrorCode = null;
     notifyListeners();
   }

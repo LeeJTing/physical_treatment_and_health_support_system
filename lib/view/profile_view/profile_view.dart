@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/terms_view.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -117,6 +118,26 @@ class _ProfileViewState extends State<ProfileView> {
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(Routes.loginScreen, (_) => false); // FR100_059
+    }
+  }
+
+  /// Privacy Notice section 5: the patient can delete the account and all its
+  /// data. Asked twice: the first answer explains, the second confirms.
+  Future<void> _deleteAccount(ProfileViewModel vm) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    if (!await _ask(Messages.confirmDeleteAccount, 'Delete', danger: true)) {
+      return;
+    }
+    if (await vm.deleteAccount()) {
+      nav.pushNamedAndRemoveUntil(Routes.loginScreen, (_) => false);
+      messenger.showSnackBar(
+        const SnackBar(content: Text(Messages.accountDeleted)),
+      );
+    } else {
+      messenger.showSnackBar(
+        const SnackBar(content: Text(Messages.accountDeleteFailed)),
+      );
     }
   }
 
@@ -325,6 +346,23 @@ class _ProfileViewState extends State<ProfileView> {
                   subtitle: 'End this session',
                   danger: true,
                   onTap: () => _logout(vm),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'Terms of Use and Privacy Notice',
+                  subtitle: 'Read what you agreed to',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const TermsView(readOnly: true),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'Delete my account',
+                  subtitle: 'Delete your account and all your data',
+                  danger: true,
+                  onTap: () => _deleteAccount(vm),
                 ),
               ],
             ],

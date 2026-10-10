@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -19,7 +20,15 @@ class ProfileViewModel extends BaseViewModel {
   final IAuthRepository _auth;
   final RiskAssessmentService _risk;
 
-  ProfileViewModel(this._profiles, this._auth, this._risk);
+  /// Cancels this phone's reminders when the account is deleted.
+  final LocalNotificationService? _notifications;
+
+  ProfileViewModel(
+    this._profiles,
+    this._auth,
+    this._risk, [
+    this._notifications,
+  ]);
 
   Account? account;
   HealthProfile? profile; // last saved
@@ -211,4 +220,21 @@ class ProfileViewModel extends BaseViewModel {
   }
 
   Future<bool> logout() async => (await _auth.signOut()).isSuccess;
+
+  UiState<void> deleteState = const Idle();
+
+  /// "Delete my account" (Privacy Notice section 5): the phone's reminders are
+  /// cancelled, then the account and all its data are deleted.
+  Future<bool> deleteAccount() async {
+    deleteState = const Loading();
+    notifyListeners();
+    final id = account?.accountId;
+    if (id != null) await _notifications?.cancelAllFor(id);
+    final res = await _auth.deleteAccount();
+    deleteState = res.isSuccess
+        ? const UiSuccess(null)
+        : const UiError(Messages.accountDeleteFailed);
+    notifyListeners();
+    return res.isSuccess;
+  }
 }

@@ -59,6 +59,14 @@ class AppConstants {
   /// professionals, and this app has none. Existing plans are paused.
   /// Same number as PLAN_AGE_LIMIT on the AI server.
   static const int planAgeLimit = 65;
+
+  /// Under this age a parent or guardian agrees to the terms too (Age of
+  /// Majority Act 1971; Contracts Act 1950 s.11; PDP Regulations 2013).
+  static const int adultAge = 18;
+
+  /// Version of the Terms of Use and Privacy Notice (assets/legal/terms.json,
+  /// same "version"). Raising it asks every user to accept again at login.
+  static const String termsVersion = '1.0';
   static const double weightMin = 20, weightMax = 300;
   static const double heightMin = 80, heightMax = 250;
   static const Duration profileStaleAfter = Duration(
@@ -167,6 +175,17 @@ class Messages {
   static const passwordSameAsCurrent =
       'Your new password must be different from your current password.';
   static const confirmLogout = 'Log out of your account?';
+
+  // Terms of Use and account deletion (11 Oct; not in the report's message lists)
+  static const termsSaveFailed =
+      'Your agreement could not be saved. Please check your connection and try again.';
+  static const confirmDeleteAccount =
+      'Delete your account and all your data? Your health profile, plans, exercise results, '
+      'reminders and chat messages are deleted for good. This cannot be undone.';
+  static const accountDeleted = 'Your account and all your data have been deleted.';
+  static const accountDeleteFailed =
+      'Your account could not be deleted. Please check your connection and try again, or '
+      'email elwinksy-wm23@student.tarc.edu.my.';
   static const discardChanges = 'Discard your unsaved changes?';
   static const profileLoadFailed =
       'Unable to load your profile. Please try again.';

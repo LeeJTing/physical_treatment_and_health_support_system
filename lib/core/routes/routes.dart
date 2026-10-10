@@ -9,6 +9,10 @@ class Routes {
   static const String changePassword = '/change-password';
   static const String accountSetup = '/account-setup';
 
+  /// Terms of Use and Privacy Notice (11 Oct): after registration, and at a
+  /// sign-in when the version changed or a guardian must agree.
+  static const String terms = '/terms';
+
   // Elwin's modules (M300.1, M500, M600.1) and the shared home/profile
   static const String home = '/home';
   static const String healthProfile = '/profile';

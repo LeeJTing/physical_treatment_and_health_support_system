@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/view/login_view/log
 import 'package:physical_treatment_and_health_support_system/view/login_view/register_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/change_password_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/account_setup_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/terms_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/reset_password_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/verify_code_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
@@ -39,7 +40,7 @@ class MainApp extends StatelessWidget {
     // One AuthViewModel for all the sign-in screens, so the resend-code cooldown
     // started on Register carries over to the code screen (FR100_015).
     return ChangeNotifierProvider(
-      create: (c) => AuthViewModel(c.read(), c.read(), c.read()),
+      create: (c) => AuthViewModel(c.read(), c.read(), c.read(), c.read()),
       child: MaterialApp(
         title: 'HealthGuide',
         debugShowCheckedModeBanner: false,
@@ -81,8 +82,11 @@ class MainApp extends StatelessWidget {
           Routes.resetPassword: (_) => const ResetPasswordView(),
           Routes.changePassword: (_) => const ChangePasswordView(),
           Routes.accountSetup: (_) => const AccountSetupView(),
+          Routes.terms: (_) => const TermsView(),
           Routes.healthProfile: (_) => ChangeNotifierProvider(
-            create: (c) => ProfileViewModel(c.read(), c.read(), c.read())..loadProfile(),
+            create: (c) =>
+                ProfileViewModel(c.read(), c.read(), c.read(), c.read())
+                  ..loadProfile(),
             child: const ProfileView(),
           ),
           Routes.treatmentPlanning: (_) => ChangeNotifierProvider(

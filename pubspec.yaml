@@ -41,3 +41,5 @@ flutter:
     - assets/seed/catalogue.json
     # Guide animations, one per exercise (training/build_guide_animations.py)
     - assets/guides/
+    # Terms of Use and Privacy Notice, English and Malay (TermsView)
+    - assets/legal/terms.json
