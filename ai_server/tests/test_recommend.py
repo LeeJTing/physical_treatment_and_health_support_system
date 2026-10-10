@@ -785,17 +785,44 @@ def test_closest_plan_is_shown_when_none_matches_well():
     assert any("weaker match" in r for e in res.excluded for r in e.reasons)
 
 
-def test_easing_leaves_out_the_exercise_that_failed():
-    failed = EXERCISE["Seated Marching"]["exercise_id"]
-    h = history("Disuse Atrophy Reconditioning", fails=3)
+def test_easing_leaves_out_the_failed_exercise_at_the_same_dose():
+    # Elbow Flexion failed in Shoulder Mobility Starter (10 repetitions): Hand and Wrist Recovery has it
+    # at 10 too, so it is left out.
+    failed = EXERCISE["Elbow Flexion"]["exercise_id"]
+    h = history("Shoulder Mobility Starter", fails=3)
     h["current_exercise_id"] = failed
-    res = recommend(from_plan("Disuse Atrophy Reconditioning", plans=[h],
-                              exercises=[result("Seated Marching", 3, 0, 55)]))
-    assert res.next_step == "EASE" and res.ranked
-    for r in res.ranked:
-        assert all(pe["exercise"]["exercise_id"] != failed for pe in PLAN[NAME[r.plan_id]]["plan_exercise"])
-    early_knee = next(e for e in res.excluded if NAME[e.plan_id] == "Early Knee Recovery")
-    assert any("contains Seated Marching" in r for r in early_knee.reasons)
+    res = recommend(from_plan("Shoulder Mobility Starter", plans=[h], exercises=[result("Elbow Flexion", 3, 0, 60)]))
+    assert res.next_step == "EASE"
+    assert "Hand and Wrist Recovery" not in names(res.model_dump())
+    hand = next(e for e in res.excluded if NAME[e.plan_id] == "Hand and Wrist Recovery")
+    assert any("contains Elbow Flexion at the same or a higher dose" in r for r in hand.reasons)
+
+
+def test_easing_keeps_an_easier_dose_of_the_failed_exercise():
+    # Elbow Flexion failed in Upper Limb Strength (12 repetitions): the early arm plans have it at 10,
+    # an easier dose, so they are offered (laptop, 10 Oct: only a full-body plan was left before).
+    failed = EXERCISE["Elbow Flexion"]["exercise_id"]
+    h = history("Upper Limb Strength", fails=3)
+    h["current_exercise_id"] = failed
+    res = recommend(from_plan("Upper Limb Strength", plans=[h], exercises=[result("Elbow Flexion", 3, 0, 75)]))
+    got = names(res.model_dump())
+    assert res.next_step == "EASE"
+    # both early arm plans are offered and one leads (they are near-twins, so diversity puts
+    # another plan between them)
+    assert {"Shoulder Mobility Starter", "Hand and Wrist Recovery"} <= set(got)
+    assert got[0] in {"Shoulder Mobility Starter", "Hand and Wrist Recovery"}
+    assert "Elbow Flexion is still there, with fewer repetitions or less time" in res.next_step_reason
+
+
+def test_easier_dose():
+    from app.recommend.schemas import PlanExerciseIn
+    pe = PlanExerciseIn.model_validate({"exercise": EXERCISE["Elbow Flexion"], "prescribed_duration_sec": 60,
+                                          "prescribed_repetitions": 10})
+    assert E.is_easier_dose(pe, (12, 60))
+    assert not E.is_easier_dose(pe, (10, 60))
+    assert not E.is_easier_dose(pe, (8, 90))          # fewer repetitions there, more time: not simply easier
+    assert E.is_easier_dose(pe, (None, 90))
+    assert not E.is_easier_dose(pe, None)
 
 
 def test_easing_keeps_plans_with_the_failed_exercise_when_nothing_else_is_left():
@@ -824,3 +851,10 @@ def test_completed_plans_left_out_only_when_they_train_the_area():
                                                             history("Hand and Wrist Recovery", "COMPLETED", 100)]))
     hand = next(e for e in res.excluded if NAME[e.plan_id] == "Hand and Wrist Recovery")
     assert hand.reasons[0] != "already completed"
+
+
+def test_plans_are_listed_best_first():
+    # Diversity picks which plans are shown, never their order.
+    for req in grid():
+        scores = [r.suitability_score for r in recommend(req).ranked]
+        assert scores == sorted(scores, reverse=True)

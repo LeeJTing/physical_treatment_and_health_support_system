@@ -48,6 +48,8 @@ class ExerciseIn(_In):
 class PlanExerciseIn(_In):
     exercise: ExerciseIn
     prescribed_duration_sec: int = Field(ge=0)
+    # Used to tell an easier dose of the same exercise when a plan is eased (hybrid-3.1).
+    prescribed_repetitions: int | None = Field(default=None, ge=0)
 
 
 class PlanIn(_In):

@@ -22,7 +22,7 @@
  },
  "doing_well": {
   "cases": 675,
-  "order_changed": 61,
+  "order_changed": 53,
   "top_changed": 0
  },
  "unsafe_plans_returned": 0,
@@ -33,7 +33,8 @@
   "weak_fillers": 0,
   "no_plan_at_all": 270,
   "easing_reoffers_failed_exercise": 0,
-  "easing_cases": 675
+  "easing_cases": 675,
+  "easing_keeps_failed_exercise_at_easier_dose": 275
  },
  "distinct_completed_plan_and_limit_pairs": 14,
  "model_version": "hybrid-3.1"

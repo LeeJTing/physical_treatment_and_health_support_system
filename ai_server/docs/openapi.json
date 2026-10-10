@@ -786,6 +786,18 @@
             "type": "integer",
             "minimum": 0.0,
             "title": "Prescribed Duration Sec"
+          },
+          "prescribed_repetitions": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prescribed Repetitions"
           }
         },
         "type": "object",

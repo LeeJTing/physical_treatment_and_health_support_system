@@ -51,7 +51,8 @@ that passed the rules; it is not part of the diversity similarity.
 Stage 4, rank by score and keep the best three, with a light MMR diversity re-rank (report para
 944, 950): a plan that nearly duplicates one already picked (plan similarity above DUPLICATE_SIM)
 is penalised, so the three picks are not the same plan three times. Below that similarity the
-order is unchanged. Weak matches are not used to fill the three places (hybrid-3.1): a plan is
+order is unchanged. The re-rank only decides which plans are shown; they are then listed best first.
+Weak matches are not used to fill the three places (hybrid-3.1): a plan is
 shown only when its content score is at least MIN_MATCH and its score at least RELATIVE_MATCH of
 the best plan's; when no plan reaches MIN_MATCH, the single closest plan is shown.
 
@@ -66,8 +67,10 @@ failed attempts in a row at the current exercise, fall alerts) and their results
               plan's (never above the patient's answers), and that plan is left out.
     PROGRESS  that plan was completed: the rules allow one level above it (never below the patient's
               answers), and completed plans that train the requested area are left out.
-  After failed attempts, plans that contain the exercise that did not pass are left out too
-  (hybrid-3.1), unless that would leave nothing to offer.
+  After failed attempts, plans that contain the exercise that did not pass at the same or a higher
+  dose (repetitions, time) are left out too (hybrid-3.1), unless that would leave nothing to offer;
+  at an easier dose it stays (e.g. Elbow Flexion 12 repetitions in Upper Limb Strength, 10 in the
+  early arm plans), and the reason tells the patient.
     STAY      the questionnaire with history, or a named plan that is neither: the patient's
               answers are used as they are, and the history only feeds the personal score.
     START     no history: same as hybrid-2.2.
@@ -416,6 +419,18 @@ def personal(req: RecommendRequest, plan: PlanIn, step: str,
     return score, evidence / len(plan.plan_exercise)
 
 
+def is_easier_dose(pe, failed: tuple[int | None, int] | None) -> bool:
+    """Whether this plan prescribes the exercise more gently than the plan where it failed: no more
+    repetitions and no more time, and less of at least one."""
+    if failed is None:
+        return False
+    reps, sec = failed
+    r, s = pe.prescribed_repetitions, pe.prescribed_duration_sec
+    if s > sec or (reps is not None and r is not None and r > reps):
+        return False
+    return s < sec or (reps is not None and r is not None and r < reps)
+
+
 def blend_personal(base: float, p: float | None, evidence: float) -> tuple[float, float]:
     """(ranking score, beta). Centred on NEUTRAL: without evidence (beta = 0) or with neutral
     evidence the hybrid-2.2 score passes unchanged. Not clamped, so good results can still lift a
@@ -524,14 +539,27 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
         if plan.plan_id in left_out:
             reasons.insert(0, "already completed" if step == "PROGRESS" else "being eased: too hard at the moment")
         reasons_of[plan.plan_id] = reasons
+    by_id = {plan.plan_id: plan for plan in req.plans}
+    easier_in = {}                       # plan_id -> names of failed exercises it has at an easier dose
     if avoid:
-        # Leave out plans with the exercise that kept failing, unless nothing else would be left.
+        # Leave out plans with the exercise that kept failing at the same or a higher dose, unless
+        # nothing else would be left; an easier dose of it is what easing should offer.
+        source = by_id.get(req.progress.from_plan_id) if req.progress else None
+        dose = {pe.exercise.exercise_id: (pe.prescribed_repetitions, pe.prescribed_duration_sec)
+                for pe in (source.plan_exercise if source else []) if pe.exercise.exercise_id in avoid}
         with_failed = {}
         for plan in req.plans:
-            names = [pe.exercise.exercise_name or pe.exercise.exercise_id for pe in plan.plan_exercise
-                     if pe.exercise.exercise_id in avoid]
-            if names:
-                with_failed[plan.plan_id] = f"contains {', '.join(names)}, which did not pass several times in a row"
+            same, easier = [], []
+            for pe in plan.plan_exercise:
+                if pe.exercise.exercise_id not in avoid:
+                    continue
+                name = pe.exercise.exercise_name or pe.exercise.exercise_id
+                (easier if is_easier_dose(pe, dose.get(pe.exercise.exercise_id)) else same).append(name)
+            if same:
+                with_failed[plan.plan_id] = (f"contains {', '.join(same)} at the same or a higher dose, which did "
+                                             "not pass several times in a row")
+            elif easier:
+                easier_in[plan.plan_id] = easier
         if any(not r and pid not in with_failed for pid, r in reasons_of.items()):
             for pid, why_not in with_failed.items():
                 reasons_of[pid].append(why_not)
@@ -567,7 +595,11 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
                     f"weaker match ({details[p.plan_id][1]:.2f}) than the plans shown"]))
         scored = shown
     top = []
-    for final, plan in diversify(scored, TOP_N, lam, focus=bool(req.focus_parts)):
+    # Diversity decides which plans are shown; they are listed best first (a 53 % plan between two
+    # 75 % plans read as a mistake on the phone, laptop 10 Oct).
+    picked = sorted(diversify(scored, TOP_N, lam, focus=bool(req.focus_parts)),
+                    key=lambda t: (-t[0], t[1].plan_name))
+    for final, plan in picked:
         b, content, alpha, n, beta = details[plan.plan_id]
         rounded = ScoreBreakdown(**{k: (None if v is None else round(v, 3)) for k, v in b.model_dump().items()})
         top.append(RankedPlan(plan_id=plan.plan_id, suitability_score=round(min(1.0, max(0.0, final)), 3),
@@ -575,6 +607,9 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
                               content_score=round(content, 3), alpha=round(alpha, 3), evidence_patients=round(n),
                               beta=round(beta, 3)))
     status = "NONE" if not top else "ONLY_ONE" if len(top) == 1 else "OK"
+    kept = sorted({n for r in top for n in easier_in.get(r.plan_id, [])})
+    if kept and step == "EASE":
+        why = f"{why} {' and '.join(kept)} is still there, with fewer repetitions or less time."
     if not top and step == "EASE":
         # e.g. the only core plan is the one being eased: say so instead of a bare "no plan".
         why = (f"{why.split(', so plans')[0]}. No gentler plan for this area fits your safety limits, so keep to "

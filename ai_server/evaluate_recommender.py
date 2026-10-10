@@ -21,7 +21,8 @@ Reasonableness (hybrid-3.1), over the same 720 answers with no limitation and wi
 limitation (4,320 requests): plans shown that train none of the affected area, requests left with no
 plan because of a limitation on the limb being rehabilitated, weak fillers (a plan shown beside a
 better one with a content score under 0.5), and gentler plans that contain the exercise that failed.
-hybrid-3.0 gave 1,550 / 630 / 2,992 / 185 of 720; see PROJECT_STATE.
+hybrid-3.0 gave 1,550 / 630 / 2,992 / 185 of 720; see PROJECT_STATE. A failed exercise offered again at
+an easier dose (fewer repetitions or less time) is counted separately: that is what easing should do.
 """
 import itertools
 import json
@@ -110,8 +111,17 @@ def reasonableness():
                     "from_plan_id": top["plan_id"]}
             eased = E.recommend(request(plan_rehab(top), cap, prog))
             out["easing_cases"] += 1
-            out["easing_reoffers_failed_exercise"] += any(
-                pe["exercise"]["exercise_id"] == failed for r in eased.ranked for pe in PLANS[r.plan_id]["plan_exercise"])
+            src = {pe["exercise"]["exercise_id"]: pe for pe in top["plan_exercise"]}[failed]
+            for r in eased.ranked:
+                for pe in PLANS[r.plan_id]["plan_exercise"]:
+                    if pe["exercise"]["exercise_id"] != failed:
+                        continue
+                    gentler = (pe["prescribed_repetitions"] <= src["prescribed_repetitions"]
+                               and pe["prescribed_duration_sec"] <= src["prescribed_duration_sec"]
+                               and (pe["prescribed_repetitions"], pe["prescribed_duration_sec"])
+                               != (src["prescribed_repetitions"], src["prescribed_duration_sec"]))
+                    key = "easing_keeps_failed_exercise_at_easier_dose" if gentler else "easing_reoffers_failed_exercise"
+                    out[key] = out.get(key, 0) + 1
     return out
 
 

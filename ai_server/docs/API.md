@@ -74,7 +74,9 @@ With it the server decides the next step (`EASE` after a possible fall or 3 atte
 did not pass, `PROGRESS` after a completed plan for the same body area, otherwise `STAY`), moves the
 stage and mobility the rules allow by one level (intensity, session time and limitations are
 checked as before), and adds a personal score learnt from the patient's results on similar
-exercises; after failed attempts, plans containing the plan's `current_exercise_id` are left out.
+exercises; after failed attempts, plans containing the plan's `current_exercise_id` at the same or a
+higher dose are left out (an easier dose, from `prescribed_repetitions` and `prescribed_duration_sec`,
+stays and the reason says so). The plans shown are listed best first.
 
 Since hybrid-3.1 a plan is judged by its exercises, not its label: it must contain an exercise for the
 affected area. A physical limitation on the area being rehabilitated allows gentle plans only (early
