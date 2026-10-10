@@ -5,16 +5,21 @@ irrelevant for the patient. Every reason is reported back so the decision
 can be explained.
   - an exercise above SafetyLimit.max_exercise_intensity
   - the plan's total prescribed time above SafetyLimit.max_session_duration_min
-  - an exercise on a body area blocked by a physical limitation
-    (same rule as Exercise.conflictsWith in the app)
+  - a physical limitation (hybrid-3.1): an exercise that uses the limited limb (the rule of
+    Exercise.conflictsWith in the app) drops the plan when it trains another area than the one being
+    rehabilitated; when it trains that area, the plan stays only if it is early-stage, low-mobility
+    and those exercises are low intensity, so a limitation narrows rehabilitation instead of blocking it
   - a plan for a later recovery stage, or a higher mobility level, than the patient's
-  - a plan that does not train the affected body area at all
+  - a plan none of whose exercises trains the affected body area (judged by the exercises, not the
+    plan's label: "Balance and Fall Prevention" is labelled FULL_BODY but has only leg exercises)
 
 Stage 2, content-based score: the patient and each remaining plan are encoded
 as feature vectors with four blocks (body area, goal, recovery stage, mobility
 level). Each block is compared with cosine similarity and the four
 similarities are combined as a weighted mean, which equals the cosine of the
-concatenated vectors when every block is scaled to length sqrt(weight).
+concatenated vectors when every block is scaled to length sqrt(weight). The
+plan's body-area vector is the mean of its exercises' areas (hybrid-3.1), so a
+full-body plan with one arm exercise matches an arm patient only partly.
 
 Stage 3, collaborative score (hybrid-2.0, report 2.7 and Table 2.7): how patients with a similar
 risk level and age band did on the plan, from anonymised cohort cells the app reads through the
@@ -46,7 +51,9 @@ that passed the rules; it is not part of the diversity similarity.
 Stage 4, rank by score and keep the best three, with a light MMR diversity re-rank (report para
 944, 950): a plan that nearly duplicates one already picked (plan similarity above DUPLICATE_SIM)
 is penalised, so the three picks are not the same plan three times. Below that similarity the
-order is unchanged.
+order is unchanged. Weak matches are not used to fill the three places (hybrid-3.1): a plan is
+shown only when its content score is at least MIN_MATCH and its score at least RELATIVE_MATCH of
+the best plan's; when no plan reaches MIN_MATCH, the single closest plan is shown.
 
 Progress (hybrid-3.0, optional; report 2.7: the plan changes with the patient's situation instead
 of staying static). The request may carry the patient's own history: their plans (status, progress,
@@ -60,6 +67,8 @@ failed attempts in a row at the current exercise, fall alerts) and their results
     PROGRESS  a plan that trains the requested body area was completed: the rules allow one level
               above the highest such plan (never below the patient's answers), and completed plans
               are left out.
+  After failed attempts, plans that contain the exercise that did not pass are left out too
+  (hybrid-3.1), unless that would leave nothing to offer.
     STAY      history without either: the patient's answers are used as they are.
     START     no history: same as hybrid-2.2.
   Only the stage and mobility move. Intensity, session time and physical limitations are checked
@@ -84,7 +93,7 @@ import math
 from .schemas import (ExerciseIn, ExerciseResultIn, PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest,
                       RecommendResponse, ExcludedPlan, ScoreBreakdown)
 
-MODEL_VERSION = "hybrid-3.0"
+MODEL_VERSION = "hybrid-3.1"
 TOP_N = 3
 
 # Collaborative part.
@@ -95,6 +104,10 @@ NEUTRAL = 0.5
 OUTCOME_WEIGHTS = {"completion": 0.5, "accuracy": 0.3, "progress": 0.2}
 RISKS = ("Low", "Medium", "High")
 AGE_BANDS = ("<60", "60-74", "75+")
+
+# Shown plans must be reasonable matches, not fillers (hybrid-3.1).
+MIN_MATCH = 0.5           # content score: e.g. right area and stage but another goal still passes
+RELATIVE_MATCH = 0.6      # and at least 60 % of the best plan's score
 
 # Diversity re-rank (maximal marginal relevance).
 MMR_LAMBDA = 0.8
@@ -192,6 +205,21 @@ def conflicts(exercise_area: str, blocked: str) -> bool:
     return exercise_area in ("BOTH_LEGS", "FULL_BODY")
 
 
+def exercise_trains(exercise: ExerciseIn, area: str) -> bool:
+    """Whether the exercise uses any part of the body area (FULL_BODY exercises count for every area)."""
+    return cosine(_PARTS[exercise.target_body_area], _PARTS[area]) > 0
+
+
+def trains_area(plan: PlanIn, area: str) -> bool:
+    return any(exercise_trains(pe.exercise, area) for pe in plan.plan_exercise)
+
+
+def plan_area_vec(plan: PlanIn) -> tuple[float, ...]:
+    """Mean of the exercises' body-area vectors: what the plan really trains, whatever its label."""
+    vecs = [_PARTS[pe.exercise.target_body_area] for pe in plan.plan_exercise]
+    return tuple(sum(v[i] for v in vecs) / len(vecs) for i in range(len(vecs[0])))
+
+
 def exclusion_reasons(req: RecommendRequest, plan: PlanIn) -> list[str]:
     reasons = []
     cap = INTENSITY.index(req.safety_limit.max_exercise_intensity)
@@ -204,22 +232,31 @@ def exclusion_reasons(req: RecommendRequest, plan: PlanIn) -> list[str]:
     if total_sec > req.safety_limit.max_session_duration_min * 60:
         reasons.append(f"session {total_sec // 60} min exceeds {req.safety_limit.max_session_duration_min} min")
 
+    treated = req.rehab.affected_body_area
     for code in req.limitations:
         area = blocked_area(code)
         if area is None:
             continue
         hit = [pe.exercise for pe in plan.plan_exercise if conflicts(pe.exercise.target_body_area, area)]
-        if hit:
-            names = ", ".join(e.exercise_name or e.exercise_id for e in hit)
-            reasons.append(f"conflicts with {code}: {names}")
+        # An exercise outside the area being rehabilitated that uses the limited limb drops the plan;
+        # one inside it (e.g. a two-arm exercise for a right-arm patient whose left arm is limited)
+        # is allowed in gentle plans only, until the profile no longer lists the limitation.
+        outside = [e for e in hit if not exercise_trains(e, treated)]
+        inside = [e for e in hit if exercise_trains(e, treated)]
+        if outside:
+            reasons.append(f"conflicts with {code}: {', '.join(e.exercise_name or e.exercise_id for e in outside)}")
+        if inside and (plan.recovery_stage != STAGES[0] or plan.mobility_level != MOBILITY[0]
+                       or any(e.intensity_level != INTENSITY[0] for e in inside)):
+            names = ", ".join(e.exercise_name or e.exercise_id for e in inside)
+            reasons.append(f"{code}: the limited limb gets early-stage, low-intensity plans only ({names})")
 
     if STAGES.index(plan.recovery_stage) > STAGES.index(req.rehab.recovery_stage):
         reasons.append(f"plan is for {plan.recovery_stage} stage, patient is {req.rehab.recovery_stage}")
     if MOBILITY.index(plan.mobility_level) > MOBILITY.index(req.rehab.mobility_level):
         reasons.append(f"plan needs {plan.mobility_level} mobility, patient has {req.rehab.mobility_level}")
 
-    if cosine(_PARTS[plan.target_body_area], _PARTS[req.rehab.affected_body_area]) == 0:
-        reasons.append(f"plan targets {plan.target_body_area}, not {req.rehab.affected_body_area}")
+    if not trains_area(plan, req.rehab.affected_body_area):
+        reasons.append(f"none of its exercises trains {req.rehab.affected_body_area}")
     return reasons
 
 
@@ -256,7 +293,7 @@ def pace_score(req: RecommendRequest, plan: PlanIn) -> float | None:
 def score(req: RecommendRequest, plan: PlanIn) -> ScoreBreakdown:
     r = req.rehab
     return ScoreBreakdown(
-        body_area=cosine(_PARTS[r.affected_body_area], _PARTS[plan.target_body_area]),
+        body_area=cosine(_PARTS[r.affected_body_area], plan_area_vec(plan)),
         goal=cosine(_goal_vec(r.goal), _goal_vec(plan.goal)),
         recovery_stage=cosine(_ORDINAL[STAGES.index(r.recovery_stage)], _ORDINAL[STAGES.index(plan.recovery_stage)]),
         mobility_level=cosine(_ORDINAL[MOBILITY.index(r.mobility_level)], _ORDINAL[MOBILITY.index(plan.mobility_level)]),
@@ -390,19 +427,18 @@ def blend_personal(base: float, p: float | None, evidence: float) -> tuple[float
     return base + beta * (p - NEUTRAL), beta
 
 
-def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str]]:
-    """(step, reason for the patient, stage index, mobility index, plan ids to leave out).
-    Easing is checked before progressing: safety first."""
+def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str], set[str]]:
+    """(step, reason for the patient, stage index, mobility index, plan ids to leave out, exercise
+    ids to leave out). Easing is checked before progressing: safety first."""
     stage = STAGES.index(req.rehab.recovery_stage)
     mob = MOBILITY.index(req.rehab.mobility_level)
     p = req.progress
     if p is None or (not p.plans and not p.exercises):
-        return "START", "", stage, mob, set()
+        return "START", "", stage, mob, set(), set()
     by_id = {plan.plan_id: plan for plan in req.plans}
-    area = _PARTS[req.rehab.affected_body_area]
 
     def same_area(plan_id: str) -> bool:
-        return cosine(_PARTS[by_id[plan_id].target_body_area], area) > 0
+        return trains_area(by_id[plan_id], req.rehab.affected_body_area)
 
     # A possible fall counts whatever the body area; failed attempts only for the area asked about.
     hard = [h for h in p.plans if h.status == "ACTIVE" and h.plan_id in by_id
@@ -415,8 +451,10 @@ def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str]]:
         why = (f"A possible fall was seen during {plan.plan_name}"
                if h.fall_alerts else
                f"The current exercise in {plan.plan_name} did not pass {h.consecutive_fails} times in a row")
+        failed = {x.current_exercise_id for x in hard
+                  if x.current_exercise_id and x.consecutive_fails >= EASE_FAILS}
         return ("EASE", f"{why}, so plans that should suit you better are shown.", s, m,
-                {x.plan_id for x in hard})
+                {x.plan_id for x in hard}, failed)
 
     completed = [by_id[h.plan_id] for h in p.plans
                  if h.status == "COMPLETED" and h.plan_id in by_id and same_area(h.plan_id)]
@@ -428,9 +466,9 @@ def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str]]:
         why = (f"You completed {top.plan_name}, so plans for the next stage are included."
                if (s, m) != (stage, mob) else
                f"You completed {top.plan_name}, so plans with new exercises come first.")
-        return "PROGRESS", why, s, m, {x.plan_id for x in completed}
+        return "PROGRESS", why, s, m, {x.plan_id for x in completed}, set()
 
-    return "STAY", "Your results so far are used to put the plans that suit you first.", stage, mob, set()
+    return "STAY", "Your results so far are used to put the plans that suit you first.", stage, mob, set(), set()
 
 
 # ---- diversity re-rank ----------------------------------------------------------------------
@@ -439,7 +477,7 @@ def plan_similarity(a: PlanIn, b: PlanIn, focus: bool = False) -> float:
     """Content similarity between two plans, same blocks and weights as the patient score (the
     focus block too when the request has focus parts)."""
     blocks = {
-        "body_area": cosine(_PARTS[a.target_body_area], _PARTS[b.target_body_area]),
+        "body_area": cosine(plan_area_vec(a), plan_area_vec(b)),
         "goal": cosine(_goal_vec(a.goal), _goal_vec(b.goal)),
         "recovery_stage": cosine(_ORDINAL[STAGES.index(a.recovery_stage)], _ORDINAL[STAGES.index(b.recovery_stage)]),
         "mobility_level": cosine(_ORDINAL[MOBILITY.index(a.mobility_level)],
@@ -472,17 +510,32 @@ def diversify(scored: list[tuple[float, PlanIn]], k: int = TOP_N,
 
 
 def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendResponse:
-    step, why, s, m, left_out = next_step(req)
+    step, why, s, m, left_out, avoid = next_step(req)
     asked = (STAGES.index(req.rehab.recovery_stage), MOBILITY.index(req.rehab.mobility_level))
     # The rules and the content score use the stage and mobility after the next step.
     req = req.model_copy(update={"rehab": req.rehab.model_copy(
         update={"recovery_stage": STAGES[s], "mobility_level": MOBILITY[m]})})
     exercises = catalogue_exercises(req)
-    scored, excluded, details = [], [], {}
+    reasons_of = {}
     for plan in req.plans:
         reasons = exclusion_reasons(req, plan)
         if plan.plan_id in left_out:
             reasons.insert(0, "already completed" if step == "PROGRESS" else "being eased: too hard at the moment")
+        reasons_of[plan.plan_id] = reasons
+    if avoid:
+        # Leave out plans with the exercise that kept failing, unless nothing else would be left.
+        with_failed = {}
+        for plan in req.plans:
+            names = [pe.exercise.exercise_name or pe.exercise.exercise_id for pe in plan.plan_exercise
+                     if pe.exercise.exercise_id in avoid]
+            if names:
+                with_failed[plan.plan_id] = f"contains {', '.join(names)}, which did not pass several times in a row"
+        if any(not r and pid not in with_failed for pid, r in reasons_of.items()):
+            for pid, why_not in with_failed.items():
+                reasons_of[pid].append(why_not)
+    scored, excluded, details = [], [], {}
+    for plan in req.plans:
+        reasons = reasons_of[plan.plan_id]
         if reasons:
             excluded.append(ExcludedPlan(plan_id=plan.plan_id, reasons=reasons))
             continue
@@ -499,6 +552,18 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
 
     # Highest score first; plan name breaks ties so the same input always gives the same order.
     scored.sort(key=lambda t: (-t[0], t[1].plan_name))
+    safe_count = len(scored)
+    # No weak fillers: only reasonable matches near the best one; if none is reasonable, the closest.
+    if scored:
+        best = scored[0][0]
+        good = [(f, p) for f, p in scored
+                if details[p.plan_id][1] >= MIN_MATCH and f >= RELATIVE_MATCH * best]
+        shown = good or scored[:1]
+        for f, p in scored:
+            if (f, p) not in shown:
+                excluded.append(ExcludedPlan(plan_id=p.plan_id, reasons=[
+                    f"weaker match ({details[p.plan_id][1]:.2f}) than the plans shown"]))
+        scored = shown
     top = []
     for final, plan in diversify(scored, TOP_N, lam, focus=bool(req.focus_parts)):
         b, content, alpha, n, beta = details[plan.plan_id]
@@ -508,7 +573,15 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
                               content_score=round(content, 3), alpha=round(alpha, 3), evidence_patients=round(n),
                               beta=round(beta, 3)))
     status = "NONE" if not top else "ONLY_ONE" if len(top) == 1 else "OK"
-    if step == "PROGRESS" and (s, m) != asked:
+    if not top and step == "EASE":
+        # e.g. the only core plan is the one being eased: say so instead of a bare "no plan".
+        why = (f"{why.split(', so plans')[0]}. No gentler plan for this area fits your safety limits, so keep to "
+               "your current plan within a comfortable range and rest between tries, or ask a physiotherapist.")
+    elif not top and step == "PROGRESS":
+        name = why.removeprefix("You completed ").split(", so")[0]
+        why = (f"You completed {name}. No further plan for this area fits your safety limits yet; you can "
+               "repeat it to keep your progress, or update your health profile if your condition has changed.")
+    elif step == "PROGRESS" and (s, m) != asked:
         by_id = {plan.plan_id: plan for plan in req.plans}
         raised = [r for r in top if STAGES.index(by_id[r.plan_id].recovery_stage) > asked[0]
                   or MOBILITY.index(by_id[r.plan_id].mobility_level) > asked[1]]
@@ -517,6 +590,6 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
             why = (f"You completed {name}. Plans for the next stage are not within your safety limits yet, "
                    "so plans at your current stage with new exercises are shown.")
     return RecommendResponse(status=status, ranked=top, excluded=excluded,
-                             suitable_count=len(scored), model_version=MODEL_VERSION,
+                             suitable_count=safe_count, model_version=MODEL_VERSION,
                              next_step=step, next_step_reason=why,
                              effective_stage=STAGES[s], effective_mobility=MOBILITY[m])

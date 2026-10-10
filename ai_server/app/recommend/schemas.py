@@ -97,6 +97,9 @@ class PlanHistoryIn(_In):
     consecutive_fails: int = Field(default=0, ge=0)
     # Recent attempts on the plan with a possible-fall alert.
     fall_alerts: int = Field(default=0, ge=0)
+    # The exercise the patient is on (hybrid-3.1): after repeated failed attempts it is left out of
+    # the gentler plans.
+    current_exercise_id: str | None = None
 
 
 class ExerciseResultIn(_In):

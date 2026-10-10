@@ -166,6 +166,8 @@ class RecommendationService {
               p,
               progress.sessions[p.patientPlanId] ?? const [],
             ),
+            // Left out of the gentler plans after repeated failed attempts (hybrid-3.1).
+            'current_exercise_id': p.currentExercise()?.exerciseId,
             'fall_alerts': [
               for (final s
                   in progress.sessions[p.patientPlanId] ??

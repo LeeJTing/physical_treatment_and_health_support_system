@@ -165,14 +165,20 @@ TWINS = {"Lower Limb Strength Builder", "Advanced Leg Function"}    # the only p
 # 9 Oct: the new Hand and Wrist Recovery plan has the same area, stage, mobility and goal as Shoulder
 # Mobility Starter, so the content score cannot tell them apart (a body-part focus block is planned).
 ARM_TWINS = {"Shoulder Mobility Starter", "Hand and Wrist Recovery"}
-TWIN_PAIRS = [TWINS, ARM_TWINS]
+# hybrid-3.1 (area from the exercises): both balance plans are leg exercises with Tandem Stance.
+BALANCE_TWINS = {"Hip Stability", "Balance and Fall Prevention"}
+TWIN_PAIRS = [TWINS, ARM_TWINS, BALANCE_TWINS]
 
 
 def hybrid_1(req):
-    """hybrid-1.0 as it was: rules, content score, best three by score then name."""
+    """hybrid-1.0: rules, content score, best three by score then name; since hybrid-3.1 without weak
+    fillers (at least MIN_MATCH and RELATIVE_MATCH of the best, else only the closest plan)."""
     ranked = [(E.weighted(E.score(req, p)), p.plan_name, p.plan_id) for p in req.plans
               if not E.exclusion_reasons(req, p)]
     ranked.sort(key=lambda t: (-t[0], t[1]))
+    if ranked:
+        best = ranked[0][0]
+        ranked = [t for t in ranked if t[0] >= E.MIN_MATCH and t[0] >= E.RELATIVE_MATCH * best] or ranked[:1]
     return [(t[2], round(t[0], 3)) for t in ranked[:3]]
 
 
@@ -300,7 +306,7 @@ def test_endpoint_accepts_evidence_and_reports_it():
     r = client.post("/recommend", json=b, headers=DEV)
     assert r.status_code == 200, r.text
     res = r.json()
-    assert res["model_version"] == "hybrid-3.0"
+    assert res["model_version"] == "hybrid-3.1"
     top = next(x for x in res["ranked"] if NAME[x["plan_id"]] == "Early Knee Recovery")
     assert top["evidence_patients"] == 30 and 0 < top["alpha"] <= 0.3
     assert top["breakdown"]["collaborative"] is not None
@@ -512,12 +518,12 @@ def test_completed_plan_moves_up_one_stage():
 
 def test_progress_is_learnt_from_similar_exercises():
     # Knee extension and marching went well, so the strength plan (sit-to-stand, mini squat, step-up:
-    # knee and hip) is predicted to suit better than Hip Stability with the same content score.
+    # knee and hip) is predicted to suit better than Hip Stability, whose content score is close.
     res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", "COMPLETED", 100)],
                               exercises=KNEE_DONE))
     by = {NAME[r.plan_id]: r for r in res.ranked}
     strength, hip = by["Lower Limb Strength Builder"], by["Hip Stability"]
-    assert strength.content_score == hip.content_score
+    assert abs(strength.content_score - hip.content_score) < 0.05
     assert strength.breakdown.personal > hip.breakdown.personal > 0.5
     assert names(res.model_dump())[0] == "Lower Limb Strength Builder"
 
@@ -664,8 +670,16 @@ def test_history_never_lets_an_unsafe_plan_through():
             assert sum(pe["prescribed_duration_sec"] for pe in plan["plan_exercise"]) <= minutes * 60
             for code in limits:
                 area = E.blocked_area(code)
-                assert area is None or not any(conflicts(pe["exercise"]["target_body_area"], area)
-                                               for pe in plan["plan_exercise"])
+                if area is None:
+                    continue
+                for pe in plan["plan_exercise"]:
+                    ex = pe["exercise"]
+                    if not conflicts(ex["target_body_area"], area):
+                        continue
+                    # a limited limb only in gentle plans, and only for the area being rehabilitated
+                    assert E.cosine(E._PARTS[ex["target_body_area"]], E._PARTS[b["rehab"]["affected_body_area"]]) > 0
+                    assert plan["recovery_stage"] == "EARLY" and plan["mobility_level"] == "LOW"
+                    assert ex["intensity_level"] == "LOW"
             assert E.STAGES.index(plan["recovery_stage"]) <= E.STAGES.index(res.effective_stage)
 
 
@@ -685,3 +699,122 @@ def test_impossible_history_is_an_invalid_request():
     assert client.post("/recommend", json=b, headers=DEV).status_code == 422
     b["progress"] = {"plans": [{"plan_id": "x", "status": "PAUSED"}], "exercises": []}
     assert client.post("/recommend", json=b, headers=DEV).status_code == 422
+
+
+# ---- hybrid-3.1: reasonable answers ------------------------------------------------------------
+
+def plan_trains(plan_name, area):
+    return any(E.cosine(E._PARTS[pe["exercise"]["target_body_area"]], E._PARTS[area]) > 0
+               for pe in PLAN[plan_name]["plan_exercise"])
+
+
+def test_every_plan_shown_trains_the_affected_area():
+    # "Balance and Fall Prevention" is labelled FULL_BODY but has only leg exercises: an arm patient
+    # must never get it.
+    for req in grid():
+        res = recommend(req)
+        for r in res.ranked:
+            assert plan_trains(NAME[r.plan_id], req.rehab.affected_body_area)
+    res = recommend(RecommendRequest.model_validate(body(**ARM_EARLY)))
+    assert "Balance and Fall Prevention" not in names(res.model_dump())
+    left = next(e for e in res.excluded if NAME[e.plan_id] == "Balance and Fall Prevention")
+    assert "none of its exercises trains BOTH_ARMS" in left.reasons
+
+
+def test_area_score_comes_from_the_exercises():
+    legs = RecommendRequest.model_validate(body(area="BOTH_LEGS"))
+    balance = E.PlanIn.model_validate(PLAN["Balance and Fall Prevention"])
+    reconditioning = E.PlanIn.model_validate(PLAN["Disuse Atrophy Reconditioning"])   # 2 leg, 1 arm exercise
+    assert E.score(legs, balance).body_area == pytest.approx(1.0)
+    arms = RecommendRequest.model_validate(body(**ARM_EARLY))
+    assert 0 < E.score(arms, reconditioning).body_area < E.score(legs, reconditioning).body_area
+
+
+def test_a_limitation_on_the_treated_limb_gives_gentle_plans_not_none():
+    for stage, mobility in (("EARLY", "LOW"), ("INTERMEDIATE", "MODERATE"), ("ADVANCED", "HIGH")):
+        res = recommend(RecommendRequest.model_validate(body(
+            area="BOTH_LEGS", stage=stage, mobility=mobility, goal="STRENGTH", intensity="MODERATE",
+            limitations=["LEFT_LEG_MOBILITY"])))
+        assert res.status != "NONE"
+        for r in res.ranked:
+            p = PLAN[NAME[r.plan_id]]
+            assert (p["recovery_stage"], p["mobility_level"]) == ("EARLY", "LOW")
+        assert "Lower Limb Strength Builder" not in names(res.model_dump())
+
+
+def test_a_limitation_on_another_limb_still_excludes_its_exercises():
+    # A leg patient whose left arm is limited: Disuse Atrophy Reconditioning has Shoulder Abduction.
+    res = recommend(RecommendRequest.model_validate(body(area="BOTH_LEGS", goal="ENDURANCE",
+                                                         limitations=["LEFT_ARM_MOBILITY"])))
+    assert "Disuse Atrophy Reconditioning" not in names(res.model_dump())
+    left = next(e for e in res.excluded if NAME[e.plan_id] == "Disuse Atrophy Reconditioning")
+    assert any(r.startswith("conflicts with LEFT_ARM_MOBILITY") for r in left.reasons)
+
+
+def test_right_arm_patient_with_a_limited_left_arm_gets_gentle_arm_plans():
+    res = recommend(RecommendRequest.model_validate(body(area="RIGHT_ARM", stage="INTERMEDIATE",
+                                                         mobility="MODERATE", goal="STRENGTH",
+                                                         limitations=["LEFT_ARM_MOBILITY"])))
+    got = names(res.model_dump())
+    assert got and "Upper Limb Strength" not in got
+    assert set(got) <= {"Shoulder Mobility Starter", "Hand and Wrist Recovery", "Disuse Atrophy Reconditioning"}
+
+
+def test_no_weak_fillers():
+    for req in grid():
+        res = recommend(req)
+        if len(res.ranked) > 1:
+            best = res.ranked[0].suitability_score
+            for r in res.ranked:
+                assert r.content_score >= E.MIN_MATCH - 1e-9
+                assert r.suitability_score >= E.RELATIVE_MATCH * best - 1e-3
+
+
+def test_closest_plan_is_shown_when_none_matches_well():
+    # Arm strength at the intermediate stage under a low-intensity limit: Upper Limb Strength has the
+    # moderate Wall Push-Up, so only early arm mobility plans are safe, none a good match.
+    res = recommend(RecommendRequest.model_validate(body(area="LEFT_ARM", stage="INTERMEDIATE", mobility="HIGH",
+                                                         goal="STRENGTH", intensity="LOW")))
+    assert res.status == "ONLY_ONE" and res.suitable_count >= 2
+    assert any("weaker match" in r for e in res.excluded for r in e.reasons)
+
+
+def test_easing_leaves_out_the_exercise_that_failed():
+    failed = EXERCISE["Seated Marching"]["exercise_id"]
+    h = history("Disuse Atrophy Reconditioning", fails=3)
+    h["current_exercise_id"] = failed
+    res = recommend(from_plan("Disuse Atrophy Reconditioning", plans=[h],
+                              exercises=[result("Seated Marching", 3, 0, 55)]))
+    assert res.next_step == "EASE" and res.ranked
+    for r in res.ranked:
+        assert all(pe["exercise"]["exercise_id"] != failed for pe in PLAN[NAME[r.plan_id]]["plan_exercise"])
+    early_knee = next(e for e in res.excluded if NAME[e.plan_id] == "Early Knee Recovery")
+    assert any("contains Seated Marching" in r for r in early_knee.reasons)
+
+
+def test_easing_keeps_plans_with_the_failed_exercise_when_nothing_else_is_left():
+    # A leg patient limited to EARLY/LOW whose only other leg plans also have Sit-to-Stand.
+    failed = EXERCISE["Sit-to-Stand"]["exercise_id"]
+    h = history("Balance and Fall Prevention", fails=3)
+    h["current_exercise_id"] = failed
+    b = body(area="BOTH_LEGS", goal="BALANCE", intensity="LOW")
+    b["progress"] = {"plans": [h], "exercises": []}
+    res = recommend(RecommendRequest.model_validate(b))
+    assert res.next_step == "EASE" and res.ranked
+
+
+def test_easing_with_no_gentler_plan_says_so():
+    # The catalogue has one core plan: easing it leaves nothing, and the reason explains it.
+    res = recommend(from_plan("Core and Back Care", plans=[history("Core and Back Care", fails=3)]))
+    assert res.next_step == "EASE" and res.status == "NONE"
+    assert "No gentler plan for this area fits your safety limits" in res.next_step_reason
+    assert res.next_step_reason.startswith("The current exercise in Core and Back Care did not pass 3 times")
+
+
+def test_progress_counts_only_plans_whose_exercises_train_the_area():
+    # Balance and Fall Prevention is labelled FULL_BODY but trains legs only: completing it does not
+    # move an arm patient up a stage.
+    b = body(**ARM_EARLY)
+    b["progress"] = {"plans": [history("Balance and Fall Prevention", "COMPLETED", 100)], "exercises": []}
+    res = recommend(RecommendRequest.model_validate(b))
+    assert res.next_step == "STAY" and res.effective_stage == "EARLY"

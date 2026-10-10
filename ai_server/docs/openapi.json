@@ -828,6 +828,17 @@
             "minimum": 0.0,
             "title": "Fall Alerts",
             "default": 0
+          },
+          "current_exercise_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Exercise Id"
           }
         },
         "type": "object",

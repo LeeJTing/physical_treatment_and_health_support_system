@@ -9,7 +9,7 @@ shows the same at `/docs`.
 
 | Endpoint | Module | Component | Status |
 |---|---|---|---|
-| `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.0) |
+| `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.1) |
 | `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.48) |
 | `GET /pose/exercises`, `POST /pose` | M300.1 (Elwin) | Pose Estimation Model | built |
 | `POST /forecast` | M400 (Jun Ting) | Time-Series Forecaster | **to build** |
@@ -60,7 +60,7 @@ too:
 ```json
 "progress": {
   "plans": [{"plan_id": "...", "status": "COMPLETED", "progress_percentage": 100,
-             "consecutive_fails": 0, "fall_alerts": 0}],
+             "consecutive_fails": 0, "fall_alerts": 0, "current_exercise_id": null}],
   "exercises": [{"exercise_id": "...", "attempts": 3, "passes": 2, "mean_accuracy": 86.0}]
 }
 ```
@@ -69,7 +69,14 @@ With it the server decides the next step (`EASE` after a possible fall or 3 atte
 did not pass, `PROGRESS` after a completed plan for the same body area, otherwise `STAY`), moves the
 stage and mobility the rules allow by one level (intensity, session time and limitations are
 checked as before), and adds a personal score learnt from the patient's results on similar
-exercises. Answer: `status` (`OK`, `ONLY_ONE`, `NONE`), `ranked` (best first: `plan_id`,
+exercises; after failed attempts, plans containing the plan's `current_exercise_id` are left out.
+
+Since hybrid-3.1 a plan is judged by its exercises, not its label: it must contain an exercise for the
+affected area. A physical limitation on the area being rehabilitated allows gentle plans only (early
+stage, low mobility, low-intensity exercises for that limb) instead of none; on another limb it still
+excludes exercises that use it. Weak matches do not fill the three places (content score at least 0.5
+and at least 60 % of the best plan's score; otherwise only the closest plan). Answer: `status` (`OK`,
+`ONLY_ONE`, `NONE`), `ranked` (best first: `plan_id`,
 `suitability_score`, `breakdown` per block, `alpha`, `beta`), `excluded` (with `reasons`),
 `suitable_count`, `model_version`, `next_step`, `next_step_reason` (one sentence for the patient),
 `effective_stage`, `effective_mobility`.

@@ -1,31 +1,40 @@
 {
  "combinations": 720,
  "exact_query_empty": 706,
- "recommender_empty": 0,
- "recommender_three": 675,
+ "recommender_empty": 45,
+ "recommender_three": 320,
  "completed": {
-  "cases": 720,
-  "static_same_plan_first": 720,
+  "cases": 675,
+  "static_same_plan_first": 675,
   "adaptive_same_plan_offered": 0,
-  "adaptive_higher_stage_offered": 304,
+  "adaptive_higher_stage_offered": 340,
   "adaptive_no_plan": 0,
-  "adaptive_progress_step": 720,
-  "higher_stage_exists_within_limits": 304
+  "adaptive_progress_step": 675,
+  "higher_stage_exists_within_limits": 340
  },
  "struggling": {
-  "cases": 720,
-  "static_same_plan_first": 720,
+  "cases": 675,
+  "static_same_plan_first": 675,
   "adaptive_same_plan_offered": 0,
-  "adaptive_ease_step": 720,
-  "adaptive_no_harder_plan": 720,
-  "adaptive_no_plan": 0
+  "adaptive_ease_step": 675,
+  "adaptive_no_harder_plan": 675,
+  "adaptive_no_plan": 46
  },
  "doing_well": {
-  "cases": 720,
-  "order_changed": 48,
-  "top_changed": 13
+  "cases": 675,
+  "order_changed": 61,
+  "top_changed": 0
  },
  "unsafe_plans_returned": 0,
+ "reasonableness": {
+  "requests": 4320,
+  "plans_not_training_area": 0,
+  "no_plan_for_limited_treated_limb": 0,
+  "weak_fillers": 0,
+  "no_plan_at_all": 270,
+  "easing_reoffers_failed_exercise": 0,
+  "easing_cases": 675
+ },
  "distinct_completed_plan_and_limit_pairs": 14,
- "model_version": "hybrid-3.0"
+ "model_version": "hybrid-3.1"
 }

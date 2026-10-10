@@ -647,6 +647,7 @@ void main() {
         expect(plan['plan_id'], knee.planId);
         expect(plan['status'], 'ACTIVE');
         expect(plan['consecutive_fails'], 4);
+        expect(plan['current_exercise_id'], ext);
         expect(plan['fall_alerts'], 1); // the fall 10 days ago is too old
         final ex = (progress['exercises'] as List).single as Map;
         expect(ex['exercise_id'], ext);
@@ -745,6 +746,43 @@ void main() {
       await h.vm.recommend(rehab);
       expect(h.vm.from, isNull);
       expect(h.vm.easingFrom, isNull);
+    });
+
+    testWidgets('with no gentler plan the screen shows the server reason', (
+      tester,
+    ) async {
+      final h = Harness()..server.n = 0;
+      const why =
+          'The current exercise in Core and Back Care did not pass 3 times in a '
+          'row. No gentler plan for this area fits your safety limits, so keep '
+          'to your current plan within a comfortable range and rest between '
+          'tries, or ask a physiotherapist.';
+      await tester.runAsync(() async {
+        final id = await h.signIn();
+        final core = PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: id,
+          plan: await planNamed(h, 'Core and Back Care'),
+          selectedAt: DateTime(2026, 9, 1),
+        );
+        await h.treatments.assignPlan(core);
+        h.server
+          ..nextStep = 'EASE'
+          ..nextStepReason = why;
+        await h.vm.recommendNext(core);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const RecommendedPlansView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(why), findsOneWidget);
+      expect(find.text(Messages.conditionNotMet), findsNothing);
+      expect(find.text('Back'), findsOneWidget);
     });
 
     testWidgets('the plans screen says why and what the plan replaces', (

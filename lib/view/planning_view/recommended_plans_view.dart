@@ -279,8 +279,15 @@ class RecommendedPlansView extends StatelessWidget {
                     onAction: vm.retry,
                   ),
                   UiSuccess(:final data) when data.plans.isEmpty => _Problem(
-                    message: Messages.conditionNotMet, // FR500_14
-                    actionLabel: 'Back to planning',
+                    // FR500_14; after a next step the server says why nothing fits
+                    // (e.g. no gentler plan for this area within the safety limits).
+                    message:
+                        data.nextStepReason.isNotEmpty &&
+                            (data.nextStep == NextStep.ease ||
+                                data.nextStep == NextStep.progress)
+                        ? data.nextStepReason
+                        : Messages.conditionNotMet,
+                    actionLabel: vm.from == null ? 'Back to planning' : 'Back',
                     onAction: () => _exit(context),
                   ),
                   UiSuccess(:final data) => _PlanList(

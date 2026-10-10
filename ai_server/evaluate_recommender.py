@@ -16,6 +16,12 @@ For each combination with a recommendation, the patient takes the top plan, then
   doing well the first exercise passed 3 times (accuracy 92) on a plan still being followed: STAY,
              and whether the personal score changes the order of the plans.
 The safety rules are checked on every plan returned (intensity, session time).
+
+Reasonableness (hybrid-3.1), over the same 720 answers with no limitation and with each profile
+limitation (4,320 requests): plans shown that train none of the affected area, requests left with no
+plan because of a limitation on the limb being rehabilitated, weak fillers (a plan shown beside a
+better one with a content score under 0.5), and gentler plans that contain the exercise that failed.
+hybrid-3.0 gave 1,550 / 630 / 2,992 / 185 of 720; see PROJECT_STATE.
 """
 import itertools
 import json
@@ -68,6 +74,46 @@ def level(p):
     return E.STAGES.index(p["recovery_stage"]), E.MOBILITY.index(p["mobility_level"])
 
 
+LIMITS = [None, "LEFT_ARM_MOBILITY", "RIGHT_ARM_MOBILITY", "LEFT_LEG_MOBILITY", "RIGHT_LEG_MOBILITY",
+          "BALANCE_IMPAIRMENT"]
+
+
+def trains(plan, area):
+    return any(E.cosine(E._PARTS[pe["exercise"]["target_body_area"]], E._PARTS[area]) > 0
+               for pe in plan["plan_exercise"])
+
+
+def reasonableness():
+    out = {"requests": 0, "plans_not_training_area": 0, "no_plan_for_limited_treated_limb": 0,
+           "weak_fillers": 0, "no_plan_at_all": 0, "easing_reoffers_failed_exercise": 0, "easing_cases": 0}
+    for area, stage, mob, goal, cap, lim in itertools.product(list(E._PARTS), E.STAGES, E.MOBILITY, E.GOALS,
+                                                              ("LOW", "MODERATE"), LIMITS):
+        b = {"rehab": {"affected_body_area": area, "recovery_stage": stage, "mobility_level": mob, "goal": goal},
+             "safety_limit": {"max_exercise_intensity": cap, "max_session_duration_min": MINUTES},
+             "limitations": [lim] if lim else [], "plans": CATALOGUE["plans"]}
+        res = E.recommend(RecommendRequest.model_validate(b))
+        out["requests"] += 1
+        out["plans_not_training_area"] += sum(not trains(PLANS[r.plan_id], area) for r in res.ranked)
+        if len(res.ranked) > 1:
+            out["weak_fillers"] += sum(r.content_score < 0.5 for r in res.ranked)
+        blocked = E.blocked_area(lim) if lim else None
+        if not res.ranked:
+            out["no_plan_at_all"] += 1
+            if blocked and area != "FULL_BODY" and E.cosine(E._PARTS[blocked], E._PARTS[area]) > 0:
+                out["no_plan_for_limited_treated_limb"] += 1
+        if lim is None and res.ranked:
+            top = PLANS[res.ranked[0].plan_id]
+            failed = sorted(top["plan_exercise"], key=lambda pe: pe["sequence_order"])[0]["exercise"]["exercise_id"]
+            prog = {"plans": [{"plan_id": top["plan_id"], "status": "ACTIVE", "consecutive_fails": 3,
+                               "current_exercise_id": failed}],
+                    "exercises": [{"exercise_id": failed, "attempts": 3, "passes": 0, "mean_accuracy": 55}]}
+            eased = E.recommend(request(plan_rehab(top), cap, prog))
+            out["easing_cases"] += 1
+            out["easing_reoffers_failed_exercise"] += any(
+                pe["exercise"]["exercise_id"] == failed for r in eased.ranked for pe in PLANS[r.plan_id]["plan_exercise"])
+    return out
+
+
 def main():
     n = 0
     stats = {"combinations": 0, "exact_query_empty": 0, "recommender_empty": 0, "recommender_three": 0,
@@ -110,8 +156,7 @@ def main():
         c["adaptive_no_plan"] += not offered
         # Could a higher-stage plan for an overlapping area have been offered at all within the limits?
         c["higher_stage_exists_within_limits"] += any(
-            level(p)[0] == level(top)[0] + 1 and E.cosine(E._PARTS[p["target_body_area"]],
-                                                          E._PARTS[top["target_body_area"]]) > 0
+            level(p)[0] == level(top)[0] + 1 and trains(p, top["target_body_area"])
             and all(INTENSITY.index(pe["exercise"]["intensity_level"]) <= INTENSITY.index(cap)
                     for pe in p["plan_exercise"])
             for p in CATALOGUE["plans"])
@@ -144,6 +189,7 @@ def main():
         d["top_changed"] += bool(again.ranked) and again.ranked[0].plan_id != first.ranked[0].plan_id
 
     stats["combinations"] = n
+    stats["reasonableness"] = reasonableness()
     stats["distinct_completed_plan_and_limit_pairs"] = len(unique_cases)
     stats["model_version"] = E.MODEL_VERSION
     OUT.write_text(json.dumps(stats, indent=1) + "\n", encoding="utf-8")
