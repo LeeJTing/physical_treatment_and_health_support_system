@@ -532,3 +532,65 @@ def test_safety_pass16(plan, question, expected):
         assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
     else:
         assert (got if got is not None else "None") in expected.split("/"), got
+
+
+# ---- chat-rules-3.49: plans stop at 65 (Terms of Use, section 2) ------------------------------------
+
+OLD = {"restriction": "AGE_65_PLUS"}
+
+
+@pytest.mark.parametrize("question", ["how do I start", "what is in my plan", "how do I record my video",
+                                      "how many plans can I have", "I missed a session", "how often should I exercise",
+                                      "why is my plan paused", "how do I change my plan"])
+def test_restricted_plan_questions_get_the_age_answer(question):
+    res = ask(question, **OLD)
+    assert res["category"] == "age_limit" and res["title"] == "Your plans are paused"
+    assert "Terms of Use (section 2)" in res["answer"] and "physiotherapist" in res["answer"]
+    assert res["actions"] == [{"key": "open_age_limit", "label": "Why plans are paused"}]
+
+
+def test_restricted_tapped_plan_category_gets_the_age_answer():
+    assert ask(category="getting_started", **OLD)["category"] == "age_limit"
+    assert ask(category="plan_exercises", **OLD)["category"] == "age_limit"
+
+
+@pytest.mark.parametrize("question, category", [("is it safe to exercise", "safety"),
+                                                ("how do I do sit to stand", "exercise:sit_to_stand"),
+                                                ("I feel weak after being in hospital", "muscle_loss")])
+def test_restricted_general_advice_stays_with_a_note_first(question, category):
+    res = ask(question, **OLD)
+    assert res["category"] == category
+    assert res["notes"][0].startswith("Your plans are paused (plans are for users under 65")
+
+
+@pytest.mark.parametrize("question, category", [("chest pain and dizzy", "red_flag"), ("hello", "greeting"),
+                                                ("I forgot my password", "forgot_password")])
+def test_restricted_safety_and_account_answers_are_unchanged(question, category):
+    plain, old = ask(question), ask(question, **OLD)
+    assert old["category"] == plain["category"] == category and old["answer"] == plain["answer"]
+
+
+def test_restricted_categories_put_the_age_limit_first_and_drop_plan_topics():
+    cats = client.get("/chat/categories", headers=DEV, params={"plan_id": KNEE, "restriction": "AGE_65_PLUS"}).json()
+    keys = [c["key"] for c in cats["categories"]]
+    assert keys[0] == "age_limit"
+    assert not {"getting_started", "how_to", "missed_session", "recording_help"} & set(keys)
+    assert not [k for k in keys if k.startswith("plan_")]
+    assert {"safety", "pain_or_discomfort"} <= set(keys)
+    assert [c["key"] for c in ask("hello", **OLD)["categories"]] == keys
+
+
+@pytest.mark.parametrize("question", ["is there an age limit", "am I too old for a plan", "why can't I get a plan",
+                                      "can I still exercise after 65"])
+def test_anyone_can_ask_about_the_age_limit(question):
+    res = ask(question)
+    assert res["category"] == "age_limit" and "Exercise plans are for users under 65" in res["answer"]
+
+
+def test_too_old_to_exercise_is_still_the_safety_answer():
+    assert ask("am I too old to exercise")["category"] == "safety"
+
+
+def test_unknown_restriction_is_rejected():
+    r = client.post("/chat", headers=DEV, json={"text": "hello", "restriction": "UNDER_13"})
+    assert r.status_code == 422

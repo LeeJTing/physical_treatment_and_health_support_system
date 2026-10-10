@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.48"
+VERSION = "chat-rules-3.49"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -824,7 +824,53 @@ INTENTS = [
            "prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your "
            "exercises, pain, safety, how often to exercise, recording your video, your posture score, and "
            "your plan or reminders.", show=False, small_talk=True),
+    # 3.49 (11 Oct): plans stop at 65 (Terms of Use, section 2). Anyone can ask why; a restricted user
+    # gets RESTRICTIONS below instead, and sees this as the first category.
+    intent("age_limit", "Why plans stop at 65", 4,
+           # Not "too old" or "my age" alone: "am I too old to exercise?" is the safety answer.
+           ["too old for a plan", "too old for plans", "too old for the plan", "too old to get a plan",
+            "too old for this app", "age limit", "age limits", "age for a plan", "age for plans", "over 65", "after 65", "past 65",
+            "older than 65", "65 or older", "65 and older", "at 65", "above 65", "65 and over", "65 and above",
+            "aged 65", "65 years", "65 year old", "65 years old", "plan paused", "plans paused", "paused plan",
+            "paused plans", "plan is paused", "plans are paused", "why paused", "why is it paused",
+            "cannot get a plan", "can't get a plan", "cant get a plan", "can not get a plan", "no plan for me",
+            "not allowed a plan", "not allowed to get a plan", "why no plan", "why can i not get a plan",
+            "why can't i get a plan", "terlalu tua", "had umur", "had usia", "pelan dijeda", "warga emas"],
+           ["why is my plan paused", "why can't I get a plan", "am I too old for a plan", "is there an age limit"],
+           "Exercise plans are for users under 65. From 65 the app does not create plans, and a plan you already "
+           "have is paused, as stated in the Terms of Use (section 2): the home exercise programmes proven for "
+           "people aged 65 and over were set up and followed by a health professional, and this app has none. "
+           "Exercise is still good for you: please ask your doctor or a registered physiotherapist to set up a "
+           "programme, or ask about a hospital or community rehabilitation service. Your profile, health "
+           "logging, past results and this chat assistant stay available.",
+           show=False, action={"key": "open_age_limit", "label": "Why plans stop at 65"}),
 ]
+
+# What a restricted user is told instead (the app sends the restriction it got from the recommender).
+# "replace": answers that would send the patient to a plan, a recording or plan reminders; "note_on":
+# general exercise advice that stays, with a line first. Plan-specific rules (plan_*) are replaced too,
+# and exercise:* get the note. Safety answers (crisis, red flags, poisoning) always come first.
+RESTRICTIONS = {
+    "AGE_65_PLUS": {
+        "title": "Your plans are paused",
+        "answer": "Your exercise plans are paused because plans are for users under 65, as stated in the Terms of "
+                  "Use (section 2). The home exercise programmes proven for people aged 65 and over were set up "
+                  "and followed by a health professional, and this app has none. Please ask your doctor or a "
+                  "registered physiotherapist to set up a programme for you, or ask about a hospital or community "
+                  "rehabilitation service. You can still use your profile, health logging, reminders to log your "
+                  "health readings, your past results and this chat assistant.",
+        "action": {"key": "open_age_limit", "label": "Why plans are paused"},
+        "replace": ["age_limit", "getting_started", "how_to", "missed_session", "recording_help", "treatment_nav",
+                    "multiple_plans", "body_map", "plan_and_reminders", "partial_reps", "video_quality",
+                    "wrong_exercise", "exit_exercise", "how_often", "adjusted_targets", "reminders_help",
+                    "family_help"],
+        "note": "Your plans are paused (plans are for users under 65, Terms of Use section 2), so please exercise "
+                "under the guidance of your doctor or a physiotherapist.",
+        "note_on": ["safety", "condition_advice", "equipment", "difficulty", "tired", "weakness_balance", "best_time",
+                    "muscle_loss", "fear_of_falling", "other_activity", "hot_weather", "motivation", "app_help",
+                    "pain_or_discomfort", "pain_mild", "doctor_said"],
+    },
+}
 
 GOAL_TEXT = {
     "MOBILITY": "move your joints more freely",
@@ -1439,6 +1485,7 @@ def build() -> dict:
         "crisis_answer": CRISIS_ANSWER,
         "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
+        "restrictions": RESTRICTIONS,
     }
     OUT.write_text(json.dumps(rules, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return rules

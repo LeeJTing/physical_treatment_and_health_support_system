@@ -858,3 +858,100 @@ def test_plans_are_listed_best_first():
     for req in grid():
         scores = [r.suitability_score for r in recommend(req).ranked]
         assert scores == sorted(scores, reverse=True)
+
+
+# ---- 11 Oct: age limit and reasons for the patient ------------------------------------------------
+
+from app.recommend import explain as X     # noqa: E402
+
+KNOWN_CODES = {"TOO_INTENSE", "TOO_LONG", "LIMB_OTHER", "LIMB_GENTLE", "LATER_STAGE", "HIGHER_MOBILITY", "NOT_AREA",
+               "DONE", "EASED", "FAILED_EXERCISE", "WEAK_MATCH", "AGE_LIMIT", "NEXT_STAGE", "EASIER", "EASIER_DOSE",
+               "MATCH_AREA", "DOSE_STRENGTH", "DOSE_BALANCE", "DOSE_MOBILITY", "SAFE", "PERSONAL"}
+
+
+def test_no_plan_from_age_65():
+    b = body()
+    b["age"] = 65
+    res = recommend(RecommendRequest.model_validate(b))
+    assert res.status == "NONE" and res.restriction == "AGE_65_PLUS" and not res.ranked
+    assert len(res.excluded) == len(CATALOGUE["plans"])
+    assert all([w.code for w in e.why] == ["AGE_LIMIT"] for e in res.excluded)
+    assert "Terms of Use" in res.next_step_reason and "you are 65" in res.next_step_reason
+    assert set(res.excluded[0].why[0].sources) == set(X.AGE_SOURCES)
+
+
+def test_age_64_and_no_age_are_unchanged():
+    plain = recommend(RecommendRequest.model_validate(body()))
+    b = body()
+    b["age"] = 64
+    young = recommend(RecommendRequest.model_validate(b))
+    assert young.restriction is None and plain.restriction is None
+    assert [r.plan_id for r in young.ranked] == [r.plan_id for r in plain.ranked]
+
+
+def test_age_limit_through_the_api_keeps_any_progress_out():
+    b = body()
+    b["age"] = 80
+    b["progress"] = {"plans": [history("Early Knee Recovery", fails=3)], "exercises": [],
+                     "from_plan_id": PLAN["Early Knee Recovery"]["plan_id"]}
+    r = client.post("/recommend", json=b, headers=DEV)
+    assert r.status_code == 200, r.text
+    res = r.json()
+    assert res["restriction"] == "AGE_65_PLUS" and res["ranked"] == [] and "Terms of Use" in res["next_step_reason"]
+
+
+def test_every_decision_has_a_patient_reason_with_known_sources():
+    # Over the 720 answer sets: one patient reason per rule, no fallback text, known codes and keys.
+    for req in grid():
+        res = recommend(req)
+        for e in res.excluded:
+            assert len(e.why) == len(e.reasons), (e.reasons, e.why)
+        for r in res.ranked:
+            assert 2 <= len(r.why) <= 4 and r.why[0].code == "MATCH_AREA"
+        for w in [w for e in res.excluded for w in e.why] + [w for r in res.ranked for w in r.why]:
+            assert w.code in KNOWN_CODES and w.text.endswith(".") and set(w.sources) <= X.SOURCE_KEYS
+
+
+def test_safety_reasons_cite_the_patients_conditions():
+    b = body(intensity="LOW")
+    b["conditions"] = ["HYPERTENSION", "DIABETES"]
+    res = recommend(RecommendRequest.model_validate(b))
+    safe = next(w for w in res.ranked[0].why if w.code == "SAFE")
+    assert safe.sources[:2] == ["hk_doh", "colberg2016"]
+    hard = next(w for e in res.excluded for w in e.why if w.code == "TOO_INTENSE")
+    assert hard.sources == ["hk_doh", "colberg2016"]
+    assert X.intensity_sources([]) == ["acsm2009"]
+
+
+def test_why_not_names_the_exercises_and_the_limb():
+    res = recommend(RecommendRequest.model_validate(body(intensity="LOW", limitations=["LEFT_ARM_MOBILITY"])))
+    why = {NAME[e.plan_id]: {w.code: w.text for w in e.why} for e in res.excluded}
+    assert why["Lower Limb Strength Builder"]["TOO_INTENSE"].startswith("It includes Mini Squat and Step-Up, which "
+                                                                        "are harder")
+    assert "use your left arm, which your profile lists as limited" in why["Shoulder Mobility Starter"]["LIMB_OTHER"]
+
+
+def test_easing_explains_the_easier_dose():
+    failed = EXERCISE["Elbow Flexion"]["exercise_id"]
+    h = history("Upper Limb Strength", fails=3)
+    h["current_exercise_id"] = failed
+    res = recommend(from_plan("Upper Limb Strength", plans=[h], exercises=[result("Elbow Flexion", 3, 0, 75)]))
+    first = [w.code for w in res.ranked[0].why]
+    assert first[:2] == ["EASIER", "EASIER_DOSE"] and "Elbow Flexion is still here" in res.ranked[0].why[1].text
+
+
+def test_progress_explains_the_next_stage():
+    res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", "COMPLETED", 100)],
+                              exercises=KNEE_DONE))
+    raised = [r for r in res.ranked if PLAN[NAME[r.plan_id]]["recovery_stage"] != "EARLY"]
+    assert res.next_step == "PROGRESS" and raised
+    assert all(r.why[0].code == "NEXT_STAGE" for r in raised)
+
+
+def test_the_app_lists_every_source_key():
+    path = Path(__file__).parents[2] / "lib" / "core" / "constants" / "evidence_sources.dart"
+    if not path.exists():
+        pytest.skip("the app is not next to the server (fyp-fastapi copy)")
+    dart = path.read_text(encoding="utf-8")
+    missing = [k for k in X.SOURCE_KEYS if f"'{k}'" not in dart]
+    assert not missing, missing

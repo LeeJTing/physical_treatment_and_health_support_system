@@ -93,6 +93,7 @@ failed attempts in a row at the current exercise, fall alerts) and their results
 """
 import math
 
+from . import explain
 from .schemas import (ExerciseIn, ExerciseResultIn, PlanIn, PlanOutcomeIn, RankedPlan, RecommendRequest,
                       RecommendResponse, ExcludedPlan, ScoreBreakdown)
 
@@ -527,6 +528,13 @@ def diversify(scored: list[tuple[float, PlanIn]], k: int = TOP_N,
 
 
 def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendResponse:
+    if req.age is not None and req.age >= explain.PLAN_AGE_LIMIT:
+        # No plan from 65 (Terms of Use, section 2): every plan is left out for that one reason.
+        reason = f"age {req.age}: plans are for users under {explain.PLAN_AGE_LIMIT}"
+        return RecommendResponse(status="NONE", ranked=[], suitable_count=0, model_version=MODEL_VERSION,
+                                 excluded=[ExcludedPlan(plan_id=p.plan_id, reasons=[reason],
+                                                        why=[explain.age_limit(req.age)]) for p in req.plans],
+                                 restriction="AGE_65_PLUS", next_step_reason=explain.age_limit(req.age).text)
     step, why, s, m, left_out, avoid = next_step(req)
     asked = (STAGES.index(req.rehab.recovery_stage), MOBILITY.index(req.rehab.mobility_level))
     # The rules and the content score use the stage and mobility after the next step.
@@ -567,7 +575,8 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
     for plan in req.plans:
         reasons = reasons_of[plan.plan_id]
         if reasons:
-            excluded.append(ExcludedPlan(plan_id=plan.plan_id, reasons=reasons))
+            excluded.append(ExcludedPlan(plan_id=plan.plan_id, reasons=reasons,
+                                         why=explain.why_excluded(req, plan, reasons)))
             continue
         b = score(req, plan)
         content = weighted(b)
@@ -591,8 +600,9 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
         shown = good or scored[:1]
         for f, p in scored:
             if (f, p) not in shown:
-                excluded.append(ExcludedPlan(plan_id=p.plan_id, reasons=[
-                    f"weaker match ({details[p.plan_id][1]:.2f}) than the plans shown"]))
+                weak = [f"weaker match ({details[p.plan_id][1]:.2f}) than the plans shown"]
+                excluded.append(ExcludedPlan(plan_id=p.plan_id, reasons=weak,
+                                             why=explain.why_excluded(req, p, weak)))
         scored = shown
     top = []
     # Diversity decides which plans are shown; they are listed best first (a 53 % plan between two
@@ -602,10 +612,13 @@ def recommend(req: RecommendRequest, lam: float = MMR_LAMBDA) -> RecommendRespon
     for final, plan in picked:
         b, content, alpha, n, beta = details[plan.plan_id]
         rounded = ScoreBreakdown(**{k: (None if v is None else round(v, 3)) for k, v in b.model_dump().items()})
+        raised = (STAGES.index(plan.recovery_stage) > asked[0] or MOBILITY.index(plan.mobility_level) > asked[1])
         top.append(RankedPlan(plan_id=plan.plan_id, suitability_score=round(min(1.0, max(0.0, final)), 3),
                               breakdown=rounded,
                               content_score=round(content, 3), alpha=round(alpha, 3), evidence_patients=round(n),
-                              beta=round(beta, 3)))
+                              beta=round(beta, 3),
+                              why=explain.why_shown(req, plan, step, b.personal, easier_in.get(plan.plan_id, []),
+                                                    raised)))
     status = "NONE" if not top else "ONLY_ONE" if len(top) == 1 else "OK"
     kept = sorted({n for r in top for n in easier_in.get(r.plan_id, [])})
     if kept and step == "EASE":

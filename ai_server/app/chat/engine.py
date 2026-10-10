@@ -206,9 +206,19 @@ def intents_for(plan_id: str | None) -> list[dict]:
     return list(_intents_for(plan_id))
 
 
-def categories_for(plan_id: str | None) -> list[dict]:
-    """The question categories the app lists (FR500_18): plan topics first, then general ones."""
-    return [i for i in intents_for(plan_id) if i["show"]]
+def categories_for(plan_id: str | None, restriction: str | None = None) -> list[dict]:
+    """The question categories the app lists (FR500_18): plan topics first, then general ones. A
+    restricted user (3.49: aged 65 and over) gets "Why plans stop at 65" first and no plan topics."""
+    shown = [i for i in intents_for(plan_id) if i["show"]]
+    rest = rules().get("restrictions", {}).get(restriction or "")
+    if not rest:
+        return shown
+    first = [i for i in rules()["intents"] if i["key"] == "age_limit"]
+    return first + [i for i in shown if not _restricted(i["key"], rest)]
+
+
+def _restricted(key: str, rest: dict) -> bool:
+    return key in rest["replace"] or key.startswith("plan_")
 
 
 # ---------------------------------------------------------------------------
@@ -1143,10 +1153,11 @@ def _other_script(text: str) -> bool:
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
           risk_level: str | None = None, local_time: tuple[int, int] | None = None,
-          previous_category: str | None = None) -> dict:
+          previous_category: str | None = None, restriction: str | None = None) -> dict:
     r = rules()
     by_key = {i["key"]: i for i in intents_for(plan_id)}
-    base = {"categories": _listing(categories_for(plan_id)), "rules_version": r["version"]}
+    base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
+    rest = r.get("restrictions", {}).get(restriction or "")
 
     if text and any(w in text for w in OTHER_SCRIPT_CRISIS):
         return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
@@ -1182,12 +1193,18 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if chosen is None:
         return {**base, "answer": r["not_recognised"], "category": None, "title": None, "is_matched": False,
                 "matched_by": None, "follow_ups": [], "notes": [], "action": None}
+    if rest and _restricted(chosen["key"], rest):
+        # A plan, a recording or plan reminders: not for this user (3.49). Say why and where to go.
+        return {**base, "answer": rest["answer"], "category": "age_limit", "title": rest["title"], "is_matched": True,
+                "matched_by": how, "follow_ups": [], "notes": [], "action": rest["action"]}
 
     mentioned = conditions_in(text) if chosen["key"] in ("condition_advice", "safety") else []
     all_conditions = list(dict.fromkeys((conditions or []) + mentioned))
     # Time first: "rest now, it is late" matters more than the condition reminders that follow.
     notes = time_notes(chosen, local_time, all_conditions, limitations)
     notes += tailor_notes(chosen, all_conditions, limitations, risk_level)
+    if rest and (chosen["key"] in rest["note_on"] or chosen["key"].startswith("exercise:")):
+        notes.insert(0, rest["note"])
     base_answer = chosen["answer"]
     # A condition named in the question is answered on its own (phone test, 8 Oct: with the profile's
     # conditions added the answer ran to 230 words); otherwise the profile's conditions are used.

@@ -126,6 +126,10 @@ class ProgressIn(_In):
 class RecommendRequest(_In):
     rehab: RehabInfo
     safety_limit: SafetyLimitIn
+    # From the health profile (11 Oct): no plan from PLAN_AGE_LIMIT (Terms of Use, section 2), and the
+    # conditions choose the sources shown with the safety reasons. Both optional.
+    age: int | None = Field(default=None, ge=0, le=130)
+    conditions: list[str] = []
     # PhysicalLimitation.limitationCode values, e.g. LEFT_ARM_MOBILITY, BALANCE_IMPAIRMENT.
     limitations: list[str] = []
     plans: list[PlanIn] = Field(min_length=1)
@@ -160,6 +164,13 @@ class ScoreBreakdown(BaseModel):
     personal: float | None = None
 
 
+class Reason(BaseModel):
+    """One reason for the patient: code, sentence, and the keys of its sources (none = app rule)."""
+    code: str
+    text: str
+    sources: list[str] = []
+
+
 class RankedPlan(BaseModel):
     plan_id: str
     suitability_score: float           # final = (1 - alpha) * content + alpha * collaborative
@@ -168,11 +179,13 @@ class RankedPlan(BaseModel):
     alpha: float = 0.0                 # weight given to the collaborative score (0 at cold start)
     evidence_patients: int = 0         # similarity-weighted number of similar patients behind it
     beta: float = 0.0                  # weight given to the personal score (0 without history)
+    why: list[Reason] = []             # "Why this plan", in the patient's words (11 Oct)
 
 
 class ExcludedPlan(BaseModel):
     plan_id: str
     reasons: list[str]
+    why: list[Reason] = []             # the same reasons for the patient, with sources (11 Oct)
 
 
 class RecommendResponse(BaseModel):
@@ -190,3 +203,5 @@ class RecommendResponse(BaseModel):
     # The recovery stage and mobility level the rules used after the next step.
     effective_stage: Stage | None = None
     effective_mobility: Mobility | None = None
+    # Set when no plan may be generated for this patient at all (11 Oct: age 65 and over).
+    restriction: Literal["AGE_65_PLUS"] | None = None

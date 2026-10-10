@@ -10,7 +10,7 @@ shows the same at `/docs`.
 | Endpoint | Module | Component | Status |
 |---|---|---|---|
 | `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.1) |
-| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.48) |
+| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.49) |
 | `GET /pose/exercises`, `POST /pose` | M300.1 (Elwin) | Pose Estimation Model | built |
 | `POST /forecast` | M400 (Jun Ting) | Time-Series Forecaster | **to build** |
 | `POST /analyse` | M400 (Jun Ting) | Anomaly Detector and Health Scorer | **to build** |
@@ -84,11 +84,22 @@ stage, low mobility, low-intensity exercises for that limb) instead of none; on 
 excludes exercises that use it. Weak matches do not fill the three places (content score at least 0.5
 and at least 60 % of the best plan's score; otherwise only the closest plan). Answer: `status` (`OK`,
 `ONLY_ONE`, `NONE`), `ranked` (best first: `plan_id`,
-`suitability_score`, `breakdown` per block, `alpha`, `beta`), `excluded` (with `reasons`),
-`suitable_count`, `model_version`, `next_step`, `next_step_reason` (one sentence for the patient),
-`effective_stage`, `effective_mobility`.
+`suitability_score`, `breakdown` per block, `alpha`, `beta`, `why`), `excluded` (with `reasons` and
+`why`), `suitable_count`, `model_version`, `next_step`, `next_step_reason` (one sentence for the
+patient), `effective_stage`, `effective_mobility`, `restriction`.
 
-## `GET /chat/categories?plan_id=...` and `POST /chat` (JSON)
+**Why / why not (11 Oct).** `why` is a list of `{"code", "text", "sources"}`: a sentence for the patient
+and the keys of the papers behind the rule (e.g. `otago2003`, `hk_doh`; the app holds the full
+references in `lib/core/constants/evidence_sources.dart`). An empty `sources` means our own design rule
+("App safety rule"). `excluded[].why` has one entry per `reasons` entry, in the same order. Optional
+request fields `conditions` (from the health profile) pick the sources for the safety reasons (heart
+disease, high blood pressure, stroke, diabetes; otherwise the ACSM position stand).
+
+**Age limit (11 Oct, Terms of Use section 2).** With `age` 65 or over the answer is `status` `NONE`,
+`restriction` `AGE_65_PLUS`, no plans, every plan in `excluded` with the code `AGE_LIMIT`, and the
+reason in `next_step_reason`. Without `age` nothing changes.
+
+## `GET /chat/categories?plan_id=...&restriction=...` and `POST /chat` (JSON)
 
 The question categories for the patient's plan, and the answer to a tapped category or a typed
 question (FR500_17 to FR500_23).
@@ -104,6 +115,12 @@ recognised, FR500_22), `is_matched`, `matched_by` (`red_flag`, `crisis`, `keywor
 `follow_ups`, `notes` (condition-specific safety lines), `categories`, `action` and `actions`
 (buttons: `{"key": "open_profile", "label": "Open Profile"}`; the app maps each key to a screen),
 `rules_version`. Urgent symptoms and crisis phrases are answered first, whatever else is asked.
+
+Optional `restriction` (3.49): `AGE_65_PLUS`, taken from the recommender's answer. Questions about plans,
+recording or plan reminders then get "Your plans are paused" with the reason (Terms of Use, section 2)
+and an `open_age_limit` button; general exercise advice keeps its answer with a note first; safety,
+account and small-talk answers are unchanged. The categories put "Why plans stop at 65" first and drop
+the plan topics.
 
 ## `GET /pose/exercises` and `POST /pose` (multipart)
 

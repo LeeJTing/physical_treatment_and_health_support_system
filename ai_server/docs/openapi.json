@@ -97,7 +97,7 @@
           "M500 chat"
         ],
         "summary": "Categories",
-        "description": "Question categories for the patient's plan (FR500_18).",
+        "description": "Question categories for the patient's plan (FR500_18); restricted users get no plan topics.",
         "operationId": "categories_chat_categories_get",
         "security": [
           {
@@ -119,6 +119,23 @@
                 }
               ],
               "title": "Plan Id"
+            }
+          },
+          {
+            "name": "restriction",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "const": "AGE_65_PLUS",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Restriction"
             }
           }
         ],
@@ -515,6 +532,18 @@
               }
             ],
             "title": "Previous Category"
+          },
+          "restriction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "AGE_65_PLUS"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restriction"
           }
         },
         "type": "object",
@@ -662,6 +691,14 @@
             },
             "type": "array",
             "title": "Reasons"
+          },
+          "why": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Why",
+            "default": []
           }
         },
         "type": "object",
@@ -1093,6 +1130,14 @@
             "type": "number",
             "title": "Beta",
             "default": 0.0
+          },
+          "why": {
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            },
+            "type": "array",
+            "title": "Why",
+            "default": []
           }
         },
         "type": "object",
@@ -1103,6 +1148,33 @@
         ],
         "title": "RankedPlan"
       },
+      "Reason": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text"
+          },
+          "sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Sources",
+            "default": []
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "text"
+        ],
+        "title": "Reason",
+        "description": "One reason for the patient: code, sentence, and the keys of its sources (none = app rule)."
+      },
       "RecommendRequest": {
         "properties": {
           "rehab": {
@@ -1110,6 +1182,27 @@
           },
           "safety_limit": {
             "$ref": "#/components/schemas/SafetyLimitIn"
+          },
+          "age": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 130.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Age"
+          },
+          "conditions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Conditions",
+            "default": []
           },
           "limitations": {
             "items": {
@@ -1277,6 +1370,18 @@
               }
             ],
             "title": "Effective Mobility"
+          },
+          "restriction": {
+            "anyOf": [
+              {
+                "type": "string",
+                "const": "AGE_65_PLUS"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Restriction"
           }
         },
         "type": "object",
