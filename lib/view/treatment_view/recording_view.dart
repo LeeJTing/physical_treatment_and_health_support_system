@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/analysing_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
@@ -353,7 +354,25 @@ class _RecordingViewState extends State<RecordingView>
                               color: AppTokens.onPrimaryMuted,
                             ),
                           ),
-                        _FrameGuide(hands: hands),
+                        // Only the dashed frame: the animation below shows the person.
+                        const _FrameGuide(),
+                        // The exercise moving inside the frame (11 Oct): where to stand
+                        // and what to do; fainter while recording.
+                        IgnorePointer(
+                          child: Align(
+                            child: FractionallySizedBox(
+                              widthFactor: 0.6,
+                              heightFactor: 0.86,
+                              child: ExerciseAnimation(
+                                poseKey: vm.current?.poseKey,
+                                color: Colors.white.withValues(
+                                  alpha: _recording ? 0.35 : 0.8,
+                                ),
+                                strokeShare: 0.03,
+                              ),
+                            ),
+                          ),
+                        ),
                         Positioned(
                           left: 12,
                           top: 12,
@@ -406,6 +425,8 @@ class _RecordingViewState extends State<RecordingView>
                             ),
                             child: Text(
                               _cameraError ??
+                                  // The set-up of this exercise (side view, on the floor, ...).
+                                  vm.current?.cameraTip ??
                                   (hands
                                       ? 'Keep your forearm and your whole hand inside the frame.'
                                       : 'Step back until your whole body, head to feet, fits inside the frame.'),
@@ -546,21 +567,17 @@ class _BigAction extends StatelessWidget {
   );
 }
 
-/// Dashed full-body frame with a faint stick figure, as in the design. For
-/// the hand exercises only the frame is drawn: no whole body is needed.
+/// Dashed frame, as in the design. The exercise's own animation is drawn
+/// inside it (ExerciseAnimation, 11 Oct), so the fixed stick figure is gone.
 class _FrameGuide extends StatelessWidget {
-  final bool hands;
-  const _FrameGuide({this.hands = false});
+  const _FrameGuide();
 
   @override
   Widget build(BuildContext context) =>
-      IgnorePointer(child: CustomPaint(painter: _GuidePainter(hands)));
+      IgnorePointer(child: CustomPaint(painter: _GuidePainter()));
 }
 
 class _GuidePainter extends CustomPainter {
-  final bool hands;
-  _GuidePainter(this.hands);
-
   @override
   void paint(Canvas canvas, Size size) {
     final frame = Rect.fromLTWH(
@@ -580,33 +597,8 @@ class _GuidePainter extends CustomPainter {
         canvas.drawPath(metric.extractPath(d, d + 8), dash);
       }
     }
-    if (hands) return;
-    final body = Paint()
-      ..color = AppTokens.highlight.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final cx = frame.center.dx;
-    final top = frame.top + frame.height * 0.08;
-    final h = frame.height * 0.82;
-    final head = h * 0.07;
-    canvas.drawCircle(Offset(cx, top + head), head, body);
-    final neck = Offset(cx, top + head * 2);
-    final hip = Offset(cx, top + h * 0.5);
-    canvas.drawLine(neck, hip, body);
-    canvas.drawLine(
-      Offset(cx, top + h * 0.2),
-      Offset(cx - h * 0.14, top + h * 0.38),
-      body,
-    );
-    canvas.drawLine(
-      Offset(cx, top + h * 0.2),
-      Offset(cx + h * 0.14, top + h * 0.38),
-      body,
-    );
-    canvas.drawLine(hip, Offset(cx - h * 0.1, top + h), body);
-    canvas.drawLine(hip, Offset(cx + h * 0.1, top + h), body);
   }
 
   @override
-  bool shouldRepaint(_GuidePainter old) => old.hands != hands;
+  bool shouldRepaint(_GuidePainter old) => false;
 }

@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/recording_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
@@ -392,6 +393,9 @@ Future<void> showExerciseDetails(
             InfoChip(RehabLabels.area(pe.exercise.targetBodyArea)),
           ],
         ),
+        const SizedBox(height: 16),
+        // A looping repetition from our own correct recordings (11 Oct).
+        ExerciseAnimation(poseKey: pe.exercise.poseKey, cardHeight: 230),
         const SizedBox(height: 16),
         const Text(
           'How to do it',
