@@ -80,6 +80,9 @@ async function init() {
   $("#ex").innerHTML = ex.map(e => `<option value="${e.key}">${esc(e.name)} (${e.view} view)</option>`).join("");
   await loadRuns();
   setInterval(loadRuns, 5000);
+  // ?run=<id>&frame=<k> opens a run at a frame (for screenshots of a run).
+  const q = new URLSearchParams(location.search);
+  if (q.get("run")) { await openRun(q.get("run")); if (q.get("frame")) show(+q.get("frame")); }
 }
 async function loadRuns() {
   const rs = await (await fetch("/api/runs")).json();
