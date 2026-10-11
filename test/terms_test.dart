@@ -182,6 +182,9 @@ void main() {
         ),
       ),
     );
+    // The cached text future was made in real time (runAsync above), so the
+    // screen's await resumes on the real event loop: let it run once.
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     await tester.pumpAndSettle();
     expect(find.text('Terms of Use and Privacy Notice'), findsOneWidget);
     PillButton accept() =>

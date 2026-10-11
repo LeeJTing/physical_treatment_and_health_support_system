@@ -126,19 +126,24 @@ class PlanCard extends StatelessWidget {
         if (why.isNotEmpty)
           Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              tilePadding: EdgeInsets.zero,
-              childrenPadding: const EdgeInsets.only(bottom: 4),
-              expandedCrossAxisAlignment: CrossAxisAlignment.start,
-              title: const Text(
-                'Why this plan',
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: AppTokens.primary,
+            // The card's coloured box would hide the tile's ink: give the
+            // ListTile inside ExpansionTile its own (transparent) Material.
+            child: Material(
+              type: MaterialType.transparency,
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(bottom: 4),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                title: const Text(
+                  'Why this plan',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppTokens.primary,
+                  ),
                 ),
+                children: [ReasonList(why)],
               ),
-              children: [ReasonList(why)],
             ),
           )
         else

@@ -78,6 +78,9 @@ void main() {
         ),
       ),
     );
+    // The cached loads were made in real time (runAsync above), so the
+    // widget's await resumes on the real event loop: let it run once.
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 900));
     expect(find.bySemanticsLabel('Animation showing how to do the exercise'), findsOneWidget);

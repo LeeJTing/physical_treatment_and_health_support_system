@@ -169,7 +169,11 @@ class _ExerciseAnimationState extends State<ExerciseAnimation>
   }
 
   Widget _animated(GuideAnimationData data) {
+    // Its own node (container), so the label is not merged into the text
+    // around it and a screen reader reads it as one item.
     return Semantics(
+      container: true,
+      image: true,
       label: 'Animation showing how to do the exercise',
       child: AnimatedBuilder(
         animation: _c,
