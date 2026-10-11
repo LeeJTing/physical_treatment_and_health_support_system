@@ -91,7 +91,8 @@ class FakeServer {
                       {'code': 'MATCH_AREA', 'text': 'It trains your legs.'},
                       {
                         'code': 'SAFE',
-                        'text': 'Every exercise stays within your effort limit.',
+                        'text':
+                            'Every exercise stays within your effort limit.',
                         'sources': ['otago2003'],
                       },
                     ],
@@ -181,7 +182,10 @@ void main() {
       expect(PlanRestriction.forAge(64), isNull);
       expect(PlanRestriction.forAge(65), PlanRestriction.age65Plus);
       expect(PlanRestriction.forAge(null), isNull);
-      expect(PlanRestriction.fromWire('AGE_65_PLUS'), PlanRestriction.age65Plus);
+      expect(
+        PlanRestriction.fromWire('AGE_65_PLUS'),
+        PlanRestriction.age65Plus,
+      );
       expect(PlanRestriction.fromWire(null), isNull);
     });
 
@@ -239,34 +243,40 @@ void main() {
       expect(vm.restriction, PlanRestriction.age65Plus);
       expect(vm.age, 70);
       expect(vm.activePlan, isNotNull); // kept, not deleted
-      expect(vm.canStart(vm.activePlan!.currentExercise()!.exerciseId), isFalse);
+      expect(
+        vm.canStart(vm.activePlan!.currentExercise()!.exerciseId),
+        isFalse,
+      );
       expect(vm.suggestEasier, isFalse);
     });
 
-    test('exercise reminders stop ringing; health-log reminders still ring', () async {
-      final device = FakeScheduler();
-      var age = 70;
-      final local = LocalNotificationService(
-        FakeNotificationRepository(),
-        FakeTreatmentRepository(const []),
-        scheduler: device,
-        now: () => DateTime(2026, 10, 12, 7),
-        profileAge: () async => age,
-      );
-      Reminder r(ReminderType t) => Reminder(
-        reminderId: t.name,
-        accountId: 'a1',
-        patientPlanId: t == ReminderType.exercise ? 'pp1' : null,
-        reminderType: t,
-        title: 'x',
-        hour: 9,
-        minute: 0,
-      );
-      expect(await local.schedule(r(ReminderType.exercise)), 0);
-      expect(await local.schedule(r(ReminderType.healthLog)), greaterThan(0));
-      age = 64;
-      expect(await local.schedule(r(ReminderType.exercise)), greaterThan(0));
-    });
+    test(
+      'exercise reminders stop ringing; health-log reminders still ring',
+      () async {
+        final device = FakeScheduler();
+        var age = 70;
+        final local = LocalNotificationService(
+          FakeNotificationRepository(),
+          FakeTreatmentRepository(const []),
+          scheduler: device,
+          now: () => DateTime(2026, 10, 12, 7),
+          profileAge: () async => age,
+        );
+        Reminder r(ReminderType t) => Reminder(
+          reminderId: t.name,
+          accountId: 'a1',
+          patientPlanId: t == ReminderType.exercise ? 'pp1' : null,
+          reminderType: t,
+          title: 'x',
+          hour: 9,
+          minute: 0,
+        );
+        expect(await local.schedule(r(ReminderType.exercise)), 0);
+        expect(await local.schedule(r(ReminderType.healthLog)), greaterThan(0));
+        age = 64;
+        expect(await local.schedule(r(ReminderType.exercise)), greaterThan(0));
+      },
+    );
 
     test('the chat is told about the restriction', () async {
       final s = FakeServer();
@@ -298,12 +308,21 @@ void main() {
 
     test('sources are cited by name; none means an app safety rule', () {
       expect(EvidenceSources.cite(const []), EvidenceSources.appRuleLabel);
-      expect(EvidenceSources.cite(const ['otago2003']), 'Campbell & Robertson (2003)');
-      expect(EvidenceSources.cite(const ['unknown', 'hk_doh']),
-          'Department of Health, Hong Kong (n.d.)');
+      expect(
+        EvidenceSources.cite(const ['otago2003']),
+        'Campbell & Robertson (2003)',
+      );
+      expect(
+        EvidenceSources.cite(const ['unknown', 'hk_doh']),
+        'Department of Health, Hong Kong (n.d.)',
+      );
     });
 
-    Future<Harness> pumpPlans(WidgetTester tester, int age, {String? restriction}) async {
+    Future<Harness> pumpPlans(
+      WidgetTester tester,
+      int age, {
+      String? restriction,
+    }) async {
       tester.view.physicalSize = const Size(1080, 4200);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
@@ -329,7 +348,9 @@ void main() {
       return h;
     }
 
-    testWidgets('each plan opens "Why this plan"; the others say why not', (tester) async {
+    testWidgets('each plan opens "Why this plan"; the others say why not', (
+      tester,
+    ) async {
       await pumpPlans(tester, 50);
       expect(find.text('Why this plan'), findsNWidgets(2));
       await tester.tap(find.text('Why this plan').first);
@@ -342,11 +363,16 @@ void main() {
       await tester.tap(find.textContaining('Why not the other'));
       await tester.pumpAndSettle();
       expect(find.text('Why not other plans'), findsOneWidget);
-      expect(find.text('None of its exercises trains your legs.'), findsWidgets);
+      expect(
+        find.text('None of its exercises trains your legs.'),
+        findsWidgets,
+      );
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('from 65 the plans page explains and opens the age-limit page', (tester) async {
+    testWidgets('from 65 the plans page explains and opens the age-limit page', (
+      tester,
+    ) async {
       await pumpPlans(tester, 70);
       expect(
         find.text(
@@ -356,8 +382,14 @@ void main() {
       );
       await tester.tap(find.text('Why'));
       await tester.pumpAndSettle();
-      expect(find.textContaining('Your profile says you are 70.'), findsOneWidget);
+      expect(
+        find.textContaining('Your profile says you are 70.'),
+        findsOneWidget,
+      );
       expect(find.textContaining('Terms of Use (section 2)'), findsWidgets);
+      // Below the fold on a phone-sized test screen.
+      await tester.ensureVisible(find.text('Sources'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Sources'));
       await tester.pumpAndSettle();
       expect(find.text('Lacroix et al. (2017)'), findsOneWidget);
