@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/body_regions.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/choice_card.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 
-/// Asks the four FR500_03 questions before recommending. Returns null when
+/// Asks the four FR500_03 questions, and an optional pace, before recommending. Returns null when
 /// the patient closes the sheet. There is no Figma screen for this step, so
 /// it reuses the planning screens' tokens.
 Future<RehabInfo?> showRehabQuestionnaire(BuildContext context) =>
@@ -29,13 +32,53 @@ class RehabQuestionnaireSheet extends StatefulWidget {
 }
 
 class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
-  String? _area;
+  /// Regions tapped on the body map (ids of both views).
+  Set<String> _regions = {};
+
+  /// Area chosen from the fallback list instead of the map.
+  String? _listArea;
+
+  /// The one affected body area sent to /recommend (FR500_03).
+  String? get _area =>
+      _listArea ??
+      BodyRegions.areaFor([for (final id in _regions) ?BodyRegions.byId[id]]);
+
   RecoveryStage? _stage;
   MobilityLevel? _mobility;
   String? _goal;
 
+  /// Optional: SLOW, MEDIUM or FAST.
+  String? _pace;
+
   bool get _complete =>
       _area != null && _stage != null && _mobility != null && _goal != null;
+
+  /// Fallback for patients who cannot find the place on the figure: the
+  /// original eight body-area options.
+  Future<void> _chooseFromList() async {
+    final area = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Which area needs rehabilitation?'),
+        children: [
+          for (final e in RehabLabels.bodyArea.entries)
+            SimpleDialogOption(
+              onPressed: () => Navigator.of(context).pop(e.key),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(e.value, style: const TextStyle(fontSize: 16)),
+              ),
+            ),
+        ],
+      ),
+    );
+    if (area != null) {
+      setState(() {
+        _listArea = area;
+        _regions = {};
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => DraggableScrollableSheet(
@@ -75,7 +118,7 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
               ),
               const SizedBox(height: 4),
               const Text(
-                'Four quick questions so we can match the right plans.',
+                'Four quick questions, and one optional, so we can match the right plans.',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
@@ -84,47 +127,105 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
               ),
               _Question(
                 title: 'Which area needs rehabilitation?',
-                options: [
-                  for (final e in RehabLabels.bodyArea.entries)
-                    _Option(
-                      e.value,
-                      selected: _area == e.key,
-                      onTap: () => setState(() => _area = e.key),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    BodyMap(
+                      selected: _regions,
+                      onChanged: (s) => setState(() {
+                        _regions = s;
+                        _listArea = null;
+                      }),
                     ),
-                ],
+                    if (_listArea != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Text(
+                          'Chosen from the list: ${RehabLabels.area(_listArea!)}',
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: AppTokens.accent,
+                          ),
+                        ),
+                      ),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTokens.accent,
+                          minimumSize: const Size(48, AppTokens.minTarget),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        onPressed: _chooseFromList,
+                        child: const Text("Can't find it? Choose from a list"),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              _Question(
+              // Same reusable answer cards for every question (Elwin, 9 Oct).
+              _gap,
+              ChoiceCardGroup<RecoveryStage>(
                 title: 'How far along is your recovery?',
-                options: [
+                value: _stage,
+                onChanged: (v) => setState(() => _stage = v),
+                items: [
                   for (final e in RehabLabels.stage.entries)
-                    _Option(
+                    ChoiceItem(
+                      e.key,
                       e.value.$1,
                       hint: e.value.$2,
-                      selected: _stage == e.key,
-                      onTap: () => setState(() => _stage = e.key),
+                      icon: RehabLabels.stageIcon[e.key],
                     ),
                 ],
               ),
-              _Question(
+              _gap,
+              ChoiceCardGroup<MobilityLevel>(
                 title: 'How well can you move?',
-                options: [
+                value: _mobility,
+                onChanged: (v) => setState(() => _mobility = v),
+                items: [
                   for (final e in RehabLabels.mobility.entries)
-                    _Option(
+                    ChoiceItem(
+                      e.key,
                       e.value.$1,
                       hint: e.value.$2,
-                      selected: _mobility == e.key,
-                      onTap: () => setState(() => _mobility = e.key),
+                      icon: RehabLabels.mobilityIcon[e.key],
                     ),
                 ],
               ),
-              _Question(
+              _gap,
+              ChoiceCardGroup<String>(
                 title: 'What is your main goal?',
-                options: [
+                value: _goal,
+                onChanged: (v) => setState(() => _goal = v),
+                items: [
                   for (final e in RehabLabels.goal.entries)
-                    _Option(
+                    ChoiceItem(
+                      e.key,
                       e.value,
-                      selected: _goal == e.key,
-                      onTap: () => setState(() => _goal = e.key),
+                      hint: RehabLabels.goalHint[e.key],
+                      icon: RehabLabels.goalIcon[e.key],
+                    ),
+                ],
+              ),
+              _gap,
+              ChoiceCardGroup<String>(
+                title: 'How fast would you like to go?',
+                optional: true,
+                value: _pace,
+                onChanged: (v) => setState(() => _pace = v),
+                items: [
+                  for (final e in RehabLabels.pace.entries)
+                    ChoiceItem(
+                      e.key,
+                      e.value.$1,
+                      hint: e.value.$2,
+                      icon: e.value.$3,
                     ),
                 ],
               ),
@@ -150,6 +251,14 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
                         recoveryStage: _stage!,
                         mobilityLevel: _mobility!,
                         goal: _goal!,
+                        pace: _pace,
+                        // Only from the map: a list choice has no parts.
+                        focusParts: _listArea != null
+                            ? const []
+                            : BodyRegions.focusParts([
+                                for (final id in _regions)
+                                  ?BodyRegions.byId[id],
+                              ]),
                       ),
                     )
                   : null,
@@ -161,10 +270,13 @@ class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
   );
 }
 
+const _gap = SizedBox(height: 24);
+
+/// The body-map question: title above a custom answer area.
 class _Question extends StatelessWidget {
   final String title;
-  final List<_Option> options;
-  const _Question({required this.title, required this.options});
+  final Widget child;
+  const _Question({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -181,72 +293,8 @@ class _Question extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 10),
-        Wrap(spacing: 8, runSpacing: 8, children: options),
+        child,
       ],
-    ),
-  );
-}
-
-/// Selectable option: white with a border, dark green when chosen.
-class _Option extends StatelessWidget {
-  final String label;
-  final String? hint;
-  final bool selected;
-  final VoidCallback onTap;
-  const _Option(
-    this.label, {
-    this.hint,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) => Semantics(
-    selected: selected,
-    button: true,
-    child: Material(
-      color: selected ? AppTokens.primary : AppTokens.surface,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppTokens.radiusButton),
-        side: BorderSide(
-          color: selected ? AppTokens.primary : AppTokens.border,
-          width: 1.5,
-        ),
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppTokens.radiusButton),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : AppTokens.text,
-                  ),
-                ),
-                if (hint != null)
-                  Text(
-                    hint!,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: selected
-                          ? AppTokens.onPrimaryMuted
-                          : AppTokens.textMuted,
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-      ),
     ),
   );
 }

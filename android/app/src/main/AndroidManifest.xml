@@ -5,6 +5,9 @@
     <!-- Phase 4: exercise reminders (FR600_008), kept after a restart -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Reminders on time where the phone allows exact alarms (Android 12-13 by default, 14+ only if
+         "Alarms & reminders" is on); otherwise they may come up to an hour late. Not USE_EXACT_ALARM. -->
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
     <application
         android:label="HealthGuide"
         android:name="${applicationName}"

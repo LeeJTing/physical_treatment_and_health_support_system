@@ -18,7 +18,7 @@ class ChatCategory {
 /// [key] to a screen.
 class ChatAction {
   final String
-  key; // open_reset_password | open_planning | open_profile | open_treatment | open_reminders | open_history
+  key; // open_reset_password | open_planning | open_profile | open_treatment | open_reminders | open_history | open_age_limit
   final String label;
 
   const ChatAction(this.key, this.label);
@@ -44,6 +44,10 @@ class ChatReply {
   categories; // shown again after every reply (FR500_21, FR500_22)
   final ChatAction? action; // optional button under the answer
 
+  /// Every button under the answer, [action] first (chat-rules-3.48: a second one when the answer
+  /// names a second screen, e.g. Open Profile and Reset by email).
+  final List<ChatAction> actions;
+
   const ChatReply({
     required this.answer,
     this.category,
@@ -54,6 +58,7 @@ class ChatReply {
     this.notes = const [],
     this.categories = const [],
     this.action,
+    this.actions = const [],
   });
 
   bool get isUrgent => matchedBy == 'red_flag';
@@ -80,5 +85,16 @@ class ChatReply {
     notes: [for (final n in (j['notes'] as List? ?? const [])) n as String],
     categories: _cats(j['categories']),
     action: ChatAction.fromJson(j['action']),
+    actions: _actions(j),
   );
+}
+
+/// "actions" from chat-rules-3.48, or the single "action" from an older server.
+List<ChatAction> _actions(Map<String, dynamic> j) {
+  final list = j['actions'];
+  if (list is List && list.isNotEmpty) {
+    return [for (final a in list) ?ChatAction.fromJson(a)];
+  }
+  final one = ChatAction.fromJson(j['action']);
+  return one == null ? const [] : [one];
 }

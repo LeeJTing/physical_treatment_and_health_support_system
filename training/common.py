@@ -22,6 +22,10 @@ VIDEO_EXT = {".mp4", ".mov"}
 NAME_RE = re.compile(
     r"^(?P<key>[a-z_]+?)__(?P<label>correct|incorrect)__(?P<mistake>[a-z_]+)__(?P<person>p\d{2})__"
     r"(?P<side>left|right|both)__(?P<take>\d{2,3})$")
+# Clips whose name does not match what they show (checked on frames, 8 Oct): the 5 "shoulder_flexion ...
+# shoulder_shrug" clips raise the arms sideways (abduction). Elwin's files are not renamed; training
+# leaves them out (build_dataset.py) and evaluate_identity.py reports them apart.
+MISLABELLED = re.compile(r"shoulder_flexion__incorrect__shoulder_shrug")
 
 
 @dataclass

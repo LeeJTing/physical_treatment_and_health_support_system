@@ -81,8 +81,12 @@ expect_error("anon cannot read accounts", "select * from public.account")
 
 # --- user A ------------------------------------------------------------------
 as_user(a)
-check("A reads the 10 seeded plans", x("select count(*) from public.treatment_plan").fetchone()[0] == 10)
-check("A reads 15 exercises", x("select count(*) from public.exercise").fetchone()[0] == 15)
+# Counts from the catalogue itself (11 plans and 17 exercises since 9 Oct).
+_cat = __import__("json").loads((REPO / "assets" / "seed" / "catalogue.json").read_text(encoding="utf-8"))
+check(f"A reads the {len(_cat['plans'])} seeded plans",
+      x("select count(*) from public.treatment_plan").fetchone()[0] == len(_cat["plans"]))
+check(f"A reads {len(_cat['exercises'])} exercises",
+      x("select count(*) from public.exercise").fetchone()[0] == len(_cat["exercises"]))
 check("A sees only own account", x("select count(*) from public.account").fetchone()[0] == 1)
 expect_error("A cannot change own email column", "update public.account set email='z@x.com'")
 x("update public.account set username='alice2'")
@@ -123,6 +127,18 @@ expect_error("B cannot call the sign-up trigger function", "select private.handl
 
 as_admin()
 check("A's plan untouched by B", float(x("select progress_percentage from public.patient_plan").fetchone()[0]) == 33.33)
+
+# --- 11 Oct: more conditions, their status, exercise positions ---------------
+check("17 health conditions, each status question set where a doctor's OK is needed",
+      x("select count(*), count(*) filter (where needs_clearance and status_question is null) from public.health_condition").fetchone() == (17, 0))
+check("every exercise has a body position",
+      x("select count(*) from public.exercise where body_position is null").fetchone()[0] == 0)
+check("pregnancy avoids the only exercise on the back (Glute Bridge)",
+      x("select string_agg(exercise_name, ',') from public.exercise where body_position = 'SUPINE'").fetchone()[0] == "Glute Bridge")
+check("a profile's condition is controlled unless the patient says no",
+      x("select column_default from information_schema.columns where table_name='profile_condition' and column_name='is_controlled'").fetchone()[0] == "true")
+expect_error("an unknown body position is refused",
+             "update public.exercise set body_position = 'HANDSTAND' where pose_key = 'bird_dog'")
 
 # --- deleting the auth user cascades -----------------------------------------
 x("delete from auth.users where id = %s", (a,))

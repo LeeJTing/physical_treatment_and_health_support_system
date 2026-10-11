@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/posture_result_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// "Analysing your posture" (UI Design, Posture Analyse Loading Page). The server does all the
@@ -84,13 +85,25 @@ class _AnalysingViewState extends State<AnalysingView> {
         child: ListView(
           padding: const EdgeInsets.all(AppTokens.gutter),
           children: [
-            const Text(
-              'Analysing your posture',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: AppTokens.text,
-              ),
+            Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    'Analysing your posture',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: AppTokens.text,
+                    ),
+                  ),
+                ),
+                ExitExerciseButton(
+                  confirm: error == null
+                      ? 'Leave this exercise? The video is still being checked and '
+                            'this attempt will not be saved.'
+                      : null,
+                ),
+              ],
             ),
             const SizedBox(height: 2),
             Text(

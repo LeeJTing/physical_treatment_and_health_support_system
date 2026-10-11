@@ -47,10 +47,26 @@ class AppConstants {
   static const int passwordMin = 8;
   static const int otpLength = 6;
   static const int maxLoginFailures = 5; // FR100_031
+  static const int maxCodeAttempts =
+      5; // FR100_016, UC100 C13: wrong codes per issued code
   static const Duration loginLockout = Duration(minutes: 15);
 
   // ---- Profile accepted ranges (Table 3.3) ---------------------------------
   static const int ageMin = 13, ageMax = 120;
+
+  /// No exercise plan from this age (Terms of Use, section 2): the programmes
+  /// proven for older adults were set up and followed by health
+  /// professionals, and this app has none. Existing plans are paused.
+  /// Same number as PLAN_AGE_LIMIT on the AI server.
+  static const int planAgeLimit = 65;
+
+  /// Under this age a parent or guardian agrees to the terms too (Age of
+  /// Majority Act 1971; Contracts Act 1950 s.11; PDP Regulations 2013).
+  static const int adultAge = 18;
+
+  /// Version of the Terms of Use and Privacy Notice (assets/legal/terms.json,
+  /// same "version"). Raising it asks every user to accept again at login.
+  static const String termsVersion = '1.0';
   static const double weightMin = 20, weightMax = 300;
   static const double heightMin = 80, heightMax = 250;
   static const Duration profileStaleAfter = Duration(
@@ -60,6 +76,11 @@ class AppConstants {
   // ---- Exercise video (UC500 C4, C5) ---------------------------------------
   static const int minVideoSeconds = 10;
   static const int maxVideoSeconds = 30;
+
+  /// Recording bitrate (NFR_07: the upload is most of the wait). 9 Oct test on 60 own clips at 720p
+  /// (training/experiment_bitrate.py): 2.5 Mbps gave the same pass / fail as 5 Mbps on 60 of 60 at half
+  /// the size; 3 Mbps leaves room for a phone encoder, which does a little worse per bit.
+  static const int recordingBitrate = 3000000;
   static const int maxVideoBytes = 100 * 1024 * 1024;
   static const int minVideoHeightPx = 720;
   static const List<String> allowedVideoExtensions = ['mp4', 'mov'];
@@ -76,6 +97,18 @@ class AppConstants {
 /// User-facing messages copied verbatim from the use case MESSAGE rows.
 class Messages {
   Messages._();
+
+  // UC600 reminders (not in the report's message list, PROJECT_STATE section 11)
+  // Not a report message (FR600_008 asks for the permission; this says what a refusal means).
+  static const notificationsOff =
+      'Notifications are turned off for HealthGuide, so your reminders cannot ring. Tap Turn on '
+      'notifications, switch them on, then come back to the app.';
+  // Not a report message: Android 14+ without "Alarms & reminders" may deliver up to an hour late.
+  static const remindersMayBeLate =
+      'This phone may deliver reminders up to an hour late to save battery. For reminders on '
+      'time, turn on Alarms & reminders for HealthGuide.';
+  static const reminderNeedsADay =
+      'Keep at least one day. To stop this reminder, switch it off.';
 
   // UC100 Register Account
   static const registrationUnavailable =
@@ -139,7 +172,28 @@ class Messages {
       'Your password has been updated. You have been signed out of your other devices.';
   static const currentPasswordIncorrect =
       'The current password you entered is incorrect.';
+  static const passwordSameAsCurrent =
+      'Your new password must be different from your current password.';
   static const confirmLogout = 'Log out of your account?';
+
+  // Health conditions (11 Oct; not in the report's message lists)
+  static const conditionQuestionUnanswered =
+      'Please answer the question under each health condition you selected.';
+  static const otherConditionNote = 'Please say what the other condition is.';
+  static const clearanceNeeded =
+      'Before an exercise plan, please check with your doctor about the conditions below. When they '
+      'agree, change your answer in your health profile.';
+
+  // Terms of Use and account deletion (11 Oct; not in the report's message lists)
+  static const termsSaveFailed =
+      'Your agreement could not be saved. Please check your connection and try again.';
+  static const confirmDeleteAccount =
+      'Delete your account and all your data? Your health profile, plans, exercise results, '
+      'reminders and chat messages are deleted for good. This cannot be undone.';
+  static const accountDeleted = 'Your account and all your data have been deleted.';
+  static const accountDeleteFailed =
+      'Your account could not be deleted. Please check your connection and try again, or '
+      'email elwinksy-wm23@student.tarc.edu.my.';
   static const discardChanges = 'Discard your unsaved changes?';
   static const profileLoadFailed =
       'Unable to load your profile. Please try again.';
@@ -158,8 +212,19 @@ class Messages {
   static const planSaved = 'The Plan has been saved successfully.';
   static const confirmReject =
       "Are you sure that you don't want to select any plan?";
+  /// Report an answer (Elwin, 11 Oct; not in the report's message list, §11).
+  static const chatReportSent =
+      'Thank you. Your report will help us improve the chatbot.';
+  static const chatReportFailed =
+      'The report could not be sent. Please try again later.';
+
   static const questionNotRecognised =
       'The question is not recognised, please try asking other question.';
+
+  /// The camera did not finish the clip (seen on Android 15 after leaving a
+  /// recording). Not in the UC500 list (PROJECT_STATE §11).
+  static const recordingFailed =
+      'The recording could not be saved. Please record again.';
 
   // UC500 (M300)
   static const cameraFailed =
@@ -178,8 +243,10 @@ class Messages {
       'Please Make Sure the video captured is between 10 - 30 seconds and under 100MB';
   static const progressSaveFailed =
       'Unable to save your exercise progress. Please try again later.';
+  // UC500 M8, word for word.
   static const fullBodyNotVisible =
-      'Unable to detect full body in the frame. Please position yourself so that your entire body is visible.';
+      'Unable to detect full body in the frame. Please position yourself so that your entire body '
+      '(head to feet) is clearly visible within the camera frame.';
 
   // UC1000
   static const profileNotConfigured =

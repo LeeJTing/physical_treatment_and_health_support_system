@@ -1,0 +1,206 @@
+{
+  "bicep_curl": {
+    "our_exercise": "elbow_flexion",
+    "rules_tested": [
+      "upper_arm_moves",
+      "low_range",
+      "body_swing"
+    ],
+    "clips_scored": 50,
+    "clips_without_reps": 0,
+    "reps_median": 10.0,
+    "confusion_rows_true_bad_good_cols_called_bad_good": [
+      [
+        21,
+        4
+      ],
+      [
+        17,
+        8
+      ]
+    ],
+    "accuracy": 0.58,
+    "balanced_accuracy": 0.58,
+    "rule_fires_share_of_reps_good_vs_bad": {
+      "upper_arm_moves": [
+        0.173,
+        0.211
+      ],
+      "low_range": [
+        0.578,
+        0.713
+      ],
+      "body_swing": [
+        0.038,
+        0.157
+      ]
+    },
+    "measure_p10_p50_p90_good_vs_bad": {
+      "upper_arm_moves": [
+        [
+          4.716,
+          14.788,
+          36.74
+        ],
+        [
+          4.668,
+          16.355,
+          37.034
+        ]
+      ],
+      "low_range": [
+        [
+          84.373,
+          119.996,
+          144.769
+        ],
+        [
+          84.427,
+          108.476,
+          144.482
+        ]
+      ],
+      "body_swing": [
+        [
+          1.493,
+          3.244,
+          7.552
+        ],
+        [
+          1.712,
+          4.141,
+          12.831
+        ]
+      ]
+    },
+    "limits": {
+      "upper_arm_moves": 30,
+      "low_range": 124.697,
+      "body_swing": 10
+    }
+  },
+  "squat": {
+    "our_exercise": "mini_squat",
+    "rules_tested": [
+      "heels_lift",
+      "trunk_forward"
+    ],
+    "clips_scored": 50,
+    "clips_without_reps": 0,
+    "reps_median": 8.0,
+    "confusion_rows_true_bad_good_cols_called_bad_good": [
+      [
+        24,
+        1
+      ],
+      [
+        25,
+        0
+      ]
+    ],
+    "accuracy": 0.48,
+    "balanced_accuracy": 0.48,
+    "rule_fires_share_of_reps_good_vs_bad": {
+      "heels_lift": [
+        0.837,
+        0.78
+      ],
+      "trunk_forward": [
+        0.914,
+        0.802
+      ]
+    },
+    "measure_p10_p50_p90_good_vs_bad": {
+      "heels_lift": [
+        [
+          0.107,
+          0.2,
+          0.291
+        ],
+        [
+          0.084,
+          0.171,
+          0.323
+        ]
+      ],
+      "trunk_forward": [
+        [
+          15.396,
+          36.26,
+          50.131
+        ],
+        [
+          9.754,
+          30.157,
+          47.485
+        ]
+      ]
+    },
+    "limits": {
+      "heels_lift": 0.138,
+      "trunk_forward": 15.0
+    }
+  },
+  "push_up": {
+    "our_exercise": "wall_push_up",
+    "rules_tested": [
+      "hips_sag",
+      "hips_back"
+    ],
+    "clips_scored": 48,
+    "clips_without_reps": 0,
+    "reps_median": 9.0,
+    "confusion_rows_true_bad_good_cols_called_bad_good": [
+      [
+        7,
+        17
+      ],
+      [
+        4,
+        20
+      ]
+    ],
+    "accuracy": 0.562,
+    "balanced_accuracy": 0.562,
+    "rule_fires_share_of_reps_good_vs_bad": {
+      "hips_sag": [
+        0.174,
+        0.253
+      ],
+      "hips_back": [
+        0.011,
+        0.089
+      ]
+    },
+    "measure_p10_p50_p90_good_vs_bad": {
+      "hips_sag": [
+        [
+          -0.037,
+          0.051,
+          0.121
+        ],
+        [
+          -0.106,
+          0.04,
+          0.186
+        ]
+      ],
+      "hips_back": [
+        [
+          -0.119,
+          -0.021,
+          0.065
+        ],
+        [
+          -0.255,
+          -0.058,
+          0.086
+        ]
+      ]
+    },
+    "limits": {
+      "hips_sag": 0.12,
+      "hips_back": -0.3
+    }
+  }
+}

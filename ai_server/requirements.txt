@@ -9,7 +9,10 @@ rapidfuzz>=3.9
 mediapipe>=1.0
 opencv-python-headless>=4.10
 numpy>=2.0
-# Training only (PC): torch with CUDA from download.pytorch.org, matplotlib, scikit-learn
+# The trained posture models (models/weights/*.pt) need torch to run; the CPU build from PyPI is
+# enough to serve. Training (training/, the RTX 3050 PC) uses the CUDA build from
+# download.pytorch.org, plus matplotlib and scikit-learn.
+torch>=2.4
 # Tests
 pytest>=8
 httpx>=0.27

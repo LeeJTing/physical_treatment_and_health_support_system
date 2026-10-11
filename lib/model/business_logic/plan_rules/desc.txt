@@ -1,0 +1,1 @@
+PlanRules: the rules for following several treatment plans at once (Elwin, 9 Oct 2026): clash = same body area and goal, at most 3/2/1 plans for Low/Medium/High risk, one exercise per plan per day, a shared exercise done once. Pure Dart, used by PlanningViewModel and its view's result types (PlanIssue). Not in the Chapter 4 class diagram (PROJECT_STATE section 11).

@@ -27,6 +27,10 @@ from chat_round10_set import ROUND10
 from chat_round11_set import ROUND11
 from chat_round12_set import ROUND12
 from chat_round13_set import ROUND13
+from chat_round14_set import ROUND14
+from chat_round15_set import ROUND15
+from chat_round16_set import ROUND16
+from chat_round17_set import ROUND17
 from chat_posture_messages_set import POSTURE_MESSAGES
 from chat_safety_review_set import SAFETY_REVIEW
 from chat_safety_pass2_set import SAFETY_PASS2
@@ -38,7 +42,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(ROUND14) + list(ROUND15) + list(ROUND16) + list(ROUND17) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):
@@ -168,7 +172,7 @@ def test_request_validation():
 def test_response_fields():
     res = ask(text="how often should I exercise")
     assert set(res) == {"answer", "category", "title", "is_matched", "matched_by", "follow_ups", "notes",
-                        "categories", "rules_version", "action"}
+                        "categories", "rules_version", "action", "actions"}
     assert res["matched_by"] == "keyword"
 
 
@@ -210,6 +214,16 @@ def test_rules_file_matches_catalogue():
 def test_everyday_questions(text, key):
     res = client.post("/chat", json={"plan_id": KNEE, "text": text}, headers=DEV).json()
     assert res["category"] == key, res["answer"][:80]
+
+
+def test_a_second_button_when_the_answer_names_a_second_screen():
+    res = ask("how do i change my password")
+    assert [a["key"] for a in res["actions"]] == ["open_profile", "open_reset_password"]
+    assert res["action"]["key"] == "open_profile"           # older apps read only this
+    res = ask("how do i exit the recording")
+    assert [a["key"] for a in res["actions"]] == ["open_treatment"]
+    res = ask("asdfgh")
+    assert res["actions"] == []
 
 
 def test_password_and_start_answers_offer_a_button():
@@ -416,3 +430,195 @@ def test_safety_pass7(plan, question, expected):
         assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
     else:
         assert got in expected.split("/"), got
+
+
+from chat_safety_pass8_set import SAFETY_PASS8  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS8, ids=[q[:40] for _, q, _ in SAFETY_PASS8])
+def test_safety_pass8(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert got in expected.split("/"), got
+
+
+from chat_safety_pass9_set import SAFETY_PASS9  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS9, ids=[q[:40] for _, q, _ in SAFETY_PASS9])
+def test_safety_pass9(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert got in expected.split("/"), got
+
+
+from chat_safety_pass10_set import SAFETY_PASS10  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS10, ids=[q[:40] for _, q, _ in SAFETY_PASS10])
+def test_safety_pass10(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert got in expected.split("/"), got
+
+
+from chat_safety_pass11_set import SAFETY_PASS11  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS11, ids=[q[:40] for _, q, _ in SAFETY_PASS11])
+def test_safety_pass11(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    elif expected == "UNREC":   # not matched to a topic; small talk and app help are fine
+        assert got in (None, "greeting", "acknowledge", "thanks", "goodbye", "bot_identity", "app_help"), got
+    else:
+        assert (got if got is not None else "None") in expected.split("/"), got
+
+
+from chat_safety_pass12_set import SAFETY_PASS12  # noqa: E402
+from chat_safety_pass13_set import SAFETY_PASS13  # noqa: E402
+from chat_safety_pass14_set import SAFETY_PASS14  # noqa: E402
+from chat_safety_pass15_set import SAFETY_PASS15  # noqa: E402
+from chat_safety_pass16_set import SAFETY_PASS16  # noqa: E402
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS12, ids=[q[:40] for _, q, _ in SAFETY_PASS12])
+def test_safety_pass12(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert (got if got is not None else "None") in expected.split("/"), got
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS13, ids=[q[:40] for _, q, _ in SAFETY_PASS13])
+def test_safety_pass13(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert (got if got is not None else "None") in expected.split("/"), got
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS14, ids=[q[:40] for _, q, _ in SAFETY_PASS14])
+def test_safety_pass14(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert (got if got is not None else "None") in expected.split("/"), got
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS15, ids=[q[:40] for _, q, _ in SAFETY_PASS15])
+def test_safety_pass15(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_CRISIS":
+        assert got != "crisis", got
+    else:
+        assert got == expected, got
+
+
+@pytest.mark.parametrize("plan, question, expected", SAFETY_PASS16, ids=[q[:40] for _, q, _ in SAFETY_PASS16])
+def test_safety_pass16(plan, question, expected):
+    got = engine.reply(plan, None, question)["category"]
+    if expected == "NOT_URGENT":
+        assert got not in ("crisis", "red_flag", "overdose", "poisoning"), got
+    else:
+        assert (got if got is not None else "None") in expected.split("/"), got
+
+
+# ---- chat-rules-3.49: plans stop at 65 (Terms of Use, section 2) ------------------------------------
+
+OLD = {"restriction": "AGE_65_PLUS"}
+
+
+@pytest.mark.parametrize("question", ["how do I start", "what is in my plan", "how do I record my video",
+                                      "how many plans can I have", "I missed a session", "how often should I exercise",
+                                      "why is my plan paused", "how do I change my plan"])
+def test_restricted_plan_questions_get_the_age_answer(question):
+    res = ask(question, **OLD)
+    assert res["category"] == "age_limit" and res["title"] == "Your plans are paused"
+    assert "Terms of Use (section 2)" in res["answer"] and "physiotherapist" in res["answer"]
+    assert res["actions"] == [{"key": "open_age_limit", "label": "Why plans are paused"}]
+
+
+def test_restricted_tapped_plan_category_gets_the_age_answer():
+    assert ask(category="getting_started", **OLD)["category"] == "age_limit"
+    assert ask(category="plan_exercises", **OLD)["category"] == "age_limit"
+
+
+@pytest.mark.parametrize("question, category", [("is it safe to exercise", "safety"),
+                                                ("how do I do sit to stand", "exercise:sit_to_stand"),
+                                                ("I feel weak after being in hospital", "muscle_loss")])
+def test_restricted_general_advice_stays_with_a_note_first(question, category):
+    res = ask(question, **OLD)
+    assert res["category"] == category
+    assert res["notes"][0].startswith("Your plans are paused (plans are for users under 65")
+
+
+@pytest.mark.parametrize("question, category", [("chest pain and dizzy", "red_flag"), ("hello", "greeting"),
+                                                ("I forgot my password", "forgot_password")])
+def test_restricted_safety_and_account_answers_are_unchanged(question, category):
+    plain, old = ask(question), ask(question, **OLD)
+    assert old["category"] == plain["category"] == category and old["answer"] == plain["answer"]
+
+
+def test_restricted_categories_put_the_age_limit_first_and_drop_plan_topics():
+    cats = client.get("/chat/categories", headers=DEV, params={"plan_id": KNEE, "restriction": "AGE_65_PLUS"}).json()
+    keys = [c["key"] for c in cats["categories"]]
+    assert keys[0] == "age_limit"
+    assert not {"getting_started", "how_to", "missed_session", "recording_help"} & set(keys)
+    assert not [k for k in keys if k.startswith("plan_")]
+    assert {"safety", "pain_or_discomfort"} <= set(keys)
+    assert [c["key"] for c in ask("hello", **OLD)["categories"]] == keys
+
+
+@pytest.mark.parametrize("question", ["is there an age limit", "am I too old for a plan", "why can't I get a plan",
+                                      "can I still exercise after 65"])
+def test_anyone_can_ask_about_the_age_limit(question):
+    res = ask(question)
+    assert res["category"] == "age_limit" and "Exercise plans are for users under 65" in res["answer"]
+
+
+def test_too_old_to_exercise_is_still_the_safety_answer():
+    assert ask("am I too old to exercise")["category"] == "safety"
+
+
+def test_unknown_restriction_is_rejected():
+    r = client.post("/chat", headers=DEV, json={"text": "hello", "restriction": "UNDER_13"})
+    assert r.status_code == 422
+
+
+# ---- chat-rules-3.50: the conditions added to the health profile -------------------------------------
+
+@pytest.mark.parametrize("question, condition", [
+    ("can I exercise with copd", "chronic lung disease"), ("I have rheumatoid arthritis any advice", "rheumatoid"),
+    ("I am on dialysis can I exercise", "kidney"), ("I have parkinsons", "Parkinson"),
+    ("I have cancer and chemo", "cancer"), ("is it safe with my foot ulcer", "foot ulcer"),
+    ("I have multiple sclerosis, can I exercise", "multiple sclerosis")])
+def test_new_conditions_get_their_own_advice(question, condition):
+    res = ask(question)
+    assert res["category"] == "condition_advice" and condition.lower() in res["answer"].lower()
+
+
+def test_do_i_have_cancer_stays_a_diagnosis_question():
+    assert ask("do I have cancer")["category"] == "diagnosis"
+
+
+@pytest.mark.parametrize("code", ["PREGNANCY", "JOINT_REPLACEMENT", "RHEUMATOID_ARTHRITIS", "COPD", "CANCER",
+                                  "KIDNEY_DISEASE", "PARKINSONS", "MULTIPLE_SCLEROSIS", "FOOT_ULCER", "OTHER"])
+def test_every_new_profile_condition_adds_a_safety_note(code):
+    res = ask("is it safe to exercise", conditions=[code])
+    assert any(n.startswith("Because") for n in res["notes"]), res["notes"]
+
+
+@pytest.mark.parametrize("question", ["do I have cancer", "could this lump be cancer", "what are the signs of cancer"])
+def test_cancer_diagnosis_questions_stay_diagnosis(question):
+    assert ask(question)["category"] == "diagnosis"

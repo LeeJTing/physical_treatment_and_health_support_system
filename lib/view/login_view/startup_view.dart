@@ -18,8 +18,13 @@ class _StartupViewState extends State<StartupView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final route = await context.read<AuthViewModel>().decideStartRoute();
-      if (mounted) Navigator.of(context).pushReplacementNamed(route);
+      final vm = context.read<AuthViewModel>();
+      final route = await vm.decideStartRoute();
+      if (!mounted) return;
+      final nav = Navigator.of(context)..pushReplacementNamed(route);
+      // Started by tapping a reminder: its plan opens above Home, so Back goes Home.
+      final open = vm.takeReminderOpen();
+      if (open != null) nav.pushNamed(open.route, arguments: open.argument);
     });
   }
 

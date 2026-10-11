@@ -1,1 +1,1 @@
-Widgets and display helpers used by more than one screen (buttons, StateBuilder, status bar strip, rehab labels).
+Widgets and display helpers used by more than one screen (buttons, StateBuilder, status bar strip, rehab labels, ExerciseAnimation: the looping guide animation of an exercise from assets/guides).

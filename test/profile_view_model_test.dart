@@ -36,7 +36,7 @@ void main() {
     expect(vm.profile, isNull);
     expect(vm.isEditing, isTrue);
     expect(vm.draft, isNotNull);
-    expect(vm.conditions, hasLength(7));
+    expect(vm.conditions, hasLength(17)); // 7 + 10 added on 11 Oct
     expect(vm.limitations, hasLength(5));
   });
 
@@ -78,6 +78,7 @@ void main() {
     () async {
       fillValid();
       vm.toggleCondition(1); // HYPERTENSION
+      vm.setConditionControlled(1, true); // "Is it under control?" Yes
       expect(await vm.saveProfile(), isTrue);
       expect(vm.profile!.assignRiskLevel(), RiskLevel.high);
       expect(vm.safetyLimit!.maxExerciseIntensity, ExerciseIntensity.low);

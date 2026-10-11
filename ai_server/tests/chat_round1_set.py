@@ -31,7 +31,7 @@ ROUND1 = [
     # account
     (KNEE, "cannot login le", "forgot_password"),
     (KNEE, "forgot pasword", "forgot_password"),
-    (KNEE, "how to change password", "forgot_password"),
+    (KNEE, "how to change password", ("forgot_password", "change_password")),
     (KNEE, "my code expired", "verification_code"),
     (KNEE, "never receive email from you", "verification_code"),
     (KNEE, "how to logout", "account_help"),

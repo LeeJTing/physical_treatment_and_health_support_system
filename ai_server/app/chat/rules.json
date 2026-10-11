@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.25",
+  "version": "chat-rules-3.50",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -58,6 +58,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_profile",
+          "label": "Open Profile"
+        }
+      ],
       "time_aware": true
     },
     {
@@ -126,6 +132,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -182,6 +189,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -257,6 +265,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -304,6 +313,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -378,6 +388,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -436,7 +447,33 @@
         "broken bone",
         "broke my",
         "sprain",
-        "sprained"
+        "sprained",
+        "heart attack",
+        "pacemaker",
+        "stent",
+        "bypass surgery",
+        "angioplasty",
+        "rheumatoid",
+        "copd",
+        "lung disease",
+        "chronic lung",
+        "emphysema",
+        "cancer",
+        "chemo",
+        "chemotherapy",
+        "radiotherapy",
+        "kanser",
+        "barah",
+        "kidney disease",
+        "kidney problem",
+        "dialysis",
+        "buah pinggang",
+        "parkinson",
+        "parkinsons",
+        "multiple sclerosis",
+        "foot ulcer",
+        "diabetic foot",
+        "wound on my foot"
       ],
       "examples": [
         "I have diabetes, is there anything special I should do",
@@ -453,6 +490,7 @@
         "key": "open_profile",
         "label": "Update my health conditions"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -520,6 +558,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -588,7 +627,31 @@
         "only do",
         "only manage",
         "only managed",
-        "only able"
+        "only able",
+        "won't go up",
+        "wont go up",
+        "won't go higher",
+        "won't lift",
+        "won't bend",
+        "won't straighten",
+        "as high as the picture",
+        "as high as the video",
+        "as far as the picture",
+        "not as high as",
+        "sit down halfway",
+        "need to sit down",
+        "rest halfway",
+        "stop halfway",
+        "halfway through",
+        "gave up after",
+        "give up after",
+        "stopped after",
+        "could only do",
+        "half way",
+        "only goes up",
+        "only go up",
+        "only goes down",
+        "only go down"
       ],
       "examples": [
         "the exercises are too easy",
@@ -597,13 +660,14 @@
         "can I make it harder",
         "can I do more repetitions"
       ],
-      "answer": "If an exercise is too hard, do fewer repetitions with good form and rest between them; it should feel like effort, not pain. If it feels too easy, keep the same plan until you finish it, then request a new recommendation from the planning page: it will suggest a plan for your new level. Do not add weight, extra sets or other exercises on your own.",
+      "answer": "If an exercise is too hard, do fewer repetitions with good form and rest between them; it should feel like effort, not pain. If you cannot move as far as the picture, go only as far as is comfortable and a little further each week. If it feels too easy, keep the same plan until you finish it, then request a new recommendation from the planning page: it will suggest a plan for your new level. Do not add weight, extra sets or other exercises on your own.",
       "follow_ups": [],
       "tailor": true,
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -638,6 +702,14 @@
         "breathing hard",
         "panting",
         "not feeling well",
+        "breathing hard after the",
+        "out of breath after the",
+        "panting after the",
+        "breathing hard after doing",
+        "gasping a bit",
+        "gasping a little",
+        "puffing",
+        "huffing and puffing",
         "feel unwell",
         "unwell",
         "sick",
@@ -663,6 +735,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -727,13 +800,14 @@
         "my knee gives way",
         "I lose my balance"
       ],
-      "answer": "Legs that feel weak or wobbly are common after a long period of less activity, and this is what your exercises are building up. Always keep one hand on a sturdy chair or counter, do fewer repetitions, and rest when the shaking starts. If weakness comes on suddenly, or affects one side of your body, stop and get medical help straight away.",
+      "answer": "Legs, arms or hands that feel weak, wobbly or shaky are common after a long period of less activity, and this is what your exercises are building up. For standing exercises always keep one hand on a sturdy chair or counter; for any exercise do fewer repetitions and rest when the shaking starts. If weakness comes on suddenly, or affects one side of your body, stop and get medical help straight away; if your hand shakes even when it is resting, tell your doctor.",
       "follow_ups": [],
       "tailor": true,
       "negatable": true,
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -788,6 +862,13 @@
         "horizontal or vertical",
         "sideways or upright",
         "phone stand",
+        "place the phone",
+        "place my phone",
+        "phone at my side",
+        "at my side",
+        "phone in front",
+        "hand not visible",
+        "hand is not visible",
         "without a stand",
         "no stand",
         "no tripod"
@@ -809,6 +890,7 @@
         "key": "open_treatment",
         "label": "Record an exercise"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -887,6 +969,7 @@
         "key": "open_history",
         "label": "See my results"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -951,6 +1034,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -997,6 +1081,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_profile",
+          "label": "Open Profile"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -1034,6 +1124,7 @@
         "key": "open_reminders",
         "label": "Pause my reminders"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1071,6 +1162,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1117,6 +1209,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": true
     },
     {
@@ -1190,6 +1283,7 @@
         "key": "open_profile",
         "label": "Open my profile"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1226,14 +1320,29 @@
         "missed reminder",
         "too loud",
         "volume",
-        "ringtone"
+        "ringtone",
+        "change the days",
+        "days of my reminder",
+        "weekdays",
+        "weekends",
+        "last day",
+        "turn off the last day",
+        "delete a reminder",
+        "delete reminder",
+        "delete my reminder",
+        "remove a reminder",
+        "remove reminder",
+        "delete button",
+        "bin icon"
       ],
       "examples": [
         "how do I change my reminder time",
         "I am not getting reminders",
-        "how do I turn off reminders"
+        "how do I turn off reminders",
+        "how do I change the days of my reminder",
+        "how do I delete a reminder"
       ],
-      "answer": "Your reminders follow your plan's weekly schedule. Open Reminders to change the time or switch a reminder off and on. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, the reminder is skipped. The reminder sound and volume follow your phone's notification settings.",
+      "answer": "An exercise reminder says which exercise is next, and tapping it opens that plan. Open Reminders to change things: tap the time to change it, and tap a day to turn it on or off; one day must stay on, so to stop a reminder, switch it off instead. “Remind me to log my health readings” adds a daily reminder to record your blood pressure, sugar or weight. Reminders you added yourself can be deleted with the bin button; a plan's reminders stay with the plan and stop when the plan stops. If none arrive, check that notifications are allowed for HealthGuide in your phone settings. If you have already exercised that day, that day's exercise reminder is skipped. The sound follows your phone's notification settings.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -1243,6 +1352,7 @@
         "key": "open_reminders",
         "label": "Open reminders"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1257,7 +1367,16 @@
         "fall warning",
         "thinks i fell",
         "think i fell",
-        "possible fall"
+        "possible fall",
+        "would the app know",
+        "app know if i",
+        "know if i fell",
+        "know if i fall",
+        "detect a fall",
+        "detect falls",
+        "detect if i fall",
+        "fall detection",
+        "detects falls"
       ],
       "examples": [
         "the app said I may have fallen",
@@ -1270,6 +1389,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1301,6 +1421,7 @@
         "key": "open_profile",
         "label": "Open health profile"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1314,7 +1435,11 @@
         "partial reps",
         "partial rep",
         "small movements",
-        "small movement"
+        "small movement",
+        "half of each",
+        "half of the movement",
+        "half movements",
+        "half the movement"
       ],
       "examples": [
         "it says partial repetitions",
@@ -1330,6 +1455,7 @@
         "key": "open_treatment",
         "label": "Open my treatment plan"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1364,6 +1490,7 @@
         "key": "open_treatment",
         "label": "Record an exercise"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1397,6 +1524,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1451,6 +1579,393 @@
         "key": "open_profile",
         "label": "Open health profile"
       },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "muscle_loss",
+      "title": "Weak muscles after bed rest",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "muscle loss",
+        "lost muscle",
+        "lost a lot of muscle",
+        "losing muscle",
+        "lose muscle",
+        "muscles shrank",
+        "muscle shrank",
+        "muscles shrink",
+        "muscle shrink",
+        "muscles shrunk",
+        "muscle shrunk",
+        "shrank",
+        "shrunk",
+        "muscles got smaller",
+        "thigh got smaller",
+        "legs got smaller",
+        "got smaller",
+        "getting smaller",
+        "thin legs",
+        "legs are thin",
+        "legs are so thin",
+        "legs so thin",
+        "skinny legs",
+        "legs became thin",
+        "muscle wasting",
+        "wasting",
+        "sarcopenia",
+        "atrophy",
+        "atrophied",
+        "disuse",
+        "bedridden",
+        "bed bound",
+        "bedbound",
+        "lying in bed",
+        "in bed for",
+        "stayed in bed",
+        "in hospital for",
+        "in the hospital for",
+        "in hospital",
+        "after hospital",
+        "out of hospital",
+        "discharged from hospital",
+        "from hospital",
+        "from the hospital",
+        "hospital stay",
+        "warded",
+        "build muscle",
+        "build up muscle",
+        "rebuild",
+        "get stronger",
+        "getting stronger",
+        "become stronger",
+        "regain",
+        "get it back",
+        "strength back",
+        "my strength back",
+        "too late to build",
+        "too late to get stronger",
+        "too late for me",
+        "too old to get stronger",
+        "too old to build",
+        "after covid",
+        "long covid"
+      ],
+      "examples": [
+        "I was in hospital for weeks and my legs are weak",
+        "my muscles shrank after bed rest",
+        "is it too late to build muscle at my age"
+      ],
+      "answer": "Muscles shrink quickly after weeks in bed or in hospital, but they grow stronger again with exercise at any age. Start with the easiest exercises in your plan, a few repetitions with a sturdy chair within reach, and add a little each week; most people notice a difference within 4 to 8 weeks. Eat some protein at each meal (fish, eggs, tofu, beans or milk) unless your doctor has limited it. If one calf is swollen, warm or painful after bed rest, see a doctor before exercising.",
+      "follow_ups": [],
+      "tailor": true,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "fear_of_falling",
+      "title": "Afraid of falling",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "afraid of falling",
+        "scared of falling",
+        "fear of falling",
+        "worried about falling",
+        "worry about falling",
+        "scared i will fall",
+        "scared i'll fall",
+        "afraid i will fall",
+        "afraid i'll fall",
+        "worried i will fall",
+        "worried i'll fall",
+        "scared to fall",
+        "afraid to fall",
+        "if i fall",
+        "what if i fall",
+        "in case i fall",
+        "if she falls",
+        "if he falls",
+        "if she fall",
+        "if he fall",
+        "after a fall",
+        "get up after a fall",
+        "get up from the floor",
+        "get up if i fall",
+        "nobody is home",
+        "afraid of getting hurt",
+        "scared of getting hurt",
+        "worried about getting hurt",
+        "afraid of a fall",
+        "scared of a fall",
+        "afraid of getting injured",
+        "scared of getting injured",
+        "no one is home",
+        "no one at home",
+        "nobody at home",
+        "alone at home",
+        "home alone",
+        "live alone",
+        "living alone",
+        "stay alone",
+        "staying alone",
+        "someone with me",
+        "someone be with me",
+        "anyone with me",
+        "scared to stand",
+        "afraid to stand",
+        "scared to exercise",
+        "afraid to exercise",
+        "holding the wall",
+        "hold the wall",
+        "hold onto the wall",
+        "hold on to the wall",
+        "holding the chair",
+        "hold the chair",
+        "hold onto something",
+        "fell last year",
+        "fell before",
+        "fell down",
+        "fell over",
+        "fell off",
+        "fell in the",
+        "had a fall",
+        "slipped in",
+        "slipped on",
+        "fallen before",
+        "had a fall before",
+        "takut fell",
+        "fell last month",
+        "fell a few months ago",
+        "now i'm scared",
+        "now i am scared",
+        "since then i'm scared",
+        "scared since",
+        "nearly fell",
+        "almost fell",
+        "nearly fall",
+        "almost fall",
+        "nearly fallen",
+        "almost fallen",
+        "nearly slipped",
+        "almost slipped",
+        "nearly tripped",
+        "almost tripped"
+      ],
+      "examples": [
+        "I am scared I will fall",
+        "what if I fall when nobody is home",
+        "should someone be with me"
+      ],
+      "answer": "Being afraid of falling is common. Keep one hand on a sturdy chair or kitchen counter, wear non-slip shoes, clear the floor and keep your phone within reach. If you live alone, do the standing exercises when someone is at home, and skip them on days you feel unsteady. If you fall, do not get up quickly: rest, check for pain, roll onto your side, crawl to a sturdy chair and push up slowly. If you are hurt or cannot get up, call for help or 999 and keep warm. Tell your doctor about any fall or near-fall; they can check your balance and medicines.",
+      "follow_ups": [],
+      "tailor": true,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "text_size",
+      "title": "Text too small",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "words are too small",
+        "words too small",
+        "text is too small",
+        "text too small",
+        "font too small",
+        "font size",
+        "text size",
+        "bigger text",
+        "bigger font",
+        "bigger words",
+        "larger text",
+        "larger font",
+        "make the text bigger",
+        "make the words bigger",
+        "too small to read",
+        "small words",
+        "small text",
+        "can't see the screen",
+        "cannot see the screen",
+        "can't see my screen",
+        "cannot see my screen",
+        "can't read the screen",
+        "cannot read the screen",
+        "hard to read",
+        "difficult to read",
+        "poor eyesight",
+        "bad eyesight",
+        "eyesight",
+        "rabun"
+      ],
+      "examples": [
+        "the words are too small",
+        "how do I make the text bigger"
+      ],
+      "answer": "The app follows your phone's text size. To make the words bigger, open your phone's Settings, then Display, then Font size (on some phones, Font size and style), and move the slider up; the app's text grows with it. A family member can also sit with you while you use the app.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "family_help",
+      "title": "Help from family",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "help me with the app",
+        "help me use the app",
+        "help me use",
+        "help me with this app",
+        "help me record",
+        "help me set up",
+        "help me with my exercises",
+        "can my daughter help",
+        "can my son help",
+        "daughter help",
+        "son help",
+        "family help",
+        "family member help",
+        "family members help",
+        "grandchild help",
+        "caregiver",
+        "carer",
+        "helper",
+        "maid",
+        "domestic helper"
+      ],
+      "examples": [
+        "can my daughter help me with the app",
+        "can my caregiver record my video"
+      ],
+      "answer": "Yes. A family member or carer can set up the phone, record your video, and read your results and my answers with you. Keep using your own account and health profile so your plan stays matched to you, and do the exercises yourself; they can stay close by in case you lose your balance.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_treatment",
+        "label": "Open my treatment plan"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "eating_concern",
+      "title": "Eating and exercise",
+      "show": false,
+      "priority": 9,
+      "keywords": [
+        "make myself vomit",
+        "make myself sick",
+        "make myself throw up",
+        "made myself vomit",
+        "made myself sick",
+        "throw up after eating",
+        "throwing up after eating",
+        "vomit after eating",
+        "vomit after meals",
+        "purge",
+        "purging",
+        "haven't eaten",
+        "have not eaten",
+        "not eaten for",
+        "didn't eat for",
+        "did not eat for",
+        "no food for",
+        "skip meals",
+        "skipping meals",
+        "skip meal",
+        "skip my meals",
+        "skipped meals",
+        "starve",
+        "starving myself",
+        "starve myself",
+        "stop eating",
+        "stopped eating",
+        "not eating",
+        "not eat",
+        "eat nothing",
+        "eaten nothing",
+        "barely eat",
+        "hardly eat",
+        "too fat",
+        "hate my body",
+        "binge",
+        "bingeing",
+        "binging",
+        "laxative",
+        "laxatives",
+        "burn off what i ate",
+        "earn my food",
+        "exercise to burn off"
+      ],
+      "examples": [
+        "I make myself vomit after eating",
+        "I haven't eaten for 2 days, can I exercise",
+        "I skip meals so I can exercise more"
+      ],
+      "answer": "Please eat regular meals and do not exercise on an empty stomach or to make up for what you ate: your body needs food to recover and to keep you steady. If you have not been able to eat for a day or more, rest today and talk to your doctor. If you feel you have to make yourself vomit, skip meals or exercise to control your weight, you are not alone: talk to your doctor, or call Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight). I cannot give calorie or weight-loss advice.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "bladder_leak",
+      "title": "Leaking urine",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "wet myself",
+        "wet my pants",
+        "leak urine",
+        "leaking urine",
+        "leak a little",
+        "leak when i",
+        "pee a little",
+        "pee myself",
+        "bladder leak",
+        "bladder leakage",
+        "incontinence",
+        "incontinent",
+        "terkencing",
+        "kencing sikit",
+        "can't hold my urine",
+        "cannot hold my urine"
+      ],
+      "examples": [
+        "I wet myself a little when I do the squats",
+        "urine leaks out when I cough or squat"
+      ],
+      "answer": "Leaking a little urine when you squat, cough or lift is common, especially after childbirth or as we get older, and it can be treated. Empty your bladder before you exercise and tell your doctor or a physiotherapist: pelvic floor exercises often help. If it starts suddenly together with back pain or numbness between your legs, get medical help straight away.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1497,6 +2012,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1526,6 +2042,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1558,6 +2075,7 @@
         "key": "open_history",
         "label": "See my progress"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1608,6 +2126,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1664,6 +2183,479 @@
         "key": "open_history",
         "label": "See my results"
       },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "multiple_plans",
+      "title": "Following more than one plan",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "two plans",
+        "2 plans",
+        "three plans",
+        "3 plans",
+        "more than one plan",
+        "several plans",
+        "many plans",
+        "how many plans",
+        "both plans",
+        "both my plans",
+        "second plan",
+        "add a plan",
+        "add another plan",
+        "add plan",
+        "extra plan",
+        "other plan",
+        "plans at the same time",
+        "plan at the same time",
+        "plans at once",
+        "clash",
+        "clashes",
+        "clashing",
+        "conflict",
+        "conflicts",
+        "in both plans",
+        "in both my plans",
+        "both of my plans",
+        "one of my plans",
+        "stop one plan",
+        "replace one",
+        "replace a plan",
+        "replace my plan",
+        "dua pelan",
+        "pelan serentak",
+        "pelan lain",
+        "tambah pelan",
+        "plan together",
+        "plans together",
+        "not clash",
+        "doesn't clash",
+        "dont clash",
+        "do not clash",
+        "does not clash"
+      ],
+      "examples": [
+        "can I follow two plans at the same time",
+        "how many plans can I have",
+        "why does it say the plan clashes",
+        "the same exercise is in both my plans"
+      ],
+      "answer": "You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and 1 if it is High. Two plans with the same goal that train the same joints clash, so the app asks you to replace one instead of adding the second; a shoulder plan and a hand plan can be followed together. Each plan gives you one exercise a day; an exercise that is in two of your plans is done once and counts for both. To add a plan, open AI-assisted planning and choose Retrieve physical treatment. To stop one, open it on the Physical Treatment page and tap Stop this plan; your progress so far is kept.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_planning",
+        "label": "Open treatment planning"
+      },
+      "more_actions": [
+        {
+          "key": "open_treatment",
+          "label": "Open my treatment plan"
+        }
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "neck_not_covered",
+      "title": "Neck problems",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "neck",
+        "necks",
+        "leher",
+        "tengkuk",
+        "cervical",
+        "stiff neck",
+        "neck pain",
+        "neck exercise",
+        "neck exercises"
+      ],
+      "examples": [
+        "why can I not select my neck",
+        "is there an exercise for my neck",
+        "I have neck pain"
+      ],
+      "answer": "This app does not include neck exercises, which is why the neck is greyed out on the body map: neck problems need a doctor or physiotherapist to guide the exercises. If you have neck pain, see your doctor or physiotherapist, and get medical help straight away if it comes with numbness, tingling or weakness in your arms, or after a fall or injury. If your neck hurts during another exercise, stop that exercise and tell your doctor or physiotherapist.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "body_map",
+      "title": "Choosing the body area",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "body map",
+        "body picture",
+        "body figure",
+        "the figure",
+        "the body diagram",
+        "picture of the body",
+        "choose the part",
+        "choose a part",
+        "choose body part",
+        "choose the area",
+        "choose my area",
+        "select body part",
+        "select the part",
+        "select the area",
+        "pick the area",
+        "pick the part",
+        "tap the body",
+        "part of my body",
+        "parts of my body",
+        "which body part",
+        "front and back",
+        "choose both",
+        "select both",
+        "more than one area",
+        "more than one part",
+        "two areas",
+        "two parts",
+        "can't find my",
+        "cannot find my",
+        "exercise for my hand",
+        "exercises for my hand",
+        "exercise for my wrist",
+        "exercises for my wrist",
+        "exercise for my fingers",
+        "any exercise for",
+        "anggota badan",
+        "bahagian badan"
+      ],
+      "examples": [
+        "how do I choose the part I want to recover",
+        "where is the body map",
+        "can I choose more than one part",
+        "is there any exercise for my hand"
+      ],
+      "answer": "Open AI-assisted planning and choose Retrieve physical treatment. The first question shows a body figure: tap each part you want to recover (you can choose more than one; its name appears on the picture), tap it again to remove it, and use Front and Back to turn the figure. If you cannot find the place, tap “Can't find it? Choose from a list”. The plans suggested then focus on the parts you chose; wrists and hands have their own plan, Hand and Wrist Recovery. The neck is greyed out: neck problems need a doctor or physiotherapist, so the app has no neck exercises.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_planning",
+        "label": "Open treatment planning"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "wrong_exercise",
+      "title": "“Does not look like” the exercise",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "wrong exercise",
+        "does not look like",
+        "doesn't look like",
+        "dont look like",
+        "don't look like",
+        "not look like",
+        "did not look like",
+        "does not seem like",
+        "not the right exercise",
+        "chose the right exercise",
+        "choose the right exercise",
+        "choosing the right exercise",
+        "went backwards",
+        "arm went backwards",
+        "your knees bent a lot",
+        "you were sitting",
+        "you were standing",
+        "you were lying down",
+        "legs moved one at a time"
+      ],
+      "examples": [
+        "it says this video does not look like the exercise",
+        "why does it say wrong exercise",
+        "it said my arm went backwards"
+      ],
+      "answer": "The posture check first makes sure the video shows the exercise you chose. When it says the video does not look like that exercise, nothing is saved and the reason in brackets says what looked different, for example “your arm went backwards, not forwards”. Check that you picked the exercise you recorded, then record it again following its steps, with the phone where the exercise says (in front of you or at your side) and your whole body in the picture. If you are sure it was the right exercise, try again with slower, clearer movements.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_treatment",
+        "label": "Record an exercise"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "change_password",
+      "title": "Changing your password",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "change my password",
+        "change password",
+        "change pasword",
+        "change the password",
+        "changing my password",
+        "update my password",
+        "update password",
+        "still know the old",
+        "know my old password",
+        "old password",
+        "current password",
+        "password in profile",
+        "tukar kata laluan",
+        "ubah kata laluan",
+        "tukar password",
+        "tukar pasword"
+      ],
+      "examples": [
+        "how do I change my password",
+        "I want a new password but I know the old one"
+      ],
+      "answer": "To change your password while you still know it, open Profile and tap Change password: type your current password, then the new one twice (at least 8 characters, with a letter and a number). Your other phones are then signed out; this one stays signed in. If you have forgotten your current password, tap “Forgot your current password?” there, or Forgot password? on the login screen, to get a reset code by email.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_profile",
+        "label": "Open Profile"
+      },
+      "more_actions": [
+        {
+          "key": "open_reset_password",
+          "label": "Reset by email"
+        }
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "session_expired",
+      "title": "Why you were logged out",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "logged out",
+        "logged me out",
+        "log me out",
+        "signed me out",
+        "kicked out",
+        "kick me out",
+        "log in again",
+        "login again",
+        "sign in again",
+        "log in every time",
+        "login every time",
+        "have to log in",
+        "need to log in",
+        "session expired",
+        "session ended",
+        "stay logged in",
+        "keep me logged in",
+        "stay signed in"
+      ],
+      "examples": [
+        "why was I logged out",
+        "why do I have to log in again"
+      ],
+      "answer": "To keep your health details safe, you stay signed in on this phone only while you use the app: after 3 days without opening it you are signed out, and you log in again with your email and password (or Continue with Google). Opening the app at least once every 3 days keeps you signed in. Changing or resetting your password also signs you out on your other phones.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "reminder_late_or_off",
+      "title": "Reminders that come late or not at all",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "came late",
+        "come late",
+        "comes late",
+        "coming late",
+        "one hour late",
+        "an hour late",
+        "hour late",
+        "minutes late",
+        "not on time",
+        "reminder on time",
+        "notification on time",
+        "reminder late",
+        "reminder is late",
+        "notification late",
+        "reminder delayed",
+        "reminder is delayed",
+        "notification delayed",
+        "delayed reminder",
+        "turn on notifications",
+        "turn on notification",
+        "notifications are turned off",
+        "notifications turned off",
+        "notifications are off",
+        "notification is off",
+        "cannot ring",
+        "can't ring",
+        "cant ring",
+        "allow notifications",
+        "dont allow",
+        "don't allow",
+        "do not allow",
+        "peringatan lambat",
+        "notifikasi lambat"
+      ],
+      "examples": [
+        "why did my reminder come late",
+        "how do I turn on notifications"
+      ],
+      "answer": "If the Reminders page says notifications are turned off, tap Turn on notifications, switch them on for HealthGuide and come back to the app: your reminders are set again (this also fixes pressing Don't allow by mistake). If reminders come late, Android may hold them back by up to an hour to save battery. To get them on time, open your phone's Settings, find HealthGuide under Apps (on some phones under Special app access) and turn on Alarms & reminders, then close and reopen HealthGuide.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_reminders",
+        "label": "Open reminders"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "health_log_reminder",
+      "title": "A reminder to log your health readings",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "reminder to log",
+        "remind me to log",
+        "reminder to record",
+        "remind me to record",
+        "reminder to check",
+        "remind me to check",
+        "health readings",
+        "health log",
+        "log my readings",
+        "readings reminder",
+        "blood pressure reminder",
+        "sugar reminder"
+      ],
+      "examples": [
+        "can I get a reminder to log my blood pressure",
+        "remind me to record my health readings"
+      ],
+      "answer": "Yes. Open Reminders and tap “Remind me to log my health readings”: it reminds you every day at 8 pm to record your blood pressure, sugar or weight, and it is never skipped. Tap the time or the days to change them, switch it off for a while, or delete it with the bin button.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_reminders",
+        "label": "Open reminders"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "exit_exercise",
+      "title": "Leaving an exercise",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "exit the recording",
+        "exit the exercise",
+        "exit recording",
+        "exit exercise",
+        "exit button",
+        "if i exit",
+        "tap exit",
+        "press exit",
+        "exit halfway",
+        "exercise halfway",
+        "recording halfway",
+        "exercise half way",
+        "quit the exercise",
+        "quit exercise",
+        "leave the exercise",
+        "cancel the exercise",
+        "cancel recording",
+        "cancel the recording"
+      ],
+      "examples": [
+        "how do I stop the exercise halfway",
+        "how do I exit the recording"
+      ],
+      "answer": "Tap Exit at the top of the recording, analysing or result screen to stop the exercise and go back to the home page. While you are recording or the video is being checked, the app asks first, and that attempt is not saved; a result of 80% or more that was already saved stays saved. You can do the exercise again later from Physical Treatment. If you feel pain, dizziness or unwell, stop at once, sit down and rest.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_treatment",
+        "label": "Open my treatment plan"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "google_setup",
+      "title": "Signing in with Google",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "signed in with google",
+        "sign in with google",
+        "continue with google",
+        "using google",
+        "after google",
+        "google account",
+        "google sign in",
+        "google login",
+        "log in with google",
+        "login with google",
+        "account setup",
+        "complete account setup",
+        "complete my account",
+        "finish setup",
+        "finish the setup",
+        "cancel the setup",
+        "has been linked",
+        "been linked",
+        "google linked",
+        "username after"
+      ],
+      "examples": [
+        "I signed in with Google, why does it ask for a password",
+        "what happens if I cancel the account setup"
+      ],
+      "answer": "You can sign in with Continue with Google on the login screen. The first time, the app asks you to complete your account: choose a username and a password (at least 8 characters, with a letter and a number), so you can also log in with your email and password later. If you tap Cancel, nothing is kept and you return to the login screen; you can start again any time. If your Google email already has an account here, Google is linked to it and the app says “Your Google account has been linked to your existing account.”: your plans and results stay as they are.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1672,10 +2664,6 @@
       "show": true,
       "priority": 5,
       "keywords": [
-        "two plans",
-        "more than one plan",
-        "both plans",
-        "second plan",
         "get a new plan",
         "new plan",
         "change plan",
@@ -1703,7 +2691,7 @@
         "can I get a different plan",
         "how do I stop this plan"
       ],
-      "answer": "To change plan, open AI-assisted planning and choose Retrieve physical treatment to get new recommendations; selecting a new plan replaces the current one. You can stop a plan from the Physical Treatment page. Reminders follow your plan's weekly schedule; check that notifications are allowed for the app in your phone settings if they do not appear.",
+      "answer": "To change plan, open AI-assisted planning and choose Retrieve physical treatment to get new recommendations. You can follow up to 3 plans at once, depending on your risk level; a new plan for the same body area and goal replaces the one you have. You can stop a plan from the Physical Treatment page with Stop this plan. Reminders follow your plan's weekly schedule; check that notifications are allowed for the app in your phone settings if they do not appear.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -1713,6 +2701,12 @@
         "key": "open_planning",
         "label": "Open treatment planning"
       },
+      "more_actions": [
+        {
+          "key": "open_reminders",
+          "label": "Open reminders"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -1741,8 +2735,8 @@
         "reset password",
         "reset my password",
         "password reset",
-        "change password",
-        "change my password",
+        "lupa kata laluan",
+        "lupa password",
         "new password",
         "cant remember my password",
         "can't remember my password",
@@ -1762,8 +2756,7 @@
       "examples": [
         "I forgot my password",
         "how do I reset my password",
-        "I can't log in",
-        "how do I change my password"
+        "I can't log in"
       ],
       "answer": "You can set a new password with a 6-digit code sent to your email: tap the button below (or Forgot password? on the login screen), enter your email, then type the code and your new password. If the code does not arrive, check your spam folder and wait a minute before asking for a new one. After too many wrong passwords the account is locked for 15 minutes.",
       "follow_ups": [],
@@ -1775,6 +2768,7 @@
         "key": "open_reset_password",
         "label": "Reset password"
       },
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1827,20 +2821,24 @@
         "email never came",
         "no email from you",
         "didn't get email",
-        "didnt get email"
+        "didnt get email",
+        "wrong code many times",
+        "too many wrong",
+        "code has expired"
       ],
       "examples": [
         "I did not get the verification code",
         "the code is not working",
         "how do I verify my email"
       ],
-      "answer": "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working after a while, so always use the newest one. If you clicked a link in the email instead, return to the app and log in.",
+      "answer": "The 6-digit code is sent to the email you registered with. Check your spam or junk folder, and make sure the address is spelled correctly. You can tap Resend code once a minute; a code stops working after a while, and after 5 wrong tries (the app then says it has expired), so tap Resend code and always use the newest one. If you clicked a link in the email instead, return to the app and log in.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1889,6 +2887,12 @@
         "key": "open_profile",
         "label": "Open my profile"
       },
+      "more_actions": [
+        {
+          "key": "open_reset_password",
+          "label": "Reset password"
+        }
+      ],
       "time_aware": false
     },
     {
@@ -1922,6 +2926,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1959,6 +2964,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -1994,6 +3000,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2030,7 +3037,21 @@
         "cream",
         "ointment",
         "injection",
-        "inhaler dose"
+        "inhaler dose",
+        "antibiotic",
+        "antibiotics",
+        "antibiotik",
+        "which medicine",
+        "what medicine",
+        "glucosamine",
+        "fish oil",
+        "collagen",
+        "minyak angin",
+        "minyak urut",
+        "liniment",
+        "tiger balm",
+        "counterpain",
+        "balm"
       ],
       "examples": [
         "can I take painkillers before exercising",
@@ -2044,6 +3065,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2090,7 +3112,12 @@
         "go to the doctor",
         "go to hospital",
         "see a physiotherapist",
-        "should i see"
+        "should i see",
+        "cancer",
+        "tumour",
+        "tumor",
+        "covid",
+        "dengue"
       ],
       "examples": [
         "what is wrong with my knee",
@@ -2106,6 +3133,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2150,6 +3178,7 @@
       "anchor_start": false,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2184,6 +3213,7 @@
       "anchor_start": true,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2232,6 +3262,7 @@
       "anchor_start": false,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2266,6 +3297,7 @@
       "anchor_start": true,
       "small_talk": false,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2299,6 +3331,7 @@
       "anchor_start": false,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
     },
     {
@@ -2355,7 +3388,102 @@
       "anchor_start": false,
       "small_talk": true,
       "action": null,
+      "more_actions": [],
       "time_aware": false
+    },
+    {
+      "key": "age_limit",
+      "title": "Why plans stop at 65",
+      "show": false,
+      "priority": 4,
+      "keywords": [
+        "too old for a plan",
+        "too old for plans",
+        "too old for the plan",
+        "too old to get a plan",
+        "too old for this app",
+        "age limit",
+        "age limits",
+        "age for a plan",
+        "age for plans",
+        "over 65",
+        "after 65",
+        "past 65",
+        "older than 65",
+        "65 or older",
+        "65 and older",
+        "at 65",
+        "above 65",
+        "65 and over",
+        "65 and above",
+        "aged 65",
+        "65 years",
+        "65 year old",
+        "65 years old",
+        "plan paused",
+        "plans paused",
+        "paused plan",
+        "paused plans",
+        "plan is paused",
+        "plans are paused",
+        "why paused",
+        "why is it paused",
+        "cannot get a plan",
+        "can't get a plan",
+        "cant get a plan",
+        "can not get a plan",
+        "no plan for me",
+        "not allowed a plan",
+        "not allowed to get a plan",
+        "why no plan",
+        "why can i not get a plan",
+        "why can't i get a plan",
+        "terlalu tua",
+        "had umur",
+        "had usia",
+        "pelan dijeda",
+        "warga emas"
+      ],
+      "examples": [
+        "why is my plan paused",
+        "why can't I get a plan",
+        "am I too old for a plan",
+        "is there an age limit"
+      ],
+      "answer": "Exercise plans are for users under 65. From 65 the app does not create plans, and a plan you already have is paused, as stated in the Terms of Use (section 2): the home exercise programmes proven for people aged 65 and over were set up and followed by a health professional, and this app has none. Exercise is still good for you: please ask your doctor or a registered physiotherapist to set up a programme, or ask about a hospital or community rehabilitation service. Your profile, health logging, past results and this chat assistant stay available.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_age_limit",
+        "label": "Why plans stop at 65"
+      },
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "mistake:not_closed",
+      "title": "Not closed",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does not closed mean",
+        "the result said not closed"
+      ],
+      "answer": "“Not closed” in your posture result means your hand did not close into a fist between openings. Between openings, close your hand into a gentle fist.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:arm_leg_low",
@@ -2367,7 +3495,7 @@
         "what does arm leg low mean",
         "the result said arm leg low"
       ],
-      "answer": "“Arm leg low” in your posture result means your arm and leg did not reach the level of your back. Stretch your arm and leg further, until both are level with your back.",
+      "answer": "“Arm leg low” in your posture result means your arm and leg did not reach the level of your back. Stretch your arm and leg a little further, towards the level of your back, only as far as feels steady.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2376,7 +3504,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:back_arch",
@@ -2397,7 +3526,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:back_sag",
@@ -2418,7 +3548,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:bent_elbow",
@@ -2439,7 +3570,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:bent_knee",
@@ -2460,7 +3592,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:body_swing",
@@ -2481,7 +3614,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:drop_down",
@@ -2493,7 +3627,7 @@
         "what does drop down mean",
         "the result said drop down"
       ],
-      "answer": "“Drop down” in your posture result means you came down from the step too quickly. Step down slowly and with control.",
+      "answer": "“Drop down” in your posture result means you came down from the step too quickly. Step down slowly, holding the rail, and let your foot touch down gently.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2502,7 +3636,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:feet_far",
@@ -2523,7 +3658,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:feet_forward",
@@ -2544,7 +3680,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:feet_not_in_line",
@@ -2565,7 +3702,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:hands_used",
@@ -2577,7 +3715,7 @@
         "what does hands used mean",
         "the result said hands used"
       ],
-      "answer": "“Hands used” in your posture result means your hands pushed on your legs or the chair to help you stand. Keep your arms crossed over your chest and stand up without pushing.",
+      "answer": "“Hands used” in your posture result means your hands pushed on your legs or the chair to help you stand. If you can, stand up with your arms crossed; if you need your hands to stand safely, that is fine.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2586,7 +3724,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:heels_lift",
@@ -2607,7 +3746,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:hips_back",
@@ -2628,7 +3768,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:hips_sag",
@@ -2649,7 +3790,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:incomplete_extension",
@@ -2661,7 +3803,7 @@
         "what does incomplete extension mean",
         "the result said incomplete extension"
       ],
-      "answer": "“Incomplete extension” in your posture result means your knee did not straighten fully. Straighten your knee fully, until the leg is level with your hip.",
+      "answer": "“Incomplete extension” in your posture result means your knee did not straighten fully. Straighten your knee so your leg is straight out in front, as far as is comfortable.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2670,7 +3812,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:incomplete_stand",
@@ -2682,7 +3825,7 @@
         "what does incomplete stand mean",
         "the result said incomplete stand"
       ],
-      "answer": "“Incomplete stand” in your posture result means you did not stand up fully straight at the top. Stand up fully: straighten your hips and knees at the top.",
+      "answer": "“Incomplete stand” in your posture result means you did not stand up fully straight at the top. Stand up fully: straighten your hips and knees at the top, as far as you safely can.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2691,7 +3834,52 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
+    },
+    {
+      "key": "mistake:fingers_not_spread",
+      "title": "Fingers not spread",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does fingers not spread mean",
+        "the result said fingers not spread"
+      ],
+      "answer": "“Fingers not spread” in your posture result means your fingers stayed close together when your hand opened. Spread your fingers wide as you open your hand, only as far as is comfortable.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      },
+      "more_actions": []
+    },
+    {
+      "key": "mistake:head_tilt",
+      "title": "Head tilt",
+      "show": false,
+      "priority": 6,
+      "keywords": [],
+      "examples": [
+        "what does head tilt mean",
+        "the result said head tilt"
+      ],
+      "answer": "“Head tilt” in your posture result means your head tilted to one side as you lifted. Keep your head level and look straight ahead.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": {
+        "key": "open_history",
+        "label": "See my results"
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:knee_not_straight",
@@ -2703,7 +3891,7 @@
         "what does knee not straight mean",
         "the result said knee not straight"
       ],
-      "answer": "“Knee not straight” in your posture result means your leading leg was not fully straight at the top of the step. Straighten your leading leg fully at the top.",
+      "answer": "“Knee not straight” in your posture result means your leading leg was not fully straight at the top of the step. Straighten your leading leg at the top, holding the rail, as far as is comfortable.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2712,7 +3900,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:knees_bend",
@@ -2733,7 +3922,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leaning",
@@ -2745,7 +3935,7 @@
         "what does leaning mean",
         "the result said leaning"
       ],
-      "answer": "“Leaning” in your posture result means you leaned on the counter or to the side. Stand upright; do not lean on the counter or to the side.",
+      "answer": "“Leaning” in your posture result means you leaned on the counter or to the side. Stand upright with a light touch on the counter, rather than leaning your weight on it.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2754,7 +3944,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leaning_back",
@@ -2775,7 +3966,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leaning_forward",
@@ -2796,7 +3988,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:leg_forward",
@@ -2817,7 +4010,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_hips",
@@ -2829,7 +4023,7 @@
         "what does low hips mean",
         "the result said low hips"
       ],
-      "answer": "“Low hips” in your posture result means your hips did not lift high enough. Lift your hips higher, until your body is straight from shoulders to knees.",
+      "answer": "“Low hips” in your posture result means your hips did not lift high enough. Lift your hips a little higher, towards a straight line from shoulders to knees, without pain in your back.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2838,7 +4032,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_knee_lift",
@@ -2850,7 +4045,7 @@
         "what does low knee lift mean",
         "the result said low knee lift"
       ],
-      "answer": "“Low knee lift” in your posture result means your knees did not lift high enough. Lift your knees higher.",
+      "answer": "“Low knee lift” in your posture result means your knees did not lift high enough. Lift your knees a little higher, only as far as is comfortable.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2859,7 +4054,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_raise",
@@ -2871,7 +4067,7 @@
         "what does low raise mean",
         "the result said low raise"
       ],
-      "answer": "“Low raise” in your posture result means your heels did not rise high enough. Rise higher onto your toes.",
+      "answer": "“Low raise” in your posture result means your heels did not rise high enough. Rise a little higher onto your toes, holding the chair, only as far as feels steady.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2880,7 +4076,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:low_range",
@@ -2901,7 +4098,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:no_arm_swing",
@@ -2913,7 +4111,7 @@
         "what does no arm swing mean",
         "the result said no arm swing"
       ],
-      "answer": "“No arm swing” in your posture result means your arms stayed still while you marched. Swing your arms as you march.",
+      "answer": "“No arm swing” in your posture result means your arms stayed still while you marched. If you feel steady, swing your arms as you march; if not, keep one hand on the chair.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -2922,7 +4120,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:no_forward_lean",
@@ -2943,7 +4142,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:no_hold",
@@ -2964,7 +4164,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:over_arch",
@@ -2985,7 +4186,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:shoulder_shrug",
@@ -3006,7 +4208,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:slouching",
@@ -3027,7 +4230,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:stepping_out",
@@ -3039,7 +4243,7 @@
         "what does stepping out mean",
         "the result said stepping out"
       ],
-      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold. Try to hold the position without stepping out.",
+      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold. If you wobble, step out or hold the counter: that is the safe thing to do. With practice you will hold it for longer.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3048,7 +4252,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:swinging",
@@ -3069,7 +4274,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:thigh_lift",
@@ -3090,7 +4296,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:toes_up",
@@ -3111,7 +4318,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:too_deep",
@@ -3132,7 +4340,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:trunk_forward",
@@ -3153,7 +4362,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:trunk_lean",
@@ -3174,7 +4384,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:uncontrolled_sit",
@@ -3186,7 +4397,7 @@
         "what does uncontrolled sit mean",
         "the result said uncontrolled sit"
       ],
-      "answer": "“Uncontrolled sit” in your posture result means you sat down too quickly instead of lowering yourself slowly. Sit down slowly and with control.",
+      "answer": "“Uncontrolled sit” in your posture result means you sat down too quickly instead of lowering yourself slowly. Sit down slowly: reach back for the chair with your hands and lower yourself gently.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3195,7 +4406,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:uneven_arms",
@@ -3216,7 +4428,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:upper_arm_moves",
@@ -3237,7 +4450,8 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     },
     {
       "key": "mistake:using_hands",
@@ -3258,10 +4472,12 @@
       "action": {
         "key": "open_history",
         "label": "See my results"
-      }
+      },
+      "more_actions": []
     }
   ],
   "glossary": {
+    "not closed": "mistake:not_closed",
     "arm leg low": "mistake:arm_leg_low",
     "back arch": "mistake:back_arch",
     "back sag": "mistake:back_sag",
@@ -3278,6 +4494,8 @@
     "hips sag": "mistake:hips_sag",
     "incomplete extension": "mistake:incomplete_extension",
     "incomplete stand": "mistake:incomplete_stand",
+    "fingers not spread": "mistake:fingers_not_spread",
+    "head tilt": "mistake:head_tilt",
     "knee not straight": "mistake:knee_not_straight",
     "knees bend": "mistake:knees_bend",
     "leaning": "mistake:leaning",
@@ -3305,6 +4523,7 @@
     "uneven arms": "mistake:uneven_arms",
     "upper arm moves": "mistake:upper_arm_moves",
     "using hands": "mistake:using_hands",
+    "not_closed": "mistake:not_closed",
     "arm_leg_low": "mistake:arm_leg_low",
     "back_arch": "mistake:back_arch",
     "back_sag": "mistake:back_sag",
@@ -3321,6 +4540,8 @@
     "hips_sag": "mistake:hips_sag",
     "incomplete_extension": "mistake:incomplete_extension",
     "incomplete_stand": "mistake:incomplete_stand",
+    "fingers_not_spread": "mistake:fingers_not_spread",
+    "head_tilt": "mistake:head_tilt",
     "knee_not_straight": "mistake:knee_not_straight",
     "knees_bend": "mistake:knees_bend",
     "leaning_back": "mistake:leaning_back",
@@ -3583,6 +4804,41 @@
       ],
       "instruction": "Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
       "camera": "side view, whole body in frame"
+    },
+    "wrist_extension": {
+      "name": "Wrist Extension",
+      "aliases": [
+        "wrist extension",
+        "wrist lift",
+        "lift my wrist",
+        "lifting the wrist",
+        "wrist exercise",
+        "wrist exercises",
+        "bend my wrist up",
+        "wrist up"
+      ],
+      "instruction": "Sit at a table and rest your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles.",
+      "camera": "at table height on the side of your arm, forearm and hand in the picture"
+    },
+    "hand_open_close": {
+      "name": "Hand Open and Close",
+      "aliases": [
+        "hand open and close",
+        "open and close",
+        "open my hand",
+        "opening the hand",
+        "hand opening",
+        "make a fist",
+        "open close hand",
+        "finger exercise",
+        "finger exercises",
+        "fingers",
+        "hand exercise",
+        "hand exercises",
+        "grip exercise"
+      ],
+      "instruction": "Sit at a table with your forearms resting on it. Make a gentle fist, then open and spread your fingers as wide as is comfortable, and close the hand again slowly. Safety: stop if it hurts or tingles.",
+      "camera": "facing you at table height, your hands in the picture"
     }
   },
   "plans": {
@@ -3882,6 +5138,35 @@
           "order": 3
         }
       ]
+    },
+    "665e8567-b75b-565f-b6e3-85bdb1e6538b": {
+      "plan_name": "Hand and Wrist Recovery",
+      "goal": "MOBILITY",
+      "frequency_per_week": 5,
+      "goal_text": "move your joints more freely",
+      "exercises": [
+        {
+          "pose_key": "wrist_extension",
+          "name": "Wrist Extension",
+          "repetitions": 10,
+          "duration": "1 minute",
+          "order": 1
+        },
+        {
+          "pose_key": "hand_open_close",
+          "name": "Hand Open and Close",
+          "repetitions": 10,
+          "duration": "1 minute",
+          "order": 2
+        },
+        {
+          "pose_key": "elbow_flexion",
+          "name": "Elbow Flexion",
+          "repetitions": 10,
+          "duration": "1 minute",
+          "order": 3
+        }
+      ]
     }
   },
   "condition_notes": {
@@ -3891,7 +5176,17 @@
     "STROKE": "Because you have had a stroke: exercise next to a sturdy support, go slowly on your weaker side, and stop if you notice new weakness, numbness or difficulty speaking.",
     "ARTHRITIS": "Because you have arthritis: some joint stiffness at the start is normal; move within a comfortable range and do not push into sharp joint pain.",
     "OSTEOPOROSIS": "Because you have osteoporosis: avoid twisting or bending forward sharply, and keep a support within reach to prevent falls.",
-    "ASTHMA": "Because you have asthma: keep your reliever inhaler nearby and stop if you start wheezing or your chest feels tight."
+    "ASTHMA": "Because you have asthma: keep your reliever inhaler nearby and stop if you start wheezing or your chest feels tight.",
+    "PREGNANCY": "Because you are pregnant or have recently given birth: do not lie flat on your back after the first months, keep a support nearby, drink water and do not overheat; stop and contact your doctor or midwife if you have bleeding, dizziness, pain or leaking fluid.",
+    "JOINT_REPLACEMENT": "Because you have had a joint replacement: your surgeon's and physiotherapist's movement advice comes first, and stop if the joint becomes red, hot, swollen or more painful.",
+    "RHEUMATOID_ARTHRITIS": "Because you have rheumatoid arthritis: move within a comfortable range, and during a flare rest hot, swollen joints and do fewer repetitions.",
+    "COPD": "Because you have chronic lung disease: go at a pace where you can still speak, breathe out slowly through pursed lips, and stop if you are too breathless to talk.",
+    "CANCER": "Because you have or had cancer: follow your doctor's advice on exercise during treatment, go gently on tired days, and stop if you have new bone pain, a fever or unusual tiredness.",
+    "KIDNEY_DISEASE": "Because you have kidney disease: keep to a comfortable, moderate effort, drink as your kidney team advises, and on dialysis days ask them when it is best to exercise.",
+    "PARKINSONS": "Because you have Parkinson's disease: exercise next to a sturdy support, take your time when standing up and turning, and stop if you feel unsteady.",
+    "MULTIPLE_SCLEROSIS": "Because you have multiple sclerosis: keep cool (a fan, cool water, a cool room), rest between sets, and stop if your symptoms get worse; they usually settle once you cool down.",
+    "FOOT_ULCER": "Because you have a foot ulcer or wound: do your exercises sitting or lying, keep weight off the foot, and check your feet every day.",
+    "OTHER": "Because of the other condition in your profile: follow your doctor's advice on exercise, and stop if anything feels wrong."
   },
   "limitation_notes": {
     "BALANCE_IMPAIRMENT": "Because you declared a balance limitation: always keep one hand on a sturdy support.",
@@ -3951,6 +5246,13 @@
     "ASTHMA": "With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to. Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled.",
     "PREGNANCY": "During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going well, but check with your doctor or midwife first. After the first three months avoid lying flat on your back for long (as in the glute bridge), exercise on a firm, non-slip surface with a support nearby for balance, drink water and do not overheat. Stop and contact your doctor if you have bleeding, dizziness, chest pain, calf pain or swelling, contractions or leaking fluid.",
     "JOINT_REPLACEMENT": "After a hip or knee replacement, your surgeon's and physiotherapist's exercises and precautions come first: they decide how far you may bend and when you may do more. After a new hip, avoid bending it past 90 degrees (a right angle), crossing your legs and twisting, and keep the leg facing forward, until they say it is safe. Ask them before starting this plan, and stop if the wound becomes red, hot, swollen or more painful, or you get calf pain or a fever.",
+    "RHEUMATOID_ARTHRITIS": "With rheumatoid arthritis, regular exercise is part of standard care: it keeps your joints moving and the muscles around them strong. Move within a comfortable range; during a flare, rest hot, swollen joints, do fewer repetitions and build up again as it settles.",
+    "COPD": "With chronic lung disease, exercise improves your breathing and strength. Go at a pace where you can still speak, breathe out slowly through pursed lips, and rest between sets. Stop and contact your doctor if you are much more breathless than usual, cough up blood or have chest pain.",
+    "CANCER": "During and after cancer treatment, staying active helps with tiredness and strength, but follow your doctor's advice first, especially during treatment. Go gently on tired days, and stop and tell your doctor if you have new bone pain, a fever, or feel unusually tired or breathless.",
+    "KIDNEY_DISEASE": "With chronic kidney disease, regular moderate exercise is recommended as you can manage it. Keep to a comfortable effort, drink as your kidney team advises, and on dialysis days ask them when it is best to exercise. Stop if you feel dizzy, breathless or have chest pain.",
+    "PARKINSONS": "With Parkinson's disease, strength and balance exercises help you move more easily and confidently. Exercise next to a sturdy support, take your time when standing up and turning, and stop if you feel unsteady or about to fall.",
+    "MULTIPLE_SCLEROSIS": "With multiple sclerosis, strength exercises help, but heat can make symptoms worse for a while. Keep cool with a fan, cool water and a cool room, rest between sets, and stop if symptoms get worse; they usually settle once you cool down. During a relapse, rest and ask your doctor before starting again.",
+    "FOOT_ULCER": "With a foot ulcer or an open wound on the foot, do not put weight on it: do your exercises sitting or lying until it has healed, check your feet every day, and see your doctor if the wound gets bigger, red, hot or smelly.",
     "SURGERY_WOUND": "A little oozing from a surgical wound can be normal in the first days, but if it keeps bleeding, soaks the dressing, or turns red, hot, swollen or smelly, or you get a fever, contact your surgeon or clinic today, and do not exercise that area until they have checked it.",
     "INJURY": "With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor or physiotherapist says it is ready. Exercises that do not use it are usually fine, but check with them first, and stop if the injured area hurts or swells."
   },
@@ -4101,6 +5403,18 @@
     "i had fallen",
     "i 've fallen",
     "i overdosed",
+    "i just fell",
+    "i just fallen",
+    "i has just fallen",
+    "i just had a fall",
+    "i just collapsed",
+    "i just slipped and",
+    "i has just collapsed",
+    "i had just collapsed",
+    "i suddenly collapsed",
+    "i has suddenly collapsed",
+    "i just fainted",
+    "i has fainted",
     "he collapsed",
     "he has collapsed",
     "he fall down",
@@ -4121,6 +5435,18 @@
     "he had fallen",
     "he 've fallen",
     "he overdosed",
+    "he just fell",
+    "he just fallen",
+    "he has just fallen",
+    "he just had a fall",
+    "he just collapsed",
+    "he just slipped and",
+    "he has just collapsed",
+    "he had just collapsed",
+    "he suddenly collapsed",
+    "he has suddenly collapsed",
+    "he just fainted",
+    "he has fainted",
     "she collapsed",
     "she has collapsed",
     "she fall down",
@@ -4141,6 +5467,18 @@
     "she had fallen",
     "she 've fallen",
     "she overdosed",
+    "she just fell",
+    "she just fallen",
+    "she has just fallen",
+    "she just had a fall",
+    "she just collapsed",
+    "she just slipped and",
+    "she has just collapsed",
+    "she had just collapsed",
+    "she suddenly collapsed",
+    "she has suddenly collapsed",
+    "she just fainted",
+    "she has fainted",
     "my mum collapsed",
     "my mum has collapsed",
     "my mum fall down",
@@ -4161,6 +5499,18 @@
     "my mum had fallen",
     "my mum 've fallen",
     "my mum overdosed",
+    "my mum just fell",
+    "my mum just fallen",
+    "my mum has just fallen",
+    "my mum just had a fall",
+    "my mum just collapsed",
+    "my mum just slipped and",
+    "my mum has just collapsed",
+    "my mum had just collapsed",
+    "my mum suddenly collapsed",
+    "my mum has suddenly collapsed",
+    "my mum just fainted",
+    "my mum has fainted",
     "my mom collapsed",
     "my mom has collapsed",
     "my mom fall down",
@@ -4181,6 +5531,18 @@
     "my mom had fallen",
     "my mom 've fallen",
     "my mom overdosed",
+    "my mom just fell",
+    "my mom just fallen",
+    "my mom has just fallen",
+    "my mom just had a fall",
+    "my mom just collapsed",
+    "my mom just slipped and",
+    "my mom has just collapsed",
+    "my mom had just collapsed",
+    "my mom suddenly collapsed",
+    "my mom has suddenly collapsed",
+    "my mom just fainted",
+    "my mom has fainted",
     "my mother collapsed",
     "my mother has collapsed",
     "my mother fall down",
@@ -4201,6 +5563,18 @@
     "my mother had fallen",
     "my mother 've fallen",
     "my mother overdosed",
+    "my mother just fell",
+    "my mother just fallen",
+    "my mother has just fallen",
+    "my mother just had a fall",
+    "my mother just collapsed",
+    "my mother just slipped and",
+    "my mother has just collapsed",
+    "my mother had just collapsed",
+    "my mother suddenly collapsed",
+    "my mother has suddenly collapsed",
+    "my mother just fainted",
+    "my mother has fainted",
     "my dad collapsed",
     "my dad has collapsed",
     "my dad fall down",
@@ -4221,6 +5595,18 @@
     "my dad had fallen",
     "my dad 've fallen",
     "my dad overdosed",
+    "my dad just fell",
+    "my dad just fallen",
+    "my dad has just fallen",
+    "my dad just had a fall",
+    "my dad just collapsed",
+    "my dad just slipped and",
+    "my dad has just collapsed",
+    "my dad had just collapsed",
+    "my dad suddenly collapsed",
+    "my dad has suddenly collapsed",
+    "my dad just fainted",
+    "my dad has fainted",
     "my father collapsed",
     "my father has collapsed",
     "my father fall down",
@@ -4241,6 +5627,18 @@
     "my father had fallen",
     "my father 've fallen",
     "my father overdosed",
+    "my father just fell",
+    "my father just fallen",
+    "my father has just fallen",
+    "my father just had a fall",
+    "my father just collapsed",
+    "my father just slipped and",
+    "my father has just collapsed",
+    "my father had just collapsed",
+    "my father suddenly collapsed",
+    "my father has suddenly collapsed",
+    "my father just fainted",
+    "my father has fainted",
     "my husband collapsed",
     "my husband has collapsed",
     "my husband fall down",
@@ -4261,6 +5659,18 @@
     "my husband had fallen",
     "my husband 've fallen",
     "my husband overdosed",
+    "my husband just fell",
+    "my husband just fallen",
+    "my husband has just fallen",
+    "my husband just had a fall",
+    "my husband just collapsed",
+    "my husband just slipped and",
+    "my husband has just collapsed",
+    "my husband had just collapsed",
+    "my husband suddenly collapsed",
+    "my husband has suddenly collapsed",
+    "my husband just fainted",
+    "my husband has fainted",
     "my wife collapsed",
     "my wife has collapsed",
     "my wife fall down",
@@ -4281,6 +5691,18 @@
     "my wife had fallen",
     "my wife 've fallen",
     "my wife overdosed",
+    "my wife just fell",
+    "my wife just fallen",
+    "my wife has just fallen",
+    "my wife just had a fall",
+    "my wife just collapsed",
+    "my wife just slipped and",
+    "my wife has just collapsed",
+    "my wife had just collapsed",
+    "my wife suddenly collapsed",
+    "my wife has suddenly collapsed",
+    "my wife just fainted",
+    "my wife has fainted",
     "my grandma collapsed",
     "my grandma has collapsed",
     "my grandma fall down",
@@ -4301,6 +5723,18 @@
     "my grandma had fallen",
     "my grandma 've fallen",
     "my grandma overdosed",
+    "my grandma just fell",
+    "my grandma just fallen",
+    "my grandma has just fallen",
+    "my grandma just had a fall",
+    "my grandma just collapsed",
+    "my grandma just slipped and",
+    "my grandma has just collapsed",
+    "my grandma had just collapsed",
+    "my grandma suddenly collapsed",
+    "my grandma has suddenly collapsed",
+    "my grandma just fainted",
+    "my grandma has fainted",
     "my grandpa collapsed",
     "my grandpa has collapsed",
     "my grandpa fall down",
@@ -4321,6 +5755,18 @@
     "my grandpa had fallen",
     "my grandpa 've fallen",
     "my grandpa overdosed",
+    "my grandpa just fell",
+    "my grandpa just fallen",
+    "my grandpa has just fallen",
+    "my grandpa just had a fall",
+    "my grandpa just collapsed",
+    "my grandpa just slipped and",
+    "my grandpa has just collapsed",
+    "my grandpa had just collapsed",
+    "my grandpa suddenly collapsed",
+    "my grandpa has suddenly collapsed",
+    "my grandpa just fainted",
+    "my grandpa has fainted",
     "my grandmother collapsed",
     "my grandmother has collapsed",
     "my grandmother fall down",
@@ -4341,6 +5787,18 @@
     "my grandmother had fallen",
     "my grandmother 've fallen",
     "my grandmother overdosed",
+    "my grandmother just fell",
+    "my grandmother just fallen",
+    "my grandmother has just fallen",
+    "my grandmother just had a fall",
+    "my grandmother just collapsed",
+    "my grandmother just slipped and",
+    "my grandmother has just collapsed",
+    "my grandmother had just collapsed",
+    "my grandmother suddenly collapsed",
+    "my grandmother has suddenly collapsed",
+    "my grandmother just fainted",
+    "my grandmother has fainted",
     "my grandfather collapsed",
     "my grandfather has collapsed",
     "my grandfather fall down",
@@ -4361,6 +5819,18 @@
     "my grandfather had fallen",
     "my grandfather 've fallen",
     "my grandfather overdosed",
+    "my grandfather just fell",
+    "my grandfather just fallen",
+    "my grandfather has just fallen",
+    "my grandfather just had a fall",
+    "my grandfather just collapsed",
+    "my grandfather just slipped and",
+    "my grandfather has just collapsed",
+    "my grandfather had just collapsed",
+    "my grandfather suddenly collapsed",
+    "my grandfather has suddenly collapsed",
+    "my grandfather just fainted",
+    "my grandfather has fainted",
     "mum collapsed",
     "mum has collapsed",
     "mum fall down",
@@ -4381,6 +5851,18 @@
     "mum had fallen",
     "mum 've fallen",
     "mum overdosed",
+    "mum just fell",
+    "mum just fallen",
+    "mum has just fallen",
+    "mum just had a fall",
+    "mum just collapsed",
+    "mum just slipped and",
+    "mum has just collapsed",
+    "mum had just collapsed",
+    "mum suddenly collapsed",
+    "mum has suddenly collapsed",
+    "mum just fainted",
+    "mum has fainted",
     "dad collapsed",
     "dad has collapsed",
     "dad fall down",
@@ -4401,6 +5883,18 @@
     "dad had fallen",
     "dad 've fallen",
     "dad overdosed",
+    "dad just fell",
+    "dad just fallen",
+    "dad has just fallen",
+    "dad just had a fall",
+    "dad just collapsed",
+    "dad just slipped and",
+    "dad has just collapsed",
+    "dad had just collapsed",
+    "dad suddenly collapsed",
+    "dad has suddenly collapsed",
+    "dad just fainted",
+    "dad has fainted",
     "father collapsed",
     "father has collapsed",
     "father fall down",
@@ -4421,6 +5915,18 @@
     "father had fallen",
     "father 've fallen",
     "father overdosed",
+    "father just fell",
+    "father just fallen",
+    "father has just fallen",
+    "father just had a fall",
+    "father just collapsed",
+    "father just slipped and",
+    "father has just collapsed",
+    "father had just collapsed",
+    "father suddenly collapsed",
+    "father has suddenly collapsed",
+    "father just fainted",
+    "father has fainted",
     "mother collapsed",
     "mother has collapsed",
     "mother fall down",
@@ -4441,6 +5947,18 @@
     "mother had fallen",
     "mother 've fallen",
     "mother overdosed",
+    "mother just fell",
+    "mother just fallen",
+    "mother has just fallen",
+    "mother just had a fall",
+    "mother just collapsed",
+    "mother just slipped and",
+    "mother has just collapsed",
+    "mother had just collapsed",
+    "mother suddenly collapsed",
+    "mother has suddenly collapsed",
+    "mother just fainted",
+    "mother has fainted",
     "husband collapsed",
     "husband has collapsed",
     "husband fall down",
@@ -4461,6 +5979,18 @@
     "husband had fallen",
     "husband 've fallen",
     "husband overdosed",
+    "husband just fell",
+    "husband just fallen",
+    "husband has just fallen",
+    "husband just had a fall",
+    "husband just collapsed",
+    "husband just slipped and",
+    "husband has just collapsed",
+    "husband had just collapsed",
+    "husband suddenly collapsed",
+    "husband has suddenly collapsed",
+    "husband just fainted",
+    "husband has fainted",
     "wife collapsed",
     "wife has collapsed",
     "wife fall down",
@@ -4481,6 +6011,18 @@
     "wife had fallen",
     "wife 've fallen",
     "wife overdosed",
+    "wife just fell",
+    "wife just fallen",
+    "wife has just fallen",
+    "wife just had a fall",
+    "wife just collapsed",
+    "wife just slipped and",
+    "wife has just collapsed",
+    "wife had just collapsed",
+    "wife suddenly collapsed",
+    "wife has suddenly collapsed",
+    "wife just fainted",
+    "wife has fainted",
     "grandma collapsed",
     "grandma has collapsed",
     "grandma fall down",
@@ -4501,6 +6043,18 @@
     "grandma had fallen",
     "grandma 've fallen",
     "grandma overdosed",
+    "grandma just fell",
+    "grandma just fallen",
+    "grandma has just fallen",
+    "grandma just had a fall",
+    "grandma just collapsed",
+    "grandma just slipped and",
+    "grandma has just collapsed",
+    "grandma had just collapsed",
+    "grandma suddenly collapsed",
+    "grandma has suddenly collapsed",
+    "grandma just fainted",
+    "grandma has fainted",
     "grandpa collapsed",
     "grandpa has collapsed",
     "grandpa fall down",
@@ -4521,6 +6075,18 @@
     "grandpa had fallen",
     "grandpa 've fallen",
     "grandpa overdosed",
+    "grandpa just fell",
+    "grandpa just fallen",
+    "grandpa has just fallen",
+    "grandpa just had a fall",
+    "grandpa just collapsed",
+    "grandpa just slipped and",
+    "grandpa has just collapsed",
+    "grandpa had just collapsed",
+    "grandpa suddenly collapsed",
+    "grandpa has suddenly collapsed",
+    "grandpa just fainted",
+    "grandpa has fainted",
     "grandmother collapsed",
     "grandmother has collapsed",
     "grandmother fall down",
@@ -4541,6 +6107,18 @@
     "grandmother had fallen",
     "grandmother 've fallen",
     "grandmother overdosed",
+    "grandmother just fell",
+    "grandmother just fallen",
+    "grandmother has just fallen",
+    "grandmother just had a fall",
+    "grandmother just collapsed",
+    "grandmother just slipped and",
+    "grandmother has just collapsed",
+    "grandmother had just collapsed",
+    "grandmother suddenly collapsed",
+    "grandmother has suddenly collapsed",
+    "grandmother just fainted",
+    "grandmother has fainted",
     "grandfather collapsed",
     "grandfather has collapsed",
     "grandfather fall down",
@@ -4561,6 +6139,18 @@
     "grandfather had fallen",
     "grandfather 've fallen",
     "grandfather overdosed",
+    "grandfather just fell",
+    "grandfather just fallen",
+    "grandfather has just fallen",
+    "grandfather just had a fall",
+    "grandfather just collapsed",
+    "grandfather just slipped and",
+    "grandfather has just collapsed",
+    "grandfather had just collapsed",
+    "grandfather suddenly collapsed",
+    "grandfather has suddenly collapsed",
+    "grandfather just fainted",
+    "grandfather has fainted",
     "my son collapsed",
     "my son has collapsed",
     "my son fall down",
@@ -4581,6 +6171,18 @@
     "my son had fallen",
     "my son 've fallen",
     "my son overdosed",
+    "my son just fell",
+    "my son just fallen",
+    "my son has just fallen",
+    "my son just had a fall",
+    "my son just collapsed",
+    "my son just slipped and",
+    "my son has just collapsed",
+    "my son had just collapsed",
+    "my son suddenly collapsed",
+    "my son has suddenly collapsed",
+    "my son just fainted",
+    "my son has fainted",
     "my daughter collapsed",
     "my daughter has collapsed",
     "my daughter fall down",
@@ -4600,7 +6202,112 @@
     "my daughter have fallen",
     "my daughter had fallen",
     "my daughter 've fallen",
-    "my daughter overdosed"
+    "my daughter overdosed",
+    "my daughter just fell",
+    "my daughter just fallen",
+    "my daughter has just fallen",
+    "my daughter just had a fall",
+    "my daughter just collapsed",
+    "my daughter just slipped and",
+    "my daughter has just collapsed",
+    "my daughter had just collapsed",
+    "my daughter suddenly collapsed",
+    "my daughter has suddenly collapsed",
+    "my daughter just fainted",
+    "my daughter has fainted",
+    "dia fell",
+    "baru fell",
+    "anaphylaxis",
+    "allergic reaction",
+    "epipen",
+    "epi pen",
+    "throat closing",
+    "throat is closing",
+    "throat feels tight",
+    "throat is tight",
+    "worst headache",
+    "thunderclap headache",
+    "cannot pee",
+    "can't pee",
+    "cant pee",
+    "unable to pee",
+    "not able to pee",
+    "cannot urinate",
+    "can't urinate",
+    "unable to urinate",
+    "tak boleh kencing",
+    "not can kencing",
+    "black stool",
+    "black stools",
+    "black poo",
+    "black poop",
+    "tarry stool",
+    "blood in my stool",
+    "blood in stool",
+    "bloody stool",
+    "blood in my poo",
+    "vomiting blood",
+    "vomit blood",
+    "vomited blood",
+    "throwing up blood",
+    "berak hitam",
+    "najis hitam",
+    "gasping for air",
+    "gasping for breath",
+    "gasp for air",
+    "lost consciousness",
+    "loss of consciousness",
+    "lose consciousness",
+    "losing consciousness",
+    "bleeding a lot",
+    "bleeding heavily",
+    "heavy bleeding",
+    "bleeding won't stop",
+    "bleeding will not stop",
+    "won't stop bleeding",
+    "will not stop bleeding",
+    "can't stop the bleeding",
+    "cannot stop the bleeding",
+    "bleeding badly",
+    "losing a lot of blood",
+    "lost a lot of blood",
+    "i have collapsed",
+    "i've collapsed",
+    "not able to breathe",
+    "unable to breathe",
+    "cannot breathe properly",
+    "can't breathe properly",
+    "not able to breath",
+    "having a hypo",
+    "having hypo",
+    "going hypo",
+    "i'm hypo",
+    "i am hypo",
+    "hypo now",
+    "hypo attack",
+    "feeling hypo",
+    "feel hypo",
+    "kena hypo",
+    "sugar very low",
+    "sugar is very low",
+    "sugar too low",
+    "sugar is too low",
+    "sugar so low",
+    "gula rendah sangat",
+    "gula sangat rendah",
+    "gula terlalu rendah",
+    "cannot talk properly",
+    "can't talk properly",
+    "cannot speak properly",
+    "can't speak properly",
+    "cannot get my words out",
+    "can't get my words out",
+    "cannot get the words out",
+    "can't get the words out",
+    "words come out wrong",
+    "words are jumbled",
+    "talking funny",
+    "speech is strange"
   ],
   "crisis": [
     "end my life",
@@ -4714,10 +6421,350 @@
     "saying my goodbyes",
     "giving away my things",
     "give away my things",
-    "giving my things away"
+    "giving my things away",
+    "life is not worth living",
+    "life isn't worth living",
+    "life not worth living",
+    "not worth living",
+    "no longer worth living",
+    "can't go on anymore",
+    "cannot go on anymore",
+    "cant go on anymore",
+    "can't go on any more",
+    "cannot go on any more",
+    "can't go on like this",
+    "cannot go on like this",
+    "can't carry on anymore",
+    "cannot carry on anymore",
+    "don't want to go on living",
+    "do not want to go on living",
+    "thinking about ending it",
+    "thinking of ending it",
+    "think about ending it",
+    "ending it all",
+    "end it all",
+    "want to end it all",
+    "going to end it all",
+    "tamatkan hidup",
+    "tamatkan nyawa",
+    "akhiri hidup",
+    "mengakhiri hidup",
+    "tamatkan riwayat",
+    "hidup tak berguna",
+    "tak guna hidup",
+    "tidak guna hidup"
   ],
   "crisis_answer": "I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you are in danger now or might act on these thoughts, call 999 or go to the nearest emergency department. You can talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or Talian HEAL 15555 (8 am to midnight daily). Please also tell a family member or your doctor how you feel. I am only an exercise assistant, but these people can help you.",
   "red_flag_combos": [
+    [
+      [
+        "lips",
+        "lip",
+        "tongue",
+        "face",
+        "throat",
+        "eyelids",
+        "bibir"
+      ],
+      [
+        "swelling",
+        "swollen",
+        "swell",
+        "swells",
+        "puffy",
+        "closing"
+      ],
+      3,
+      [
+        "knee",
+        "ankle",
+        "joint"
+      ]
+    ],
+    [
+      [
+        "swallow",
+        "swallowing",
+        "telan"
+      ],
+      [
+        "hard",
+        "difficult",
+        "difficulty",
+        "can't",
+        "cannot",
+        "unable",
+        "tight",
+        "suddenly",
+        "susah"
+      ],
+      3,
+      [
+        "pill",
+        "pills",
+        "tablet",
+        "tablets",
+        "capsule",
+        "capsules",
+        "big",
+        "ubat"
+      ]
+    ],
+    [
+      [
+        "headache",
+        "head pain"
+      ],
+      [
+        "worst",
+        "sudden",
+        "suddenly",
+        "severe",
+        "exploding",
+        "explosive",
+        "thunderclap",
+        "like being hit",
+        "very bad"
+      ],
+      4,
+      [
+        "mild",
+        "slight",
+        "little",
+        "sikit",
+        "hangover",
+        "for years"
+      ]
+    ],
+    [
+      [
+        "suddenly cold",
+        "cold and pale",
+        "pale and cold",
+        "turned white",
+        "turned blue",
+        "gone white",
+        "gone pale",
+        "turned pale",
+        "cold pale"
+      ],
+      [
+        "leg",
+        "legs",
+        "foot",
+        "feet",
+        "arm",
+        "hand",
+        "toes",
+        "fingers",
+        "kaki",
+        "tangan"
+      ],
+      5,
+      [
+        "winter",
+        "weather",
+        "aircon",
+        "air con",
+        "raynaud",
+        "raynauds",
+        "always",
+        "every morning"
+      ]
+    ],
+    [
+      [
+        "calf",
+        "calves",
+        "betis"
+      ],
+      [
+        "swollen",
+        "swelling",
+        "hot",
+        "red"
+      ],
+      4,
+      [
+        "cramp",
+        "cramps",
+        "sore muscles"
+      ]
+    ],
+    [
+      [
+        "confused",
+        "confusion",
+        "keliru",
+        "not making sense",
+        "delirious"
+      ],
+      [
+        "fever",
+        "feverish",
+        "high temperature",
+        "temperature",
+        "demam",
+        "shivering",
+        "chills"
+      ],
+      6
+    ],
+    [
+      [
+        "wound",
+        "incision",
+        "stitches",
+        "scar",
+        "luka"
+      ],
+      [
+        "pus",
+        "oozing",
+        "fever",
+        "demam",
+        "smells",
+        "spreading",
+        "red streaks",
+        "nanah"
+      ],
+      6
+    ],
+    [
+      [
+        "blurry",
+        "blurred",
+        "kabur",
+        "double vision",
+        "seeing double",
+        "see double",
+        "can't see properly",
+        "cannot see properly",
+        "cant see properly",
+        "lost my vision",
+        "lost vision",
+        "losing my vision",
+        "went blind",
+        "go blind",
+        "can't see out of",
+        "cannot see out of"
+      ],
+      [
+        "suddenly",
+        "sudden",
+        "all of a sudden",
+        "just now",
+        "during",
+        "while",
+        "after the exercise",
+        "after exercising",
+        "after exercise",
+        "one eye",
+        "everything",
+        "dizzy",
+        "headache",
+        "vision",
+        "eyesight",
+        "eyes",
+        "eye",
+        "mata",
+        "pandangan"
+      ],
+      7,
+      [
+        "video",
+        "photo",
+        "picture",
+        "camera",
+        "screen",
+        "recording",
+        "cataract",
+        "cataracts",
+        "glasses",
+        "spectacles",
+        "for years",
+        "always",
+        "old age",
+        "reading",
+        "app",
+        "instructions",
+        "words",
+        "text",
+        "writing",
+        "font",
+        "every morning",
+        "when i wake up",
+        "wake up",
+        "mengantuk",
+        "sleepy",
+        "drowsy",
+        "fogged",
+        "sweat",
+        "sweating",
+        "phone",
+        "for a long time",
+        "presbyopia"
+      ]
+    ],
+    [
+      [
+        "blur"
+      ],
+      [
+        "eye",
+        "eyes",
+        "mata",
+        "vision",
+        "eyesight",
+        "pandangan",
+        "seeing"
+      ],
+      3,
+      [
+        "mengantuk",
+        "drowsy",
+        "sleepy",
+        "every morning",
+        "wake up",
+        "glasses",
+        "cataract",
+        "cataracts",
+        "reading",
+        "when reading",
+        "for years",
+        "for a long time",
+        "presbyopia",
+        "baca",
+        "always",
+        "spectacles"
+      ]
+    ],
+    [
+      [
+        "can't put weight on",
+        "cannot put weight on",
+        "cant put weight on",
+        "unable to put weight on",
+        "can't bear weight",
+        "cannot bear weight",
+        "cant bear weight",
+        "unable to bear weight"
+      ],
+      [
+        "weight"
+      ],
+      1,
+      [
+        "toes",
+        "tiptoe",
+        "heel raise",
+        "too hard",
+        "for long",
+        "too long",
+        "difficult",
+        "susah"
+      ]
+    ],
     [
       [
         "floor",
@@ -4757,6 +6804,171 @@
         "is there a",
         "chair version"
       ]
+    ],
+    [
+      [
+        "after a fall",
+        "after the fall",
+        "after my fall",
+        "after her fall",
+        "after his fall",
+        "after falling",
+        "after fell",
+        "selepas fell",
+        "since the fall",
+        "since my fall",
+        "since falling",
+        "from the fall",
+        "from falling",
+        "fall yesterday",
+        "fall this morning",
+        "fall just now",
+        "fall today"
+      ],
+      [
+        "pain",
+        "painful",
+        "hurt",
+        "hurts",
+        "hurting",
+        "sakit",
+        "swollen",
+        "swelling",
+        "bruise",
+        "bruised",
+        "can't walk",
+        "cannot walk",
+        "limp",
+        "limping",
+        "numb",
+        "headache",
+        "dizzy",
+        "confused",
+        "bleeding",
+        "can't put weight",
+        "cannot put weight"
+      ],
+      6,
+      [
+        "what if",
+        "in case",
+        "prevent",
+        "avoid",
+        "how to get up",
+        "how do i get up",
+        "afraid of",
+        "scared of",
+        "worried about",
+        "fear of",
+        "get hurt",
+        "getting hurt"
+      ]
+    ],
+    [
+      [
+        "fell",
+        "fall",
+        "fallen",
+        "tripped",
+        "slipped",
+        "collapsed"
+      ],
+      [
+        "hurts",
+        "hurt",
+        "pain",
+        "painful",
+        "sakit",
+        "swollen",
+        "swelling",
+        "bengkak",
+        "bruise",
+        "bruised",
+        "bleeding",
+        "berdarah",
+        "cannot stand",
+        "can't stand",
+        "cant stand",
+        "cannot get up",
+        "can't get up",
+        "cant get up",
+        "tak boleh bangun",
+        "cannot walk",
+        "can't walk",
+        "limp",
+        "limping",
+        "pening",
+        "dizzy",
+        "confused",
+        "keliru",
+        "vomiting",
+        "muntah",
+        "looks bent",
+        "deformed",
+        "broken",
+        "patah",
+        "numb",
+        "headache",
+        "hit my head",
+        "hit her head",
+        "hit his head"
+      ],
+      12,
+      [
+        "what if",
+        "in case",
+        "prevent",
+        "prevention",
+        "avoid",
+        "afraid of",
+        "scared of",
+        "worried about",
+        "fear of",
+        "get hurt",
+        "getting hurt",
+        "risk of",
+        "how to get up",
+        "how do i get up",
+        "pain fell",
+        "pain has fallen",
+        "pain level fell",
+        "pain score fell",
+        "swelling has fallen",
+        "swelling fell",
+        "score fell",
+        "accuracy fell",
+        "phone fell",
+        "fell asleep",
+        "slept",
+        "will fall",
+        "might fall",
+        "may fall",
+        "could fall",
+        "would fall",
+        "going to fall",
+        "afraid she",
+        "afraid he",
+        "afraid i",
+        "scared she",
+        "scared he",
+        "worried she",
+        "worried he"
+      ]
+    ],
+    [
+      [
+        "neck",
+        "leher",
+        "tengkuk"
+      ],
+      [
+        "fever",
+        "feverish",
+        "high temperature",
+        "demam",
+        "rash"
+      ],
+      6
     ],
     [
       [
@@ -4821,6 +7033,48 @@
     ],
     [
       [
+        "one side",
+        "sebelah",
+        "half of my body",
+        "half my body",
+        "half of his body",
+        "half of her body"
+      ],
+      [
+        "weak",
+        "weakness",
+        "numb",
+        "numbness",
+        "cannot move",
+        "can't move",
+        "paralysed",
+        "paralyzed",
+        "lumpuh",
+        "drooping",
+        "droop",
+        "heavy",
+        "no feeling"
+      ],
+      5,
+      [
+        "since my stroke",
+        "since the stroke",
+        "after my stroke",
+        "from my stroke",
+        "old stroke",
+        "for years",
+        "years ago",
+        "always",
+        "stronger",
+        "weaker than",
+        "since birth",
+        "for a long time",
+        "exercise one side",
+        "one side at a time"
+      ]
+    ],
+    [
+      [
         "face",
         "mouth"
       ],
@@ -4879,7 +7133,14 @@
         "hard",
         "gasping"
       ],
-      3
+      3,
+      [
+        "breathing hard",
+        "breathe hard",
+        "breathing heavily",
+        "breathing heavy",
+        "breathe heavily"
+      ]
     ],
     [
       [
@@ -4919,5 +7180,53 @@
       5
     ]
   ],
-  "red_flag_answer": "Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency department. For other new pain, dizziness or a fall, sit down, rest, and contact your doctor before exercising again."
+  "red_flag_answer": "Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency department. For other new pain, dizziness or a fall, sit down, rest, and contact your doctor before exercising again.",
+  "restrictions": {
+    "AGE_65_PLUS": {
+      "title": "Your plans are paused",
+      "answer": "Your exercise plans are paused because plans are for users under 65, as stated in the Terms of Use (section 2). The home exercise programmes proven for people aged 65 and over were set up and followed by a health professional, and this app has none. Please ask your doctor or a registered physiotherapist to set up a programme for you, or ask about a hospital or community rehabilitation service. You can still use your profile, health logging, reminders to log your health readings, your past results and this chat assistant.",
+      "action": {
+        "key": "open_age_limit",
+        "label": "Why plans are paused"
+      },
+      "replace": [
+        "age_limit",
+        "getting_started",
+        "how_to",
+        "missed_session",
+        "recording_help",
+        "treatment_nav",
+        "multiple_plans",
+        "body_map",
+        "plan_and_reminders",
+        "partial_reps",
+        "video_quality",
+        "wrong_exercise",
+        "exit_exercise",
+        "how_often",
+        "adjusted_targets",
+        "reminders_help",
+        "family_help"
+      ],
+      "note": "Your plans are paused (plans are for users under 65, Terms of Use section 2), so please exercise under the guidance of your doctor or a physiotherapist.",
+      "note_on": [
+        "safety",
+        "condition_advice",
+        "equipment",
+        "difficulty",
+        "tired",
+        "weakness_balance",
+        "best_time",
+        "muscle_loss",
+        "fear_of_falling",
+        "other_activity",
+        "hot_weather",
+        "motivation",
+        "app_help",
+        "pain_or_discomfort",
+        "pain_mild",
+        "doctor_said"
+      ]
+    }
+  }
 }

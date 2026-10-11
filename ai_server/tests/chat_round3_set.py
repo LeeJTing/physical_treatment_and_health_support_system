@@ -20,7 +20,7 @@ ROUND3 = [
     (KNEE, "my kneee hurtss", "pain_or_discomfort"),
     (KNEE, "how to recrod vidoe", "recording_help"),
     (KNEE, "remindr not working", "reminders_help"),
-    (KNEE, "我的膝盖痛", None),
+    (KNEE, "我的膝盖痛", "language"),   # rules 3.32: another script gets the English + Malay answer
     (KNEE, "https://example.com", None),
     (KNEE, "select * from users", None),
     (KNEE, "<script>alert(1)</script>", None),

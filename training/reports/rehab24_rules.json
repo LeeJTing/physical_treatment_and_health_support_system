@@ -1,9 +1,9 @@
 {
   "Ex1": {
-    "accuracy": 0.5227272727272727,
-    "precision": 0.5373134328358209,
-    "recall": 0.7659574468085106,
-    "f1": 0.631578947368421,
+    "accuracy": 0.6590909090909091,
+    "precision": 0.6307692307692307,
+    "recall": 0.8723404255319149,
+    "f1": 0.7321428571428572,
     "confusion_matrix": {
       "labels": [
         "incorrect",
@@ -11,19 +11,19 @@
       ],
       "rows_true_cols_pred": [
         [
-          10,
-          31
+          17,
+          24
         ],
         [
-          11,
-          36
+          6,
+          41
         ]
       ]
     },
     "exercise": "shoulder_abduction_1arm",
     "videos": 9,
     "labelled_reps": 88,
-    "rep_count_exact": "0/9",
+    "rep_count_exact": "3/9",
     "rep_count_within_1": "4/9",
     "peak_signal_p10_p50_p90": {
       "correct": [
@@ -39,12 +39,16 @@
     },
     "mistake_fired_on": {
       "bent_elbow": {
-        "correct_reps": "11/47",
-        "incorrect_reps": "7/41"
+        "correct_reps": "4/47",
+        "incorrect_reps": "3/41"
       },
       "shoulder_shrug": {
         "correct_reps": "4/47",
         "incorrect_reps": "1/41"
+      },
+      "head_tilt": {
+        "correct_reps": "2/47",
+        "incorrect_reps": "13/41"
       },
       "low_range": {
         "correct_reps": "0/47",

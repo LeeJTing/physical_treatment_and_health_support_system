@@ -16,6 +16,9 @@ class Rep:
     peak: int
     end: int
     side: str = ""
+    # The recording stopped before this (last) repetition came back to the start: it counts, but is
+    # not judged (find_reps).
+    unfinished: bool = False
 
     def slice(self) -> slice:
         return slice(self.start, self.end + 1)
@@ -27,24 +30,38 @@ def find_reps(signal: np.ndarray, t: np.ndarray, rest: float, active: float,
     n = len(signal)
     i = 0
     last_rest = 0
+    seen_rest = False
+    unfinished = False
     while i < n:
         if signal[i] <= rest:
             last_rest = i
+            seen_rest = True
             i += 1
             continue
         if signal[i] >= active:
             j = i
             while j < n and signal[j] > rest:
                 j += 1
+            if not seen_rest:
+                # Already past the start level before any start position was seen (8 Oct: a person
+                # standing still, scored as sit-to-stand, counted as one repetition and passed).
+                i = j
+                continue
             end = min(j, n - 1)
             seg = signal[last_rest:end + 1]
             peak = last_rest + int(np.argmax(seg))
             if t[end] - t[last_rest] >= min_duration:
                 reps.append(Rep(start=last_rest, peak=peak, end=end, side=side))
+                unfinished = j >= n
             last_rest = end
             i = j + 1
             continue
         i += 1
+    if len(reps) > 1 and unfinished:
+        # The recording stopped before the last repetition came back down (9 Oct condition audit: a clip
+        # cut mid-repetition judged that half repetition as "no hold" or "swinging"). It still counts
+        # (a sit-to-stand recording often ends standing) but is not judged when complete ones exist.
+        reps[-1].unfinished = True
     return reps
 
 

@@ -49,19 +49,40 @@ class PostureResultView extends StatelessWidget {
     final passing = r.isPassing;
     final color = passing ? AppTokens.progress : const Color(0xFFC17A1A);
     final saving = vm.saving;
+    // Posture text review (8 Oct): the fall message is shown once, in the banner, and a possible
+    // fall offers no retry today.
+    final fell = r.safetyAlert != null;
+    final lines = [
+      for (final l in r.feedback)
+        if (l != r.safetyAlert) l,
+    ];
+    final String? restHint = fell
+        ? 'Rest now and try this exercise another day.'
+        : passing
+        ? null
+        : vm.retriesInARow >= 2
+        ? 'You have tried this a few times. Rest now and try again tomorrow.'
+        : 'Rest for a minute before you try again.';
     return Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(AppTokens.gutter),
           children: [
-            const Text(
-              'Posture result',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w600,
-                color: AppTokens.text,
-              ),
+            const Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Posture result',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: AppTokens.text,
+                    ),
+                  ),
+                ),
+                ExitExerciseButton(), // FR300_13
+              ],
             ),
             const SizedBox(height: 2),
             Text(
@@ -79,7 +100,7 @@ class PostureResultView extends StatelessWidget {
             if (r.romScale != null) ...[
               const SizedBox(height: 8),
               const Text(
-                'Targets adjusted to your health profile.',
+                'We made the targets gentler to suit your health.',
                 style: TextStyle(fontSize: 13, color: AppTokens.textMuted),
               ),
             ],
@@ -118,12 +139,17 @@ class PostureResultView extends StatelessWidget {
                           color: passing ? AppTokens.good : AppTokens.caution,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          passing ? 'Great form' : 'Needs improvement',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: passing ? AppTokens.good : AppTokens.caution,
+                        // Flexible: wraps instead of overflowing with large phone text.
+                        Flexible(
+                          child: Text(
+                            passing ? 'Great form' : 'Needs improvement',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: passing
+                                  ? AppTokens.good
+                                  : AppTokens.caution,
+                            ),
                           ),
                         ),
                       ],
@@ -142,88 +168,99 @@ class PostureResultView extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: AppTokens.gap),
-            TreatmentCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    passing ? 'Feedback' : 'Corrective guidance', // FR300_19
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: AppTokens.accent,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  for (final line in r.feedback)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            passing
-                                ? Icons.thumb_up_alt_outlined
-                                : Icons.tips_and_updates_outlined,
-                            size: 20,
-                            color: AppTokens.textBody,
-                          ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Text(
-                              line,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                height: 1.4,
-                                color: AppTokens.text,
-                              ),
-                            ),
-                          ),
-                        ],
+            if (lines.isNotEmpty) ...[
+              const SizedBox(height: AppTokens.gap),
+              TreatmentCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      passing ? 'Feedback' : 'Corrective guidance', // FR300_19
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: AppTokens.accent,
                       ),
                     ),
-                ],
+                    const SizedBox(height: 8),
+                    for (final line in lines)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              passing
+                                  ? Icons.thumb_up_alt_outlined
+                                  : Icons.tips_and_updates_outlined,
+                              size: 20,
+                              color: AppTokens.textBody,
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                line,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  height: 1.4,
+                                  color: AppTokens.text,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            ),
+            ],
             if (passing && vm.autoAdvanced) ...[
               const SizedBox(height: AppTokens.gap),
               const NoticeBanner(
-                '80% or more: your progress was updated automatically.',
+                'Score 80% or more: your progress has been saved.',
               ),
             ],
             if (saving case UiError(:final message)) ...[
               const SizedBox(height: AppTokens.gap),
               NoticeBanner(message, warning: true), // FR300_27
             ],
+            if (restHint != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                restHint,
+                style: const TextStyle(fontSize: 15, color: AppTokens.textBody),
+              ),
+            ],
             const SizedBox(height: 20),
             Row(
               children: [
-                Expanded(
-                  child: SizedBox(
-                    height: AppTokens.minTarget,
-                    child: FilledButton(
-                      onPressed: saving is Loading
-                          ? null
-                          : () => _retry(context),
-                      style: FilledButton.styleFrom(
-                        backgroundColor: AppTokens.action,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(
-                            AppTokens.radiusButton,
+                if (!fell) ...[
+                  Expanded(
+                    child: SizedBox(
+                      height: AppTokens.minTarget,
+                      child: FilledButton(
+                        onPressed: saving is Loading
+                            ? null
+                            : () => _retry(context),
+                        style: FilledButton.styleFrom(
+                          backgroundColor: AppTokens.action,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(
+                              AppTokens.radiusButton,
+                            ),
+                          ),
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
-                        textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        child: const Text('Retry exercise'),
                       ),
-                      child: const Text('Retry exercise'),
                     ),
                   ),
-                ),
-                const SizedBox(width: 10),
+                  const SizedBox(width: 10),
+                ],
                 Expanded(
                   child: SizedBox(
                     height: AppTokens.minTarget,
@@ -265,7 +302,6 @@ class PostureResultView extends StatelessWidget {
     );
   }
 }
-
 
 /// Shown first when the video looks like the patient lost their balance or fell.
 class _SafetyBanner extends StatelessWidget {

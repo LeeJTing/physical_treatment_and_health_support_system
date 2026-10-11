@@ -47,7 +47,7 @@ def unstretch(w: str) -> str:
 NEGATORS = {"no", "not", "without", "never", "don't", "dont", "didn't", "didnt", "haven't", "havent", "isn't",
             "isnt", "wasn't", "wasnt", "nor"}
 # Everyday words mapped onto the words the rules use.
-SYNONYMS = {"workout": "exercise", "workouts": "exercises", "train": "exercise", "training": "exercising",
+SYNONYMS = {"pane": "pain", "panes": "pains", "workout": "exercise", "workouts": "exercises", "train": "exercise", "training": "exercising",
             "lift": "raise", "lifts": "raises", "lifting": "raising", "lifted": "raised", "high": "height",
             "physio": "physiotherapist", "doc": "doctor", "vid": "video", "pic": "photo"}
 # Common Malay words patients mix into English (Malaysian users). Single words; phrases are in
@@ -57,7 +57,10 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
-         "jatuh": "fell", "terjatuh": "fell", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
+         "pitam": "fainted", "senget": "crooked", "herot": "crooked", "pelat": "slurred", "kebas": "numb",
+         "lumpuh": "paralysed",
+         "jatuh": "fell", "terjatuh": "fell", "tergelincir": "slipped", "tersandung": "tripped",
+         "tersadung": "tripped", "tergolek": "fell", "rebah": "collapsed", "tadi": "just now", "mengecil": "shrank", "otot": "muscles", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
          "susah": "hard", "duduk": "sitting", "sambil": "while",
          "seminggu": "a week", "sehari": "a day", "berapa": "how many", "kali": "times", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
          "mak": "mother", "ibu": "mother", "ayah": "father", "bapa": "father", "nenek": "grandma",
@@ -66,7 +69,37 @@ MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afterno
                  "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
                  "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
                  "sesak nafas": "short of breath", "kencing manis": "diabetes", "darah tinggi": "high blood pressure",
-                 "sakit jantung": "heart disease", "lemah badan": "weak"}
+                 "sakit jantung": "heart disease", "lemah badan": "weak",
+                 # round 14 (elderly users)
+                 "tahun lepas": "last year", "tahun lalu": "last year", "bulan lepas": "last month",
+                 "bulan lalu": "last month", "minggu lepas": "last week", "takut jatuh": "afraid of falling",
+                 "risau jatuh": "worried about falling", "otot mengecil": "muscles shrank",
+                 "otot kecil": "muscles shrank", "kaki kurus": "legs are thin", "tulisan kecil": "text too small",
+                 "huruf kecil": "text too small", "duduk hospital": "in hospital", "masuk hospital": "in hospital",
+                 "keluar hospital": "out of hospital", "masuk wad": "in hospital",
+                 # laptop safety pass 8: after a fall
+                 "tak boleh jalan": "can't walk", "tidak boleh jalan": "can't walk", "tak boleh bangun": "can't get up",
+                 "tidak boleh bangun": "can't get up", "tak boleh berdiri": "can't stand",
+                 "tidak boleh berdiri": "can't stand", "sakit kepala": "headache", "muntah": "vomiting",
+                 "mengantuk": "drowsy", "lebam": "bruised",
+                 # laptop safety pass 9
+                 "tergelincir": "slipped", "bilik air": "bathroom", "pagi tadi": "this morning",
+                 "tadi pagi": "this morning", "berdarah": "bleeding", "dah lama": "for a long time",
+                 "lama dah": "for a long time", "bila baca": "when reading",
+                 # laptop safety pass 10
+                 "tak boleh bernafas": "can't breathe", "tidak boleh bernafas": "can't breathe",
+                 "tak dapat bernafas": "can't breathe", "tidak dapat bernafas": "can't breathe",
+                 "sukar bernafas": "hard to breathe", "susah bernafas": "hard to breathe",
+                 "dah ok": "fine now", "sekarang ok": "fine now", "hari ni": "today", "hari ini": "today",
+                 "hampir jatuh": "nearly fell", "nyaris jatuh": "nearly fell",
+                 # PC safety pass 14: stroke signs, fainting, bleeding
+                 "nak pitam": "feel like fainting", "rasa nak pitam": "feel like fainting",
+                 "mulut senget": "mouth crooked", "muka senget": "face crooked", "mulut herot": "mouth crooked",
+                 "muka herot": "face crooked", "cakap pelat": "slurred speech", "percakapan pelat": "slurred speech",
+                 "hilang kesedaran": "lost consciousness", "tak sedarkan diri": "unconscious",
+                 "tidak sedarkan diri": "unconscious", "darah tak berhenti": "bleeding won't stop",
+                 "darah tidak berhenti": "bleeding won't stop", "banyak darah": "bleeding a lot",
+                 "berdarah banyak": "bleeding a lot"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -77,6 +110,7 @@ def rules() -> dict:
     return json.loads(RULES_PATH.read_text(encoding="utf-8"))
 
 
+@lru_cache(maxsize=20000)
 def clean(text: str) -> str:
     t = text.lower().replace("’", "'").replace("%", " percent ")
     t = re.sub(r"<[^>]*>", " ", t)                     # pasted HTML / script tags
@@ -172,9 +206,19 @@ def intents_for(plan_id: str | None) -> list[dict]:
     return list(_intents_for(plan_id))
 
 
-def categories_for(plan_id: str | None) -> list[dict]:
-    """The question categories the app lists (FR500_18): plan topics first, then general ones."""
-    return [i for i in intents_for(plan_id) if i["show"]]
+def categories_for(plan_id: str | None, restriction: str | None = None) -> list[dict]:
+    """The question categories the app lists (FR500_18): plan topics first, then general ones. A
+    restricted user (3.49: aged 65 and over) gets "Why plans stop at 65" first and no plan topics."""
+    shown = [i for i in intents_for(plan_id) if i["show"]]
+    rest = rules().get("restrictions", {}).get(restriction or "")
+    if not rest:
+        return shown
+    first = [i for i in rules()["intents"] if i["key"] == "age_limit"]
+    return first + [i for i in shown if not _restricted(i["key"], rest)]
+
+
+def _restricted(key: str, rest: dict) -> bool:
+    return key in rest["replace"] or key.startswith("plan_")
 
 
 # ---------------------------------------------------------------------------
@@ -188,6 +232,10 @@ def vocabulary() -> tuple[str, ...]:
     # "information" is not "inflammation").
     words = set(STOP) | set(NEGATORS) | set(COMMON_WORDS)
     phrases = list(r["red_flags"])
+    # The free-word emergency rules' words too (round 15: "prevent", an exception there, was "corrected"
+    # to "parent", so "how to prevent pain after a fall" read as an emergency).
+    for combo in r.get("red_flag_combos", []):
+        phrases += combo[0] + combo[1] + (combo[3] if len(combo) > 3 else [])
     for i in r["intents"]:
         phrases += i["keywords"] + i["examples"]
     for i in r["intents"]:
@@ -251,19 +299,86 @@ def find_phrase(phrase: str, words: list[str]) -> list[int]:
     return [i for i in range(len(ws) - n + 1) if ws[i:i + n] == p]
 
 
+NEGATION_FILLER = {"have", "has", "had", "got", "any", "feel", "felt", "get", "really", "much", "chest", "knee",
+                   "back", "leg", "legs", "arm", "arms", "hip", "shoulder", "real", "a"}
+
+
 def negated(words: list[str], i: int) -> bool:
-    """A negator in the two words before position i ('no chest pain', 'not dizzy')."""
-    return bool(NEGATORS & set(words[max(0, i - 2):i]))
+    """A negator in the two words before position i ('no chest pain', 'not dizzy'), or further back
+    across filler words ('i don't have chest pain', 'i do not have any pain')."""
+    if NEGATORS & set(words[max(0, i - 2):i]):
+        return True
+    k = i - 1
+    while k >= 0 and i - k <= 4 and words[k] in NEGATION_FILLER:
+        k -= 1
+    return k >= 0 and i - k <= 4 and words[k] in NEGATORS
 
 
 COMBO_NEGATORS = NEGATORS - {"can't", "cant", "cannot"}
+
+
+def _combo_negated(words: list[str], i: int) -> bool:
+    """A negator in the two words before position i ("no chest pain", "no fever"), but not "not just" /
+    "not only" (more, not less: "not just tight, it is crushing") nor an answer word before the person's
+    own words ("No, my chest really hurts"; PC check, 9 Oct)."""
+    before = words[max(0, i - 2):i]
+    if not (COMBO_NEGATORS | {"doesn't", "doesnt", "aren't", "arent", "hasn't", "hasnt"}) & set(before):
+        return False
+    if len(before) == 2 and before[0] == "not" and before[1] in ("just", "only"):
+        return False
+    if len(before) == 2 and before[0] == "no" and before[1] in ("my", "his", "her", "the", "our"):
+        return False
+    return True
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
 PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
           ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
-          ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired")]
+          ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired"),
+          # round 14 (elderly users)
+          ("muscle_loss", "getting_started"), ("muscle_loss", "safety"), ("muscle_loss", "diagnosis"),
+          ("muscle_loss", "equipment"), ("muscle_loss", "weakness_balance"), ("muscle_loss", "plan_progress"),
+          ("muscle_loss", "best_time"), ("muscle_loss", "for_someone_else"),
+          ("fear_of_falling", "safety"), ("fear_of_falling", "equipment"), ("fear_of_falling", "how_often"),
+          ("fear_of_falling", "weakness_balance"), ("fear_of_falling", "for_someone_else"),
+          ("fear_of_falling", "difficulty"),
+          ("text_size", "recording_help"), ("text_size", "app_help"), ("language", "text_size"),
+          ("family_help", "for_someone_else"), ("family_help", "plan_progress"), ("family_help", "recording_help"),
+          ("family_help", "app_help"), ("partial_reps", "difficulty"), ("partial_reps", "posture_result"),
+          ("recording_help", "fear_of_falling"), ("missed_session", "muscle_loss"),
+          ("eating_concern", "missed_session"), ("eating_concern", "diet"), ("eating_concern", "best_time"),
+          ("eating_concern", "tired"), ("eating_concern", "motivation"), ("eating_concern", "difficulty"),
+          ("eating_concern", "low_mood"), ("eating_concern", "medication"), ("bladder_leak", "difficulty"),
+          ("bladder_leak", "pain_or_discomfort"),
+          # round 15 (9 Oct features): the neck is not covered, whatever is asked about it; several plans
+          ("neck_not_covered", "pain_or_discomfort"), ("neck_not_covered", "pain_mild"),
+          ("neck_not_covered", "condition_advice"), ("neck_not_covered", "plan_exercises"),
+          ("neck_not_covered", "how_to"), ("neck_not_covered", "getting_started"), ("neck_not_covered", "body_map"),
+          ("multiple_plans", "plan_exercises"), ("multiple_plans", "plan_and_reminders"),
+          ("multiple_plans", "plan_progress"), ("body_map", "plan_exercises"), ("body_map", "getting_started"),
+          ("wrong_exercise", "posture_result"), ("wrong_exercise", "how_to"), ("wrong_exercise", "difficulty"),
+          # round 16 (account and Exit, 9 Oct): "every time" in "log in every time" is not about pain
+          ("session_expired", "pain_sharp"), ("exit_exercise", "difficulty"), ("exit_exercise", "plan_and_reminders"),
+          ("exit_exercise", "history_help"), ("exit_exercise", "recording_help"), ("exit_exercise", "posture_result"),
+          ("google_setup", "account_help"), ("change_password", "account_help"), ("session_expired", "account_help"),
+          ("wrong_exercise", "recording_help")]
+
+
+# As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
+# muscle loss, but "the doctor told me to rest after hospital" is the doctor's advice).
+PREFER_UNLESS = [# 3.50: "I have cancer, can I exercise?" is condition advice; "do I have cancer?" stays diagnosis
+                 ("condition_advice", "diagnosis", ["do i have", "could it be", "could this be", "is it cancer",
+                                                    "is this cancer", "might be", "do you think", "am i getting",
+                                                    "be cancer", "lump", "signs of", "symptoms of"]),
+                 ("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not to", "don't", "avoid", "no exercise",
+                                                 "bed rest", "wait", "until"]),
+                 # round 15: "afraid of getting hurt after a fall" is the fear, unless something hurts now
+                 ("fear_of_falling", "pain_or_discomfort", ["pain", "painful", "sakit", "ache", "aching", "sore",
+                                                            "swollen"]),   # not "hurts": it stems to "hurt"
+                 # PC pass 14: "gasping a bit after climbing stairs" is effort, unless something hurts
+                 ("tired", "pain_mild", ["pain", "painful", "sore", "ache", "aching", "hurt", "sakit", "stiff",
+                                         "swollen", "tender"])]
 
 
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
@@ -288,6 +403,151 @@ NEAR_MISS = {"nearly", "almost"}
 HARD_SIGNS = ["not moving", "not answering", "not responding", "unconscious", "can't move", "cannot move",
               "cant move", "bleeding", "blue lips", "not breathing", "tak sedar"]
 ACCIDENT_WORDS = ("fell", "fall", "fallen", "hit", "slipped", "slip", "tripped", "trip", "collapsed")
+# Round 14 (elderly users): a fall long ago is history, not an emergency ("I fell last year and now I'm
+# scared"), unless it still hurts; and "what if I can't get up after a fall" is a question about falling.
+FALL_WORDS = {"fell", "fall", "falls", "fallen", "falling", "jatuh", "tripped", "slipped"}
+PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "long time ago",
+             "long ago", "in the past year", "in the past few years", "years back", "dulu", "once"]
+# Words that make a fall recent whatever else is said ("i fell in the past hour", "kalau dia jatuh tadi").
+RECENT = ["just now", "tadi", "right now", "today", "this morning", "this afternoon", "this evening", "tonight",
+          "last night", "yesterday", "semalam", "earlier", "moment ago", "minutes ago", "minute ago", "hour ago",
+          "hours ago", "past hour", "just fell", "just fallen", "just had a fall", "just collapsed", "just slipped",
+          "baru fell"]
+STILL_HURT = ["hurt", "hurts", "hurting", "pain", "painful", "sakit", "swollen", "swelling", "bruise", "bruised",
+              "still can't", "still cannot", "on the floor", "lying", "confused", "confusion", "keliru", "drowsy",
+              "sleepy", "vomit", "vomiting", "headache", "headaches", "not the same", "been the same", "not himself",
+              "not herself", "getting worse", "worse since", "limp", "limping", "numb", "numbness",
+              "sleeping all day", "sleeps all day", "sleep all day", "sleeping a lot", "sleeps a lot",
+              "asleep all the time", "sleep je", "sleep sahaja", "can't remember", "cannot remember", "forgetful",
+              "doesn't recognise", "doesn't recognize", "not recognise", "not recognize",
+              "can't put weight", "cannot put weight", "can't bear weight", "cannot bear weight", "still cant", "still unable", "still limping",
+              "still sore", "can't walk", "cannot walk", "cant walk", "bleeding"]
+OLD_ACCIDENT_WORDS = FALL_WORDS | {"hit", "trip", "slip", "banged", "knocked"}
+HYPOTHETICAL = ["what if i", "what if you", "what if she", "what if he", "if i", "if you", "if i ever",
+                "in case i", "in case you", "kalau saya", "kalau", "supposing i", "suppose i", "how do i",
+                "how to", "how can i", "if", "what if", "suppose", "supposing", "in case"]
+
+
+def _hypothetical(words: list[str], i: int) -> bool:
+    """The words just before position i make it a question about what to do ("what if i can't get up")."""
+    before = f" {' '.join(words[max(0, i - 3):i])} "
+    return any(before.endswith(f" {h} ") for h in HYPOTHETICAL)
+
+
+# Laptop pass 9: a time word counts only in the fall's own sentence ("my mum fell years ago; today she
+# started the plan" is an old fall), and "earlier in my life" is not "earlier today".
+CLAUSE_BREAK = re.compile(r"[.;!?]+|\bbut\b|\btapi\b")
+PAST_PHRASES = [("earlier in my life", "long ago"), ("earlier years", "long ago"), ("years earlier", "long ago"),
+                ("when i was young", "long ago"), ("when i was younger", "long ago"), ("as a child", "long ago"),
+                ("as a kid", "long ago")]
+# A fall told with no "I" or name in front ("fell down just now, knee berdarah", "atuk tergelincir pagi
+# tadi"): urgent when its own sentence says it was recent.
+RECENT_FALL_VERBS = {"fell", "fallen", "slipped", "tripped", "collapsed"}
+PEOPLE = {"i", "he", "she", "dia", "mother", "father", "mum", "mom", "dad", "grandma", "grandpa", "grandmother",
+          "grandfather", "husband", "wife", "son", "daughter", "we", "they", "uncle", "aunt", "patient"}
+# What may follow "slipped"/"tripped" in a fall ("slipped in the bathroom"), not "slipped the note under".
+AGAIN_FILLER = {"again", "lagi", "and", "it", "happened", "the", "same", "thing", "once", "more", "she", "he", "i",
+                "dia", "saya", "did", "so", "then", "now", "sekali"}
+TIME_FILLER = AGAIN_FILLER | {"it", "was", "that", "this", "about", "around", "already", "la", "lah", "maybe", "like",
+                              "only", "yes", "ya", "a", "an", "few", "some", "two", "three", "2", "3", "4", "5"}
+# Good-news words may follow a past time only ("that was last year, now fine"; not "today i'm fine").
+CALM_FILLER = {"fine", "ok", "okay", "good", "better", "is", "she's", "he's", "i'm", "all"}
+SLIP_NEXT = {"in", "on", "at", "dalam", "di", "over", "down", "and", "while", "when", "near", "outside", "inside",
+             "just", "this", "today", "yesterday", "earlier", "tadi", "semalam", "from", "off"}
+# Long-standing symptoms are not new warning signs (laptop pass 9 debatable cases).
+CHRONIC = {"numb": ["years ago", "for years", "since the operation", "since my operation", "since surgery",
+                    "since the surgery", "since my surgery", "for a long time", "long time", "always", "since birth",
+                    "since my stroke", "because of diabetes", "because of my diabetes", "from diabetes",
+                    "due to diabetes", "diabetic", "neuropathy", "since years", "for many years"],
+           "vomit": ["after eating", "right after eating", "after a meal", "after meals", "full stomach",
+                     "after lunch", "after dinner", "after breakfast", "lepas makan"]}
+CHRONIC["numbness"] = CHRONIC["numb"]
+for _p in ['cannot talk properly', "can't talk properly", 'cannot speak properly', "can't speak properly", 'cannot get my words out', "can't get my words out", 'cannot get the words out', "can't get the words out", 'words come out wrong', 'words are jumbled', 'talking funny', 'speech is strange']:
+    CHRONIC[_p] = CHRONIC["numb"]                   # "cannot talk properly since my stroke" is not new
+CHRONIC["vomiting"] = CHRONIC["vomit"]
+
+
+# Events that are history when told with a past time in their own sentence (laptop pass 12).
+HISTORY_EVENTS = {"heart attack"}
+YEAR = re.compile(r"^(19|20)[0-9][0-9]$")
+
+
+def _past_event(phrase: str, clauses: list[list[str]]) -> bool:
+    own = [c for c in clauses if find_phrase(phrase, c)]
+    return bool(own) and all(
+        (any(find_phrase(p, c) for p in PAST_TIME + ["history of", "previous", "previously", "before"])
+         or any(YEAR.match(w) for w in c))
+        and not any(find_phrase(p, c) for p in RECENT + ["having", "now", "right now"]) for c in own)
+
+
+def _clauses(text: str) -> list[list[str]]:
+    out = []
+    for part in CLAUSE_BREAK.split(text.lower()):
+        p = f" {clean(part)} "
+        for a, c in NOT_A_FALL + PAST_PHRASES:
+            p = p.replace(f" {a} ", f" {c} ")
+        if not p.strip():
+            continue
+        words = p.split()
+        # A sentence that only says when belongs to the one before ("My mum fell. It was years ago.").
+        when = {w for ph in RECENT + PAST_TIME for w in ph.split() if find_phrase(ph, words)}
+        recent = any(find_phrase(ph, words) for ph in RECENT)
+        filler = TIME_FILLER if recent else TIME_FILLER | CALM_FILLER
+        if out and when and all(w in when or w in filler for w in words):
+            out[-1] = out[-1] + words
+        else:
+            out.append(words)
+    return out
+
+
+def _when(phrase: str, clauses: list[list[str]], words: list[str]) -> tuple[bool, bool]:
+    """(old, recent) for a fall phrase, judged in the sentence it is in; a symptom anywhere keeps it urgent."""
+    if any(find_phrase(h, words) for h in STILL_HURT + HARD_SIGNS):
+        return False, True
+    own = [c for c in clauses if find_phrase(phrase, c)] or [words]
+    recent = any(find_phrase(p, c) for c in own for p in RECENT)
+    old = not recent and all(any(find_phrase(p, c) for p in PAST_TIME) for c in own)
+    return old, recent
+
+
+def _person_fell(c: list[str], i: int, times: set[str]) -> bool:
+    """c[i] is a fall verb told of a person, or at the start of its sentence once time words are skipped
+    ("pagi tadi jatuh lagi"); not "the phone fell", "slipped the note", "if i fell"."""
+    w = c[i]
+    if w not in RECENT_FALL_VERBS:
+        return False
+    k = i - 1
+    while k >= 0 and (c[k] in ("just", "baru", "has", "had", "have", "suddenly") or c[k] in times):
+        k -= 1
+    if k >= 0 and c[k] not in PEOPLE:
+        return False                                   # "the phone fell", "the price has fallen today"
+    if NEGATORS & set(c[max(0, i - 2):i]) or _hypothetical(c, i):
+        return False
+    if w in ("slipped", "tripped") and i + 1 < len(c) and c[i + 1] not in SLIP_NEXT:
+        return False                                   # "slipped the note under the door this morning"
+    return True
+
+
+def _recent_fall(clauses: list[list[str]]) -> bool:
+    """A person's fall that is recent, judged sentence by sentence (laptop passes 9 and 10)."""
+    previous = None                                    # the last fall told: "old" (with a past time) or "new"
+    for c in clauses:
+        times = {w for p in RECENT for w in p.split() if find_phrase(p, c)}
+        past = any(find_phrase(p, c) for p in PAST_TIME)
+        again = bool({"again", "lagi"} & set(c))
+        if any(_person_fell(c, i, times) for i in range(len(c))):
+            if times or (again and not past):
+                return True                            # "fell this morning", "now she fell again"
+            previous = "old" if past else "new"
+            continue
+        if times and previous:
+            # A sentence that says only when: "Fell. Just now.", "fell last month. today again."
+            rest = [w for w in c if w not in times and w not in AGAIN_FILLER]
+            if not rest and (previous == "new" or again):
+                return True
+    return False
+
+
 # A blood pressure reading of 180/110 or more (the HYPERTENSION advice: do not exercise that day).
 BP_READING = re.compile(r"\b(\d{2,3})\s*/\s*(\d{2,3})\b(?!\s*(?:min|mins|minute|minutes|reps|rep|sets|set|"
                         r"km|steps|points|marks|%|days|times|seconds|secs))")
@@ -299,6 +559,9 @@ LOW_SUGAR_SIGNS = ("shaky", "shaking", "shake", "sweaty", "sweating", "dizzy", "
 
 def low_sugar(text: str) -> bool:
     low = text.lower()
+    # PC safety pass 16: under 3.0 mmol/L is a severe low whether or not symptoms are told ("my glucose is 2.8").
+    if any(float(v) < 3.0 for v in SUGAR_READING.findall(low)):
+        return True
     if not any(w in low for w in LOW_SUGAR_SIGNS):
         return False
     for v in SUGAR_READING.findall(low):
@@ -306,6 +569,19 @@ def low_sugar(text: str) -> bool:
         if x < 4.0 or 20 <= x < 70:
             return True
     return False
+
+
+HIGH_SUGAR_SIGNS = ("vomit", "sick", "nausea", "thirsty", "drowsy", "confused", "breath", "unwell", "muntah",
+                    "dahaga", "pening", "very weak", "keliru")
+
+
+def high_sugar(text: str) -> bool:
+    """A very high blood sugar reading with symptoms (laptop pass 11: 'my sugar is 25 and i feel very
+    sick'): 20-35 mmol/L or 360-1000 mg/dL. 20-69 with a low-sugar sign is caught by low_sugar."""
+    low = text.lower()
+    if not any(w in low for w in HIGH_SUGAR_SIGNS):
+        return False
+    return any(20 <= float(v) <= 35 or 360 <= float(v) <= 1000 for v in SUGAR_READING.findall(low))
 
 
 def high_bp(text: str) -> bool:
@@ -373,7 +649,14 @@ OD_NOT_TAKING = [("took me off", "removed"), ("took him off", "removed"), ("took
 OD_CHILD = {"grandson", "granddaughter", "grandchild", "child", "kid", "baby", "toddler", "cucu", "anak"}
 OD_DOUBLE = ["double my insulin", "double insulin", "double dose of insulin", "twice my insulin",
              "extra insulin", "insulin twice", "insulin two times", "insulin 2 times", "double my warfarin",
-             "double warfarin", "extra warfarin", "warfarin twice", "double my blood thinner"]
+             "double warfarin", "extra warfarin", "warfarin twice", "double my blood thinner",
+             # PC safety pass 16: three or more times a dose, and extra sleeping pills. A regular medicine
+             # taken twice by mistake stays a pharmacist question (decided in laptop pass 6).
+             "three times my dose", "3 times my dose", "four times my dose", "4 times my dose",
+             "five times my dose", "5 times my dose", "three times the dose", "3 times the dose", "triple dose",
+             "triple my dose", "extra sleeping pills", "extra sleeping tablets",
+             # Malay puts the amount after the medicine ("makan ubat terlalu banyak")
+             "ubat terlalu banyak", "terlebih makan ubat", "terlebih ubat", "ubat berlebihan", "telan ubat banyak"]
 OD_BOXES = ["medicine box", "pill box", "pillbox", "medicine cabinet", "kotak ubat"]
 OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now. Call 999 or go to the nearest "
                    "emergency department now, and take the medicine packets with you; do not wait for symptoms. "
@@ -381,8 +664,11 @@ OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine
                    "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
 # Household chemicals swallowed (laptop pass 7): Dettol, bleach, floor cleaner, pesticide...
 POISONS = ["dettol", "clorox", "bleach", "floor cleaner", "cleaner", "pesticide", "insecticide", "racun",
-           "kerosene", "minyak tanah", "antifreeze", "weed killer", "detergent", "toilet cleaner", "lysol"]
-POISON_VERBS = {"drank", "drink", "drinks", "swallowed", "swallow", "ate", "eaten", "minum", "telan", "took", "had"}
+           "kerosene", "minyak tanah", "antifreeze", "weed killer", "detergent", "toilet cleaner", "lysol",
+           # PC safety pass 16
+           "cleaning liquid", "cleaning fluid", "cleaning product", "dishwashing liquid", "pencuci", "sabun cecair"]
+POISON_VERBS = {"drank", "drink", "drinks", "swallowed", "swallow", "ate", "eaten", "minum", "telan", "took", "had",
+                "terminum", "tertelan"}
 POISON_ANSWER = ("Swallowing a cleaning product, pesticide or other chemical is an emergency. Call 999 now or go "
                  "to the nearest emergency department, and take the bottle with you. Do not try to make them "
                  "vomit. If it was on purpose, or you are thinking of harming yourself, you are not alone: "
@@ -494,16 +780,19 @@ OD_CLAUSE_BREAKS = {"and", "then", "but", "dan", "lepas", "after", "before", "so
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
-    if high_bp(text) or low_sugar(text):
+    if high_bp(text) or low_sugar(text) or high_sugar(text):
         return True
     r = rules()
     # Neutralise phrases that look like a fall first, then spell-correct the result: correction can
     # break the phrase ("guest list" -> "guess list"), and skipping correction hid typos next to it
     # ("fell for a scam and then she colapsed", laptop pass 5).
     padded = f" {clean(text)} "
-    for a, b in NOT_A_FALL:
+    for a, b in NOT_A_FALL + PAST_PHRASES:
         padded = padded.replace(f" {a} ", f" {b} ")
     base = padded.strip()
+    clauses = _clauses(text)
+    if _recent_fall(clauses):
+        return True
     for variant in {base, correct(base)}:
         words = variant.split()
         for phrase in r["red_flags"]:
@@ -513,6 +802,17 @@ def red_flag(text: str | None) -> bool:
                     continue
                 if NEAR_MISS & before and any(w in phrase.split() for w in ACCIDENT_WORDS):
                     continue
+                if OLD_ACCIDENT_WORDS & set(phrase.split()):
+                    old, recent = _when(phrase, clauses, words)
+                    if old:
+                        continue                       # "i fell last year", "hit my head years ago"
+                    if FALL_WORDS & set(phrase.split()) and _hypothetical(words, i) and not recent:
+                        continue                       # "if i fall", not "what if he fell? he's on the floor"
+                if phrase in HISTORY_EVENTS and _past_event(phrase, clauses):
+                    continue                           # "i had a heart attack last year"
+                if phrase in CHRONIC and any(find_phrase(c, words) for c in CHRONIC[phrase]) \
+                        and not any(find_phrase(s, words) for s in ("suddenly", "sudden", "tiba tiba")):
+                    continue                           # "numbness since the operation 3 years ago"
                 return True
         for combo in r.get("red_flag_combos", []):
             anchors, symptoms, window = combo[:3]
@@ -520,12 +820,22 @@ def red_flag(text: str | None) -> bool:
                     and not any(find_phrase(h, words) for h in HARD_SIGNS):
                 continue                               # a planning question, or doing the exercise
             for anchor in anchors:
+                fall = bool(FALL_WORDS & set(anchor.split()))
+                if fall and _when(anchor, clauses, words)[0]:
+                    continue                           # "she fell last year and couldn't stand for a week"
                 for i in find_phrase(anchor, words):
-                    if COMBO_NEGATORS & set(words[max(0, i - 2):i]):
+                    if _combo_negated(words, i):
                         continue                       # "no chest pain", "never had breathing trouble"
-                    near = words[max(0, i - window):i + window + 1]
-                    if any(find_phrase(s, near) for s in symptoms):
-                        return True
+                    lo = max(0, i - window)
+                    near = words[lo:i + window + 1]
+                    for s in symptoms:
+                        for j in find_phrase(s, near):
+                            if _combo_negated(near, j):
+                                continue               # "neck pain is better, no fever"
+                            if fall and (_hypothetical(words, i) or _hypothetical(words, lo + j)) \
+                                    and not _when(anchor, clauses, words)[1]:
+                                continue               # "what if i can't get up after a fall"
+                            return True
     return False
 
 
@@ -614,7 +924,8 @@ def overlap_match(plan_id: str | None, text: str) -> tuple[dict | None, float]:
 CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYPERTENSION",
                    "hypertension": "HYPERTENSION", "diabetes": "DIABETES", "diabetic": "DIABETES",
                    "blood sugar": "DIABETES", "heart disease": "HEART_DISEASE", "heart condition": "HEART_DISEASE",
-                   "heart problem": "HEART_DISEASE", "stroke": "STROKE", "asthma": "ASTHMA", "asthmatic": "ASTHMA",
+                   "heart problem": "HEART_DISEASE", "heart attack": "HEART_DISEASE", "pacemaker": "HEART_DISEASE",
+                   "stent": "HEART_DISEASE", "stroke": "STROKE", "asthma": "ASTHMA", "asthmatic": "ASTHMA",
                    "arthritis": "ARTHRITIS", "osteoporosis": "OSTEOPOROSIS", "heart patient": "HEART_DISEASE",
                    "sugar level": "DIABETES", "my sugar": "DIABETES", "glucose": "DIABETES",
                    "pregnant": "PREGNANCY", "pregnancy": "PREGNANCY", "expecting a baby": "PREGNANCY",
@@ -625,14 +936,25 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "replaced knee": "JOINT_REPLACEMENT", "wound": "SURGERY_WOUND", "stitches": "SURGERY_WOUND",
                    "incision": "SURGERY_WOUND", "cast": "INJURY", "plaster": "INJURY",
                    "fracture": "INJURY", "fractured": "INJURY", "broken bone": "INJURY", "broke my": "INJURY",
-                   "sprain": "INJURY", "sprained": "INJURY"}
+                   "sprain": "INJURY", "sprained": "INJURY",
+                   # 3.50 (11 Oct): the conditions added to the health profile
+                   "rheumatoid": "RHEUMATOID_ARTHRITIS", "copd": "COPD", "lung disease": "COPD",
+                   "chronic lung": "COPD", "emphysema": "COPD", "cancer": "CANCER", "chemo": "CANCER",
+                   "chemotherapy": "CANCER", "radiotherapy": "CANCER", "kanser": "CANCER", "barah": "CANCER",
+                   "kidney disease": "KIDNEY_DISEASE", "kidney problem": "KIDNEY_DISEASE",
+                   "dialysis": "KIDNEY_DISEASE", "buah pinggang": "KIDNEY_DISEASE", "parkinson": "PARKINSONS",
+                   "parkinsons": "PARKINSONS", "multiple sclerosis": "MULTIPLE_SCLEROSIS",
+                   "foot ulcer": "FOOT_ULCER", "diabetic foot": "FOOT_ULCER", "wound on my foot": "FOOT_ULCER"}
 
 
 def conditions_in(text: str | None) -> list[str]:
     if not text:
         return []
     words = clean(text).split()
-    return list(dict.fromkeys(code for phrase, code in CONDITION_WORDS.items() if find_phrase(phrase, words)))
+    found = list(dict.fromkeys(code for phrase, code in CONDITION_WORDS.items() if find_phrase(phrase, words)))
+    if "RHEUMATOID_ARTHRITIS" in found and "ARTHRITIS" in found:
+        found.remove("ARTHRITIS")                  # "rheumatoid arthritis" is the one condition
+    return found
 
 
 def period(hour: int) -> str:
@@ -724,6 +1046,29 @@ def glossary_match(text: str) -> dict | None:
     return next((i for i in rules()["intents"] if i["key"] == key), None)
 
 
+def _spans(text: str, phrases: list[str]) -> list[tuple[int, int]]:
+    words = clean(text).split()
+    return [(i, i + len(clean(p).split())) for p in phrases for i in find_phrase(p, words)]
+
+
+def _inside_exercise_names(text: str, hits: list) -> list:
+    """Drop a general rule whose every keyword found lies inside an exercise's name ("marching while
+    sitting" is not the "while sitting" question, "balance stand" is not about balance; PC probe of
+    exercise questions, 9 Oct). A keyword found outside the name keeps the rule ("I lose my balance in
+    the balance stand")."""
+    names = [s for h in hits if h[2]["key"].startswith("exercise:") for s in _spans(text, h[2]["keywords"])]
+    if not names:
+        return hits
+    out = []
+    for h in hits:
+        if not h[2]["key"].startswith("exercise:"):
+            own = _spans(text, h[2]["keywords"])
+            if own and all(any(a <= i and j <= b and (b - a) > (j - i) for a, b in names) for i, j in own):
+                continue
+        out.append(h)
+    return out
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched."""
     g = glossary_match(text)
@@ -765,6 +1110,7 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         small = [h for h in hits if h[2].get("small_talk")]
         if small:                                    # "good morning", "help", "ok thanks"
             return max(small, key=lambda h: (h[0], h[1]))[2], "keyword"
+    hits = _inside_exercise_names(text, hits)
     keys = {h[2]["key"] for h in hits}
     if "difficulty" in keys:
         # "My arm cannot go up to shoulder height" is about not managing it, not how the exercise goes.
@@ -772,6 +1118,10 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         keys = {h[2]["key"] for h in hits}
     for better, general in PREFER:
         if better in keys and general in keys:
+            hits = [h for h in hits if h[2]["key"] != general]
+    words = clean(text).split()
+    for better, general, unless in PREFER_UNLESS:
+        if better in keys and general in keys and not any(find_phrase(u, words) for u in unless):
             hits = [h for h in hits if h[2]["key"] != general]
     if hits:
         return max(hits, key=lambda h: (h[0], h[1]))[2], "keyword"
@@ -799,14 +1149,40 @@ def follow_up(text: str | None, chosen: dict | None, previous: str | None, by_ke
     return by_key[previous] if any(find_phrase(r, words) for r in REFERENCES) else None
 
 
+# Laptop pass 12: Chinese and Tamil messages were all unrecognised, emergencies included. The rules
+# read English and Malay; a few emergency words in other scripts are still caught, and anything else
+# mostly in another script gets this answer instead of "not recognised".
+OTHER_SCRIPT_CRISIS = ["想死", "自杀", "自殺", "不想活", "轻生", "輕生", "தற்கொலை"]
+OTHER_SCRIPT_RED_FLAGS = ["胸口痛", "胸痛", "心口痛", "呼吸困难", "呼吸困難", "喘不过气", "喘不過氣", "头晕", "頭暈",
+                          "晕倒", "暈倒", "昏倒", "中风", "中風", "நெஞ்சு வலி", "மூச்சு திணறல்", "மயக்கம்"]
+OTHER_SCRIPT_ANSWER = ("I can only understand English and Bahasa Melayu. Saya hanya faham Bahasa Inggeris dan "
+                       "Bahasa Melayu. In an emergency call 999 (kecemasan: hubungi 999). If you are thinking of "
+                       "harming yourself, call Befrienders KL 03-7627 2929 (24 hours).")
+
+
+def _other_script(text: str) -> bool:
+    letters = [ch for ch in text if ch.isalpha()]
+    return bool(letters) and sum(not ch.isascii() for ch in letters) / len(letters) > 0.5
+
+
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
           risk_level: str | None = None, local_time: tuple[int, int] | None = None,
-          previous_category: str | None = None) -> dict:
+          previous_category: str | None = None, restriction: str | None = None) -> dict:
     r = rules()
     by_key = {i["key"]: i for i in intents_for(plan_id)}
-    base = {"categories": _listing(categories_for(plan_id)), "rules_version": r["version"]}
+    base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
+    rest = r.get("restrictions", {}).get(restriction or "")
 
+    if text and any(w in text for w in OTHER_SCRIPT_CRISIS):
+        return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
+                "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}
+    if text and any(w in text for w in OTHER_SCRIPT_RED_FLAGS):
+        return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
+                "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
+    if text and _other_script(text):
+        return {**base, "answer": OTHER_SCRIPT_ANSWER, "category": "language", "title": "Languages",
+                "is_matched": True, "matched_by": "other_script", "follow_ups": [], "notes": [], "action": None}
     if crisis(text):
         return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
                 "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}
@@ -832,12 +1208,18 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if chosen is None:
         return {**base, "answer": r["not_recognised"], "category": None, "title": None, "is_matched": False,
                 "matched_by": None, "follow_ups": [], "notes": [], "action": None}
+    if rest and _restricted(chosen["key"], rest):
+        # A plan, a recording or plan reminders: not for this user (3.49). Say why and where to go.
+        return {**base, "answer": rest["answer"], "category": "age_limit", "title": rest["title"], "is_matched": True,
+                "matched_by": how, "follow_ups": [], "notes": [], "action": rest["action"]}
 
     mentioned = conditions_in(text) if chosen["key"] in ("condition_advice", "safety") else []
     all_conditions = list(dict.fromkeys((conditions or []) + mentioned))
     # Time first: "rest now, it is late" matters more than the condition reminders that follow.
     notes = time_notes(chosen, local_time, all_conditions, limitations)
     notes += tailor_notes(chosen, all_conditions, limitations, risk_level)
+    if rest and (chosen["key"] in rest["note_on"] or chosen["key"].startswith("exercise:")):
+        notes.insert(0, rest["note"])
     base_answer = chosen["answer"]
     # A condition named in the question is answered on its own (phone test, 8 Oct: with the profile's
     # conditions added the answer ran to 230 words); otherwise the profile's conditions are used.
@@ -849,4 +1231,5 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     answer = base_answer + ("\n\n" + " ".join(notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,
-            "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action")}
+            "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action"),
+            "more_actions": chosen.get("more_actions", [])}

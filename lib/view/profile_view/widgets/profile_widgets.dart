@@ -245,41 +245,53 @@ class ProfileChip extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    button: onTap != null,
-    selected: selected,
-    child: Material(
-      color: selected ? AppTokens.brandDeep : AppTokens.surface,
-      shape: StadiumBorder(
-        side: BorderSide(
-          color: selected ? AppTokens.brandDeep : AppTokens.outline,
-          width: 1.5,
-        ),
+  Widget build(BuildContext context) {
+    final text = Text(
+      label,
+      textAlign: TextAlign.center,
+      maxLines: compact ? 1 : null,
+      softWrap: !compact,
+      style: TextStyle(
+        color: selected ? Colors.white : AppTokens.inkMuted,
+        fontSize: compact ? 15 : 16,
+        fontWeight: FontWeight.w500,
       ),
-      child: InkWell(
-        customBorder: const StadiumBorder(),
-        onTap: onTap,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: 44),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: compact ? 8 : 18,
-              vertical: 10,
-            ),
-            child: Text(
-              label,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: selected ? Colors.white : AppTokens.inkMuted,
-                fontSize: compact ? 15 : 16,
-                fontWeight: FontWeight.w500,
+    );
+    return Semantics(
+      button: onTap != null,
+      selected: selected,
+      child: Material(
+        color: selected ? AppTokens.brandDeep : AppTokens.surface,
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: selected ? AppTokens.brandDeep : AppTokens.outline,
+            width: 1.5,
+          ),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: compact ? 8 : 18,
+                vertical: 10,
               ),
+              // Compact chips share half a row (Gender beside Age): a word that does not fit is
+              // shrunk a little rather than broken ("Femal / e" on narrow phones).
+              child: compact
+                  ? Center(
+                      widthFactor: 1,
+                      child: FittedBox(fit: BoxFit.scaleDown, child: text),
+                    )
+                  : text,
             ),
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 enum BannerTone { warn, info }

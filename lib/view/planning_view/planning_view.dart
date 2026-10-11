@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/chat_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/chat_view_model/chat_view_model.dart';
@@ -16,9 +19,24 @@ class PlanningView extends StatelessWidget {
   const PlanningView({super.key});
 
   Future<void> _retrieve(BuildContext context) async {
+    final vm = context.read<PlanningViewModel>();
+    // 65 and over: the reasons page instead of the questionnaire (Terms of
+    // Use, section 2).
+    final restriction = await vm.checkRestriction();
+    if (restriction == PlanRestriction.age65Plus) {
+      if (context.mounted) {
+        await Navigator.of(context).pushNamed(Routes.ageLimit, arguments: vm.age);
+      }
+      return;
+    }
+    // A condition answered "No" that needs a doctor's OK first (11 Oct).
+    if (restriction == PlanRestriction.clearanceNeeded) {
+      if (context.mounted) await _clearance(context, vm);
+      return;
+    }
+    if (!context.mounted) return;
     final rehab = await showRehabQuestionnaire(context);
     if (rehab == null || !context.mounted) return;
-    final vm = context.read<PlanningViewModel>();
     vm.recommend(rehab);
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
@@ -29,6 +47,37 @@ class PlanningView extends StatelessWidget {
       ),
     );
   }
+
+  Future<void> _clearance(BuildContext context, PlanningViewModel vm) =>
+      showDialog<void>(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Check with your doctor first'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(Messages.clearanceNeeded),
+              const SizedBox(height: 8),
+              for (final h in vm.conditionsNeedingClearance)
+                Text('•  ${h.conditionName}'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(c),
+              child: const Text('OK'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(c);
+                Navigator.of(context).pushNamed(Routes.healthProfile);
+              },
+              child: const Text('Open profile'),
+            ),
+          ],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -71,7 +120,9 @@ class PlanningView extends StatelessWidget {
                       builder: (_) => ChangeNotifierProvider(
                         create: (c) =>
                             ChatViewModel(c.read(), c.read(), c.read()),
-                        child: const ChatView(),
+                        child: const ChatView(
+                          openedFrom: Routes.treatmentPlanning,
+                        ),
                       ),
                     ),
                   ),

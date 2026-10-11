@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
@@ -14,6 +15,7 @@ import 'package:physical_treatment_and_health_support_system/shared_client/api_c
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
@@ -44,6 +46,8 @@ class FakeServer {
   Map<String, dynamic>? lastBody;
   int n = 3;
   int status = 200;
+  String nextStep = 'START';
+  String nextStepReason = '';
 
   late final client = MockClient((req) async {
     lastBody = jsonDecode(req.body) as Map<String, dynamic>;
@@ -74,6 +78,8 @@ class FakeServer {
         'excluded': [],
         'suitable_count': n,
         'model_version': 'hybrid-1.0',
+        'next_step': nextStep,
+        'next_step_reason': nextStepReason,
       }),
       200,
     );
@@ -86,6 +92,24 @@ class FailingCatalogue extends FakeTreatmentRepository {
   Future<Result<List<TreatmentPlan>>> getCatalogue() async =>
       const Failure('down', code: 'offline');
 }
+
+/// The plan_outcome_stats() RPC is not deployed: the call fails.
+class NoOutcomeStats extends FakeTreatmentRepository {
+  NoOutcomeStats(super.catalogue);
+  @override
+  Future<Result<List<PlanOutcome>>> getPlanOutcomes() async =>
+      const Failure('function not found', code: 'PGRST202');
+}
+
+const PlanOutcome kneeCell = (
+  planId: 'p-knee',
+  riskLevel: 'Low',
+  ageBand: '<60',
+  patients: 12,
+  completionRate: 0.8,
+  meanAccuracy: 84.5,
+  meanProgress: null,
+);
 
 class Harness {
   final server = FakeServer();
@@ -143,6 +167,44 @@ class Harness {
 
 void main() {
   group('RecommendationService', () {
+    test('sends the optional pace beside rehab', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(
+        const RehabInfo(
+          affectedBodyArea: 'BOTH_LEGS',
+          recoveryStage: RecoveryStage.early,
+          mobilityLevel: MobilityLevel.low,
+          goal: 'MOBILITY',
+          pace: 'SLOW',
+        ),
+      );
+      final body = h.server.lastBody!;
+      expect(body['pace'], 'SLOW');
+      expect((body['rehab'] as Map).containsKey('pace'), isFalse);
+      // The plans carry frequency_per_week, which the pace is compared with.
+      expect((body['plans'] as List).first['frequency_per_week'], isA<int>());
+    });
+
+    test('sends the body-map parts as focus_parts', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(
+        const RehabInfo(
+          affectedBodyArea: 'BOTH_ARMS',
+          recoveryStage: RecoveryStage.early,
+          mobilityLevel: MobilityLevel.low,
+          goal: 'MOBILITY',
+          focusParts: ['wrist_hand'],
+        ),
+      );
+      final body = h.server.lastBody!;
+      expect(body['focus_parts'], ['wrist_hand']);
+      expect(body.containsKey('pace'), isFalse); // skipped: no pace block
+      // Not inside rehab: RehabInfo.toJson keeps the four FR500_03 answers.
+      expect((body['rehab'] as Map).containsKey('focus_parts'), isFalse);
+    });
+
     test(
       'sends rehab, safety limit, limitation codes and the catalogue',
       () async {
@@ -153,7 +215,21 @@ void main() {
         expect(body['rehab'], rehab.toJson());
         expect(body['safety_limit']['max_exercise_intensity'], 'MODERATE');
         expect(body['limitations'], ['LEFT_ARM_MOBILITY']);
-        expect((body['plans'] as List).length, 10);
+        // No body-map parts: no focus block (hybrid-2.0 result).
+        expect(body.containsKey('focus_parts'), isFalse);
+        // Each exercise carries its pose key, from which the server reads the
+        // body parts a plan trains.
+        final first = (body['plans'] as List).first as Map;
+        expect(
+          ((first['plan_exercise'] as List).first
+              as Map)['exercise']['pose_key'],
+          isNotNull,
+        );
+        // Every catalogue plan is sent (11 since 608b5ce added Hand and Wrist Recovery).
+        expect(
+          (body['plans'] as List).length,
+          (jsonDecode(catalogueJson)['plans'] as List).length,
+        );
       },
     );
 
@@ -181,7 +257,81 @@ void main() {
     });
   });
 
+  group('collaborative evidence (hybrid-2.0)', () {
+    test(
+      'sends the cohort and the outcome cells from the repository',
+      () async {
+        final repo = FakeTreatmentRepository.fromJson(catalogueJson)
+          ..planOutcomes = const [kneeCell];
+        final h = Harness(repo: repo);
+        await h.signIn();
+        await h.vm.recommend(rehab);
+        final body = h.server.lastBody!;
+        expect(body['cohort'], {'risk_level': 'Low', 'age_band': '<60'});
+        expect(body['plan_outcomes'], [
+          {
+            'plan_id': 'p-knee',
+            'risk_level': 'Low',
+            'age_band': '<60',
+            'patients': 12,
+            'completion_rate': 0.8,
+            'mean_accuracy': 84.5,
+            'mean_progress': null,
+          },
+        ]);
+        expect(h.vm.candidates.length, 3);
+      },
+    );
+
+    test('no evidence by default: empty list, still recommends', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!['plan_outcomes'], isEmpty);
+      expect(h.vm.recommendation, isA<UiSuccess<Recommendation>>());
+    });
+
+    test('RPC missing or failing is a cold start, not an error', () async {
+      final catalogue = FakeTreatmentRepository.fromJson(catalogueJson);
+      final h = Harness(
+        repo: NoOutcomeStats((await catalogue.getCatalogue()).dataOrNull!),
+      );
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!['plan_outcomes'], isEmpty);
+      expect(h.vm.recommendation, isA<UiSuccess<Recommendation>>());
+      expect(h.vm.candidates.length, 3);
+    });
+
+    test('no profile: no cohort is sent', () async {
+      final h = Harness();
+      await h.signIn(withProfile: false);
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!.containsKey('cohort'), isFalse);
+    });
+
+    test('age bands match the RPC', () {
+      expect(RecommendationService.ageBand(59), '<60');
+      expect(RecommendationService.ageBand(60), '60-74');
+      expect(RecommendationService.ageBand(74), '60-74');
+      expect(RecommendationService.ageBand(75), '75+');
+    });
+  });
+
   group('PlanningViewModel', () {
+    // Found on the phone: the live catalogue was empty (seed not loaded), the
+    // app sent plans: [] and the server's 422 surfaced as M4.
+    test('empty catalogue gives M1 without calling the server', () async {
+      final h = Harness(repo: FakeTreatmentRepository(const []));
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(
+        (h.vm.recommendation as UiError).message,
+        Messages.conditionNotMet,
+      );
+      expect(h.server.lastBody, isNull);
+    });
+
     test('no session gives the session-expired message', () async {
       final h = Harness();
       await h.vm.recommend(rehab);
@@ -282,10 +432,32 @@ void main() {
   });
 
   group('RecommendedPlansView', () {
-    Future<Harness> pump(WidgetTester tester, {int n = 3}) async {
+    Future<Harness> pump(
+      WidgetTester tester, {
+      int n = 3,
+      int? following,
+    }) async {
+      // Phone width, tall enough that all three cards (with their body
+      // thumbnails) are built by the ListView.
+      tester.view.physicalSize = const Size(1080, 3600);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       final h = Harness()..server.n = n;
       await tester.runAsync(() async {
-        await h.signIn();
+        final accountId = await h.signIn();
+        // Optionally already following catalogue plan [following] (33% done).
+        if (following != null) {
+          final catalogue = (await h.treatments.getCatalogue()).dataOrNull!;
+          await h.treatments.assignPlan(
+            PatientTreatmentPlan(
+              patientPlanId: 'current',
+              accountId: accountId,
+              plan: catalogue[following],
+              progressPercentage: 33,
+              selectedAt: DateTime(2026, 10, 1),
+            ),
+          );
+        }
         await h.vm.recommend(rehab);
       });
       await tester.pumpWidget(
@@ -299,6 +471,86 @@ void main() {
       await tester.pumpAndSettle();
       return h;
     }
+
+    Future<List<PatientTreatmentPlan>> activeOf(
+      WidgetTester tester,
+      Harness h,
+    ) async => (await tester.runAsync(
+      () async => (await h.treatments.getActivePlans(
+        h.vm.activePlans.first.accountId,
+      )).dataOrNull!,
+    ))!;
+
+    testWidgets('a plan for another area is added beside the current one', (
+      tester,
+    ) async {
+      // Following Core and Back Care (6); Early Knee Recovery (0) is offered first.
+      final h = await pump(tester, following: 6);
+      expect(
+        find.text('Can be followed together with your current plans.'),
+        findsWidgets,
+      );
+      await tester.tap(find.text('Select').first);
+      await tester.pumpAndSettle();
+      expect(find.text('Add Early Knee Recovery?'), findsOneWidget);
+      await tester.tap(find.text('Add plan'));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      final active = await activeOf(tester, h);
+      expect(
+        [for (final a in active) a.plan.planName],
+        ['Core and Back Care', 'Early Knee Recovery'],
+      );
+    });
+
+    testWidgets('same area and goal: replace, and Keep changes nothing', (
+      tester,
+    ) async {
+      // Following Advanced Leg Function (9, legs + strength); Lower Limb
+      // Strength Builder (1, legs + strength) is offered second.
+      final h = await pump(tester, following: 9);
+      expect(
+        find.textContaining('Clashes with Advanced Leg Function'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Select').at(1));
+      await tester.pumpAndSettle();
+      expect(find.text('Replace your plan?'), findsOneWidget);
+      expect(
+        find.textContaining('This stops Advanced Leg Function (33% done)'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+      expect(
+        [for (final a in await activeOf(tester, h)) a.plan.planName],
+        ['Advanced Leg Function'],
+      );
+
+      await tester.tap(find.text('Select').at(1));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Replace'));
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pumpAndSettle();
+      expect(
+        [for (final a in await activeOf(tester, h)) a.plan.planName],
+        ['Lower Limb Strength Builder'],
+      );
+    });
+
+    testWidgets('the plan already followed is blocked with an explanation', (
+      tester,
+    ) async {
+      final h = await pump(tester, following: 0);
+      expect(find.text('You are already following this plan.'), findsWidgets);
+      await tester.tap(find.text('Select').first);
+      await tester.pumpAndSettle();
+      expect(find.text('You cannot add Early Knee Recovery'), findsOneWidget);
+      await tester.tap(find.text('OK'));
+      await tester.pumpAndSettle();
+      final active = await activeOf(tester, h);
+      expect(active.single.patientPlanId, 'current');
+    });
 
     testWidgets('shows three plans as in the design', (tester) async {
       final h = await pump(tester);
@@ -330,6 +582,256 @@ void main() {
       await tester.tap(find.text('Reject all plans'));
       await tester.pumpAndSettle();
       expect(find.text(Messages.confirmReject), findsOneWidget);
+    });
+  });
+
+  group('progress (hybrid-3.0)', () {
+    Future<TreatmentPlan> planNamed(Harness h, String name) async =>
+        (await h.treatments.getCatalogue()).dataOrNull!.firstWhere(
+          (p) => p.planName == name,
+        );
+
+    test('no history: no progress is sent', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      expect(h.server.lastBody!.containsKey('progress'), isFalse);
+    });
+
+    test(
+      'sends each plan with its difficulty and the results per exercise',
+      () async {
+        final h = Harness();
+        final id = await h.signIn();
+        final knee = await planNamed(h, 'Early Knee Recovery');
+        await h.treatments.assignPlan(
+          PatientTreatmentPlan(
+            patientPlanId: 'pp1',
+            accountId: id,
+            plan: knee,
+            selectedAt: DateTime(2026, 9, 1),
+          ),
+        );
+        final ext = knee.orderedExercises().first.exerciseId;
+        ExerciseSession attempt(
+          String sid,
+          double accuracy, {
+          int? daysAgo,
+          String feedback = '',
+        }) => ExerciseSession(
+          sessionId: sid,
+          accountId: id,
+          patientPlanId: 'pp1',
+          exerciseId: ext,
+          completedAt: daysAgo == null
+              ? null
+              : DateTime.now().subtract(Duration(days: daysAgo)),
+          completionStatus: daysAgo == null
+              ? CompletionStatus.retried
+              : CompletionStatus.completed,
+          postureAccuracy: accuracy,
+          postureFeedback: feedback,
+        );
+        const fall = 'You may have lost your balance or fallen.';
+        await h.treatments.saveSession(attempt('a', 55));
+        await h.treatments.saveSession(attempt('b', 60));
+        await h.treatments.saveSession(
+          attempt('c', 70, daysAgo: 1, feedback: fall),
+        );
+        await h.treatments.saveSession(
+          attempt('d', 65, daysAgo: 10, feedback: fall),
+        );
+        await h.vm.recommend(rehab);
+        final progress = h.server.lastBody!['progress'] as Map;
+        final plan = (progress['plans'] as List).single as Map;
+        expect(plan['plan_id'], knee.planId);
+        expect(plan['status'], 'ACTIVE');
+        expect(plan['consecutive_fails'], 4);
+        expect(plan['current_exercise_id'], ext);
+        // The questionnaire names no plan: the server only ranks with it.
+        expect(progress.containsKey('from_plan_id'), isFalse);
+        expect(plan['fall_alerts'], 1); // the fall 10 days ago is too old
+        final ex = (progress['exercises'] as List).single as Map;
+        expect(ex['exercise_id'], ext);
+        expect(ex['attempts'], 4);
+        expect(ex['passes'], 0);
+        expect(ex['mean_accuracy'], 62.5);
+      },
+    );
+
+    test('an exercise saved for two plans counts once', () {
+      final at = DateTime(2026, 10, 1, 9);
+      ExerciseSession s(String plan) => ExerciseSession(
+        sessionId: 's-$plan',
+        accountId: 'a',
+        patientPlanId: plan,
+        exerciseId: 'e1',
+        completedAt: at,
+        completionStatus: CompletionStatus.completed,
+        postureAccuracy: 90,
+        repetitionsCompleted: 5,
+      );
+      final json = RecommendationService.progressJson((
+        plans: const [],
+        sessions: {
+          'p1': [s('p1')],
+          'p2': [s('p2')],
+        },
+      ));
+      final ex = (json['exercises'] as List).single as Map;
+      expect(ex['attempts'], 1);
+      expect(ex['passes'], 1);
+    });
+
+    test(
+      'Find my next plan answers with the plan and keeps the reason',
+      () async {
+        final h = Harness();
+        final id = await h.signIn();
+        final knee = await planNamed(h, 'Early Knee Recovery');
+        final done = PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: id,
+          plan: knee,
+          progressPercentage: 100,
+          status: PlanStatus.completed,
+          selectedAt: DateTime(2026, 9, 1),
+        );
+        await h.treatments.assignPlan(done);
+        h.server
+          ..nextStep = 'PROGRESS'
+          ..nextStepReason =
+              'You completed Early Knee Recovery, so plans for the next stage are included.';
+        await h.vm.recommendNext(done);
+        final body = h.server.lastBody!;
+        expect(body['rehab'], {
+          'affected_body_area': 'BOTH_LEGS',
+          'recovery_stage': 'EARLY',
+          'mobility_level': 'LOW',
+          'goal': 'MOBILITY',
+        });
+        final plans = (body['progress'] as Map)['plans'] as List;
+        expect((plans.single as Map)['status'], 'COMPLETED');
+        expect((body['progress'] as Map)['from_plan_id'], knee.planId);
+        final r = (h.vm.recommendation as UiSuccess<Recommendation>).data;
+        expect(r.nextStep, NextStep.progress);
+        expect(r.nextStepReason, startsWith('You completed'));
+        expect(h.vm.from, same(done));
+        expect(h.vm.easingFrom, isNull); // nothing to replace after a step up
+        // Try again keeps the next-step request.
+        await h.vm.retry();
+        expect(h.vm.from, same(done));
+      },
+    );
+
+    test('an EASE step replaces the plan that is too hard', () async {
+      final h = Harness();
+      final id = await h.signIn();
+      final hard = PatientTreatmentPlan(
+        patientPlanId: 'pp1',
+        accountId: id,
+        plan: await planNamed(h, 'Lower Limb Strength Builder'),
+        progressPercentage: 33.33,
+        selectedAt: DateTime(2026, 9, 1),
+      );
+      await h.treatments.assignPlan(hard);
+      h.server.nextStep = 'EASE';
+      await h.vm.recommendNext(hard);
+      expect(h.vm.easingFrom, 'pp1');
+      // The checks treat pp1 as replaced: no issue is about it.
+      for (final p in h.vm.candidates) {
+        expect(
+          h.vm.issuesFor(p).where((i) => i.patientPlanId == 'pp1'),
+          isEmpty,
+        );
+      }
+      // A new questionnaire forgets the plan it moved on from.
+      await h.vm.recommend(rehab);
+      expect(h.vm.from, isNull);
+      expect(h.vm.easingFrom, isNull);
+    });
+
+    testWidgets('with no gentler plan the screen shows the server reason', (
+      tester,
+    ) async {
+      final h = Harness()..server.n = 0;
+      const why =
+          'The current exercise in Core and Back Care did not pass 3 times in a '
+          'row. No gentler plan for this area fits your safety limits, so keep '
+          'to your current plan within a comfortable range and rest between '
+          'tries, or ask a physiotherapist.';
+      await tester.runAsync(() async {
+        final id = await h.signIn();
+        final core = PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: id,
+          plan: await planNamed(h, 'Core and Back Care'),
+          selectedAt: DateTime(2026, 9, 1),
+        );
+        await h.treatments.assignPlan(core);
+        h.server
+          ..nextStep = 'EASE'
+          ..nextStepReason = why;
+        await h.vm.recommendNext(core);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const RecommendedPlansView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(why), findsOneWidget);
+      expect(find.text(Messages.conditionNotMet), findsNothing);
+      expect(find.text('Back'), findsOneWidget);
+    });
+
+    testWidgets('the plans screen says why and what the plan replaces', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(1080, 3600);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final h = Harness();
+      const why =
+          'The current exercise in Lower Limb Strength Builder did not pass 3 '
+          'times in a row, so plans that should suit you better are shown.';
+      await tester.runAsync(() async {
+        final id = await h.signIn();
+        final hard = PatientTreatmentPlan(
+          patientPlanId: 'pp1',
+          accountId: id,
+          plan: await planNamed(h, 'Lower Limb Strength Builder'),
+          progressPercentage: 33.33,
+          selectedAt: DateTime(2026, 9, 1),
+        );
+        await h.treatments.assignPlan(hard);
+        h.server
+          ..nextStep = 'EASE'
+          ..nextStepReason = why;
+        await h.vm.recommendNext(hard);
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const RecommendedPlansView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Your next step after Lower Limb Strength Builder'),
+        findsOneWidget,
+      );
+      expect(find.text(why), findsOneWidget);
+      expect(
+        find.text('Replaces Lower Limb Strength Builder for now.'),
+        findsWidgets,
+      );
+      expect(tester.takeException(), isNull);
     });
   });
 }
