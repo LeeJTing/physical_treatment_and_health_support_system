@@ -274,6 +274,7 @@ void main() {
       expect((await accept()).onPressed, isNotNull);
 
       await tap(find.text('Bahasa Melayu'));
+      await reveal(find.text('Terma Penggunaan dan Notis Privasi'));
       expect(find.text('Terma Penggunaan dan Notis Privasi'), findsOneWidget);
       await tap(find.text('Setuju dan teruskan'));
       expect(find.text('route:profile'), findsOneWidget);
