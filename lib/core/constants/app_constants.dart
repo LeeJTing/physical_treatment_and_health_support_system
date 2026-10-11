@@ -212,6 +212,12 @@ class Messages {
   static const planSaved = 'The Plan has been saved successfully.';
   static const confirmReject =
       "Are you sure that you don't want to select any plan?";
+  /// Report an answer (Elwin, 11 Oct; not in the report's message list, §11).
+  static const chatReportSent =
+      'Thank you. Your report will help us improve the chatbot.';
+  static const chatReportFailed =
+      'The report could not be sent. Please try again later.';
+
   static const questionNotRecognised =
       'The question is not recognised, please try asking other question.';
 

@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/chat_message.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/chat_report.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
@@ -166,4 +167,9 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
       supabaseGuard(() async {
         await _sb.from('chat_message').insert(m.toJson());
       });
+
+  @override
+  Future<Result<void>> saveChatReport(ChatReport r) => supabaseGuard(() async {
+    await _sb.from('chat_report').insert(r.toJson());
+  });
 }

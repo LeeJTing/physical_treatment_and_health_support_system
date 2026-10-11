@@ -35,10 +35,9 @@ class LocalNotificationService {
     this._treatments, {
     NotificationScheduler? scheduler,
     DateTime Function()? now,
-    Future<int?> Function()? profileAge,
+    this._profileAge,
   }) : _scheduler = scheduler ?? PluginScheduler(),
-       _now = now ?? DateTime.now,
-       _profileAge = profileAge;
+       _now = now ?? DateTime.now;
 
   /// Requested before the first reminder is scheduled (FR600_008).
   bool permissionGranted = false;

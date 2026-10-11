@@ -1,5 +1,6 @@
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/chat_message.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/chat_report.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
@@ -62,4 +63,8 @@ abstract interface class ITreatmentRepository {
   /// Stores one chatbot turn (FR500_17-22). Chat belongs to M500, so it sits
   /// with the treatment data rather than adding a ninth interface.
   Future<Result<void>> saveChatMessage(ChatMessage m);
+
+  /// Stores a patient's report that an answer was wrong (chat_report, status
+  /// NEW) for review before the knowledge base changes.
+  Future<Result<void>> saveChatReport(ChatReport r);
 }

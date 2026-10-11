@@ -7,7 +7,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 
 /// One exercise's guide animation: a looping repetition made from our own
 /// correct recordings (training/build_guide_animations.py ->
-/// assets/guides/<pose_key>.json, 11 Oct). Points are in a unit box, y down.
+/// `assets/guides/<pose_key>.json`, 11 Oct). Points are in a unit box, y down.
 class GuideAnimationData {
   final String view; // front | side
   final bool hand;

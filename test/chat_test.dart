@@ -361,6 +361,113 @@ void main() {
     },
   );
 
+  group('Report this answer (Elwin, 11 Oct)', () {
+    test(
+      'saves the question, the answer, what matched and the patient note',
+      () async {
+        final h = Harness();
+        await h.signInWithPlan();
+        await h.vm.loadCategories();
+        await h.vm.ask('my knee hurts');
+        final answer = h.vm.messages.last;
+        expect(h.vm.canReport(answer), isTrue);
+        expect(
+          h.vm.canReport(h.vm.messages.first),
+          isFalse,
+        ); // the welcome line
+
+        final res = await h.vm.report(
+          answer,
+          expected: '  I meant pain after the exercise  ',
+          wantedCategory: 'pain_or_discomfort',
+        );
+        expect(res.isSuccess, isTrue);
+        final r = h.treatments.chatReports.single;
+        expect(r.questionText, 'my knee hurts');
+        expect(r.answerText, answer.message.messageText);
+        expect(r.answerCategory, 'pain_or_discomfort');
+        expect(r.matchedBy, 'keyword');
+        expect(r.expectedText, 'I meant pain after the exercise');
+        expect(r.wantedCategory, 'pain_or_discomfort');
+        expect(r.toJson()['status'], 'NEW');
+        // Linked to the stored chat_message rows.
+        expect(
+          r.questionMessageId,
+          h.vm.questionFor(answer)!.message.messageId,
+        );
+        expect(r.answerMessageId, answer.message.messageId);
+        expect(
+          h.treatments.chat.map((m) => m.messageId),
+          containsAll([r.questionMessageId, r.answerMessageId]),
+        );
+        // Once per answer.
+        expect(h.vm.isReported(answer), isTrue);
+        expect(h.vm.canReport(answer), isFalse);
+        expect((await h.vm.report(answer)).isSuccess, isFalse);
+        expect(h.treatments.chatReports, hasLength(1));
+      },
+    );
+
+    test(
+      'an empty note is left out, and a long one is cut to 500 characters',
+      () async {
+        final h = Harness();
+        await h.signInWithPlan();
+        await h.vm.loadCategories();
+        await h.vm.ask('what is in my plan');
+        await h.vm.report(h.vm.messages.last, expected: '   ');
+        expect(h.treatments.chatReports.single.expectedText, isNull);
+        await h.vm.ask('and the reps');
+        await h.vm.report(h.vm.messages.last, expected: 'x' * 900);
+        expect(h.treatments.chatReports.last.expectedText!.length, 500);
+      },
+    );
+
+    testWidgets(
+      'the link opens the sheet, sends the report and says thank you',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final h = Harness();
+        await tester.runAsync(() async {
+          await h.signInWithPlan();
+          await h.vm.loadCategories();
+          await h.vm.ask('my knee hurts');
+        });
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: h.vm,
+              child: const ChatView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Report this answer'),
+          findsOneWidget,
+        ); // not on the welcome
+        await tester.tap(find.text('Report this answer'));
+        await tester.pumpAndSettle();
+        expect(
+          find.text('You asked: \u201cmy knee hurts\u201d'),
+          findsOneWidget,
+        );
+        await tester.enterText(find.byType(TextField).last, 'Something else');
+        await tester.runAsync(() async {
+          await tester.tap(find.text('Send report'));
+          await Future<void>.delayed(const Duration(milliseconds: 50));
+        });
+        await tester.pumpAndSettle();
+        expect(find.text(Messages.chatReportSent), findsOneWidget);
+        expect(find.text('Reported, thank you'), findsOneWidget);
+        expect(find.text('Report this answer'), findsNothing);
+        expect(h.treatments.chatReports.single.expectedText, 'Something else');
+      },
+    );
+  });
+
   test(
     'a reply can carry a button (chat-rules-3.2), and older replies without one still parse',
     () {

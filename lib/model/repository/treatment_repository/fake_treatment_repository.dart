@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/chat_message.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/chat_report.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
@@ -17,6 +18,7 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   final Map<String, PatientTreatmentPlan> _plans = {};
   final List<ExerciseSession> sessions = [];
   final List<ChatMessage> chat = [];
+  final List<ChatReport> chatReports = [];
 
   FakeTreatmentRepository(this._catalogue);
 
@@ -113,6 +115,12 @@ class FakeTreatmentRepository implements ITreatmentRepository {
   @override
   Future<Result<void>> saveChatMessage(ChatMessage m) async {
     chat.add(m);
+    return const Success(null);
+  }
+
+  @override
+  Future<Result<void>> saveChatReport(ChatReport r) async {
+    chatReports.add(r);
     return const Success(null);
   }
 
