@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.52",
+  "version": "chat-rules-3.53",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -4067,6 +4067,23 @@
         "how do I contact you"
       ],
       "answer": "HealthGuide is free. It is a university final-year project prototype for evaluation, made for Android phones with a camera and an internet connection; there is no iPhone version. On an older phone the posture check may take longer, but it works the same. For help, or about your data, email elwinksy-wm23@student.tarc.edu.my.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "clarify",
+      "title": "Tell me a bit more",
+      "show": false,
+      "priority": 1,
+      "keywords": [],
+      "examples": [],
+      "answer": "Could you tell me a bit more about what you mean? For example: \"how do I do the heel raise?\", \"why is my posture score low?\" or \"is it safe to exercise with knee pain?\". You can also pick a topic below.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,

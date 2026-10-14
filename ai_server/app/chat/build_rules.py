@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.52"
+VERSION = "chat-rules-3.53"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -1012,6 +1012,14 @@ INTENTS = [
            "phone the posture check may take longer, but it works the same. For help, or about your data, email "
            "elwinksy-wm23@student.tarc.edu.my."),
 ]
+
+# 3.53: the answer to a short follow-up ("how to", "why", "more") when there is no previous answer to
+# continue (engine.pure_follow_up). Never matched by keywords.
+INTENTS.append(intent(
+    "clarify", "Tell me a bit more", 1, [], [],
+    "Could you tell me a bit more about what you mean? For example: \"how do I do the heel raise?\", "
+    "\"why is my posture score low?\" or \"is it safe to exercise with knee pain?\". You can also pick a topic "
+    "below.", show=False))
 
 # 3.52 (round 19): wider wording for existing rules, found by a probe of the app's features.
 EXTRA_KEYWORDS = {

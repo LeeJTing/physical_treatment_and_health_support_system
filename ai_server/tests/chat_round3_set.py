@@ -24,8 +24,8 @@ ROUND3 = [
     (KNEE, "https://example.com", None),
     (KNEE, "select * from users", None),
     (KNEE, "<script>alert(1)</script>", None),
-    (KNEE, "why?", None),
-    (KNEE, "and then?", None),
+    (KNEE, "why?", "clarify"),  # 3.53: a follow-up with nothing before it asks for more
+    (KNEE, "and then?", "clarify"),  # 3.53: a follow-up with nothing before it asks for more
     (KNEE, "what about the second one", None),
     (KNEE, "yes", None),
     (KNEE, "no", None),

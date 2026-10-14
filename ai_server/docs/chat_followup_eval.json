@@ -1,0 +1,36 @@
+{
+ "rules_version": "chat-rules-3.53",
+ "topics": 146,
+ "follow_ups": 73,
+ "messy_variants": 1200,
+ "follow_ups_result": {
+  "pairs": 10658,
+  "correct": 10658,
+  "rate": 1.0,
+  "misses": []
+ },
+ "messy_result": {
+  "pairs": 12000,
+  "correct": 11990,
+  "rate": 0.9992,
+  "misses": [
+   "'and the' after exercise:heel_raise -> None",
+   "'and the' after pain_or_discomfort -> None",
+   "'and the' after delete_account -> None",
+   "'and the' after posture_result -> None",
+   "'and the' after red_flag -> None",
+   "'and the' after risk_level -> None",
+   "'and the' after plan_exercises -> None",
+   "'and the' after mistake:low_range -> None",
+   "'and the' after None -> None",
+   "'and the' after thanks -> None"
+  ]
+ },
+ "controls_result": {
+  "pairs": 2628,
+  "correct": 2628,
+  "rate": 1.0,
+  "misses": []
+ },
+ "seconds": 221
+}

@@ -1168,6 +1168,68 @@ def follow_up(text: str | None, chosen: dict | None, previous: str | None, by_ke
     return by_key[previous] if any(find_phrase(r, words) for r in REFERENCES) else None
 
 
+# 3.53 (Elwin, 14 Oct): a message made only of follow-up words ("how to", "why", "more", "how many",
+# "is it safe", "kenapa", "macam mana") continues the previous answer's topic. A message with any other
+# word has a topic of its own and is matched as usual; safety answers are checked before this.
+FOLLOW_TRIGGERS = {
+    "how", "why", "more", "explain", "elaborate", "details", "detail", "mean", "meaning", "again", "many",
+    "long", "often", "safe", "next", "then", "where", "example", "steps", "step", "show", "tell", "info",
+    "understand", "come", "really", "so", "huh", "clarify", "further", "repeat", "after", "about",
+    "cara", "caranya", "macam", "camne", "kenapa", "apasal", "berapa", "lagi", "maksud", "faham", "ulang",
+    "selamat", "lepas", "kat", "betul",
+}
+FOLLOW_FILLERS = {
+    "to", "do", "i", "it", "this", "that", "one", "what", "about", "me", "you", "is", "does", "the", "a",
+    "can", "please", "pls", "plz", "for", "and", "after", "like", "ah", "lah", "leh", "eh", "ya", "sure",
+    "times", "time", "sorry", "dont", "don't", "do not", "say", "that's", "thats", "much", "should", "we",
+    "nak", "buat", "mana", "apa", "tu", "ni", "ke", "kali", "lama", "tak", "ya", "boleh", "itu", "ini",
+}
+NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language"}
+SAFETY_ANSWERS = {"red_flag", "crisis", "overdose", "poisoning"}
+
+
+FOLLOW_FILLERS |= {"hmm", "hm", "ok", "okay", "oh", "erm", "um", "uh", "oo", "ooh", "hah", "pls", "now"}
+# Short forms users type for follow-up words.
+FOLLOW_SHORT = {"y": "why", "hw": "how", "howto": "how", "howtodo": "how", "u": "you", "wat": "what", "wht": "what", "abt": "about",
+                "eg": "example", "mcm": "macam", "cmne": "camne", "camana": "macam", "knp": "kenapa",
+                "npe": "kenapa", "brp": "berapa"}
+_FOLLOW_VOCAB = sorted(FOLLOW_TRIGGERS | FOLLOW_FILLERS)
+
+
+@lru_cache(maxsize=4096)
+def _follow_word(w: str) -> str | None:
+    """The follow-up word [w] stands for, allowing a short form, a doubled or dropped last letter and a
+    close misspelling ("explane", "againn", "berap"); None when it is not one."""
+    if w in FOLLOW_TRIGGERS or w in FOLLOW_FILLERS:
+        return w
+    if w in FOLLOW_SHORT:
+        return FOLLOW_SHORT[w]
+    single = re.sub(r"(.)\1+$", r"\1", w)                    # "againn" -> "again", "whyy" -> "why"
+    if single in FOLLOW_TRIGGERS or single in FOLLOW_FILLERS:
+        return single
+    if len(w) >= 3:
+        for v in _FOLLOW_VOCAB:                                 # "berap" -> "berapa", "explai" -> "explain"
+            if len(v) == len(w) + 1 and v.startswith(w) and len(v) >= 4:
+                return v
+    if len(w) >= 5:
+        best = process.extractOne(w, list(FOLLOW_TRIGGERS), scorer=fuzz.ratio)
+        if best and best[1] >= 80 and best[0][0] == w[0]:
+            return best[0]                                      # "explane" -> "explain"
+    return None
+
+
+def pure_follow_up(text: str | None) -> bool:
+    """Only follow-up words, at least one of them a trigger, at most six words."""
+    if not text:
+        return False
+    # Digits stay as words, so "what does 65% mean" is a question of its own.
+    words = re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split()
+    if not words or len(words) > 6:
+        return False
+    known = [_follow_word(w) for w in words]
+    return all(k is not None for k in known) and any(k in FOLLOW_TRIGGERS for k in known)
+
+
 # Laptop pass 12: Chinese and Tamil messages were all unrecognised, emergencies included. The rules
 # read English and Malay; a few emergency words in other scripts are still caught, and anything else
 # mostly in another script gets this answer instead of "not recognised".
@@ -1182,6 +1244,16 @@ OTHER_SCRIPT_ANSWER = ("I can only understand English and Bahasa Melayu. Saya ha
 def _other_script(text: str) -> bool:
     letters = [ch for ch in text if ch.isalpha()]
     return bool(letters) and sum(not ch.isascii() for ch in letters) / len(letters) > 0.5
+
+
+def _safety_again(base: dict, kind: str, r: dict) -> dict:
+    """The safety answer given just before, again, for "why?" or "what do I do?" after it."""
+    answer, title = {"red_flag": (r["red_flag_answer"], "Urgent safety advice"),
+                     "crisis": (r["crisis_answer"], "You are not alone"),
+                     "overdose": (OVERDOSE_ANSWER, "Too many pills"),
+                     "poisoning": (POISON_ANSWER, "Swallowed a chemical")}[kind]
+    return {**base, "answer": answer, "category": kind, "title": title, "is_matched": True,
+            "matched_by": "follow_up", "follow_ups": [], "notes": [], "action": None}
 
 
 def reply(plan_id: str | None, category: str | None, text: str | None,
@@ -1216,7 +1288,24 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
                 "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
 
     chosen, how = None, None
-    if category and category in by_key:
+    # A short follow-up continues the previous answer (3.53); a safety answer is given again.
+    if not category and previous_category and previous_category not in NO_CONTEXT and pure_follow_up(text):
+        if previous_category in SAFETY_ANSWERS:
+            return _safety_again(base, previous_category, r)
+        prev = by_key.get(previous_category)
+        if prev is not None and not prev.get("small_talk"):
+            chosen, how = prev, "follow_up"
+    if chosen is None and not category and pure_follow_up(text) and "clarify" in by_key:
+        # Nothing before it to continue: the general how-to and safety answers still fit ("show me how
+        # to do it", "is it safe"); anything else asks for more rather than guessing.
+        guess, guessed_how = match(plan_id, text)
+        if guess is not None and guess["key"] in ("how_to", "safety"):
+            chosen, how = guess, guessed_how
+        else:
+            chosen, how = by_key["clarify"], "clarify"
+    if chosen is not None:
+        pass                                           # the follow-up above
+    elif category and category in by_key:
         chosen, how = by_key[category], "category"
     elif text and text.strip():
         chosen, how = match(plan_id, text)
