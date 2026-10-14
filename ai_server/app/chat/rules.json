@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.53",
+  "version": "chat-rules-3.54",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -473,7 +473,22 @@
         "multiple sclerosis",
         "foot ulcer",
         "diabetic foot",
-        "wound on my foot"
+        "wound on my foot",
+        "osteoarthritis",
+        "weak bones",
+        "brittle bones",
+        "thin bones",
+        "gave birth",
+        "just had a baby",
+        "after delivery",
+        "parkinson's",
+        "have ms",
+        "with ms",
+        "for ms",
+        "got ms",
+        "ms exercise",
+        "ms can",
+        "ada ms"
       ],
       "examples": [
         "I have diabetes, is there anything special I should do",

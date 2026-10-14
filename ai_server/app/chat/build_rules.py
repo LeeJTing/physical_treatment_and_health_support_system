@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.53"
+VERSION = "chat-rules-3.54"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -131,7 +131,10 @@ INTENTS = [
             "rheumatoid", "copd", "lung disease", "chronic lung", "emphysema", "cancer", "chemo",
             "chemotherapy", "radiotherapy", "kanser", "barah", "kidney disease", "kidney problem", "dialysis",
             "buah pinggang", "parkinson", "parkinsons", "multiple sclerosis", "foot ulcer", "diabetic foot",
-            "wound on my foot"],
+            "wound on my foot",
+            # 3.54 (15 Oct): everyday names (Malay ones arrive translated)
+            "osteoarthritis", "weak bones", "brittle bones", "thin bones", "gave birth", "just had a baby",
+            "after delivery", "parkinson's", "have ms", "with ms", "for ms", "got ms", "ms exercise", "ms can", "ada ms"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "

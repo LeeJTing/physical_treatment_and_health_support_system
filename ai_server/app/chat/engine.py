@@ -65,7 +65,14 @@ MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want
          "seminggu": "a week", "sehari": "a day", "berapa": "how many", "kali": "times", "sakit": "pain", "pengsan": "fainted", "emak": "mother",
          "mak": "mother", "ibu": "mother", "ayah": "father", "bapa": "father", "nenek": "grandma",
          "atuk": "grandpa", "suami": "husband", "isteri": "wife", "makan": "eat", "lepas": "after", "sebelum": "before", "tidur": "sleep"}
-MALAY_PHRASES = {"selamat pagi": "good morning", "selamat petang": "good afternoon",
+MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's conditions (longest first)
+                 "sakit buah pinggang": "kidney disease", "penyakit buah pinggang": "kidney disease",
+                 "penyakit jantung": "heart disease", "sakit jantung": "heart disease", "angin ahmar": "stroke",
+                 "sakit sendi": "arthritis", "radang sendi": "arthritis", "tulang rapuh": "osteoporosis",
+                 "penyakit lelah": "asthma", "sakit lelah": "asthma", "ada lelah": "have asthma",
+                 "ada semput": "have asthma", "bp tinggi": "high blood pressure", "high bp": "high blood pressure",
+                 "baru bersalin": "just gave birth", "lepas bersalin": "just gave birth",
+                 "selamat pagi": "good morning", "selamat petang": "good afternoon",
                  "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
                  "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
                  "sesak nafas": "short of breath", "kencing manis": "diabetes", "darah tinggi": "high blood pressure",
@@ -963,7 +970,13 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "kidney disease": "KIDNEY_DISEASE", "kidney problem": "KIDNEY_DISEASE",
                    "dialysis": "KIDNEY_DISEASE", "buah pinggang": "KIDNEY_DISEASE", "parkinson": "PARKINSONS",
                    "parkinsons": "PARKINSONS", "multiple sclerosis": "MULTIPLE_SCLEROSIS",
-                   "foot ulcer": "FOOT_ULCER", "diabetic foot": "FOOT_ULCER", "wound on my foot": "FOOT_ULCER"}
+                   "foot ulcer": "FOOT_ULCER", "diabetic foot": "FOOT_ULCER", "wound on my foot": "FOOT_ULCER",
+                   # 3.54 (15 Oct): everyday names (Malay ones arrive translated by MALAY_PHRASES)
+                   "osteoarthritis": "ARTHRITIS", "weak bones": "OSTEOPOROSIS", "brittle bones": "OSTEOPOROSIS",
+                   "thin bones": "OSTEOPOROSIS", "gave birth": "PREGNANCY", "just had a baby": "PREGNANCY",
+                   "after delivery": "PREGNANCY", "parkinson's": "PARKINSONS", "have ms": "MULTIPLE_SCLEROSIS",
+                   "with ms": "MULTIPLE_SCLEROSIS", "for ms": "MULTIPLE_SCLEROSIS", "got ms": "MULTIPLE_SCLEROSIS",
+                   "ms exercise": "MULTIPLE_SCLEROSIS", "ms can": "MULTIPLE_SCLEROSIS", "ada ms": "MULTIPLE_SCLEROSIS"}
 
 
 def conditions_in(text: str | None) -> list[str]:
@@ -1048,17 +1061,41 @@ def _listing(items):
 # A mistake name counts as a question about it only with one of these ("what does hips sag mean",
 # "the result said trunk lean"), so "I keep leaning on the chair" is not answered with a definition.
 GLOSSARY_CUES = ["mean", "means", "meaning", "what is", "what's", "whats", "what does", "what do", "said",
-                 "says", "say", "saying", "result", "told", "mistake", "feedback", "explain", "maksud"]
+                 "says", "say", "saying", "result", "told", "mistake", "feedback", "explain", "maksud",
+                 # 3.54: "how to fix bent knee", "why heels lift", "how do i stop body swing"
+                 "fix", "correct", "why", "how to", "how do i", "stop", "avoid", "improve", "kenapa", "betulkan"]
+
+
+@lru_cache(maxsize=1)
+def _glossary_clean() -> dict[str, str]:
+    """Mistake names as typed ("heels lift", "heels_lift") and as clean() leaves them ("low knee lift"
+    -> "low knee raise"), except a cleaned name that is also an exercise name ("heel raise")."""
+    exercise_names = {clean(a) for e in rules().get("exercises", {}).values() for a in [e["name"]] + e["aliases"]}
+    out = {p.replace("_", " "): k for p, k in rules().get("glossary", {}).items()}
+    out.update({c: k for p, k in rules().get("glossary", {}).items()
+                if (c := clean(p)) not in exercise_names and c not in out})
+    return out
+
+
+def _plain_words(text: str) -> list[str]:
+    """Lower case, letters and digits only, without clean()'s synonyms."""
+    return re.sub(r"[^a-z0-9 ]", " ", text.lower().replace("_", " ")).split()
 
 
 def glossary_match(text: str) -> dict | None:
     words = clean(text).split()
+    names = _glossary_clean()
+    plain = _plain_words(text)
+    for w in (" ".join(plain), " ".join(words)):          # the name alone ("heels lift?", "not closed")
+        if w in names:
+            return next((i for i in rules()["intents"] if i["key"] == names[w]), None)
     if not any(find_phrase(c, words) for c in GLOSSARY_CUES):
         return None
     # Exact names only: the topic matcher treats "raise" and "lift" alike, but "heel raises" is not
-    # the mistake "heels lift".
+    # the mistake "heels lift". Names are compared after the same cleaning as the message (3.54).
     padded = f" {' '.join(words)} "
-    hits = [(len(p), key) for p, key in rules().get("glossary", {}).items() if f" {p} " in padded]
+    padded_plain = f" {' '.join(plain)} "
+    hits = [(len(p), key) for p, key in names.items() if f" {p} " in padded or f" {p} " in padded_plain]
     if not hits:
         return None
     key = max(hits)[1]                                   # the longest name ("shoulder shrug" over "shrug")
@@ -1068,6 +1105,28 @@ def glossary_match(text: str) -> dict | None:
 def _spans(text: str, phrases: list[str]) -> list[tuple[int, int]]:
     words = clean(text).split()
     return [(i, i + len(clean(p).split())) for p in phrases for i in find_phrase(p, words)]
+
+
+_GENERIC_NAME_WORDS = {"exercise", "exercises", "the", "a", "my", "senaman", "workout", "move", "movement"}
+
+
+def _near_exercise_name(text: str, intents: list[dict]):
+    """3.54: an exercise name typed with a slip inside it ("sit-tostand", "wall pus-up"): the closest
+    multi-word name of at least 8 letters, when it is 88 % alike (RapidFuzz partial ratio)."""
+    t = clean(text)
+    best = None
+    for i in intents:
+        if not i["key"].startswith("exercise:"):
+            continue
+        for alias in i["keywords"]:
+            # Only the name's own words: "hand exercise" must not match any "... exercise".
+            core = " ".join(w for w in alias.split() if w not in _GENERIC_NAME_WORDS)
+            if len(core.replace(" ", "")) < 7 or " " not in core or len(t) < len(core) - 2:
+                continue
+            score = fuzz.partial_ratio(core, t)
+            if score >= 88 and (best is None or score > best[0]):
+                best = (score, (i["priority"], len(alias.split()), i))
+    return best[1] if best else None
 
 
 def _inside_exercise_names(text: str, hits: list) -> list:
@@ -1108,6 +1167,10 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
             named = [h for h in fixed if h[2]["key"].startswith("exercise:")]
             if named and not any(h[2]["key"].startswith("exercise:") for h in hits):
                 hits = hits + named
+    if not any(h[2]["key"].startswith("exercise:") for h in hits):
+        near = _near_exercise_name(text, intents)
+        if near is not None:
+            hits = hits + [near]
     ex = [h for h in hits if h[2]["key"].startswith("exercise:")]
     if len({h[2]["key"] for h in ex if h[1] >= 2}) >= 2 and "plan_exercises" in {i["key"] for i in intents}:
         # Two exercises named in full ("heel raise or sit to stand") ask about the plan's order.
@@ -1125,7 +1188,8 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     if len(exercises) >= 2 and "plan_exercises" in {i["key"] for i in intents}:
         # "Which comes first, heel raise or sit to stand?" is about the plan's order.
         return next(i for i in intents if i["key"] == "plan_exercises"), "keyword"
-    if len(clean(text).split()) <= 3:
+    if len(clean(text).split()) <= 3 and not exercises:
+        # (3.54: not when an exercise is named: "open and close" is the exercise, not goodbye)
         small = [h for h in hits if h[2].get("small_talk")]
         if small:                                    # "good morning", "help", "ok thanks"
             return max(small, key=lambda h: (h[0], h[1]))[2], "keyword"
