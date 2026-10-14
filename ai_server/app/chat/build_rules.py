@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.50"
+VERSION = "chat-rules-3.51"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -718,11 +718,11 @@ INTENTS = [
            "always use the newest one. If you clicked a link in the email instead, return to the app and log "
            "in.", show=False),
     intent("account_help", "Account and login", 6,
-           ["my information", "my info", "my data", "who can see", "privacy", "private", "personal data", "data safe", "delete my account", "delete account",
+           ["my information", "my info",
             "log in", "login", "log out", "logout", "sign in", "sign out", "account", "email",
             "username", "google sign in",
-            "change my details", "delete my account", "my data", "privacy"],
-           ["how do I log in", "how do I update my health profile", "is my data private"],
+            "change my details"],
+           ["how do I log in", "how do I update my health profile", "how do I log out"],
            "Log in with the email and password you registered with, or use Continue with Google. If you forgot "
            "your password, tap Forgot password? on the login screen to get a reset code by email. You can update "
            "your health details on the Profile page; your plan's safety limits are recalculated when you save. "
@@ -849,6 +849,87 @@ INTENTS = [
            "programme, or ask about a hospital or community rehabilitation service. Your profile, health "
            "logging, past results and this chat assistant stay available.",
            show=False, action={"key": "open_age_limit", "label": "Why plans stop at 65"}),
+
+    # ---- 3.51 (14 Oct, round 18): features added since round 17 -----------------------------------
+    # Wording from the Terms of Use and Privacy Notice (assets/legal/terms.json, version 1.0).
+    intent("privacy_data", "Your data and privacy", 7,
+           ["my data", "my information safe", "my info safe", "data safe", "data secure", "is it safe to share",
+            "who can see", "who can read", "who sees", "privacy", "private", "personal data", "personal info",
+            "sell my data", "sell my info", "share my data", "share my info", "where is my data",
+            "data stored", "data kept", "keep my data", "keep my videos", "keep my video", "keep the video", "keep my exercise video", "keep my exercise videos",
+            "videos saved", "video saved", "store my video", "store my videos", "videos deleted", "video deleted",
+            "copy of my data", "my health info", "my health information", "data protection", "pdpa",
+            "data saya", "maklumat saya", "privasi"],
+           ["is my data safe", "who can see my health information", "do you keep my exercise videos",
+            "how long do you keep my data", "where is my data stored"],
+           "Only you can see your data: each account can read only its own records, and it is not sold or shared "
+           "with anyone. Your profile, plans, results, chat messages, reminders and logged readings are kept on "
+           "our database provider's servers (Supabase) in Singapore. Exercise videos are checked and deleted "
+           "straight after the check; only the score, repetitions and feedback are kept. Your data is kept while "
+           "you use the app, and an account not used for 2 years is deleted with its data. You can correct your "
+           "data in the app, ask for a copy at elwinksy-wm23@student.tarc.edu.my, or delete your account. The "
+           "full Privacy Notice is in Profile, Terms of Use and Privacy Notice.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("delete_account", "Deleting your account", 8,
+           ["delete my account", "delete account", "delete acc", "delete my acc", "remove my account",
+            "remove account", "close my account", "close account", "deactivate", "erase my data",
+            "delete my data", "delete all my data", "remove my data", "undo deleting", "recover my account",
+            "deleted my account", "padam akaun", "hapus akaun", "buang akaun", "padam data"],
+           ["how do I delete my account", "I want to remove my account and data", "can I undo deleting my account"],
+           "Open Profile and tap Delete my account (the last item under Account settings), then confirm. Your account and everything "
+           "saved with it (profile, plans, results, chat messages and reminders) is deleted at once, and this "
+           "phone's reminders are cancelled. It cannot be undone: to use the app again you would register as a "
+           "new user. Deleting your account also withdraws your consent to the use of your health information.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("terms_help", "Terms of Use", 6,
+           ["terms and conditions", "terms of use", "terms & conditions", "t&c", "the terms", "terms again",
+            "decline the terms", "reject the terms", "not accept the terms", "what did i agree",
+            "what i agreed", "agreed to", "privacy notice", "terma", "syarat"],
+           ["where can I read the terms", "why must I accept the terms again", "what happens if I decline the terms"],
+           "You can read the Terms of Use and Privacy Notice any time in Profile, in English or Malay. They say "
+           "what the app is (not a doctor or physiotherapist), who can use it (13 and over; plans only under 65), "
+           "how to exercise safely, how plans are chosen and how your data is kept. When they change, the app "
+           "shows the new version at your next login and you need to accept it to continue. If you decline, you "
+           "are signed out and cannot use the app, but your account is not deleted.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("guardian_consent", "Users under 18", 7,
+           ["under 18", "below 18", "i am 13", "i am 14", "i am 15", "i am 16", "i am 17", "im 13", "im 14",
+            "im 15", "im 16", "im 17", "i'm 13", "i'm 14", "i'm 15", "i'm 16", "i'm 17", "13 years old",
+            "14 years old", "15 years old", "16 years old", "17 years old", "teenager", "teen",
+            "parent need to agree", "parents need to agree", "parent needs to agree", "parent must agree",
+            "parent agree", "guardian agree", "my parent", "my parents", "guardian", "age group",
+            "turned 18", "now 18", "age does not match", "age doesn't match", "age not match",
+            "bawah 18", "ibu bapa", "penjaga"],
+           ["I'm 15, can I use this app", "why does my parent need to agree", "I turned 18, how do I change my age group"],
+           "You can use the app from 13. Under 18, a parent or legal guardian must read the Terms and agree to "
+           "them, and to the use of your health information, on the Terms screen; their name is recorded. If "
+           "your age in the profile does not match the age group you chose in the Terms (for example you have "
+           "turned 18), the profile asks you to tap Review Terms and choose your age group again before it saves.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("doctor_clearance", "Checking with your doctor first", 7,
+           ["check with my doctor first", "check with your doctor first", "check with doctor first",
+            "doctor's ok", "doctors ok", "doctor ok", "doctor said ok", "doctor says ok", "doctor agreed",
+            "doctor agrees", "doctor approved", "doctor's approval", "clearance", "under control",
+            "not controlled", "uncontrolled", "not under control", "terkawal"],
+           ["why can't I get a plan, it says check with my doctor first", "what does under control mean",
+            "my doctor said OK, how do I get a plan"],
+           "Some conditions ask in your health profile whether they are under control (for example asthma or "
+           "blood pressure). Under control means your symptoms are stable with your usual treatment and your "
+           "doctor has not told you to avoid exercise. If you answered No for a condition that needs it, the app "
+           "does not make a new exercise plan until your doctor agrees, because exercise could make it worse. "
+           "When your doctor says it is OK, open Profile, change that answer to Yes and save; then you can get "
+           "a plan again.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("report_answer", "Reporting a wrong answer", 5,
+           ["answer was wrong", "answer is wrong", "wrong answer", "answer wrong", "not what i asked",
+            "didnt answer my question", "didn't answer my question", "did not answer my question",
+            "not answer my question", "not my question", "you misunderstood", "you got it wrong",
+            "not helpful", "unhelpful", "report this answer", "report an answer", "report a wrong answer",
+            "report the answer", "jawapan salah"],
+           ["your answer was wrong", "how do I report a wrong answer", "that didn't answer my question"],
+           "Sorry about that. Tap Report this answer under the answer, and if you can, say what you expected "
+           "and which topic you meant. Reports are read and checked by the team before anything in my answers "
+           "changes. You can also try asking in other words, or pick a topic below."),
 ]
 
 # What a restricted user is told instead (the app sends the restriction it got from the recommender).

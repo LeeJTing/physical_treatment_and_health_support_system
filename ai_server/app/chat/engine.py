@@ -362,7 +362,15 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("session_expired", "pain_sharp"), ("exit_exercise", "difficulty"), ("exit_exercise", "plan_and_reminders"),
           ("exit_exercise", "history_help"), ("exit_exercise", "recording_help"), ("exit_exercise", "posture_result"),
           ("google_setup", "account_help"), ("change_password", "account_help"), ("session_expired", "account_help"),
-          ("wrong_exercise", "recording_help")]
+          ("wrong_exercise", "recording_help"),
+          # round 18 (3.51, 14 Oct): privacy, deleting, terms, under 18, a doctor's OK, reporting an answer
+          ("privacy_data", "account_help"), ("privacy_data", "recording_help"), ("privacy_data", "video_quality"),
+          ("delete_account", "account_help"), ("delete_account", "privacy_data"), ("terms_help", "account_help"),
+          ("terms_help", "condition_advice"), ("terms_help", "privacy_data"), ("guardian_consent", "app_help"),
+          ("guardian_consent", "for_someone_else"), ("guardian_consent", "profile_help"),
+          ("guardian_consent", "posture_result"), ("guardian_consent", "terms_help"),
+          ("doctor_clearance", "age_limit"), ("doctor_clearance", "condition_advice"),
+          ("doctor_clearance", "doctor_said"), ("doctor_clearance", "getting_started")]
 
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about

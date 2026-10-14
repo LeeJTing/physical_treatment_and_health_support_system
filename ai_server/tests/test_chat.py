@@ -31,6 +31,7 @@ from chat_round14_set import ROUND14
 from chat_round15_set import ROUND15
 from chat_round16_set import ROUND16
 from chat_round17_set import ROUND17
+from chat_round18_set import ROUND18
 from chat_posture_messages_set import POSTURE_MESSAGES
 from chat_safety_review_set import SAFETY_REVIEW
 from chat_safety_pass2_set import SAFETY_PASS2
@@ -42,7 +43,7 @@ CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalog
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(ROUND14) + list(ROUND15) + list(ROUND16) + list(ROUND17) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(ROUND14) + list(ROUND15) + list(ROUND16) + list(ROUND17) + list(ROUND18) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):

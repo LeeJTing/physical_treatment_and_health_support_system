@@ -39,7 +39,7 @@ ROUND6 = [
     (KNEE, "can i do two plans at the same time", ("plan_and_reminders", "multiple_plans")),  # several plans since 9 Oct (3.35)
     (KNEE, "i finished all exercises what now", ("plan_progress", "plan_and_reminders")),
     (KNEE, "how do i get a new plan", "plan_and_reminders"),
-    (KNEE, "delete my account", "account_help"),
-    (KNEE, "is my data safe", "account_help"),
-    (KNEE, "who can see my information", "account_help"),
+    (KNEE, "delete my account", "delete_account"),  # 3.51: its own topic (account_help did not say how)
+    (KNEE, "is my data safe", "privacy_data"),  # 3.51: its own topic (account_help did not say how)
+    (KNEE, "who can see my information", "privacy_data"),  # 3.51: its own topic (account_help did not say how)
 ]

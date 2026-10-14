@@ -29,8 +29,8 @@ ROUND13 = [
     (KNEE, "um how many times a day should i do it", "how_often"),
     (KNEE, "i did all 3 exercises today feeling good", ("plan_progress", "acknowledge", "how_often")),
     (KNEE, "the reminder came but i was busy", ("missed_session", "reminders_help")),
-    (KNEE, "does this app share my data", ("app_help", "account_help")),
-    (KNEE, "is my video saved somewhere", ("recording_help", "app_help", "account_help")),
+    (KNEE, "does this app share my data", ("app_help", "account_help", "privacy_data")),
+    (KNEE, "is my video saved somewhere", ("recording_help", "app_help", "account_help", "privacy_data")),
     (KNEE, "can the doctor see my results", ("history_help", "app_help")),
     (KNEE, "what language can i use", ("language", "bot_identity", "app_help")),  # (3.22)
     (KNEE, "boleh guna bahasa melayu", ("language", "bot_identity", "app_help")),  # (3.22)

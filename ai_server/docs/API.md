@@ -10,7 +10,7 @@ shows the same at `/docs`.
 | Endpoint | Module | Component | Status |
 |---|---|---|---|
 | `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.1) |
-| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.50) |
+| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.51) |
 | `GET /pose/exercises`, `POST /pose` | M300.1 (Elwin) | Pose Estimation Model | built |
 | `POST /forecast` | M400 (Jun Ting) | Time-Series Forecaster | **to build** |
 | `POST /analyse` | M400 (Jun Ting) | Anomaly Detector and Health Scorer | **to build** |
