@@ -16,9 +16,9 @@ ROUND6 = [
     (KNEE, "can i do it sitting down", ("difficulty", "how_to", "equipment")),
     (KNEE, "i am in a wheelchair", ("weakness_balance", "difficulty", "condition_advice")),
     # risk level
-    (KNEE, "i am high risk can i do more exercise", ("profile_help", "difficulty", "safety")),
-    (KNEE, "what does medium risk mean", "profile_help"),
-    (KNEE, "how is my risk calculated", "profile_help"),
+    (KNEE, "i am high risk can i do more exercise", ("profile_help", "difficulty", "safety", "risk_level", "safety_limits")),
+    (KNEE, "what does medium risk mean", "risk_level"),  # 3.52: its own topic (profile_help did not explain the levels)
+    (KNEE, "how is my risk calculated", "risk_level"),  # 3.52: its own topic (profile_help did not explain the levels)
     # schedule
     (KNEE, "which days should i exercise", "how_often"),
     (KNEE, "can i exercise every day", "how_often"),

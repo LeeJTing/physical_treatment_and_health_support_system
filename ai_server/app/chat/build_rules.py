@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.51"
+VERSION = "chat-rules-3.52"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -893,7 +893,7 @@ INTENTS = [
            "are signed out and cannot use the app, but your account is not deleted.",
            action={"key": "open_profile", "label": "Open my profile"}),
     intent("guardian_consent", "Users under 18", 7,
-           ["under 18", "below 18", "i am 13", "i am 14", "i am 15", "i am 16", "i am 17", "im 13", "im 14",
+           ["under 18", "below 18", "my child", "my kid", "my son use", "my daughter use", "children", "i am 13", "i am 14", "i am 15", "i am 16", "i am 17", "im 13", "im 14",
             "im 15", "im 16", "im 17", "i'm 13", "i'm 14", "i'm 15", "i'm 16", "i'm 17", "13 years old",
             "14 years old", "15 years old", "16 years old", "17 years old", "teenager", "teen",
             "parent need to agree", "parents need to agree", "parent needs to agree", "parent must agree",
@@ -930,7 +930,107 @@ INTENTS = [
            "Sorry about that. Tap Report this answer under the answer, and if you can, say what you expected "
            "and which topic you meant. Reports are read and checked by the team before anything in my answers "
            "changes. You can also try asking in other words, or pick a topic below."),
+
+    # ---- 3.52 (14 Oct, round 19): app features the chatbot had no answer for --------------------------
+    intent("plan_reasons", "Why a plan was chosen", 6,
+           ["why this plan", "why was this plan", "plan chosen", "plan was chosen", "chosen for me",
+            "why recommended", "why is this plan recommended", "why recommend", "why not the other",
+            "why not other plans", "why not this plan", "other plans", "left out", "excluded", "sources",
+            "source", "references", "app safety rule", "guidelines behind", "evidence", "kenapa pelan ini"],
+           ["why was this plan chosen for me", "why not the other plans", "what are the sources under the reasons"],
+           "Each plan card has Why this plan: tap it to see why the plan suits you (the body area, your recovery "
+           "stage, your goal) and the safety rules it meets. Under the plans, Why not the other plans lists each "
+           "plan that was left out and why, for example harder than your safety limit or for another body area. "
+           "Each reason shows the guideline behind it; tap Source to read the full reference. App safety rule "
+           "means a rule of this app itself, set to keep you safe, with no published guideline of its own.",
+           action={"key": "open_planning", "label": "Open treatment planning"}),
+    intent("risk_level", "Your risk level", 6,
+           ["risk level", "high risk", "medium risk", "low risk", "my risk", "risk calculated",
+            "lower my risk", "reduce my risk", "why high risk", "bmi", "body mass index", "risiko tinggi",
+            "tahap risiko"],
+           ["why am I high risk", "what does my risk level mean", "what is BMI"],
+           "Your risk level comes from your health profile. Low: no health conditions or physical limitations. "
+           "Medium: one condition that is under control, or an arm or leg limitation. High: two or more "
+           "conditions; a heart, blood pressure, stroke or nerve condition (such as Parkinson's); a condition "
+           "that is not under control; or a balance problem. A higher level means gentler limits: shorter, "
+           "easier sessions, smaller movement targets in the posture check and fewer plans at once. It is not "
+           "a diagnosis, and it is worked out again whenever you save your profile, so keep it up to date. "
+           "Your BMI (weight divided by height squared) is shown for information; it does not change your risk "
+           "level.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("safety_limits", "Your safety limits", 6,
+           ["safety limit", "safety limits", "intensity limited", "my intensity", "max intensity",
+            "maximum intensity", "session only", "only 20 minutes", "only 30 minutes", "session length",
+            "how long can my session", "daily limits", "daily limit", "had keselamatan"],
+           ["what is my safety limit", "why is my intensity limited", "why is my session only 20 minutes"],
+           "Your safety limits come from your risk level: low risk, up to moderate intensity and 45 minutes a "
+           "session; medium risk, up to moderate intensity and 30 minutes; high risk, up to low intensity and "
+           "20 minutes. Plans with harder exercises or longer sessions are left out, and Why not the other "
+           "plans says so. Home also shows daily limits for food (calories, salt and sugar) worked out from "
+           "your profile. They are recalculated when you save your profile.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("planning_questions", "The planning questions", 5,
+           ["recovery stage", "stage of recovery", "mobility level", "how well can you move",
+            "which goal", "what goal", "main goal", "pick a goal", "choose a goal", "what does pace",
+            "pace mean", "gentle steady faster", "early intermediate advanced", "how far along",
+            "which stage", "what stage", "questionnaire", "four questions", "planning questions"],
+           ["what is recovery stage", "which mobility level should I choose", "what goal should I pick"],
+           "Treatment planning asks: the area that needs rehabilitation (on the body map or from the list); how "
+           "far along your recovery is (Early: just started recovering; Intermediate: some movement is back; "
+           "Advanced: nearly back to normal); how well you can move (Low: need support to move; Moderate: move "
+           "slowly on my own; High: move freely); your main goal (build strength, move more freely, better "
+           "balance, ease pain or more stamina); and, if you like, your pace (Gentle, about 3 days a week; "
+           "Steady, about 4; Faster, about 5). If you are not sure, choose the lower option: plans for a later "
+           "stage or a higher mobility level than yours are left out, so the lower choice is the safer one.",
+           action={"key": "open_planning", "label": "Open treatment planning"}),
+    intent("guide_animation", "The exercise animation", 5,
+           ["moving figure", "stick figure", "stickman", "stick man", "animation", "animated",
+            "the figure", "moving picture", "moving drawing", "demo figure", "animasi"],
+           ["what is the moving figure in the exercise", "the animation is not showing"],
+           "The moving figure shows one repetition of the exercise, made from recordings of it done correctly. "
+           "Copy its range and its slow, steady pace; you can go slower than it if you need to. It is shown with "
+           "the exercise's steps and in the camera view before you record. If it does not appear, close the "
+           "exercise and open it again; an exercise without one yet (Wrist Extension) has only its written "
+           "steps."),
+    intent("health_connect", "Health Connect and devices", 5,
+           ["health connect", "smartwatch", "smart watch", "fitness band", "fitness tracker", "fitbit",
+            "garmin", "mi band", "galaxy watch", "apple watch", "my watch", "wearable", "device connection",
+            "connect my device", "link my device", "jam pintar"],
+           ["how do I connect my smartwatch", "what is Health Connect"],
+           "Health Connect is Android's app for sharing health data, such as steps or heart rate from a "
+           "smartwatch or fitness band. Profile, Device connection shows whether it is linked. Linking a device "
+           "comes with the app's Health Monitoring part, which is not available in this version yet. You do not "
+           "need a watch for your exercises: the posture check only uses your phone's camera."),
+    intent("app_facts", "About the app", 5,
+           ["is this app free", "is it free", "free to use", "cost", "how much", "pay", "subscription",
+            "iphone", "ios", "apple phone", "ipad", "android", "old phone", "my phone is old", "phone too old",
+            "will it work on my phone", "contact you", "contact the team", "email you", "who do i email",
+            "email for help", "support email", "customer service", "percuma", "berbayar", "hubungi"],
+           ["is this app free", "can I use it on iPhone", "how do I contact you"],
+           "HealthGuide is free. It is a university final-year project prototype for evaluation, made for "
+           "Android phones with a camera and an internet connection; there is no iPhone version. On an older "
+           "phone the posture check may take longer, but it works the same. For help, or about your data, email "
+           "elwinksy-wm23@student.tarc.edu.my."),
 ]
+
+# 3.52 (round 19): wider wording for existing rules, found by a probe of the app's features.
+EXTRA_KEYWORDS = {
+    "posture_result": ["repetitions counted", "reps counted", "count my reps", "count the reps",
+                       "counts repetitions", "counts reps", "how does it count", "how is it counted"],
+    "plan_and_reminders": ["restart my plan", "restart the plan", "start my plan again", "start the plan again",
+                           "start over", "begin again"],
+    "best_time": ["fasting", "ramadan", "ramadhan", "puasa", "berpuasa"],
+    "medication": ["blood thinner", "blood thinners", "warfarin", "anticoagulant", "aspirin", "ubat cair darah"],
+    "tired": ["had covid", "after covid", "covid recovery", "recovering from covid", "a cold", "have a cold", "flu", "fever", "demam", "selsema", "batuk", "cough"],
+}
+for _i in INTENTS:
+    _i["keywords"] += [k for k in EXTRA_KEYWORDS.get(_i["key"], []) if k not in _i["keywords"]]
+# Answered when asked, but not offered as topic chips (the list stays short, as before 3.51).
+for _i in INTENTS:
+    if _i["key"] in {"privacy_data", "delete_account", "terms_help", "guardian_consent", "doctor_clearance",
+                     "report_answer", "plan_reasons", "risk_level", "safety_limits", "planning_questions",
+                     "guide_animation", "health_connect", "app_facts"}:
+        _i["show"] = False
 
 # What a restricted user is told instead (the app sends the restriction it got from the recommender).
 # "replace": answers that would send the patient to a plan, a recording or plan reminders; "note_on":

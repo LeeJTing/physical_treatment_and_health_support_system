@@ -370,7 +370,18 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("guardian_consent", "for_someone_else"), ("guardian_consent", "profile_help"),
           ("guardian_consent", "posture_result"), ("guardian_consent", "terms_help"),
           ("doctor_clearance", "age_limit"), ("doctor_clearance", "condition_advice"),
-          ("doctor_clearance", "doctor_said"), ("doctor_clearance", "getting_started")]
+          ("doctor_clearance", "doctor_said"), ("doctor_clearance", "getting_started"),
+          # round 19 (3.52): app features
+          ("plan_reasons", "plan_exercises"), ("plan_reasons", "multiple_plans"), ("plan_reasons", "posture_result"),
+          ("plan_reasons", "safety"), ("risk_level", "profile_help"), ("risk_level", "safety"),
+          ("safety_limits", "safety"), ("safety_limits", "how_often"), ("safety_limits", "profile_help"),
+          ("planning_questions", "plan_progress"), ("planning_questions", "body_map"),
+          ("planning_questions", "difficulty"), ("guide_animation", "body_map"), ("guide_animation", "how_to"),
+          ("guide_animation", "app_help"), ("health_connect", "app_help"), ("health_connect", "profile_help"),
+          ("app_facts", "app_help"), ("app_facts", "plan_progress"), ("app_facts", "bot_identity"),
+          ("app_facts", "account_help"), ("guardian_consent", "app_facts"),
+          ("posture_result", "plan_exercises"), ("plan_and_reminders", "plan_exercises"),
+          ("best_time", "diet"), ("medication", "condition_advice"), ("tired", "diagnosis")]
 
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
