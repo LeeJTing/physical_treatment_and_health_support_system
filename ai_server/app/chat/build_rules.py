@@ -1226,6 +1226,9 @@ RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
               "bleeding a lot", "bleeding heavily", "heavy bleeding", "bleeding won't stop", "bleeding will not stop",
               "won't stop bleeding", "will not stop bleeding", "can't stop the bleeding", "cannot stop the bleeding",
               "bleeding badly", "losing a lot of blood", "lost a lot of blood",
+              # 3.54 (15 Oct, generated warning signs)
+              "heart beating very fast", "heart beating so fast", "heart beating too fast", "heart beat very fast",
+              "heartbeat very fast", "heart is beating very fast", "heart beats very fast", "heart racing fast",
               "i have collapsed", "i've collapsed", "not able to breathe", "unable to breathe",
               "cannot breathe properly", "can't breathe properly", "not able to breath",
               # PC safety pass 16: a low blood sugar told in words

@@ -38,3 +38,14 @@ def test_sample(group):
 def test_examples(q, want):
     x = engine.reply(KNEE, None, q)
     assert x["category"] in (want if isinstance(want, tuple) else (want,)), (q, x["category"])
+
+
+def test_every_warning_sign():
+    """All of them, not a sample: a missed warning sign is the worst mistake the chatbot can make."""
+    wrong = []
+    for g, q, want, _ in CASES:
+        if g == "red_flags":
+            x = engine.reply(KNEE, None, q)
+            if x["category"] not in want:
+                wrong.append((q, x["category"]))
+    assert not wrong, wrong[:20]

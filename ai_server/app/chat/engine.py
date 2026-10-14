@@ -106,7 +106,13 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
                  "hilang kesedaran": "lost consciousness", "tak sedarkan diri": "unconscious",
                  "tidak sedarkan diri": "unconscious", "darah tak berhenti": "bleeding won't stop",
                  "darah tidak berhenti": "bleeding won't stop", "banyak darah": "bleeding a lot",
-                 "berdarah banyak": "bleeding a lot"}
+                 "berdarah banyak": "bleeding a lot",
+                 # 3.54 (15 Oct, generated warning signs): a racing heart, a knock to the head, bleeding
+                 "darah banyak keluar": "bleeding a lot", "keluar banyak darah": "bleeding a lot",
+                 "jantung berdebar": "heart pounding", "jantung berdegup kencang": "heart racing",
+                 "jantung laju": "heart racing", "jantung berdenyut laju": "heart racing",
+                 "dada berdebar": "heart pounding", "kepala terhantuk": "hit my head",
+                 "terhantuk kepala": "hit my head", "kepala terhentak": "hit my head"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}

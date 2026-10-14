@@ -18,5 +18,11 @@
   "misses": [],
   "rate": 1.0
  },
- "seconds": 47
+ "red_flags": {
+  "questions": 660,
+  "correct": 660,
+  "misses": [],
+  "rate": 1.0
+ },
+ "seconds": 48
 }
