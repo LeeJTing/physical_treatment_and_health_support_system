@@ -89,7 +89,7 @@ void main() {
           profileId: 'p',
           accountId: 'a',
           age: 12,
-          weightKg: 500,
+          weightKg: 700, // above the 635 kg limit (beea2c0)
           updatedAt: DateTime.now(),
         );
         expect(
