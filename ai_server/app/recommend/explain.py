@@ -20,7 +20,9 @@ SOURCE_KEYS = {"acsm2009", "billinger2014", "colberg2016", "haff2016", "hk_doh",
                "williams2007",
                # 11 Oct: the conditions added to the profile (conditions.py)
                "acog2020", "campbell2019", "eular2018", "gina2024", "kalb2020", "kdigo2024", "nice2020",
-               "osborne2022", "spruit2013"}
+               "osborne2022", "spruit2013",
+               # 14 Oct: osteoporosis
+               "brookewavell2022"}
 
 AREA = {"LEFT_ARM": "left arm", "RIGHT_ARM": "right arm", "BOTH_ARMS": "arms", "LEFT_LEG": "left leg",
         "RIGHT_LEG": "right leg", "BOTH_LEGS": "legs", "CORE": "core and back", "FULL_BODY": "whole body"}

@@ -172,6 +172,14 @@ class EvidenceSources {
           'Journal of Respiratory and Critical Care Medicine, 188(8), e13-e64.',
       'Exercise in chronic lung disease, guided by breathlessness.',
     ),
+    // 14 Oct: osteoporosis had no source of its own.
+    'brookewavell2022': EvidenceSource(
+      'Brooke-Wavell et al. (2022)',
+      'Brooke-Wavell, K., Skelton, D. A., Barker, K. L., et al. (2022). Strong, steady and straight: UK '
+          'consensus statement on physical activity and exercise for osteoporosis. British Journal of Sports '
+          'Medicine, 56(15), 837-846.',
+      'Strength and balance exercise for osteoporosis; avoid bending the spine forward sharply.',
+    ),
   };
 
   /// In-text names for [keys], or [appRuleLabel] when there are none.
