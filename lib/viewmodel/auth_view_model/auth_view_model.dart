@@ -18,7 +18,15 @@ import 'package:physical_treatment_and_health_support_system/core/utils/id_utils
 
 /// Why the terms screen is shown (11 Oct): never accepted, a new version, or
 /// the profile says the patient is under 18 but no guardian agreed.
-enum TermsReason { firstTime, updated, guardianNeeded }
+enum TermsReason {
+  firstTime,
+  updated,
+  guardianNeeded,
+
+  /// Opened from the profile: the age entered does not match the age group
+  /// chosen before (14 Oct). The screen goes back to the profile afterwards.
+  ageChanged,
+}
 
 /// Register, verify, log in and reset the password (UC100, UC200; Table 4.50).
 /// One [UiState] per operation so each screen shows only its own spinner and error.
@@ -170,6 +178,16 @@ class AuthViewModel extends BaseViewModel {
     return null;
   }
 
+  /// The profile's new [age] does not match the age group accepted before:
+  /// the terms are accepted again for it (adult from 18, else with a parent or
+  /// guardian), then the profile is saved.
+  void startAgeReview(int age) {
+    termsReason = TermsReason.ageChanged;
+    termsProfileAge = age;
+    termsState = const Idle();
+    notifyListeners();
+  }
+
   /// Records the acceptance of the current terms, with the explicit consent
   /// for health data and, for a user aged 13 to 17, the parent or guardian
   /// who agreed; then sets [nextRoute].
@@ -202,8 +220,10 @@ class AuthViewModel extends BaseViewModel {
       ),
     );
     if (res.isSuccess) {
+      final review = termsReason == TermsReason.ageChanged;
       termsReason = null;
-      nextRoute = await _profileRoute(account);
+      // From the profile: back to it (the view pops), no new route.
+      nextRoute = review ? null : await _profileRoute(account);
       termsState = const UiSuccess(null);
     } else {
       termsState = const UiError(Messages.termsSaveFailed);

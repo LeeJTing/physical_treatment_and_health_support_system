@@ -67,8 +67,11 @@ class AppConstants {
   /// Version of the Terms of Use and Privacy Notice (assets/legal/terms.json,
   /// same "version"). Raising it asks every user to accept again at login.
   static const String termsVersion = '1.0';
-  static const double weightMin = 20, weightMax = 300;
-  static const double heightMin = 80, heightMax = 250;
+  // Upper limits = the largest ever recorded (Elwin, 14 Oct; Guinness World
+  // Records): tallest, Robert Wadlow 272 cm; heaviest, Jon Brower Minnoch
+  // about 635 kg. Same limits in Supabase (20261014120000_profile_limits.sql).
+  static const double weightMin = 20, weightMax = 635;
+  static const double heightMin = 80, heightMax = 272;
   static const Duration profileStaleAfter = Duration(
     days: 182,
   ); // UC1000 C3, TO CONFIRM
@@ -159,6 +162,14 @@ class Messages {
       'Google sign-in did not finish. Please try again, or log in with your email and password.'; // not a report message
 
   // UC300 Manage Profile
+  /// The profile age does not match the age group chosen in the Terms
+  /// (14 Oct): review the Terms first.
+  static const ageAboveTermsGroup =
+      'In the Terms of Use you chose "13 to 17". If you are now 18 or older, '
+      'review the Terms and choose "18 or older" first.';
+  static const ageBelowTermsGroup =
+      'In the Terms of Use you chose "18 or older". Under 18, a parent or '
+      'guardian must agree to the Terms first: review the Terms.';
   static const valueOutOfRange =
       'The value entered is outside the accepted range. Please check your entry.';
   static const requiredFieldsEmpty =

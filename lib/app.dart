@@ -85,8 +85,13 @@ class MainApp extends StatelessWidget {
           Routes.terms: (_) => const TermsView(),
           Routes.healthProfile: (_) => ChangeNotifierProvider(
             create: (c) =>
-                ProfileViewModel(c.read(), c.read(), c.read(), c.read())
-                  ..loadProfile(),
+                ProfileViewModel(
+                  c.read(),
+                  c.read(),
+                  c.read(),
+                  c.read(),
+                  c.read(),
+                )..loadProfile(),
             child: const ProfileView(),
           ),
           Routes.treatmentPlanning: (_) => ChangeNotifierProvider(

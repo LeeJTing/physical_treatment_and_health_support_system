@@ -11,6 +11,8 @@ import 'package:physical_treatment_and_health_support_system/model/entity/lookup
 import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
 
 /// View and edit the health profile (UC300 Manage Profile; Table 4.51).
 /// The saved profile and the editable draft are kept apart so Cancel restores
@@ -23,12 +25,20 @@ class ProfileViewModel extends BaseViewModel {
   /// Cancels this phone's reminders when the account is deleted.
   final LocalNotificationService? _notifications;
 
+  /// The age group accepted in the Terms, which the age must agree with.
+  final ITermsRepository? _terms;
+
   ProfileViewModel(
     this._profiles,
     this._auth,
     this._risk, [
     this._notifications,
+    this._terms,
   ]);
+
+  /// Save stopped because the age does not match the age group accepted in
+  /// the Terms (14 Oct): the screen offers "Review Terms".
+  bool ageReviewNeeded = false;
 
   Account? account;
   HealthProfile? profile; // last saved
@@ -246,6 +256,17 @@ class ProfileViewModel extends BaseViewModel {
       return false;
     }
     final errors = d.validate();
+    ageReviewNeeded = false;
+    if (errors.isEmpty) {
+      final mismatch = await _ageGroupMismatch(d.age!);
+      if (mismatch != null) {
+        invalidFields = const ['age'];
+        ageReviewNeeded = true;
+        saveState = UiError(mismatch);
+        notifyListeners();
+        return false;
+      }
+    }
     if (errors.isNotEmpty) {
       invalidFields = errors;
       final missing =
@@ -277,6 +298,25 @@ class ProfileViewModel extends BaseViewModel {
     saveState = const UiSuccess(null);
     notifyListeners();
     return true;
+  }
+
+  /// The message when [age] does not agree with the age group of the last
+  /// accepted Terms, else null. Not checked when the Terms cannot be read
+  /// (offline, or no acceptance yet), as with the sign-in gate.
+  Future<String?> _ageGroupMismatch(int age) async {
+    final terms = _terms;
+    final id = (await _auth.currentAccount()).dataOrNull?.accountId;
+    if (terms == null || id == null) return null;
+    final last = (await terms.latestAcceptance(id)).dataOrNull;
+    if (last == null) return null;
+    final adult = age >= AppConstants.adultAge;
+    if (last.ageGroup == TermsAgeGroup.minor && adult) {
+      return Messages.ageAboveTermsGroup;
+    }
+    if (last.ageGroup == TermsAgeGroup.adult && !adult) {
+      return Messages.ageBelowTermsGroup;
+    }
+    return null;
   }
 
   Future<bool> logout() async => (await _auth.signOut()).isSuccess;

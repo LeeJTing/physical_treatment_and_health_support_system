@@ -11,6 +11,7 @@ import 'package:physical_treatment_and_health_support_system/core/utils/form_val
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
@@ -74,6 +75,16 @@ class _ProfileViewState extends State<ProfileView> {
         ).pushNamedAndRemoveUntil(Routes.home, (_) => false);
       }
     }
+  }
+
+  /// The age does not match the age group accepted in the Terms (14 Oct):
+  /// accept them again for the new age, then save.
+  Future<void> _reviewTerms(ProfileViewModel vm) async {
+    final age = vm.draft?.age;
+    if (age == null) return;
+    context.read<AuthViewModel>().startAgeReview(age);
+    final accepted = await Navigator.of(context).pushNamed<bool>(Routes.terms);
+    if (accepted == true && mounted) await _save(vm);
   }
 
   Future<bool> _ask(String message, String yes, {bool danger = false}) async =>
@@ -312,6 +323,15 @@ class _ProfileViewState extends State<ProfileView> {
               if (vm.saveState case UiError(:final message)) ...[
                 const SizedBox(height: 16),
                 InfoBanner(message, icon: Icons.error_outline),
+                if (vm.ageReviewNeeded)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      key: const Key('review_terms_for_age'),
+                      onPressed: () => _reviewTerms(vm),
+                      child: const Text('Review Terms'),
+                    ),
+                  ),
               ],
               if (!vm.isEditing) ...[
                 const SizedBox(height: 28),
