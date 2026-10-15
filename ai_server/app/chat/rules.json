@@ -119,7 +119,8 @@
         "teach me",
         "exercise steps",
         "the steps",
-        "langkah"
+        "langkah",
+        "show how"
       ],
       "examples": [
         "how do I do the exercises",
@@ -1604,7 +1605,10 @@
         "cannot see me in video",
         "can't see me in video",
         "see me in video",
-        "not see me"
+        "not see me",
+        "cannot see video",
+        "can't see video",
+        "cant see video"
       ],
       "examples": [
         "it says my video is quite dark",
@@ -2520,7 +2524,13 @@
         "exercise for my fingers",
         "any exercise for",
         "anggota badan",
-        "bahagian badan"
+        "bahagian badan",
+        "choose part",
+        "part body",
+        "body part",
+        "which part",
+        "choose body",
+        "pick body part"
       ],
       "examples": [
         "how do I choose the part I want to recover",

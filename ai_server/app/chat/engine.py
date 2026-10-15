@@ -118,7 +118,8 @@ CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", 
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
 # 3.55: short forms typed for whole words (respell reads them as the word)
-SHORT_WORDS_TYPED = {"y": "why", "tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
+SHORT_WORDS_TYPED = {"y": "why", "pln": "plan", "acc": "account", "pwd": "password", "pw": "password",
+                     "tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
                      "rly": "really", "noe": "know", "bcos": "because", "bcoz": "because", "coz": "because",
                      "wat": "what", "wht": "what", "hw": "how", "mins": "minutes", "min": "minutes",
                      "tq": "thank you", "thx": "thanks", "w": "with", "wif": "with", "dun": "don't",
@@ -202,6 +203,7 @@ def plan_intents(plan: dict) -> list[dict]:
                       "all done", "finished my plan", "completed my plan",
                       "why this plan", "what does this plan do", "what next", "what's next", "next step",
                       "better now", "feel better", "feeling better", "when can i stop", "can i stop now",
+                      "when can stop", "when to stop", "when stop",
                       "still need to continue", "need to continue", "continue or not", "better already",
                       "already better", "how long more", "walk normally", "walk again", "walk properly",
                       "how long before", "did all", "did all my", "done my exercises"],
@@ -467,7 +469,7 @@ def _respell_words(token: str) -> str:
             out.append(w)                                # a known or a real word is what was typed
             continue
         likely = _likeliest(w)
-        easy = likely is not None and (typo_cost(w, likely) <= 0.8 or likely in URGENT_WORDS)
+        easy = likely is not None and typo_cost(w, likely) <= 0.8
         exact = _exact_split(w, vocab)
         if exact and not easy:
             out.extend(exact)                            # "beenthe" -> been the, not "breathe"
@@ -1519,7 +1521,9 @@ def _near_exercise_name(text: str, intents: list[dict]):
             core = " ".join(w for w in alias.split() if w not in _GENERIC_NAME_WORDS)
             if len(core.replace(" ", "")) < 7 or " " not in core or len(t) < len(core) - 2:
                 continue
-            score = fuzz.partial_ratio(core, t)
+            # Within a longer message, the best-matching part of it; a message no longer than the name is
+            # compared whole ("ste up" is step up, not the end of "wrist up").
+            score = fuzz.partial_ratio(core, t) if len(t) > len(core) else fuzz.ratio(core, t)
             if score >= 88 and (best is None or score > best[0]):
                 best = (score, (i["priority"], len(alias.split()), i))
     return best[1] if best else None
