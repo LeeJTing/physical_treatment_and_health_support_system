@@ -21,6 +21,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from rapidfuzz import fuzz, process
+from rapidfuzz.distance import OSA
 
 RULES_PATH = Path(__file__).with_name("rules.json")
 THRESHOLD = 0.75          # fuzzy example match
@@ -282,6 +283,117 @@ def correct(text: str) -> str:
     return " ".join(out)
 
 
+# 3.55 (15 Oct, the 10 000-message random test): a slip inside a Malay word ("pittam", "bernfas") kept it
+# from being translated, and joined words ("heartracing", "takboleh", "haspengsan") from being read.
+# respell() runs on the message as typed: an unknown word becomes the closest English or Malay word
+# the rules know (same first letter, at most one letter longer or shorter, 80 % alike), or is split
+# into two known words. Common Malay words are known too, so "jauh" (far) never becomes "jatuh" (fall).
+COMMON_MALAY = set("""ada adik ayah abang akan aku anak apa awak bagi baik balik banyak baru belum besar betul bila
+boleh buat bulan cuba dah dalam dan dapat dari dekat depan dengan dia dua emak esok gerak hari hendak hidup ibu ini
+itu jalan jangan jauh jumpa juga kakak kalau kami kan kat kata kecil keluar kena kerja kita kuat lagi lain lama
+lambat laju lepas lebih lemah lima macam mahu main makan mak malam mana masa mati minggu minum mula mungkin naik
+nanti nenek ni nak orang pagi pakai panas pergi petang pula pun rasa rumah sahaja saja sakit sama sampai sangat
+satu saya sebab sedikit sejuk selalu semalam semua senang siapa sikit sini situ suami sudah susah tadi tahu tak
+takut tangan tapi tengok terus tiga tidak tiap tolong tu tua turun ulang untuk wak yang""".split())
+
+
+@lru_cache(maxsize=1)
+def dictionary() -> frozenset:
+    """The most common English and Malay words (common_words.txt, build_wordlist.py): never respelled."""
+    return frozenset((Path(__file__).with_name("common_words.txt")).read_text(encoding="utf-8").split())
+
+
+@lru_cache(maxsize=1)
+def _respell_vocab() -> frozenset:
+    v = set(vocabulary()) | COMMON_MALAY | set(MALAY) | set(SYNONYMS) | set(CONTRACTIONS)
+    for p in MALAY_PHRASES:
+        v.update(p.split())
+    for p in rules()["red_flags"]:
+        v.update(p.split())
+    return frozenset(w for w in v if w)
+
+
+def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
+    """"heartracing" -> heart racing; "takboleh" -> tak boleh (both parts known, the first not "no");
+    "slurredspech" -> slurred speech (the second part with a slip of its own)."""
+    best = None
+    for i in range(2, len(w) - 1):
+        a, b = w[:i], w[i:]
+        if a in vocab and b in vocab and a not in NEGATORS and min(len(a), len(b)) >= 2:
+            if best is None or abs(len(a) - len(b)) < abs(len(best[0]) - len(best[1])):
+                best = (a, b)
+    if best:
+        return list(best)
+    for i in range(4, len(w) - 3):
+        a, b = w[:i], w[i:]
+        if a in vocab and a not in NEGATORS and len(b) >= 4:
+            fixed = _closest(b, vocab, 80)
+            if fixed:
+                return [a, fixed]
+        if b in vocab and len(a) >= 4:                   # "pianduring" -> pain during
+            fixed = _closest(a, vocab, 75)
+            if fixed and fixed not in NEGATORS:
+                return [fixed, b]
+    return None
+
+
+# Words of warning signs: a one-letter slip is corrected even in a short word ("dafa", "dda" -> dada).
+SAFETY_WORDS = frozenset({"dada", "nafas", "bernafas", "pitam", "pengsan", "jatuh", "darah", "chest", "faint",
+                          "fainted", "breath", "breathe", "bleed", "bleeding", "heart", "stroke", "collapse",
+                          "collapsed", "dizzy", "pening", "pitam", "sesak", "ketat", "jantung", "kepala",
+                          "numb", "kebas", "lumpuh", "senget", "pelat", "laju", "berdebar", "bangun", "weak",
+                          "side", "fell", "fall", "susah", "muka", "tadi", "saya", "ayah", "hurt", "hurts",
+                          "pain", "racing", "pounding", "terhantuk", "swollen", "vomit", "muntah", "sakit",
+                          "hard", "head", "move", "talk", "speech", "drooping", "faint", "blood"})
+
+
+def _closest(w: str, vocab, cutoff: float) -> str | None:
+    cands = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1 and len(v) >= 4]
+    if 4 <= len(w) <= 6:
+        # One swap, drop, extra or changed letter (OSA distance 1) when only one known word is that close.
+        near = [v for v in cands if OSA.distance(w, v) <= 1]
+        if len(near) == 1:
+            return near[0]
+    hit = process.extractOne(w, cands, scorer=fuzz.ratio, score_cutoff=cutoff) if cands else None
+    return hit[0] if hit else None
+
+
+@lru_cache(maxsize=20000)
+def respell(text: str) -> str:
+    """The message with its unknown words mended, in lower case, punctuation kept."""
+    return re.sub(r"[a-z0-9']+", lambda m: _respell_words(m.group(0)), text.lower().replace("’", "'"))
+
+
+def _respell_words(token: str) -> str:
+    vocab = _respell_vocab()
+    out = []
+    for w in [token]:
+        if w in vocab or w in dictionary() or len(w) < 3 or not w.isalpha():
+            out.append(w)                                # a known or a real word is what was typed
+            continue
+        if len(w) == 3:                                  # only a warning-sign word: "dda" -> dada
+            out.append(_closest(w, SAFETY_WORDS, 80) or w)
+            continue
+        # A warning-sign word first when the slip is as close to it as to a harmless word ("heatr":
+        # heart, not heat; "ptaam": pitam, not padam; "saikt": sakit, not sikit): a needless safety
+        # answer is the safer mistake. Then any known word; only then two joined words ("herat" is
+        # heart, not "her at").
+        fixed = _closest(w, SAFETY_WORDS, 80) or _closest(w, vocab, 80)
+        if fixed:
+            out.append(fixed)
+            continue
+        joined = _split_joined(w, vocab)
+        if joined:
+            out.extend(joined)
+            continue
+        out.append(_closest(w, SAFETY_WORDS, 74) or w)
+    return " ".join(out)
+
+
+def _plain(text: str) -> str:
+    return " ".join(re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split())
+
+
 def content_words(text: str) -> str:
     return " ".join(w for w in correct(text).split() if w not in STOP)
 
@@ -394,7 +506,23 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("app_facts", "app_help"), ("app_facts", "plan_progress"), ("app_facts", "bot_identity"),
           ("app_facts", "account_help"), ("guardian_consent", "app_facts"),
           ("posture_result", "plan_exercises"), ("plan_and_reminders", "plan_exercises"),
-          ("best_time", "diet"), ("medication", "condition_advice"), ("tired", "diagnosis")]
+          ("best_time", "diet"), ("medication", "condition_advice"), ("tired", "diagnosis"),
+          # 3.55 (random test): the specific answer over the general one
+          ("fall_alert", "safety"), ("exit_exercise", "goodbye"), ("exit_exercise", "app_help"),
+          ("app_facts", "safety"), ("motivation", "plan_progress"),
+          ("partial_reps", "posture_result"), ("partial_reps", "plan_exercises"),
+          ("treatment_nav", "plan_exercises"), ("video_quality", "recording_help"),
+          ("plan_reasons", "plan_progress"), ("family_help", "for_someone_else"),
+          ("family_help", "bot_identity"), ("muscle_loss", "weakness_balance"), ("bladder_leak", "pain_mild"),
+          ("bladder_leak", "pain_or_discomfort"), ("plan_and_reminders", "plan_exercises"),
+          ("plan_and_reminders", "pain_or_discomfort"), ("google_setup", "account_help"),
+          ("app_help", "condition_advice"), ("health_log_reminder", "condition_advice"),
+          ("health_log_reminder", "reminders_help"), ("eating_concern", "diet"), ("fear_of_falling", "safety"),
+          ("safety", "posture_result"), ("hot_weather", "treatment_nav"), ("change_password", "forgot_password"),
+          ("doctor_said", "best_time"), ("doctor_said", "low_mood"),
+          ("text_size", "pain_swelling"), ("missed_session", "plan_exercises"), ("age_limit", "plan_exercises"),
+          ("age_limit", "safety"), ("reminder_late_or_off", "reminders_help"), ("adjusted_targets", "posture_result"),
+          ]
 
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
@@ -403,8 +531,21 @@ PREFER_UNLESS = [# 3.50: "I have cancer, can I exercise?" is condition advice; "
                  ("condition_advice", "diagnosis", ["do i have", "could it be", "could this be", "is it cancer",
                                                     "is this cancer", "might be", "do you think", "am i getting",
                                                     "be cancer", "lump", "signs of", "symptoms of"]),
-                 ("muscle_loss", "doctor_said", ["rest", "berehat", "stop", "not to", "don't", "avoid", "no exercise",
-                                                 "bed rest", "wait", "until"]),
+                 ("muscle_loss", "doctor_said", ["told me", "told", "advised", "said", "says", "doctor", "physio",
+                                                 "berehat", "stop", "not to", "don't", "avoid", "no exercise",
+                                                 "wait", "until"]),
+                 # 3.55: "my exercises" is the plan's list, unless it asks how to do them
+                 ("plan_exercises", "how_to", ["rest", "between", "correct", "correctly", "properly", "how to",
+                                               "how do", "how should", "form", "technique"]),
+                 # 3.55: "help me" is asking what I can do, unless it is about the plan helping
+                 ("bot_identity", "plan_progress", ["recover", "plan", "exercise", "exercises", "working", "progress",
+                                                    "is it", "are they", "will it"]),
+                 # 3.55: "go gym" is another activity, unless it asks what to use
+                 ("other_activity", "equipment", ["mat", "need", "chair", "equipment", "ball", "band", "weights",
+                                                  "dumbbell", "use"]),
+                 # 3.55: "exercise steps" are how to do it, unless it is about the step itself
+                 ("how_to", "equipment", ["high", "tall", "height", "stair", "stairs", "box", "platform",
+                                          "step up", "step-up", "what step", "which step", "need a step"]),
                  # round 15: "afraid of getting hurt after a fall" is the fear, unless something hurts now
                  ("fear_of_falling", "pain_or_discomfort", ["pain", "painful", "sakit", "ache", "aching", "sore",
                                                             "swollen"]),   # not "hurts": it stems to "hurt"
@@ -812,6 +953,13 @@ OD_CLAUSE_BREAKS = {"and", "then", "but", "dan", "lepas", "after", "before", "so
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
+    if _red_flag(text):
+        return True
+    again = respell(text)
+    return _plain(again) != _plain(text) and _red_flag(again)
+
+
+def _red_flag(text: str) -> bool:
     if high_bp(text) or low_sugar(text) or high_sugar(text):
         return True
     r = rules()
@@ -1154,7 +1302,60 @@ def _inside_exercise_names(text: str, hits: list) -> list:
 
 
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
-    """The rule a typed question resolves to, and how it was matched."""
+    """The rule a typed question resolves to, and how it was matched. When nothing, or only a loose
+    likeness, matched, the respelled message is tried too (3.55: "hurs", "pasword", "bernfas")."""
+    plain = " ".join(re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split())
+    core = _without_fillers(plain)
+    fillers = {w for f in LEADING_FILLERS + TRAILING_FILLERS for w in f.split()}
+    if core and core != plain and not set(core.split()) <= fillers:
+        # "hi how often", "ok is it torn", "not helpful pls": the question without the greeting or the
+        # word around it, unless that leaves only small talk.
+        c, h = match(plan_id, core)
+        if c is not None and not c.get("small_talk"):
+            return c, h
+    chosen, how = _match(plan_id, text)
+    again = respell(text)
+    if _plain(again) != plain and how != "glossary":
+        # A slip was mended ("set remidner", "hw oftne"): the mended message wins when it matches more
+        # of what was typed ("set reminder" over "set"), or when the message as typed matched nothing
+        # or only loosely. A posture mistake's exact name stays ("shrugging" is not "struggling").
+        c2, h2 = _match(plan_id, again)
+        if c2 is not None and (chosen is None or how in ("similar_question", "keyword_overlap")
+                               or keyword_match(again, c2) > keyword_match(text, chosen)
+                               or (h2 == "glossary")):
+            return c2, h2
+    return chosen, how
+
+
+# Words before or after a question that carry no topic of their own (3.55).
+LEADING_FILLERS = ["excuse me", "hi there", "hello there", "hi", "hello", "hey", "hai", "helo", "doc", "doctor",
+                   "sorry", "erm", "erm,", "um", "uh", "hmm", "hm", "ok", "okay", "oh", "eh", "so", "and", "then",
+                   "please", "pls", "plz", "assalamualaikum", "salam"]
+TRAILING_FILLERS = ["lah", "la", "ah", "leh", "pls", "plz", "please", "ya", "yah", "huh", "eh", "ok", "thanks",
+                    "thank you", "tq", "thx", "doc"]
+
+
+def _without_fillers(plain: str) -> str:
+    words = plain.split()
+    changed = True
+    while changed and len(words) > 1:
+        changed = False
+        for f in LEADING_FILLERS:
+            fw = f.split()
+            if words[:len(fw)] == fw and len(words) > len(fw):
+                words = words[len(fw):]
+                changed = True
+                break
+        for f in TRAILING_FILLERS:
+            fw = f.split()
+            if words[-len(fw):] == fw and len(words) > len(fw):
+                words = words[:-len(fw)]
+                changed = True
+                break
+    return " ".join(words)
+
+
+def _match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     g = glossary_match(text)
     if g is not None:
         return g, "glossary"
@@ -1197,7 +1398,8 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     if len(clean(text).split()) <= 3 and not exercises:
         # (3.54: not when an exercise is named: "open and close" is the exercise, not goodbye)
         small = [h for h in hits if h[2].get("small_talk")]
-        if small:                                    # "good morning", "help", "ok thanks"
+        # (3.55: not when a longer topic phrase matched too: "not helpful" is a complaint, not thanks)
+        if small and not any(h[1] > max(s[1] for s in small) for h in hits if not h[2].get("small_talk")):                                    # "good morning", "help", "ok thanks"
             return max(small, key=lambda h: (h[0], h[1]))[2], "keyword"
     hits = _inside_exercise_names(text, hits)
     keys = {h[2]["key"] for h in hits}
@@ -1255,6 +1457,8 @@ FOLLOW_FILLERS = {
     "nak", "buat", "mana", "apa", "tu", "ni", "ke", "kali", "lama", "tak", "ya", "boleh", "itu", "ini",
 }
 NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language"}
+# What a follow-up with nothing before it may still answer ("how often" -> how often; "steps" -> how to).
+NO_CONTEXT_ANSWERS = {"how_to", "safety", "how_often", "plan_progress", "treatment_nav", "plan_exercises"}
 SAFETY_ANSWERS = {"red_flag", "crisis", "overdose", "poisoning"}
 
 
@@ -1369,8 +1573,8 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
         # Nothing before it to continue: the general how-to and safety answers still fit ("show me how
         # to do it", "is it safe"); anything else asks for more rather than guessing.
         guess, guessed_how = match(plan_id, text)
-        if guess is not None and guess["key"] in ("how_to", "safety"):
-            chosen, how = guess, guessed_how
+        if guess is not None and guess["key"] in NO_CONTEXT_ANSWERS:
+            chosen, how = guess, guessed_how             # "how often", "what next": questions of their own
         else:
             chosen, how = by_key["clarify"], "clarify"
     if chosen is not None:

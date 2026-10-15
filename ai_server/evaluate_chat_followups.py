@@ -33,7 +33,7 @@ def got(text, previous):
 
 
 def ok(text, previous, g):
-    return g in ({"clarify", "how_to", "safety"} if previous in NO_CONTEXT else {previous})
+    return g in (({"clarify"} | engine.NO_CONTEXT_ANSWERS) if previous in NO_CONTEXT else {previous})
 
 
 def run(pairs):

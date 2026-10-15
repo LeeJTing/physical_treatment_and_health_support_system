@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.54"
+VERSION = "chat-rules-3.55"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -1032,6 +1032,71 @@ EXTRA_KEYWORDS = {
                            "start over", "begin again"],
     "best_time": ["fasting", "ramadan", "ramadhan", "puasa", "berpuasa"],
     "medication": ["blood thinner", "blood thinners", "warfarin", "anticoagulant", "aspirin", "ubat cair darah"],
+}
+# 3.55 (15 Oct, the 10 000-message random test): how users say it in two or three words. A dict of its
+# own, merged into the one above: the same topic may appear in both.
+EXTRA_KEYWORDS_355 = {
+    "fall_alert": ["fall message", "fall warning", "fall alert", "possible fall", "says possible fall",
+                   "fall detected", "detected a fall", "fall notification"],
+    "medication": ["ubat", "ubat saya", "makan ubat", "my medicine", "medicine"],
+    "exit_exercise": ["go back home", "back home", "go home", "back to home", "how to exit", "exit",
+                      "exit button", "keluar"],
+    "verification_code": ["kod", "kod tak sampai", "tak dapat kod", "kod pengesahan", "no code"],
+    "app_facts": ["email support", "support email", "free", "app price", "harga app"],
+    "motivation": ["no motivation", "not motivated", "lazy", "malas", "tak semangat", "no mood to exercise"],
+    "partial_reps": ["partial", "half reps", "half rep", "half repetition", "half repetitions",
+                     "half counted", "reps half"],
+    "adjusted_targets": ["range reduced", "reduced range", "target less", "targets less", "lower target",
+                         "target lower", "target reduced", "why target", "smaller target", "smaller range"],
+    "treatment_nav": ["next exercise where", "where my plan", "where is my plan", "open my plan",
+                      "my treatment plan", "find my plan", "where my exercise", "where to find my plan",
+                      "open the plan", "where plan"],
+    "plan_exercises": ["my exercises", "what exercises", "exercise list", "list of exercises",
+                       "which exercises", "senarai senaman"],
+    "video_quality": ["blurry video", "video blurry", "video is blurry", "video blur", "blur video",
+                      "blurry recording", "recording blurry", "looks blurry", "cannot see me in the video",
+                      "can't see me in the video", "cant see me in video", "not in the video", "phone too far",
+                      "camera too far", "too far away", "too close to the camera", "too dark", "video gelap"],
+    "bot_identity": ["you robot", "are you a robot", "robot", "you human", "are you human", "what are you",
+                     "are you real", "real person", "bot"],
+    "other_activity": ["gym", "go gym", "go to the gym", "jogging", "jog", "swim", "swimming", "badminton",
+                       "cycling", "futsal", "yoga class"],
+    "family_help": ["son can help", "daughter can help", "carer help", "carer", "can family help",
+                    "family help", "family can help", "helper", "my maid"],
+    "difficulty": ["tough", "so tough", "too tough", "very tough"],
+    "muscle_loss": ["bed rest weak", "weak after bed rest", "after bed rest", "weak after hospital",
+                    "after hospital weak", "muscles weak after", "lost muscle", "muscle loss"],
+    "bladder_leak": ["pee a little", "pee", "peeing", "urine leak", "kencing sikit", "terkencing"],
+    "plan_and_reminders": ["restart plan", "stop plan", "switch plan", "change plan", "change my plan",
+                           "stop my plan", "cancel plan", "tukar plan"],
+    "google_setup": ["sign in google", "google sign in", "login google", "google login", "sign in with google",
+                     "google"],
+    "joint_noise": ["bunyi lutut", "bunyi sendi", "lutut berbunyi", "sendi berbunyi", "bunyi"],
+    "app_help": ["app features", "features", "the tabs", "tabs", "what can this app do", "what can app do",
+                 "what does this app do", "how app works"],
+    "health_log_reminder": ["remind log", "remind me to log", "log blood pressure", "log reading reminder",
+                            "reminder health reading", "health reading reminder", "log my readings"],
+    "eating_concern": ["cannot eat", "can't eat", "cant eat", "no appetite", "skip meals", "skip meal",
+                       "tak lalu makan", "tak selera"],
+    "diagnosis": ["what is wrong with me", "what's wrong with me", "whats wrong with me", "wrong with me",
+                  "is it torn", "torn"],
+    "fear_of_falling": ["fear falling", "fear of falling", "afraid to fall", "scared to fall", "takut jatuh"],
+    "planning_questions": ["pace", "pace meaning", "which goal", "goal meaning", "stage meaning"],
+    "safety": ["safety tips", "safety tip", "safe tips", "tips to be safe"],
+    "hot_weather": ["very hot", "so hot", "too hot", "panas", "cuaca panas"],
+    "change_password": ["new password", "tukar password", "tukar kata laluan", "update password"],
+    "doctor_said": ["doctor say", "doctor says", "doctor said", "physio said", "physio say", "physio says",
+                    "doktor kata"],
+    "how_to": ["exercise steps", "the steps", "langkah"],
+    "getting_started": ["im new", "i'm new", "new here", "new user", "baru guna"],
+    "diet": ["makan apa", "nak makan apa", "what to eat", "food"],
+    "language": ["chinese", "mandarin", "tamil", "chinese can", "bahasa cina"],
+    "text_size": ["cant read small", "cannot read small", "can't read small", "too small to read"],
+    "missed_session": ["lupa exercise", "lupa senaman", "tak buat senaman", "skip exercise"],
+}
+for _k, _v in EXTRA_KEYWORDS_355.items():
+    EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+EXTRA_KEYWORDS |= {
     "tired": ["had covid", "after covid", "covid recovery", "recovering from covid", "a cold", "have a cold", "flu", "fever", "demam", "selsema", "batuk", "cough"],
 }
 for _i in INTENTS:
@@ -1226,6 +1291,10 @@ RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
               "bleeding a lot", "bleeding heavily", "heavy bleeding", "bleeding won't stop", "bleeding will not stop",
               "won't stop bleeding", "will not stop bleeding", "can't stop the bleeding", "cannot stop the bleeding",
               "bleeding badly", "losing a lot of blood", "lost a lot of blood",
+              # 3.55 (15 Oct, random test): the words users leave out
+              "short breath", "have short breath", "feel short breath", "bleeding lot", "bleed a lot",
+              "cannot move one side", "can't move one side", "fell hit head", "fell hit my head",
+              "pressure chest", "chest pressure",
               # 3.54 (15 Oct, generated warning signs)
               "heart beating very fast", "heart beating so fast", "heart beating too fast", "heart beat very fast",
               "heartbeat very fast", "heart is beating very fast", "heart beats very fast", "heart racing fast",

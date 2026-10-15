@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.54",
+  "version": "chat-rules-3.55",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -39,7 +39,10 @@
         "how does the app work",
         "how do i use",
         "guide me",
-        "walk me through"
+        "walk me through",
+        "im new",
+        "i'm new",
+        "baru guna"
       ],
       "examples": [
         "how should we start",
@@ -113,7 +116,10 @@
         "guide",
         "tutorial",
         "explain",
-        "teach me"
+        "teach me",
+        "exercise steps",
+        "the steps",
+        "langkah"
       ],
       "examples": [
         "how do I do the exercises",
@@ -295,7 +301,11 @@
         "too busy",
         "busy",
         "stopped exercising",
-        "break from"
+        "break from",
+        "lupa exercise",
+        "lupa senaman",
+        "tak buat senaman",
+        "skip exercise"
       ],
       "examples": [
         "I missed my session yesterday",
@@ -372,7 +382,11 @@
         "okay for me",
         "ok for me",
         "suitable for me",
-        "allowed"
+        "allowed",
+        "safety tips",
+        "safety tip",
+        "safe tips",
+        "tips to be safe"
       ],
       "examples": [
         "is it safe for me to exercise",
@@ -666,7 +680,11 @@
         "only goes up",
         "only go up",
         "only goes down",
-        "only go down"
+        "only go down",
+        "tough",
+        "so tough",
+        "too tough",
+        "very tough"
       ],
       "examples": [
         "the exercises are too easy",
@@ -1101,7 +1119,15 @@
         "mobile data",
         "no data",
         "no connection",
-        "no signal"
+        "no signal",
+        "app features",
+        "features",
+        "the tabs",
+        "tabs",
+        "what can this app do",
+        "what can app do",
+        "what does this app do",
+        "how app works"
       ],
       "examples": [
         "how does this app work",
@@ -1144,7 +1170,10 @@
         "rest for a week",
         "rest for a few days",
         "doctor say",
-        "doctor says"
+        "doctor says",
+        "physio say",
+        "physio says",
+        "doktor kata"
       ],
       "examples": [
         "my doctor said I should rest for a week",
@@ -1184,7 +1213,12 @@
         "noise",
         "noises",
         "sound",
-        "sounds"
+        "sounds",
+        "bunyi lutut",
+        "bunyi sendi",
+        "lutut berbunyi",
+        "sendi berbunyi",
+        "bunyi"
       ],
       "examples": [
         "my shoulder clicks when I raise my arm",
@@ -1228,7 +1262,17 @@
         "where are my exercises",
         "take me to my exercises",
         "my pathway",
-        "next stage"
+        "next stage",
+        "next exercise where",
+        "where my plan",
+        "where is my plan",
+        "open my plan",
+        "my treatment plan",
+        "find my plan",
+        "where my exercise",
+        "where to find my plan",
+        "open the plan",
+        "where plan"
       ],
       "examples": [
         "open my exercises",
@@ -1412,7 +1456,12 @@
         "detect falls",
         "detect if i fall",
         "fall detection",
-        "detects falls"
+        "detects falls",
+        "fall message",
+        "says possible fall",
+        "fall detected",
+        "detected a fall",
+        "fall notification"
       ],
       "examples": [
         "the app said I may have fallen",
@@ -1441,7 +1490,16 @@
         "lower target",
         "lower targets",
         "easier target",
-        "easier targets"
+        "easier targets",
+        "range reduced",
+        "reduced range",
+        "target less",
+        "targets less",
+        "target lower",
+        "target reduced",
+        "why target",
+        "smaller target",
+        "smaller range"
       ],
       "examples": [
         "why are my targets adjusted",
@@ -1475,7 +1533,14 @@
         "half of each",
         "half of the movement",
         "half movements",
-        "half the movement"
+        "half the movement",
+        "partial",
+        "half reps",
+        "half rep",
+        "half repetition",
+        "half repetitions",
+        "half counted",
+        "reps half"
       ],
       "examples": [
         "it says partial repetitions",
@@ -1510,7 +1575,23 @@
         "i look small",
         "too far away",
         "far from the camera",
-        "less accurate"
+        "less accurate",
+        "blurry video",
+        "video blurry",
+        "video is blurry",
+        "video blur",
+        "blur video",
+        "blurry recording",
+        "recording blurry",
+        "looks blurry",
+        "cannot see me in the video",
+        "can't see me in the video",
+        "cant see me in video",
+        "not in the video",
+        "phone too far",
+        "camera too far",
+        "too close to the camera",
+        "video gelap"
       ],
       "examples": [
         "it says my video is quite dark",
@@ -1547,7 +1628,11 @@
         "mandarin",
         "speak tamil",
         "in tamil",
-        "english only"
+        "english only",
+        "chinese",
+        "tamil",
+        "chinese can",
+        "bahasa cina"
       ],
       "examples": [
         "what language can I use",
@@ -1686,7 +1771,13 @@
         "too old to get stronger",
         "too old to build",
         "after covid",
-        "long covid"
+        "long covid",
+        "bed rest weak",
+        "weak after bed rest",
+        "after bed rest",
+        "weak after hospital",
+        "after hospital weak",
+        "muscles weak after"
       ],
       "examples": [
         "I was in hospital for weeks and my legs are weak",
@@ -1791,7 +1882,9 @@
         "nearly slipped",
         "almost slipped",
         "nearly tripped",
-        "almost tripped"
+        "almost tripped",
+        "fear falling",
+        "takut jatuh"
       ],
       "examples": [
         "I am scared I will fall",
@@ -1842,7 +1935,10 @@
         "poor eyesight",
         "bad eyesight",
         "eyesight",
-        "rabun"
+        "rabun",
+        "cant read small",
+        "cannot read small",
+        "can't read small"
       ],
       "examples": [
         "the words are too small",
@@ -1883,7 +1979,13 @@
         "carer",
         "helper",
         "maid",
-        "domestic helper"
+        "domestic helper",
+        "son can help",
+        "daughter can help",
+        "carer help",
+        "can family help",
+        "family can help",
+        "my maid"
       ],
       "examples": [
         "can my daughter help me with the app",
@@ -1950,7 +2052,13 @@
         "laxatives",
         "burn off what i ate",
         "earn my food",
-        "exercise to burn off"
+        "exercise to burn off",
+        "cannot eat",
+        "can't eat",
+        "cant eat",
+        "no appetite",
+        "tak lalu makan",
+        "tak selera"
       ],
       "examples": [
         "I make myself vomit after eating",
@@ -1988,7 +2096,10 @@
         "terkencing",
         "kencing sikit",
         "can't hold my urine",
-        "cannot hold my urine"
+        "cannot hold my urine",
+        "pee",
+        "peeing",
+        "urine leak"
       ],
       "examples": [
         "I wet myself a little when I do the squats",
@@ -2065,7 +2176,8 @@
         "panas",
         "humid",
         "hot weather",
-        "weather is hot"
+        "weather is hot",
+        "cuaca panas"
       ],
       "examples": [
         "it is very hot, can I exercise?",
@@ -2094,7 +2206,11 @@
         "don't feel like",
         "dont feel like",
         "can't be bothered",
-        "cannot be bothered"
+        "cannot be bothered",
+        "no motivation",
+        "not motivated",
+        "tak semangat",
+        "no mood to exercise"
       ],
       "examples": [
         "I feel too lazy to exercise",
@@ -2148,7 +2264,12 @@
         "brisk walk",
         "treadmill",
         "go for a walk",
-        "walking exercise"
+        "walking exercise",
+        "go gym",
+        "go to the gym",
+        "badminton",
+        "futsal",
+        "yoga class"
       ],
       "examples": [
         "can I go jogging",
@@ -2455,7 +2576,8 @@
         "tukar kata laluan",
         "ubah kata laluan",
         "tukar password",
-        "tukar pasword"
+        "tukar pasword",
+        "new password"
       ],
       "examples": [
         "how do I change my password",
@@ -2592,7 +2714,12 @@
         "log my readings",
         "readings reminder",
         "blood pressure reminder",
-        "sugar reminder"
+        "sugar reminder",
+        "remind log",
+        "log blood pressure",
+        "log reading reminder",
+        "reminder health reading",
+        "health reading reminder"
       ],
       "examples": [
         "can I get a reminder to log my blood pressure",
@@ -2634,7 +2761,14 @@
         "leave the exercise",
         "cancel the exercise",
         "cancel recording",
-        "cancel the recording"
+        "cancel the recording",
+        "go back home",
+        "back home",
+        "go home",
+        "back to home",
+        "how to exit",
+        "exit",
+        "keluar"
       ],
       "examples": [
         "how do I stop the exercise halfway",
@@ -2678,7 +2812,10 @@
         "has been linked",
         "been linked",
         "google linked",
-        "username after"
+        "username after",
+        "sign in google",
+        "login google",
+        "google"
       ],
       "examples": [
         "I signed in with Google, why does it ask for a password",
@@ -2726,7 +2863,9 @@
         "start my plan again",
         "start the plan again",
         "start over",
-        "begin again"
+        "begin again",
+        "restart plan",
+        "tukar plan"
       ],
       "examples": [
         "how do I change my plan",
@@ -2866,7 +3005,11 @@
         "didnt get email",
         "wrong code many times",
         "too many wrong",
-        "code has expired"
+        "code has expired",
+        "kod",
+        "kod tak sampai",
+        "tak dapat kod",
+        "kod pengesahan"
       ],
       "examples": [
         "I did not get the verification code",
@@ -3087,7 +3230,11 @@
         "blood thinners",
         "warfarin",
         "anticoagulant",
-        "ubat cair darah"
+        "ubat cair darah",
+        "ubat",
+        "ubat saya",
+        "makan ubat",
+        "my medicine"
       ],
       "examples": [
         "can I take painkillers before exercising",
@@ -3153,7 +3300,12 @@
         "tumour",
         "tumor",
         "covid",
-        "dengue"
+        "dengue",
+        "what is wrong with me",
+        "what's wrong with me",
+        "whats wrong with me",
+        "wrong with me",
+        "is it torn"
       ],
       "examples": [
         "what is wrong with my knee",
@@ -3200,7 +3352,10 @@
         "breakfast",
         "lunch",
         "dinner",
-        "fasting"
+        "fasting",
+        "makan apa",
+        "nak makan apa",
+        "what to eat"
       ],
       "examples": [
         "what should I eat before exercising",
@@ -3410,7 +3565,11 @@
         "how does this work",
         "how do you work",
         "chatbot",
-        "chat bot"
+        "chat bot",
+        "you robot",
+        "robot",
+        "you human",
+        "bot"
       ],
       "examples": [
         "what can you do",
@@ -3954,7 +4113,11 @@
         "what stage",
         "questionnaire",
         "four questions",
-        "planning questions"
+        "planning questions",
+        "pace",
+        "pace meaning",
+        "goal meaning",
+        "stage meaning"
       ],
       "examples": [
         "what is recovery stage",
@@ -4074,7 +4237,11 @@
         "customer service",
         "percuma",
         "berbayar",
-        "hubungi"
+        "hubungi",
+        "email support",
+        "free",
+        "app price",
+        "harga app"
       ],
       "examples": [
         "is this app free",
@@ -6916,6 +7083,17 @@
     "bleeding badly",
     "losing a lot of blood",
     "lost a lot of blood",
+    "short breath",
+    "have short breath",
+    "feel short breath",
+    "bleeding lot",
+    "bleed a lot",
+    "cannot move one side",
+    "can't move one side",
+    "fell hit head",
+    "fell hit my head",
+    "pressure chest",
+    "chest pressure",
     "heart beating very fast",
     "heart beating so fast",
     "heart beating too fast",

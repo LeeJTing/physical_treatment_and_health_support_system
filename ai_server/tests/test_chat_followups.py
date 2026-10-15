@@ -24,7 +24,7 @@ def category(text, previous):
 
 def expected(text, previous):
     if previous in NO_CONTEXT:
-        return {"clarify", "how_to", "safety"}               # nothing to continue: ask, or the general answer
+        return {"clarify"} | engine.NO_CONTEXT_ANSWERS     # nothing to continue: ask, or a question of its own
     return {previous}
 
 
