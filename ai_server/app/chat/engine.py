@@ -179,6 +179,7 @@ def plan_intents(plan: dict) -> list[dict]:
         # Priority 3: "my plan" appears in many questions about other topics, which should win.
         {"key": "plan_exercises", "title": "What is in my plan", "show": True, "priority": 3,
          "keywords": ["plan", "what exercises", "which exercises", "exercises in my plan", "my plan", "in my plan",
+                      "my exercises", "my exercise list", "exercises today", "today's exercises",
                       "this plan", "exercise list", "list of exercises", "what order", "which order", "first exercise",
                       "next exercise", "how many reps", "how many repetitions", "repetitions", "reps", "sets",
                       "every session", "each session", "all the exercises", "all exercises", "all three",
@@ -283,10 +284,14 @@ def correct(text: str) -> str:
     vocab = vocabulary()
     out = []
     for w in clean(text).split():
-        if w not in vocab and len(w) >= 2 and not w.isdigit():
-            candidates = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1]
-            hit = process.extractOne(w, candidates, scorer=fuzz.ratio, score_cutoff=75) if candidates else None
-            w = hit[0] if hit else w
+        if w not in vocab and len(w) >= 2 and not w.isdigit() and w not in dictionary():
+            likely = _likeliest(w) if len(w) >= 4 else None
+            if likely is not None:
+                w = likely
+            elif not (len(w) >= 4 and _near_known(w)):
+                candidates = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1]
+                hit = process.extractOne(w, candidates, scorer=fuzz.ratio, score_cutoff=80) if candidates else None
+                w = hit[0] if hit else w
         out.append(w)
     return " ".join(out)
 
@@ -322,6 +327,17 @@ def _respell_vocab() -> frozenset:
     return frozenset(w for w in v if w)
 
 
+def _exact_split(w: str, vocab) -> list[str] | None:
+    """Two known words typed without the space, the parts as even as possible; never "no" first."""
+    best = None
+    for i in range(2, len(w) - 1):
+        a, b = w[:i], w[i:]
+        if a in vocab and b in vocab and a not in NEGATORS and min(len(a), len(b)) >= 2:
+            if best is None or abs(len(a) - len(b)) < abs(len(best[0]) - len(best[1])):
+                best = (a, b)
+    return list(best) if best else None
+
+
 def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
     """"heartracing" -> heart racing; "takboleh" -> tak boleh (both parts known, the first not "no");
     "slurredspech" -> slurred speech (the second part with a slip of its own)."""
@@ -339,7 +355,7 @@ def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
             fixed = _likeliest(b) or (_closest(b, vocab, 80) if len(b) >= 4 else None)
             if fixed:
                 return [a, fixed]
-        if b in vocab and len(a) >= 4:                   # "pianduring" -> pain during
+        if b in vocab and len(a) >= 3:                   # "pianduring" -> pain during
             fixed = _likeliest(a) or _closest(a, vocab, 75)
             if fixed and fixed not in NEGATORS:
                 return [fixed, b]
@@ -381,11 +397,22 @@ def typo_cost(typed: str, word: str) -> float:
             a, b = typed[i - 1], word[j - 1]
             cost = d[i - 1][j - 1] + (0 if a == b else 0.5 if a in KEY_NEIGHBOURS.get(b, ()) else 1.0)
             cost = min(cost, d[i - 1][j] + (0.5 if i >= 2 and typed[i - 2] == a else 1.0),   # extra letter
-                       d[i][j - 1] + 1.0)                                                    # dropped letter
+                       d[i][j - 1] + 0.8)                     # dropped letter: the commonest slip ("ofen")
             if i > 1 and j > 1 and a == word[j - 2] and typed[i - 2] == b:
                 cost = min(cost, d[i - 2][j - 2] + 0.5)                                     # swapped
             d[i][j] = cost
     return d[n][m]
+
+
+# Words of an emergency: when a slip is (nearly) as likely to be one of these as a harmless word
+# ("fel": fell or feel; "wrst": worst or wrist; "pased": passed or paused; "sakt": sakit or salt), the
+# emergency word is read, since a needless safety answer is the safer mistake (3.55).
+URGENT_WORDS = frozenset({"fell", "fall", "fallen", "falling", "jatuh", "pitam", "pengsan", "dada", "nafas",
+                          "bernafas", "chest", "faint", "fainted", "breath", "breathe", "bleed", "bleeding",
+                          "heart", "stroke", "collapse", "collapsed", "sakit", "die", "dead", "suicide", "kill",
+                          "bunuh", "mati", "pills", "overdose", "poison", "blood", "darah", "worst", "passed",
+                          "want", "wish", "live", "living", "hurts", "hurt"})
+URGENT_MARGIN = 0.3
 
 
 def _closest(w: str, vocab, cutoff: float) -> str | None:
@@ -423,7 +450,13 @@ def _respell_words(token: str) -> str:
         if w in vocab or w in dictionary() or len(w) < 3 or not w.replace("'", "").isalpha():
             out.append(w)                                # a known or a real word is what was typed
             continue
-        rest = _joined_rest(w, vocab)
+        likely = _likeliest(w)
+        easy = likely is not None and typo_cost(w, likely) <= 0.5
+        exact = _exact_split(w, vocab)
+        if exact and not easy:
+            out.extend(exact)                            # "beenthe" -> been the, not "breathe"
+            continue
+        rest = _joined_rest(w, vocab) if not easy else None
         if rest is not None:
             out.extend([w[0], rest])                     # "ifell" -> i fell; "isee" -> i see; "abit"
             continue
@@ -434,16 +467,23 @@ def _respell_words(token: str) -> str:
                     out.extend([head[:k], head[k:] + "'" + tail])
                     break
             else:
-                out.append(w)
+                for k in range(1, len(tail) - 2):        # "can'tbreathe" -> can't breathe
+                    if head + "'" + tail[:k] in vocab and tail[k:] in vocab:
+                        out.extend([head + "'" + tail[:k], tail[k:]])
+                        break
+                else:
+                    out.append(w)
             continue
-        if len(w) == 3:                                  # only a warning-sign word: "dda" -> dada
-            out.append(_closest(w, SAFETY_WORDS, 80) or w)
+        if len(w) == 3:                                  # "dda" -> dada; "wek" stays (week or weak)
+            out.append(_three_letters(w) or w)
             continue
         # The known word the slip most likely came from (typo_cost); on a tie a warning-sign word ("heatr":
         # heart, not heat; "ptaam": pitam, not padam), since a needless safety answer is the safer
         # mistake. Then the older 80 %-alike rule; only then two joined words ("herat" is heart, not
         # "her at").
-        fixed = _likeliest(w) or _closest(w, SAFETY_WORDS, 80) or _closest(w, vocab, 80)
+        fixed = _likeliest(w)
+        if fixed is None and not _near_known(w):
+            fixed = _closest(w, SAFETY_WORDS, 80) or _closest(w, vocab, 80)
         if fixed:
             out.append(fixed)
             continue
@@ -453,6 +493,17 @@ def _respell_words(token: str) -> str:
             continue
         out.append(_closest(w, SAFETY_WORDS, 74) or w)
     return " ".join(out)
+
+
+@lru_cache(maxsize=1)
+def _word_use() -> dict:
+    """How often each word appears in the rules' keywords, example questions and warning signs."""
+    count: dict[str, int] = {}
+    phrases = list(rules()["red_flags"]) + [p for i in rules()["intents"] for p in i["keywords"] + i["examples"]]
+    for p in phrases:
+        for w in clean(p).split():
+            count[w] = count.get(w, 0) + 1
+    return count
 
 
 @lru_cache(maxsize=20000)
@@ -469,11 +520,36 @@ def _likeliest(w: str) -> str | None:
         # letters are in it in order ("psum" is not "pain").
         safe = [s for s in scored if not s[1] and s[0] <= 1.5 and _in_order(w, s[2]) >= len(w) - 1]
         return safe[0][2] if safe and len(w) >= 4 else None
+    urgent = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(limit, scored[0][0] + URGENT_MARGIN)]
+    if urgent:
+        return min(urgent, key=lambda s: (s[0], -_word_use().get(s[2], 0)))[2]
     best = [s for s in scored if s[0] == scored[0][0]]
-    harmless_tie = len(best) > 1 and best[0][1]          # the top ones are all harmless words
-    if harmless_tie:
-        return None                                      # two harmless words equally likely: leave it
+    if len(best) > 1 and best[0][1]:                     # the top ones are all harmless words:
+        use = _word_use()                                # the one the rules use most ("plan", not "palm")
+        best.sort(key=lambda s: -use.get(s[2], 0))
+        if use.get(best[0][2], 0) == use.get(best[1][2], 0):
+            return None                                  # still equally likely: leave it
     return best[0][2]
+
+
+def _three_letters(w: str) -> str | None:
+    vocab = _respell_vocab() | SAFETY_WORDS
+    scored = sorted((typo_cost(w, v), v not in SAFETY_WORDS, v) for v in vocab
+                    if v[0] == w[0] and len(v) == 4)
+    if not scored or scored[0][0] > 1.0:
+        return None
+    urgent = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(1.0, scored[0][0] + URGENT_MARGIN)]
+    if urgent:                                           # "fel" -> fell, "fll" -> fell, "wnt" -> want
+        return min(urgent, key=lambda s: (s[0], -_word_use().get(s[2], 0)))[2]
+    if len(scored) > 1 and scored[1][0] == scored[0][0]:
+        return None
+    return scored[0][2] if (not scored[0][1] or scored[0][0] <= 0.5) else None
+
+
+def _near_known(w: str) -> bool:
+    """A known word within one slip: the word is then left alone rather than guessed loosely."""
+    vocab = _respell_vocab()
+    return any(typo_cost(w, v) <= 1.0 for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1 and len(v) >= 4)
 
 
 def _in_order(a: str, b: str) -> int:
@@ -643,9 +719,9 @@ PREFER_UNLESS = [# 3.50: "I have cancer, can I exercise?" is condition advice; "
                  ("condition_advice", "diagnosis", ["do i have", "could it be", "could this be", "is it cancer",
                                                     "is this cancer", "might be", "do you think", "am i getting",
                                                     "be cancer", "lump", "signs of", "symptoms of"]),
-                 ("muscle_loss", "doctor_said", ["told me", "told", "advised", "said", "says", "doctor", "physio",
-                                                 "berehat", "stop", "not to", "don't", "avoid", "no exercise",
-                                                 "wait", "until"]),
+                 # (3.55: "bed rest weak" is muscle loss; "told me to rest" is the doctor's advice)
+                 ("muscle_loss", "doctor_said", ["to rest", "rest for", "rest until", "berehat", "stop", "not to",
+                                                 "don't", "avoid", "no exercise", "wait", "until"]),
                  # 3.55: "my exercises" is the plan's list, unless it asks how to do them
                  ("plan_exercises", "how_to", ["rest", "between", "correct", "correctly", "properly", "how to",
                                                "how do", "how should", "form", "technique"]),
@@ -694,7 +770,8 @@ FALL_WORDS = {"fell", "fall", "falls", "fallen", "falling", "jatuh", "tripped", 
 PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "last month", "long time ago",
              "long ago", "in the past year", "in the past few years", "years back", "dulu", "once"]
 # Words that make a fall recent whatever else is said ("i fell in the past hour", "kalau dia jatuh tadi").
-RECENT = ["just now", "tadi", "right now", "today", "this morning", "this afternoon", "this evening", "tonight",
+RECENT = ["just now", "tadi", "right now", "today", "little while ago", "a while ago", "past hour",
+          "an hour ago", "semalam", "this morning", "this afternoon", "this evening", "tonight",
           "last night", "yesterday", "semalam", "earlier", "moment ago", "minutes ago", "minute ago", "hour ago",
           "hours ago", "past hour", "just fell", "just fallen", "just had a fall", "just collapsed", "just slipped",
           "baru fell"]
@@ -1088,10 +1165,8 @@ def _also_respelled(check, text: str | None) -> bool:
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
-    if _red_flag(text):
-        return True
     again = respell(text)
-    return _plain(again) != _plain(text) and _red_flag(again)
+    return _red_flag(again) if _plain(again) != _plain(text) else _red_flag(text)
 
 
 def _red_flag(text: str) -> bool:
@@ -1442,12 +1517,19 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     plain = " ".join(re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split())
     core = _without_fillers(plain)
     fillers = {w for f in LEADING_FILLERS + TRAILING_FILLERS for w in f.split()}
-    if core and core != plain and not set(core.split()) <= fillers:
+    if core and core != plain and _recognised(plan_id, core, topics=True) >= _recognised(plan_id, plain, topics=True):
         # "hi how often", "ok is it torn", "not helpful pls": the question without the greeting or the
-        # word around it, unless that leaves only small talk.
-        c, h = match(plan_id, core)
-        if c is not None and not c.get("small_talk"):
-            return c, h
+        # word around it, when no topic word is lost ("doctor say no exercise" keeps "doctor").
+        if not set(core.split()) <= fillers:
+            c, h = match(plan_id, core)
+            if c is not None:
+                return c, h
+    if set(plain.split()) <= fillers and len(plain.split()) > 1:
+        # Only greetings and fillers ("hi doc", "sorry hi"): the small talk in it.
+        for w in plain.split():
+            c, h = _match(plan_id, w)
+            if c is not None and c.get("small_talk"):
+                return c, h
     chosen, how = _match(plan_id, text)
     again = respell(text)
     if _plain(again) != plain and how != "glossary":
@@ -1462,9 +1544,10 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     return chosen, how
 
 
-def _recognised(plan_id: str | None, text: str) -> int:
-    """How much of a message the rules recognise: the matched keyword words over every rule."""
-    return sum(keyword_match(text, i) for i in intents_for(plan_id))
+def _recognised(plan_id: str | None, text: str, topics: bool = False) -> int:
+    """How much of a message the rules recognise: the matched keyword words over every rule (only the
+    topics, without small talk, when [topics])."""
+    return sum(keyword_match(text, i) for i in intents_for(plan_id) if not (topics and i.get("small_talk")))
 
 
 # Words before or after a question that carry no topic of their own (3.55).
@@ -1514,9 +1597,9 @@ def _match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
             named = [h for h in fixed if h[2]["key"].startswith("exercise:")]
             if named and not any(h[2]["key"].startswith("exercise:") for h in hits):
                 hits = hits + named
-    if not any(h[2]["key"].startswith("exercise:") for h in hits):
+    if not any(h[2]["key"].startswith("exercise:") and h[1] >= 2 for h in hits):
         near = _near_exercise_name(text, intents)
-        if near is not None:
+        if near is not None and near[2]["key"] not in {h[2]["key"] for h in hits}:
             hits = hits + [near]
     ex = [h for h in hits if h[2]["key"].startswith("exercise:")]
     if len({h[2]["key"] for h in ex if h[1] >= 2}) >= 2 and "plan_exercises" in {i["key"] for i in intents}:

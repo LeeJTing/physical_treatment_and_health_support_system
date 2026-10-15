@@ -305,7 +305,12 @@
         "lupa exercise",
         "lupa senaman",
         "tak buat senaman",
-        "skip exercise"
+        "skip exercise",
+        "forget to do",
+        "forget to exercise",
+        "forget my exercises",
+        "forgot my exercises",
+        "forget to do my exercises"
       ],
       "examples": [
         "I missed my session yesterday",
@@ -570,7 +575,11 @@
         "instead of a chair",
         "instead of the chair",
         "instead of chair",
-        "instead of a mat"
+        "instead of a mat",
+        "what do i need",
+        "what i need",
+        "anything i need",
+        "what to prepare"
       ],
       "examples": [
         "what equipment do I need",
@@ -1576,22 +1585,10 @@
         "too far away",
         "far from the camera",
         "less accurate",
-        "blurry video",
-        "video blurry",
-        "video is blurry",
-        "video blur",
-        "blur video",
-        "blurry recording",
-        "recording blurry",
-        "looks blurry",
-        "cannot see me in the video",
-        "can't see me in the video",
-        "cant see me in video",
-        "not in the video",
-        "phone too far",
-        "camera too far",
-        "too close to the camera",
-        "video gelap"
+        "cannot see me in video",
+        "can't see me in video",
+        "see me in video",
+        "not see me"
       ],
       "examples": [
         "it says my video is quite dark",
@@ -2268,11 +2265,10 @@
         "treadmill",
         "go for a walk",
         "walking exercise",
-        "go gym",
-        "go to the gym",
-        "badminton",
-        "futsal",
-        "yoga class"
+        "can walk",
+        "can i walk",
+        "go walking",
+        "walk outside"
       ],
       "examples": [
         "can I go jogging",
@@ -2326,7 +2322,12 @@
         "see yesterday",
         "all my attempts",
         "track my progress",
-        "see my progress"
+        "see my progress",
+        "see what i did",
+        "what i did yesterday",
+        "where see",
+        "yesterday result",
+        "yesterday score"
       ],
       "examples": [
         "where can I see my past results",
@@ -3995,7 +3996,13 @@
         "app safety rule",
         "guidelines behind",
         "evidence",
-        "kenapa pelan ini"
+        "kenapa pelan ini",
+        "plan recommended",
+        "recommended plan",
+        "why suggested",
+        "suggested plan",
+        "why this one",
+        "why was it chosen"
       ],
       "examples": [
         "why was this plan chosen for me",
@@ -4033,7 +4040,12 @@
         "bmi",
         "body mass index",
         "risiko tinggi",
-        "tahap risiko"
+        "tahap risiko",
+        "risk",
+        "risk say high",
+        "risk high",
+        "risk is high",
+        "risk tinggi"
       ],
       "examples": [
         "why am I high risk",
@@ -4117,10 +4129,12 @@
         "questionnaire",
         "four questions",
         "planning questions",
-        "pace",
-        "pace meaning",
-        "goal meaning",
-        "stage meaning"
+        "goal pick",
+        "pick goal",
+        "choose goal",
+        "goal should",
+        "goal to pick",
+        "which goal to choose"
       ],
       "examples": [
         "what is recovery stage",
@@ -5402,7 +5416,8 @@
         "stand up from chair",
         "standing up from a chair",
         "stand up from the chair",
-        "sitting to standing"
+        "sitting to standing",
+        "sit stand"
       ],
       "instruction": "Sit on a firm chair with feet flat and hip-width apart. Lean slightly forward and stand up fully without using your hands, then sit back down slowly. Safety: keep a stable chair against a wall; stop if you feel dizzy or knee pain.",
       "camera": "side view, whole body in frame"
@@ -5417,7 +5432,10 @@
         "lateral raise",
         "arm raise to the side",
         "raise my arms to the side",
-        "arms sideways"
+        "arms sideways",
+        "raise arms side",
+        "arms to the side",
+        "arm side raise"
       ],
       "instruction": "Stand tall with arms by your sides. Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly. Safety: do not raise above a pain-free range.",
       "camera": "facing you, whole body in frame"
@@ -5445,7 +5463,10 @@
         "side leg raises",
         "leg raise to the side",
         "lift my leg to the side",
-        "leg sideways"
+        "leg sideways",
+        "leg out to the side",
+        "leg out side",
+        "leg to the side"
       ],
       "instruction": "Stand beside a chair and hold it for support. Lift one leg out to the side keeping the toes forward and the body upright, then lower it. Repeat on the other side. Safety: do not lean the trunk.",
       "camera": "facing you, whole body in frame"
@@ -5570,7 +5591,10 @@
         "heel to toe",
         "heel-to-toe",
         "one foot in front of the other",
-        "balance stand"
+        "balance stand",
+        "heel toe",
+        "heel toe stand",
+        "stand heel toe"
       ],
       "instruction": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
       "camera": "facing you, whole body in frame"
@@ -5615,7 +5639,11 @@
         "standing march",
         "marching standing",
         "march",
-        "marching"
+        "marching",
+        "march place",
+        "march spot",
+        "marching place",
+        "marching spot"
       ],
       "instruction": "Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace. Safety: stay near a wall or sturdy chair you can hold, and stop if you feel dizzy or very short of breath.",
       "camera": "side view, whole body in frame"
@@ -5630,7 +5658,8 @@
         "wrist exercise",
         "wrist exercises",
         "bend my wrist up",
-        "wrist up"
+        "wrist up",
+        "lift wrist"
       ],
       "instruction": "Sit at a table and rest your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles.",
       "camera": "at table height on the side of your arm, forearm and hand in the picture"
@@ -5650,7 +5679,8 @@
         "fingers",
         "hand exercise",
         "hand exercises",
-        "grip exercise"
+        "grip exercise",
+        "open close"
       ],
       "instruction": "Sit at a table with your forearms resting on it. Make a gentle fist, then open and spread your fingers as wide as is comfortable, and close the hand again slowly. Safety: stop if it hurts or tingles.",
       "camera": "facing you at table height, your hands in the picture"
