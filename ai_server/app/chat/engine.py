@@ -53,7 +53,7 @@ SYNONYMS = {"pane": "pain", "panes": "pains", "workout": "exercise", "workouts":
             "physio": "physiotherapist", "doc": "doctor", "vid": "video", "pic": "photo"}
 # Common Malay words patients mix into English (Malaysian users). Single words; phrases are in
 # MALAY_PHRASES. Body-part and symptom words map to the English the rules (and red flags) know.
-MALAY = {"saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want", "tukar": "change", "sesuai": "best", "untuk": "for", "malam": "night", "pagi": "morning", "petang": "evening", "tengahari": "afternoon", "boleh": "can",
+MALAY = {"apa": "what", "saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want", "tukar": "change", "sesuai": "best", "untuk": "for", "malam": "night", "pagi": "morning", "petang": "evening", "tengahari": "afternoon", "boleh": "can",
          "buat": "do", "senaman": "exercise", "bersenam": "exercise", "lutut": "knee", "bahu": "shoulder",
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
@@ -203,7 +203,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "all done", "finished my plan", "completed my plan",
                       "why this plan", "what does this plan do", "what next", "what's next", "next step",
                       "better now", "feel better", "feeling better", "when can i stop", "can i stop now",
-                      "when can stop", "when to stop", "when stop",
+                      "when can stop", "when to stop", "when stop", "point of this exercise", "point of this plan",
+                      "point of doing", "what is the point of", "what's the point of this",
                       "still need to continue", "need to continue", "continue or not", "better already",
                       "already better", "how long more", "walk normally", "walk again", "walk properly",
                       "how long before", "did all", "did all my", "done my exercises"],
@@ -738,7 +739,8 @@ PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("p
           ("family_help", "bot_identity"), ("muscle_loss", "weakness_balance"), ("bladder_leak", "pain_mild"),
           ("bladder_leak", "pain_or_discomfort"), ("plan_and_reminders", "plan_exercises"),
           ("plan_and_reminders", "pain_or_discomfort"), ("google_setup", "account_help"),
-          ("app_help", "condition_advice"), ("health_log_reminder", "condition_advice"),
+          ("app_help", "condition_advice"), ("fear_of_falling", "pain_or_discomfort"),
+          ("privacy_data", "how_often"), ("health_log_reminder", "condition_advice"),
           ("health_log_reminder", "reminders_help"), ("eating_concern", "diet"), ("fear_of_falling", "safety"),
           ("safety", "posture_result"), ("hot_weather", "treatment_nav"), ("change_password", "forgot_password"),
           ("doctor_said", "best_time"), ("doctor_said", "low_mood"),
@@ -805,6 +807,7 @@ PAST_TIME = ["last year", "years ago", "year ago", "months ago", "month ago", "l
              "long ago", "in the past year", "in the past few years", "years back", "dulu", "once"]
 # Words that make a fall recent whatever else is said ("i fell in the past hour", "kalau dia jatuh tadi").
 RECENT = ["just now", "tadi", "right now", "today", "little while ago", "a while ago", "past hour",
+          "morning again", "again this morning", "again today", "today again",
           "an hour ago", "semalam", "this morning", "this afternoon", "this evening", "tonight",
           "last night", "yesterday", "semalam", "earlier", "moment ago", "minutes ago", "minute ago", "hour ago",
           "hours ago", "past hour", "just fell", "just fallen", "just had a fall", "just collapsed", "just slipped",
@@ -1663,7 +1666,7 @@ def _match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         # (3.54: not when an exercise is named: "open and close" is the exercise, not goodbye)
         small = [h for h in hits if h[2].get("small_talk")]
         # (3.55: not when a longer topic phrase matched too: "not helpful" is a complaint, not thanks)
-        if small and not any(h[1] > max(s[1] for s in small) for h in hits if not h[2].get("small_talk")):                                    # "good morning", "help", "ok thanks"
+        if small and not any(h[1] >= max(s[1] for s in small) for h in hits if not h[2].get("small_talk")):                                    # "good morning", "help", "ok thanks"
             return max(small, key=lambda h: (h[0], h[1]))[2], "keyword"
     hits = _inside_exercise_names(text, hits)
     keys = {h[2]["key"] for h in hits}

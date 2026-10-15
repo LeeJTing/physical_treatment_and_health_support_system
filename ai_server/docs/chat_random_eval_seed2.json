@@ -2,11 +2,11 @@
  "rules_version": "chat-rules-3.55",
  "seed": 2,
  "messages": 10000,
- "passed": 9796,
- "rate": 0.9796,
+ "passed": 9826,
+ "rate": 0.9826,
  "by_kind": {
   "restricted": {
-   "passed": 591,
+   "passed": 593,
    "messages": 606
   },
   "follow": {
@@ -18,11 +18,11 @@
    "messages": 804
   },
   "short": {
-   "passed": 2539,
+   "passed": 2541,
    "messages": 2597
   },
   "written": {
-   "passed": 2991,
+   "passed": 3017,
    "messages": 3091
   },
   "conditions": {
@@ -39,25 +39,19 @@
   }
  },
  "commonest_misses": [
-  "('red_flag',) -> fear_of_falling: 12",
-  "('crisis',) -> None: 9",
+  "('red_flag',) -> fear_of_falling: 8",
   "('plan_and_reminders',) -> plan_exercises: 4",
+  "('crisis',) -> None: 4",
   "('plan_progress',) -> plan_exercises: 3",
   "('delete_account',) -> account_help: 3",
   "('acknowledge',) -> None: 3",
-  "('fear_of_falling',) -> safety: 3",
   "('crisis', 'red_flag') -> None: 3",
-  "('crisis',) -> red_flag: 3",
-  "('app_facts',) -> bot_identity: 3",
-  "('privacy_data',) -> how_often: 3",
   "('multiple_plans',) -> plan_exercises: 3",
   "('goodbye',) -> None: 2",
-  "('posture_result',) -> goodbye: 2",
   "('difficulty',) -> plan_exercises: 2",
   "('profile_help',) -> change_password: 2",
   "('acknowledge', 'how_often', 'plan_progress') -> plan_exercises: 2",
   "('session_expired',) -> pain_sharp: 2",
-  "('fear_of_falling',) -> red_flag: 2",
   "('how_often',) -> None: 2",
   "('exercise:heel_raise',) -> difficulty: 2",
   "('exercise:wall_push_up',) -> how_to: 2",
@@ -65,20 +59,26 @@
   "('recording_help',) -> exercise:shoulder_abduction: 2",
   "('clarify',) -> None: 2",
   "('pain_mild',) -> pain_or_discomfort: 2",
-  "('red_flag',) -> safety: 2",
   "('plan_reasons',) -> plan_exercises: 2",
   "('diagnosis',) -> None: 2",
+  "('app_facts',) -> account_help: 2",
   "('for_someone_else',) -> None: 2",
   "('session_expired',) -> account_help: 2",
-  "('fear_of_falling', 'safety') -> pain_or_discomfort: 2",
   "('treatment_nav',) -> plan_exercises: 2",
   "('partial_reps',) -> posture_result: 2",
-  "('how_often',) -> diet: 2",
   "('profile_help',) -> None: 2",
   "('pain_swelling',) -> None: 2",
   "('age_limit',) -> None: 2",
   "('tired',) -> acknowledge: 1",
-  "('low_mood',) -> None: 1"
+  "('low_mood',) -> None: 1",
+  "('best_time',) -> condition_advice: 1",
+  "('fear_of_falling',) -> None: 1",
+  "('body_map',) -> None: 1",
+  "('age_limit',) -> safety: 1",
+  "('missed_session',) -> safety: 1",
+  "('fear_of_falling',) -> safety: 1",
+  "('age_limit', 'posture_result') -> doctor_said: 1",
+  "('plan_reasons',) -> None: 1"
  ],
  "misses": [
   {
@@ -114,25 +114,6 @@
     "previous_category": null,
     "restriction": null,
     "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
-   "text": "Hi scroe 79 close",
-   "want": [
-    "posture_result"
-   ],
-   "got": "goodbye",
-   "seed_question": "my score is 79 so close",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "OSTEOPOROSIS",
-     "HEART_DISEASE"
-    ],
     "risk_level": "Medium",
     "local_time": null
    }
@@ -210,44 +191,6 @@
    }
   },
   {
-   "text": "Apa can this app do?",
-   "want": [
-    "app_help"
-   ],
-   "got": null,
-   "seed_question": "what can this app do",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     15,
-     15
-    ]
-   }
-  },
-  {
-   "text": "Thinking endingall",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "thinking of ending it all",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "STROKE",
-     "HEART_DISEASE"
-    ],
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
    "text": "wnaat update age",
    "want": [
     "profile_help"
@@ -295,28 +238,6 @@
     ],
     "risk_level": "Low",
     "local_time": null
-   }
-  },
-  {
-   "text": "Doc dadfell last month hasn't bren same since...",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "my dad fell last month and hasn't been the same since",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "PREGNANCY",
-     "STROKE"
-    ],
-    "risk_level": null,
-    "local_time": [
-     0,
-     45
-    ]
    }
   },
   {
@@ -583,25 +504,6 @@
    }
   },
   {
-   "text": "wih slleep not wake up!!",
-   "want": [
-    "crisis"
-   ],
-   "got": "red_flag",
-   "seed_question": "i wish i could sleep and not wake up",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "exercise:hip_abduction",
-    "restriction": null,
-    "conditions": [
-     "HEART_DISEASE",
-     "OSTEOPOROSIS"
-    ],
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
    "text": "have log every timeopen app ya...",
    "want": [
     "session_expired"
@@ -620,22 +522,6 @@
      22,
      0
     ]
-   }
-  },
-  {
-   "text": "apa if she fallls and can't get up",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "red_flag",
-   "seed_question": "what if she falls and can't get up",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
    }
   },
   {
@@ -844,26 +730,6 @@
      12,
      15
     ]
-   }
-  },
-  {
-   "text": "HRLP BACK PAIN",
-   "want": [
-    "age_limit",
-    "pain_or_discomfort"
-   ],
-   "got": "bot_identity",
-   "seed_question": "will this help my back pain",
-   "context": {
-    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": [
-     "PARKINSONS",
-     "STROKE"
-    ],
-    "risk_level": "Low",
-    "local_time": null
    }
   },
   {
@@ -1232,7 +1098,7 @@
    "want": [
     "red_flag"
    ],
-   "got": "safety",
+   "got": "fear_of_falling",
    "seed_question": "i'm afraid of falling, i fell just now",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -1319,27 +1185,6 @@
    }
   },
   {
-   "text": "tired livig like?",
-   "want": [
-    "crisis"
-   ],
-   "got": "tired",
-   "seed_question": "im so tired of living like this",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS"
-    ],
-    "risk_level": "High",
-    "local_time": [
-     15,
-     30
-    ]
-   }
-  },
-  {
    "text": "sorry why ths plsn",
    "want": [
     "plan_reasons"
@@ -1413,7 +1258,7 @@
    "want": [
     "app_facts"
    ],
-   "got": "bot_identity",
+   "got": "account_help",
    "seed_question": "who do i email for help",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -1544,22 +1389,6 @@
    }
   },
   {
-   "text": "how long keep dsta...",
-   "want": [
-    "privacy_data"
-   ],
-   "got": "how_often",
-   "seed_question": "how long do you keep my data",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "how_often",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "Hello malan apa!",
    "want": [
     "diet"
@@ -1614,38 +1443,6 @@
    }
   },
   {
-   "text": "DONT WANT LIVVE ANYMORE!",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "i dont want to live anymore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "what if fall when nobody home!",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "safety",
-   "seed_question": "what if i fall when nobody is home",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "hiioiii ?",
    "want": [
     "greeting"
@@ -1659,25 +1456,6 @@
     "conditions": null,
     "risk_level": "Medium",
     "local_time": null
-   }
-  },
-  {
-   "text": "fall down during execise",
-   "want": [
-    "red_flag"
-   ],
-   "got": "safety",
-   "seed_question": "i fall down during exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "privacy_data",
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": [
-     5,
-     0
-    ]
    }
   },
   {
@@ -1856,23 +1634,6 @@
    }
   },
   {
-   "text": "afraid gtting hurt after fall?",
-   "want": [
-    "fear_of_falling",
-    "safety"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "i am afraid of getting hurt after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "app_facts",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "And tehn!!",
    "want": [
     "clarify"
@@ -1911,48 +1672,6 @@
    }
   },
   {
-   "text": "don't want live anymore?",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "i don't want to live anymore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "neck_not_covered",
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS"
-    ],
-    "risk_level": "Medium",
-    "local_time": [
-     18,
-     45
-    ]
-   }
-  },
-  {
-   "text": "what's point living...",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "what's the point of living",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "delete_account",
-    "restriction": null,
-    "conditions": [
-     "PREGNANCY"
-    ],
-    "risk_level": "Medium",
-    "local_time": [
-     19,
-     0
-    ]
-   }
-  },
-  {
    "text": "doc can senaman11pm ?",
    "want": [
     "best_time"
@@ -1965,22 +1684,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
-   "text": "apa do i need!!",
-   "want": [
-    "equipment"
-   ],
-   "got": null,
-   "seed_question": "what do i need",
-   "context": {
-    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -2023,25 +1726,6 @@
    }
   },
   {
-   "text": "Dad fell last mnoth hasn't been same since ?",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "my dad fell last month and hasn't been the same since",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION",
-     "PARKINSONS"
-    ],
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "want update age!!",
    "want": [
     "profile_help"
@@ -2072,22 +1756,6 @@
      "DIABETES"
     ],
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "fell down during exercise??",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "I fell down during the exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:hips_back",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
     "local_time": null
    }
   },
@@ -2203,22 +1871,6 @@
    }
   },
   {
-   "text": "Hi score 79 close",
-   "want": [
-    "posture_result"
-   ],
-   "got": "goodbye",
-   "seed_question": "my score is 79 so close",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "hi fell yesterday while doing step up",
    "want": [
     "red_flag",
@@ -2306,38 +1958,6 @@
    "context": {
     "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
     "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "how long keep data ?",
-   "want": [
-    "privacy_data"
-   ],
-   "got": "how_often",
-   "seed_question": "how long do you keep my data",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Dad fell last month hasn't been same since!",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "my dad fell last month and hasn't been the same since",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:leaning",
     "restriction": null,
     "conditions": null,
     "risk_level": null,
@@ -2485,7 +2105,7 @@
    "want": [
     "red_flag"
    ],
-   "got": "pain_or_discomfort",
+   "got": "fear_of_falling",
    "seed_question": "fell over this morning, hip sore",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -2633,22 +2253,6 @@
      19,
      0
     ]
-   }
-  },
-  {
-   "text": "hmm scared fall while doing exercise ya",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "safety",
-   "seed_question": "i am scared i will fall while doing the exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
    }
   },
   {
@@ -2813,27 +2417,6 @@
    }
   },
   {
-   "text": "apa days shhould i train??",
-   "want": [
-    "how_often"
-   ],
-   "got": "diet",
-   "seed_question": "what days should I train",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "OSTEOPOROSIS"
-    ],
-    "risk_level": null,
-    "local_time": [
-     4,
-     15
-    ]
-   }
-  },
-  {
    "text": "can you explain the glute briieg...",
    "want": [
     "exercise:glute_bridge"
@@ -2907,25 +2490,6 @@
      14,
      0
     ]
-   }
-  },
-  {
-   "text": "dad fell last month hasn't been same since ya!",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "my dad fell last month and hasn't been the same since",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "COPD",
-     "HEART_DISEASE"
-    ],
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -3025,23 +2589,6 @@
    "context": {
     "plan_id": null,
     "previous_category": "mistake:hands_used",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "afraid getting hurt after fall??",
-   "want": [
-    "fear_of_falling",
-    "safety"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "i am afraid of getting hurt after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
@@ -3232,25 +2779,6 @@
    }
   },
   {
-   "text": "sorry widh selep not wake up",
-   "want": [
-    "crisis"
-   ],
-   "got": "red_flag",
-   "seed_question": "i wish i could sleep and not wake up",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     18,
-     30
-    ]
-   }
-  },
-  {
    "text": "sakit buh pinggang exerise!!",
    "want": [
     "condition_advice"
@@ -3320,22 +2848,6 @@
      "ASTHMA"
     ],
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "DONT WANT LIVE ANYOMRE",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "i dont want to live anymore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "pain_sharp",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -3551,27 +3063,6 @@
    }
   },
   {
-   "text": "hi how long keep data!!",
-   "want": [
-    "privacy_data"
-   ],
-   "got": "how_often",
-   "seed_question": "how long do you keep my data",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "STROKE"
-    ],
-    "risk_level": "Low",
-    "local_time": [
-     13,
-     15
-    ]
-   }
-  },
-  {
    "text": "reminder lae",
    "want": [
     "reminder_late_or_off"
@@ -3606,27 +3097,11 @@
    }
   },
   {
-   "text": "Apa daays should i train??",
-   "want": [
-    "how_often"
-   ],
-   "got": "diet",
-   "seed_question": "what days should I train",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "who enail heelp??",
    "want": [
     "app_facts"
    ],
-   "got": "bot_identity",
+   "got": "account_help",
    "seed_question": "who do i email for help",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -3657,28 +3132,6 @@
     "risk_level": "High",
     "local_time": [
      20,
-     15
-    ]
-   }
-  },
-  {
-   "text": "dad fell last month hasn't been same since...",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "my dad fell last month and hasn't been the same since",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HEART_DISEASE",
-     "OSTEOPOROSIS"
-    ],
-    "risk_level": null,
-    "local_time": [
-     3,
      15
     ]
    }
