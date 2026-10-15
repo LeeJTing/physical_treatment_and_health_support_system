@@ -1095,22 +1095,39 @@ EXTRA_KEYWORDS_355 = {
     "missed_session": ["lupa exercise", "lupa senaman", "tak buat senaman", "skip exercise", "forget to do",
                        "forget to exercise", "forget my exercises", "forgot my exercises", "forget to do my exercises"],
     "low_mood": ["burden", "a burden", "burden to", "useless", "hopeless"],
+}
+# 3.55 batch 4: more wording; a dict of its own, merged like the one above (no key replaces another).
+EXTRA_KEYWORDS_355B = {
     "equipment": ["what do i need", "what i need", "need anything", "anything i need", "what to prepare"],
+    "acknowledge": ["baik", "ok baik", "baiklah", "okok", "ok ok", "okie", "okey", "orait", "alright"],
+    "plan_progress": ["when can stop", "when to stop", "when stop", "when can i stop"],
+    "tired": ["didnt sleep", "didn't sleep", "did not sleep", "no sleep", "sleep badly", "tak cukup tidur"],
     "risk_level": ["risk", "risk say high", "risk high", "risk is high", "risk tinggi"],
     "plan_reasons": ["why recommended", "plan recommended", "recommended plan", "why suggested", "suggested plan",
                      "why this one", "why was it chosen"],
     "video_quality": ["cannot see me in video", "can't see me in video", "see me in video", "not see me"],
     "history_help": ["see what i did", "what i did yesterday", "what i did", "where see", "yesterday result",
-                     "yesterday score"],
+                     "yesterday score", "doctor see", "can doctor see", "show my doctor", "share my results",
+                     "share results"],
     "other_activity": ["can walk", "can i walk", "go walking", "go for a walk", "walk outside", "brisk walk"],
     "planning_questions": ["goal pick", "pick goal", "choose goal", "goal should", "goal to pick",
                            "which goal to choose"],
 }
-for _k, _v in EXTRA_KEYWORDS_355.items():
+for _k, _v in list(EXTRA_KEYWORDS_355.items()) + list(EXTRA_KEYWORDS_355B.items()):
     EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
 EXTRA_KEYWORDS |= {
     "tired": ["had covid", "after covid", "covid recovery", "recovering from covid", "a cold", "have a cold", "flu", "fever", "demam", "selsema", "batuk", "cough"],
 }
+def _no_repeated_keys():
+    import ast
+    for node in ast.walk(ast.parse(Path(__file__).read_text(encoding="utf-8"))):
+        if isinstance(node, ast.Dict):
+            keys = [k.value for k in node.keys if isinstance(k, ast.Constant)]
+            repeated = {k for k in keys if keys.count(k) > 1}
+            assert not repeated, f"line {node.lineno}: repeated keys {repeated} (the later one replaces the earlier)"
+
+
+_no_repeated_keys()
 for _i in INTENTS:
     _i["keywords"] += [k for k in EXTRA_KEYWORDS.get(_i["key"], []) if k not in _i["keywords"]]
 # Answered when asked, but not offered as topic chips (the list stays short, as before 3.51).

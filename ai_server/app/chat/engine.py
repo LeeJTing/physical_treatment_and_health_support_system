@@ -118,7 +118,7 @@ CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", 
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
 # 3.55: short forms typed for whole words (respell reads them as the word)
-SHORT_WORDS_TYPED = {"tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
+SHORT_WORDS_TYPED = {"y": "why", "tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
                      "rly": "really", "noe": "know", "bcos": "because", "bcoz": "because", "coz": "because",
                      "wat": "what", "wht": "what", "hw": "how", "mins": "minutes", "min": "minutes",
                      "tq": "thank you", "thx": "thanks", "w": "with", "wif": "with", "dun": "don't",
@@ -352,12 +352,12 @@ def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
     for i in range(3, len(w) - 2):
         a, b = w[:i], w[i:]
         if a in vocab and a not in NEGATORS and len(b) >= 3:
-            fixed = _likeliest(b) or (_closest(b, vocab, 80) if len(b) >= 4 else None)
-            if fixed:
+            fixed = _likeliest(b)
+            if fixed and typo_cost(b, fixed) <= 0.8:
                 return [a, fixed]
         if b in vocab and len(a) >= 3:                   # "pianduring" -> pain during
-            fixed = _likeliest(a) or _closest(a, vocab, 75)
-            if fixed and fixed not in NEGATORS:
+            fixed = _likeliest(a)
+            if fixed and fixed not in NEGATORS and typo_cost(a, fixed) <= 0.8:
                 return [fixed, b]
     return None
 
@@ -426,10 +426,26 @@ def _closest(w: str, vocab, cutoff: float) -> str | None:
     return hit[0] if hit else None
 
 
+FEELING_WORDS = {"lazy", "tired", "sakit", "pain", "sick", "unwell", "dizzy", "good", "bad", "better", "worse",
+                 "weak", "ok", "okay", "fine", "sore", "sad", "happy", "so", "very", "really", "penat",
+                 "pening", "sleepy", "cold", "hot", "lonely", "stressed", "great", "nothing", "like"}
+
+
 @lru_cache(maxsize=20000)
 def respell(text: str) -> str:
     """The message with its unknown words mended, in lower case, punctuation kept."""
-    return re.sub(r"[a-z0-9']+", lambda m: _respell_words(m.group(0)), text.lower().replace("’", "'"))
+    low = text.lower().replace("’", "'")
+    parts = re.split(r"([a-z0-9']+)", low)
+    typed = parts[1::2]
+    mended = [_respell_words(w) for w in typed]
+    for k, (was, now) in enumerate(zip(typed, mended)):
+        # A slip read as fell/fall before a feeling word was "feel" ("fel lazy today", "fel sakit"):
+        # only that word, and only when it was not typed as fell/fall.
+        if now in ("fell", "fall") and was not in ("fell", "fall") and k + 1 < len(mended) \
+                and mended[k + 1] in FEELING_WORDS:
+            mended[k] = "feel"
+    parts[1::2] = mended
+    return "".join(parts)
 
 
 def _respell_part(w: str) -> str | None:
@@ -451,7 +467,7 @@ def _respell_words(token: str) -> str:
             out.append(w)                                # a known or a real word is what was typed
             continue
         likely = _likeliest(w)
-        easy = likely is not None and typo_cost(w, likely) <= 0.5
+        easy = likely is not None and (typo_cost(w, likely) <= 0.8 or likely in URGENT_WORDS)
         exact = _exact_split(w, vocab)
         if exact and not easy:
             out.extend(exact)                            # "beenthe" -> been the, not "breathe"
@@ -482,7 +498,7 @@ def _respell_words(token: str) -> str:
         # mistake. Then the older 80 %-alike rule; only then two joined words ("herat" is heart, not
         # "her at").
         fixed = _likeliest(w)
-        if fixed is None and not _near_known(w):
+        if fixed is None and not _near_known(w) and len(w) >= 7:
             fixed = _closest(w, SAFETY_WORDS, 80) or _closest(w, vocab, 80)
         if fixed:
             out.append(fixed)
@@ -493,6 +509,14 @@ def _respell_words(token: str) -> str:
             continue
         out.append(_closest(w, SAFETY_WORDS, 74) or w)
     return " ".join(out)
+
+
+@lru_cache(maxsize=1)
+def _dictionary_by_letter() -> dict:
+    out: dict[str, list[str]] = {}
+    for w in dictionary():
+        out.setdefault(w[0], []).append(w)
+    return out
 
 
 @lru_cache(maxsize=1)
@@ -510,9 +534,17 @@ def _word_use() -> dict:
 def _likeliest(w: str) -> str | None:
     vocab = _respell_vocab() | SAFETY_WORDS
     limit = 1.0 if len(w) < 7 else 1.5
-    cands = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= (1 if len(w) < 6 else 2)
-             and len(v) >= 4]
+    spread = 1 if len(w) < 6 else 2
+    cands = {v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= spread and len(v) >= 4}
+    words = {v for v in _dictionary_by_letter().get(w[0], ()) if abs(len(v) - len(w)) <= spread and len(v) >= 4}
     scored = sorted((typo_cost(w, v), v not in SAFETY_WORDS, v) for v in cands)
+    best_known = scored[0][0] if scored else 9.0
+    extra = sorted((typo_cost(w, v), True, v) for v in words - cands)
+    if extra and extra[0][0] <= best_known - 0.5 and extra[0][0] <= 0.8:
+        # A common word fits clearly better (by half a slip) than any of the rules' words ("meaming" ->
+        # meaning); otherwise the rules' word ("sqat" is squat, not swat).
+        if len(extra) == 1 or extra[1][0] > extra[0][0]:
+            return extra[0][2]
     if not scored:
         return None
     if scored[0][0] > limit:
@@ -522,7 +554,7 @@ def _likeliest(w: str) -> str | None:
         return safe[0][2] if safe and len(w) >= 4 else None
     urgent = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(limit, scored[0][0] + URGENT_MARGIN)]
     if urgent:
-        return min(urgent, key=lambda s: (s[0], -_word_use().get(s[2], 0)))[2]
+        return min(urgent, key=lambda s: (s[0], s[2] != "fell", -_word_use().get(s[2], 0)))[2]
     best = [s for s in scored if s[0] == scored[0][0]]
     if len(best) > 1 and best[0][1]:                     # the top ones are all harmless words:
         use = _word_use()                                # the one the rules use most ("plan", not "palm")
@@ -540,7 +572,7 @@ def _three_letters(w: str) -> str | None:
         return None
     urgent = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(1.0, scored[0][0] + URGENT_MARGIN)]
     if urgent:                                           # "fel" -> fell, "fll" -> fell, "wnt" -> want
-        return min(urgent, key=lambda s: (s[0], -_word_use().get(s[2], 0)))[2]
+        return min(urgent, key=lambda s: (s[0], s[2] != "fell", -_word_use().get(s[2], 0)))[2]
     if len(scored) > 1 and scored[1][0] == scored[0][0]:
         return None
     return scored[0][2] if (not scored[0][1] or scored[0][0] <= 0.5) else None
@@ -1517,7 +1549,9 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     plain = " ".join(re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split())
     core = _without_fillers(plain)
     fillers = {w for f in LEADING_FILLERS + TRAILING_FILLERS for w in f.split()}
-    if core and core != plain and _recognised(plan_id, core, topics=True) >= _recognised(plan_id, plain, topics=True):
+    removed = set(plain.split()) - set(core.split())
+    if core and core != plain and (removed <= PURE_FILLERS or
+                                   _recognised(plan_id, core, topics=True) >= _recognised(plan_id, plain, topics=True)):
         # "hi how often", "ok is it torn", "not helpful pls": the question without the greeting or the
         # word around it, when no topic word is lost ("doctor say no exercise" keeps "doctor").
         if not set(core.split()) <= fillers:
@@ -1538,7 +1572,7 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         # or only loosely. A posture mistake's exact name stays ("shrugging" is not "struggling").
         c2, h2 = _match(plan_id, again)
         if c2 is not None and (chosen is None or how in ("similar_question", "keyword_overlap")
-                               or _recognised(plan_id, again) > _recognised(plan_id, text)
+                               or _recognised(plan_id, again) >= _recognised(plan_id, text)
                                or (h2 == "glossary")):
             return c2, h2
     return chosen, how
@@ -1556,6 +1590,9 @@ LEADING_FILLERS = ["excuse me", "hi there", "hello there", "hi", "hello", "hey",
                    "please", "pls", "plz", "assalamualaikum", "salam"]
 TRAILING_FILLERS = ["lah", "la", "ah", "leh", "pls", "plz", "please", "ya", "yah", "huh", "eh", "ok", "thanks",
                     "thank you", "tq", "thx", "doc"]
+# Words with no meaning of their own: always set aside around a question.
+PURE_FILLERS = {"hmm", "hm", "erm", "um", "uh", "oh", "eh", "ok", "okay", "lah", "la", "ah", "leh", "ya", "yah",
+                "huh", "pls", "plz", "please", "sorry", "excuse", "me", "hi", "hello", "hey", "hai", "helo"}
 
 
 def _without_fillers(plain: str) -> str:
