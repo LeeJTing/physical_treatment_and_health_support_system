@@ -117,6 +117,14 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
+# 3.55: short forms typed for whole words (respell reads them as the word)
+SHORT_WORDS_TYPED = {"tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
+                     "rly": "really", "noe": "know", "bcos": "because", "bcoz": "because", "coz": "because",
+                     "wat": "what", "wht": "what", "hw": "how", "mins": "minutes", "min": "minutes",
+                     "tq": "thank you", "thx": "thanks", "w": "with", "wif": "with", "dun": "don't",
+                     "cnt": "can't", "nt": "not", "smtg": "something", "sth": "something", "bf": "before",
+                     "lyk": "like", "gd": "good", "nite": "night", "tonite": "tonight", "pple": "people",
+                     "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video"}
 
 
 @lru_cache
@@ -294,7 +302,8 @@ itu jalan jangan jauh jumpa juga kakak kalau kami kan kat kata kecil keluar kena
 lambat laju lepas lebih lemah lima macam mahu main makan mak malam mana masa mati minggu minum mula mungkin naik
 nanti nenek ni nak orang pagi pakai panas pergi petang pula pun rasa rumah sahaja saja sakit sama sampai sangat
 satu saya sebab sedikit sejuk selalu semalam semua senang siapa sikit sini situ suami sudah susah tadi tahu tak
-takut tangan tapi tengok terus tiga tidak tiap tolong tu tua turun ulang untuk wak yang""".split())
+takut tangan tapi tengok terus tiga tidak tiap tolong tu tua turun ulang untuk wak yang
+lah leh lor meh ah ya kot""".split())
 
 
 @lru_cache(maxsize=1)
@@ -324,14 +333,14 @@ def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
                 best = (a, b)
     if best:
         return list(best)
-    for i in range(4, len(w) - 3):
+    for i in range(3, len(w) - 2):
         a, b = w[:i], w[i:]
-        if a in vocab and a not in NEGATORS and len(b) >= 4:
-            fixed = _closest(b, vocab, 80)
+        if a in vocab and a not in NEGATORS and len(b) >= 3:
+            fixed = _likeliest(b) or (_closest(b, vocab, 80) if len(b) >= 4 else None)
             if fixed:
                 return [a, fixed]
         if b in vocab and len(a) >= 4:                   # "pianduring" -> pain during
-            fixed = _closest(a, vocab, 75)
+            fixed = _likeliest(a) or _closest(a, vocab, 75)
             if fixed and fixed not in NEGATORS:
                 return [fixed, b]
     return None
@@ -344,7 +353,39 @@ SAFETY_WORDS = frozenset({"dada", "nafas", "bernafas", "pitam", "pengsan", "jatu
                           "numb", "kebas", "lumpuh", "senget", "pelat", "laju", "berdebar", "bangun", "weak",
                           "side", "fell", "fall", "susah", "muka", "tadi", "saya", "ayah", "hurt", "hurts",
                           "pain", "racing", "pounding", "terhantuk", "swollen", "vomit", "muntah", "sakit",
-                          "hard", "head", "move", "talk", "speech", "drooping", "faint", "blood"})
+                          "hard", "head", "move", "talk", "speech", "drooping", "faint", "blood",
+                          # thoughts of suicide, an overdose (3.55)
+                          "suicide", "die", "dead", "death", "living", "live", "life", "kill", "killing",
+                          "bunuh", "diri", "mati", "wake", "gone", "burden", "pills", "pill", "tablets",
+                          "overdose", "end", "point", "anymore", "want", "wish", "better", "hurt", "harm",
+                          "myself", "cut", "cutting", "poison", "bleach", "swallowed"})
+
+
+# Keys next to each other on a phone keyboard (QWERTY rows): a slip onto one is the commonest typo.
+_ROWS = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
+KEY_NEIGHBOURS = {ch: set(r[max(0, i - 1):i]) | set(r[i + 1:i + 2]) for r in _ROWS for i, ch in enumerate(r)}
+
+
+@lru_cache(maxsize=200000)
+def typo_cost(typed: str, word: str) -> float:
+    """How likely [typed] is a slip of [word]: an edit distance where a neighbouring key, a doubled letter
+    and two swapped letters cost 0.5, any other change 1 (3.55). "psin" -> pain 0.5, pin 1."""
+    n, m = len(typed), len(word)
+    d = [[0.0] * (m + 1) for _ in range(n + 1)]
+    for i in range(1, n + 1):
+        d[i][0] = float(i)
+    for j in range(1, m + 1):
+        d[0][j] = float(j)
+    for i in range(1, n + 1):
+        for j in range(1, m + 1):
+            a, b = typed[i - 1], word[j - 1]
+            cost = d[i - 1][j - 1] + (0 if a == b else 0.5 if a in KEY_NEIGHBOURS.get(b, ()) else 1.0)
+            cost = min(cost, d[i - 1][j] + (0.5 if i >= 2 and typed[i - 2] == a else 1.0),   # extra letter
+                       d[i][j - 1] + 1.0)                                                    # dropped letter
+            if i > 1 and j > 1 and a == word[j - 2] and typed[i - 2] == b:
+                cost = min(cost, d[i - 2][j - 2] + 0.5)                                     # swapped
+            d[i][j] = cost
+    return d[n][m]
 
 
 def _closest(w: str, vocab, cutoff: float) -> str | None:
@@ -364,21 +405,45 @@ def respell(text: str) -> str:
     return re.sub(r"[a-z0-9']+", lambda m: _respell_words(m.group(0)), text.lower().replace("’", "'"))
 
 
+def _respell_part(w: str) -> str | None:
+    """One part of a joined word: known, or the likeliest known word."""
+    vocab = _respell_vocab()
+    if w in vocab or w in dictionary():
+        return w
+    return _likeliest(w)
+
+
 def _respell_words(token: str) -> str:
     vocab = _respell_vocab()
     out = []
     for w in [token]:
-        if w in vocab or w in dictionary() or len(w) < 3 or not w.isalpha():
+        if w in SHORT_WORDS_TYPED:
+            out.append(SHORT_WORDS_TYPED[w])
+            continue
+        if w in vocab or w in dictionary() or len(w) < 3 or not w.replace("'", "").isalpha():
             out.append(w)                                # a known or a real word is what was typed
+            continue
+        rest = _joined_rest(w, vocab)
+        if rest is not None:
+            out.extend([w[0], rest])                     # "ifell" -> i fell; "isee" -> i see; "abit"
+            continue
+        if "'" in w:                                     # "suddenlycan't" -> suddenly can't
+            head, tail = w.split("'", 1)
+            for k in range(3, len(head) - 1):
+                if head[:k] in vocab and head[k:] + "'" + tail in vocab:
+                    out.extend([head[:k], head[k:] + "'" + tail])
+                    break
+            else:
+                out.append(w)
             continue
         if len(w) == 3:                                  # only a warning-sign word: "dda" -> dada
             out.append(_closest(w, SAFETY_WORDS, 80) or w)
             continue
-        # A warning-sign word first when the slip is as close to it as to a harmless word ("heatr":
-        # heart, not heat; "ptaam": pitam, not padam; "saikt": sakit, not sikit): a needless safety
-        # answer is the safer mistake. Then any known word; only then two joined words ("herat" is
-        # heart, not "her at").
-        fixed = _closest(w, SAFETY_WORDS, 80) or _closest(w, vocab, 80)
+        # The known word the slip most likely came from (typo_cost); on a tie a warning-sign word ("heatr":
+        # heart, not heat; "ptaam": pitam, not padam), since a needless safety answer is the safer
+        # mistake. Then the older 80 %-alike rule; only then two joined words ("herat" is heart, not
+        # "her at").
+        fixed = _likeliest(w) or _closest(w, SAFETY_WORDS, 80) or _closest(w, vocab, 80)
         if fixed:
             out.append(fixed)
             continue
@@ -388,6 +453,53 @@ def _respell_words(token: str) -> str:
             continue
         out.append(_closest(w, SAFETY_WORDS, 74) or w)
     return " ".join(out)
+
+
+@lru_cache(maxsize=20000)
+def _likeliest(w: str) -> str | None:
+    vocab = _respell_vocab() | SAFETY_WORDS
+    limit = 1.0 if len(w) < 7 else 1.5
+    cands = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= (1 if len(w) < 6 else 2)
+             and len(v) >= 4]
+    scored = sorted((typo_cost(w, v), v not in SAFETY_WORDS, v) for v in cands)
+    if not scored:
+        return None
+    if scored[0][0] > limit:
+        # Two slips in a warning-sign word ("ptsm", "piam" -> pitam), when all but one of the typed
+        # letters are in it in order ("psum" is not "pain").
+        safe = [s for s in scored if not s[1] and s[0] <= 1.5 and _in_order(w, s[2]) >= len(w) - 1]
+        return safe[0][2] if safe and len(w) >= 4 else None
+    best = [s for s in scored if s[0] == scored[0][0]]
+    harmless_tie = len(best) > 1 and best[0][1]          # the top ones are all harmless words
+    if harmless_tie:
+        return None                                      # two harmless words equally likely: leave it
+    return best[0][2]
+
+
+def _in_order(a: str, b: str) -> int:
+    """Letters of [a] found in [b] in the same order (longest common subsequence)."""
+    prev = [0] * (len(b) + 1)
+    for x in a:
+        cur = [0]
+        for j, y in enumerate(b):
+            cur.append(prev[j] + 1 if x == y else max(prev[j + 1], cur[j]))
+        prev = cur
+    return prev[-1]
+
+
+def _joined_rest(w: str, vocab) -> str | None:
+    """"ifell" -> fell, "abit" -> bit: "i" or "a" typed onto a known word (with at most one easy slip
+    after "i"); never a "no" word."""
+    rest = w[1:]
+    if w[0] not in "ia" or len(w) < 4 or len(rest) < 3 or rest in NEGATORS:
+        return None
+    if rest in vocab or rest in dictionary():
+        return rest
+    if w[0] == "i":
+        fix = _likeliest(rest)
+        if fix and typo_cost(rest, fix) <= 0.5 and fix not in NEGATORS:
+            return fix
+    return None
 
 
 def _plain(text: str) -> str:
@@ -766,7 +878,12 @@ def high_bp(text: str) -> bool:
 
 
 def crisis(text: str | None) -> bool:
-    """Thoughts of suicide or self-harm: checked before everything else."""
+    """Thoughts of suicide or self-harm: checked before everything else, also with slips mended
+    ("suicdie", "i wsnt to die", "tired of livign", 3.55)."""
+    return _also_respelled(_crisis, text)
+
+
+def _crisis(text: str | None) -> bool:
     if not text:
         return False
     padded = f" {clean(text)} "
@@ -888,6 +1005,10 @@ def _amount(words: list[str], lo: int, hi: int) -> int:
 
 
 def poisoning(text: str | None) -> bool:
+    return _also_respelled(_poisoning, text)
+
+
+def _poisoning(text: str | None) -> bool:
     if not text:
         return False
     words = re.findall(r"[a-z0-9']+", text.lower())
@@ -900,6 +1021,10 @@ def poisoning(text: str | None) -> bool:
 
 
 def overdose(text: str | None) -> bool:
+    return _also_respelled(_overdose, text)
+
+
+def _overdose(text: str | None) -> bool:
     if not text:
         return False
     low = text.lower()
@@ -948,6 +1073,16 @@ def overdose(text: str | None) -> bool:
 
 
 OD_CLAUSE_BREAKS = {"and", "then", "but", "dan", "lepas", "after", "before", "so", "because", "while"}
+
+
+def _also_respelled(check, text: str | None) -> bool:
+    """A safety check on the message as typed, then on the message with its slips mended (3.55)."""
+    if not text:
+        return False
+    if check(text):
+        return True
+    again = respell(text)
+    return _plain(again) != _plain(text) and check(again)
 
 
 def red_flag(text: str | None) -> bool:
@@ -1321,10 +1456,15 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         # or only loosely. A posture mistake's exact name stays ("shrugging" is not "struggling").
         c2, h2 = _match(plan_id, again)
         if c2 is not None and (chosen is None or how in ("similar_question", "keyword_overlap")
-                               or keyword_match(again, c2) > keyword_match(text, chosen)
+                               or _recognised(plan_id, again) > _recognised(plan_id, text)
                                or (h2 == "glossary")):
             return c2, h2
     return chosen, how
+
+
+def _recognised(plan_id: str | None, text: str) -> int:
+    """How much of a message the rules recognise: the matched keyword words over every rule."""
+    return sum(keyword_match(text, i) for i in intents_for(plan_id))
 
 
 # Words before or after a question that carry no topic of their own (3.55).

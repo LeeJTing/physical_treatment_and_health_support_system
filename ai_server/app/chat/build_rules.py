@@ -1062,7 +1062,7 @@ EXTRA_KEYWORDS_355 = {
     "other_activity": ["gym", "go gym", "go to the gym", "jogging", "jog", "swim", "swimming", "badminton",
                        "cycling", "futsal", "yoga class"],
     "family_help": ["son can help", "daughter can help", "carer help", "carer", "can family help",
-                    "family help", "family can help", "helper", "my maid"],
+                    "family help", "family can help", "helper"],
     "difficulty": ["tough", "so tough", "too tough", "very tough"],
     "muscle_loss": ["bed rest weak", "weak after bed rest", "after bed rest", "weak after hospital",
                     "after hospital weak", "muscles weak after", "lost muscle", "muscle loss"],
@@ -1093,6 +1093,7 @@ EXTRA_KEYWORDS_355 = {
     "language": ["chinese", "mandarin", "tamil", "chinese can", "bahasa cina"],
     "text_size": ["cant read small", "cannot read small", "can't read small", "too small to read"],
     "missed_session": ["lupa exercise", "lupa senaman", "tak buat senaman", "skip exercise"],
+    "low_mood": ["burden", "a burden", "burden to", "useless", "hopeless"],
 }
 for _k, _v in EXTRA_KEYWORDS_355.items():
     EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
@@ -1293,6 +1294,10 @@ RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
               "bleeding badly", "losing a lot of blood", "lost a lot of blood",
               # 3.55 (15 Oct, random test): the words users leave out
               "short breath", "have short breath", "feel short breath", "bleeding lot", "bleed a lot",
+              "slipped hit", "slip hit", "fell hit", "hit head", "hit hip", "fell bum", "fell on bum",
+              "fell on my bum", "out breath", "out of breath marching", "slipped kitchen", "slipped bathroom",
+              "slipped toilet", "today slipped", "slipped today", "he's floor",
+              "she's floor", "is on floor", "on floor cannot",
               "cannot move one side", "can't move one side", "fell hit head", "fell hit my head",
               "pressure chest", "chest pressure",
               # 3.54 (15 Oct, generated warning signs)
@@ -1323,6 +1328,11 @@ CRISIS = [
     "take her own life", "take his own life", "sucide", "suicde", "suiside", "suicid", "sucidal",
     # overdose as a statement
     "going to take all my", "gonna take all my", "take all my pills at once", "swallow all my", "took an overdose",
+    # 3.55 (random test): the same without the small words users leave out
+    "want die", "wanna die", "want end life", "want end my life", "want to end life", "want end it all",
+    "dont want wake up", "don't want wake up", "no point going", "no point living", "no point go on",
+    "better if gone", "better off without", "take all pills", "take all my pills", "going take all",
+    "tired of living", "burden children", "burden to children", "burden family",
     "take an overdose", "taken an overdose", "overdose on",
     "saving up my pills", "saving up my sleeping pills", "saving my sleeping pills", "saving up pills",
     # laptop safety pass 3
