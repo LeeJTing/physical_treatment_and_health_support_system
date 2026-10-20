@@ -120,7 +120,9 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
                  "jantung berdebar": "heart pounding", "jantung berdegup kencang": "heart racing",
                  "jantung laju": "heart racing", "jantung berdenyut laju": "heart racing",
                  "dada berdebar": "heart pounding", "kepala terhantuk": "hit my head",
-                 "terhantuk kepala": "hit my head", "kepala terhentak": "hit my head"}
+                 "terhantuk kepala": "hit my head", "kepala terhentak": "hit my head",
+                 # 3.67: "bp" alone ("my bp is high today", "bp 120/80"); last, so "high bp" keeps its phrase.
+                 "low bp": "low blood pressure", "bp": "blood pressure"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
@@ -497,7 +499,9 @@ def _closest(w: str, vocab, cutoff: float) -> str | None:
 
 FEELING_WORDS = {"lazy", "tired", "sakit", "pain", "sick", "unwell", "dizzy", "good", "bad", "better", "worse",
                  "weak", "ok", "okay", "fine", "sore", "sad", "happy", "so", "very", "really", "penat",
-                 "pening", "sleepy", "cold", "hot", "lonely", "stressed", "great", "nothing", "like"}
+                 "pening", "sleepy", "cold", "hot", "lonely", "stressed", "great", "nothing", "like",
+                 "hopeless", "useless", "anxious", "angry", "upset", "bored", "frustrated", "scared", "afraid",
+                 "nervous", "worried", "empty"}
 
 
 @lru_cache(maxsize=20000)
@@ -901,7 +905,11 @@ def _combo_negated(words: list[str], i: int) -> bool:
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [# 3.66 (Elwin's reports): "i m ur father" is said to the bot; "meds" are medicines; "you are useless"
+PREFER = [# 3.67: "send message to my son", "order food for me" are things the chatbot cannot do.
+          ("cannot_do", "for_someone_else"), ("cannot_do", "diet"), ("cannot_do", "family_help"),
+          ("app_problem", "app_help"), ("app_problem", "recording_help"),
+          ("greeting", "thanks"), ("other_activity", "reminders_help"),
+          # 3.66 (Elwin's reports): "i m ur father" is said to the bot; "meds" are medicines; "you are useless"
           # is about the answer.
           ("bot_identity", "for_someone_else"), ("report_answer", "low_mood"),
           ("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
@@ -975,7 +983,18 @@ PREFER = [# 3.66 (Elwin's reports): "i m ur father" is said to the bot; "meds" a
 
 # As PREFER, unless one of the words is there (laptop pass 8: "doctor said i have sarcopenia" is about
 # muscle loss, but "the doctor told me to rest after hospital" is the doctor's advice).
-PREFER_UNLESS = [# 3.50: "I have cancer, can I exercise?" is condition advice; "do I have cancer?" stays diagnosis
+# As PREFER, but only when one of the words is there (3.67: "so frustrated, my score is always low" is the
+# posture result; "very lonely since my wife passed away" stays low mood).
+PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "results", "marks", "accuracy", "percent"])]
+PREFER_UNLESS = [# 3.67: "protein shake" is food, "my legs shake" weakness; "i'm bored" motivation, "too easy" not
+                 # (not "shaking": it shares its stem with "shake")
+                 ("diet", "weakness_balance", ["leg", "legs", "hand", "hands", "arm", "arms", "knee", "knees",
+                                               "body", "wobbly"]),
+                 # "video upload failed" is recording help; "my video's score" stays the posture result
+                 ("recording_help", "posture_result", ["score", "result", "results", "accuracy", "percent", "marks",
+                                                       "mistake", "mistakes", "repetition", "repetitions", "reps"]),
+                 ("motivation", "difficulty", ["easy", "too easy", "harder", "more difficult", "too hard"]),
+                 # 3.50: "I have cancer, can I exercise?" is condition advice; "do I have cancer?" stays diagnosis
                  ("condition_advice", "diagnosis", ["do i have", "could it be", "could this be", "is it cancer",
                                                     "is this cancer", "might be", "do you think", "am i getting",
                                                     "be cancer", "lump", "signs of", "symptoms of"]),
@@ -1855,12 +1874,25 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
     its words weighed together, is about another domain (3.61)."""
     core = [w for w in re.sub(r"[^a-z ]", " ", (text or "").lower()).split() if w not in _PARTICLE_FILLERS]
+    if _yes_no(text):
+        ack = {i["key"]: i for i in intents_for(plan_id)}.get("acknowledge")
+        if ack is not None:
+            return ack, "keyword"                        # "yes", "no", "nope", "tak" on their own (3.67)
+    if len(core) <= 5 and WEIGHT_READING.search((text or "").lower()):
+        profile = {i["key"]: i for i in intents_for(plan_id)}.get("profile_help")
+        if profile is not None:
+            return profile, "keyword"                    # "weight 70kg": the profile holds the weight (3.67)
+    if len(core) <= 4 and (SUGAR_READING.search((text or "").lower()) or BP_READING.search((text or "").lower())):
+        advice = {i["key"]: i for i in intents_for(plan_id)}.get("condition_advice")
+        if advice is not None:
+            return advice, "keyword"                     # "sugar 3.2", "bp 120/80" (3.67)
     if core in (["med"], ["medic"]):                     # "med" alone: medicine or medical help? (3.66)
         helper = {i["key"]: i for i in intents_for(plan_id)}.get("med_help")
         if helper is not None:
             return helper, "keyword"
     chosen, how = _match_any(plan_id, text)
-    if chosen is not None and not chosen.get("small_talk") and _weighted_off_domain(text):
+    if chosen is not None and not chosen.get("small_talk") and chosen["key"] != "cannot_do" \
+            and _weighted_off_domain(text):
         return None, None
     return chosen, how
 
@@ -1887,7 +1919,7 @@ def _match_any(plan_id: str | None, text: str) -> tuple[dict | None, str | None]
             if c is not None and c.get("small_talk"):
                 return c, h
     chosen, how = _match(plan_id, text)
-    if chosen is not None and not chosen.get("small_talk") and _off_domain(text):
+    if chosen is not None and not chosen.get("small_talk") and chosen["key"] != "cannot_do" and _off_domain(text):
         return None, None                        # about another domain: no rehabilitation topic guessed (3.57)
     again = respell(text)
     if _plain(again) != plain:
@@ -2087,6 +2119,9 @@ def _match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     for better, general, unless in PREFER_UNLESS:
         if better in keys and general in keys and not any(find_phrase(u, words) for u in unless):
             hits = [h for h in hits if h[2]["key"] != general]
+    for better, general, only_if in PREFER_IF:
+        if better in keys and general in keys and any(find_phrase(u, words) for u in only_if):
+            hits = [h for h in hits if h[2]["key"] != general]
     if hits:
         return max(hits, key=lambda h: (h[0], h[1]))[2], "keyword"
     score, best = max(((fuzzy_score(text, i), i) for i in intents), key=lambda s: s[0])
@@ -2129,7 +2164,7 @@ FOLLOW_FILLERS = {
     "times", "time", "sorry", "dont", "don't", "do not", "say", "that's", "thats", "much", "should", "we",
     "nak", "buat", "mana", "apa", "tu", "ni", "ke", "kali", "lama", "tak", "ya", "boleh", "itu", "ini",
 }
-NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language", "pardon"}
+NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language", "pardon", "how_are_you"}
 # What a follow-up with nothing before it may still answer ("how often" -> how often; "steps" -> how to).
 NO_CONTEXT_ANSWERS = {"how_to", "safety", "how_often", "plan_progress", "treatment_nav", "plan_exercises",
                       "pardon"}                          # "come again?" with nothing before it (3.66)
@@ -2236,7 +2271,7 @@ CODE_RE = re.compile(r"(?i)(?:\bdrop\s+table\s*\w*|\bselect\s+\*\s+from\s+\w+|\b
                      r"\b\w+\(\s*(?:'[^']*'|\"[^\"]*\")\s*\)|%[0-9a-f]{2}|;\s*--|\bjndi:\S*|"
                      r"\(\)\s*\{[^}]*\}?|@\{\[[^\]]*\]\}|[;{]\s*(?:touch|echo|cat|rm|wget|curl|ls|sudo|sh|bash)\s+[/$~.-][^;}]*)")
 WIDE_GAP_RE = re.compile(r"\s{2,}")
-DOTS_RE = re.compile(r"(?<=[^\W\d_])(?:\.{2,}|\u2026+)(?=[^\W\d_])")
+DOTS_RE = re.compile(r"(?<=[^\W_])(?:\.{2,}|\u2026+)(?=[^\W_])")       # also beside digits: "bathroom...2...years"
 
 
 # 3.66 (the Manglish test, chat_manglish_set.py): whole-message Malaysian English shapes in English order,
@@ -2289,7 +2324,47 @@ LINK_RE = re.compile(r"(?i)(https?://\S+|www\.\S+|\S+@\S+\.\S+|(?<!\w)@\w+|\b[\w
 # 3.66 (Elwin's reports): "999" on its own is a call for help, as are "call 999", "911", "112", "ambulance".
 EMERGENCY_CALL_RE = re.compile(r"^\W*(?:(?:call|dial|phone|telefon|panggil)\s+)?(?:999|991|911|112|ambulance|"
                                r"an ambulance|ambulans|emergency|kecemasan)(?:\W*(?:now|please|pls|tolong|cepat|"
-                               r"lah|ah|leh|huh|ya|lor|meh|hor))*\W*$")
+                               r"lah|ah|leh|huh|ya|lor|meh|hor|for me|me))*\W*$")
+
+
+WEIGHT_READING = re.compile(r"\b(?:my\s+)?(?:body\s+)?(?:weight|berat)\s*(?:is\s*|now\s*|badan\s*)?\d{2,3}"
+                            r"(?:\.\d+)?\s*(?:kg|kgs|kilo|kilos|kilogram)?\b")
+YES_NO = {"yes", "yeah", "yup", "yep", "ya", "yes la", "no", "nope", "nah", "tak", "tidak", "takde", "sure", "betul",
+          "boleh", "ok", "okay"}
+# A body part on its own (3.67): asked what about it, never guessed ("shoulder" was the shoulder flexion,
+# "knee" a diagnosis, "my hip" a greeting).
+BODY_PART_ALONE = {"knee": "knee", "knees": "knees", "lutut": "knee", "back": "back", "lower back": "lower back",
+                   "belakang": "back", "pinggang": "lower back", "waist": "lower back", "shoulder": "shoulder",
+                   "shoulders": "shoulders", "bahu": "shoulder", "hip": "hip", "hips": "hips", "pinggul": "hip",
+                   "wrist": "wrist", "ankle": "ankle", "elbow": "elbow", "siku": "elbow", "neck": "neck",
+                   "leher": "neck", "leg": "leg", "legs": "legs", "kaki": "leg", "arm": "arm", "arms": "arms",
+                   "hand": "hand", "hands": "hands", "tangan": "arm", "foot": "foot", "feet": "feet",
+                   "thigh": "thigh", "calf": "calf", "fingers": "fingers", "finger": "finger"}
+
+
+def _plain_words(text: str | None) -> list[str]:
+    """The message's words, stretched letters shortened ("kneeee", "yesss", "takkkk")."""
+    low = re.sub(r"([a-z])\1{2,}", r"\1", (text or "").lower())
+    return re.sub(r"[^a-z ]", " ", low).split()
+
+
+def _yes_no(text: str | None) -> bool:
+    """Only yes or no ("ya", "nope", "tak", "sure lah", "Npoe pls!"): answered as okay (3.67)."""
+    words = [w for w in _plain_words(text) if w not in _PARTICLE_FILLERS or w == "ya"]
+    if not words or len(words) > 2:
+        return False
+    def yes_no(w):
+        return w in YES_NO or re.sub(r"(.)\1+", r"\1", w) in YES_NO or (
+            len(w) >= 4 and any(typo_cost(w, v) <= 0.5 for v in YES_NO if len(v) >= 4 and v[0] == w[0]))
+    return all(yes_no(w) for w in words)
+
+
+def _body_part_alone(text: str | None) -> str | None:
+    for source in (text, respell(text) if text else None):
+        words = [w for w in _plain_words(source) if w not in _PARTICLE_FILLERS and w not in ("my", "the", "saya", "i")]
+        if 1 <= len(words) <= 2 and " ".join(words) in BODY_PART_ALONE:
+            return BODY_PART_ALONE[" ".join(words)]
+    return None
 
 
 def _emergency_call(text: str) -> bool:
@@ -2407,6 +2482,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
             chosen, how = guess, guessed_how             # "how often", "what next": questions of their own
         else:
             chosen, how = by_key["clarify"], "clarify"
+    part = None if (chosen is not None or category) else _body_part_alone(text)
+    if part and "clarify" in by_key:
+        chosen, how = by_key["clarify"], "body_part"
     if chosen is not None:
         pass                                           # the follow-up above
     elif category and category in by_key:
@@ -2433,7 +2511,12 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if rest and (chosen["key"] in rest["note_on"] or chosen["key"].startswith("exercise:")):
         notes.insert(0, rest["note"])
     base_answer = chosen["answer"]
-    if chosen["key"] == "clarify" and _shown(typed):
+    if chosen["key"] == "clarify" and how == "body_part":
+        part = _body_part_alone(text)
+        base_answer = (f"What would you like to know about your {part}? For example: \"my {part} hurts\", "
+                       f"\"exercises for my {part}\" or \"is it safe to exercise my {part}?\". You can also pick "
+                       f"a topic below.")
+    elif chosen["key"] == "clarify" and _shown(typed):
         # "what", "how" with nothing before them: ask what they mean, with their words (Elwin's reports).
         base_answer = f'What do you mean by "{_shown(typed)}"? Could you tell me a bit more?' + \
             base_answer.split("?", 1)[1]

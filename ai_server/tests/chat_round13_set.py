@@ -20,7 +20,7 @@ ROUND13 = [
     (KNEE, "what does the green tick mean in my history", ("history_help", "posture_result")),
     (KNEE, "how is my accuracy calculated", "posture_result"),
     (KNEE, "my results page empty", ("history_help", "app_help")),
-    (KNEE, "the app keep crashing when i record", ("recording_help", "app_help")),
+    (KNEE, "the app keep crashing when i record", ("recording_help", "app_help", "app_problem")),   # 3.67
     (KNEE, "video upload very slow", "recording_help"),
     (KNEE, "can i use the app without a phone stand", ("recording_help", "equipment")),
     (KNEE, "hi can you tell me how to do the knee one", ("exercise:knee_extension", "how_to")),

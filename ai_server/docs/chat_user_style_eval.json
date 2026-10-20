@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.66",
+ "rules_version": "chat-rules-3.67",
  "seed": 1,
  "messages": 2000,
  "reported_ok": 20,
@@ -185,8 +185,8 @@
    "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
   }
  ],
- "passed": 1974,
- "rate": 0.987,
+ "passed": 1973,
+ "rate": 0.9865,
  "by_kind": {
   "about_bot": {
    "passed": 260,
@@ -201,7 +201,7 @@
    "messages": 196
   },
   "gibberish": {
-   "passed": 205,
+   "passed": 204,
    "messages": 211
   },
   "health_word": {
@@ -227,6 +227,7 @@
  },
  "misses": [
   "health_word: 'MEFIC' -> None (want ['med_help']; from 'medic')",
+  "gibberish: 'milp' -> diet (want ['None']; from '(random letters)')",
   "to_bot: 'I LOE YOU PLS...' -> weakness_balance (want ['bot_identity']; from 'i love you')",
   "health_word: 'MEDD AH ?' -> medication (want ['med_help']; from 'med')",
   "health_word: 'Meddd pls' -> medication (want ['med_help']; from 'med')",
@@ -253,5 +254,5 @@
   "health_word: 'medci ah??' -> None (want ['med_help']; from 'medic')",
   "vague: 'whhat leh...' -> None (want ['clarify']; from 'what')"
  ],
- "seconds": 48
+ "seconds": 49
 }

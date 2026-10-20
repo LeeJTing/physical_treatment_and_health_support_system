@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.66"
+VERSION = "chat-rules-3.67"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -456,7 +456,8 @@ INTENTS = [
            ["the words are too small", "how do I make the text bigger"],
            "The app follows your phone's text size. To make the words bigger, open your phone's Settings, "
            "then Display, then Font size (on some phones, Font size and style), and move the slider up; the "
-           "app's text grows with it. A family member can also sit with you while you use the app.",
+           "app's text grows with it. A family member can also sit with you while you use the app. The app "
+           "has a light theme only; dark mode is not available yet.",
            show=False),
     intent("family_help", "Help from family", 6,
            ["help me with the app", "help me use the app", "help me use", "help me with this app",
@@ -883,6 +884,34 @@ INTENTS = [
            "Do you mean your medicine, or do you need medical help? If someone needs urgent help now, call "
            "999. For questions about medicines, please ask your doctor or pharmacist: I cannot give advice "
            "about medicines.", show=False),
+    # ---- 3.67 (21 Oct): everyday random inputs (tests/chat_everyday_set.py) ------------------------------
+    intent("how_are_you", "How are you?", 2,
+           ["how are you", "how are you doing", "how r u", "how are u", "how r you", "how's your day",
+            "hows your day", "how is your day", "what's up", "whats up", "wassup", "sup", "apa khabar",
+            "dah makan", "sudah makan", "have you eaten", "you ok", "are you ok"],
+           ["how are you?", "what's up"],
+           "I'm well, thank you for asking! How are you feeling today? If you have a question about your "
+           "exercises, pain or your plan, type it or tap a topic below.", show=False, small_talk=True),
+    intent("cannot_do", "Things I cannot do", 6,
+           ["call my doctor", "call the doctor", "call doctor", "call my son", "call my daughter", "call my wife",
+            "call my husband", "call someone", "call for me", "book an appointment", "book appointment",
+            "make an appointment", "make appointment", "set an appointment", "appointment with", "play music",
+            "play a song", "play song", "play some music", "order food", "order grab", "grab food", "foodpanda",
+            "whatsapp", "send message", "send a message", "send whatsapp", "text my", "message my",
+            "email my doctor", "buy me", "book a taxi", "call a taxi", "call grab"],
+           ["call my doctor", "book an appointment", "play music"],
+           "I cannot make calls, send messages, book appointments, order things or play music. I can answer "
+           "questions about your exercises, pain, safety and your plan. In an emergency, call 999 yourself or "
+           "ask someone near you to call.", show=False),
+    intent("app_problem", "The app is not working", 7,
+           ["update app", "update the app", "app crash", "app crashed", "app crashes", "keeps crashing",
+            "app hang", "app hangs", "app stuck", "app freeze", "app froze", "app not working", "app is slow",
+            "app slow", "app error", "app bug", "bug", "not loading", "won't load", "cannot open the app",
+            "can't open the app", "app closed by itself"],
+           ["the app keeps crashing", "how do I update the app"],
+           "Sorry about that. First close the app fully and open it again. Check that your internet is on. Then "
+           "update the app from the Play Store, or restart your phone. If it still happens, tell the team what "
+           "you were doing when it went wrong.", show=False),
     # 3.49 (11 Oct): plans stop at 65 (Terms of Use, section 2). Anyone can ask why; a restricted user
     # gets RESTRICTIONS below instead, and sees this as the first category.
     intent("age_limit", "Why plans stop at 65", 4,
@@ -1180,6 +1209,28 @@ for _k, _v in list(EXTRA_KEYWORDS_355.items()) + list(EXTRA_KEYWORDS_355B.items(
 EXTRA_KEYWORDS |= {
     "tired": ["had covid", "after covid", "covid recovery", "recovering from covid", "a cold", "have a cold", "flu", "fever", "demam", "selsema", "batuk", "cough"],
 }
+# 3.67 (21 Oct): everyday random inputs (tests/chat_everyday_set.py).
+EXTRA_KEYWORDS_367 = {
+    "greeting": ["nice to meet you", "good morning doc", "morning doc"],
+    "motivation": ["bored", "boring", "so boring", "give up", "i give up", "want to give up", "quit", "want to quit",
+                   "stop trying"],
+    "low_mood": ["stressed", "stress", "so stressed", "angry", "upset", "anxious", "anxiety", "frustrated",
+                 "irritated", "marah", "tertekan"],
+    "tired": ["nausea", "nauseous", "loya"],
+    "other_activity": ["taichi", "tai chi", "qigong", "hiking", "hike", "dance", "can i dance", "play basketball",
+                       "play netball", "play pickleball", "go bowling", "aerobics", "line dance"],
+    "diet": ["coffee", "kopi", "tea", "teh", "teh tarik", "milo", "nasi lemak", "roti canai", "durian", "rice",
+             "nasi", "protein shake", "milk", "fruit", "eat banana", "banana after", "banana before", "oats", "kuih",
+             "how much water"],
+    "text_size": ["font", "dark mode", "night mode", "theme"],
+    "recording_help": ["upload failed", "failed to upload", "upload fail", "cannot upload video",
+                       "video upload failed"],
+    "safety": ["heart rate", "pulse", "heartbeat", "bpm"],
+}
+for _k, _v in EXTRA_KEYWORDS_367.items():
+    EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+
+
 def _no_repeated_keys():
     import ast
     for node in ast.walk(ast.parse(Path(__file__).read_text(encoding="utf-8"))):

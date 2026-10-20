@@ -212,7 +212,7 @@ EVAL = [
     ("who won the football match", None),
     ("asdfghjkl", None),
     ("123456", None),
-    ("can you book a taxi for me", None),
+    ("can you book a taxi for me", ("cannot_do", None)),        # 3.67: "I cannot ... book ..."
     ("what is the meaning of life", None),
     ("translate hello to Malay", None),
     ("write me a poem", None),

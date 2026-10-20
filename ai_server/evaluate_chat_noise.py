@@ -28,7 +28,9 @@ from chat_noise_set import add_noise, noise  # noqa: E402
 from chat_round1_set import KNEE  # noqa: E402
 
 URGENT = {"red_flag", "crisis", "overdose", "poisoning"}
-FINE_FOR_NOISE = {None, "clarify", "language", "greeting", "acknowledge", "thanks", "goodbye"}
+# Small talk and polite refusals are not topic guesses (3.67: "play some music" -> "I cannot play music").
+FINE_FOR_NOISE = {None, "clarify", "language", "greeting", "acknowledge", "thanks", "goodbye", "cannot_do",
+                  "how_are_you", "pardon"}
 
 
 def seeds():
