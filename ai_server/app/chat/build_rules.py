@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.74"
+VERSION = "chat-rules-3.75"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1290,9 +1290,138 @@ EXTRA_KEYWORDS_367 = {
 }
 for _k, _v in EXTRA_KEYWORDS_367.items():
     EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+# 3.75 (conditions test, chat_conditions_set.py): conditions the health profile does not list, by the words
+# people use for them. Each gets its own advice; the closing then says to add it as "Other condition (not
+# listed)", which asks for the doctor's clearance. Before: "i have gout can i exercise" was the how-to answer,
+# "dementia", "migraine", "carpal tunnel" were not recognised, "frozen shoulder" was the shoulder exercise.
+UNLISTED_CONDITIONS = {
+    "GOUT": (["gout", "gaut", "uric acid", "asid urik"],
+             "With gout, regular gentle exercise and drinking enough water help between attacks. During an attack "
+             "(a hot, swollen, very painful joint), rest that joint and see your doctor; exercise the rest of your "
+             "body only if it does not hurt."),
+    "DEMENTIA": (["dementia", "alzheimer", "alzheimers", "alzheimer's", "nyanyuk", "demensia"],
+                 "With dementia, regular exercise helps strength, balance and mood. Exercise at the same time each "
+                 "day with a family member or carer close by, keep to simple steps in a clear, safe space, and stop "
+                 "if you feel confused, unsteady or upset."),
+    "EPILEPSY": (["epilepsy", "epileptic", "penyakit sawan", "seizure", "seizures"],
+                 "With epilepsy, exercise is usually safe and good for you when your seizures are controlled. Take "
+                 "your medicines as usual, drink water, avoid getting overtired, and have someone nearby when you "
+                 "exercise, especially if your seizures are not well controlled."),
+    "HERNIA": (["hernia", "burut"],
+               "With a hernia, avoid straining, holding your breath and heavy lifting, and stop if the bulge gets "
+               "bigger or hurts. Ask your doctor which exercises are safe; after hernia surgery, follow your "
+               "surgeon's advice on when to start. A hernia that becomes hard, very painful or comes with vomiting "
+               "needs a doctor at once."),
+    "SCOLIOSIS": (["scoliosis", "curved spine", "spine is curved"],
+                  "With scoliosis, gentle strengthening and stretching are usually fine and can ease stiffness. "
+                  "Keep movements smooth, stop if one side starts to hurt, and a physiotherapist can show you "
+                  "exercises that suit your curve."),
+    "PLANTAR_FASCIITIS": (["plantar fasciitis", "plantar fascitis", "heel spur", "heel spurs"],
+                          "With plantar fasciitis (heel pain), wear supportive shoes rather than going barefoot, and "
+                          "gentle calf and foot stretches help. Go easy on standing exercises such as heel raises if "
+                          "they make the heel pain worse."),
+    "FROZEN_SHOULDER": (["frozen shoulder", "adhesive capsulitis", "bahu beku"],
+                        "With a frozen shoulder, gentle movement within a comfortable range helps it loosen over "
+                        "time. Do not force the arm past where it stops or bounce at the end: a pulling feeling is "
+                        "fine, sharp pain is not."),
+    "CARPAL_TUNNEL": (["carpal tunnel"],
+                      "With carpal tunnel syndrome, keep your wrist straight, avoid gripping hard or bending the "
+                      "wrist for long, and stop if the numbness or tingling in your fingers gets worse. Gentle hand "
+                      "exercises are usually fine."),
+    "TENNIS_ELBOW": (["tennis elbow", "golfer's elbow", "golfers elbow", "golfer elbow"],
+                     "With tennis elbow, avoid gripping and lifting with your palm facing down for now, and stop any "
+                     "exercise that brings on the elbow pain. It usually settles over a few weeks; a "
+                     "physiotherapist can give you exercises for it."),
+    "LUPUS": (["lupus"],
+              "With lupus, regular gentle exercise helps with tiredness and stiff joints. Pace yourself, rest on "
+              "flare days, and protect your skin from the sun if you exercise outdoors."),
+    "FIBROMYALGIA": (["fibromyalgia"],
+                     "With fibromyalgia, gentle exercise built up slowly is one of the best ways to ease pain and "
+                     "tiredness. Start with less than you think you can do, add a little each week, and expect some "
+                     "muscle ache at first."),
+    "OBESITY": (["obesity", "obese", "overweight", "berat badan berlebihan"],
+                "Being overweight is no reason not to start: these exercises are gentle on the joints, and you can "
+                "do many of them sitting. Build up slowly; for weight loss, the food advice in the Diet section "
+                "helps most."),
+    "ANAEMIA": (["anaemia", "anemia", "anaemic", "anemic", "low haemoglobin", "low hemoglobin", "kurang darah"],
+                "With anaemia you may tire and get out of breath sooner. Go slowly, rest between sets, and stop if "
+                "you feel dizzy, faint or short of breath. Treating the anaemia usually makes exercise easier."),
+    "THYROID": (["thyroid", "hypothyroid", "hyperthyroid", "hypothyroidism", "hyperthyroidism", "tiroid", "goitre",
+                 "goiter"],
+                "With a thyroid problem that is treated and stable, exercise is usually fine. If your thyroid is "
+                "overactive and not yet controlled (a racing heart, shaking, losing weight), ask your doctor before "
+                "exercising."),
+    "MIGRAINE": (["migraine", "migraines", "migrain"],
+                 "With migraines, do not exercise during an attack. Between attacks, regular gentle exercise, "
+                 "drinking enough water and not skipping meals can help; stop if exercise brings one on. A sudden, "
+                 "severe headache unlike your usual ones needs 999."),
+    "EYE_CONDITION": (["glaucoma", "glaukoma", "cataract", "cataracts", "katarak", "macular degeneration"],
+                      "With an eye condition, exercise in a clear, well-lit space with a support nearby. With "
+                      "glaucoma, avoid positions with your head lower than your heart; after eye surgery, ask your "
+                      "eye doctor when you may bend and exercise again."),
+    "VARICOSE_VEINS": (["varicose veins", "varicose vein", "urat timbul"],
+                       "With varicose veins, walking and ankle and calf exercises help the blood flow in your legs; "
+                       "raise your legs when you rest. A calf that is suddenly swollen, red, warm and painful needs a "
+                       "doctor the same day."),
+    "DVT": (["dvt", "deep vein thrombosis", "blood clot", "blood clots", "pembekuan darah"],
+            "After a blood clot (DVT), follow your doctor's advice; once treatment has started, walking is usually "
+            "encouraged. On blood thinners you bruise and bleed more easily, so take care not to fall. Sudden "
+            "breathlessness or chest pain needs 999."),
+    "SPINE_DISC": (["spinal stenosis", "stenosis", "herniated disc", "slipped disc", "prolapsed disc", "bulging disc",
+                    "disc bulge", "degenerative disc", "spondylosis", "spondylolisthesis", "disc problem",
+                    "cakera tergelincir"],
+                   "With a disc problem or narrowing in the spine, gentle movement and strengthening usually help "
+                   "more than rest. Avoid bending and lifting at the same time, stop if pain spreads down a leg or "
+                   "numbness gets worse, and get help at once if you lose control of your bladder or bowels or your "
+                   "legs become weak."),
+    "ANKYLOSING_SPONDYLITIS": (["ankylosing spondylitis"],
+                               "With ankylosing spondylitis, daily stretching and movement are an important part of "
+                               "treatment and ease morning stiffness. Move smoothly within a comfortable range and "
+                               "build up gradually."),
+    "TENDON": (["bursitis", "tendinitis", "tendonitis", "trigger finger", "de quervain", "de quervain's"],
+               "With an irritated tendon or bursa, rest from the movement that brings on the pain for a while, then "
+               "build up gently. Mild discomfort that settles quickly is fine; sharp or worsening pain means stop."),
+    "NEUROPATHY": (["neuropathy", "peripheral neuropathy", "nerve damage in my feet", "nerve damage in my legs"],
+                   "With neuropathy (numb or tingling feet), check your feet every day, wear well-fitting shoes, and "
+                   "keep a support within reach because balance can be harder. Sudden new numbness or weakness needs "
+                   "999."),
+    "FOOT_SHAPE": (["bunion", "bunions", "flat feet", "flat foot", "kaki leper"],
+                   "With bunions or flat feet, wear wide, supportive shoes for standing exercises, or do them "
+                   "barefoot on a non-slip floor if that is more comfortable. Stop if your foot hurts more "
+                   "afterwards."),
+    "MENOPAUSE": (["menopause", "menopausal", "hot flushes", "hot flashes", "monopaus", "putus haid"],
+                  "Around the menopause, strength and standing exercises help protect your bones and lift your "
+                  "mood. Exercise in a cool place and drink water if you get hot flushes."),
+    "CHOLESTEROL": (["cholesterol", "high cholesterol", "kolesterol", "kolesterol tinggi"],
+                    "With high cholesterol, regular exercise like your plan helps, together with the food advice in "
+                    "the Diet section. If you also have heart disease, keep to the intensity in your plan."),
+    "FATTY_LIVER": (["fatty liver", "hati berlemak"],
+                    "With fatty liver, regular exercise and healthy eating are the main treatment: these exercises "
+                    "help, and the Diet section has food advice."),
+    "SLEEP_APNOEA": (["sleep apnea", "sleep apnoea", "cpap"],
+                     "With sleep apnoea, regular exercise helps your sleep and energy. Use your breathing machine at "
+                     "night as prescribed, and go gently on days you feel very sleepy."),
+    "NERVE_MUSCLE": (["cerebral palsy", "polio", "muscular dystrophy", "myasthenia", "guillain barre",
+                      "guillain-barre", "spinal cord injury"],
+                     "With a long-term nerve or muscle condition, exercises chosen with your physiotherapist suit "
+                     "you best. Use a support, rest between sets, and stop if you feel unsteady or much more tired "
+                     "than usual."),
+}
+# Heart and lung conditions the profile lists under another name.
+LISTED_NAMES = {"HEART_DISEASE": ["heart failure", "angina", "atrial fibrillation", "afib", "heart bypass",
+                                  "bypass surgery", "lemah jantung", "jantung lemah", "heart valve", "valve problem"],
+                "ASTHMA": ["asma"]}
+CONDITION_CLOSING_OTHER = ("This condition is not on the health profile's list: add it as \u201cOther condition "
+                           "(not listed)\u201d in your profile, and ask your doctor whether your plan suits you "
+                           "before you start.")
+
+
 # 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
+    "condition_advice": [w for words, _ in UNLISTED_CONDITIONS.values() for w in words]
+                        + [w for words in LISTED_NAMES.values() for w in words],
+    "neck_not_covered": ["whiplash"],
     "hot_weather": ["temperature outside", "outside temperature", "degrees outside", "hot outside", "hot today"],
     "how_often": ["times a day", "times per day", "days a week", "days per week", "minutes a day",
                   "minutes per day", "minutes enough", "enough minutes"],
@@ -1447,6 +1576,12 @@ RISK_NOTES = {
 }
 
 RED_FLAGS = [
+    # 3.75 (conditions test): a seizure or fit happening now ("she is having a fit" was not recognised, "my
+    # father had a seizure just now" the answer for a family member). Not "seizures" alone: "my seizures are
+    # controlled" is epilepsy advice; "had a seizure last year" is past (engine.HISTORY_EVENTS).
+    "having a seizure", "had a seizure", "has a seizure", "is seizing", "seizure now", "seizure just now",
+    "having a fit", "had a fit", "having fits", "fitting now", "convulsion", "convulsions", "convulsing",
+    "kena sawan", "dia sawan", "sedang sawan", "tengah sawan",
     "chest pain", "chest pains", "chest tightness", "tight chest", "pain in my chest", "heart attack",
     "can't breathe", "cannot breathe", "cant breathe", "can't breath", "cant breath", "cannot breath",
     "hard to breathe", "difficulty breathing", "struggling to breathe", "breathless", "short of breath",
@@ -1606,6 +1741,10 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
+    # 3.75: a blood clot with swelling, pain or breathlessness now ("i have a blood clot in my leg, it is
+    # swollen and painful" was the swelling answer).
+    [["blood clot", "clot", "dvt", "thrombosis"], ["swollen", "swelling", "bengkak", "painful", "calf pain",
+                                                   "leg pain", "breathless", "short of breath", "chest pain"], 6],
     # Laptop pass 11: swelling of the lips, tongue, face or throat (allergic reaction).
     [["lips", "lip", "tongue", "face", "throat", "eyelids", "bibir"],
      ["swelling", "swollen", "swell", "swells", "puffy", "closing"], 3, ["knee", "ankle", "joint"]],
@@ -1847,6 +1986,7 @@ CONDITION_DETAIL = {
 }
 CONDITION_CLOSING = ("Your plan was chosen within the safety limits set from your health profile, so follow it "
                      "as set and check with your doctor before doing more.")
+
 
 # Food and drink answers get diet notes for the patient's conditions (not exercise reminders).
 DIET_NOTES = {
@@ -2101,8 +2241,13 @@ def build() -> dict:
         "late_night_note": LATE_NIGHT_NOTE,
         "time_notes": TIME_NOTES,
         "now_notes": NOW_NOTES,
-        "condition_detail": {k: layout(v) for k, v in CONDITION_DETAIL.items()},
+        "condition_detail": {k: layout(v) for k, v in CONDITION_DETAIL.items()}
+        | {k: layout(text) for k, (_, text) in UNLISTED_CONDITIONS.items()},
         "condition_closing": CONDITION_CLOSING,
+        "condition_closing_other": CONDITION_CLOSING_OTHER,
+        "unlisted_conditions": sorted(UNLISTED_CONDITIONS),
+        "condition_words": {**{w: code for code, (words, _) in UNLISTED_CONDITIONS.items() for w in words},
+                            **{w: code for code, words in LISTED_NAMES.items() for w in words}},
         "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
         "crisis": CRISIS,

@@ -1,0 +1,19 @@
+{
+ "rules_version": "chat-rules-3.75",
+ "seed": 2,
+ "messages": 2000,
+ "passed": 2000,
+ "rate": 1.0,
+ "by_kind": {
+  "mine": {
+   "passed": 1591,
+   "messages": 1591
+  },
+  "theirs": {
+   "passed": 409,
+   "messages": 409
+  }
+ },
+ "misses": [],
+ "seconds": 45
+}

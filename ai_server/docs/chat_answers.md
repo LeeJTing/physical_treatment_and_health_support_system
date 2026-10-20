@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.71)
+# Chatbot answers (chat-rules-3.75)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -20,6 +20,17 @@ I am really sorry you are feeling this way, and I am glad you said it. You are n
 2) Talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or Talian HEAL 15555 (8 am to midnight daily).
 3) Please also tell a family member or your doctor how you feel.
 I am only an exercise assistant, but these people can help you.
+```
+
+## You are not alone, told of someone else
+*my mother keeps saying she wants to die*
+
+```
+I am sorry you are going through this. Talk of dying or self-harm needs help today.
+1) If they are in danger now or might act on these thoughts, call 999 or take them to the nearest emergency department. Stay with them.
+2) Talk to someone now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or Talian HEAL 15555 (8 am to midnight daily). You can call for them or with them.
+3) Keep medicines and anything they could hurt themselves with out of reach, and tell their doctor.
+I am only an exercise assistant, but these people can help.
 ```
 
 ## Too many pills
@@ -69,6 +80,31 @@ Question not recognised: "kdjsb" looks like it may have been typed by accident. 
 
 ```
 What would you like to know about your knee? For example: "my knee hurts", "exercises for my knee" or "is it safe to exercise my knee?". You can also pick a topic below.
+```
+
+## What a word means
+*what does flexion mean*
+
+```
+Flexion means bending a joint, or lifting a limb forward. Elbow flexion bends your elbow; shoulder flexion lifts your arm forward and up.
+```
+
+## A pain score
+*pain 8/10*
+
+```
+Stop the exercise that causes it and rest.
+Do not push through sharp or worsening pain.
+If it does not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist before you continue with that exercise.
+```
+
+## A low oxygen reading
+*spo2 90*
+
+```
+Stop exercising now.
+1) Chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling: call 999 or go to the nearest emergency department.
+2) Other new pain, dizziness or a fall: sit down, rest, and contact your doctor before exercising again.
 ```
 
 ## A reminder to log your health readings  (`health_log_reminder`)
@@ -180,6 +216,17 @@ If you have an allergy, tell your doctor before starting your exercises, and kee
 
 ```
 “Body swing” in your posture result means you rocked your body back to help lift. Keep your body still; do not rock back to lift.
+```
+
+## Calories and steps  (`calories`)
+*how many calories did I burn*
+
+```
+The app does not count the calories you burn or your steps; your phone's step counter or a smartwatch can.
+1) These exercises build strength, balance and movement, and burn only a little energy.
+2) For food, Home shows your daily limits for calories, salt and sugar, worked out from your profile, and the Diet section has food advice.
+3) To lose weight, ask your doctor what suits you.
+4) Walking most days is good for you: start with what feels comfortable and add a little each week.
 ```
 
 ## Changing your password  (`change_password`)
@@ -318,7 +365,12 @@ Exercise next to a sturdy chair or counter, on a dry non-slip floor, and breathe
 *I have diabetes, is there anything special I should do*
 
 ```
-Your plan was chosen within the safety limits for the conditions in your health profile, so you can follow it as set. Stop and rest if anything feels wrong, and check with your doctor before doing more than the plan.
+With diabetes, exercise helps control your blood sugar.
+1) If you take insulin or tablets that can cause low sugar, check your level before you start and have a small snack if it is low.
+2) Keep glucose sweets nearby, and stop if you feel shaky, sweaty or confused.
+3) Check your feet afterwards.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
 ```
 
 ## Feeling low  (`low_mood`)
@@ -510,7 +562,7 @@ HealthGuide has five tabs.
 ```
 
 ## How to do Bird Dog  (`exercise:bird_dog`)
-*how do I do the bird dog*
+*how do I do Bird Dog*
 
 ```
 Bird Dog
@@ -522,7 +574,7 @@ Recording: side view, phone on the floor about 2 m away, whole body in frame.
 ```
 
 ## How to do Elbow Flexion  (`exercise:elbow_flexion`)
-*how do I do the elbow flexion*
+*how do I do Elbow Flexion*
 
 ```
 Elbow Flexion
@@ -535,7 +587,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Glute Bridge  (`exercise:glute_bridge`)
-*how do I do the glute bridge*
+*how do I do Glute Bridge*
 
 ```
 Glute Bridge
@@ -547,7 +599,7 @@ Recording: side view, phone on the floor about 2 m away, whole body in frame.
 ```
 
 ## How to do Hand Open and Close  (`exercise:hand_open_close`)
-*how do I do the hand open and close*
+*how do I do Hand Open and Close*
 
 ```
 Hand Open and Close
@@ -559,7 +611,7 @@ Recording: facing you at table height, your hands in the picture.
 ```
 
 ## How to do Heel Raise  (`exercise:heel_raise`)
-*how do I do the heel raise*
+*how do I do Heel Raise*
 
 ```
 Heel Raise
@@ -571,7 +623,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do March in Place  (`exercise:march_in_place`)
-*how do I do the march in place*
+*how do I do March in Place*
 
 ```
 March in Place
@@ -582,7 +634,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Mini Squat  (`exercise:mini_squat`)
-*how do I do the mini squat*
+*how do I do Mini Squat*
 
 ```
 Mini Squat
@@ -594,7 +646,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Seated Knee Extension  (`exercise:knee_extension`)
-*how do I do the knee extension*
+*how do I do Seated Knee Extension*
 
 ```
 Seated Knee Extension
@@ -607,7 +659,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Seated Marching  (`exercise:seated_marching`)
-*how do I do the seated marching*
+*how do I do Seated Marching*
 
 ```
 Seated Marching
@@ -619,7 +671,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Shoulder Abduction  (`exercise:shoulder_abduction`)
-*how do I do the shoulder abduction*
+*how do I do Shoulder Abduction*
 
 ```
 Shoulder Abduction
@@ -631,7 +683,7 @@ Recording: facing you, whole body in frame.
 ```
 
 ## How to do Shoulder Flexion  (`exercise:shoulder_flexion`)
-*how do I do the shoulder flexion*
+*how do I do Shoulder Flexion*
 
 ```
 Shoulder Flexion
@@ -643,7 +695,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Sit-to-Stand  (`exercise:sit_to_stand`)
-*how do I do the sit to stand*
+*how do I do Sit-to-Stand*
 
 ```
 Sit-to-Stand
@@ -655,7 +707,7 @@ Recording: side view, whole body in frame.
 ```
 
 ## How to do Standing Hip Abduction  (`exercise:hip_abduction`)
-*how do I do the hip abduction*
+*how do I do Standing Hip Abduction*
 
 ```
 Standing Hip Abduction
@@ -668,7 +720,7 @@ Recording: facing you, whole body in frame.
 ```
 
 ## How to do Step-Up  (`exercise:step_up`)
-*how do I do the step up*
+*how do I do Step-Up*
 
 ```
 Step-Up
@@ -681,7 +733,7 @@ Recording: side view, whole body and the step in frame.
 ```
 
 ## How to do Tandem Stance  (`exercise:tandem_stance`)
-*how do I do the tandem stance*
+*how do I do Tandem Stance*
 
 ```
 Tandem Stance
@@ -694,7 +746,7 @@ Recording: facing you, whole body in frame.
 ```
 
 ## How to do Wall Push-Up  (`exercise:wall_push_up`)
-*how do I do the wall push up*
+*how do I do Wall Push-Up*
 
 ```
 Wall Push-Up
@@ -706,7 +758,7 @@ Recording: side view, whole body in frame, wall at one edge of the picture.
 ```
 
 ## How to do Wrist Extension  (`exercise:wrist_extension`)
-*how do I do the wrist extension*
+*how do I do Wrist Extension*
 
 ```
 Wrist Extension
@@ -847,13 +899,6 @@ Tap Exit at the top of the recording, analysing or result screen to stop the exe
 
 ```
 “Low range” in your posture result means the movement did not go as far as the exercise asks. Move a little further each time, as far as is comfortable; the exercise steps say how far.
-```
-
-## Medicine or medical help  (`med_help`)
-*Medicine or medical help*
-
-```
-Do you mean your medicine, or do you need medical help? If someone needs urgent help now, call 999. For questions about medicines, please ask your doctor or pharmacist: I cannot give advice about medicines.
 ```
 
 ## Medicines  (`medication`)
@@ -1072,13 +1117,6 @@ Stop exercising that joint and rest it, raised if you can.
 “Swinging” in your posture result means you swung your arms up quickly instead of lifting slowly. Lift slowly and pause at the top instead of swinging.
 ```
 
-## Tell me a bit more  (`clarify`)
-*Tell me a bit more*
-
-```
-Could you tell me a bit more about what you mean? For example: "how do I do the heel raise?", "why is my posture score low?" or "is it safe to exercise with knee pain?". You can also pick a topic below.
-```
-
 ## Terms of Use  (`terms_help`)
 *where can I read the terms*
 
@@ -1293,6 +1331,16 @@ Legs, arms or hands that feel weak, wobbly or shaky are common after a long peri
 3) If your hand shakes even when it is resting, tell your doctor.
 ```
 
+## Well done  (`session_done`)
+*I finished my exercise*
+
+```
+Well done for finishing your exercise!
+1) Your posture score and tips are saved in Session history.
+2) Rest, drink some water, and notice how you feel: mild muscle soreness the next day is normal.
+3) Each plan gives you one exercise a day: the next one comes tomorrow, and your reminder will tell you when.
+```
+
 ## What is in my plan  (`plan_exercises`)
 *what exercises are in my plan*
 
@@ -1385,6 +1433,18 @@ Your risk level and safety limits are worked out from it, and your treatment pla
 Tap the button below, then Edit, to change anything; keep it up to date so your advice stays safe.
 ```
 
+## Your health readings  (`health_readings`)
+*what is a normal heart rate*
+
+```
+I cannot check your readings, but these are the usual guides when you are resting.
+1) Pulse (heart rate): 60 to 100 beats a minute; it rises while you exercise and should settle within a few minutes of rest.
+2) Oxygen (SpO2): 95 to 100%; 92% or lower needs a doctor today, and with trouble breathing, call 999.
+3) Temperature: 38 °C or higher is a fever; skip exercise and rest until it is gone.
+4) Blood pressure: do not exercise when it is 180/110 or higher; follow your doctor's target.
+5) Stop exercising if your heart races, beats unevenly or stays fast after resting; with chest pain or fainting, call 999.
+```
+
 ## Your past results  (`history_help`)
 *where can I see my past results*
 
@@ -1426,4 +1486,459 @@ The posture check first makes sure the video shows the exercise you chose.
 1) When it says the video does not look like that exercise, nothing is saved and the reason in brackets says what looked different, for example “your arm went backwards, not forwards”.
 2) Check that you picked the exercise you recorded, then record it again following its steps, with the phone where the exercise says (in front of you or at your side) and your whole body in the picture.
 3) If you are sure it was the right exercise, try again with slower, clearer movements.
+```
+
+# Health conditions
+
+The condition advice for each condition named in a question (asked as "i have ... can i exercise").
+
+## Anaemia  (`ANAEMIA`)
+*i have anaemia can i exercise*
+
+```
+With anaemia you may tire and get out of breath sooner. Go slowly, rest between sets, and stop if you feel dizzy, faint or short of breath. Treating the anaemia usually makes exercise easier.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Ankylosing Spondylitis  (`ANKYLOSING_SPONDYLITIS`)
+*i have ankylosing spondylitis can i exercise*
+
+```
+With ankylosing spondylitis, daily stretching and movement are an important part of treatment and ease morning stiffness. Move smoothly within a comfortable range and build up gradually.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Arthritis  (`ARTHRITIS`)
+*i have arthritis can i exercise*
+
+```
+With arthritis, moving keeps your joints flexible and the muscles around them strong.
+1) Some discomfort is fine if it settles within about two hours; if it lasts longer, do fewer repetitions next time.
+2) Rest a joint that is hot and swollen during a flare.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Asthma  (`ASTHMA`)
+*i have asthma can i exercise*
+
+```
+With asthma, warm up gradually and keep your reliever inhaler within reach; use it before exercising if your doctor has told you to.
+Stop if you start wheezing or your chest feels tight, and avoid exercising in cold air or when your asthma is not well controlled.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Cancer  (`CANCER`)
+*i have cancer can i exercise*
+
+```
+During and after cancer treatment, staying active helps with tiredness and strength, but follow your doctor's advice first, especially during treatment.
+Go gently on tired days, and stop and tell your doctor if you have new bone pain, a fever, or feel unusually tired or breathless.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Carpal Tunnel  (`CARPAL_TUNNEL`)
+*i have carpal tunnel can i exercise*
+
+```
+With carpal tunnel syndrome, keep your wrist straight, avoid gripping hard or bending the wrist for long, and stop if the numbness or tingling in your fingers gets worse. Gentle hand exercises are usually fine.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Cholesterol  (`CHOLESTEROL`)
+*i have high cholesterol, can i exercise*
+
+```
+With high cholesterol, regular exercise like your plan helps, together with the food advice in the Diet section. If you also have heart disease, keep to the intensity in your plan.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Copd  (`COPD`)
+*i have copd can i exercise*
+
+```
+With chronic lung disease, exercise improves your breathing and strength.
+1) Go at a pace where you can still speak, breathe out slowly through pursed lips, and rest between sets.
+2) Stop and contact your doctor if you are much more breathless than usual, cough up blood or have chest pain.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Dementia  (`DEMENTIA`)
+*i have dementia can i exercise*
+
+```
+With dementia, regular exercise helps strength, balance and mood.
+Exercise at the same time each day with a family member or carer close by, keep to simple steps in a clear, safe space, and stop if you feel confused, unsteady or upset.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Diabetes  (`DIABETES`)
+*i have diabetes can i exercise*
+
+```
+With diabetes, exercise helps control your blood sugar.
+1) If you take insulin or tablets that can cause low sugar, check your level before you start and have a small snack if it is low.
+2) Keep glucose sweets nearby, and stop if you feel shaky, sweaty or confused.
+3) Check your feet afterwards.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Dvt  (`DVT`)
+*i have dvt can i exercise*
+
+```
+After a blood clot (DVT), follow your doctor's advice; once treatment has started, walking is usually encouraged.
+1) On blood thinners you bruise and bleed more easily, so take care not to fall.
+2) Sudden breathlessness or chest pain needs 999.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Epilepsy  (`EPILEPSY`)
+*i have epilepsy can i exercise*
+
+```
+With epilepsy, exercise is usually safe and good for you when your seizures are controlled.
+Take your medicines as usual, drink water, avoid getting overtired, and have someone nearby when you exercise, especially if your seizures are not well controlled.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Eye Condition  (`EYE_CONDITION`)
+*i have glaucoma can i exercise*
+
+```
+With an eye condition, exercise in a clear, well-lit space with a support nearby.
+With glaucoma, avoid positions with your head lower than your heart; after eye surgery, ask your eye doctor when you may bend and exercise again.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Fatty Liver  (`FATTY_LIVER`)
+*i have fatty liver can i exercise*
+
+```
+With fatty liver, regular exercise and healthy eating are the main treatment: these exercises help, and the Diet section has food advice.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Fibromyalgia  (`FIBROMYALGIA`)
+*i have fibromyalgia can i exercise*
+
+```
+With fibromyalgia, gentle exercise built up slowly is one of the best ways to ease pain and tiredness. Start with less than you think you can do, add a little each week, and expect some muscle ache at first.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Foot Shape  (`FOOT_SHAPE`)
+*i have bunion can i exercise*
+
+```
+With bunions or flat feet, wear wide, supportive shoes for standing exercises, or do them barefoot on a non-slip floor if that is more comfortable. Stop if your foot hurts more afterwards.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Foot Ulcer  (`FOOT_ULCER`)
+*i have foot ulcer can i exercise*
+
+```
+With a foot ulcer or an open wound on the foot, do not put weight on it:
+Do your exercises sitting or lying until it has healed, check your feet every day, and see your doctor if the wound gets bigger, red, hot or smelly.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Frozen Shoulder  (`FROZEN_SHOULDER`)
+*i have frozen shoulder can i exercise*
+
+```
+With a frozen shoulder, gentle movement within a comfortable range helps it loosen over time. Do not force the arm past where it stops or bounce at the end: a pulling feeling is fine, sharp pain is not.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Gout  (`GOUT`)
+*i have gout can i exercise*
+
+```
+With gout, regular gentle exercise and drinking enough water help between attacks.
+During an attack (a hot, swollen, very painful joint), rest that joint and see your doctor; exercise the rest of your body only if it does not hurt.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Heart Disease  (`HEART_DISEASE`)
+*i have heart disease can i exercise*
+
+```
+With heart disease, keep to the intensity in your plan: you should still be able to talk while exercising.
+1) Warm up and cool down for about five minutes.
+2) Stop at once if you get chest discomfort, unusual breathlessness, dizziness or a racing heartbeat, and call 999 if it does not settle with rest.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Hernia  (`HERNIA`)
+*i have hernia can i exercise*
+
+```
+With a hernia, avoid straining, holding your breath and heavy lifting, and stop if the bulge gets bigger or hurts.
+1) Ask your doctor which exercises are safe; after hernia surgery, follow your surgeon's advice on when to start.
+2) A hernia that becomes hard, very painful or comes with vomiting needs a doctor at once.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Hypertension  (`HYPERTENSION`)
+*i have high blood pressure can i exercise*
+
+```
+With high blood pressure, regular gentle exercise like your plan can help lower it over time.
+1) Breathe out as you lift and never hold your breath or strain.
+2) If a home reading is 180/110 or higher, do not exercise that day: rest and contact your doctor.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Injury  (`INJURY`)
+*i have a cast on my arm, can i exercise*
+
+```
+With a recent fracture, sprain or a cast, do not exercise the injured part until your doctor or physiotherapist says it is ready.
+Exercises that do not use it are usually fine, but check with them first, and stop if the injured area hurts or swells.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Joint Replacement  (`JOINT_REPLACEMENT`)
+*i had a knee replacement, can i exercise*
+
+```
+After a hip or knee replacement, your surgeon's and physiotherapist's exercises and precautions come first: they decide how far you may bend and when you may do more.
+1) After a new hip, avoid bending it past 90 degrees (a right angle), crossing your legs and twisting, and keep the leg facing forward, until they say it is safe.
+2) Ask them before starting this plan, and stop if the wound becomes red, hot, swollen or more painful, or you get calf pain or a fever.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Kidney Disease  (`KIDNEY_DISEASE`)
+*i have kidney disease can i exercise*
+
+```
+With chronic kidney disease, regular moderate exercise is recommended as you can manage it.
+1) Keep to a comfortable effort, drink as your kidney team advises, and on dialysis days ask them when it is best to exercise.
+2) Stop if you feel dizzy, breathless or have chest pain.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Lupus  (`LUPUS`)
+*i have lupus can i exercise*
+
+```
+With lupus, regular gentle exercise helps with tiredness and stiff joints. Pace yourself, rest on flare days, and protect your skin from the sun if you exercise outdoors.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Menopause  (`MENOPAUSE`)
+*i have menopause can i exercise*
+
+```
+Around the menopause, strength and standing exercises help protect your bones and lift your mood. Exercise in a cool place and drink water if you get hot flushes.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Migraine  (`MIGRAINE`)
+*i have migraine can i exercise*
+
+```
+With migraines, do not exercise during an attack.
+1) Between attacks, regular gentle exercise, drinking enough water and not skipping meals can help; stop if exercise brings one on.
+2) A sudden, severe headache unlike your usual ones needs 999.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Multiple Sclerosis  (`MULTIPLE_SCLEROSIS`)
+*i have multiple sclerosis can i exercise*
+
+```
+With multiple sclerosis, strength exercises help, but heat can make symptoms worse for a while.
+1) Keep cool with a fan, cool water and a cool room, rest between sets, and stop if symptoms get worse; they usually settle once you cool down.
+2) During a relapse, rest and ask your doctor before starting again.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Nerve Muscle  (`NERVE_MUSCLE`)
+*i have cerebral palsy can i exercise*
+
+```
+With a long-term nerve or muscle condition, exercises chosen with your physiotherapist suit you best. Use a support, rest between sets, and stop if you feel unsteady or much more tired than usual.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Neuropathy  (`NEUROPATHY`)
+*i have neuropathy can i exercise*
+
+```
+With neuropathy (numb or tingling feet), check your feet every day, wear well-fitting shoes, and keep a support within reach because balance can be harder. Sudden new numbness or weakness needs 999.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Obesity  (`OBESITY`)
+*i have obesity can i exercise*
+
+```
+Being overweight is no reason not to start: these exercises are gentle on the joints, and you can do many of them sitting. Build up slowly; for weight loss, the food advice in the Diet section helps most.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Osteoporosis  (`OSTEOPOROSIS`)
+*i have osteoporosis can i exercise*
+
+```
+With osteoporosis, strengthening and standing exercises help your bones. Avoid bending forward from the waist, twisting and jerky movements, and keep a support within reach to prevent falls.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Parkinsons  (`PARKINSONS`)
+*i have parkinson can i exercise*
+
+```
+With Parkinson's disease, strength and balance exercises help you move more easily and confidently.
+Exercise next to a sturdy support, take your time when standing up and turning, and stop if you feel unsteady or about to fall.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Plantar Fasciitis  (`PLANTAR_FASCIITIS`)
+*i have plantar fasciitis can i exercise*
+
+```
+With plantar fasciitis (heel pain), wear supportive shoes rather than going barefoot, and gentle calf and foot stretches help. Go easy on standing exercises such as heel raises if they make the heel pain worse.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Pregnancy  (`PREGNANCY`)
+*i am pregnant, can i exercise*
+
+```
+During pregnancy, gentle exercise is usually safe and helpful when the pregnancy is going well, but check with your doctor or midwife first.
+1) After the first three months avoid lying flat on your back for long (as in the glute bridge), exercise on a firm, non-slip surface with a support nearby for balance, drink water and do not overheat.
+2) Stop and contact your doctor if you have bleeding, dizziness, chest pain, calf pain or swelling, contractions or leaking fluid.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Rheumatoid Arthritis  (`RHEUMATOID_ARTHRITIS`)
+*i have rheumatoid arthritis, can i exercise*
+
+```
+With rheumatoid arthritis, regular exercise is part of standard care: it keeps your joints moving and the muscles around them strong.
+Move within a comfortable range; during a flare, rest hot, swollen joints, do fewer repetitions and build up again as it settles.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Scoliosis  (`SCOLIOSIS`)
+*i have scoliosis can i exercise*
+
+```
+With scoliosis, gentle strengthening and stretching are usually fine and can ease stiffness. Keep movements smooth, stop if one side starts to hurt, and a physiotherapist can show you exercises that suit your curve.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Sleep Apnoea  (`SLEEP_APNOEA`)
+*i have sleep apnea can i exercise*
+
+```
+With sleep apnoea, regular exercise helps your sleep and energy. Use your breathing machine at night as prescribed, and go gently on days you feel very sleepy.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Spine Disc  (`SPINE_DISC`)
+*i have spinal stenosis can i exercise*
+
+```
+With a disc problem or narrowing in the spine, gentle movement and strengthening usually help more than rest.
+Avoid bending and lifting at the same time, stop if pain spreads down a leg or numbness gets worse, and get help at once if you lose control of your bladder or bowels or your legs become weak.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Stroke  (`STROKE`)
+*i have stroke can i exercise*
+
+```
+After a stroke, these exercises help you regain strength and balance.
+Do them next to a sturdy support, go slowly on your weaker side, and stop and call 999 if you notice new weakness, numbness, a drooping face or slurred speech.
+
+Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Surgery Wound  (`SURGERY_WOUND`)
+*my surgery wound is oozing, can i exercise*
+
+```
+Stop exercising now.
+1) Chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling: call 999 or go to the nearest emergency department.
+2) Other new pain, dizziness or a fall: sit down, rest, and contact your doctor before exercising again.
+```
+
+## Tendon  (`TENDON`)
+*i have bursitis can i exercise*
+
+```
+With an irritated tendon or bursa, rest from the movement that brings on the pain for a while, then build up gently. Mild discomfort that settles quickly is fine; sharp or worsening pain means stop.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Tennis Elbow  (`TENNIS_ELBOW`)
+*i have tennis elbow can i exercise*
+
+```
+With tennis elbow, avoid gripping and lifting with your palm facing down for now, and stop any exercise that brings on the elbow pain. It usually settles over a few weeks; a physiotherapist can give you exercises for it.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Thyroid  (`THYROID`)
+*i have a thyroid problem, can i exercise*
+
+```
+With a thyroid problem that is treated and stable, exercise is usually fine. If your thyroid is overactive and not yet controlled (a racing heart, shaking, losing weight), ask your doctor before exercising.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
+```
+
+## Varicose Veins  (`VARICOSE_VEINS`)
+*i have varicose veins can i exercise*
+
+```
+With varicose veins, walking and ankle and calf exercises help the blood flow in your legs; raise your legs when you rest. A calf that is suddenly swollen, red, warm and painful needs a doctor the same day.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
 ```

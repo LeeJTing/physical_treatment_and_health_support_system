@@ -139,6 +139,7 @@ SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", 
                      "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video"}
 # Malay as it is texted (3.59, the random typing test: "sya jatuh semalam", "xleh bangun", "jatuh td").
 SHORT_WORDS_TYPED.update({
+    "cot": "cost",                                   # 3.75: not "clot" (a blood clot is a condition now)
     "sya": "saya", "sy": "saya", "saa": "saya", "tk": "tak", "xleh": "tak boleh", "xblh": "tak boleh",
     "xboleh": "tak boleh", "xbole": "tak boleh", "xde": "tak ada", "xda": "tak ada", "xada": "tak ada",
     "xpe": "tak apa", "xpa": "tak apa", "xnak": "tak nak", "dgn": "dengan", "utk": "untuk", "yg": "yang",
@@ -907,6 +908,10 @@ def _combo_negated(words: list[str], i: int) -> bool:
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
+ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could it be", "do i have", "might be",
+                        "maybe", "how do i know", "what is wrong", "should i see"]
+DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
+                  "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
 PREFER = [# 3.74: "how many calories did i burn" is not burning pain; "hot temperature outside" is the weather.
           ("calories", "pain_or_discomfort"), ("calories", "equipment"),
           ("hot_weather", "health_readings"), ("tired", "health_readings"), ("calories", "posture_result"),
@@ -994,7 +999,11 @@ PREFER = [# 3.74: "how many calories did i burn" is not burning pain; "hot tempe
 PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "results", "marks", "accuracy", "percent"]),
              # 3.74: "how many calories should i eat" is food
              ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"])]
-PREFER_UNLESS = [# 3.74: "i have done my exercises" is done for today, "finished the plan" the plan's end.
+PREFER_UNLESS = [# 3.75: "i have a slipped disc, can i exercise" is the condition; "is it a slipped disc" a diagnosis.
+                 ("low_mood", "diagnosis", ASKING_FOR_DIAGNOSIS), ("neck_not_covered", "diagnosis", ASKING_FOR_DIAGNOSIS),
+                 # "my doctor said i have gout" is about gout; "my doctor said to rest" the doctor's advice.
+                 ("condition_advice", "doctor_said", DOCTOR_SAID_TO), ("neck_not_covered", "doctor_said", DOCTOR_SAID_TO),
+                 # 3.74: "i have done my exercises" is done for today, "finished the plan" the plan's end.
                  ("session_done", "plan_progress", ["plan", "plans", "programme", "program", "pelan"]),
                  ("session_done", "treatment_nav", ["where", "which", "what", "find", "plan", "plans"]),
                  # 3.67: "protein shake" is food, "my legs shake" weakness; "i'm bored" motivation, "too easy" not
@@ -1008,7 +1017,8 @@ PREFER_UNLESS = [# 3.74: "i have done my exercises" is done for today, "finished
                  # 3.50: "I have cancer, can I exercise?" is condition advice; "do I have cancer?" stays diagnosis
                  ("condition_advice", "diagnosis", ["do i have", "could it be", "could this be", "is it cancer",
                                                     "is this cancer", "might be", "do you think", "am i getting",
-                                                    "be cancer", "lump", "signs of", "symptoms of"]),
+                                                    "be cancer", "lump", "signs of", "symptoms of"]
+                  + ASKING_FOR_DIAGNOSIS),
                  # (3.55: "bed rest weak" is muscle loss; "told me to rest" is the doctor's advice)
                  ("muscle_loss", "doctor_said", ["to rest", "rest for", "rest until", "berehat", "stop", "not to",
                                                  "don't", "avoid", "no exercise", "wait", "until"]),
@@ -1136,7 +1146,7 @@ CHRONIC["vomiting"] = CHRONIC["vomit"]
 
 
 # Events that are history when told with a past time in their own sentence (laptop pass 12).
-HISTORY_EVENTS = {"heart attack"}
+HISTORY_EVENTS = {"heart attack", "had a seizure", "had a fit", "convulsion", "convulsions"}
 YEAR = re.compile(r"^(19|20)[0-9][0-9]$")
 
 
@@ -1838,11 +1848,19 @@ CONDITION_WORDS = {"high blood pressure": "HYPERTENSION", "blood pressure": "HYP
                    "ms exercise": "MULTIPLE_SCLEROSIS", "ms can": "MULTIPLE_SCLEROSIS", "ada ms": "MULTIPLE_SCLEROSIS"}
 
 
+@lru_cache(maxsize=1)
+def _condition_phrases() -> tuple:
+    """CONDITION_WORDS and (3.75) the conditions the profile does not list, cleaned as messages are ("bahu
+    beku" -> "shoulder beku")."""
+    phrases = {**CONDITION_WORDS, **rules().get("condition_words", {})}
+    return tuple((p, code) for phrase, code in phrases.items() for p in dict.fromkeys([phrase, clean(phrase)]))
+
+
 def conditions_in(text: str | None) -> list[str]:
     if not text:
         return []
     words = clean(text).split()
-    found = list(dict.fromkeys(code for phrase, code in CONDITION_WORDS.items() if find_phrase(phrase, words)))
+    found = list(dict.fromkeys(code for phrase, code in _condition_phrases() if find_phrase(phrase, words)))
     if "RHEUMATOID_ARTHRITIS" in found and "ARTHRITIS" in found:
         found.remove("ARTHRITIS")                  # "rheumatoid arthritis" is the one condition
     return found
@@ -2973,7 +2991,10 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     details = [r["condition_detail"][c] for c in asked_first if c in r.get("condition_detail", {})]
     if chosen["key"] == "condition_advice" and details:
         # A different answer for each condition (Table 4.2.2): the patient's own conditions first.
-        base_answer = "\n\n".join(details) + "\n\n" + r["condition_closing"]
+        unlisted = set(r.get("unlisted_conditions", []))
+        closing = r.get("condition_closing_other") if mentioned and \
+            all(c in unlisted for c in asked_first if c in r["condition_detail"]) else None
+        base_answer = "\n\n".join(details) + "\n\n" + (closing or r["condition_closing"])
     answer = base_answer + ("\n\n" + "\n".join(f"Note: {n}" for n in notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,

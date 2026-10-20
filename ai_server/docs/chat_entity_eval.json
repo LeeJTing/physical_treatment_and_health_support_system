@@ -1,21 +1,19 @@
 {
- "rules_version": "chat-rules-3.74",
+ "rules_version": "chat-rules-3.75",
  "exercises": {
   "questions": 1876,
-  "correct": 1872,
-  "misses": [
-   "'how many ste-up should i do' -> calories",
-   "'how many step up should i do' -> calories",
-   "'how many step ups should i do' -> calories",
-   "'how many step-up should i do' -> calories"
-  ],
-  "rate": 0.9979
+  "correct": 1876,
+  "misses": [],
+  "rate": 1.0
  },
  "conditions": {
   "questions": 490,
-  "correct": 490,
-  "misses": [],
-  "rate": 1.0
+  "correct": 488,
+  "misses": [
+   "'i have cancer is it safe to exercise' -> diagnosis",
+   "'is this plan ok for cancer' -> diagnosis"
+  ],
+  "rate": 0.9959
  },
  "mistakes": {
   "questions": 582,
@@ -29,5 +27,5 @@
   "misses": [],
   "rate": 1.0
  },
- "seconds": 116
+ "seconds": 121
 }
