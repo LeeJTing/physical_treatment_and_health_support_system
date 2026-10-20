@@ -1,7 +1,7 @@
 """The 10 000-message random wording test (tests/chat_random_set.py): messages typed the way users type,
 in random situations. Writes docs/chat_random_eval_seed<N>.json.
 
-    .venv\Scripts\python evaluate_chat_random.py [seed]      (seed 1: the set the rules were fixed
+    .venv\\Scripts\\python evaluate_chat_random.py [seed]      (seed 1: the set the rules were fixed
                                                              against; seed 2: a fresh set)
 """
 import json

@@ -194,7 +194,7 @@ def test_rules_file_matches_catalogue():
     keys = [i["key"] for i in rules["intents"]]
     assert len(keys) == len(set(keys))
     for i in rules["intents"]:
-        if i["key"] in ("clarify", "med_help"):      # 3.53: reached only by a short follow-up with nothing before;
+        if i["key"] in ("clarify", "med_help", "word_meaning"):      # 3.53: reached only by a short follow-up with nothing before;
             assert not i["keywords"] and not i["examples"] and i["answer"]   # 3.66: "med" as the whole message
             continue
         # Mistake names (rules 3.15) are reached through the glossary, not keywords.

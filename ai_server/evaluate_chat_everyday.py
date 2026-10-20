@@ -1,6 +1,6 @@
 """Everyday random inputs (tests/chat_everyday_set.py). Writes docs/chat_everyday_eval.json.
 
-    .venv\Scripts\python evaluate_chat_everyday.py [seed] [n]
+    .venv\\Scripts\\python evaluate_chat_everyday.py [seed] [n]
 
 Right when the answer's topic is one the family expects ("None" = not recognised, the message echoed back).
 """

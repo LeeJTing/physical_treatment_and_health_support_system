@@ -19,7 +19,7 @@ ROUND19 = [
     (KNEE, "what does my risk level mean", "risk_level"),
     (KNEE, "how is my risk calculated", "risk_level"),
     (KNEE, "how to lower my risk level", "risk_level"),
-    (KNEE, "what is bmi", "risk_level"),
+    (KNEE, "what is bmi", ("risk_level", "word_meaning")),        # 3.72: the BMI meaning itself
     # Safety limits
     (KNEE, "what is my safety limit", "safety_limits"),
     (KNEE, "why is my intensity limited", "safety_limits"),

@@ -34,3 +34,13 @@ def test_things_the_chatbot_cannot_do_say_so():
 def test_a_body_part_alone_is_asked_about():
     x = engine.reply(PLAN, None, "knee")
     assert x["category"] == "clarify" and "your knee" in x["answer"]
+
+
+def test_what_a_word_means():
+    # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
+    for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),
+                       ("apa maksud bmi", "BMI"), ("reps meaning", "repetition"), ("what is abduction", "Abduction")]:
+        x = engine.reply(PLAN, None, text)
+        assert x["category"] == "word_meaning" and word in x["answer"], text
+    for text, want in [("what is tandem stance", "exercise:tandem_stance"), ("what is my risk level", "risk_level")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text

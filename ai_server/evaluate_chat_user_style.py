@@ -1,6 +1,6 @@
 """Messages like the ones Elwin reported (tests/chat_user_style_set.py). Writes docs/chat_user_style_eval.json.
 
-    .venv\Scripts\python evaluate_chat_user_style.py [seed] [n]
+    .venv\\Scripts\\python evaluate_chat_user_style.py [seed] [n]
 
 Right when the answer's topic is one the pattern expects ("None" = not recognised, the message echoed
 back). The 21 reported questions are checked first, then n random messages in their patterns.

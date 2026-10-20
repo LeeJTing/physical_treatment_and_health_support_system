@@ -1,7 +1,7 @@
 """Every exercise, health condition and posture mistake asked about in many ways (chat-rules-3.54;
 tests/chat_entity_set.py). Writes docs/chat_entity_eval.json.
 
-    .venv\Scripts\python evaluate_chat_entities.py
+    .venv\\Scripts\\python evaluate_chat_entities.py
 
   exercises   each exercise's name, 3 other names and a typo x 24 question templates -> that exercise
               (or the answer the template also allows); x 4 pain templates -> the pain answer

@@ -2,7 +2,7 @@
 double words like 'how to' and link back to the previous response; make thousands of combinations,
 then fix them"). Writes docs/chat_followup_eval.json.
 
-    .venv\Scripts\python evaluate_chat_followups.py
+    .venv\\Scripts\\python evaluate_chat_followups.py
 
   follow_ups   every follow-up in tests/chat_followup_set.py x every previous answer: continues it
                (or, with nothing to continue, asks for more or gives the general answer)

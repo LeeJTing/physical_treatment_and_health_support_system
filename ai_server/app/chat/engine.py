@@ -1952,9 +1952,34 @@ def _question_after_story(text: str) -> str | None:
     return last
 
 
+# 3.72: "what is abduction", "what does flexion mean", "range of motion means?", "apa maksud BMI".
+DEFINITION_RE = re.compile(r"^(?:what(?:'s| is| are| does| do)?|whats|define|meaning of|apa itu|apa maksud|maksud|"
+                           r"what is the meaning of|what do you mean by|what does it mean by)\s+(?:a |an |the )?"
+                           r"(?P<a>[a-z' -]+?)(?:\s+(?:mean|means|meaning|stand for))?\s*\??$|"
+                           r"^(?P<b>[a-z' -]+?)\s+(?:means|meaning|mean|maksud|tu apa|itu apa|is what|means what)\s*\??$")
+
+
+def _term_asked(text: str | None) -> str | None:
+    """The TERMS word a definition question asks about, if any."""
+    low = " ".join(re.sub(r"[^a-z' ?-]", " ", (text or "").lower()).split())
+    low = re.sub(r"^(?:um|uh|hi|hello|ok|okay|sorry|doc|excuse me)\s+", "", low)
+    low = re.sub(r"\s+(?:lah|ah|leh|pls|please|huh)\s*\??$", "", low)
+    m = DEFINITION_RE.match(low)
+    if not m:
+        return None
+    word = (m.group("a") or m.group("b") or "").strip()
+    r = rules()
+    word = r.get("term_aliases", {}).get(word, word)
+    return word if word in r.get("terms", {}) else None
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
     its words weighed together, is about another domain (3.61)."""
+    if _term_asked(text):
+        meaning = {i["key"]: i for i in intents_for(plan_id)}.get("word_meaning")
+        if meaning is not None:
+            return meaning, "definition"                 # "what does flexion mean" (3.72)
     chosen, how = _match_whole(plan_id, text)
     if chosen is None or chosen["key"] not in ABOUT_THE_PERSON:
         question = _question_after_story(text)
@@ -2680,7 +2705,9 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if rest and (chosen["key"] in rest["note_on"] or chosen["key"].startswith("exercise:")):
         notes.insert(0, rest["note"])
     base_answer = chosen["answer"]
-    if chosen["key"] == "clarify" and how == "body_part":
+    if chosen["key"] == "word_meaning" and _term_asked(text):
+        base_answer = r["terms"][_term_asked(text)]
+    elif chosen["key"] == "clarify" and how == "body_part":
         part = _body_part_alone(text)
         base_answer = (f"What would you like to know about your {part}? For example: \"my {part} hurts\", "
                        f"\"exercises for my {part}\" or \"is it safe to exercise my {part}?\". You can also pick "

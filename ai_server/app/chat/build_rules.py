@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.71"
+VERSION = "chat-rules-3.72"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -881,6 +881,10 @@ INTENTS = [
            "face, lips or tongue swell, call 999 now.", show=False,
            action={"key": "open_profile", "label": "Open my profile"}),
     # 3.66, Elwin's report ("med": "do you need help calling emergencies?"): medicine or medical help.
+    # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
+    # word's meaning.
+    intent("word_meaning", "What a word means", 6, [], [],
+           "Here is what that word means.", show=False),
     # Matched only as the whole message (engine.match): "meds", "my med" are medicines.
     intent("med_help", "Medicine or medical help", 9,
            [],
@@ -1905,6 +1909,58 @@ MISTAKE_ALIASES = {"uneven arm": "uneven_arms", "hip sag": "hips_sag", "hips sag
                    "knee not straight": "knee_not_straight", "heel lift": "heels_lift", "hand used": "hands_used"}
 
 
+# 3.72: the words the app's answers use, in plain words ("what does flexion mean", "apa maksud BMI").
+# An exercise's full name ("tandem stance", "heel raise") gets the exercise's own answer instead.
+TERMS = {
+    "abduction": ("Abduction means moving an arm or a leg out to the side, away from your body. Shoulder "
+                  "abduction lifts your arms out to the sides; hip abduction lifts a leg out to the side."),
+    "adduction": "Adduction means moving an arm or a leg back in, towards your body.",
+    "flexion": ("Flexion means bending a joint, or lifting a limb forward. Elbow flexion bends your elbow; "
+                "shoulder flexion lifts your arm forward and up."),
+    "extension": ("Extension means straightening a joint. Knee extension straightens your knee; wrist extension "
+                  "lifts the back of your hand."),
+    "range of motion": "Range of motion is how far a joint can move, for example how high you can lift your arm.",
+    "repetition": ("A repetition (rep) is one complete movement of an exercise, for example lifting your arm up "
+                   "and lowering it once."),
+    "set": "A set is a group of repetitions done one after the other before you rest.",
+    "intensity": ("Intensity is how hard an exercise feels. Low intensity feels easy: you can talk and sing. "
+                  "Moderate intensity is a little harder: you can talk, but not sing."),
+    "moderate intensity": ("Moderate intensity means the exercise feels a little hard: you breathe faster and "
+                           "can still talk, but you cannot sing."),
+    "low intensity": "Low intensity means the exercise feels easy: you can talk and even sing while doing it.",
+    "rehabilitation": ("Rehabilitation (rehab) is exercise and care that help your body get back its strength and "
+                       "movement after an illness, an injury, an operation or a long rest."),
+    "physiotherapist": ("A physiotherapist (physio) is a health professional trained to help people recover "
+                        "movement and strength with exercise."),
+    "posture": ("Posture is the position of your body. In this app it means how you hold and move your body "
+                "while you do an exercise."),
+    "bmi": ("BMI (body mass index) is your weight in kilograms divided by your height in metres squared. It "
+            "gives a rough idea of whether your weight suits your height; in this app it is shown for "
+            "information only."),
+    "warm up": "A warm-up is a few minutes of gentle movement before exercising, to get your muscles ready.",
+    "cool down": "A cool-down is a few minutes of slow, gentle movement after exercising, to let your body settle.",
+    "glute": "The glutes are the muscles of your buttocks. The glute bridge exercise makes them stronger.",
+    "quadriceps": "The quadriceps (quads) are the large muscles at the front of your thigh. They straighten your knee.",
+    "hamstrings": "The hamstrings are the muscles at the back of your thigh. They bend your knee.",
+    "calf": "The calf is the muscle at the back of your lower leg. The heel raise exercise makes it stronger.",
+    "core": "Your core is the muscles around your tummy and lower back that keep your body steady.",
+    "mobility": "Mobility is how easily you can move, for example walk, stand up or reach.",
+    "stamina": "Stamina (endurance) is how long you can keep going before you get tired.",
+    "inflammation": ("Inflammation is swelling, warmth, redness or pain where your body is healing or "
+                     "irritated."),
+    "hold": "Hold means keeping a position still for a few seconds before you move again.",
+    "atrophy": ("Atrophy means a muscle getting smaller and weaker because it has not been used, for example after "
+                "weeks in bed. Regular exercise builds it back."),
+}
+TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion", "rom": "range of motion",
+                "reps": "repetition", "rep": "repetition", "repetitions": "repetition", "sets": "set",
+                "rehab": "rehabilitation", "physio": "physiotherapist", "physiotherapy": "physiotherapist",
+                "body mass index": "bmi", "warm-up": "warm up", "warmup": "warm up", "cool-down": "cool down",
+                "glutes": "glute", "quads": "quadriceps", "quad": "quadriceps", "hamstring": "hamstrings",
+                "calves": "calf", "endurance": "stamina", "muscle atrophy": "atrophy", "disuse atrophy": "atrophy",
+                "range of movement": "range of motion"}
+
+
 def mistake_intents():
     out = []
     for label, (meaning, tip) in MISTAKE_MEANING.items():
@@ -1975,6 +2031,8 @@ def build() -> dict:
         "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
         "restrictions": restrictions,
+        "terms": {k: layout(v) for k, v in TERMS.items()},
+        "term_aliases": TERM_ALIASES,
     }
     OUT.write_text(json.dumps(rules, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return rules

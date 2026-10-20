@@ -1,6 +1,6 @@
 """Compound and rambling messages (tests/chat_compound_set.py). Writes docs/chat_compound_eval.json.
 
-    .venv\Scripts\python evaluate_chat_compound.py [seed] [n]
+    .venv\\Scripts\\python evaluate_chat_compound.py [seed] [n]
 
 Right when the answer's topic is one of the message's topics (only the urgent one when a warning sign or a
 crisis is in it). Urgent messages are counted apart: missing one is the worst mistake.
