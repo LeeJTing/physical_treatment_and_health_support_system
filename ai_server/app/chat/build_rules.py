@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.72"
+VERSION = "chat-rules-3.73"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -425,6 +425,11 @@ INTENTS = [
             "worry about falling", "scared i will fall", "scared i'll fall", "afraid i will fall", "afraid i'll fall",
             "worried i will fall", "worried i'll fall", "scared to fall", "afraid to fall", "if i fall",
             "what if i fall", "in case i fall", "if she falls", "if he falls", "if she fall", "if he fall",
+            # 3.73: told by the person helping ("my father is scared he will fall")
+            "scared he will fall", "scared she will fall", "scared he'll fall", "scared she'll fall",
+            "afraid he will fall", "afraid she will fall", "afraid he'll fall", "afraid she'll fall",
+            "worried he will fall", "worried she will fall", "worried he'll fall", "worried she'll fall",
+            "if he can't get up", "if she can't get up", "if he cannot get up", "if she cannot get up",
             "after a fall", "get up after a fall", "get up from the floor", "get up if i fall", "nobody is home",
             # 3.62: before weak legs' "cannot get up" (3.59) took "what if i cannot get up after falling".
             "get up after falling", "get up after fall", "get up after i fall", "can't get up after",
@@ -1514,7 +1519,24 @@ CRISIS = [
     "thinking about ending it", "thinking of ending it", "think about ending it", "ending it all", "end it all",
     "want to end it all", "going to end it all", "tamatkan hidup", "tamatkan nyawa", "akhiri hidup",
     "mengakhiri hidup", "tamatkan riwayat", "hidup tak berguna", "tak guna hidup", "tidak guna hidup",
+    # 3.73 (caregiver test): told of someone else ("my dad wishes he was dead", "she keeps talking about
+    # killing herself"). Not "cut herself" or "hurt himself": "my mum cut herself cooking" is an accident.
+    "wish he was dead", "wish she was dead", "wish he were dead", "wish she were dead", "wishes he was dead",
+    "wishes she was dead", "wishes he were dead", "wishes she were dead", "wished he was dead",
+    "wished she was dead", "wishes to die", "wished to die", "killing himself", "killing herself",
+    "harm himself", "harm herself", "hang himself", "hang herself", "end his own life", "end her own life",
+    "wants to end his life", "wants to end her life",
 ]
+# 3.73: the same help for a family member who talks of dying or self-harm ("my mother keeps saying she
+# wants to die"), worded for the person helping them.
+CRISIS_ANSWER_OTHER = ("I am sorry you are going through this. Talk of dying or self-harm needs help today.\n"
+                       "1) If they are in danger now or might act on these thoughts, call 999 or take them to the "
+                       "nearest emergency department. Stay with them.\n"
+                       "2) Talk to someone now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or "
+                       "Talian HEAL 15555 (8 am to midnight daily). You can call for them or with them.\n"
+                       "3) Keep medicines and anything they could hurt themselves with out of reach, and tell "
+                       "their doctor.\n"
+                       "I am only an exercise assistant, but these people can help.")
 CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone.\n"
                  "1) If you are in danger now or might act on these thoughts, call 999 or go to the nearest "
                  "emergency department.\n"
@@ -2028,6 +2050,7 @@ def build() -> dict:
         "red_flags": RED_FLAGS,
         "crisis": CRISIS,
         "crisis_answer": CRISIS_ANSWER,
+        "crisis_answer_other": CRISIS_ANSWER_OTHER,
         "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
         "restrictions": restrictions,

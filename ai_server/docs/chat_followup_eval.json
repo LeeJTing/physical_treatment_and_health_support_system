@@ -1,11 +1,11 @@
 {
- "rules_version": "chat-rules-3.54",
- "topics": 146,
+ "rules_version": "chat-rules-3.73",
+ "topics": 153,
  "follow_ups": 73,
  "messy_variants": 1200,
  "follow_ups_result": {
-  "pairs": 10658,
-  "correct": 10658,
+  "pairs": 11169,
+  "correct": 11169,
   "rate": 1.0,
   "misses": []
  },
@@ -27,10 +27,10 @@
   ]
  },
  "controls_result": {
-  "pairs": 2628,
-  "correct": 2628,
+  "pairs": 2754,
+  "correct": 2754,
   "rate": 1.0,
   "misses": []
  },
- "seconds": 220
+ "seconds": 354
 }

@@ -1073,9 +1073,22 @@ HYPOTHETICAL = ["what if i", "what if you", "what if she", "what if he", "if i",
 
 
 def _hypothetical(words: list[str], i: int) -> bool:
-    """The words just before position i make it a question about what to do ("what if i can't get up")."""
-    before = f" {' '.join(words[max(0, i - 3):i])} "
+    """The words just before position i make it a question about what to do ("what if i can't get up");
+    also told of a family member ("what if my father can't get up after a fall", 3.73)."""
+    j = i
+    if j >= 1 and words[j - 1].removesuffix("'s") in PERSON_NOUNS:
+        j -= 1
+        if j >= 1 and words[j - 1] in ("my", "our"):
+            j -= 1
+    before = f" {' '.join(words[max(0, j - 3):j])} "
     return any(before.endswith(f" {h} ") for h in HYPOTHETICAL)
+
+
+# 3.73: the people a family member asks about.
+PERSON_NOUNS = frozenset("""mother father mum mom mummy mommy mama mamma dad daddy papa mak emak ibu ayah abah bapa
+husband wife spouse suami isteri grandmother grandfather grandma grandpa granny nenek atuk tok son daughter
+brother sister uncle aunt aunty auntie friend neighbour neighbor patient parent grandson granddaughter
+partner""".split())
 
 
 # Laptop pass 9: a time word counts only in the fall's own sentence ("my mum fell years ago; today she
@@ -1291,11 +1304,36 @@ def _crisis(text: str | None) -> bool:
             prev = words[i - 1] if i >= 1 else ""
             if prev in CRISIS_NEGATORS or words[max(0, i - 2):i] == ["do", "not"]:
                 continue
+            if p.split()[0] in ("wish", "wishes", "wished") and OTHER_WORDS & set(p.split()) and prev in ("i", "we"):
+                continue                               # "i wish he was dead" is anger at him (3.73)
             return True
     return False
 
 
 CRISIS_NEGATORS = {"don't", "dont", "never", "not"}
+SELF_WORDS = {"i", "i'm", "im", "me", "my", "myself", "i've", "i'd", "i'll", "saya", "aku"}
+OTHER_WORDS = {"he", "she", "dia", "him", "his", "her", "himself", "herself", "he's", "she's"}
+
+
+def _crisis_about_other(text: str | None) -> bool:
+    """The crisis words are told of someone else ("my dad wishes he was dead", "my mother keeps saying she
+    wants to die"), not the user's own (3.73): the nearest person before the first crisis phrase."""
+    words = clean(text or "").split()
+    hits = sorted((i, p) for p in rules().get("crisis", []) for i in find_phrase(p, words))
+    if not hits:
+        return False
+    i, p = hits[0]
+    said = set(p.split())
+    if said & SELF_WORDS:
+        return False                                     # "kill myself", "wish i was dead"
+    if said & OTHER_WORDS:
+        return True                                      # "kill himself", "wish she was dead"
+    for w in reversed(words[max(0, i - 6):i]):
+        if w in SELF_WORDS:
+            return False
+        if w in OTHER_WORDS or w.removesuffix("'s") in PERSON_NOUNS:
+            return True
+    return False
 # "end everything for today, I'm done with the session" is about the session.
 NOT_A_CRISIS = [("end everything for today", "stop for today"), ("end things for today", "stop for today")]
 
@@ -1973,6 +2011,70 @@ def _term_asked(text: str | None) -> str | None:
     return word if word in r.get("terms", {}) else None
 
 
+# 3.73 (caregiver test, chat_caregiver_set.py): a family member asks about the person they help ("where to
+# edit my dad's weight" was the equipment answer, "my mother failed the posture check" the how-to answer).
+# The question is also read as if that person asked it ("where to edit my weight"); its topic wins unless it
+# is only a general how-to, safety or plan answer ("can my mother do these exercises": she needs her own
+# profile, the answer for a family member).
+SUBJECT_BEFORE = frozenset("""if when can could does do did should will would is was has had that and but because so
+what how why where while after before until since whether then now also said says say thinks think feel feels
+scared afraid worried sure wonder know""".split())
+THIRD_TO_FIRST = {"is": "am", "isn't": "am not", "has": "have", "hasn't": "haven't", "does": "do", "doesn't": "don't",
+                  "feels": "feel", "gets": "get", "needs": "need", "wants": "want", "keeps": "keep", "hurts": "hurt",
+                  "goes": "go", "tries": "try", "loses": "lose", "thinks": "think", "says": "say", "walks": "walk",
+                  "uses": "use", "takes": "take", "sleeps": "sleep", "eats": "eat", "falls": "fall", "lives": "live",
+                  "likes": "like", "knows": "know", "forgets": "forget", "finds": "find", "struggles": "struggle",
+                  "refuses": "refuse", "complains": "complain", "stands": "stand", "sits": "sit", "seems": "seem",
+                  "looks": "look", "gives": "give", "starts": "start", "stops": "stop", "misses": "miss",
+                  "skips": "skip", "finishes": "finish", "holds": "hold", "lifts": "lift", "bends": "bend",
+                  "moves": "move", "shakes": "shake", "limps": "limp", "exercises": "exercise", "records": "record",
+                  "reaches": "reach", "works": "work", "wakes": "wake", "becomes": "become", "cries": "cry"}
+BEFORE_I = {"does": "do", "is": "am", "has": "have", "doesn't": "don't", "isn't": "aren't", "hasn't": "haven't"}
+KEEP_FOR_OTHERS = {"family_help", "cannot_do", "word_meaning"}
+GENERAL_FOR_OTHERS = {"how_to", "plan_exercises", "safety", "how_often", "difficulty", "start_plan", "app_help",
+                      "getting_started", "for_someone_else", "family_help", "cannot_do"}
+
+
+def _as_if_mine(text: str | None) -> str | None:
+    """[text] as if the family member it is about had typed it, or None when it names no one else."""
+    words = " ".join(re.sub(r"[^a-z0-9' ]", " ", (text or "").lower().replace("\u2019", "'")).split()).split()
+    out = []
+    k = 0
+    while k < len(words):
+        w = words[k]
+        nxt = words[k + 1] if k + 1 < len(words) else ""
+        prev = out[-1] if out else ""
+        if w in ("my", "our") and nxt.removesuffix("'s") in PERSON_NOUNS:
+            if nxt.endswith("'s"):
+                new = "my"                               # "my dad's weight"
+            else:
+                new = "i" if not out or prev in SUBJECT_BEFORE else "me"     # "help my mother stand up"
+            k += 2
+        elif w in ("he", "she", "dia", "he's", "she's"):
+            new = "i" if w in ("he", "she", "dia") else "i'm"
+            k += 1
+        elif w == "him":
+            new, k = "me", k + 1
+        elif w in ("himself", "herself"):
+            new, k = "myself", k + 1
+        elif w == "his":
+            new, k = "my", k + 1
+        elif w == "her":
+            new = "my" if nxt and nxt not in STOP else "me"  # "her knee", "help her", "for her to sit"
+            k += 1
+        else:
+            if prev == "i" and w in THIRD_TO_FIRST:
+                w = THIRD_TO_FIRST[w]                    # "my father is scared" -> "i am scared"
+            out.append(w)
+            k += 1
+            continue
+        if new in ("i", "i'm") and prev in BEFORE_I:
+            out[-1] = BEFORE_I[prev]                     # "does my mother have" -> "do i have"
+        out.append(new)
+    mine = " ".join(out)
+    return mine if mine != " ".join(words) else None
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
     its words weighed together, is about another domain (3.61)."""
@@ -1981,6 +2083,13 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         if meaning is not None:
             return meaning, "definition"                 # "what does flexion mean" (3.72)
     chosen, how = _match_whole(plan_id, text)
+    mine = _as_if_mine(text) if chosen is None or chosen["key"] not in KEEP_FOR_OTHERS else None
+    if mine:
+        c2, h2 = _match_whole(plan_id, mine)
+        if c2 is not None and c2 is not chosen and not c2.get("small_talk") and c2["key"] not in KEEP_FOR_OTHERS \
+                and c2["key"] not in NO_CONTEXT and c2["key"] != "for_someone_else" \
+                and (chosen is None or c2["key"] not in GENERAL_FOR_OTHERS):
+            chosen, how = c2, h2                         # the family member's own question (3.73)
     if chosen is None or chosen["key"] not in ABOUT_THE_PERSON:
         question = _question_after_story(text)
         if question:
@@ -2639,7 +2748,8 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
         return {**base, "answer": OTHER_SCRIPT_ANSWER, "category": "language", "title": "Languages",
                 "is_matched": True, "matched_by": "other_script", "follow_ups": [], "notes": [], "action": None}
     if crisis(text):
-        return {**base, "answer": r["crisis_answer"], "category": "crisis", "title": "You are not alone",
+        told = r.get("crisis_answer_other") if _crisis_about_other(text) else None
+        return {**base, "answer": told or r["crisis_answer"], "category": "crisis", "title": "You are not alone",
                 "is_matched": True, "matched_by": "crisis", "follow_ups": [], "notes": [], "action": None}
     if overdose(text):
         return {**base, "answer": OVERDOSE_ANSWER, "category": "overdose", "title": "Too many pills",
