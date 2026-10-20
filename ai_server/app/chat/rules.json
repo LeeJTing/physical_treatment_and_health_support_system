@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.62",
+  "version": "chat-rules-3.63",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -1855,6 +1855,14 @@
         "get up from the floor",
         "get up if i fall",
         "nobody is home",
+        "get up after falling",
+        "get up after fall",
+        "get up after i fall",
+        "can't get up after",
+        "cannot get up after",
+        "cant get up after",
+        "if i can't get up",
+        "if i cannot get up",
         "afraid of getting hurt",
         "scared of getting hurt",
         "worried about getting hurt",

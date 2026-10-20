@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.62"
+VERSION = "chat-rules-3.63"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -420,6 +420,9 @@ INTENTS = [
             "worried i will fall", "worried i'll fall", "scared to fall", "afraid to fall", "if i fall",
             "what if i fall", "in case i fall", "if she falls", "if he falls", "if she fall", "if he fall",
             "after a fall", "get up after a fall", "get up from the floor", "get up if i fall", "nobody is home",
+            # 3.62: before weak legs' "cannot get up" (3.59) took "what if i cannot get up after falling".
+            "get up after falling", "get up after fall", "get up after i fall", "can't get up after",
+            "cannot get up after", "cant get up after", "if i can't get up", "if i cannot get up",
             "afraid of getting hurt", "scared of getting hurt", "worried about getting hurt", "afraid of a fall",
             "scared of a fall", "afraid of getting injured", "scared of getting injured",
             "no one is home", "no one at home", "nobody at home", "alone at home", "home alone", "live alone",

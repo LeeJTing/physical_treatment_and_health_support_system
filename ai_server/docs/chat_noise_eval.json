@@ -6,23 +6,22 @@
  "noise": 2000,
  "noisy_ok": 1999,
  "noisy": 2000,
- "blns_ok": 509,
+ "blns_ok": 510,
  "blns": 515,
  "oos_ok": 815,
  "oos": 1100,
- "clinc_ok": 2961,
+ "clinc_ok": 2962,
  "clinc": 3270,
  "false_emergencies": [
   "oos: \"what do you do if you can't stop vomiting\" -> red_flag",
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 1.499,
+ "slowest_reply_sec": 1.46,
  "misses": [
   "blns/blns: '1#SNAN' -> diagnosis (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: '̦H̬̤̗̤͝e͜ ̜̥̝̻͍̟́w̕h̖̯͓o̝͙̖͎̱̮ ҉̺̙̞̟͈W̷̼̭a̺̪͍į͈͕̭͙' -> equipment (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: '--help' -> bot_identity (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
-  "blns/blns: 'Lightwater Country Park' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: 'Craig Cockburn, Software Specialist' -> pain_or_discomfort (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: \"If you're reading this, you've been in a coma for \" -> plan_progress (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'who has the best record in the nfl' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
@@ -164,6 +163,7 @@
   "oos/oos: 'has the school my kids go to been in the news for ' -> guardian_consent (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'how long is the school year' -> how_often (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: \"why doesn't english have consistent forms\" -> how_to (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
+  "oos/oos: 'where are most the servicemen right now' -> best_time (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'who won in the gsw vs suns game last night' -> best_time (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'why did we elect this woman who made amazon leave ' -> bot_identity (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: \"what's a good way to organize my tools in my garag\" -> equipment (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
@@ -171,7 +171,6 @@
   "oos/oos: 'how safe is the herpes vaccine they give women' -> safety (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'where can i get the flu shot' -> tired (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'how much are the clorox detergents' -> app_facts (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
-  "oos/oos: 'when will nightwish be touring through my city' -> plan_progress (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'what do you do if your 4 year old just ate playdoh' -> diet (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'how much sugar was in my urine this morning' -> app_facts (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'how much does it cost to spay a puppy' -> app_facts (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
@@ -218,7 +217,8 @@
   "oos/oos: \"tell me amazon's choice for a set of 4 dinner plat\" -> diet (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'find out what the maximum memory size is that i ca' -> equipment (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'tell me what my current eyeglasses prescription is' -> medication (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
-  "oos/oos: 'show me examples of cute eyeglass frames' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])"
+  "oos/oos: 'show me examples of cute eyeglass frames' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
+  "oos/oos: 'show me the goals of my local police department in' -> plan_progress (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])"
  ],
- "seconds": 292
+ "seconds": 269
 }

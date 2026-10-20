@@ -503,10 +503,14 @@ def respell(text: str) -> str:
     # away ("chet pain", "herat pounding", "dada skit", "chest pina", "leer kersa dan demam"); alone it
     # is not ("pruning", "chet" stay as typed).
     near = [set(m.split()) for m in mended]
+    known = vocabulary()
     for k, was in enumerate(typed):
         sign = _sign_reading(was)
-        if sign and not near[k] & SIGN_WORDS and any(
-                near[j] & SIGN_CONTEXT for j in range(max(0, k - 3), min(len(typed), k + 4)) if j != k):
+        if not sign or near[k] & SIGN_WORDS:
+            continue
+        if mended[k] in known and typo_cost(was, mended[k]) < typo_cost(was, sign):
+            continue                                     # a closer word of the rules: "frint arm raise" is front
+        if any(near[j] & SIGN_CONTEXT for j in range(max(0, k - 3), min(len(typed), k + 4)) if j != k):
             mended[k] = sign
     parts[1::2] = mended
     return "".join(parts)
@@ -1838,7 +1842,8 @@ def _weighted_off_domain(text: str) -> bool:
     words, names = _rehab_anchors()
     if set(plain.split()) & words or any(f" {n} " in f" {plain} " for n in names):
         return False
-    stems = {stem(w) for w in re.findall(r"[a-z][a-z']+", clean(text)) if w not in STOP}
+    # Weighed with its slips mended (3.62): "a new passwrd" is "password", a word of this chatbot.
+    stems = {stem(w) for w in re.findall(r"[a-z][a-z']+", plain) if w not in STOP}
     found = [weights.get(s, 0.0) for s in stems]
     total = sum(found)
     return total > OFF_DOMAIN_SCORE or (bool(found) and max(found) >= OFF_DOMAIN_STRONG_WORD
