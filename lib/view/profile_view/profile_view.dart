@@ -13,6 +13,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/health
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
 
@@ -369,6 +370,24 @@ class _ProfileViewState extends State<ProfileView> {
                   onTap: () => _logout(vm),
                 ),
                 const SizedBox(height: 10),
+                if (TestModeViewModel.available) ...[
+                  Builder(
+                    builder: (context) {
+                      final tm = context.watch<TestModeViewModel>();
+                      return SettingsCard(
+                        key: const Key('test_mode_switch'),
+                        title: 'Testing mode',
+                        subtitle: 'Try any exercise now; nothing is saved',
+                        trailing: Switch(
+                          value: tm.enabled,
+                          onChanged: tm.setEnabled,
+                        ),
+                        onTap: () => tm.setEnabled(!tm.enabled),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 SettingsCard(
                   title: 'Terms of Use and Privacy Notice',
                   subtitle: 'Read what you agreed to',

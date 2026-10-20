@@ -346,9 +346,50 @@ class TreatmentViewModel extends BaseViewModel {
   int get completedSessionCount =>
       _sessions.where((s) => s.isCompleted()).length;
 
+  /// Testing mode (20 Oct): the exercise being tested has no plan, no
+  /// one-exercise-per-day rule or rest day, full movement targets, and nothing
+  /// is saved (TestModeViewModel turns the mode on).
+  bool _testing = false;
+  bool get testing => _testing;
+
+  /// Every exercise of the catalogue, for testing mode.
+  UiState<List<Exercise>> _testExercises = const Idle();
+  UiState<List<Exercise>> get testExercises => _testExercises;
+
+  Future<void> loadTestExercises() async {
+    _testExercises = const Loading();
+    notifyListeners();
+    final res = await _repo.getCatalogue();
+    if (res case Success(data: final plans)) {
+      final seen = <String>{};
+      final all = [
+        for (final p in plans)
+          for (final pe in p.orderedExercises())
+            if (seen.add(pe.exercise.exerciseId)) pe.exercise,
+      ]..sort((a, b) => a.exerciseName.compareTo(b.exerciseName));
+      _testExercises = UiSuccess(all);
+    } else {
+      _testExercises = const UiError(Messages.exerciseRetrieveFailed);
+    }
+    notifyListeners();
+  }
+
+  /// Opens the recorder for [e] in testing mode.
+  void startTest(Exercise e) {
+    _attempt++;
+    _testing = true;
+    _current = e;
+    _analysis = const Idle();
+    _lastResult = null;
+    _saving = const Idle();
+    _autoAdvanced = false;
+    notifyListeners();
+  }
+
   /// Opens the recorder with the recording instructions (FR300_05).
   Future<void> startExercise(Exercise e) async {
     _attempt++;
+    _testing = false;
     _current = e;
     _analysis = const Idle();
     _autoAdvanced = false;
@@ -363,6 +404,7 @@ class TreatmentViewModel extends BaseViewModel {
   /// not saved; an attempt already saved (a passing result) stays saved.
   void cancelExercise() {
     _attempt++;
+    _testing = false;
     _current = null;
     _analysis = const Idle();
     _lastResult = null;
@@ -376,7 +418,7 @@ class TreatmentViewModel extends BaseViewModel {
   Future<ExerciseSession?> submitVideo(File v, {int? clipSeconds}) async {
     final e = _current;
     final p = activePlan;
-    if (e == null || p == null) return null;
+    if (e == null || (p == null && !_testing)) return null;
     final attempt = _attempt;
     _recordedAt = DateTime.now();
     _clipSeconds = clipSeconds;
@@ -390,7 +432,8 @@ class TreatmentViewModel extends BaseViewModel {
       notifyListeners();
       return null;
     }
-    final (riskLevel, age) = await _patientContext();
+    // Testing mode checks against the full targets (no lowering for age or risk).
+    final (riskLevel, age) = _testing ? (null, null) : await _patientContext();
     final res = await _pose.analyse(v, e, riskLevel: riskLevel, age: age);
     if (attempt != _attempt) return null; // exited while analysing: nothing is saved
     switch (res) {
@@ -399,6 +442,11 @@ class TreatmentViewModel extends BaseViewModel {
         notifyListeners();
         return null;
       case Success(:final data):
+        if (_testing || p == null) {
+          _analysis = UiSuccess(data); // testing mode: shown, never saved
+          notifyListeners();
+          return null;
+        }
         if (data.safetyAlert != null) _fallSeenOn = clock();
         _analysis = UiSuccess(data);
         _lastResult = _session(p, e, data, CompletionStatus.completed);
@@ -438,6 +486,7 @@ class TreatmentViewModel extends BaseViewModel {
   /// happens when the attempt is for the current stage, so repeating a finished exercise
   /// does not skip ahead.
   Future<bool> acceptResult() async {
+    if (_testing) return true; // testing mode: nothing to save
     final p = activePlan;
     final s = _lastResult;
     if (p == null || s == null) return false;

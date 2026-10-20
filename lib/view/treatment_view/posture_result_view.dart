@@ -6,6 +6,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/recording_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 
@@ -21,6 +22,10 @@ class PostureResultView extends StatelessWidget {
 
   Future<void> _continue(BuildContext context) async {
     final vm = context.read<TreatmentViewModel>();
+    if (vm.testing) {
+      _backTo(context, TestExercisesView.routeName); // testing mode: nothing to save
+      return;
+    }
     final ok = await vm.acceptResult(); // FR300_21
     if (!context.mounted) return;
     if (ok) {
@@ -212,6 +217,13 @@ class PostureResultView extends StatelessWidget {
                       ),
                   ],
                 ),
+              ),
+            ],
+            if (vm.testing) ...[
+              const SizedBox(height: AppTokens.gap),
+              const NoticeBanner(
+                'Testing mode: this result is not saved and no plan changes.',
+                key: Key('test_mode_result'),
               ),
             ],
             if (passing && vm.autoAdvanced) ...[

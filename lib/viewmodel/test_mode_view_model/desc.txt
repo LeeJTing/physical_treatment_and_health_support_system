@@ -1,0 +1,3 @@
+TestModeViewModel: the "Testing mode" switch (Profile, debug builds only). When on, the Treatment tab
+offers every exercise for a posture check without a plan; TreatmentViewModel.startTest runs it and
+saves nothing.
