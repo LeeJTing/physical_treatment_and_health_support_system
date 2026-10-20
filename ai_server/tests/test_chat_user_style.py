@@ -59,6 +59,6 @@ def test_every_answer_is_set_out_in_lines():
     from app.chat.layout import sentences
     for i in engine.rules()["intents"]:
         a = i["answer"]
-        assert "\n" in a or len(sentences(a)) <= 2, i["key"]
+        assert "\n" in a or len(sentences(a)) <= 2 or len(a) <= 220, i["key"]
     for key in ("red_flag_answer", "crisis_answer"):
         assert "\n1) " in engine.rules()[key]

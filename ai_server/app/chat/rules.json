@@ -319,7 +319,7 @@
         "I forgot to exercise",
         "how do I catch up"
       ],
-      "answer": "That is fine.\nDo your next session as usual; do not do two sessions in one day to catch up.\nIf you have missed several days, start again gently with fewer repetitions and build back up.",
+      "answer": "That is fine. Do your next session as usual; do not do two sessions in one day to catch up. If you have missed several days, start again gently with fewer repetitions and build back up.",
       "follow_ups": [],
       "tailor": true,
       "negatable": false,
@@ -1680,7 +1680,7 @@
         "what language can I use",
         "can I ask in Malay"
       ],
-      "answer": "I answer in English and understand many everyday Malay words mixed in, such as sakit, lutut, boleh or penat.\n1) Short, simple sentences work best.\n2) In an emergency, call 999.",
+      "answer": "I answer in English and understand many everyday Malay words mixed in, such as sakit, lutut, boleh or penat. Short, simple sentences work best. In an emergency, call 999.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3551,7 +3551,7 @@
         "hi there",
         "good morning"
       ],
-      "answer": "Hello!\nI can answer questions about your rehabilitation exercises, pain, safety, your plan, recording your videos and reminders.\nTap a topic below or type your question.",
+      "answer": "Hello! I can answer questions about your rehabilitation exercises, pain, safety, your plan, recording your videos and reminders. Tap a topic below or type your question.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3618,7 +3618,7 @@
         "thanks a lot",
         "that was helpful"
       ],
-      "answer": "You're welcome.\n1) Keep it up!\n2) Ask me anything else about your plan, or tap Exit Chatbot when you are done.",
+      "answer": "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3816,7 +3816,7 @@
         "excuse me?",
         "pardon?"
       ],
-      "answer": "Sorry if my answer was not clear.\nWhat can I help you with?\nChoose a topic below, or type your question in other words.\nIf an answer was wrong, tap Report this answer under it.",
+      "answer": "Sorry if my answer was not clear. What can I help you with? Choose a topic below, or type your question in other words. If an answer was wrong, tap Report this answer under it.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3864,7 +3864,7 @@
       "priority": 9,
       "keywords": [],
       "examples": [],
-      "answer": "Do you mean your medicine, or do you need medical help?\n1) If someone needs urgent help now, call 999.\n2) For questions about medicines, please ask your doctor or pharmacist: I cannot give advice about medicines.",
+      "answer": "Do you mean your medicine, or do you need medical help? If someone needs urgent help now, call 999. For questions about medicines, please ask your doctor or pharmacist: I cannot give advice about medicines.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -3903,7 +3903,7 @@
         "how are you?",
         "what's up"
       ],
-      "answer": "I'm well, thank you for asking!\nHow are you feeling today?\nIf you have a question about your exercises, pain or your plan, type it or tap a topic below.",
+      "answer": "I'm well, thank you for asking! How are you feeling today? If you have a question about your exercises, pain or your plan, type it or tap a topic below.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -4588,7 +4588,7 @@
         "which mobility level should I choose",
         "what goal should I pick"
       ],
-      "answer": "Treatment planning asks: the area that needs rehabilitation (on the body map or from the list); how far along your recovery is (Early: just started recovering; Intermediate: some movement is back; Advanced: nearly back to normal); how well you can move (Low: need support to move; Moderate: move slowly on my own; High: move freely); your main goal (build strength, move more freely, better balance, ease pain or more stamina); and, if you like, your pace (Gentle, about 3 days a week; Steady, about 4; Faster, about 5).\nIf you are not sure, choose the lower option: plans for a later stage or a higher mobility level than yours are left out, so the lower choice is the safer one.",
+      "answer": "Treatment planning asks:\n1) The area that needs rehabilitation (on the body map or from the list)\n2) How far along your recovery is (Early: just started recovering; Intermediate: some movement is back; Advanced: nearly back to normal)\n3) How well you can move (Low: need support to move; Moderate: move slowly on my own; High: move freely)\n4) Your main goal (build strength, move more freely, better balance, ease pain or more stamina)\n5) And, if you like, your pace (Gentle, about 3 days a week; Steady, about 4; Faster, about 5).\nIf you are not sure, choose the lower option: plans for a later stage or a higher mobility level than yours are left out, so the lower choice is the safer one.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -4729,7 +4729,7 @@
       "priority": 1,
       "keywords": [],
       "examples": [],
-      "answer": "Could you tell me a bit more about what you mean?\nFor example: \"how do I do the heel raise?\", \"why is my posture score low?\" or \"is it safe to exercise with knee pain?\".\nYou can also pick a topic below.",
+      "answer": "Could you tell me a bit more about what you mean? For example: \"how do I do the heel raise?\", \"why is my posture score low?\" or \"is it safe to exercise with knee pain?\". You can also pick a topic below.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -5519,7 +5519,7 @@
         "what does stepping out mean",
         "the result said stepping out"
       ],
-      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold.\n1) If you wobble, step out or hold the counter: that is the safe thing to do.\n2) With practice you will hold it for longer.",
+      "answer": "“Stepping out” in your posture result means you stepped out of position during the hold. If you wobble, step out or hold the counter: that is the safe thing to do. With practice you will hold it for longer.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,

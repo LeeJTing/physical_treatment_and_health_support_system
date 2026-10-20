@@ -22,6 +22,8 @@ from functools import lru_cache
 from pathlib import Path
 
 from rapidfuzz import fuzz, process
+
+from .layout import layout
 from rapidfuzz.distance import OSA
 
 RULES_PATH = Path(__file__).with_name("rules.json")
@@ -259,7 +261,7 @@ def plan_intents(plan: dict) -> list[dict]:
 def _intents_for(plan_id: str | None) -> tuple:
     r = rules()
     plan = r["plans"].get(plan_id or "")
-    items = list(plan_intents(plan)) if plan else []
+    items = [{**i, "answer": layout(i["answer"])} for i in plan_intents(plan)] if plan else []   # 3.68
     items += [exercise_intent(k, ex, plan) for k, ex in r["exercises"].items()]
     items += r["intents"]
     return tuple(items)

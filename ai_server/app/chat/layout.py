@@ -48,8 +48,13 @@ def layout(text: str) -> str:
         if len(tail) > 1 and not re.match(r"\d", tail[-1]):
             lines[-1:] = [" ".join(tail[:-1]), tail[-1]]          # a closing sentence after the last point
         return "\n".join(s.strip() for s in lines if s.strip())
+    if len(text) <= SHORT_ANSWER:
+        return text                                      # "You're welcome. Keep it up! Ask me anything else."
     parts = sentences(text)
-    if len(parts) <= 2 and len(text) <= SHORT_ANSWER:
+    if len(parts) == 1 or (len(parts) == 2 and _listed(parts[0])):
+        listed = _listed(parts[0])
+        if listed:                                       # "Treatment planning asks: the area; your stage; ..."
+            return "\n".join([listed[0]] + [f"{k}) {p}" for k, p in enumerate(listed[1:], 1)] + parts[1:])
         return text
     lines, k = [parts[0]], 0
     numbered = sum(1 for p in parts[1:] if not _PROMPT.search(p)) >= 2
@@ -60,6 +65,25 @@ def layout(text: str) -> str:
         else:
             lines.append(p)
     return "\n".join(lines)
+
+
+def _listed(sentence: str) -> list[str] | None:
+    """[lead, item, item, ...] for "lead: item; item; item." (two semicolons at least), else None."""
+    if ":" not in sentence:
+        return None
+    lead, rest = sentence.split(":", 1)
+    items, depth, cur = [], 0, ""
+    for i, ch in enumerate(rest):                        # "; " outside brackets only: "(Early: ...; Advanced: ...)"
+        depth += (ch == "(") - (ch == ")")
+        if ch == ";" and depth == 0 and rest[i + 1:i + 2] == " ":
+            items.append(cur)
+            cur = ""
+        else:
+            cur += ch
+    items = [s.strip() for s in items + [cur] if s.strip()]
+    if len(items) < 3 or "; " in lead:
+        return None
+    return [lead.strip() + ":"] + [s[0].upper() + s[1:] for s in items]
 
 
 def points(lead: str, items: list[str], tail: str = "") -> str:
