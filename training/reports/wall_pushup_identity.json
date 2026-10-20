@@ -1,0 +1,43 @@
+{
+ "limit_tried": 55.0,
+ "floor_push_ups": 144,
+ "wall_push_ups": 7,
+ "by_view": {
+  "diagonal": {
+   "clips": 48,
+   "trunk_upright_p50_p95_max": [
+    5.8,
+    27.8,
+    40.3
+   ],
+   "pass_now": 0,
+   "pass_with_limit": 0
+  },
+  "front": {
+   "clips": 48,
+   "trunk_upright_p50_p95_max": [
+    32.4,
+    85.9,
+    87.2
+   ],
+   "pass_now": 0,
+   "pass_with_limit": 0
+  },
+  "side": {
+   "clips": 48,
+   "trunk_upright_p50_p95_max": [
+    10.6,
+    20.6,
+    23.4
+   ],
+   "pass_now": 0,
+   "pass_with_limit": 0
+  }
+ },
+ "wall_trunk_upright_min_max": [
+  65.7,
+  81.0
+ ],
+ "wall_pass_now": 7,
+ "wall_pass_with_limit": 7
+}

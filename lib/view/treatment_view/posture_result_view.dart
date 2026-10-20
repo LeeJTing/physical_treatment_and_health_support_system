@@ -98,6 +98,14 @@ class PostureResultView extends StatelessWidget {
                 color: AppTokens.accent,
               ),
             ),
+            // Testing mode: said at the top, before the score (laptop emulator test, 20 Oct).
+            if (vm.testing) ...[
+              const SizedBox(height: AppTokens.gap),
+              const NoticeBanner(
+                'Testing mode: this result is not saved and no plan changes.',
+                key: Key('test_mode_result'),
+              ),
+            ],
             if (r.safetyAlert != null) ...[
               const SizedBox(height: 12),
               _SafetyBanner(message: r.safetyAlert!),
@@ -217,13 +225,6 @@ class PostureResultView extends StatelessWidget {
                       ),
                   ],
                 ),
-              ),
-            ],
-            if (vm.testing) ...[
-              const SizedBox(height: AppTokens.gap),
-              const NoticeBanner(
-                'Testing mode: this result is not saved and no plan changes.',
-                key: Key('test_mode_result'),
               ),
             ],
             if (passing && vm.autoAdvanced) ...[
