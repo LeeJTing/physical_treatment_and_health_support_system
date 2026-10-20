@@ -203,7 +203,7 @@ def _exercise_text(name: str, instruction: str, extra: str, camera: str) -> str:
     if "Safety:" in instruction:
         steps, safety = (s.strip() for s in instruction.split("Safety:", 1))
     points = [s.strip() for s in re.split(r"(?<=[.!])\s+", steps) if s.strip()]
-    lines = [name] + [f"\u2022 {p}" for p in points]
+    lines = [name] + [f"{k}) {p}" for k, p in enumerate(points, 1)]
     if safety:
         lines.append(f"Safety: {safety}")
     lines += [x.strip() for x in (extra, camera) if x.strip()]
@@ -211,8 +211,8 @@ def _exercise_text(name: str, instruction: str, extra: str, camera: str) -> str:
 
 
 def plan_intents(plan: dict) -> list[dict]:
-    lines = "; ".join(f"{e['order']}. {e['name']}, {e['repetitions']} repetitions (about {e['duration']})"
-                      for e in plan["exercises"])
+    lines = "\n".join(f"{e['order']}) {e['name']}: {e['repetitions']} repetitions (about {e['duration']})"
+                       for e in plan["exercises"])
     return [
         # Priority 3: "my plan" appears in many questions about other topics, which should win.
         {"key": "plan_exercises", "title": "What is in my plan", "show": True, "priority": 3,
@@ -224,8 +224,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "comes first", "which first", "which one first", "order"],
          "examples": ["what exercises are in my plan", "which exercise do I do first", "how many repetitions",
                       "what is in this plan"],
-         "answer": f"Your plan, {plan['plan_name']}, has {len(plan['exercises'])} exercises, done in this order: "
-                   f"{lines}. Do it {plan['frequency_per_week']} times a week.",
+         "answer": f"Your plan, {plan['plan_name']}, has {len(plan['exercises'])} exercises, done in this order:\n"
+                   f"{lines}\nDo it {plan['frequency_per_week']} times a week.",
          "follow_ups": [], "tailor": True, "time_aware": True,
          "action": {"key": "open_treatment", "label": "Open my treatment plan"}},
         {"key": "plan_progress", "title": "Progress and results", "show": True, "priority": 6,
@@ -1311,8 +1311,9 @@ OD_DOUBLE = ["double my insulin", "double insulin", "double dose of insulin", "t
              # Malay puts the amount after the medicine ("makan ubat terlalu banyak")
              "ubat terlalu banyak", "terlebih makan ubat", "terlebih ubat", "ubat berlebihan", "telan ubat banyak"]
 OD_BOXES = ["medicine box", "pill box", "pillbox", "medicine cabinet", "kotak ubat"]
-OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now. Call 999 or go to the nearest "
-                   "emergency department now, and take the medicine packets with you; do not wait for symptoms. "
+OVERDOSE_ANSWER = ("Taking too many pills can be dangerous even if you feel fine now.\n"
+                   "1) Call 999 or go to the nearest emergency department now; do not wait for symptoms.\n"
+                   "2) Take the medicine packets with you.\n"
                    "If this was on purpose, or you are thinking of harming yourself, you are not alone: "
                    "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
 # Household chemicals swallowed (laptop pass 7): Dettol, bleach, floor cleaner, pesticide...
@@ -1322,9 +1323,11 @@ POISONS = ["dettol", "clorox", "bleach", "floor cleaner", "cleaner", "pesticide"
            "cleaning liquid", "cleaning fluid", "cleaning product", "dishwashing liquid", "pencuci", "sabun cecair"]
 POISON_VERBS = {"drank", "drink", "drinks", "swallowed", "swallow", "ate", "eaten", "minum", "telan", "took", "had",
                 "terminum", "tertelan"}
-POISON_ANSWER = ("Swallowing a cleaning product, pesticide or other chemical is an emergency. Call 999 now or go "
-                 "to the nearest emergency department, and take the bottle with you. Do not try to make them "
-                 "vomit. If it was on purpose, or you are thinking of harming yourself, you are not alone: "
+POISON_ANSWER = ("Swallowing a cleaning product, pesticide or other chemical is an emergency.\n"
+                 "1) Call 999 now or go to the nearest emergency department.\n"
+                 "2) Take the bottle with you.\n"
+                 "3) Do not try to make them vomit.\n"
+                 "If it was on purpose, or you are thinking of harming yourself, you are not alone: "
                  "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
 
 
@@ -2526,8 +2529,8 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     details = [r["condition_detail"][c] for c in asked_first if c in r.get("condition_detail", {})]
     if chosen["key"] == "condition_advice" and details:
         # A different answer for each condition (Table 4.2.2): the patient's own conditions first.
-        base_answer = " ".join(details) + " " + r["condition_closing"]
-    answer = base_answer + ("\n\n" + " ".join(notes) if notes else "")
+        base_answer = "\n\n".join(details) + "\n\n" + r["condition_closing"]
+    answer = base_answer + ("\n\n" + "\n".join(f"Note: {n}" for n in notes) if notes else "")
     follow = [by_key[k] for k in chosen.get("follow_ups", []) if k in by_key]
     return {**base, "answer": answer, "category": chosen["key"], "title": chosen["title"], "is_matched": True,
             "matched_by": how, "follow_ups": _listing(follow), "notes": notes, "action": chosen.get("action"),

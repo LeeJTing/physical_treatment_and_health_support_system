@@ -17,12 +17,16 @@ Re-run after editing this file or the catalogue:   python ai_server/app/chat/bui
 """
 import json
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in lines)
 
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.67"
+VERSION = "chat-rules-3.68"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1507,11 +1511,13 @@ CRISIS = [
     "want to end it all", "going to end it all", "tamatkan hidup", "tamatkan nyawa", "akhiri hidup",
     "mengakhiri hidup", "tamatkan riwayat", "hidup tak berguna", "tak guna hidup", "tidak guna hidup",
 ]
-CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
-                 "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
-                 "department. You can talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and "
-                 "confidential) or Talian HEAL 15555 (8 am to midnight daily). Please also tell a family member "
-                 "or your doctor how you feel. I am only an exercise assistant, but these people can help you.")
+CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone.\n"
+                 "1) If you are in danger now or might act on these thoughts, call 999 or go to the nearest "
+                 "emergency department.\n"
+                 "2) Talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or "
+                 "Talian HEAL 15555 (8 am to midnight daily).\n"
+                 "3) Please also tell a family member or your doctor how you feel.\n"
+                 "I am only an exercise assistant, but these people can help you.")
 # Emergencies described in free words: an anchor word with a symptom word close to it, in any order
 # ("my chest feels heavy and painful", "i can hardly breathe", "my arm suddenly cannot move").
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
@@ -1634,10 +1640,11 @@ RED_FLAG_COMBOS = [
                               "cannot lift", "can't lift", "cant lift", "cannot raise", "can't raise"], 5],
 ]
 
-RED_FLAG_ANSWER = ("Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or "
-                   "numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency "
-                   "department. For other new pain, dizziness or a fall, sit down, rest, and contact your doctor "
-                   "before exercising again.")
+RED_FLAG_ANSWER = ("Stop exercising now.\n"
+                   "1) Chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or "
+                   "severe swelling: call 999 or go to the nearest emergency department.\n"
+                   "2) Other new pain, dizziness or a fall: sit down, rest, and contact your doctor before "
+                   "exercising again.")
 
 
 def duration(sec: int) -> str:
@@ -1943,10 +1950,13 @@ def build() -> dict:
         i["time_aware"] = i["key"] in TIME_AWARE
         if i["key"] in TAILORED:
             i["tailor"] = True
+    for i in INTENTS:
+        i["answer"] = layout(i["answer"])
+    restrictions = {k: {**v, "answer": layout(v["answer"])} for k, v in RESTRICTIONS.items()}
     rules = {
         "version": VERSION,
         "not_recognised": NOT_RECOGNISED,
-        "intents": INTENTS + mistake_intents(),
+        "intents": INTENTS + [{**m, "answer": layout(m["answer"])} for m in mistake_intents()],
         "glossary": glossary(),
         "exercises": exercises,
         "plans": plans,
@@ -1956,7 +1966,7 @@ def build() -> dict:
         "late_night_note": LATE_NIGHT_NOTE,
         "time_notes": TIME_NOTES,
         "now_notes": NOW_NOTES,
-        "condition_detail": CONDITION_DETAIL,
+        "condition_detail": {k: layout(v) for k, v in CONDITION_DETAIL.items()},
         "condition_closing": CONDITION_CLOSING,
         "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
@@ -1964,7 +1974,7 @@ def build() -> dict:
         "crisis_answer": CRISIS_ANSWER,
         "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
-        "restrictions": RESTRICTIONS,
+        "restrictions": restrictions,
     }
     OUT.write_text(json.dumps(rules, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return rules

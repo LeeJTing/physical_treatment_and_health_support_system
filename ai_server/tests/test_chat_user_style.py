@@ -43,7 +43,7 @@ def test_not_recognised_echoes_a_short_message():
 def test_exercise_answers_are_set_out_in_lines():
     # Reports 17-18: "The answer should display more neatly".
     lines = _reply("How to do Shoulder Abduction")["answer"].split("\n")
-    assert lines[0] == "Shoulder Abduction" and lines[1].startswith("• ") and len(lines) >= 4
+    assert lines[0] == "Shoulder Abduction" and lines[1].startswith("1) ") and lines[2].startswith("2) ")
 
 
 def test_random_messages_like_the_reports_keep_their_level():
@@ -52,3 +52,13 @@ def test_random_messages_like_the_reports_keep_their_level():
     good = sum(str(g) in c["want"] for c, g in results)
     assert good / len(results) >= 0.95, [(c["text"], c["want"], g) for c, g in results if str(g) not in c["want"]][:20]
     assert not [(c["text"], g) for c, g in results if c["kind"] in ("gibberish", "vague", "small_talk") and g in URGENT]
+
+
+def test_every_answer_is_set_out_in_lines():
+    # 3.68 (Elwin, 21 Oct): no answer of three or more sentences is one block of text.
+    from app.chat.layout import sentences
+    for i in engine.rules()["intents"]:
+        a = i["answer"]
+        assert "\n" in a or len(sentences(a)) <= 2, i["key"]
+    for key in ("red_flag_answer", "crisis_answer"):
+        assert "\n1) " in engine.rules()[key]
