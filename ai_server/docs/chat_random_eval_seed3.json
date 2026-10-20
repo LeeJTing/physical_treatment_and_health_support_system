@@ -1,16 +1,16 @@
 {
- "rules_version": "chat-rules-3.59",
+ "rules_version": "chat-rules-3.60",
  "seed": 3,
  "messages": 10000,
- "passed": 9809,
- "rate": 0.9809,
+ "passed": 9816,
+ "rate": 0.9816,
  "by_kind": {
   "written": {
-   "passed": 3036,
+   "passed": 3038,
    "messages": 3110
   },
   "conditions": {
-   "passed": 518,
+   "passed": 517,
    "messages": 524
   },
   "follow": {
@@ -22,7 +22,7 @@
    "messages": 872
   },
   "short": {
-   "passed": 2480,
+   "passed": 2483,
    "messages": 2549
   },
   "red_flags": {
@@ -30,22 +30,21 @@
    "messages": 1211
   },
   "mistakes": {
-   "passed": 425,
+   "passed": 427,
    "messages": 437
   },
   "restricted": {
-   "passed": 600,
+   "passed": 601,
    "messages": 614
   }
  },
  "commonest_misses": [
-  "('crisis', 'red_flag') -> None: 6",
-  "('crisis',) -> None: 4",
+  "('crisis', 'red_flag') -> None: 5",
+  "('fear_of_falling',) -> safety: 4",
   "('plan_and_reminders',) -> plan_exercises: 4",
+  "('crisis',) -> None: 3",
   "('family_help',) -> for_someone_else: 3",
-  "('fear_of_falling',) -> safety: 3",
   "('red_flag',) -> fear_of_falling: 3",
-  "('age_limit',) -> None: 3",
   "('greeting',) -> None: 3",
   "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 3",
   "('app_facts',) -> account_help: 3",
@@ -53,11 +52,11 @@
   "('equipment',) -> None: 2",
   "('tired',) -> acknowledge: 2",
   "('thanks',) -> None: 2",
+  "('condition_advice',) -> pain_or_discomfort: 2",
   "('bot_identity',) -> None: 2",
   "('pain_or_discomfort',) -> exercise:bird_dog: 2",
   "('family_help',) -> bot_identity: 2",
   "('eating_concern',) -> diet: 2",
-  "('tired',) -> None: 2",
   "('plan_progress',) -> plan_exercises: 2",
   "('plan_exercises',) -> how_to: 2",
   "('pain_mild',) -> pain_or_discomfort: 2",
@@ -66,19 +65,20 @@
   "('fear_of_falling', 'safety') -> weakness_balance: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('app_facts',) -> plan_progress: 2",
-  "('fear_of_falling',) -> None: 2",
-  "('weakness_balance',) -> None: 2",
   "('guardian_consent',) -> app_help: 2",
   "('account_help',) -> None: 2",
   "('safety_limits',) -> how_often: 2",
   "('fear_of_falling',) -> red_flag: 2",
   "('condition_advice',) -> plan_exercises: 2",
   "('diagnosis',) -> None: 2",
+  "('crisis',) -> motivation: 1",
+  "('exercise:shoulder_flexion', 'recording_help') -> red_flag: 1",
   "('getting_started',) -> None: 1",
   "('tired',) -> equipment: 1",
-  "('mistake:no_arm_swing',) -> None: 1",
   "('fall_alert',) -> acknowledge: 1",
-  "('mistake:bent_elbow',) -> None: 1"
+  "('mistake:bent_elbow',) -> None: 1",
+  "('exercise:bird_dog',) -> difficulty: 1",
+  "('low_mood',) -> acknowledge: 1"
  ],
  "misses": [
   {
@@ -162,7 +162,7 @@
    "want": [
     "crisis"
    ],
-   "got": null,
+   "got": "motivation",
    "seed_question": "i don't want to live anymore",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -176,6 +176,26 @@
      11,
      0
     ]
+   }
+  },
+  {
+   "text": "camera frint arm raise ?",
+   "want": [
+    "exercise:shoulder_flexion",
+    "recording_help"
+   ],
+   "got": "red_flag",
+   "seed_question": "camera for front arm raise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE",
+     "PREGNANCY"
+    ],
+    "risk_level": "Low",
+    "local_time": null
    }
   },
   {
@@ -267,25 +287,6 @@
    }
   },
   {
-   "text": "IT SAUS NO ARM SWIG??",
-   "want": [
-    "mistake:no_arm_swing"
-   ],
-   "got": null,
-   "seed_question": "it says no arm swing",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HEART_DISEASE",
-     "PREGNANCY"
-    ],
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "hmm if i feell would the app knw ya",
    "want": [
     "fall_alert"
@@ -348,22 +349,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "wich days exercise...",
-   "want": [
-    "age_limit"
-   ],
-   "got": null,
-   "seed_question": "which days should i exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "partial_reps",
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "High",
     "local_time": null
    }
   },
@@ -631,7 +616,7 @@
     "crisis",
     "red_flag"
    ],
-   "got": null,
+   "got": "pain_or_discomfort",
    "seed_question": "i feel heart racing",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -1087,22 +1072,6 @@
    }
   },
   {
-   "text": "so pent!",
-   "want": [
-    "tired"
-   ],
-   "got": null,
-   "seed_question": "so tired",
-   "context": {
-    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "pinkiler ok?",
    "want": [
     "medication"
@@ -1538,24 +1507,6 @@
    }
   },
   {
-   "text": "hi after session knee feels warm loos bigger...",
-   "want": [
-    "pain_swelling"
-   ],
-   "got": "greeting",
-   "seed_question": "after the session my knee feels warm and looks bigger",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION"
-    ],
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "the tasn??",
    "want": [
     "app_help"
@@ -1906,23 +1857,6 @@
    }
   },
   {
-   "text": "Go back hnoe...",
-   "want": [
-    "app_help",
-    "exit_exercise"
-   ],
-   "got": null,
-   "seed_question": "go back home",
-   "context": {
-    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "Is my dta safe...",
    "want": [
     "privacy_data"
@@ -1935,6 +1869,25 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "paln ok hip replacement",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "is this plan ok for hip replacement",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:tandem_stance",
+    "restriction": null,
+    "conditions": [
+     "PREGNANCY",
+     "PARKINSONS"
+    ],
+    "risk_level": null,
     "local_time": null
    }
   },
@@ -2044,7 +1997,7 @@
    "want": [
     "fear_of_falling"
    ],
-   "got": null,
+   "got": "safety",
    "seed_question": "i slipped in the bathroom 2 years ago",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -2138,25 +2091,6 @@
     "conditions": [
      "PREGNANCY"
     ],
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Skit bila buat shouser flexion",
-   "want": [
-    "pain_mild",
-    "pain_or_discomfort",
-    "pain_sharp",
-    "red_flag"
-   ],
-   "got": "exercise:shoulder_flexion",
-   "seed_question": "sakit bila buat shouder flexion",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
     "risk_level": null,
     "local_time": null
    }
@@ -2371,7 +2305,7 @@
    "want": [
     "age_limit"
    ],
-   "got": null,
+   "got": "posture_result",
    "seed_question": "the app never notify me",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -2603,24 +2537,6 @@
    }
   },
   {
-   "text": "ok legs wek since stayed bed months",
-   "want": [
-    "getting_started",
-    "muscle_loss",
-    "weakness_balance"
-   ],
-   "got": "equipment",
-   "seed_question": "my legs very weak since i stayed in bed for months",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "Where shoudl iput my phoen",
    "want": [
     "recording_help"
@@ -2711,22 +2627,6 @@
      20,
      45
     ]
-   }
-  },
-  {
-   "text": "it syss hips_sag pls",
-   "want": [
-    "mistake:hips_sag"
-   ],
-   "got": null,
-   "seed_question": "it says hips_sag",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -3508,25 +3408,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "Hads shay pls...",
-   "want": [
-    "weakness_balance"
-   ],
-   "got": null,
-   "seed_question": "hands shaky",
-   "context": {
-    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     18,
-     15
-    ]
    }
   },
   {

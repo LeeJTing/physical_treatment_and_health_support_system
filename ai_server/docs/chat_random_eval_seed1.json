@@ -1,20 +1,20 @@
 {
- "rules_version": "chat-rules-3.59",
+ "rules_version": "chat-rules-3.60",
  "seed": 1,
  "messages": 10000,
- "passed": 9841,
- "rate": 0.9841,
+ "passed": 9845,
+ "rate": 0.9845,
  "by_kind": {
   "written": {
-   "passed": 2980,
+   "passed": 2982,
    "messages": 3038
   },
   "short": {
-   "passed": 2565,
+   "passed": 2567,
    "messages": 2619
   },
   "exercises": {
-   "passed": 825,
+   "passed": 824,
    "messages": 838
   },
   "red_flags": {
@@ -34,30 +34,28 @@
    "messages": 715
   },
   "conditions": {
-   "passed": 523,
+   "passed": 524,
    "messages": 529
   }
  },
  "commonest_misses": [
   "('crisis', 'red_flag') -> None: 5",
-  "('condition_advice',) -> None: 3",
   "('red_flag',) -> fear_of_falling: 3",
   "('reminder_late_or_off',) -> age_limit: 2",
   "('posture_result',) -> None: 2",
-  "('pain_or_discomfort',) -> None: 2",
   "('safety',) -> plan_progress: 2",
   "('reminder_late_or_off',) -> reminders_help: 2",
   "('exercise:knee_extension', 'how_to') -> diagnosis: 2",
   "('diagnosis',) -> condition_advice: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('age_limit',) -> None: 2",
+  "('condition_advice',) -> None: 2",
   "('family_help',) -> bot_identity: 2",
   "('diagnosis',) -> None: 2",
   "('tired',) -> acknowledge: 2",
   "('profile_help',) -> equipment: 2",
   "('exercise:wall_push_up',) -> equipment: 2",
   "('best_time',) -> None: 2",
-  "('risk_level',) -> None: 2",
   "('tired',) -> None: 2",
   "('best_time',) -> condition_advice: 2",
   "('crisis',) -> None: 2",
@@ -73,12 +71,14 @@
   "('terms_help',) -> None: 1",
   "('motivation',) -> diet: 1",
   "('age_limit',) -> safety: 1",
+  "('pain_or_discomfort',) -> None: 1",
   "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 1",
   "('equipment',) -> None: 1",
   "('mistake:thigh_lift',) -> None: 1",
   "('exercise:sit_to_stand', 'how_to', 'posture_result') -> None: 1",
   "pain_mild -> exercise:tandem_stance: 1",
-  "('doctor_clearance',) -> plan_exercises: 1"
+  "('doctor_clearance',) -> plan_exercises: 1",
+  "('video_quality',) -> recording_help: 1"
  ],
  "misses": [
   {
@@ -716,6 +716,22 @@
    }
   },
   {
+   "text": "Frint arm raise macam mana",
+   "want": [
+    "exercise:shoulder_flexion"
+   ],
+   "got": "red_flag",
+   "seed_question": "front arm raise macam mana",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
    "text": "hello y need log again after few days ?",
    "want": [
     "session_expired"
@@ -1251,22 +1267,6 @@
    }
   },
   {
-   "text": "can i exercise with hip replacmnt?",
-   "want": [
-    "condition_advice"
-   ],
-   "got": null,
-   "seed_question": "can i exercise with hip replacement",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "other_activity",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "2 plss ?",
    "want": [
     "multiple_plans"
@@ -1370,25 +1370,6 @@
     ],
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "my rssik say high why",
-   "want": [
-    "risk_level"
-   ],
-   "got": null,
-   "seed_question": "my risk say high why",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "treatment_nav",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     9,
-     45
-    ]
    }
   },
   {
@@ -1541,22 +1522,6 @@
    }
   },
   {
-   "text": "txttoo small!!",
-   "want": [
-    "text_size"
-   ],
-   "got": null,
-   "seed_question": "text too small",
-   "context": {
-    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
    "text": "ternia kasih!!",
    "want": [
     "thanks"
@@ -1582,7 +1547,7 @@
     "safety",
     "weakness_balance"
    ],
-   "got": null,
+   "got": "eating_concern",
    "seed_question": "how to get up after a fall",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -1751,24 +1716,6 @@
      0,
      15
     ]
-   }
-  },
-  {
-   "text": "my lutut huts so much...",
-   "want": [
-    "pain_or_discomfort"
-   ],
-   "got": null,
-   "seed_question": "MY KNEE HURTS SO MUCH",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HEART_DISEASE"
-    ],
-    "risk_level": "Medium",
-    "local_time": null
    }
   },
   {
@@ -2152,6 +2099,22 @@
    }
   },
   {
+   "text": "Paln fix knee??",
+   "want": [
+    "plan_progress"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "will this plan fix my knee",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "reminder_late_or_off",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
    "text": "Hello cuaca paas??",
    "want": [
     "hot_weather"
@@ -2404,23 +2367,6 @@
    }
   },
   {
-   "text": "it says norepetition found lah!",
-   "want": [
-    "posture_result",
-    "recording_help"
-   ],
-   "got": null,
-   "seed_question": "it says no repetition found",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
    "text": "hw do i do the glute brgie!!",
    "want": [
     "exercise:glute_bridge"
@@ -2600,22 +2546,6 @@
      0,
      30
     ]
-   }
-  },
-  {
-   "text": "chwk w doctor first y",
-   "want": [
-    "doctor_clearance"
-   ],
-   "got": null,
-   "seed_question": "check with doctor first why",
-   "context": {
-    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
    }
   },
   {
