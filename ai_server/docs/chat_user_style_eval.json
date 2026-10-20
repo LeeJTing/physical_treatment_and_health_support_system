@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.67",
+ "rules_version": "chat-rules-3.69",
  "seed": 1,
  "messages": 2000,
  "reported_ok": 20,
@@ -20,7 +20,7 @@
    ],
    "got": "bot_identity",
    "ok": true,
-   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+   "answer": "I am the rehabilitation assistant for your treatment plan.\n1) I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice.\n2) You can ask about how to do y"
   },
   {
    "question": "999",
@@ -29,7 +29,7 @@
    ],
    "got": "red_flag",
    "ok": true,
-   "answer": "Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency department. For other"
+   "answer": "Stop exercising now.\n1) Chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling: call 999 or go to the nearest emergency department.\n2) Other new pain,"
   },
   {
    "question": "what question can",
@@ -38,7 +38,7 @@
    ],
    "got": "bot_identity",
    "ok": true,
-   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+   "answer": "I am the rehabilitation assistant for your treatment plan.\n1) I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice.\n2) You can ask about how to do y"
   },
   {
    "question": "what question can i ask",
@@ -47,7 +47,7 @@
    ],
    "got": "bot_identity",
    "ok": true,
-   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+   "answer": "I am the rehabilitation assistant for your treatment plan.\n1) I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice.\n2) You can ask about how to do y"
   },
   {
    "question": "allergy",
@@ -56,7 +56,7 @@
    ],
    "got": "allergy",
    "ok": true,
-   "answer": "If you have an allergy, tell your doctor before starting your exercises, and keep any allergy medicine you were given (such as an inhaler or an adrenaline pen) with you when you exercise. You can keep"
+   "answer": "If you have an allergy, tell your doctor before starting your exercises, and keep any allergy medicine you were given (such as an inhaler or an adrenaline pen) with you when you exercise.\n1) You can k"
   },
   {
    "question": "I dont",
@@ -146,7 +146,7 @@
    ],
    "got": "exercise:shoulder_abduction",
    "ok": true,
-   "answer": "Shoulder Abduction\n• Stand tall with arms by your sides.\n• Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly.\nSafety: do not raise above"
+   "answer": "Shoulder Abduction\n1) Stand tall with arms by your sides.\n2) Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly.\nSafety: do not raise abo"
   },
   {
    "question": "How to do Shoulder Flexion",
@@ -155,7 +155,7 @@
    ],
    "got": "exercise:shoulder_flexion",
    "ok": true,
-   "answer": "Shoulder Flexion\n• Stand with arms by your sides.\n• Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly.\nSafety: do not arch the"
+   "answer": "Shoulder Flexion\n1) Stand with arms by your sides.\n2) Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly.\nSafety: do not arch t"
   },
   {
    "question": "kdjsb",
@@ -173,7 +173,7 @@
    ],
    "got": "report_answer",
    "ok": true,
-   "answer": "Sorry about that. Tap Report this answer under the answer, and if you can, say what you expected and which topic you meant. Reports are read and checked by the team before anything in my answers chang"
+   "answer": "Sorry about that.\nTap Report this answer under the answer, and if you can, say what you expected and which topic you meant.\nReports are read and checked by the team before anything in my answers chang"
   },
   {
    "question": "i m ur father",
@@ -182,7 +182,7 @@
    ],
    "got": "bot_identity",
    "ok": true,
-   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+   "answer": "I am the rehabilitation assistant for your treatment plan.\n1) I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice.\n2) You can ask about how to do y"
   }
  ],
  "passed": 1973,
@@ -254,5 +254,5 @@
   "health_word: 'medci ah??' -> None (want ['med_help']; from 'medic')",
   "vague: 'whhat leh...' -> None (want ['clarify']; from 'what')"
  ],
- "seconds": 49
+ "seconds": 50
 }

@@ -2311,6 +2311,81 @@ def _manglish(text: str) -> str:
     return text
 
 
+# 3.69 (the voice typing test, chat_voice_set.py: 79.3%): speech-to-text writes words that sound alike -
+# "i dont want two live anymore", "chess pain", "my need hurts", "heal rays", "set two stand", "my store so
+# low", "my plant". Each is put back only where the words around it make the meaning plain ("I need help"
+# and "a store" stay), before the safety checks read the message.
+_VERBS = (r"(?:live|die|end|kill|hurt|do|use|stand|walk|exercise|sit|start|stop|eat|sleep|breathe|record|log|"
+          r"change|get|go|be|see|know|make|take|keep|move|lift|raise|bend|finish|continue|rest|find|update|"
+          r"upload|open|reset|delete|add|ask|call|talk|come|wake|the|my|this|side|front)")
+_BODY = (r"(?:pain|pian|pane|hurts?|hertz|tight|tightness|pressure|ache|aches|aching|sakit|sore|swollen|feels?|"
+         r"is|was|very|so|really|kind|bit|quite|heavy)")
+VOICE_FIXES = [(re.compile(p), r) for p, r in [
+    (r"\b(want|wants|how|need|needs|going|have|has|got|able|try|trying|like|start|ready|wish|used|time|easy|hard|"
+     r"unable|way|reason|nothing|place) (?:two|too) (" + _VERBS + r")\b", r"\1 to \2"),
+    (r"\b(?:two|too) (" + _VERBS + r")\b", r"to \1"),
+    (r"\btied of\b", "tired of"), (r"\bdead tied\b", "dead tired"),
+    (r"\bchess(?= " + _BODY + r"\b)", "chest"), (r"\b(my|the|in my) chess\b", r"\1 chest"),
+    (r"\bhertz\b", "hurts"), (r"\bdizzie\b", "dizzy"), (r"\bdizy\b", "dizzy"),
+    (r"\b(my|posture|pasture|poster|your|low|high|good|bad) store\b", r"\1 score"),
+    (r"\bstore (?=\d|so\b|is\b|mean|low|high|only)", "score "),
+    (r"\b(shoulder|knee|hip|heel|soldier|exercise|exercises|elbow|wrist|squat|my last|average) store\b", r"\1 score"),
+    (r"\b(?:pasture|poster)(?= (?:score|store|result|results|check|analysis|accuracy|is|was|feedback)\b)", "posture"),
+    (r"\b(my|the|this|a|new|tukar|your|current|which|what|that|one|both|another|each|core|knee|shoulder|hip|"
+     r"hand|balance|strength|rehab|treatment|exercise) (?:plane|plant)(s?)\b",
+     r"\1 plan\2"),
+    (r"\b(?:plane|plant)(?= (?:for|am i|is|was|says)\b)", "plan"),
+    (r"\bremainders?\b", lambda m: "reminders" if m.group(0).endswith("s") else "reminder"),
+    (r"\bpass word\b", "password"),
+    (r"\b(a|the|my|without|on|from|which|what|sturdy|kitchen|of|to|use|using) cheer\b", r"\1 chair"),
+    (r"\bcheer stand\b", "chair stand"), (r"\btan them\b", "tandem"),
+    (r"\bheals? (?:rays|raise|raises|race|races)\b", "heel raise"), (r"\bheel (?:rays|race|races)\b", "heel raise"),
+    (r"\b(arm|arms|front|side|lateral|shoulder|soldier|leg|calf) (?:rays|race|races)\b", r"\1 raises"),
+    (r"\b(?:set|sit) (?:two|too|to) stand\b", "sit to stand"), (r"\bset ups\b", "sit ups"),
+    (r"\b(my|left|right|both|frozen|the|your) soldiers?\b", r"\1 shoulder"),
+    (r"\bsoldiers?(?= (?:pain|pane|hurt|hurts|raise|raises|abduction|flexion|exercise|is|ache|press)\b)", "shoulder"),
+    (r"\bshould a(?= (?:pain|pane|raise|raises|hurts|exercise|shrug|store|score|abduction|flexion)\b)", "shoulder"),
+    (r"\b(my|left|right|both|the|your) needs?(?= (?:hurts?|hertz|is|feels?|pain|pane|swollen|swells|gives|clicks|"
+     r"cracks|bends|aches|sore|still|keeps|very|so)\b)", r"\1 knee"),
+    (r"\b(my|the|chest|knee|back|neck|shoulder|hip|no|in|more|sharp|bad|any|much) pane\b", r"\1 pain"),
+    (r"\b(what|lose|losing|my|body|lift|heavier|light|lighter|which|gained|gain|put on|lost|gaining) wait\b",
+     r"\1 weight"),
+    (r"\bwait loss\b", "weight loss"),
+    (r"\b(feel|feels|feeling|so|very|is|are|legs|arms|too|getting|felt) week\b", r"\1 weak"),
+    (r"\bblood pleasure\b", "blood pressure"), (r"\bextra sizes\b", "exercises"), (r"\bextra size\b", "exercise"),
+    (r"\b(?:war|wall) bush up\b", "wall push up"), (r"\bwar push up\b", "wall push up"), (r"\bbush ups?\b", "push up"),
+    (r"\bglue bridge\b", "glute bridge"), (r"\bflection\b", "flexion"),
+    (r"\b(my|your|the|on) tows\b", r"\1 toes"), (r"\b(heel to) tow\b", r"\1 toe"),
+    (r"\b(so|very|just|feel|feels|feeling|i'm|im|am|too|always|really) tied\b", r"\1 tired"),
+    (r"\bhep\b", "hip"), (r"\bsquads\b", "squats"), (r"\bsquad\b", "squat"),
+    (r"\b(can't|cant|cannot|hard to|unable to|to|short of|hardly|barely|not|i|should i|while i|can) breed\b",
+     r"\1 breathe"),
+    (r"\brist\b", "wrist"), (r"\bfizzy oh\b", "physio"), (r"\broute in\b", "routine"), (r"\blefting\b", "lifting"),
+    (r"\bcalve\b", "calf"), (r"\bpain full\b", "painful"), (r"\bswallen\b", "swollen"),
+    (r"\b(the|a|to the|against the|on the|near the|from the) war\b", r"\1 wall"),
+    (r"\bhe'?ll(?= (?:raise|raises|rays|race|races|to|too|two|lift)\b)", "heel"),
+    (r"\bheal (?:to|too|two) (?:toe|tow)\b", "heel to toe"), (r"\bheel (?:too|two) (toe|tow)\b", "heel to toe"),
+    (r"\b(my|your|the|both) heals\b", r"\1 heels"), (r"\bheals(?= (?:go|lift|up|down|off)\b)", "heels"),
+    (r"\brays(?= (?:my|your|both|the|arms?|legs?|heels?)\b)", "raise"),
+    (r"\b(how many|many|more|less|fewer|of|the|my|extra) wraps\b", r"\1 reps"),
+    (r"\bnee\b", "knee"), (r"\bnees\b", "knees"),
+    (r"\b(feel|feels|feeling|is|be|so|very|bit|quite|still|are|was|just|really|abit|getting) (?:soar|saw)\b",
+     r"\1 sore"),
+    (r"\b(?:soar|saw)(?= (?:muscles?|knee|knees|back|legs?|arms?|shoulders?|neck|feet|ankles?)\b)", "sore"),
+    (r"\b(cannot|can't|cant|to|can|hard to|unable to|try to) left\b", r"\1 lift"),
+    (r"\b(the|my) risk (?=exercise|extension|pain|hurts|lift|curl)", r"\1 wrist "),
+]]
+
+
+def _voice(text: str) -> str:
+    """Sound-alike words from voice typing put back (VOICE_FIXES); the text unchanged when none is there."""
+    low = text.lower()
+    fixed = low
+    for pattern, english in VOICE_FIXES:
+        fixed = pattern.sub(english, fixed)
+    return text if fixed == low else fixed
+
+
 def _tidy(text: str) -> str:
     """Spacing typed by accident or for effect, made plain before anything reads the message (3.58):
     "sesak  nafas" is "sesak nafas", "terima...kasih" is "terima kasih", "h e l p" is "help" and
@@ -2435,7 +2510,7 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if text:
         text = unicodedata.normalize("NFC", COMBINING_RE.sub("", unicodedata.normalize("NFD", text)))
         text = _tidy(INVISIBLE_RE.sub("", text))           # zero-width characters (3.57), spacing (3.58)
-        text = _manglish(text)                             # "get up from the floor cannot" (3.66)
+        text = _manglish(_voice(text))                     # "get up from the floor cannot" (3.66), "chess pain" (3.69)
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
     rest = r.get("restrictions", {}).get(restriction or "")

@@ -1,0 +1,22 @@
+{
+ "rules_version": "chat-rules-3.69",
+ "seed": 1,
+ "messages": 2000,
+ "questions": 510,
+ "passed": 1989,
+ "rate": 0.9945,
+ "warning_signs": 195,
+ "warning_signs_passed": 195,
+ "misses": [
+  "'uh i fell last year this morning i tried the plant again' -> red_flag (want ['fear_of_falling']; from 'i fell last year. this morning i tried the plan again')",
+  "'hello i fell last year this morning i tried the plant again' -> red_flag (want ['fear_of_falling']; from 'i fell last year. this morning i tried the plan again')",
+  "'okay this extra size is killing me haha' -> acknowledge (want ['None', 'difficulty']; from 'this exercise is killing me haha')",
+  "'um this extra size is killing me haha' -> None (want ['None', 'difficulty']; from 'this exercise is killing me haha')",
+  "'i want to change to a different plant' -> None (want ['plan_and_reminders']; from 'i want to change to a different plan')",
+  "'how to straighten my need in the exercise' -> difficulty (want ['exercise:knee_extension']; from 'how to straighten my knee in the exercise')",
+  "\"okay how many times should i do he'll races\" -> how_often (want ['exercise:heel_raise']; from 'how many times should i do heel raises')",
+  "'Uh my need goes inwards when i stand up.' -> None (want ['exercise:sit_to_stand', 'how_to']; from 'my knee goes inwards when i stand up')",
+  "'uh my need goes inwards when i stand up' -> None (want ['exercise:sit_to_stand', 'how_to']; from 'my knee goes inwards when i stand up')"
+ ],
+ "seconds": 55
+}

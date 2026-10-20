@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.67",
+ "rules_version": "chat-rules-3.69",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1945,
@@ -17,7 +17,7 @@
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 1.43,
+ "slowest_reply_sec": 1.47,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",
@@ -220,5 +220,5 @@
   "oos/oos: 'see if you can purchase a spacesuit online' -> equipment (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'start a portfolio on venture capital funding for m' -> getting_started (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
  ],
- "seconds": 278
+ "seconds": 279
 }
