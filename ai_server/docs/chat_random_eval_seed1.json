@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.60",
+ "rules_version": "chat-rules-3.61",
  "seed": 1,
  "messages": 10000,
- "passed": 9845,
- "rate": 0.9845,
+ "passed": 9844,
+ "rate": 0.9844,
  "by_kind": {
   "written": {
-   "passed": 2982,
+   "passed": 2981,
    "messages": 3038
   },
   "short": {
@@ -1031,6 +1031,22 @@
      22,
      45
     ]
+   }
+  },
+  {
+   "text": "I want a new passwrd but i still know the old one?",
+   "want": [
+    "change_password"
+   ],
+   "got": null,
+   "seed_question": "i want a new password but i still know the old one",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "pain_or_discomfort",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
    }
   },
   {

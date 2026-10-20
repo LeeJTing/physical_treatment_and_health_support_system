@@ -1,9 +1,9 @@
 {
- "rules_version": "chat-rules-3.60",
+ "rules_version": "chat-rules-3.61",
  "seed": 3,
  "messages": 10000,
- "passed": 9816,
- "rate": 0.9816,
+ "passed": 9815,
+ "rate": 0.9815,
  "by_kind": {
   "written": {
    "passed": 3038,
@@ -34,7 +34,7 @@
    "messages": 437
   },
   "restricted": {
-   "passed": 601,
+   "passed": 600,
    "messages": 614
   }
  },
@@ -63,6 +63,7 @@
   "('difficulty',) -> other_activity: 2",
   "('treatment_nav',) -> plan_exercises: 2",
   "('fear_of_falling', 'safety') -> weakness_balance: 2",
+  "('age_limit',) -> None: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('app_facts',) -> plan_progress: 2",
   "('guardian_consent',) -> app_help: 2",
@@ -77,8 +78,7 @@
   "('tired',) -> equipment: 1",
   "('fall_alert',) -> acknowledge: 1",
   "('mistake:bent_elbow',) -> None: 1",
-  "('exercise:bird_dog',) -> difficulty: 1",
-  "('low_mood',) -> acknowledge: 1"
+  "('exercise:bird_dog',) -> difficulty: 1"
  ],
  "misses": [
   {
@@ -2703,6 +2703,25 @@
     "local_time": [
      5,
      30
+    ]
+   }
+  },
+  {
+   "text": "hw many setts ?",
+   "want": [
+    "age_limit"
+   ],
+   "got": null,
+   "seed_question": "how many sets",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     6,
+     45
     ]
    }
   },

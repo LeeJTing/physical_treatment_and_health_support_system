@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.60",
+ "rules_version": "chat-rules-3.61",
  "seed": 2,
  "messages": 10000,
- "passed": 9837,
- "rate": 0.9837,
+ "passed": 9836,
+ "rate": 0.9836,
  "by_kind": {
   "restricted": {
-   "passed": 592,
+   "passed": 591,
    "messages": 606
   },
   "follow": {
@@ -707,6 +707,24 @@
      "COPD"
     ],
     "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "I want to remove my accunt and all my dta...",
+   "want": [
+    "delete_account"
+   ],
+   "got": null,
+   "seed_question": "i want to remove my account and all my data",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "ASTHMA"
+    ],
+    "risk_level": null,
     "local_time": null
    }
   },
