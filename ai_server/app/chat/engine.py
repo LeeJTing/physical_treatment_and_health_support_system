@@ -75,7 +75,13 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
                  "baru bersalin": "just gave birth", "lepas bersalin": "just gave birth",
                  "selamat pagi": "good morning", "selamat petang": "good afternoon",
                  "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
-                 "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you", "macam mana": "how", "camne": "how",
+                 "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you",
+                 # 3.59: "macam mana nak buat" is "how to do", not "how want do"; getting up from a chair
+                 "macam mana nak": "how to", "camne nak": "how to", "susah nak bangun": "hard to get up",
+                 "susah bangun": "hard to get up", "tak boleh bangun dari kerusi": "can't get up from the chair",
+                 "tidak boleh bangun dari kerusi": "can't get up from the chair",
+                 "bangun dari kerusi": "get up from the chair",
+                 "bangun dari katil": "get up from bed", "macam mana": "how", "camne": "how",
                  "sesak nafas": "short of breath", "kencing manis": "diabetes", "darah tinggi": "high blood pressure",
                  "sakit jantung": "heart disease", "lemah badan": "weak",
                  # round 14 (elderly users)
@@ -126,6 +132,20 @@ SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", 
                      "cnt": "can't", "nt": "not", "smtg": "something", "sth": "something", "bf": "before",
                      "lyk": "like", "gd": "good", "nite": "night", "tonite": "tonight", "pple": "people",
                      "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video"}
+# Malay as it is texted (3.59, the random typing test: "sya jatuh semalam", "xleh bangun", "jatuh td").
+SHORT_WORDS_TYPED.update({
+    "sya": "saya", "sy": "saya", "saa": "saya", "tk": "tak", "xleh": "tak boleh", "xblh": "tak boleh",
+    "xboleh": "tak boleh", "xbole": "tak boleh", "xde": "tak ada", "xda": "tak ada", "xada": "tak ada",
+    "xpe": "tak apa", "xpa": "tak apa", "xnak": "tak nak", "dgn": "dengan", "utk": "untuk", "yg": "yang",
+    "sbb": "sebab", "sbab": "sebab", "skt": "sakit", "blh": "boleh", "bley": "boleh", "bleh": "boleh",
+    "nk": "nak", "jgn": "jangan", "sgt": "sangat", "mcm": "macam", "kne": "kena", "dh": "dah", "lps": "lepas",
+    "mkn": "makan", "tgk": "tengok", "bpe": "berapa", "brp": "berapa", "camne": "macam mana",
+    "cmne": "macam mana", "cmana": "macam mana", "mcmana": "macam mana", "knp": "kenapa", "npe": "kenapa",
+    "nape": "kenapa", "tgn": "tangan", "pg": "pagi", "ptg": "petang", "mlm": "malam", "smlm": "semalam",
+    "td": "tadi", "tdi": "tadi", "skrg": "sekarang", "skrang": "sekarang", "skang": "sekarang", "ape": "apa",
+    "lg": "lagi", "org": "orang", "sdh": "sudah", "blm": "belum", "bkn": "bukan", "mmg": "memang",
+    "ckp": "cakap", "dpt": "dapat", "byk": "banyak", "kpd": "kepada", "drpd": "daripada", "tlg": "tolong",
+    "tlong": "tolong"})
 
 
 @lru_cache
@@ -477,8 +497,37 @@ def respell(text: str) -> str:
         if now in ("fell", "fall") and was not in ("fell", "fall") and k + 1 < len(mended) \
                 and mended[k + 1] in FEELING_WORDS:
             mended[k] = "feel"
+    # 3.59: an unknown or rarer word within three words of a symptom is read as a symptom word one slip
+    # away ("chet pain", "herat pounding", "dada skit", "chest pina", "leer kersa dan demam"); alone it
+    # is not ("pruning", "chet" stay as typed).
+    near = [set(m.split()) for m in mended]
+    for k, was in enumerate(typed):
+        sign = _sign_reading(was)
+        if sign and not near[k] & SIGN_WORDS and any(
+                near[j] & SIGN_CONTEXT for j in range(max(0, k - 3), min(len(typed), k + 4)) if j != k):
+            mended[k] = sign
     parts[1::2] = mended
     return "".join(parts)
+
+
+# Symptoms and the body parts they are felt in (3.59), narrower than SAFETY_WORDS.
+SIGN_WORDS = frozenset({"chest", "dada", "heart", "jantung", "pain", "sakit", "nafas", "bernafas", "breath",
+                        "breathe", "pitam", "pengsan", "faint", "fainted", "dizzy", "pening", "numb", "kebas",
+                        "bleeding", "darah", "blood", "fell", "fall", "jatuh", "pounding", "racing", "berdebar",
+                        "tightness", "ketat", "sesak", "leher", "neck", "stiff", "keras", "demam", "fever", "vomit",
+                        "muntah", "swollen", "weak", "lumpuh", "stroke", "collapse", "collapsed"})
+SIGN_CONTEXT = SIGN_WORDS | {"hurt", "hurts", "hurting", "ache", "aching", "tight", "beating", "fast", "laju",
+                             "sudden", "suddenly"}
+
+
+@lru_cache(maxsize=20000)
+def _sign_reading(w: str) -> str | None:
+    """The symptom word one slip from an unknown or rarer word (same first letter), if any."""
+    if len(w) < 3 or not w.isalpha() or w in SIGN_WORDS or w in _respell_vocab() or w in dictionary():
+        return None
+    scored = sorted((typo_cost(w, v), _tie_order(v)) for v in SIGN_WORDS
+                    if v[0] == w[0] and abs(len(v) - len(w)) <= 1)
+    return scored[0][1][2] if scored and scored[0][0] <= 1.0 else None
 
 
 def _respell_part(w: str) -> str | None:
@@ -495,6 +544,10 @@ def _respell_words(token: str) -> str:
     for w in [token]:
         if w in SHORT_WORDS_TYPED:
             out.append(SHORT_WORDS_TYPED[w])
+            continue
+        if len(w) > 5 and w[-3:] in ("lah", "kah") and (w[:-3] in vocab or w[:-3] in COMMON_MALAY
+                                                       or w[:-3] in SAFETY_WORDS):
+            out.append(w[:-3])                           # "bangunlah" -> bangun; "bolehkah" -> boleh (3.59)
             continue
         if w in vocab or w in dictionary() or len(w) < 3 or not w.replace("'", "").isalpha():
             out.append(w)                                # a known or a real word is what was typed

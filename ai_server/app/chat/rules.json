@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.58",
+  "version": "chat-rules-3.59",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -843,14 +843,27 @@
         "jelly",
         "no strength",
         "not strong",
-        "heavy legs"
+        "heavy legs",
+        "can't get up",
+        "cannot get up",
+        "cant get up",
+        "unable to get up",
+        "hard to get up",
+        "trouble getting up",
+        "can't stand up",
+        "cannot stand up",
+        "cant stand up",
+        "hard to stand up",
+        "trouble standing up"
       ],
       "examples": [
         "my leg feels wobbly when standing",
         "my legs feel weak",
         "I feel unsteady on my feet",
         "my knee gives way",
-        "I lose my balance"
+        "I lose my balance",
+        "I can't get up from the chair",
+        "I can't get up"
       ],
       "answer": "Legs, arms or hands that feel weak, wobbly or shaky are common after a long period of less activity, and this is what your exercises are building up. For standing exercises always keep one hand on a sturdy chair or counter; for any exercise do fewer repetitions and rest when the shaking starts. If weakness comes on suddenly, or affects one side of your body, stop and get medical help straight away; if your hand shakes even when it is resting, tell your doctor.",
       "follow_ups": [],

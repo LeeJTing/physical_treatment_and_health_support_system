@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.58"
+VERSION = "chat-rules-3.59"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -194,9 +194,15 @@ INTENTS = [
             "wobbly", "wobble", "unsteady", "unstable", "shaky", "shaking", "shake", "shakes", "trembling", "tremble",
             "weak", "weakness", "give way", "gives way", "giving way", "give out", "gives out", "collapse",
             "collapsing", "buckle", "buckles", "buckling", "balance", "off balance", "lose balance", "losing balance",
-            "lost my balance", "feel like falling", "jelly", "no strength", "not strong", "heavy legs"],
+            "lost my balance", "feel like falling", "jelly", "no strength", "not strong", "heavy legs",
+            # 3.59: "i can't get up" was the age-limit answer, "can't stand up" heel raises. With a fall,
+            # the floor, "since" or "lying" it is a warning sign instead (red_flag_combos).
+            # Only the difficulty: "how should I stand up from the chair" is the sit-to-stand exercise.
+            "can't get up", "cannot get up", "cant get up", "unable to get up", "hard to get up",
+            "trouble getting up", "can't stand up", "cannot stand up", "cant stand up", "hard to stand up",
+            "trouble standing up"],
            ["my leg feels wobbly when standing", "my legs feel weak", "I feel unsteady on my feet",
-            "my knee gives way", "I lose my balance"],
+            "my knee gives way", "I lose my balance", "I can't get up from the chair", "I can't get up"],
            "Legs, arms or hands that feel weak, wobbly or shaky are common after a long period of less activity, "
            "and this is what your exercises are building up. For standing exercises always keep one hand on a "
            "sturdy chair or counter; for any exercise do fewer repetitions and rest when the shaking starts. If "
