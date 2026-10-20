@@ -17,6 +17,7 @@ limitations and risk level (Table 4.2.2: the reply is filtered by health conditi
 import json
 import math
 import re
+import unicodedata
 from functools import lru_cache
 from pathlib import Path
 
@@ -461,6 +462,7 @@ URGENT_WORDS = frozenset({"fell", "fall", "fallen", "falling", "jatuh", "pitam",
                           "bunuh", "mati", "pills", "overdose", "poison", "blood", "darah", "worst", "passed",
                           "want", "wish", "live", "living", "hurts", "hurt", "wants", "diri", "muka", "pain"})
 URGENT_MARGIN = 0.3
+RARE_SLIP = 0.8          # a rarer real word is respelled only this close (3.60; 0.5 in 3.57-3.59)
 
 
 def _tie_order(v: str) -> tuple:
@@ -515,9 +517,13 @@ SIGN_WORDS = frozenset({"chest", "dada", "heart", "jantung", "pain", "sakit", "n
                         "breathe", "pitam", "pengsan", "faint", "fainted", "dizzy", "pening", "numb", "kebas",
                         "bleeding", "darah", "blood", "fell", "fall", "jatuh", "pounding", "racing", "berdebar",
                         "tightness", "ketat", "sesak", "leher", "neck", "stiff", "keras", "demam", "fever", "vomit",
-                        "muntah", "swollen", "weak", "lumpuh", "stroke", "collapse", "collapsed"})
-SIGN_CONTEXT = SIGN_WORDS | {"hurt", "hurts", "hurting", "ache", "aching", "tight", "beating", "fast", "laju",
-                             "sudden", "suddenly"}
+                        "muntah", "swollen", "weak", "lumpuh", "stroke", "collapse", "collapsed", "hurts",
+                        "hurt", "sore", "aches"})
+# 3.60: and the body part it is felt in ("my knee huts" -> hurts; "it huts" stays as typed).
+SIGN_CONTEXT = SIGN_WORDS | {"hurting", "ache", "aching", "tight", "beating", "fast", "laju", "sudden",
+                             "suddenly", "knee", "knees", "back", "hip", "hips", "shoulder", "shoulders", "leg",
+                             "legs", "arm", "arms", "ankle", "foot", "feet", "wrist", "elbow", "lutut", "kaki",
+                             "tangan", "pinggang", "bahu", "belakang", "pinggul", "buku"}
 
 
 @lru_cache(maxsize=20000)
@@ -630,9 +636,9 @@ def _likeliest(w: str) -> str | None:
     two_slips = [] if len(w) < 4 or w in rare_words() else [
         s for s in scored if not s[1] and s[0] <= 1.5 and _in_order(w, s[2]) >= len(w) - 1]
     if w in rare_words():
-        # A real but rarer word: never a warning sign, and only an easy slip of another word ("hurst" ->
-        # hurts; "pruning" is not "purging").
-        scored = [s for s in scored if s[1] and s[0] <= 0.5]
+        # A real but rarer word: never a warning sign (unless beside one: respell, 3.59), and only one
+        # slip of another word ("hurst", "huts" -> hurts; "flor" -> floor; "pruning" is not "purging").
+        scored = [s for s in scored if s[1] and s[0] <= RARE_SLIP]
     scored = [s for s in scored if s[1] or s[0] <= 1.0]  # warning-sign words: one slip at most here
     best_known = scored[0][0] if scored else 9.0
     extra = sorted((typo_cost(w, v), True, v) for v in words - cands)
@@ -1424,6 +1430,15 @@ def _overlap_index(plan_id: str | None):
     return docs, idf
 
 
+def _real_word(w: str) -> bool:
+    """The stem (stem()) of an English or Malay word, common or rarer: not a stray letter or a string of
+    them."""
+    if len(w) <= 1:
+        return False
+    known = (dictionary(), rare_words(), _respell_vocab())
+    return any(w + s in k for s in ("", "s", "e", "ed", "es", "ing", "ings") for k in known)
+
+
 def overlap_match(plan_id: str | None, text: str) -> tuple[dict | None, float]:
     """Best rule by weighted share of the question's words found in the rule's vocabulary."""
     q = _stems(text)
@@ -1432,7 +1447,9 @@ def overlap_match(plan_id: str | None, text: str) -> tuple[dict | None, float]:
     if not known:
         return None, 0.0
     unknown_weight = math.log(len(docs) + 1) + 1          # an unseen word weighs like the rarest word
-    total = sum(idf.get(t, unknown_weight) for t in q)
+    # ... if it is a real word ("transfers"); a stray letter or letters typed by mistake ("... at a time k",
+    # "looks bigger bycx") are not evidence against the match (3.60).
+    total = sum(idf[t] if t in idf else unknown_weight if _real_word(t) else 0.0 for t in q)
     best, best_score = None, 0.0
     for intent, d in docs:
         if len(q & d) < 2:          # one shared word ("time", "arm") is not enough evidence
@@ -1937,6 +1954,8 @@ def _safety_again(base: dict, kind: str, r: dict) -> dict:
 
 
 INVISIBLE_RE = re.compile("[\u200b\u200c\u200d\u200e\u200f\u2060\ufeff\u00ad]")
+# Accents and marks stacked on letters ("café", "Zalgo" text), not the vowel signs of other scripts (3.60).
+COMBINING_RE = re.compile("[\u0300-\u036f\u1ab0-\u1aff\u1dc0-\u1dff\u20d0-\u20ff\ufe20-\ufe2f]")
 MAX_TOPIC_CHARS = 1500
 
 
@@ -1980,10 +1999,11 @@ macam mana bila kenapa ada sudah dah di dari pun lah""".split())
 
 
 def _word_list(text: str) -> bool:
-    """20 words or more and not one word of grammar ("i", "my", "the", "is", "how", "saya", "nak"): words
+    """20 words or more and hardly a word of grammar ("i", "my", "the", "is", "how", "saya", "nak"): words
     pasted or typed at random, not a question (3.58). The safety checks have read it already."""
     words = re.findall(r"[^\W\d_]+", text.lower())
-    return len(words) >= 20 and not any(w in STOP or w in MALAY_GRAMMAR for w in words)
+    grammar = sum(w in STOP or w in MALAY_GRAMMAR for w in words)
+    return len(words) >= 20 and grammar * 20 < len(words)      # under 1 in 20 (a stray "a", 3.60)
 
 
 def reply(plan_id: str | None, category: str | None, text: str | None,
@@ -1992,6 +2012,7 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
           previous_category: str | None = None, restriction: str | None = None) -> dict:
     r = rules()
     if text:
+        text = unicodedata.normalize("NFC", COMBINING_RE.sub("", unicodedata.normalize("NFD", text)))
         text = _tidy(INVISIBLE_RE.sub("", text))           # zero-width characters (3.57), spacing (3.58)
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
