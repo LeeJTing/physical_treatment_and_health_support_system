@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.61",
+ "rules_version": "chat-rules-3.63",
  "seed": 1,
  "messages": 10000,
- "passed": 9844,
- "rate": 0.9844,
+ "passed": 9851,
+ "rate": 0.9851,
  "by_kind": {
   "written": {
-   "passed": 2981,
+   "passed": 2985,
    "messages": 3038
   },
   "short": {
@@ -14,15 +14,15 @@
    "messages": 2619
   },
   "exercises": {
-   "passed": 824,
+   "passed": 825,
    "messages": 838
   },
   "red_flags": {
-   "passed": 1195,
+   "passed": 1196,
    "messages": 1203
   },
   "restricted": {
-   "passed": 645,
+   "passed": 646,
    "messages": 657
   },
   "mistakes": {
@@ -39,8 +39,7 @@
   }
  },
  "commonest_misses": [
-  "('crisis', 'red_flag') -> None: 5",
-  "('red_flag',) -> fear_of_falling: 3",
+  "('crisis', 'red_flag') -> None: 4",
   "('reminder_late_or_off',) -> age_limit: 2",
   "('posture_result',) -> None: 2",
   "('safety',) -> plan_progress: 2",
@@ -58,8 +57,8 @@
   "('best_time',) -> None: 2",
   "('tired',) -> None: 2",
   "('best_time',) -> condition_advice: 2",
-  "('crisis',) -> None: 2",
   "('acknowledge',) -> None: 2",
+  "('weakness_balance',) -> red_flag: 2",
   "('bot_identity',) -> None: 2",
   "('crisis', 'red_flag') -> weakness_balance: 2",
   "('how_often', 'plan_exercises') -> None: 1",
@@ -78,7 +77,8 @@
   "('exercise:sit_to_stand', 'how_to', 'posture_result') -> None: 1",
   "pain_mild -> exercise:tandem_stance: 1",
   "('doctor_clearance',) -> plan_exercises: 1",
-  "('video_quality',) -> recording_help: 1"
+  "('video_quality',) -> recording_help: 1",
+  "('recording_help',) -> equipment: 1"
  ],
  "misses": [
   {
@@ -521,29 +521,6 @@
    }
   },
   {
-   "text": "Blajed out!!",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "blacked out!!",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "video_quality",
-    "restriction": null,
-    "conditions": [
-     "DIABETES",
-     "OSTEOPOROSIS"
-    ],
-    "risk_level": "High",
-    "local_time": [
-     12,
-     30
-    ]
-   }
-  },
-  {
    "text": "hmm why bdiy swing...",
    "want": [
     "mistake:body_swing"
@@ -590,22 +567,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "wat if can't get up after fall?",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "what if i can't get up after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
     "local_time": null
    }
   },
@@ -712,22 +673,6 @@
      "KIDNEY_DISEASE"
     ],
     "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Frint arm raise macam mana",
-   "want": [
-    "exercise:shoulder_flexion"
-   ],
-   "got": "red_flag",
-   "seed_question": "front arm raise macam mana",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
     "local_time": null
    }
   },
@@ -862,27 +807,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "pina after a fall just now!",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "pain after a fall just now",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:knee_not_straight",
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS"
-    ],
-    "risk_level": null,
-    "local_time": [
-     10,
-     0
-    ]
    }
   },
   {
@@ -1034,22 +958,6 @@
    }
   },
   {
-   "text": "I want a new passwrd but i still know the old one?",
-   "want": [
-    "change_password"
-   ],
-   "got": null,
-   "seed_question": "i want a new password but i still know the old one",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "pain_or_discomfort",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "uder 18 ?",
    "want": [
     "guardian_consent"
@@ -1186,25 +1094,6 @@
      "KIDNEY_DISEASE"
     ],
     "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "fll over morning, hip sore?",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "fell over this morning, hip sore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:back_arch",
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS",
-     "KIDNEY_DISEASE"
-    ],
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -1776,25 +1665,6 @@
    }
   },
   {
-   "text": "better if i was goe huh!",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "better if i was gone",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     9,
-     45
-    ]
-   }
-  },
-  {
    "text": "Oyyy",
    "want": [
     "acknowledge"
@@ -1922,6 +1792,43 @@
     "local_time": [
      17,
      45
+    ]
+   }
+  },
+  {
+   "text": "I fele lonely at home ?",
+   "want": [
+    "low_mood"
+   ],
+   "got": "red_flag",
+   "seed_question": "i feel lonely at home",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "google_setup",
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "DIABETES"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "i fewl unsteady ?",
+   "want": [
+    "weakness_balance"
+   ],
+   "got": "red_flag",
+   "seed_question": "I feel unsteady",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     22,
+     15
     ]
    }
   },
@@ -2112,22 +2019,6 @@
      6,
      15
     ]
-   }
-  },
-  {
-   "text": "Paln fix knee??",
-   "want": [
-    "plan_progress"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "will this plan fix my knee",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "reminder_late_or_off",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -2732,25 +2623,6 @@
    }
   },
   {
-   "text": "i wsant to die!",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "i want to die",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     6,
-     15
-    ]
-   }
-  },
-  {
    "text": "I didnt sleep wel last night ?",
    "want": [
     "tired"
@@ -2830,6 +2702,24 @@
    }
   },
   {
+   "text": "hi i ferl unsteady",
+   "want": [
+    "weakness_balance"
+   ],
+   "got": "red_flag",
+   "seed_question": "I feel unsteady",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:march_in_place",
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
    "text": "kencing mmis",
    "want": [
     "condition_advice"
@@ -2899,22 +2789,6 @@
      "OSTEOPOROSIS"
     ],
     "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "i have chest pina ?",
-   "want": [
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "I have chest pain",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "High",
     "local_time": null
    }
   },

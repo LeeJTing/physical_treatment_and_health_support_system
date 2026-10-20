@@ -1,16 +1,16 @@
 {
- "rules_version": "chat-rules-3.61",
+ "rules_version": "chat-rules-3.63",
  "seed": 3,
  "messages": 10000,
- "passed": 9815,
- "rate": 0.9815,
+ "passed": 9827,
+ "rate": 0.9827,
  "by_kind": {
   "written": {
-   "passed": 3038,
+   "passed": 3044,
    "messages": 3110
   },
   "conditions": {
-   "passed": 517,
+   "passed": 518,
    "messages": 524
   },
   "follow": {
@@ -18,7 +18,7 @@
    "messages": 683
   },
   "exercises": {
-   "passed": 862,
+   "passed": 863,
    "messages": 872
   },
   "short": {
@@ -26,7 +26,7 @@
    "messages": 2549
   },
   "red_flags": {
-   "passed": 1205,
+   "passed": 1207,
    "messages": 1211
   },
   "mistakes": {
@@ -34,36 +34,32 @@
    "messages": 437
   },
   "restricted": {
-   "passed": 600,
+   "passed": 602,
    "messages": 614
   }
  },
  "commonest_misses": [
-  "('crisis', 'red_flag') -> None: 5",
-  "('fear_of_falling',) -> safety: 4",
   "('plan_and_reminders',) -> plan_exercises: 4",
   "('crisis',) -> None: 3",
   "('family_help',) -> for_someone_else: 3",
-  "('red_flag',) -> fear_of_falling: 3",
   "('greeting',) -> None: 3",
   "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 3",
   "('app_facts',) -> account_help: 3",
   "('acknowledge',) -> None: 3",
+  "('crisis', 'red_flag') -> None: 3",
   "('equipment',) -> None: 2",
   "('tired',) -> acknowledge: 2",
   "('thanks',) -> None: 2",
-  "('condition_advice',) -> pain_or_discomfort: 2",
   "('bot_identity',) -> None: 2",
   "('pain_or_discomfort',) -> exercise:bird_dog: 2",
   "('family_help',) -> bot_identity: 2",
   "('eating_concern',) -> diet: 2",
   "('plan_progress',) -> plan_exercises: 2",
   "('plan_exercises',) -> how_to: 2",
+  "('fear_of_falling',) -> safety: 2",
   "('pain_mild',) -> pain_or_discomfort: 2",
   "('difficulty',) -> other_activity: 2",
   "('treatment_nav',) -> plan_exercises: 2",
-  "('fear_of_falling', 'safety') -> weakness_balance: 2",
-  "('age_limit',) -> None: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('app_facts',) -> plan_progress: 2",
   "('guardian_consent',) -> app_help: 2",
@@ -73,12 +69,16 @@
   "('condition_advice',) -> plan_exercises: 2",
   "('diagnosis',) -> None: 2",
   "('crisis',) -> motivation: 1",
-  "('exercise:shoulder_flexion', 'recording_help') -> red_flag: 1",
   "('getting_started',) -> None: 1",
   "('tired',) -> equipment: 1",
   "('fall_alert',) -> acknowledge: 1",
   "('mistake:bent_elbow',) -> None: 1",
-  "('exercise:bird_dog',) -> difficulty: 1"
+  "('exercise:bird_dog',) -> difficulty: 1",
+  "('low_mood',) -> acknowledge: 1",
+  "('mistake:thigh_lift',) -> None: 1",
+  "('mistake:too_deep',) -> plan_progress: 1",
+  "pain_mild -> exercise:bird_dog: 1",
+  "('condition_advice',) -> pain_or_discomfort: 1"
  ],
  "misses": [
   {
@@ -179,26 +179,6 @@
    }
   },
   {
-   "text": "camera frint arm raise ?",
-   "want": [
-    "exercise:shoulder_flexion",
-    "recording_help"
-   ],
-   "got": "red_flag",
-   "seed_question": "camera for front arm raise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "KIDNEY_DISEASE",
-     "PREGNANCY"
-    ],
-    "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
    "text": "new uar",
    "want": [
     "getting_started"
@@ -215,25 +195,6 @@
     ],
     "risk_level": "Medium",
     "local_time": null
-   }
-  },
-  {
-   "text": "How get upafter fall ?",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "safety",
-   "seed_question": "how do i get up after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     22,
-     45
-    ]
    }
   },
   {
@@ -265,22 +226,6 @@
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
     "previous_category": null,
     "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "fell over morning, hip sore ?",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "fell over this morning, hip sore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
     "conditions": null,
     "risk_level": null,
     "local_time": null
@@ -518,6 +463,24 @@
      3,
      45
     ]
+   }
+  },
+  {
+   "text": "i ferl like giving up!",
+   "want": [
+    "missed_session",
+    "plan_progress",
+    "tired"
+   ],
+   "got": "red_flag",
+   "seed_question": "i feel like giving up",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
    }
   },
   {
@@ -957,22 +920,6 @@
      "HEART_DISEASE"
     ],
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "what if can't get up after fal??",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "what if i can't get up after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -1615,23 +1562,6 @@
    }
   },
   {
-   "text": "wat if cannot get up agter fall!!",
-   "want": [
-    "fear_of_falling",
-    "safety"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "what if i cannot get up after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "the exercise is too easy for me!!",
    "want": [
     "difficulty"
@@ -1700,6 +1630,28 @@
     "local_time": [
      13,
      15
+    ]
+   }
+  },
+  {
+   "text": "my ankles fel sore\ud83d\ude23 ?",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": "red_flag",
+   "seed_question": "my ankles feel sore \ud83d\ude23",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     19,
+     30
     ]
    }
   },
@@ -1869,25 +1821,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "paln ok hip replacement",
-   "want": [
-    "condition_advice"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "is this plan ok for hip replacement",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "exercise:tandem_stance",
-    "restriction": null,
-    "conditions": [
-     "PREGNANCY",
-     "PARKINSONS"
-    ],
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -2146,23 +2079,6 @@
    }
   },
   {
-   "text": "i have bacekd out what should i do pls??",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "i have blacked out what should i do",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "my psn is 3 out of 10 is that ok...",
    "want": [
     "pain_mild",
@@ -2402,25 +2318,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "how get up after fall pls",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "safety",
-   "seed_question": "how do i get up after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:arm_leg_low",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     10,
-     45
-    ]
    }
   },
   {
@@ -2707,25 +2604,6 @@
    }
   },
   {
-   "text": "hw many setts ?",
-   "want": [
-    "age_limit"
-   ],
-   "got": null,
-   "seed_question": "how many sets",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     6,
-     45
-    ]
-   }
-  },
-  {
    "text": "teenaaercan use ya??",
    "want": [
     "guardian_consent"
@@ -2783,22 +2661,6 @@
    }
   },
   {
-   "text": "hmm frll oevr morning, hipsore ?",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "fell over this morning, hip sore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "sggin out!",
    "want": [
     "account_help"
@@ -2811,23 +2673,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "what if cannot get up after fall!!",
-   "want": [
-    "fear_of_falling",
-    "safety"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "what if i cannot get up after a fall",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
     "local_time": null
    }
   },
@@ -3125,47 +2970,6 @@
    }
   },
   {
-   "text": "no point annyore!!",
-   "want": [
-    "crisis"
-   ],
-   "got": "plan_progress",
-   "seed_question": "no point anymore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "muscle_loss",
-    "restriction": null,
-    "conditions": [
-     "OSTEOPOROSIS",
-     "PARKINSONS"
-    ],
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "fell oevr morning, hip sore",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "fell over this morning, hip sore",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "ARTHRITIS",
-     "STROKE"
-    ],
-    "risk_level": "Medium",
-    "local_time": [
-     12,
-     0
-    ]
-   }
-  },
-  {
    "text": "fell todyya",
    "want": [
     "red_flag"
@@ -3319,26 +3123,6 @@
     "risk_level": null,
     "local_time": [
      1,
-     30
-    ]
-   }
-  },
-  {
-   "text": "pressuee in my chet during exercise?",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "pressure in my chest during exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     19,
      30
     ]
    }

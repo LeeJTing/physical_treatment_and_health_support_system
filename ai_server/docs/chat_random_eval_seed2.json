@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.61",
+ "rules_version": "chat-rules-3.63",
  "seed": 2,
  "messages": 10000,
- "passed": 9836,
- "rate": 0.9836,
+ "passed": 9843,
+ "rate": 0.9843,
  "by_kind": {
   "restricted": {
-   "passed": 591,
+   "passed": 590,
    "messages": 606
   },
   "follow": {
@@ -22,15 +22,15 @@
    "messages": 2597
   },
   "written": {
-   "passed": 3022,
+   "passed": 3026,
    "messages": 3091
   },
   "conditions": {
-   "passed": 528,
+   "passed": 530,
    "messages": 532
   },
   "red_flags": {
-   "passed": 1253,
+   "passed": 1255,
    "messages": 1260
   },
   "mistakes": {
@@ -39,16 +39,14 @@
   }
  },
  "commonest_misses": [
-  "('red_flag',) -> fear_of_falling: 5",
   "('plan_and_reminders',) -> plan_exercises: 4",
-  "('crisis',) -> None: 4",
   "('plan_progress',) -> plan_exercises: 3",
-  "('delete_account',) -> account_help: 3",
   "('acknowledge',) -> None: 3",
   "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 3",
-  "('condition_advice',) -> pain_or_discomfort: 3",
+  "('red_flag',) -> fear_of_falling: 3",
   "('multiple_plans',) -> plan_exercises: 3",
   "('goodbye',) -> None: 2",
+  "('delete_account',) -> account_help: 2",
   "('difficulty',) -> plan_exercises: 2",
   "('profile_help',) -> change_password: 2",
   "('acknowledge', 'how_often', 'plan_progress') -> plan_exercises: 2",
@@ -59,16 +57,17 @@
   "('medication',) -> None: 2",
   "('recording_help',) -> exercise:shoulder_abduction: 2",
   "('clarify',) -> None: 2",
+  "('delete_account',) -> None: 2",
   "('pain_mild',) -> pain_or_discomfort: 2",
   "('plan_reasons',) -> plan_exercises: 2",
   "('diagnosis',) -> None: 2",
   "('app_facts',) -> account_help: 2",
+  "('crisis',) -> None: 2",
   "('session_expired',) -> account_help: 2",
   "('treatment_nav',) -> plan_exercises: 2",
   "('partial_reps',) -> posture_result: 2",
   "('profile_help',) -> None: 2",
   "('pain_swelling',) -> None: 2",
-  "('crisis', 'red_flag') -> None: 2",
   "('age_limit',) -> None: 2",
   "('tired',) -> acknowledge: 1",
   "('low_mood',) -> None: 1",
@@ -78,7 +77,8 @@
   "('missed_session',) -> safety: 1",
   "('fear_of_falling',) -> safety: 1",
   "('age_limit', 'posture_result') -> doctor_said: 1",
-  "('plan_reasons',) -> None: 1"
+  "('plan_reasons',) -> None: 1",
+  "('muscle_loss',) -> diagnosis: 1"
  ],
  "misses": [
   {
@@ -763,44 +763,6 @@
    }
   },
   {
-   "text": "is ths paln okfor a stroke before huh!!",
-   "want": [
-    "condition_advice"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "is this plan ok for a stroke before",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     20,
-     45
-    ]
-   }
-  },
-  {
-   "text": "she has fallen, she fell last year too!!",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "she has just fallen, she fell last year too",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     15,
-     15
-    ]
-   }
-  },
-  {
    "text": "it huts!",
    "want": [
     "pain_mild",
@@ -931,43 +893,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "better if goe",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "better if i was gone",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "exercise:march_in_place",
-    "restriction": null,
-    "conditions": [
-     "OSTEOPOROSIS"
-    ],
-    "risk_level": "High",
-    "local_time": [
-     10,
-     45
-    ]
-   }
-  },
-  {
-   "text": "peeat hidup!",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "penat hidup",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
     "local_time": null
    }
   },
@@ -1103,7 +1028,7 @@
    "want": [
     "delete_account"
    ],
-   "got": "account_help",
+   "got": null,
    "seed_question": "delete account",
    "context": {
     "plan_id": null,
@@ -1149,25 +1074,6 @@
     "conditions": null,
     "risk_level": "Medium",
     "local_time": null
-   }
-  },
-  {
-   "text": "paln ok foot uler!",
-   "want": [
-    "condition_advice"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "is this plan ok for a foot ulcer",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     2,
-     15
-    ]
    }
   },
   {
@@ -1300,6 +1206,22 @@
    }
   },
   {
+   "text": "i fele so lazy today ah...",
+   "want": [
+    "motivation"
+   ],
+   "got": "red_flag",
+   "seed_question": "i feel so lazy today",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:toes_up",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
    "text": "Wat core plna?",
    "want": [
     "plan_progress"
@@ -1396,24 +1318,6 @@
    }
   },
   {
-   "text": "erm leg out sode exercise??",
-   "want": [
-    "exercise:hip_abduction"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "leg out to the side exercise",
-   "context": {
-    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": [
-     "STROKE"
-    ],
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "for my faaathercan??",
    "want": [
     "for_someone_else"
@@ -1497,25 +1401,6 @@
     "conditions": null,
     "risk_level": "Medium",
     "local_time": null
-   }
-  },
-  {
-   "text": "ok my chest pina is bad!",
-   "want": [
-    "red_flag"
-   ],
-   "got": "acknowledge",
-   "seed_question": "my chest pian is bad",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     14,
-     45
-    ]
    }
   },
   {
@@ -1620,6 +1505,27 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "i fele so lazy to exercise!",
+   "want": [
+    "difficulty",
+    "motivation",
+    "tired"
+   ],
+   "got": "red_flag",
+   "seed_question": "i feel so lazy to exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "PARKINSONS",
+     "PREGNANCY"
+    ],
+    "risk_level": "Low",
     "local_time": null
    }
   },
@@ -2270,22 +2176,6 @@
    }
   },
   {
-   "text": "she has fallen, she fell lasst year too ya!!",
-   "want": [
-    "red_flag"
-   ],
-   "got": "fear_of_falling",
-   "seed_question": "she has just fallen, she fell last year too",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "i didnt slepe wel last night",
    "want": [
     "tired"
@@ -2515,28 +2405,6 @@
    }
   },
   {
-   "text": "paaed out...",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "passed out",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "COPD"
-    ],
-    "risk_level": null,
-    "local_time": [
-     16,
-     45
-    ]
-   }
-  },
-  {
    "text": "hi doctor tod me stop?",
    "want": [
     "doctor_said"
@@ -2702,6 +2570,26 @@
    }
   },
   {
+   "text": "i fetl ya ?",
+   "want": [
+    "None",
+    "acknowledge"
+   ],
+   "got": "red_flag",
+   "seed_question": "i felt",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     23,
+     30
+    ]
+   }
+  },
+  {
    "text": "Open my pkna",
    "want": [
     "age_limit"
@@ -2752,23 +2640,6 @@
      "PARKINSONS"
     ],
     "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "pasrd out!!",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "passed out!!",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "hot_weather",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
     "local_time": null
    }
   },
