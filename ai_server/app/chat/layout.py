@@ -12,7 +12,7 @@ import re
 
 # A sentence ends at . ! ? followed by a space and a capital, a digit, a quote or a bracket - but not inside
 # quotes ("how do I do the heel raise?", "...") and not after a short form ("e.g. Paracetamol").
-_END = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"(])")
+_END = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9\"(“‘])")
 _SHORT_FORMS = ("e.g.", "i.e.", "Dr.", "No.", "vs.", "approx.", "St.")
 SHORT_ANSWER = 220          # one or two sentences up to this many characters stay on one line
 
@@ -22,7 +22,8 @@ def sentences(text: str) -> list[str]:
     out, start = [], 0
     for m in _END.finditer(text):
         before = text[start:m.start()]
-        if before.count('"') % 2 or before.rstrip().endswith(_SHORT_FORMS):
+        if (before.count('"') % 2 or before.count("“") > before.count("”")
+                or before.rstrip().endswith(_SHORT_FORMS)):
             continue
         out.append(text[start:m.start()].strip())
         start = m.end()
@@ -50,7 +51,7 @@ def layout(text: str) -> str:
         return "\n".join(s.strip() for s in lines if s.strip())
     if len(text) <= SHORT_ANSWER:
         return text                                      # "You're welcome. Keep it up! Ask me anything else."
-    parts = sentences(text)
+    parts = [piece for k, s in enumerate(sentences(text)) for piece in _split_long(s, lead=k == 0)]
     if len(parts) == 1 or (len(parts) == 2 and _listed(parts[0])):
         listed = _listed(parts[0])
         if listed:                                       # "Treatment planning asks: the area; your stage; ..."
@@ -65,6 +66,49 @@ def layout(text: str) -> str:
         else:
             lines.append(p)
     return "\n".join(lines)
+
+
+LONG_SENTENCE = 28          # words: a longer sentence is split where it already breaks (3.71)
+
+
+def _outside_brackets(sentence: str, mark: str) -> list[str]:
+    """[sentence] split at [mark] where it is not inside brackets or quotes."""
+    out, depth, quoted, cur, k = [], 0, False, "", 0
+    while k < len(sentence):
+        ch = sentence[k]
+        depth += (ch == "(") - (ch == ")")
+        quoted ^= ch in '"“”'
+        if depth == 0 and not quoted and sentence.startswith(mark, k):
+            out.append(cur)
+            cur, k = "", k + len(mark)
+            continue
+        cur += ch
+        k += 1
+    return [s.strip() for s in out + [cur] if s.strip()]
+
+
+def _sentence(s: str) -> str:
+    s = s[0].upper() + s[1:]
+    return s if s[-1] in ".!?:" else s + "."
+
+
+def _split_long(s: str, lead: bool = True) -> list[str]:
+    """A sentence of more than LONG_SENTENCE words split where it already breaks (3.71, Elwin: "easy to
+    understand"): a "lead: a; b; c" list into its lead and items, else at its semicolons, else after a colon
+    followed by ten words or more (the first sentence only: later a colon line would be numbered apart from
+    what follows it). Shorter sentences are left whole."""
+    if len(s.split()) <= LONG_SENTENCE:
+        return [s]
+    listed = _listed(s)
+    if listed:
+        return [listed[0]] + [_sentence(p.rstrip(".")) for p in listed[1:]]
+    pieces = _outside_brackets(s, "; ")
+    if len(pieces) > 1:
+        return [_sentence(p.rstrip(".")) for p in pieces]
+    pieces = _outside_brackets(s, ": ") if lead else [s]
+    if len(pieces) == 2 and len(pieces[1].split()) >= 10:
+        return [pieces[0] + ":", _sentence(pieces[1])]
+    return [s]
 
 
 def _listed(sentence: str) -> list[str] | None:

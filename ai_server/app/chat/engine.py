@@ -1081,8 +1081,8 @@ def _hypothetical(words: list[str], i: int) -> bool:
 # Laptop pass 9: a time word counts only in the fall's own sentence ("my mum fell years ago; today she
 # started the plan" is an old fall), and "earlier in my life" is not "earlier today".
 # 3.62: also a comma before a new person ("she has fallen, she fell last year too": two falls, one now).
-CLAUSE_BREAK = re.compile(r"[.;!?]+|\bbut\b|\btapi\b|,\s*(?=(?:i|she|he|my|mum|mom|mother|dad|father|"
-                          r"saya|dia|mak|emak|ayah|abah|nenek|atuk)\b)")
+CLAUSE_BREAK = re.compile(r"[.;!?]+|\bbut\b|\btapi\b|\band then\b|,\s*and\b|,\s*(?=(?:i|she|he|my|mum|mom|mother|dad|father|"
+                          r"saya|dia|mak|emak|ayah|abah|nenek|atuk)\b)")   # 3.70: "and then" starts a new event
 PAST_PHRASES = [("earlier in my life", "long ago"), ("earlier years", "long ago"), ("years earlier", "long ago"),
                 ("when i was young", "long ago"), ("when i was younger", "long ago"), ("as a child", "long ago"),
                 ("as a kid", "long ago")]
@@ -1163,7 +1163,8 @@ def _person_fell(c: list[str], i: int, times: set[str]) -> bool:
     if w not in RECENT_FALL_VERBS:
         return False
     k = i - 1
-    while k >= 0 and (c[k] in ("just", "baru", "has", "had", "have", "suddenly") or c[k] in times):
+    while k >= 0 and (c[k] in ("just", "baru", "has", "had", "have", "suddenly", "lah", "la", "ah", "leh", "so",
+                                "then", "and", "also", "plus", "but", "tapi", "dan", "ok", "okay") or c[k] in times):
         k -= 1
     if k >= 0 and c[k] not in PEOPLE:
         return False                                   # "the phone fell", "the price has fallen today"
@@ -1241,11 +1242,38 @@ def high_bp(text: str) -> bool:
 def crisis(text: str | None) -> bool:
     """Thoughts of suicide or self-harm: checked before everything else, also with slips mended
     ("suicdie", "i wsnt to die", "tired of livign", 3.55), and with an unknown word read as the word of
-    a crisis phrase it is one slip from ("better if i was goe", "i wsant to die", 3.62)."""
+    a crisis phrase it is one slip from ("better if i was goe", "i wsant to die", 3.62); each part of a
+    message that changes topic on its own too (3.70)."""
+    return any(_crisis_whole(p) for p in [text] + _topic_parts(text))
+
+
+def _crisis_whole(text: str | None) -> bool:
     if _also_respelled(_crisis, text):
         return True
     mended = _phrase_mend(text, "crisis")
     return mended is not None and _crisis(mended)
+
+
+# 3.70 (the compound test, chat_compound_set.py): a warning sign joined to another question with "also",
+# "another thing" or "plus" ("everything is blurry. another thing, is this app free") was read as one
+# message and missed. Split only where the topic plainly changes, never at a full stop alone: "she fell.
+# that was last year, now fine" stays one message.
+TOPIC_CHANGE = re.compile(r"(?i)\b(?:also|another thing|one more thing|plus|by the way|btw|oh and|and also|"
+                          r"lagi satu|satu lagi|other thing|anyway|and then)\b|\b(?:lah|leh|la)\s*,|\.{3,}|\u2026|"
+                          r",?\s+and\s+(?=(?:what|how|can|should|is|are|do|does|why|when|where|which)\b)|"
+                          r",\s*(?=what if\b)|\s(?=suddenly\b)")
+# A part saying the fall was long ago or the person is fine now ("i fell... long time ago, now ok").
+CALM_AFTER = ["now fine", "i'm fine", "im fine", "now ok", "ok now", "okay now", "better now", "recovered",
+              "no injury", "not hurt", "wasn't hurt", "was not hurt", "long ago", "long time ago"]
+
+
+def _topic_parts(text: str | None) -> list[str]:
+    """The parts of [text] between topic changes, when there is more than one."""
+    if not text:
+        return []
+    parts = [p.strip(" ,.;!?") for p in TOPIC_CHANGE.split(text)]
+    parts = [p for p in parts if len(p.split()) >= 2]
+    return parts if len(parts) > 1 else []
 
 
 def _crisis(text: str | None) -> bool:
@@ -1505,6 +1533,21 @@ def _also_respelled(check, text: str | None) -> bool:
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
+    if _red_flag_whole(text):
+        return True
+    parts = _topic_parts(text)                           # each part on its own too (3.70)
+    for k, part in enumerate(parts):
+        if not _red_flag_whole(part):
+            continue
+        others = clean(" ".join(parts[:k] + parts[k + 1:])).split()
+        if FALL_WORDS & set(clean(part).split()) and not FALL_WORDS & set(others) \
+                and any(find_phrase(p, others) for p in PAST_TIME + CALM_AFTER):
+            continue                                     # "i fell... long time ago, now ok" (not another fall's)
+        return True
+    return False
+
+
+def _red_flag_whole(text: str) -> bool:
     if _red_flag_typed(text):
         return True
     mended = _phrase_mend(text, "red_flags")             # one unknown word of a warning-sign phrase (3.62)
@@ -1875,9 +1918,55 @@ def _inside_exercise_names(text: str, hits: list) -> list:
     return out
 
 
+# 3.70: a story first, then the question ("i had nasi lemak for breakfast, how high should i lift my
+# arms"): the question decides, unless the first part is about the body, a symptom, an exercise or the app,
+# or the whole message is about how the person is (then the whole message decides).
+QUESTION_START = re.compile(r"^(?:can|could|should|how|what|when|where|which|why|is|are|do|does|did|will|would|"
+                            r"may|must|any|boleh|macam mana|berapa|bila|kenapa|apa|i want|i need|please|pls|help)\b")
+STORY_BREAK = re.compile(r"[.!?;]+|,|\band then\b|\bso\b|\banyway\b|\blah\b")
+ABOUT_THE_PERSON = {"pain_or_discomfort", "pain_mild", "pain_sharp", "pain_swelling", "low_mood", "tired",
+                    "weakness_balance", "fear_of_falling", "condition_advice", "medication", "diagnosis",
+                    "hot_weather", "safety", "doctor_said", "doctor_clearance", "muscle_loss", "joint_noise",
+                    "eating_concern", "missed_session", "motivation", "bladder_leak", "for_someone_else",
+                    "family_help", "partial_reps", "age_limit", "wrong_exercise", "adjusted_targets"}
+# A question that points back at the story ("i only did half of each movement, does it count").
+POINTS_BACK = {"it", "this", "that", "them", "these", "those", "so", "one"}
+
+
+def _question_after_story(text: str) -> str | None:
+    """The last part of [text] when it is a question of 3+ words and what comes before it is a story with no
+    word about the body, a symptom, an exercise or the app."""
+    parts = [p.strip() for p in STORY_BREAK.split(text.lower()) if p.strip()]
+    if len(parts) < 2:
+        return None
+    last = parts[-1]
+    before = " ".join(parts[:-1])
+    if len(last.split()) < 3 or not QUESTION_START.search(last):
+        return None
+    if POINTS_BACK & set(last.split()):
+        return None                                      # "does it count" needs the story
+    words, names = _rehab_anchors()
+    plain = clean(respell(before))
+    if set(plain.split()) & words or any(f" {n} " in f" {plain} " for n in names):
+        return None
+    return last
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
     its words weighed together, is about another domain (3.61)."""
+    chosen, how = _match_whole(plan_id, text)
+    if chosen is None or chosen["key"] not in ABOUT_THE_PERSON:
+        question = _question_after_story(text)
+        if question:
+            c2, h2 = _match_whole(plan_id, question)
+            if c2 is not None and not c2.get("small_talk"):
+                return c2, h2                            # the question after the story (3.70)
+    return chosen, how
+
+
+def _match_whole(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
+    """match() for the message as a whole."""
     core = [w for w in re.sub(r"[^a-z ]", " ", (text or "").lower()).split() if w not in _PARTICLE_FILLERS]
     if _yes_no(text):
         ack = {i["key"]: i for i in intents_for(plan_id)}.get("acknowledge")

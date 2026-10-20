@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.69",
+ "rules_version": "chat-rules-3.70",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1945,
@@ -10,14 +10,14 @@
  "blns": 515,
  "oos_ok": 801,
  "oos": 1100,
- "clinc_ok": 2955,
+ "clinc_ok": 2950,
  "clinc": 3270,
  "false_emergencies": [
   "oos: \"what do you do if you can't stop vomiting\" -> red_flag",
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 1.47,
+ "slowest_reply_sec": 1.458,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",

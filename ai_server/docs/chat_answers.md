@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.68)
+# Chatbot answers (chat-rules-3.71)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -186,9 +186,10 @@ If you have an allergy, tell your doctor before starting your exercises, and kee
 *how do I change my password*
 
 ```
-To change your password while you still know it, open Profile and tap Change password: type your current password, then the new one twice (at least 8 characters, with a letter and a number).
-1) Your other phones are then signed out; this one stays signed in.
-2) If you have forgotten your current password, tap “Forgot your current password?” there, or Forgot password? on the login screen, to get a reset code by email.
+To change your password while you still know it, open Profile and tap Change password:
+1) Type your current password, then the new one twice (at least 8 characters, with a letter and a number).
+2) Your other phones are then signed out; this one stays signed in.
+3) If you have forgotten your current password, tap “Forgot your current password?” there, or Forgot password? on the login screen, to get a reset code by email.
 ```
 
 ## Changing your plan or reminders  (`plan_and_reminders`)
@@ -196,9 +197,10 @@ To change your password while you still know it, open Profile and tap Change pas
 
 ```
 To change plan, open AI-assisted planning and choose Retrieve physical treatment to get new recommendations.
-1) You can follow up to 3 plans at once, depending on your risk level; a new plan for the same body area and goal replaces the one you have.
-2) You can stop a plan from the Physical Treatment page with Stop this plan.
-3) Reminders follow your plan's weekly schedule; check that notifications are allowed for the app in your phone settings if they do not appear.
+1) You can follow up to 3 plans at once, depending on your risk level.
+2) A new plan for the same body area and goal replaces the one you have.
+3) You can stop a plan from the Physical Treatment page with Stop this plan.
+4) Reminders follow your plan's weekly schedule; check that notifications are allowed for the app in your phone settings if they do not appear.
 ```
 
 ## Checking with your doctor first  (`doctor_clearance`)
@@ -217,10 +219,9 @@ Some conditions ask in your health profile whether they are under control (for e
 ```
 Open AI-assisted planning and choose Retrieve physical treatment.
 1) The first question shows a body figure: tap each part you want to recover (you can choose more than one; its name appears on the picture), tap it again to remove it, and use Front and Back to turn the figure.
-If you cannot find the place, tap “Can't find it?
-Choose from a list”.
-2) The plans suggested then focus on the parts you chose; wrists and hands have their own plan, Hand and Wrist Recovery.
-3) The neck is greyed out: neck problems need a doctor or physiotherapist, so the app has no neck exercises.
+2) If you cannot find the place, tap “Can't find it? Choose from a list”.
+3) The plans suggested then focus on the parts you chose; wrists and hands have their own plan, Hand and Wrist Recovery.
+4) The neck is greyed out: neck problems need a doctor or physiotherapist, so the app has no neck exercises.
 ```
 
 ## Clicking or cracking joints  (`joint_noise`)
@@ -262,10 +263,11 @@ I cannot diagnose conditions or injuries.
 *I make myself vomit after eating*
 
 ```
-Please eat regular meals and do not exercise on an empty stomach or to make up for what you ate: your body needs food to recover and to keep you steady.
-1) If you have not been able to eat for a day or more, rest today and talk to your doctor.
-2) If you feel you have to make yourself vomit, skip meals or exercise to control your weight, you are not alone: talk to your doctor, or call Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).
-3) I cannot give calorie or weight-loss advice.
+Please eat regular meals and do not exercise on an empty stomach or to make up for what you ate:
+1) Your body needs food to recover and to keep you steady.
+2) If you have not been able to eat for a day or more, rest today and talk to your doctor.
+3) If you feel you have to make yourself vomit, skip meals or exercise to control your weight, you are not alone: talk to your doctor, or call Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).
+4) I cannot give calorie or weight-loss advice.
 ```
 
 ## Exercise reminders  (`reminders_help`)
@@ -273,21 +275,24 @@ Please eat regular meals and do not exercise on an empty stomach or to make up f
 
 ```
 An exercise reminder says which exercise is next, and tapping it opens that plan.
-1) Open Reminders to change things: tap the time to change it, and tap a day to turn it on or off; one day must stay on, so to stop a reminder, switch it off instead. “Remind me to log my health readings” adds a daily reminder to record your blood pressure, sugar or weight.
-2) Reminders you added yourself can be deleted with the bin button; a plan's reminders stay with the plan and stop when the plan stops.
-3) If none arrive, check that notifications are allowed for HealthGuide in your phone settings.
-4) If you have already exercised that day, that day's exercise reminder is skipped.
-5) The sound follows your phone's notification settings.
+1) Open Reminders to change things: tap the time to change it, and tap a day to turn it on or off.
+2) One day must stay on, so to stop a reminder, switch it off instead.
+3) “Remind me to log my health readings” adds a daily reminder to record your blood pressure, sugar or weight.
+4) Reminders you added yourself can be deleted with the bin button; a plan's reminders stay with the plan and stop when the plan stops.
+5) If none arrive, check that notifications are allowed for HealthGuide in your phone settings.
+6) If you have already exercised that day, that day's exercise reminder is skipped.
+7) The sound follows your phone's notification settings.
 ```
 
 ## Exercising for a family member  (`for_someone_else`)
 *can my mother do these exercises*
 
 ```
-Each person should use their own account and health profile: the plan and its safety limits are chosen from the profile of the person exercising, including their age, conditions and fall risk.
-1) Help them create an account and fill in their profile, then get a plan for them.
-2) For an older family member, stay close during the first sessions, keep a sturdy chair or counter within reach, and set up the phone for them so the app can check their posture.
-3) If they have fallen in the past year, feel unsteady or have a heart condition, ask their doctor before they start.
+Each person should use their own account and health profile:
+1) The plan and its safety limits are chosen from the profile of the person exercising, including their age, conditions and fall risk.
+2) Help them create an account and fill in their profile, then get a plan for them.
+3) For an older family member, stay close during the first sessions, keep a sturdy chair or counter within reach, and set up the phone for them so the app can check their posture.
+4) If they have fallen in the past year, feel unsteady or have a heart condition, ask their doctor before they start.
 ```
 
 ## Exercising in hot weather  (`hot_weather`)
@@ -368,11 +373,13 @@ Feeling a little tired after exercising is normal.
 *can I follow two plans at the same time*
 
 ```
-You can follow more than one plan: up to 3 at a time if your risk level is Low, 2 if it is Medium, and 1 if it is High.
-1) Two plans with the same goal that train the same joints clash, so the app asks you to replace one instead of adding the second; a shoulder plan and a hand plan can be followed together.
-2) Each plan gives you one exercise a day; an exercise that is in two of your plans is done once and counts for both.
-3) To add a plan, open AI-assisted planning and choose Retrieve physical treatment.
-4) To stop one, open it on the Physical Treatment page and tap Stop this plan; your progress so far is kept.
+You can follow more than one plan:
+1) Up to 3 at a time if your risk level is Low, 2 if it is Medium, and 1 if it is High.
+2) Two plans with the same goal that train the same joints clash, so the app asks you to replace one instead of adding the second.
+3) A shoulder plan and a hand plan can be followed together.
+4) Each plan gives you one exercise a day; an exercise that is in two of your plans is done once and counts for both.
+5) To add a plan, open AI-assisted planning and choose Retrieve physical treatment.
+6) To stop one, open it on the Physical Treatment page and tap Stop this plan; your progress so far is kept.
 ```
 
 ## Food and drink  (`diet`)
@@ -386,7 +393,8 @@ Drink some water before and after your exercises, and wait about an hour after a
 *I forgot my password*
 
 ```
-You can set a new password with a 6-digit code sent to your email: tap the button below (or Forgot password? on the login screen), enter your email, then type the code and your new password.
+You can set a new password with a 6-digit code sent to your email:
+Tap the button below (or Forgot password? on the login screen), enter your email, then type the code and your new password.
 1) If the code does not arrive, check your spam folder and wait a minute before asking for a new one.
 2) After too many wrong passwords the account is locked for 15 minutes.
 ```
@@ -454,7 +462,8 @@ Health Connect is Android's app for sharing health data, such as steps or heart 
 ```
 Yes.
 1) A family member or carer can set up the phone, record your video, and read your results and my answers with you.
-2) Keep using your own account and health profile so your plan stays matched to you, and do the exercises yourself; they can stay close by in case you lose your balance.
+2) Keep using your own account and health profile so your plan stays matched to you, and do the exercises yourself.
+3) They can stay close by in case you lose your balance.
 ```
 
 ## Hips back  (`mistake:hips_back`)
@@ -799,9 +808,10 @@ Leaking a little urine when you squat, cough or lift is common, especially after
 
 ```
 Tap Exit at the top of the recording, analysing or result screen to stop the exercise and go back to the home page.
-1) While you are recording or the video is being checked, the app asks first, and that attempt is not saved; a result of 80% or more that was already saved stays saved.
-2) You can do the exercise again later from Physical Treatment.
-3) If you feel pain, dizziness or unwell, stop at once, sit down and rest.
+1) While you are recording or the video is being checked, the app asks first, and that attempt is not saved.
+2) A result of 80% or more that was already saved stays saved.
+3) You can do the exercise again later from Physical Treatment.
+4) If you feel pain, dizziness or unwell, stop at once, sit down and rest.
 ```
 
 ## Leg forward  (`mistake:leg_forward`)
@@ -882,9 +892,10 @@ Your treatment plan shows your exercises in order. Open the next one, read its s
 *why can I not select my neck*
 
 ```
-This app does not include neck exercises, which is why the neck is greyed out on the body map: neck problems need a doctor or physiotherapist to guide the exercises.
-1) If you have neck pain, see your doctor or physiotherapist, and get medical help straight away if it comes with numbness, tingling or weakness in your arms, or after a fall or injury.
-2) If your neck hurts during another exercise, stop that exercise and tell your doctor or physiotherapist.
+This app does not include neck exercises, which is why the neck is greyed out on the body map:
+1) Neck problems need a doctor or physiotherapist to guide the exercises.
+2) If you have neck pain, see your doctor or physiotherapist, and get medical help straight away if it comes with numbness, tingling or weakness in your arms, or after a fall or injury.
+3) If your neck hurts during another exercise, stop that exercise and tell your doctor or physiotherapist.
 ```
 
 ## No arm swing  (`mistake:no_arm_swing`)
@@ -926,9 +937,10 @@ Okay. If you have another question about your exercises, pain, safety or your pl
 *can I go jogging*
 
 ```
-Gentle walking is good for you, also on rest days: on even ground, with your walking aid if you use one, and with someone if you have fallen before.
-1) For harder activity such as jogging, sports or the gym, wait until your plan has built up your strength, start gently, and ask your doctor or physiotherapist first, especially if you have a health condition or have fallen before.
-2) Stop if it causes pain that is still there the next day.
+Gentle walking is good for you, also on rest days:
+1) On even ground, with your walking aid if you use one, and with someone if you have fallen before.
+2) For harder activity such as jogging, sports or the gym, wait until your plan has built up your strength, start gently, and ask your doctor or physiotherapist first, especially if you have a health condition or have fallen before.
+3) Stop if it causes pain that is still there the next day.
 ```
 
 ## Over arch  (`mistake:over_arch`)
@@ -981,9 +993,10 @@ Put your phone on a stand, upright, at about waist height and 2.5 to 3 metres aw
 *why did my reminder come late*
 
 ```
-If the Reminders page says notifications are turned off, tap Turn on notifications, switch them on for HealthGuide and come back to the app: your reminders are set again (this also fixes pressing Don't allow by mistake).
-1) If reminders come late, Android may hold them back by up to an hour to save battery.
-2) To get them on time, open your phone's Settings, find HealthGuide under Apps (on some phones under Special app access) and turn on Alarms & reminders, then close and reopen HealthGuide.
+If the Reminders page says notifications are turned off, tap Turn on notifications, switch them on for HealthGuide and come back to the app:
+1) Your reminders are set again (this also fixes pressing Don't allow by mistake).
+2) If reminders come late, Android may hold them back by up to an hour to save battery.
+3) To get them on time, open your phone's Settings, find HealthGuide under Apps (on some phones under Special app access) and turn on Alarms & reminders, then close and reopen HealthGuide.
 ```
 
 ## Reporting a wrong answer  (`report_answer`)
@@ -1081,9 +1094,10 @@ You can read the Terms of Use and Privacy Notice any time in Profile, in English
 
 ```
 The app follows your phone's text size.
-1) To make the words bigger, open your phone's Settings, then Display, then Font size (on some phones, Font size and style), and move the slider up; the app's text grows with it.
-2) A family member can also sit with you while you use the app.
-3) The app has a light theme only; dark mode is not available yet.
+1) To make the words bigger, open your phone's Settings, then Display, then Font size (on some phones, Font size and style), and move the slider up.
+2) The app's text grows with it.
+3) A family member can also sit with you while you use the app.
+4) The app has a light theme only; dark mode is not available yet.
 ```
 
 ## Thanks  (`thanks`)
@@ -1119,12 +1133,12 @@ The moving figure shows one repetition of the exercise, made from recordings of 
 
 ```
 Treatment planning asks:
-1) The area that needs rehabilitation (on the body map or from the list)
-2) How far along your recovery is (Early: just started recovering; Intermediate: some movement is back; Advanced: nearly back to normal)
-3) How well you can move (Low: need support to move; Moderate: move slowly on my own; High: move freely)
-4) Your main goal (build strength, move more freely, better balance, ease pain or more stamina)
+1) The area that needs rehabilitation (on the body map or from the list).
+2) How far along your recovery is (Early: just started recovering; Intermediate: some movement is back; Advanced: nearly back to normal).
+3) How well you can move (Low: need support to move; Moderate: move slowly on my own; High: move freely).
+4) Your main goal (build strength, move more freely, better balance, ease pain or more stamina).
 5) And, if you like, your pace (Gentle, about 3 days a week; Steady, about 4; Faster, about 5).
-If you are not sure, choose the lower option: plans for a later stage or a higher mobility level than yours are left out, so the lower choice is the safer one.
+6) If you are not sure, choose the lower option: plans for a later stage or a higher mobility level than yours are left out, so the lower choice is the safer one.
 ```
 
 ## The possible-fall message  (`fall_alert`)
@@ -1227,8 +1241,9 @@ The posture score shows how closely your movement matched the correct form, as a
 
 ```
 You can use the app from 13.
-1) Under 18, a parent or legal guardian must read the Terms and agree to them, and to the use of your health information, on the Terms screen; their name is recorded.
-2) If your age in the profile does not match the age group you chose in the Terms (for example you have turned 18), the profile asks you to tap Review Terms and choose your age group again before it saves.
+1) Under 18, a parent or legal guardian must read the Terms and agree to them, and to the use of your health information, on the Terms screen.
+2) Their name is recorded.
+3) If your age in the profile does not match the age group you chose in the Terms (for example you have turned 18), the profile asks you to tap Review Terms and choose your age group again before it saves.
 ```
 
 ## Using hands  (`mistake:using_hands`)
@@ -1244,8 +1259,9 @@ You can use the app from 13.
 ```
 The 6-digit code is sent to the email you registered with.
 1) Check your spam or junk folder, and make sure the address is spelled correctly.
-2) You can tap Resend code once a minute; a code stops working after a while, and after 5 wrong tries (the app then says it has expired), so tap Resend code and always use the newest one.
-3) If you clicked a link in the email instead, return to the app and log in.
+2) You can tap Resend code once a minute.
+3) A code stops working after a while, and after 5 wrong tries (the app then says it has expired), so tap Resend code and always use the newest one.
+4) If you clicked a link in the email instead, return to the app and log in.
 ```
 
 ## Video too dark or too far  (`video_quality`)
@@ -1261,9 +1277,10 @@ Record with a light on in front of you (not behind you), and place the phone abo
 
 ```
 Muscles shrink quickly after weeks in bed or in hospital, but they grow stronger again with exercise at any age.
-1) Start with the easiest exercises in your plan, a few repetitions with a sturdy chair within reach, and add a little each week; most people notice a difference within 4 to 8 weeks.
-2) Eat some protein at each meal (fish, eggs, tofu, beans or milk) unless your doctor has limited it.
-3) If one calf is swollen, warm or painful after bed rest, see a doctor before exercising.
+1) Start with the easiest exercises in your plan, a few repetitions with a sturdy chair within reach, and add a little each week.
+2) Most people notice a difference within 4 to 8 weeks.
+3) Eat some protein at each meal (fish, eggs, tofu, beans or milk) unless your doctor has limited it.
+4) If one calf is swollen, warm or painful after bed rest, see a doctor before exercising.
 ```
 
 ## Weak or unsteady legs  (`weakness_balance`)
@@ -1272,7 +1289,8 @@ Muscles shrink quickly after weeks in bed or in hospital, but they grow stronger
 ```
 Legs, arms or hands that feel weak, wobbly or shaky are common after a long period of less activity, and this is what your exercises are building up.
 1) For standing exercises always keep one hand on a sturdy chair or counter; for any exercise do fewer repetitions and rest when the shaking starts.
-2) If weakness comes on suddenly, or affects one side of your body, stop and get medical help straight away; if your hand shakes even when it is resting, tell your doctor.
+2) If weakness comes on suddenly, or affects one side of your body, stop and get medical help straight away.
+3) If your hand shakes even when it is resting, tell your doctor.
 ```
 
 ## What is in my plan  (`plan_exercises`)
@@ -1310,7 +1328,8 @@ The best time is when you feel alert and have had a light meal about an hour bef
 *why was this plan chosen for me*
 
 ```
-Each plan card has Why this plan: tap it to see why the plan suits you (the body area, your recovery stage, your goal) and the safety rules it meets.
+Each plan card has Why this plan:
+Tap it to see why the plan suits you (the body area, your recovery stage, your goal) and the safety rules it meets.
 1) Under the plans, Why not the other plans lists each plan that was left out and why, for example harder than your safety limit or for another body area.
 2) Each reason shows the guideline behind it; tap Source to read the full reference.
 3) App safety rule means a rule of this app itself, set to keep you safe, with no published guideline of its own.
@@ -1330,9 +1349,10 @@ Exercise plans are for users under 65.
 *why was I logged out*
 
 ```
-To keep your health details safe, you stay signed in on this phone only while you use the app: after 3 days without opening it you are signed out, and you log in again with your email and password (or Continue with Google).
-1) Opening the app at least once every 3 days keeps you signed in.
-2) Changing or resetting your password also signs you out on your other phones.
+To keep your health details safe, you stay signed in on this phone only while you use the app:
+1) After 3 days without opening it you are signed out, and you log in again with your email and password (or Continue with Google).
+2) Opening the app at least once every 3 days keeps you signed in.
+3) Changing or resetting your password also signs you out on your other phones.
 ```
 
 ## Your data and privacy  (`privacy_data`)
@@ -1389,10 +1409,13 @@ Your risk level comes from your health profile.
 *what is my safety limit*
 
 ```
-Your safety limits come from your risk level: low risk, up to moderate intensity and 45 minutes a session; medium risk, up to moderate intensity and 30 minutes; high risk, up to low intensity and 20 minutes.
-1) Plans with harder exercises or longer sessions are left out, and Why not the other plans says so.
-2) Home also shows daily limits for food (calories, salt and sugar) worked out from your profile.
-3) They are recalculated when you save your profile.
+Your safety limits come from your risk level:
+1) Low risk, up to moderate intensity and 45 minutes a session.
+2) Medium risk, up to moderate intensity and 30 minutes.
+3) High risk, up to low intensity and 20 minutes.
+4) Plans with harder exercises or longer sessions are left out, and Why not the other plans says so.
+5) Home also shows daily limits for food (calories, salt and sugar) worked out from your profile.
+6) They are recalculated when you save your profile.
 ```
 
 ## “Does not look like” the exercise  (`wrong_exercise`)
