@@ -146,7 +146,7 @@ SHORT_WORDS_TYPED.update({
     "td": "tadi", "tdi": "tadi", "skrg": "sekarang", "skrang": "sekarang", "skang": "sekarang", "ape": "apa",
     "lg": "lagi", "org": "orang", "sdh": "sudah", "blm": "belum", "bkn": "bukan", "mmg": "memang",
     "ckp": "cakap", "dpt": "dapat", "byk": "banyak", "kpd": "kepada", "drpd": "daripada", "tlg": "tolong",
-    "tlong": "tolong"})
+    "tlong": "tolong", "dr": "doctor", "dktr": "doktor"})
 
 
 @lru_cache
@@ -492,7 +492,7 @@ def respell(text: str) -> str:
     low = text.lower().replace("’", "'")
     parts = re.split(r"([a-z0-9']+)", low)
     typed = parts[1::2]
-    mended = [_respell_words(w) for w in typed]
+    mended = _malay_two(typed, [_respell_words(w) for w in typed])
     for k, (was, now) in enumerate(zip(typed, mended)):
         # A slip read as fell/fall before a feeling word was "feel" ("fel lazy today", "fel sakit"):
         # only that word, and only when it was not typed as fell/fall.
@@ -544,6 +544,101 @@ def _sign_reading(w: str) -> str | None:
     return same[0] if same else None
 
 
+# 3.64 (the Malay texting test, chat_malay_texting_set.py: 58 % right, warning signs 50 %): Malay is
+# often texted without its vowels ("sy jth semalam", "ssk nfs", "pnt hidup", "kaki saya lmh").
+MALAY_SIGN_WORDS = {"dada", "nafas", "bernafas", "pitam", "pengsan", "jatuh", "darah", "sesak", "ketat", "jantung",
+                    "kepala", "kebas", "lumpuh", "senget", "pelat", "laju", "berdebar", "bangun", "susah", "muka",
+                    "tadi", "saya", "ayah", "sakit", "muntah", "terhantuk", "lemah", "pening", "bengkak", "leher",
+                    "keras", "demam", "mati", "bunuh", "diri", "hidup", "penat", "takut", "keluar", "banyak",
+                    "tinggi", "senaman", "bersenam", "lutut", "kaki", "tangan", "bahu", "belakang", "pinggang",
+                    "tukar", "peringatan", "lambat", "terima", "kasih", "murung", "sedih", "emak"}
+# Short forms in English that have no vowel either: never read as Malay.
+ENGLISH_NO_VOWEL = {"pls", "plz", "thx", "msg", "hmm", "brb", "btw", "idk", "tbh", "omg", "lol", "nth", "ppl",
+                    "mrs", "hrs", "kms", "kgs", "cms", "mls", "sms", "gps", "cpr", "ecg", "ekg", "mri", "bmi", "bpm",
+                    "rpm", "xls", "pdf", "jpg", "png", "mp", "tv", "pc", "dr", "mr", "ms", "bp", "cm", "kg", "km",
+                    "mm", "ml", "hr", "st", "nd", "rd", "th", "ty", "np", "bf", "gf", "hb", "hm", "sth", "smth",
+                    "smtg", "wnt", "hw", "wht", "cnt", "dnt", "nvm", "pwd", "pw", "tmr", "tdy", "ytd", "bcz"}
+NO_VOWEL_RE = re.compile(r"[aeiou]")
+
+
+def _skeleton(w: str) -> str:
+    """The first letter and the consonants after it ("sakit" -> "skt", "emak" -> "emk")."""
+    return w[0] + NO_VOWEL_RE.sub("", w[1:])
+
+
+@lru_cache(maxsize=1)
+def _malay_by_skeleton() -> dict:
+    """{skeleton of 3+ letters: the one Malay word it can be}; when several, the warning-sign word if
+    exactly one is ("skt": sakit, not sikit)."""
+    words = set(COMMON_MALAY) | set(MALAY) | MALAY_SIGN_WORDS | {w for p in MALAY_PHRASES for w in p.split()}
+    by: dict[str, set] = {}
+    for w in words:
+        if len(w) >= 3 and w.isalpha() and NO_VOWEL_RE.search(w[1:]):
+            by.setdefault(_skeleton(w), set()).add(w)
+    out = {}
+    for s, ws in by.items():
+        if len(s) < 3:
+            continue
+        signs = ws & (URGENT_WORDS | MALAY_SIGN_WORDS) if len(ws) > 1 else ws
+        if len(ws) == 1 or len(signs) == 1:
+            out[s] = sorted(signs)[0]
+    return out
+
+
+# Two-letter Malay short forms, read only in a message with other Malay in it ("dd skt", "saya nak mt").
+# Not "dr" (doctor, except in "bunuh dr"), "kl" (Kuala Lumpur), "mk" (muka or mak).
+MALAY_TWO = {"dd": "dada", "mt": "mati", "rs": "rasa", "kk": "kaki", "br": "baru", "jg": "juga", "bg": "bagi",
+             "sm": "sama", "ms": "masa", "lj": "laju", "lp": "lupa", "jt": "jatuh", "ml": "mula"}
+# Two short forms that only make sense together ("mk sngt": muka senget, the face drooping).
+MALAY_PAIRS = {("mk", "sngt"): ("muka", "senget"), ("mk", "senget"): ("muka", "senget"),
+               ("mk", "snget"): ("muka", "senget"), ("kt", "lln"): ("kata", "laluan"),
+               ("kt", "laluan"): ("kata", "laluan")}
+
+
+def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
+    malay = set(COMMON_MALAY) | set(MALAY) | MALAY_SIGN_WORDS | {w for p in MALAY_PHRASES for w in p.split()}
+    if not any(x in malay for m in mended for x in m.split()):
+        return mended
+    out = list(mended)
+    bare = [w[:-3] if w.endswith("lah") and len(w) > 3 else w for w in typed]     # "mtlah", "drlah", "pglah"
+    for k, w in enumerate(bare):
+        as_typed = typed[k]
+        nxt = bare[k + 1] if k + 1 < len(bare) else ""
+        if (w, nxt) in MALAY_PAIRS:
+            out[k], out[k + 1] = MALAY_PAIRS[(w, nxt)]
+            continue
+        if k and (bare[k - 1], w) in MALAY_PAIRS:
+            continue
+        if w == "x" and nxt.isalpha() and not (k and bare[k - 1].isdigit()):
+            out[k] = "tak"                               # "x boleh", "x nak": tak (3.64)
+            continue
+        if w != as_typed and w in SHORT_WORDS_TYPED:
+            out[k] = SHORT_WORDS_TYPED[w]                # "pglah", "lglah"
+            continue
+        if w.startswith("x") and len(w) >= 3 and mended[k] == as_typed:
+            rest = SHORT_WORDS_TYPED.get(w[1:]) or MALAY_TWO.get(w[1:]) or _malay_texted(w[1:]) or (
+                w[1:] if w[1:] in COMMON_MALAY or w[1:] in MALAY_SIGN_WORDS else None)
+            if rest:
+                out[k] = "tak " + rest                   # "xnk", "xbole", "xbngn"
+                continue
+        if w == "dr" and k and typed[k - 1] in ("bunuh", "bnh"):
+            out[k] = "diri"                              # "bunuh dr": suicide
+        elif w in MALAY_TWO and mended[k] == as_typed:
+            nxt = typed[k + 1] if k + 1 < len(typed) else ""
+            if (w == "ms" and nxt in ("", "pain", "sakit")) or (w == "ml" and k and bare[k - 1].isdigit()):
+                out[k] = w                               # "i have ms": MS; "500 ml"
+            else:
+                out[k] = MALAY_TWO[w]
+    return out
+
+
+def _malay_texted(w: str) -> str | None:
+    """The Malay word a vowel-less word of 3+ letters was texted for, if there is just one."""
+    if len(w) < 3 or not w.isalpha() or NO_VOWEL_RE.search(w[1:]) or w in ENGLISH_NO_VOWEL or w in _respell_vocab():
+        return None
+    return _malay_by_skeleton().get(w)
+
+
 def _respell_part(w: str) -> str | None:
     """One part of a joined word: known, or the likeliest known word."""
     vocab = _respell_vocab()
@@ -558,6 +653,10 @@ def _respell_words(token: str) -> str:
     for w in [token]:
         if w in SHORT_WORDS_TYPED:
             out.append(SHORT_WORDS_TYPED[w])
+            continue
+        texted = _malay_texted(w[:-3] if len(w) > 5 and w[-3:] == "lah" else w)
+        if texted:
+            out.append(texted)                           # "jth" -> jatuh, "sktlah" -> sakit (3.64)
             continue
         if len(w) > 5 and w[-3:] in ("lah", "kah") and (w[:-3] in vocab or w[:-3] in COMMON_MALAY
                                                        or w[:-3] in SAFETY_WORDS):
@@ -1328,16 +1427,25 @@ def _phrase_mend(text: str | None, kind: str) -> str | None:
     words = clean(text).split()
     known = vocabulary()
     for i, w in enumerate(words):
-        if len(w) < 3 or not w.isalpha() or w in known or w in dictionary() or w in rare_words():
+        if len(w) < 2 or not w.isalpha() or w in known or w in rare_words():
             continue                                     # a real word, even a rarer one ("pruning"), stays
+        texted = not NO_VOWEL_RE.search(w[1:])             # the rest of the phrase says it is Malay ("bunuh dr")
+        if w in dictionary() and not texted:
+            continue
         for ws, k, p in _phrase_index(kind).get(w[0], ()):
-            if abs(len(p) - len(w)) > 2 or typo_cost(w, p) > (1.0 if len(p) < 6 else 1.5):
+            if not (_skeleton(p) == w and texted) and (
+                    len(w) < 3 or w in dictionary() or abs(len(p) - len(w)) > 2
+                    or typo_cost(w, p) > (1.0 if len(p) < 6 else 1.5)):
                 continue
             start = i - k
             if start < 0 or start + len(ws) > len(words):
                 continue
-            if all(words[start + j] == ws[j] for j in range(len(ws)) if j != k):
-                return " ".join(words[:i] + [p] + words[i + 1:])
+            # The other words as typed, or texted without vowels too ("ssk nfs": sesak nafas).
+            others = [j for j in range(len(ws)) if j != k]
+            if all(words[start + j] == ws[j] or (words[start + j] == _skeleton(ws[j]) and len(ws[j]) >= 3)
+                   for j in others):
+                mended = words[:start] + list(ws) + words[start + len(ws):]
+                return " ".join(mended)
     return None
 
 
