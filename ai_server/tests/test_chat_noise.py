@@ -76,3 +76,20 @@ def test_the_longest_message_the_app_allows_is_answered_quickly():
     start = time.time()
     r = client.post("/chat", headers=DEV, json={"plan_id": KNEE, "text": words})
     assert r.status_code == 200 and time.time() - start < 5
+
+
+# 3.58: spacing typed by accident, junk around a real question, and questions that only look like code.
+SPACING = [("sesak  nafas", {"red_flag"}), ("selamat  pagi", {"greeting"}), ("terima...kasih", {"thanks"}),
+           ("saya...lupa...kata...laluan", {"forgot_password"}), ("I     f e e l     d i z z y", {"red_flag"}),
+           ("n a k     t u k a r     p l a n", {"plan_and_reminders"}), ("h e l p", {"bot_identity"}),
+           ("/$( my knee is not painful anymore, can I stop the plan?", {"plan_and_reminders"}),
+           ("{{_ take me to profile", {"profile_help"}), ("video upload very slow(``_", {"recording_help"}),
+           ("how do i select an exercise from my plan", {"plan_exercises"}),
+           ("my knee hurts; touch it and it's warm", {"pain_or_discomfort", "pain_swelling"}),
+           ("SELECT * FROM account", {None}), ("() { _; } >_[$($())] { touch /tmp/x.fail; }", {None}),
+           (" ".join(["carpet", "banana", "river", "sunday", "cloud", "pencil", "dance", "laptop"] * 4), {None})]
+
+
+def test_spacing_junk_and_code_like_questions():
+    wrong = [(t, g) for t, want in SPACING if (g := _got(KNEE, t)) not in want]
+    assert not wrong, wrong

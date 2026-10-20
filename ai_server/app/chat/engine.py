@@ -1888,9 +1888,29 @@ MAX_TOPIC_CHARS = 1500
 
 
 # Code and markup (Big List of Naughty Strings, 20 Oct): SQL, shell, HTML/script tags, templates, paths.
-CODE_RE = re.compile(r"(?i)(\bdrop\s+table\b|\bselect\b.+\bfrom\b|\binsert\s+into\b|\bunion\s+select\b|"
-                     r"\bexec\s|\$\(|`[^`]*`|</?[a-z][^>]*>|\{\{|\{%|/etc/|/dev/|/tmp/|\brm\s+-rf\b|"
-                     r"\(\)\s*\{|\w+\.\w+\([^)]*\)|%[0-9a-f]{2}|;\s*--|\bjndi:)")
+# 3.58: taken out of the message, and what is left is read when it still has three words ("/$( my knee is
+# not painful anymore, can I stop the plan?"); "select an exercise from my plan" is not SQL.
+CODE_RE = re.compile(r"(?i)(?:\bdrop\s+table\s*\w*|\bselect\s+\*\s+from\s+\w+|\binsert\s+into\s+\w+|"
+                     r"\bunion\s+(?:all\s+)?select\b|\bexec\s|\$\(|\$\{[^}]*\}?|`[^`]*`|</?[a-z][^>]*>|"
+                     r"<(?:script|iframe|img|svg|object|embed|style|body|input|form|meta|link)\b[^>]*|"
+                     r"\{\{|\}\}|\{%|%\}|/etc/\w*|/dev/\w*|/tmp/\w*|\brm\s+-rf\b|\w+\.\w+\([^)]*\)|"
+                     r"\b\w+\(\s*(?:'[^']*'|\"[^\"]*\")\s*\)|%[0-9a-f]{2}|;\s*--|\bjndi:\S*|"
+                     r"\(\)\s*\{[^}]*\}?|@\{\[[^\]]*\]\}|[;{]\s*(?:touch|echo|cat|rm|wget|curl|ls|sudo|sh|bash)\s+[/$~.-][^;}]*)")
+WIDE_GAP_RE = re.compile(r"\s{2,}")
+DOTS_RE = re.compile(r"(?<=[^\W\d_])(?:\.{2,}|\u2026+)(?=[^\W\d_])")
+
+
+def _tidy(text: str) -> str:
+    """Spacing typed by accident or for effect, made plain before anything reads the message (3.58):
+    "sesak  nafas" is "sesak nafas", "terima...kasih" is "terima kasih", "h e l p" is "help" and
+    "i   f e e l   d i z z y" is "i feel dizzy" (wider gaps between the words)."""
+    toks = text.split()
+    if len(toks) >= 3 and sum(len(w) == 1 and w.isalpha() for w in toks) >= 0.8 * len(toks):
+        parts = WIDE_GAP_RE.split(text.strip())
+        text = " ".join("".join(p.split()) for p in parts) if len(parts) > 1 else "".join(toks)
+    return " ".join(DOTS_RE.sub(" ", text).split())
+
+
 # Links, e-mail addresses and @handles carry no question of their own.
 LINK_RE = re.compile(r"(?i)(https?://\S+|www\.\S+|\S+@\S+\.\S+|(?<!\w)@\w+|\b[\w-]+\.(com|org|net|my|io)\b\S*)")
 
@@ -1902,13 +1922,24 @@ def _nothing_to_read(text: str) -> bool:
     return not any(e in text for e in EMOJI)
 
 
+MALAY_GRAMMAR = set("""saya aku awak kita kami dia nak hendak boleh tak tidak ke ini itu dan yang untuk dengan apa
+macam mana bila kenapa ada sudah dah di dari pun lah""".split())
+
+
+def _word_list(text: str) -> bool:
+    """20 words or more and not one word of grammar ("i", "my", "the", "is", "how", "saya", "nak"): words
+    pasted or typed at random, not a question (3.58). The safety checks have read it already."""
+    words = re.findall(r"[^\W\d_]+", text.lower())
+    return len(words) >= 20 and not any(w in STOP or w in MALAY_GRAMMAR for w in words)
+
+
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
           risk_level: str | None = None, local_time: tuple[int, int] | None = None,
           previous_category: str | None = None, restriction: str | None = None) -> dict:
     r = rules()
     if text:
-        text = INVISIBLE_RE.sub("", text)                  # zero-width spaces and joiners (3.57)
+        text = _tidy(INVISIBLE_RE.sub("", text))           # zero-width characters (3.57), spacing (3.58)
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
     rest = r.get("restrictions", {}).get(restriction or "")
@@ -1938,7 +1969,10 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     chosen, how = None, None
     if text:
         text = LINK_RE.sub(" ", text)                     # links and addresses are not the question (3.57)
-    if text and (_nothing_to_read(text) or CODE_RE.search(text)):
+        if CODE_RE.search(text):                          # code out; the rest is read if it has words (3.58)
+            left = CODE_RE.sub(" ", text)
+            text = left if len(re.findall(r"[^\W\d_]{2,}", left)) >= 3 else ""
+    if text and (_nothing_to_read(text) or _word_list(text)):
         text = ""                                         # nothing to answer: "not recognised" below (3.57)
     elif text and len(text) > MAX_TOPIC_CHARS:
         text = text[:MAX_TOPIC_CHARS]

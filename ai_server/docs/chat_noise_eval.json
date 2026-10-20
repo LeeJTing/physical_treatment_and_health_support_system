@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.57",
+ "rules_version": "chat-rules-3.58",
  "seed": 1,
  "per_group": 2000,
- "noise_ok": 1843,
+ "noise_ok": 1938,
  "noise": 2000,
- "noisy_ok": 1983,
+ "noisy_ok": 1997,
  "noisy": 2000,
- "blns_ok": 509,
+ "blns_ok": 510,
  "blns": 515,
  "oos_ok": 730,
  "oos": 1100,
@@ -17,10 +17,9 @@
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 1.916,
+ "slowest_reply_sec": 1.6,
  "misses": [
   "blns/blns: '1#SNAN' -> diagnosis (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
-  "blns/blns: '<iframe src=http://ha.ckers.org/scriptlet.html <' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: '--help' -> bot_identity (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: 'Lightwater Country Park' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: 'Craig Cockburn, Software Specialist' -> pain_or_discomfort (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
@@ -218,7 +217,8 @@
   "oos/oos: 'what do you do if your 4 year old just ate playdoh' -> diet (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'how much sugar was in my urine this morning' -> app_facts (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: \"what's a good blouse to wear with pink shoes\" -> equipment (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
-  "oos/oos: 'how much does it cost to spay a puppy' -> app_facts (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])"
+  "oos/oos: 'how much does it cost to spay a puppy' -> app_facts (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
+  "oos/oos: \"what's the best style shoe to wear to the prom\" -> equipment (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])"
  ],
- "seconds": 302
+ "seconds": 272
 }
