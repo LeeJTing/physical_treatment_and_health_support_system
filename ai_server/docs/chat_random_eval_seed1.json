@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.63",
+ "rules_version": "chat-rules-3.65",
  "seed": 1,
  "messages": 10000,
- "passed": 9851,
- "rate": 0.9851,
+ "passed": 9856,
+ "rate": 0.9856,
  "by_kind": {
   "written": {
-   "passed": 2985,
+   "passed": 2987,
    "messages": 3038
   },
   "short": {
@@ -22,7 +22,7 @@
    "messages": 1203
   },
   "restricted": {
-   "passed": 646,
+   "passed": 647,
    "messages": 657
   },
   "mistakes": {
@@ -34,7 +34,7 @@
    "messages": 715
   },
   "conditions": {
-   "passed": 524,
+   "passed": 526,
    "messages": 529
   }
  },
@@ -58,7 +58,6 @@
   "('tired',) -> None: 2",
   "('best_time',) -> condition_advice: 2",
   "('acknowledge',) -> None: 2",
-  "('weakness_balance',) -> red_flag: 2",
   "('bot_identity',) -> None: 2",
   "('crisis', 'red_flag') -> weakness_balance: 2",
   "('how_often', 'plan_exercises') -> None: 1",
@@ -78,7 +77,8 @@
   "pain_mild -> exercise:tandem_stance: 1",
   "('doctor_clearance',) -> plan_exercises: 1",
   "('video_quality',) -> recording_help: 1",
-  "('recording_help',) -> equipment: 1"
+  "('recording_help',) -> equipment: 1",
+  "('difficulty',) -> None: 1"
  ],
  "misses": [
   {
@@ -1796,43 +1796,6 @@
    }
   },
   {
-   "text": "I fele lonely at home ?",
-   "want": [
-    "low_mood"
-   ],
-   "got": "red_flag",
-   "seed_question": "i feel lonely at home",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "google_setup",
-    "restriction": "AGE_65_PLUS",
-    "conditions": [
-     "DIABETES"
-    ],
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "i fewl unsteady ?",
-   "want": [
-    "weakness_balance"
-   ],
-   "got": "red_flag",
-   "seed_question": "I feel unsteady",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     22,
-     15
-    ]
-   }
-  },
-  {
    "text": "muscles weak, canhlf reps!",
    "want": [
     "difficulty",
@@ -2202,22 +2165,6 @@
    }
   },
   {
-   "text": "doc can exercise with hgh bp??",
-   "want": [
-    "condition_advice"
-   ],
-   "got": "hot_weather",
-   "seed_question": "can i exercise with high bp",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "sakit buah pingggang exercise!!",
    "want": [
     "condition_advice"
@@ -2431,27 +2378,6 @@
     "local_time": [
      13,
      15
-    ]
-   }
-  },
-  {
-   "text": "what exercise is good for tulang rph!!",
-   "want": [
-    "condition_advice"
-   ],
-   "got": "plan_exercises",
-   "seed_question": "what exercise is good for tulang rapuh",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "DIABETES"
-    ],
-    "risk_level": null,
-    "local_time": [
-     0,
-     30
     ]
    }
   },
@@ -2699,24 +2625,6 @@
      16,
      0
     ]
-   }
-  },
-  {
-   "text": "hi i ferl unsteady",
-   "want": [
-    "weakness_balance"
-   ],
-   "got": "red_flag",
-   "seed_question": "I feel unsteady",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "exercise:march_in_place",
-    "restriction": null,
-    "conditions": [
-     "COPD"
-    ],
-    "risk_level": null,
-    "local_time": null
    }
   },
   {

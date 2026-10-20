@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.63",
+ "rules_version": "chat-rules-3.65",
  "seed": 2,
  "messages": 10000,
- "passed": 9843,
- "rate": 0.9843,
+ "passed": 9848,
+ "rate": 0.9848,
  "by_kind": {
   "restricted": {
-   "passed": 590,
+   "passed": 592,
    "messages": 606
   },
   "follow": {
@@ -22,7 +22,7 @@
    "messages": 2597
   },
   "written": {
-   "passed": 3026,
+   "passed": 3029,
    "messages": 3091
   },
   "conditions": {
@@ -50,7 +50,6 @@
   "('difficulty',) -> plan_exercises: 2",
   "('profile_help',) -> change_password: 2",
   "('acknowledge', 'how_often', 'plan_progress') -> plan_exercises: 2",
-  "('session_expired',) -> pain_sharp: 2",
   "('how_often',) -> None: 2",
   "('exercise:heel_raise',) -> difficulty: 2",
   "('exercise:wall_push_up',) -> how_to: 2",
@@ -77,6 +76,7 @@
   "('missed_session',) -> safety: 1",
   "('fear_of_falling',) -> safety: 1",
   "('age_limit', 'posture_result') -> doctor_said: 1",
+  "('session_expired',) -> None: 1",
   "('plan_reasons',) -> None: 1",
   "('muscle_loss',) -> diagnosis: 1"
  ],
@@ -353,7 +353,7 @@
    "want": [
     "session_expired"
    ],
-   "got": "pain_sharp",
+   "got": null,
    "seed_question": "do i have to log in every time i open the app",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -466,27 +466,6 @@
     "conditions": null,
     "risk_level": "High",
     "local_time": null
-   }
-  },
-  {
-   "text": "have log every timeopen app ya...",
-   "want": [
-    "session_expired"
-   ],
-   "got": "pain_sharp",
-   "seed_question": "do i have to log in every time i open the app",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "DIABETES"
-    ],
-    "risk_level": null,
-    "local_time": [
-     22,
-     0
-    ]
    }
   },
   {
@@ -1206,22 +1185,6 @@
    }
   },
   {
-   "text": "i fele so lazy today ah...",
-   "want": [
-    "motivation"
-   ],
-   "got": "red_flag",
-   "seed_question": "i feel so lazy today",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:toes_up",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "Wat core plna?",
    "want": [
     "plan_progress"
@@ -1505,27 +1468,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
-   "text": "i fele so lazy to exercise!",
-   "want": [
-    "difficulty",
-    "motivation",
-    "tired"
-   ],
-   "got": "red_flag",
-   "seed_question": "i feel so lazy to exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": [
-     "PARKINSONS",
-     "PREGNANCY"
-    ],
-    "risk_level": "Low",
     "local_time": null
    }
   },
@@ -2284,26 +2226,6 @@
    }
   },
   {
-   "text": "Hw hgh should the step be ?",
-   "want": [
-    "equipment",
-    "exercise:step_up"
-   ],
-   "got": "how_to",
-   "seed_question": "how high should the step be",
-   "context": {
-    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
-    "previous_category": "mistake:uneven_arms",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     21,
-     45
-    ]
-   }
-  },
-  {
    "text": "Mach on the sot ya!",
    "want": [
     "exercise:march_in_place"
@@ -2567,26 +2489,6 @@
     ],
     "risk_level": "Low",
     "local_time": null
-   }
-  },
-  {
-   "text": "i fetl ya ?",
-   "want": [
-    "None",
-    "acknowledge"
-   ],
-   "got": "red_flag",
-   "seed_question": "i felt",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     23,
-     30
-    ]
    }
   },
   {

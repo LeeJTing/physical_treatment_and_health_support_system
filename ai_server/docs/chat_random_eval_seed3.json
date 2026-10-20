@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.63",
+ "rules_version": "chat-rules-3.65",
  "seed": 3,
  "messages": 10000,
- "passed": 9827,
- "rate": 0.9827,
+ "passed": 9828,
+ "rate": 0.9828,
  "by_kind": {
   "written": {
-   "passed": 3044,
+   "passed": 3045,
    "messages": 3110
   },
   "conditions": {
@@ -463,24 +463,6 @@
      3,
      45
     ]
-   }
-  },
-  {
-   "text": "i ferl like giving up!",
-   "want": [
-    "missed_session",
-    "plan_progress",
-    "tired"
-   ],
-   "got": "red_flag",
-   "seed_question": "i feel like giving up",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
