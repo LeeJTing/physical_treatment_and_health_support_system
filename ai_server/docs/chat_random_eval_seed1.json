@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.74",
+ "rules_version": "chat-rules-3.75",
  "seed": 1,
  "messages": 10000,
- "passed": 9829,
- "rate": 0.9829,
+ "passed": 9820,
+ "rate": 0.982,
  "by_kind": {
   "written": {
-   "passed": 2946,
+   "passed": 2943,
    "messages": 3011
   },
   "mistakes": {
@@ -14,11 +14,11 @@
    "messages": 413
   },
   "restricted": {
-   "passed": 630,
+   "passed": 628,
    "messages": 637
   },
   "short": {
-   "passed": 2546,
+   "passed": 2544,
    "messages": 2605
   },
   "red_flags": {
@@ -34,14 +34,16 @@
    "messages": 713
   },
   "conditions": {
-   "passed": 543,
+   "passed": 541,
    "messages": 551
   }
  },
  "commonest_misses": [
   "('plan_progress',) -> plan_exercises: 5",
+  "('for_someone_else',) -> condition_advice: 5",
   "('crisis', 'red_flag') -> None: 4",
-  "('condition_advice',) -> None: 3",
+  "('app_facts',) -> None: 3",
+  "('condition_advice',) -> diagnosis: 3",
   "('exercise:wall_push_up',) -> equipment: 3",
   "('reminder_late_or_off',) -> reminders_help: 3",
   "('multiple_plans',) -> None: 3",
@@ -53,6 +55,7 @@
   "('crisis', 'red_flag') -> safety: 2",
   "('language',) -> None: 2",
   "('privacy_data',) -> how_often: 2",
+  "('condition_advice',) -> None: 2",
   "('how_often',) -> plan_exercises: 2",
   "('diagnosis',) -> None: 2",
   "('tired',) -> treatment_nav: 2",
@@ -75,28 +78,9 @@
   "('mistake:leaning_back',) -> mistake:leaning: 1",
   "('difficulty',) -> other_activity: 1",
   "('crisis', 'red_flag') -> low_mood: 1",
-  "pain_mild -> exercise:tandem_stance: 1",
-  "pain_mild -> exercise:shoulder_abduction: 1",
-  "('low_mood', 'motivation') -> None: 1",
-  "('for_someone_else',) -> None: 1"
+  "pain_mild -> exercise:tandem_stance: 1"
  ],
  "misses": [
-  {
-   "text": "SAYA ADA SAILT JANTUNG!",
-   "want": [
-    "condition_advice"
-   ],
-   "got": null,
-   "seed_question": "saya ada sakit jantung",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:swinging",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
   {
    "text": "okyayy ?",
    "want": [
@@ -462,6 +446,25 @@
    }
   },
   {
+   "text": "i'm taking care of my mum with dementia, can she use this...",
+   "want": [
+    "for_someone_else"
+   ],
+   "got": "condition_advice",
+   "seed_question": "i'm taking care of my mum with dementia, can she use this",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     15,
+     45
+    ]
+   }
+  },
+  {
    "text": "my grama use...",
    "want": [
     "for_someone_else"
@@ -534,6 +537,28 @@
     "local_time": [
      8,
      0
+    ]
+   }
+  },
+  {
+   "text": "TAKING CARE MUM WIHT DEMENTIA, CAN SHE USE!!",
+   "want": [
+    "for_someone_else"
+   ],
+   "got": "condition_advice",
+   "seed_question": "i'm taking care of my mum with dementia, can she use this",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "ARTHRITIS",
+     "STROKE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     22,
+     15
     ]
    }
   },
@@ -709,6 +734,27 @@
     "local_time": [
      13,
      45
+    ]
+   }
+  },
+  {
+   "text": "COT ?",
+   "want": [
+    "app_facts"
+   ],
+   "got": null,
+   "seed_question": "cost",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": null,
+    "local_time": [
+     17,
+     30
     ]
    }
   },
@@ -1168,6 +1214,25 @@
    }
   },
   {
+   "text": "i have cancer is it saef to exercise",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "diagnosis",
+   "seed_question": "i have cancer is it safe to exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:not_closed",
+    "restriction": null,
+    "conditions": [
+     "ASTHMA",
+     "DIABETES"
+    ],
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
    "text": "movnnig figure pls",
    "want": [
     "guide_animation"
@@ -1394,6 +1459,22 @@
     "restriction": null,
     "conditions": null,
     "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "i'm taking care of my mum with dementia, can she use tihs leh ?",
+   "want": [
+    "for_someone_else"
+   ],
+   "got": "condition_advice",
+   "seed_question": "i'm taking care of my mum with dementia, can she use this",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:knee_not_straight",
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": "High",
     "local_time": null
    }
   },
@@ -1852,6 +1933,22 @@
    "seed_question": "can i exercise with hamil",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "cot!",
+   "want": [
+    "app_facts"
+   ],
+   "got": null,
+   "seed_question": "cost",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
     "previous_category": null,
     "restriction": null,
     "conditions": null,
@@ -2375,6 +2472,22 @@
    }
   },
   {
+   "text": "i'm taking care of my mum wtih dementia, can she use this!!",
+   "want": [
+    "for_someone_else"
+   ],
+   "got": "condition_advice",
+   "seed_question": "i'm taking care of my mum with dementia, can she use this",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
    "text": "i feel chest piian??",
    "want": [
     "crisis",
@@ -2639,6 +2752,38 @@
      10,
      15
     ]
+   }
+  },
+  {
+   "text": "i'm takign care of my mum w dementia, can she use this",
+   "want": [
+    "for_someone_else"
+   ],
+   "got": "condition_advice",
+   "seed_question": "i'm taking care of my mum with dementia, can she use this",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "I have cancer is it safe to exercise!!",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "diagnosis",
+   "seed_question": "i have cancer is it safe to exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
    }
   },
   {
@@ -3164,6 +3309,28 @@
     "conditions": null,
     "risk_level": "Medium",
     "local_time": null
+   }
+  },
+  {
+   "text": "i have cancer is it safe to exercise...",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "diagnosis",
+   "seed_question": "i have cancer is it safe to exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "PREGNANCY"
+    ],
+    "risk_level": null,
+    "local_time": [
+     6,
+     30
+    ]
    }
   },
   {
