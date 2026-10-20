@@ -46,7 +46,7 @@ FAMILIES = {
                     ("video upload failed", {"recording_help", "video_quality"})],
     "reading": [("bp 180/110", {"red_flag"}), ("blood pressure 190/100", {"red_flag"}), ("sugar 3.2", {"red_flag", "condition_advice"}),
                 ("bp 120/80", {"condition_advice", "acknowledge", N}), ("sugar 6", {"condition_advice", "diet", N}),
-                ("heart rate 150 after exercise", {"red_flag", "safety"}), ("weight 70kg", {"profile_help", N}),
+                ("heart rate 150 after exercise", {"red_flag", "safety", "health_readings"}), ("weight 70kg", {"profile_help", N}),
                 ("my bp is high today", {"condition_advice", "safety"}),
                 ("glucose 2.8", {"red_flag"}), ("bp 200/120 headache", {"red_flag"})],
     "emoji": [("👍", {"acknowledge", "thanks"}), ("🙏", {"thanks"}), ("😢", {"low_mood", N, "clarify"}),

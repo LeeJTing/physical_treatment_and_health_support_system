@@ -907,7 +907,11 @@ def _combo_negated(words: list[str], i: int) -> bool:
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [# 3.67: "send message to my son", "order food for me" are things the chatbot cannot do.
+PREFER = [# 3.74: "how many calories did i burn" is not burning pain; "hot temperature outside" is the weather.
+          ("calories", "pain_or_discomfort"), ("calories", "equipment"),
+          ("hot_weather", "health_readings"), ("tired", "health_readings"), ("calories", "posture_result"),
+          ("calories", "plan_progress"),
+          # 3.67: "send message to my son", "order food for me" are things the chatbot cannot do.
           ("cannot_do", "for_someone_else"), ("cannot_do", "diet"), ("cannot_do", "family_help"),
           ("app_problem", "app_help"), ("app_problem", "recording_help"),
           ("greeting", "thanks"), ("other_activity", "reminders_help"),
@@ -987,8 +991,13 @@ PREFER = [# 3.67: "send message to my son", "order food for me" are things the c
 # muscle loss, but "the doctor told me to rest after hospital" is the doctor's advice).
 # As PREFER, but only when one of the words is there (3.67: "so frustrated, my score is always low" is the
 # posture result; "very lonely since my wife passed away" stays low mood).
-PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "results", "marks", "accuracy", "percent"])]
-PREFER_UNLESS = [# 3.67: "protein shake" is food, "my legs shake" weakness; "i'm bored" motivation, "too easy" not
+PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "results", "marks", "accuracy", "percent"]),
+             # 3.74: "how many calories should i eat" is food
+             ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"])]
+PREFER_UNLESS = [# 3.74: "i have done my exercises" is done for today, "finished the plan" the plan's end.
+                 ("session_done", "plan_progress", ["plan", "plans", "programme", "program", "pelan"]),
+                 ("session_done", "treatment_nav", ["where", "which", "what", "find", "plan", "plans"]),
+                 # 3.67: "protein shake" is food, "my legs shake" weakness; "i'm bored" motivation, "too easy" not
                  # (not "shaking": it shares its stem with "shake")
                  ("diet", "weakness_balance", ["leg", "legs", "hand", "hands", "arm", "arms", "knee", "knees",
                                                "body", "wobbly"]),
@@ -1242,6 +1251,42 @@ def high_sugar(text: str) -> bool:
     if not any(w in low for w in HIGH_SUGAR_SIGNS):
         return False
     return any(20 <= float(v) <= 35 or 360 <= float(v) <= 1000 for v in SUGAR_READING.findall(low))
+
+
+# 3.74 (numbers test, chat_numbers_set.py): oxygen and pulse readings. Oxygen (SpO2) of 92% or lower, or a
+# pulse of 150 or more or 40 or less, needs help now ("spo2 88", "heart rate 160 after exercise"); "hr" counts
+# only at the start ("1 hr 30 min" is a time).
+OXYGEN_RE = re.compile(r"\b(?:oxygen|o2|spo2|sp02|saturation|sats|oksigen|oximeter)\b\D{0,20}?(\d{2,3})(?:\.\d)?"
+                       r"(?!\s*(?:min|mins|minute|minutes|hours?|hrs?|litres?|liters?|l\b|lpm|years?|kg|cm|\d))")
+PULSE_RE = re.compile(r"\b(?:heart ?rate|heart ?beat|pulse|pulse rate|nadi|kadar nadi|denyutan jantung)\b\D{0,20}?"
+                      r"(\d{2,3})\b(?!\s*(?:%|percent|min|mins|minute|minutes|hours?|days?|years?|kg|cm|steps|reps|\.\d))|"
+                      r"^\W*(?:(?:hi|hello|ok|okay|doc|um|uh)\s+)?(?:my\s+)?hr\s*(?:is\s*)?(\d{2,3})\b|"
+                      r"\b(\d{2,3})\s*bpm\b")
+
+
+def oxygen_reading(text: str) -> int | None:
+    v = [int(x) for x in OXYGEN_RE.findall(text.lower()) if 50 <= int(x) <= 100]
+    return min(v) if v else None
+
+
+def pulse_reading(text: str) -> int | None:
+    v = [int(n) for m in PULSE_RE.findall(text.lower()) for n in m if n and 25 <= int(n) <= 250]
+    return v[0] if v else None
+
+
+def low_oxygen(text: str) -> bool:
+    v = oxygen_reading(text)
+    return v is not None and v <= 92
+
+
+def odd_pulse(text: str) -> bool:
+    v = pulse_reading(text)
+    return v is not None and (v >= 150 or v <= 40)
+
+
+def _bp_reading(text: str) -> bool:
+    """A blood pressure reading that could be real ("120/80"; not a pain score "10/10", 3.74)."""
+    return any(70 <= int(s) <= 280 and 40 <= int(d) <= 180 and int(s) > int(d) for s, d in BP_READING.findall(text))
 
 
 def high_bp(text: str) -> bool:
@@ -1593,6 +1638,8 @@ def _red_flag_whole(text: str) -> bool:
 
 
 def _red_flag_typed(text: str) -> bool:
+    if _reading_flag(text):
+        return True                                      # as typed: respelling may rename the reading ("sats", 3.74)
     again = respell(text)
     base = again if _plain(again) != _plain(text) else text
     # "ok fell over this morning", "sorry jatuh tahun lepas, tapi tadi lagi": a filler in front is not
@@ -1601,8 +1648,13 @@ def _red_flag_typed(text: str) -> bool:
     return _red_flag(base) or (bare != base and bool(bare.strip()) and _red_flag(bare))
 
 
+def _reading_flag(text: str) -> bool:
+    """A blood pressure, sugar, oxygen or pulse reading that needs help now."""
+    return high_bp(text) or low_sugar(text) or high_sugar(text) or low_oxygen(text) or odd_pulse(text)
+
+
 def _red_flag(text: str) -> bool:
-    if high_bp(text) or low_sugar(text) or high_sugar(text):
+    if _reading_flag(text):
         return True
     r = rules()
     # Neutralise phrases that look like a fall first, then spell-correct the result: correction can
@@ -2030,6 +2082,8 @@ THIRD_TO_FIRST = {"is": "am", "isn't": "am not", "has": "have", "hasn't": "haven
                   "moves": "move", "shakes": "shake", "limps": "limp", "exercises": "exercise", "records": "record",
                   "reaches": "reach", "works": "work", "wakes": "wake", "becomes": "become", "cries": "cry"}
 BEFORE_I = {"does": "do", "is": "am", "has": "have", "doesn't": "don't", "isn't": "aren't", "hasn't": "haven't"}
+VERB_AFTER_PERSON = {"can", "cannot", "can't", "will", "won't", "was", "fell", "had", "did", "didn't", "should", "could",
+                     "would", "must", "always", "never", "still", "just", "also", "often", "keeps", "felt", "got"}
 KEEP_FOR_OTHERS = {"family_help", "cannot_do", "word_meaning"}
 GENERAL_FOR_OTHERS = {"how_to", "plan_exercises", "safety", "how_often", "difficulty", "start_plan", "app_help",
                       "getting_started", "for_someone_else", "family_help", "cannot_do"}
@@ -2048,7 +2102,9 @@ def _as_if_mine(text: str | None) -> str | None:
             if nxt.endswith("'s"):
                 new = "my"                               # "my dad's weight"
             else:
-                new = "i" if not out or prev in SUBJECT_BEFORE else "me"     # "help my mother stand up"
+                after = words[k + 2] if k + 2 < len(words) else ""
+                new = "i" if not out or prev in SUBJECT_BEFORE or prev in PURE_FILLERS | ADDRESS_WORDS \
+                    or after in THIRD_TO_FIRST or after in VERB_AFTER_PERSON else "me"   # "help my mother stand up"
             k += 2
         elif w in ("he", "she", "dia", "he's", "she's"):
             new = "i" if w in ("he", "she", "dia") else "i'm"
@@ -2088,7 +2144,9 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         c2, h2 = _match_whole(plan_id, mine)
         if c2 is not None and c2 is not chosen and not c2.get("small_talk") and c2["key"] not in KEEP_FOR_OTHERS \
                 and c2["key"] not in NO_CONTEXT and c2["key"] != "for_someone_else" \
-                and (chosen is None or c2["key"] not in GENERAL_FOR_OTHERS):
+                and (chosen is None or c2["key"] not in GENERAL_FOR_OTHERS) \
+                and not (chosen is not None and how in ("keyword", "glossary")
+                         and h2 in ("similar_question", "keyword_overlap")):
             chosen, how = c2, h2                         # the family member's own question (3.73)
     if chosen is None or chosen["key"] not in ABOUT_THE_PERSON:
         question = _question_after_story(text)
@@ -2099,6 +2157,79 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     return chosen, how
 
 
+# 3.74 (numbers test, chat_numbers_set.py): what a number in the message measures, and the topic it calls
+# for. A pain score sets how bad the pain is ("pain 8/10" is sharp pain, before: "pain 10/10" was read as a
+# blood pressure); an age of 65 or more is the age limit ("my mother is 80" was the posture score, "80%"). The
+# reading's topic wins only over a topic read loosely from the words around it (READING_WEAK).
+PAIN_WORD_RE = re.compile(r"\b(?:pain|pains|painful|sakit|hurt|hurts|hurting|ache|aches|aching|sore|soreness|ngilu)\b")
+PAIN_OUT_OF_RE = re.compile(r"\b(10|[0-9])\s*(?:/\s*10|out of 10|over 10|daripada 10)\b")
+PAIN_LEVEL_RE = re.compile(r"\b(?:pain|sakit)\s*(?:level|score|scale|rating)?\s*(?:is\s*|of\s*)?(?:about\s*|like\s*|"
+                           r"around\s*|maybe\s*)?(10|[0-9])\b(?!\s*(?:%|percent|min|mins|minute|minutes|hours?|hrs?|days?|"
+                           r"weeks?|months?|years?|times|reps|sets|kg|cm|am|pm|o'?clock|\.\d))")
+_UNITS_AFTER_AGE = (r"(?!\s*(?:kg|kgs|kilo|kilos|cm|m\b|%|percent|min|mins|minutes?|hours?|hrs?|days?|weeks?|months?|"
+                    r"reps?|sets?|times|steps|km|lbs|pounds|feet|foot|ft|inch|inches|degrees?|bpm|/|\.\d|am\b|pm\b|'|\"))")
+AGE_RE = re.compile(r"\b(?:i am|i'm|im|i m|age|aged|umur(?:\s+saya)?|usia|my age is|turned|turning|he is|she is|"
+                    r"he's|she's|(?:my\s+)?(?:" + "|".join(sorted(PERSON_NOUNS)) + r")\s+is)\s+(?:only\s+|already\s+|"
+                    r"almost\s+|nearly\s+)?(\d{1,3})(?!\d)" + _UNITS_AFTER_AGE)
+AGE_OLD_RE = re.compile(r"\b(\d{1,3})\s*(?:years? old|yrs? old|y/o|yo|tahun)\b|\bin (?:my|his|her) ([1-9])0s\b")
+BODY_RE = re.compile(r"\b(?:lost|gained|put on|turun|naik)\s+(?:about\s+|around\s+|almost\s+)?\d{1,2}(?:\.\d)?"
+                     r"\s*(?:kg|kgs|kilo|kilos|kilograms|pounds|lbs)\b|"
+                     r"\b(?:height|tinggi|i am|i'm|im)\s*(?:is\s*|saya\s*)?\d{3}(?:\.\d)?\s*(?:cm|centimetres?)\b|"
+                     r"\b(?:height|tinggi)\s*(?:is\s*|saya\s*)?1?\d{2,3}\b|"
+                     r"\b(?:i am|i'm|im)\s+\d{2,3}(?:\.\d)?\s*(?:kg|kgs|kilo|kilos|kilograms)\b|"
+                     r"\b(?:i weigh|weigh|berat(?:\s+badan)?(?:\s+saya)?|weight)\s*(?:is\s*|about\s*)?\d{2,3}(?:\.\d)?"
+                     r"\s*(?:kg|kgs|kilo|kilos)?\b")
+WEATHER_RE = re.compile(r"\b(?:outside|outdoors?|weather|cuaca|room|sun|luar|today is|hari ni panas)\b")
+TEMP_RE = re.compile(r"\b(?:temperature|temp|fever|suhu|demam)\b\D{0,15}?\b(3[4-9](?:\.\d)?|4[0-2](?:\.\d)?)(?!\d)")
+WALK_RE = re.compile(r"\b\d[\d,]{2,6}\s*(?:steps|langkah)\b|"
+                     r"\bwalk(?:ed|ing|s)?\s+(?:about\s+|around\s+|for\s+)?\d+(?:\.\d+)?\s*(?:km|kilometres?|kilometers?|"
+                     r"miles?|min|mins|minutes|minit|hours?|hrs?|jam)\b|\bjalan(?:\s+kaki)?\s+\d+(?:\.\d+)?\s*km\b")
+SLEEP_RE = re.compile(r"\b(?:slept|sleep|sleeping|tidur)\s+(?:(?:only|just|about|around|for|less than)\s+)*([1-5])\s*"
+                      r"(?:hours?|hrs?|jam)\b|\b(?:only|just|got)\s+([1-5])\s*(?:hours?|hrs?|jam)\s+(?:of\s+)?"
+                      r"(?:sleep|tidur)\b|\b([1-5])\s*(?:hours?|hrs?|jam)\s+(?:of\s+)?(?:sleep|tidur)\b")
+DONE_RE = re.compile(r"\b(?:done|did|finished|completed|siap)\s+(?:it\s+|my\s+|the\s+)?\d{1,3}\s*(?:reps?|repetitions?|"
+                     r"sets?|times|rounds|kali)\b(?!\s*(?:a|per|every|each)\s+(?:day|week))")
+READING_WEAK = frozenset({"acknowledge", "clarify", "posture_result", "condition_advice", "safety", "equipment",
+                          "how_to", "plan_exercises", "how_often", "profile_help", "for_someone_else", "treatment_nav",
+                          "plan_and_reminders", "guardian_consent", "age_limit", "getting_started", "multiple_plans",
+                          "health_readings", "word_meaning", "best_time"})
+PAIN_KEYS = ("pain_mild", "pain_or_discomfort", "pain_sharp")
+AGE_WEAK = frozenset({"acknowledge", "clarify", "posture_result", "safety", "for_someone_else", "guardian_consent",
+                      "age_limit", "profile_help", "getting_started", "plan_exercises", "equipment"})
+
+
+def _reading(text: str | None) -> tuple[str, frozenset] | None:
+    """The topic a number in [text] calls for, and the topics it wins over; None without one."""
+    low = " ".join((text or "").lower().replace("\u2019", "'").split())
+    if PAIN_WORD_RE.search(low):
+        m = PAIN_OUT_OF_RE.search(low) or PAIN_LEVEL_RE.search(low)
+        if m and int(m.group(1)) > 0:
+            n = int(m.group(1))
+            return ("pain_sharp" if n >= 7 else "pain_or_discomfort" if n >= 4 else "pain_mild"), \
+                READING_WEAK | {"pain_or_discomfort", "pain_mild", "pain_sharp", "difficulty", "exercise:*"}
+    if oxygen_reading(low) is not None or pulse_reading(low) is not None or \
+            (TEMP_RE.search(low) and not WEATHER_RE.search(low)):
+        return "health_readings", READING_WEAK
+    m = AGE_RE.search(low) or AGE_OLD_RE.search(low)
+    a = int(m.group(1) or m.group(2) + "0") if m else 0
+    if 5 <= a <= 110:
+        if a >= 65:
+            return "age_limit", AGE_WEAK
+        if a < 18:
+            return "guardian_consent", AGE_WEAK
+        return "profile_help", frozenset({"acknowledge", "clarify", "posture_result", "guardian_consent", "age_limit"})
+    if BODY_RE.search(low):
+        return "profile_help", READING_WEAK
+    if WALK_RE.search(low):
+        return "other_activity", READING_WEAK
+    if SLEEP_RE.search(low):
+        return "tired", READING_WEAK
+    if DONE_RE.search(low):
+        return "session_done", frozenset({"acknowledge", "clarify", "plan_exercises", "how_to", "how_often",
+                                          "equipment", "posture_result", "multiple_plans"})
+    return None
+
+
 def _match_whole(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """match() for the message as a whole."""
     core = [w for w in re.sub(r"[^a-z ]", " ", (text or "").lower()).split() if w not in _PARTICLE_FILLERS]
@@ -2106,11 +2237,21 @@ def _match_whole(plan_id: str | None, text: str) -> tuple[dict | None, str | Non
         ack = {i["key"]: i for i in intents_for(plan_id)}.get("acknowledge")
         if ack is not None:
             return ack, "keyword"                        # "yes", "no", "nope", "tak" on their own (3.67)
+    read = _reading(text)
+    if read is not None:
+        key, weak = read
+        named = {i["key"]: i for i in intents_for(plan_id)}.get(key)
+        chosen, how = _match_any(plan_id, text)
+        kept = chosen is not None and key == "profile_help" and chosen["key"] == "guardian_consent" and how == "keyword"
+        if named is not None and not kept and (chosen is None or chosen["key"] in weak
+                                               or ("exercise:*" in weak and chosen["key"].startswith("exercise:"))):
+            return named, "reading"                      # "pain 8/10", "i am 75", "spo2 96" (3.74)
+        return chosen, how
     if len(core) <= 5 and WEIGHT_READING.search((text or "").lower()):
         profile = {i["key"]: i for i in intents_for(plan_id)}.get("profile_help")
         if profile is not None:
             return profile, "keyword"                    # "weight 70kg": the profile holds the weight (3.67)
-    if len(core) <= 4 and (SUGAR_READING.search((text or "").lower()) or BP_READING.search((text or "").lower())):
+    if len(core) <= 4 and (SUGAR_READING.search((text or "").lower()) or _bp_reading((text or "").lower())):
         advice = {i["key"]: i for i in intents_for(plan_id)}.get("condition_advice")
         if advice is not None:
             return advice, "keyword"                     # "sugar 3.2", "bp 120/80" (3.67)

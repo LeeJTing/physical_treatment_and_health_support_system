@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.73"
+VERSION = "chat-rules-3.74"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -886,6 +886,55 @@ INTENTS = [
            "face, lips or tongue swell, call 999 now.", show=False,
            action={"key": "open_profile", "label": "Open my profile"}),
     # 3.66, Elwin's report ("med": "do you need help calling emergencies?"): medicine or medical help.
+    # 3.74 (numbers test, chat_numbers_set.py): a pulse, oxygen or temperature reading or question ("my
+    # oxygen is 96", "what is a normal heart rate"). A reading that needs help now (oxygen 92% or lower, a
+    # pulse of 150 or more, or 40 or less) is a warning sign before this (engine.low_oxygen, odd_pulse).
+    intent("health_readings", "Your health readings", 6,
+           ["heart rate", "heartrate", "pulse", "pulse rate", "heartbeat", "heart beat rate", "bpm",
+            "normal heart rate", "resting heart rate", "oxygen", "oxygen level", "oxygen saturation", "spo2", "sp02",
+            "o2 level", "o2 sat", "oximeter", "pulse oximeter", "body temperature", "my temperature",
+            "temperature is", "temperature of", "check my temperature", "my temp", "suhu badan", "nadi", "kadar nadi",
+            "oksigen", "paras oksigen", "what is a fever", "normal temperature"],
+           ["what is a normal heart rate", "my oxygen is 96", "what temperature is a fever"],
+           "I cannot check your readings, but these are the usual guides when you are resting. "
+           "Pulse (heart rate): 60 to 100 beats a minute; it rises while you exercise and should settle within a "
+           "few minutes of rest. "
+           "Oxygen (SpO2): 95 to 100%; 92% or lower needs a doctor today, and with trouble breathing, call 999. "
+           "Temperature: 38 \u00b0C or higher is a fever; skip exercise and rest until it is gone. "
+           "Blood pressure: do not exercise when it is 180/110 or higher; follow your doctor's target. "
+           "Stop exercising if your heart races, beats unevenly or stays fast after resting; with chest pain or "
+           "fainting, call 999.", show=False),
+    # 3.74: the app counts neither the calories burned nor steps ("how many calories did i burn" was the pain
+    # answer); Home shows the daily food limits.
+    intent("calories", "Calories and steps", 6,
+           ["calorie", "calories", "kalori", "burn calories", "calories burn", "calories burned", "calories burnt",
+            "burn fat", "burning fat", "fat burn", "count calories", "count my calories", "count steps",
+            "count my steps", "step count", "step counter", "steps counter", "pedometer", "how many steps should",
+            "how many steps a day", "how many steps per day", "how many steps do i", "steps a day", "steps per day",
+            "langkah sehari"],
+           ["how many calories did I burn", "does the app count my steps"],
+           "The app does not count the calories you burn or your steps; your phone's step counter or a "
+           "smartwatch can. "
+           "These exercises build strength, balance and movement, and burn only a little energy. "
+           "For food, Home shows your daily limits for calories, salt and sugar, worked out from your profile, "
+           "and the Diet section has food advice; to lose weight, ask your doctor what suits you. "
+           "Walking most days is good for you: start with what feels comfortable and add a little each week.",
+           show=False),
+    # 3.74: "i finished my exercise", "done 10 reps" (was the plan's exercise list). Low priority: "done my
+    # exercise but my knee hurts" is about the knee.
+    intent("session_done", "Well done", 3,
+           ["finished my exercise", "finished my exercises", "finished the exercise", "finished the exercises",
+            "finished today's exercise", "finished todays exercise", "done my exercise",
+            "done my exercises", "done with my exercise", "done with my exercises", "done for today",
+            "completed my exercise", "completed my exercises", "completed today's exercise", "did my exercise",
+            "did my exercises", "have done my exercises", "siap senaman", "dah siap senaman", "sudah siap senaman",
+            "selesai senaman", "habis senaman"],
+           ["I finished my exercise", "I have done all my exercises"],
+           "Well done for finishing your exercise! "
+           "Your posture score and tips are saved in Session history. "
+           "Rest, drink some water, and notice how you feel: mild muscle soreness the next day is normal. "
+           "Each plan gives you one exercise a day: the next one comes tomorrow, and your reminder will tell you "
+           "when.", show=False),
     # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
     # word's meaning.
     intent("word_meaning", "What a word means", 6, [], [],
@@ -1238,9 +1287,17 @@ EXTRA_KEYWORDS_367 = {
     "text_size": ["font", "dark mode", "night mode", "theme"],
     "recording_help": ["upload failed", "failed to upload", "upload fail", "cannot upload video",
                        "video upload failed"],
-    "safety": ["heart rate", "pulse", "heartbeat", "bpm"],
 }
 for _k, _v in EXTRA_KEYWORDS_367.items():
+    EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+# 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
+# went from safety to health_readings.)
+EXTRA_KEYWORDS_374 = {
+    "hot_weather": ["temperature outside", "outside temperature", "degrees outside", "hot outside", "hot today"],
+    "how_often": ["times a day", "times per day", "days a week", "days per week", "minutes a day",
+                  "minutes per day", "minutes enough", "enough minutes"],
+}
+for _k, _v in EXTRA_KEYWORDS_374.items():
     EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
 
 

@@ -8,7 +8,7 @@ from chat_round1_set import KNEE
 from chat_round4_set import CORE, LEGS, SHOULDER
 
 ROUND10 = [
-    (KNEE, "my mother is 75, can she do these exercises", ("for_someone_else", "safety", "getting_started", "plan_exercises")),  # (3.14)
+    (KNEE, "my mother is 75, can she do these exercises", ("for_someone_else", "safety", "getting_started", "plan_exercises", "age_limit")),  # (3.14)
     (KNEE, "i am helping my father record his exercise", "recording_help"),
     (KNEE, "can i exercise while fasting", ("diet", "best_time")),
     (KNEE, "puasa boleh senaman tak", ("diet", "best_time")),

@@ -49,6 +49,6 @@ HOLDOUT = [
     (CORE, "my back is stiff in the morning", "pain_or_discomfort"),
     (CORE, "what is in my core plan", "plan_exercises"),
     (CORE, "is it dangerous to exercise with back pain", "pain_or_discomfort"),
-    (CORE, "I'm 70, is this safe for me?", "safety"),
+    (CORE, "I'm 70, is this safe for me?", ("safety", "age_limit")),   # 3.74: plans stop at 65
     (CORE, "byee", "goodbye"),
 ]

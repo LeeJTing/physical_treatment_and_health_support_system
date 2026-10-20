@@ -66,7 +66,7 @@ SAFETY_PASS2 = [
     (KNEE, 'cuaca panas boleh exercise?', 'hot_weather'),
     (KNEE, 'so humid today sweating a lot', 'hot_weather'),
     (KNEE, 'what is the weather today', None),
-    (KNEE, 'my 80 year old father can do this?', 'for_someone_else'),
+    (KNEE, 'my 80 year old father can do this?', ('for_someone_else', 'age_limit')),  # 3.74
     (KNEE, "i'm taking care of my mum with dementia, can she use this", 'for_someone_else'),
     (KNEE, 'can he come with me to the clinic', (None, 'for_someone_else')),
 ]

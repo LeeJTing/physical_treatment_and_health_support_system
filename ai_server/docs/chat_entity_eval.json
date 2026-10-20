@@ -1,10 +1,15 @@
 {
- "rules_version": "chat-rules-3.73",
+ "rules_version": "chat-rules-3.74",
  "exercises": {
   "questions": 1876,
-  "correct": 1876,
-  "misses": [],
-  "rate": 1.0
+  "correct": 1872,
+  "misses": [
+   "'how many ste-up should i do' -> calories",
+   "'how many step up should i do' -> calories",
+   "'how many step ups should i do' -> calories",
+   "'how many step-up should i do' -> calories"
+  ],
+  "rate": 0.9979
  },
  "conditions": {
   "questions": 490,
@@ -24,5 +29,5 @@
   "misses": [],
   "rate": 1.0
  },
- "seconds": 107
+ "seconds": 116
 }
