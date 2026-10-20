@@ -42,7 +42,7 @@ client = TestClient(app)
 DEV = {"Authorization": "Bearer dev-token"}
 CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalogue.json").read_text(encoding="utf-8"))
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
-NOT_RECOGNISED = "The question is not recognised, please try asking other question."
+NOT_RECOGNISED = "Question not recognised. Please choose a topic below, or ask it another way."   # 3.66
 
 ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(ROUND14) + list(ROUND15) + list(ROUND16) + list(ROUND17) + list(ROUND18) + list(ROUND19) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
 
@@ -194,8 +194,8 @@ def test_rules_file_matches_catalogue():
     keys = [i["key"] for i in rules["intents"]]
     assert len(keys) == len(set(keys))
     for i in rules["intents"]:
-        if i["key"] == "clarify":                    # 3.53: reached only by a short follow-up with nothing before
-            assert not i["keywords"] and not i["examples"] and i["answer"]
+        if i["key"] in ("clarify", "med_help"):      # 3.53: reached only by a short follow-up with nothing before;
+            assert not i["keywords"] and not i["examples"] and i["answer"]   # 3.66: "med" as the whole message
             continue
         # Mistake names (rules 3.15) are reached through the glossary, not keywords.
         assert (i["keywords"] or i["key"].startswith("mistake:")) and i["examples"] and i["answer"], i["key"]
@@ -237,7 +237,7 @@ def test_password_and_start_answers_offer_a_button():
     res = client.post("/chat", json={"text": "how should we start"}, headers=DEV).json()
     assert res["action"]["key"] == "open_planning"
     res = client.post("/chat", json={"text": "asdfgh"}, headers=DEV).json()
-    assert res["action"] is None and res["answer"] == engine.rules()["not_recognised"]   # FR500_22 unchanged
+    assert res["action"] is None and res["answer"].startswith("Question not recognised")   # FR500_22
 
 
 

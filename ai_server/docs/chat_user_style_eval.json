@@ -1,0 +1,257 @@
+{
+ "rules_version": "chat-rules-3.66",
+ "seed": 1,
+ "messages": 2000,
+ "reported_ok": 20,
+ "reported": [
+  {
+   "question": "what",
+   "want": [
+    "clarify"
+   ],
+   "got": "clarify",
+   "ok": true,
+   "answer": "What do you mean by \"what\"? Could you tell me a bit more? For example: \"how do I do the heel raise?\", \"why is my posture score low?\" or \"is it safe to exercise with knee pain?\". You can also pick a to"
+  },
+  {
+   "question": "what question",
+   "want": [
+    "bot_identity"
+   ],
+   "got": "bot_identity",
+   "ok": true,
+   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+  },
+  {
+   "question": "999",
+   "want": [
+    "red_flag"
+   ],
+   "got": "red_flag",
+   "ok": true,
+   "answer": "Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency department. For other"
+  },
+  {
+   "question": "what question can",
+   "want": [
+    "bot_identity"
+   ],
+   "got": "bot_identity",
+   "ok": true,
+   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+  },
+  {
+   "question": "what question can i ask",
+   "want": [
+    "bot_identity"
+   ],
+   "got": "bot_identity",
+   "ok": true,
+   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+  },
+  {
+   "question": "allergy",
+   "want": [
+    "allergy"
+   ],
+   "got": "allergy",
+   "ok": true,
+   "answer": "If you have an allergy, tell your doctor before starting your exercises, and keep any allergy medicine you were given (such as an inhaler or an adrenaline pen) with you when you exercise. You can keep"
+  },
+  {
+   "question": "I dont",
+   "want": [
+    "None"
+   ],
+   "got": "None",
+   "ok": true,
+   "answer": "Question not recognised: what do you mean by \"I dont\"? Please choose a topic below, or ask it another way."
+  },
+  {
+   "question": "Yahnks",
+   "want": [
+    "thanks"
+   ],
+   "got": "thanks",
+   "ok": true,
+   "answer": "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done."
+  },
+  {
+   "question": "yanks",
+   "want": [
+    "thanks"
+   ],
+   "got": "thanks",
+   "ok": true,
+   "answer": "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done."
+  },
+  {
+   "question": "exxuse me?",
+   "want": [
+    "pardon"
+   ],
+   "got": "pardon",
+   "ok": true,
+   "answer": "Sorry if my answer was not clear. What can I help you with? Choose a topic below, or type your question in other words. If an answer was wrong, tap Report this answer under it."
+  },
+  {
+   "question": "Excuse me?",
+   "want": [
+    "pardon"
+   ],
+   "got": "pardon",
+   "ok": true,
+   "answer": "Sorry if my answer was not clear. What can I help you with? Choose a topic below, or type your question in other words. If an answer was wrong, tap Report this answer under it."
+  },
+  {
+   "question": "ij",
+   "want": [
+    "None"
+   ],
+   "got": "None",
+   "ok": true,
+   "answer": "Question not recognised: what do you mean by \"ij\"? Please choose a topic below, or ask it another way."
+  },
+  {
+   "question": "how",
+   "want": [
+    "clarify"
+   ],
+   "got": "clarify",
+   "ok": true,
+   "answer": "What do you mean by \"how\"? Could you tell me a bit more? For example: \"how do I do the heel raise?\", \"why is my posture score low?\" or \"is it safe to exercise with knee pain?\". You can also pick a top"
+  },
+  {
+   "question": "med",
+   "want": [
+    "med_help"
+   ],
+   "got": "med_help",
+   "ok": true,
+   "answer": "Do you mean your medicine, or do you need medical help? If someone needs urgent help now, call 999. For questions about medicines, please ask your doctor or pharmacist: I cannot give advice about medi"
+  },
+  {
+   "question": "going",
+   "want": [
+    "None"
+   ],
+   "got": "None",
+   "ok": true,
+   "answer": "Question not recognised: what do you mean by \"going\"? Please choose a topic below, or ask it another way."
+  },
+  {
+   "question": "How to do Shoulder Abduction",
+   "want": [
+    "exercise:shoulder_abduction"
+   ],
+   "got": "exercise:shoulder_abduction",
+   "ok": true,
+   "answer": "Shoulder Abduction\n• Stand tall with arms by your sides.\n• Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly.\nSafety: do not raise above"
+  },
+  {
+   "question": "How to do Shoulder Flexion",
+   "want": [
+    "exercise:shoulder_flexion"
+   ],
+   "got": "exercise:shoulder_flexion",
+   "ok": true,
+   "answer": "Shoulder Flexion\n• Stand with arms by your sides.\n• Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly.\nSafety: do not arch the"
+  },
+  {
+   "question": "kdjsb",
+   "want": [
+    "None"
+   ],
+   "got": "None",
+   "ok": true,
+   "answer": "Question not recognised: \"kdjsb\" looks like it may have been typed by accident. Please choose a topic below, or type your question."
+  },
+  {
+   "question": "report",
+   "want": [
+    "report_answer"
+   ],
+   "got": "report_answer",
+   "ok": true,
+   "answer": "Sorry about that. Tap Report this answer under the answer, and if you can, say what you expected and which topic you meant. Reports are read and checked by the team before anything in my answers chang"
+  },
+  {
+   "question": "i m ur father",
+   "want": [
+    "bot_identity"
+   ],
+   "got": "bot_identity",
+   "ok": true,
+   "answer": "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your ex"
+  }
+ ],
+ "passed": 1974,
+ "rate": 0.987,
+ "by_kind": {
+  "about_bot": {
+   "passed": 260,
+   "messages": 260
+  },
+  "after_answer": {
+   "passed": 137,
+   "messages": 137
+  },
+  "emergency": {
+   "passed": 195,
+   "messages": 196
+  },
+  "gibberish": {
+   "passed": 205,
+   "messages": 211
+  },
+  "health_word": {
+   "passed": 224,
+   "messages": 234
+  },
+  "report": {
+   "passed": 144,
+   "messages": 144
+  },
+  "small_talk": {
+   "passed": 316,
+   "messages": 318
+  },
+  "to_bot": {
+   "passed": 158,
+   "messages": 161
+  },
+  "vague": {
+   "passed": 335,
+   "messages": 339
+  }
+ },
+ "misses": [
+  "health_word: 'MEFIC' -> None (want ['med_help']; from 'medic')",
+  "to_bot: 'I LOE YOU PLS...' -> weakness_balance (want ['bot_identity']; from 'i love you')",
+  "health_word: 'MEDD AH ?' -> medication (want ['med_help']; from 'med')",
+  "health_word: 'Meddd pls' -> medication (want ['med_help']; from 'med')",
+  "to_bot: 'i loe you ?' -> weakness_balance (want ['bot_identity']; from 'i love you')",
+  "to_bot: 'i lve you ah' -> None (want ['bot_identity']; from 'i love you')",
+  "health_word: 'medci leh ?' -> None (want ['med_help']; from 'medic')",
+  "health_word: 'mdic ah...' -> None (want ['med_help']; from 'medic')",
+  "vague: 'Um whaat!' -> None (want ['clarify']; from 'um what')",
+  "small_talk: 'coe again pls...' -> verification_code (want ['pardon']; from 'come again?')",
+  "gibberish: 'har' -> difficulty (want ['None']; from '(random letters)')",
+  "gibberish: 'hm' -> acknowledge (want ['None']; from '(random letters)')",
+  "gibberish: 'ggo' -> other_activity (want ['None']; from '(random letters)')",
+  "health_word: 'meddic lah...' -> None (want ['med_help']; from 'medic')",
+  "gibberish: 'tzy' -> thanks (want ['None']; from '(random letters)')",
+  "gibberish: 'okg' -> acknowledge (want ['None']; from '(random letters)')",
+  "gibberish: 'ye' -> goodbye (want ['None']; from '(random letters)')",
+  "health_word: 'mdeic pls??' -> None (want ['med_help']; from 'medic')",
+  "health_word: 'Meduc huh??' -> None (want ['med_help']; from 'medic')",
+  "vague: 'whaat' -> None (want ['clarify']; from 'what')",
+  "health_word: 'Medicccc leh ?' -> None (want ['med_help']; from 'medic')",
+  "small_talk: 'cme again?' -> None (want ['pardon']; from 'come again?')",
+  "vague: 'um whhat??' -> None (want ['clarify']; from 'um what')",
+  "emergency: 'Disl 999!' -> None (want ['red_flag']; from 'dial 999')",
+  "health_word: 'medci ah??' -> None (want ['med_help']; from 'medic')",
+  "vague: 'whhat leh...' -> None (want ['clarify']; from 'what')"
+ ],
+ "seconds": 48
+}

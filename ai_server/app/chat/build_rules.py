@@ -22,9 +22,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.65"
+VERSION = "chat-rules-3.66"
 
-NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
+# FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
+# question."). A short message is echoed back in it (engine._not_recognised).
+NOT_RECOGNISED = "Question not recognised. Please choose a topic below, or ask it another way."   # UC400 M7
 
 
 def intent(key, title, priority, keywords, examples, answer, show=True, follow_ups=(), tailor=False,
@@ -749,7 +751,8 @@ INTENTS = [
            "comfortable range, and it should ease within a day or two. If it lasts longer than three days, do "
            "fewer repetitions and contact your physiotherapist.", show=False, tailor=True, negatable=True),
     intent("pain_sharp", "Sharp or worsening pain", 9,
-           ["sharp", "stabbing", "shooting", "getting worse", "worse", "worsening", "sudden pain", "pain during",
+           ["sharp", "stabbing", "shooting", "getting worse", "worse", "worsening", "sudden pain",
+            # Not "pain during" (3.66: "my wrist pain during push ups" is pain, not sharp pain).
             "can't move", "cannot move", "very painful", "really hurts", "unbearable", "won't go away", "not going away",
             # 3.64: not "every time" alone ("do i have to log in every time i open the app").
             "hurts every time", "hurt every time", "pain every time", "painful every time", "sakit every time",
@@ -769,7 +772,7 @@ INTENTS = [
 
     # ---- hidden intents: outside the bot's scope, answered safely -------------------------------
     intent("medication", "Medicines", 9,
-           ["medicine", "medicines", "medication", "medications", "pill", "pills", "tablet", "tablets", "painkiller",
+           ["medicine", "medicines", "medication", "medications", "meds", "my meds", "pill", "pills", "tablet", "tablets", "painkiller",
             "painkillers", "pain killer", "panadol", "paracetamol", "ibuprofen", "aspirin", "insulin", "drug", "drugs",
             "dose", "dosage", "prescription", "supplement", "supplements", "vitamin", "vitamins", "cream", "ointment",
             "injection", "inhaler dose", "antibiotic", "antibiotics", "antibiotik", "which medicine",
@@ -813,7 +816,10 @@ INTENTS = [
            ["thanks", "thank you", "thank u", "thx", "ty", "tq", "cheers", "appreciate", "appreciated", "helpful",
             "that helps", "that helped", "great", "nice", "ok thanks", "okay thanks", "love this app",
             "love the app", "love it", "great app", "good app", "nice app", "awesome", "app is good",
-            "app is great", "very helpful", "so helpful"],
+            "app is great", "very helpful", "so helpful",
+            # 3.66, Elwin's reports ("Yahnks", "yanks") and other ways thanks is mistyped.
+            "yanks", "yahnks", "thnks", "tahnks", "thnx", "thanx", "tnx", "thks", "thank yuo", "thanku", "tqvm",
+            "tq vm", "tenkyu", "thankss", "thankyou", "thnk you", "thanks you", "terima kasih"],
            ["thank you", "thanks a lot", "that was helpful"],
            "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done.",
            show=False, small_talk=True),
@@ -838,12 +844,45 @@ INTENTS = [
             "siri", "google assistant", "real doctor", "are you a doctor",
             "are you real", "real person", "what can you do", "what do you do", "what do you know",
             "what can you help", "what can i ask", "help", "how does this work",
-            "how do you work", "chatbot", "chat bot"],
-           ["what can you do", "what can I ask you", "are you a real person"],
+            "how do you work", "chatbot", "chat bot",
+            # 3.66, Elwin's reports: "what question can i ask" was the report answer; "i m ur father".
+            "what question", "what questions", "which question", "which questions", "what to ask",
+            "what should i ask", "what can you answer", "what question can i ask", "what questions can i ask",
+            "what question can", "your father", "ur father", "your mother", "ur mother", "your dad", "ur dad",
+            "your mum", "ur mum", "your mom", "ur mom", "are you my friend", "be my friend", "i love you",
+            "love you", "do you love me", "are you single", "marry me", "are you married"],
+           ["what can you do", "what can I ask you", "are you a real person", "what question can i ask"],
            "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers "
            "prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your "
            "exercises, pain, safety, how often to exercise, recording your video, your posture score, and "
-           "your plan or reminders.", show=False, small_talk=True),
+           "your plan or reminders. Tap a topic below to see the questions you can ask.",
+           show=False, small_talk=True),
+    # 3.66, Elwin's reports ("Excuse me?", "exxuse me?"): what he expected - sorry, what can I help with,
+    # and that a wrong answer can be reported.
+    intent("pardon", "Sorry, say again?", 2,
+           ["excuse me", "pardon", "pardon me", "come again", "say again", "say that again", "what did you say",
+            "i beg your pardon", "sorry", "sorry what", "huh what"],
+           ["excuse me?", "pardon?"],                  # not "come again?": "come" alone matched it
+           "Sorry if my answer was not clear. What can I help you with? Choose a topic below, or type your "
+           "question in other words. If an answer was wrong, tap Report this answer under it.",
+           show=False, small_talk=True),
+    # 3.66, Elwin's report ("allergy": "do you mean you have an allergy? You may add it to your profile").
+    intent("allergy", "Allergies", 7,
+           ["allergy", "allergies", "allergic", "alergi", "alahan", "allergic reaction"],
+           ["I have an allergy", "allergy", "I am allergic to latex"],
+           "If you have an allergy, tell your doctor before starting your exercises, and keep any allergy "
+           "medicine you were given (such as an inhaler or an adrenaline pen) with you when you exercise. You "
+           "can keep your health conditions up to date in your profile. If you have trouble breathing, or your "
+           "face, lips or tongue swell, call 999 now.", show=False,
+           action={"key": "open_profile", "label": "Open my profile"}),
+    # 3.66, Elwin's report ("med": "do you need help calling emergencies?"): medicine or medical help.
+    # Matched only as the whole message (engine.match): "meds", "my med" are medicines.
+    intent("med_help", "Medicine or medical help", 9,
+           [],
+           [],
+           "Do you mean your medicine, or do you need medical help? If someone needs urgent help now, call "
+           "999. For questions about medicines, please ask your doctor or pharmacist: I cannot give advice "
+           "about medicines.", show=False),
     # 3.49 (11 Oct): plans stop at 65 (Terms of Use, section 2). Anyone can ask why; a restricted user
     # gets RESTRICTIONS below instead, and sees this as the first category.
     intent("age_limit", "Why plans stop at 65", 4,
@@ -940,7 +979,11 @@ INTENTS = [
             "didnt answer my question", "didn't answer my question", "did not answer my question",
             "not answer my question", "not my question", "you misunderstood", "you got it wrong",
             "not helpful", "unhelpful", "report this answer", "report an answer", "report a wrong answer",
-            "report the answer", "jawapan salah"],
+            "report the answer", "jawapan salah",
+            # 3.66, Elwin's report ("report": "are you trying to report something?") and rude remarks.
+            "report", "report this", "how to report", "i want to report", "report wrong answer",
+            "report a problem", "you are stupid", "you're stupid", "ur stupid", "stupid bot", "useless bot",
+            "you are useless", "you're useless", "you suck", "dumb bot", "bot bodoh"],
            ["your answer was wrong", "how do I report a wrong answer", "that didn't answer my question"],
            "Sorry about that. Tap Report this answer under the answer, and if you can, say what you expected "
            "and which topic you meant. Reports are read and checked by the team before anything in my answers "

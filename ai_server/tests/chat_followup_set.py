@@ -47,7 +47,7 @@ CONTROLS = [
 ]
 
 # Previous answers a follow-up does not continue: small talk, and nothing recognised.
-NO_CONTEXT = {None, "greeting", "thanks", "acknowledge", "goodbye", "language", "bot_identity"}
+NO_CONTEXT = {None, "greeting", "thanks", "acknowledge", "goodbye", "language", "bot_identity", "pardon"}
 
 
 def variants(q: str) -> list[str]:

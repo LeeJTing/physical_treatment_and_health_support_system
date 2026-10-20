@@ -182,16 +182,30 @@ def exercise_intent(key: str, ex: dict, plan: dict | None) -> dict:
         extra = "This exercise is not part of your current plan."
     else:
         extra = ""
-    camera = f" When recording it: {ex['camera'][0].lower() + ex['camera'][1:]}." if ex.get("camera") else ""
+    camera = f"Recording: {ex['camera'][0].lower() + ex['camera'][1:]}." if ex.get("camera") else ""
     aliases = ex["aliases"]
     return {
         "key": f"exercise:{key}", "title": f"How to do {ex['name']}", "show": bool(in_plan), "priority": 6,
         "keywords": aliases,
         "examples": [f"how do I do the {aliases[0]}", f"{aliases[0]} instructions", f"how many {aliases[0]}"],
-        "answer": f"{ex['name']}: {ex['instruction']} {extra}{camera}".strip(),
+        "answer": _exercise_text(ex["name"], ex["instruction"], extra, camera),
         "follow_ups": [], "tailor": True, "time_aware": True,
         "action": {"key": "open_treatment", "label": "Open my treatment plan"} if in_plan else None,
     }
+
+
+def _exercise_text(name: str, instruction: str, extra: str, camera: str) -> str:
+    """The exercise on lines (3.66, Elwin's report "should display more neatly"): its name, each step as a
+    point, then safety, the plan's targets and how to film it."""
+    steps, safety = instruction, ""
+    if "Safety:" in instruction:
+        steps, safety = (s.strip() for s in instruction.split("Safety:", 1))
+    points = [s.strip() for s in re.split(r"(?<=[.!])\s+", steps) if s.strip()]
+    lines = [name] + [f"\u2022 {p}" for p in points]
+    if safety:
+        lines.append(f"Safety: {safety}")
+    lines += [x.strip() for x in (extra, camera) if x.strip()]
+    return "\n".join(lines)
 
 
 def plan_intents(plan: dict) -> list[dict]:
@@ -887,7 +901,10 @@ def _combo_negated(words: list[str], i: int) -> bool:
 
 # When both rules match, the first answers the actual question better than the second
 # ("i have diabetes, what time is best" is about timing; the diabetes timing note is added).
-PREFER = [("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
+PREFER = [# 3.66 (Elwin's reports): "i m ur father" is said to the bot; "meds" are medicines; "you are useless"
+          # is about the answer.
+          ("bot_identity", "for_someone_else"), ("report_answer", "low_mood"),
+          ("condition_advice", "pain_mild"), ("recording_help", "app_help"), ("plan_progress", "how_often"), ("for_someone_else", "posture_result"), ("weakness_balance", "equipment"), ("video_quality", "posture_result"),
           ("partial_reps", "plan_exercises"), ("recording_help", "equipment"), ("recording_help", "plan_and_reminders"), ("plan_progress", "plan_and_reminders"), ("recording_help", "plan_exercises"),
           ("history_help", "missed_session"), ("reminders_help", "joint_noise"), ("how_often", "plan_exercises"), ("posture_result", "plan_exercises"),
           ("how_often", "diagnosis"), ("history_help", "posture_result"), ("history_help", "plan_progress"), ("best_time", "condition_advice"), ("doctor_said", "how_often"), ("doctor_said", "tired"),
@@ -1837,6 +1854,11 @@ def _inside_exercise_names(text: str, hits: list) -> list:
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
     its words weighed together, is about another domain (3.61)."""
+    core = [w for w in re.sub(r"[^a-z ]", " ", (text or "").lower()).split() if w not in _PARTICLE_FILLERS]
+    if core in (["med"], ["medic"]):                     # "med" alone: medicine or medical help? (3.66)
+        helper = {i["key"]: i for i in intents_for(plan_id)}.get("med_help")
+        if helper is not None:
+            return helper, "keyword"
     chosen, how = _match_any(plan_id, text)
     if chosen is not None and not chosen.get("small_talk") and _weighted_off_domain(text):
         return None, None
@@ -2107,9 +2129,10 @@ FOLLOW_FILLERS = {
     "times", "time", "sorry", "dont", "don't", "do not", "say", "that's", "thats", "much", "should", "we",
     "nak", "buat", "mana", "apa", "tu", "ni", "ke", "kali", "lama", "tak", "ya", "boleh", "itu", "ini",
 }
-NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language"}
+NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language", "pardon"}
 # What a follow-up with nothing before it may still answer ("how often" -> how often; "steps" -> how to).
-NO_CONTEXT_ANSWERS = {"how_to", "safety", "how_often", "plan_progress", "treatment_nav", "plan_exercises"}
+NO_CONTEXT_ANSWERS = {"how_to", "safety", "how_often", "plan_progress", "treatment_nav", "plan_exercises",
+                      "pardon"}                          # "come again?" with nothing before it (3.66)
 SAFETY_ANSWERS = {"red_flag", "crisis", "overdose", "poisoning"}
 
 
@@ -2136,6 +2159,11 @@ def _follow_word(w: str) -> str | None:
         for v in _FOLLOW_VOCAB:                                 # "berap" -> "berapa", "explai" -> "explain"
             if len(v) == len(w) + 1 and v.startswith(w) and len(v) >= 4:
                 return v
+    if 3 <= len(single) <= 4:                               # "whst", "wgat", "wahttt" -> what (3.66)
+        near = sorted((typo_cost(single, v), v) for v in FOLLOW_TRIGGERS | {"what"} if len(v) >= 3 and v[0] == w[0]
+                      and abs(len(v) - len(single)) <= 1)
+        if near and near[0][0] <= 0.5 and (len(near) == 1 or near[1][0] > near[0][0]):
+            return near[0][1]
     if len(w) >= 5:
         best = process.extractOne(w, list(FOLLOW_TRIGGERS), scorer=fuzz.ratio)
         if best and best[1] >= 80 and best[0][0] == w[0]:
@@ -2151,8 +2179,19 @@ def pure_follow_up(text: str | None) -> bool:
     words = re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split()
     if not words or len(words) > 6:
         return False
+    core = [w for w in words if w not in ("lah", "ah", "leh", "huh", "pls", "ya", "lor", "meh", "hor", "ke")]
+    if core and core[-1] != "sure" and typo_cost(core[-1], "sure") <= 1.0 and core[-1][0] == "s":
+        core[-1] = "sure"                                # "are you syre"
+    if " ".join(core) in ("are you sure", "you sure", "r u sure", "are u sure", "sure or not", "sure ah"):
+        return True                                      # "are you sure?" about the last answer (3.66)
     known = [_follow_word(w) for w in words]
+    if known and all(k in FOLLOW_FILLERS for k in known) and [k for k in known if k not in _PARTICLE_FILLERS] == ["what"]:
+        return True                                      # "what?", "um what": not "what can you do" (3.66)
     return all(k is not None for k in known) and any(k in FOLLOW_TRIGGERS for k in known)
+
+
+_PARTICLE_FILLERS = {"hmm", "hm", "ok", "okay", "oh", "erm", "um", "uh", "ah", "lah", "leh", "eh", "ya", "pls",
+                     "plz", "please", "huh"}
 
 
 # Laptop pass 12: Chinese and Tamil messages were all unrecognised, emergencies included. The rules
@@ -2200,6 +2239,38 @@ WIDE_GAP_RE = re.compile(r"\s{2,}")
 DOTS_RE = re.compile(r"(?<=[^\W\d_])(?:\.{2,}|\u2026+)(?=[^\W\d_])")
 
 
+# 3.66 (the Manglish test, chat_manglish_set.py): whole-message Malaysian English shapes in English order,
+# before anything reads the message. Only with something before the shape word: "can or not?" and "how
+# ah?" alone continue the previous answer.
+_PARTICLES = r"(?:\s+(?:lah|leh|lor|meh|hor|ah|one|ya|huh))*[\s?!.]*"
+MANGLISH = [(re.compile(r"^(?P<x>.+?)\s+cannot" + _PARTICLES + "$"), "i cannot {x}"),
+            (re.compile(r"^can\s+(?P<x>.+?)\s+(?:or\s+not|anot)" + _PARTICLES + "$"), "can i {x}"),
+            (re.compile(r"^(?P<x>.+?)\s+(?:can\s+)?(?:or\s+not|anot)" + _PARTICLES + "$"), "can i {x}"),
+            (re.compile(r"^(?P<x>.+?)\s+can\s+ah" + _PARTICLES + "$"), "can i {x}"),
+            (re.compile(r"^(?P<x>.+?)\s+(?:ok|okay|safe)\s+(?:or\s+not|anot)" + _PARTICLES + "$"), "is it ok to {x}"),
+            (re.compile(r"^(?:then\s+how|how\s+ah)\s+(?P<x>.+?)" + _PARTICLES + "$"), "what should i do {x}"),
+            (re.compile(r"^how\s+come\s+(?P<x>.+?)" + _PARTICLES + "$"), "why {x}")]
+
+
+def _manglish(text: str) -> str:
+    """"get up from the floor cannot" -> "i cannot get up from the floor", "exercise can or not" -> "can i
+    exercise", "how come ..." -> "why ...": for messages of up to 15 words."""
+    low = text.lower().strip()
+    if len(low.split()) > 15:
+        return text
+    for pattern, english in MANGLISH:
+        m = pattern.match(low)
+        words = [w for w in re.findall(r"[a-z']+", m.group("x"))] if m else []
+        if not [w for w in words if w not in _PARTICLE_FILLERS and w not in ("lor", "meh", "hor", "one")]:
+            continue                                     # "how ah lah", "how ah ?": nothing but particles
+        if m and m.group("x").strip(" ,") and m.group("x").split()[-1] not in (
+                "cannot", "can", "not", "i", "really", "just", "still", "also", "already", "me", "you"):
+            if english == "can i {x}" and m.group("x").split()[-1] in ("ok", "okay", "safe"):
+                continue                                 # "walk ok or not": the next shape
+            return english.format(x=m.group("x").strip(" ,"))
+    return text
+
+
 def _tidy(text: str) -> str:
     """Spacing typed by accident or for effect, made plain before anything reads the message (3.58):
     "sesak  nafas" is "sesak nafas", "terima...kasih" is "terima kasih", "h e l p" is "help" and
@@ -2213,6 +2284,47 @@ def _tidy(text: str) -> str:
 
 # Links, e-mail addresses and @handles carry no question of their own.
 LINK_RE = re.compile(r"(?i)(https?://\S+|www\.\S+|\S+@\S+\.\S+|(?<!\w)@\w+|\b[\w-]+\.(com|org|net|my|io)\b\S*)")
+
+
+# 3.66 (Elwin's reports): "999" on its own is a call for help, as are "call 999", "911", "112", "ambulance".
+EMERGENCY_CALL_RE = re.compile(r"^\W*(?:(?:call|dial|phone|telefon|panggil)\s+)?(?:999|991|911|112|ambulance|"
+                               r"an ambulance|ambulans|emergency|kecemasan)(?:\W*(?:now|please|pls|tolong|cepat|"
+                               r"lah|ah|leh|huh|ya|lor|meh|hor))*\W*$")
+
+
+def _emergency_call(text: str) -> bool:
+    """Only an emergency number or a call for an ambulance, as typed, stretched or misspelt."""
+    low = re.sub(r"([a-z])\1{2,}", r"\1", text.lower())          # "ambulanceeee"
+    return bool(EMERGENCY_CALL_RE.match(low) or EMERGENCY_CALL_RE.match(respell(low)))
+
+
+def _shown(typed: str | None) -> str | None:
+    """A short message (1-3 words, 40 characters) as it can be echoed back, else None."""
+    shown = " ".join((typed or "").split()).strip(" ?!.,").replace('"', "'")
+    if not shown or len(shown) > 40 or len(shown.split()) > 3 or not any(ch.isalpha() for ch in shown):
+        return None
+    return shown
+
+
+def _typed_by_accident(shown: str) -> bool:
+    """Random letters ("kdjsb", "ij"): no word in it is a word or a short form the rules know."""
+    words = re.findall(r"[a-z']+", shown.lower())
+    known = vocabulary()
+    return bool(words) and not any(
+        w in known or w in dictionary() or w in rare_words() or w in SHORT_WORDS_TYPED or w in FOLLOW_SHORT
+        or respell(w) != w for w in words)
+
+
+def _not_recognised(typed: str | None, r: dict) -> str:
+    """FR500_22 "Question not recognised", with a short message echoed back (Elwin's reports, 11 Oct:
+    "what do you mean by "going"?"), and random letters said to look typed by accident."""
+    shown = _shown(typed)
+    if shown is None:
+        return r["not_recognised"]
+    if _typed_by_accident(shown):
+        return (f'Question not recognised: "{shown}" looks like it may have been typed by accident. Please '
+                f"choose a topic below, or type your question.")
+    return f'Question not recognised: what do you mean by "{shown}"? Please choose a topic below, or ask it another way.'
 
 
 def _nothing_to_read(text: str) -> bool:
@@ -2239,9 +2351,11 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
           risk_level: str | None = None, local_time: tuple[int, int] | None = None,
           previous_category: str | None = None, restriction: str | None = None) -> dict:
     r = rules()
+    typed = text                                         # as typed, to echo back (3.66)
     if text:
         text = unicodedata.normalize("NFC", COMBINING_RE.sub("", unicodedata.normalize("NFD", text)))
         text = _tidy(INVISIBLE_RE.sub("", text))           # zero-width characters (3.57), spacing (3.58)
+        text = _manglish(text)                             # "get up from the floor cannot" (3.66)
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
     rest = r.get("restrictions", {}).get(restriction or "")
@@ -2264,7 +2378,7 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if poisoning(text):
         return {**base, "answer": POISON_ANSWER, "category": "poisoning", "title": "Swallowed a chemical",
                 "is_matched": True, "matched_by": "poisoning", "follow_ups": [], "notes": [], "action": None}
-    if red_flag(text):
+    if red_flag(text) or (text and _emergency_call(text)):
         return {**base, "answer": r["red_flag_answer"], "category": "red_flag", "title": "Urgent safety advice",
                 "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
 
@@ -2304,7 +2418,7 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
             chosen, how = followed, "follow_up"
 
     if chosen is None:
-        return {**base, "answer": r["not_recognised"], "category": None, "title": None, "is_matched": False,
+        return {**base, "answer": _not_recognised(typed, r), "category": None, "title": None, "is_matched": False,
                 "matched_by": None, "follow_ups": [], "notes": [], "action": None}
     if rest and _restricted(chosen["key"], rest):
         # A plan, a recording or plan reminders: not for this user (3.49). Say why and where to go.
@@ -2319,6 +2433,10 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
     if rest and (chosen["key"] in rest["note_on"] or chosen["key"].startswith("exercise:")):
         notes.insert(0, rest["note"])
     base_answer = chosen["answer"]
+    if chosen["key"] == "clarify" and _shown(typed):
+        # "what", "how" with nothing before them: ask what they mean, with their words (Elwin's reports).
+        base_answer = f'What do you mean by "{_shown(typed)}"? Could you tell me a bit more?' + \
+            base_answer.split("?", 1)[1]
     # A condition named in the question is answered on its own (phone test, 8 Oct: with the profile's
     # conditions added the answer ran to 230 words); otherwise the profile's conditions are used.
     asked_first = mentioned if any(c in r.get("condition_detail", {}) for c in mentioned) else all_conditions
