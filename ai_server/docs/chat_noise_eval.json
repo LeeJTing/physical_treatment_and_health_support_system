@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.61",
+ "rules_version": "chat-rules-3.62",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1965,
@@ -17,7 +17,7 @@
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 1.455,
+ "slowest_reply_sec": 1.499,
  "misses": [
   "blns/blns: '1#SNAN' -> diagnosis (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "blns/blns: '̦H̬̤̗̤͝e͜ ̜̥̝̻͍̟́w̕h̖̯͓o̝͙̖͎̱̮ ҉̺̙̞̟͈W̷̼̭a̺̪͍į͈͕̭͙' -> equipment (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
@@ -220,5 +220,5 @@
   "oos/oos: 'tell me what my current eyeglasses prescription is' -> medication (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])",
   "oos/oos: 'show me examples of cute eyeglass frames' -> recording_help (want ['None', 'acknowledge', 'clarify', 'goodbye', 'greeting', 'language', 'thanks'])"
  ],
- "seconds": 265
+ "seconds": 292
 }

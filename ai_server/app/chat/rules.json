@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.61",
+  "version": "chat-rules-3.62",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -7864,7 +7864,10 @@
         "confused",
         "bleeding",
         "can't put weight",
-        "cannot put weight"
+        "cannot put weight",
+        "sore",
+        "aching",
+        "lebam"
       ],
       6,
       [
@@ -7929,7 +7932,10 @@
         "headache",
         "hit my head",
         "hit her head",
-        "hit his head"
+        "hit his head",
+        "sore",
+        "aching",
+        "lebam"
       ],
       12,
       [

@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.61"
+VERSION = "chat-rules-3.62"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -1479,7 +1479,7 @@ RED_FLAG_COMBOS = [
       "from falling", "fall yesterday", "fall this morning", "fall just now", "fall today"],
      ["pain", "painful", "hurt", "hurts", "hurting", "sakit", "swollen", "swelling", "bruise", "bruised",
       "can't walk", "cannot walk", "limp", "limping", "numb", "headache", "dizzy", "confused", "bleeding",
-      "can't put weight", "cannot put weight"], 6,
+      "can't put weight", "cannot put weight", "sore", "aching", "lebam"], 6,
      ["what if", "in case", "prevent", "avoid", "how to get up", "how do i get up", "afraid of", "scared of",
       "worried about", "fear of", "get hurt", "getting hurt"]],
     # PC safety pass 13 (generated probe of 6,160 fall messages): a fall, trip or slip with an injury word
@@ -1491,7 +1491,9 @@ RED_FLAG_COMBOS = [
       "bleeding", "berdarah", "cannot stand", "can't stand", "cant stand", "cannot get up", "can't get up",
       "cant get up", "tak boleh bangun", "cannot walk", "can't walk", "limp", "limping", "pening", "dizzy",
       "confused", "keliru", "vomiting", "muntah", "looks bent", "deformed", "broken", "patah", "numb",
-      "headache", "hit my head", "hit her head", "hit his head"], 12,
+      "headache", "hit my head", "hit her head", "hit his head",
+      # 3.62: "fell over, hip sore" was not urgent while "fell over, hip hurts" was.
+      "sore", "aching", "lebam"], 12,
      ["what if", "in case", "prevent", "prevention", "avoid", "afraid of", "scared of", "worried about",
       "fear of", "get hurt", "getting hurt", "risk of", "how to get up", "how do i get up", "pain fell",
       "pain has fallen", "pain level fell", "pain score fell", "swelling has fallen", "swelling fell",

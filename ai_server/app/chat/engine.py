@@ -520,7 +520,7 @@ SIGN_WORDS = frozenset({"chest", "dada", "heart", "jantung", "pain", "sakit", "n
                         "muntah", "swollen", "weak", "lumpuh", "stroke", "collapse", "collapsed", "hurts",
                         "hurt", "sore", "aches"})
 # 3.60: and the body part it is felt in ("my knee huts" -> hurts; "it huts" stays as typed).
-SIGN_CONTEXT = SIGN_WORDS | {"hurting", "ache", "aching", "tight", "beating", "fast", "laju", "sudden",
+SIGN_CONTEXT = SIGN_WORDS | {"hurting", "ache", "aching", "tight", "beating", "fast", "laju", "sudden", "pressure",
                              "suddenly", "knee", "knees", "back", "hip", "hips", "shoulder", "shoulders", "leg",
                              "legs", "arm", "arms", "ankle", "foot", "feet", "wrist", "elbow", "lutut", "kaki",
                              "tangan", "pinggang", "bahu", "belakang", "pinggul", "buku"}
@@ -533,7 +533,11 @@ def _sign_reading(w: str) -> str | None:
         return None
     scored = sorted((typo_cost(w, v), _tie_order(v)) for v in SIGN_WORDS
                     if v[0] == w[0] and abs(len(v) - len(w)) <= 1)
-    return scored[0][1][2] if scored and scored[0][0] <= 1.0 else None
+    if scored and scored[0][0] <= 1.0:
+        return scored[0][1][2]
+    # The same letters in another order ("pina" -> pain, 3.62).
+    same = sorted(v for v in SIGN_WORDS if len(w) >= 4 and v[0] == w[0] and sorted(v) == sorted(w))
+    return same[0] if same else None
 
 
 def _respell_part(w: str) -> str | None:
@@ -935,7 +939,9 @@ def _hypothetical(words: list[str], i: int) -> bool:
 
 # Laptop pass 9: a time word counts only in the fall's own sentence ("my mum fell years ago; today she
 # started the plan" is an old fall), and "earlier in my life" is not "earlier today".
-CLAUSE_BREAK = re.compile(r"[.;!?]+|\bbut\b|\btapi\b")
+# 3.62: also a comma before a new person ("she has fallen, she fell last year too": two falls, one now).
+CLAUSE_BREAK = re.compile(r"[.;!?]+|\bbut\b|\btapi\b|,\s*(?=(?:i|she|he|my|mum|mom|mother|dad|father|"
+                          r"saya|dia|mak|emak|ayah|abah|nenek|atuk)\b)")
 PAST_PHRASES = [("earlier in my life", "long ago"), ("earlier years", "long ago"), ("years earlier", "long ago"),
                 ("when i was young", "long ago"), ("when i was younger", "long ago"), ("as a child", "long ago"),
                 ("as a kid", "long ago")]
@@ -1093,8 +1099,12 @@ def high_bp(text: str) -> bool:
 
 def crisis(text: str | None) -> bool:
     """Thoughts of suicide or self-harm: checked before everything else, also with slips mended
-    ("suicdie", "i wsnt to die", "tired of livign", 3.55)."""
-    return _also_respelled(_crisis, text)
+    ("suicdie", "i wsnt to die", "tired of livign", 3.55), and with an unknown word read as the word of
+    a crisis phrase it is one slip from ("better if i was goe", "i wsant to die", 3.62)."""
+    if _also_respelled(_crisis, text):
+        return True
+    mended = _phrase_mend(text, "crisis")
+    return mended is not None and _crisis(mended)
 
 
 def _crisis(text: str | None) -> bool:
@@ -1289,6 +1299,44 @@ def _overdose(text: str | None) -> bool:
 OD_CLAUSE_BREAKS = {"and", "then", "but", "dan", "lepas", "after", "before", "so", "because", "while"}
 
 
+@lru_cache(maxsize=4)
+def _phrase_index(kind: str) -> dict:
+    """{first letter: [(phrase words, position, word)]} for the words of 3+ letters of the crisis or
+    warning-sign phrases of two or more words (the other words are the evidence: "pening" alone is not)."""
+    index: dict[str, list] = {}
+    for p in rules().get("crisis" if kind == "crisis" else "red_flags", []):
+        ws = tuple(p.split())
+        if len(ws) < 2:
+            continue
+        for k, w in enumerate(ws):
+            if len(w) >= 3 and w.isalpha():
+                index.setdefault(w[0], []).append((ws, k, w))
+    return index
+
+
+@lru_cache(maxsize=20000)
+def _phrase_mend(text: str | None, kind: str) -> str | None:
+    """The message with one unknown word (not a rules word, not a real word) replaced by the word of a
+    crisis or warning-sign phrase it is one slip from, when the rest of that phrase is there as typed;
+    None when there is no such phrase (3.62: "better if i was goe", "blajed out", "peeat hidup")."""
+    if not text:
+        return None
+    words = clean(text).split()
+    known = vocabulary()
+    for i, w in enumerate(words):
+        if len(w) < 3 or not w.isalpha() or w in known or w in dictionary() or w in rare_words():
+            continue                                     # a real word, even a rarer one ("pruning"), stays
+        for ws, k, p in _phrase_index(kind).get(w[0], ()):
+            if abs(len(p) - len(w)) > 2 or typo_cost(w, p) > (1.0 if len(p) < 6 else 1.5):
+                continue
+            start = i - k
+            if start < 0 or start + len(ws) > len(words):
+                continue
+            if all(words[start + j] == ws[j] for j in range(len(ws)) if j != k):
+                return " ".join(words[:i] + [p] + words[i + 1:])
+    return None
+
+
 def _also_respelled(check, text: str | None) -> bool:
     """A safety check on the message as typed, then on the message with its slips mended (3.55)."""
     if not text:
@@ -1302,6 +1350,13 @@ def _also_respelled(check, text: str | None) -> bool:
 def red_flag(text: str | None) -> bool:
     if not text:
         return False
+    if _red_flag_typed(text):
+        return True
+    mended = _phrase_mend(text, "red_flags")             # one unknown word of a warning-sign phrase (3.62)
+    return mended is not None and _red_flag_typed(mended)
+
+
+def _red_flag_typed(text: str) -> bool:
     again = respell(text)
     base = again if _plain(again) != _plain(text) else text
     # "ok fell over this morning", "sorry jatuh tahun lepas, tapi tadi lagi": a filler in front is not
@@ -1766,7 +1821,8 @@ def _domain_weights() -> dict:
 def _rehab_anchors() -> tuple[frozenset, tuple]:
     """(symptom, body-part and rehabilitation words; exercise names and other names, whole: "heel raise",
     not "raise", which is also "raise my credit score")."""
-    words = set(SIGN_WORDS) | {w for w in SIGN_CONTEXT if len(w) > 3} | set(ANCHOR_WORDS)
+    # "pressure" points to a symptom word beside it (3.62) but is no anchor: "tire pressure for my car".
+    words = set(SIGN_WORDS) | {w for w in SIGN_CONTEXT if len(w) > 3 and w != "pressure"} | set(ANCHOR_WORDS)
     names = {clean(a) for e in rules()["exercises"].values() for a in [e["name"]] + e["aliases"]}
     return frozenset(words - STOP), tuple(sorted(names, key=len, reverse=True))
 

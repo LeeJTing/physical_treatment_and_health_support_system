@@ -132,3 +132,18 @@ def test_domain_weights_match_the_rules():
         pytest.skip("CLINC150 / MASSIVE not downloaded here")
     saved = json.loads(Path(engine.__file__).with_name("domain_weights.json").read_text(encoding="utf-8"))
     assert saved == b.domain_weights(), "run: python app/chat/build_domain_words.py"
+
+
+# 3.62: a crisis or warning-sign phrase with one unknown word one slip away; falls told with an older fall
+# or "sore"; and real words that must not be bent into one.
+SAFETY_TYPOS = [("better if goe", "crisis"), ("i wsant to die!", "crisis"), ("peeat hidup!", "crisis"),
+                ("no point annyore!!", "crisis"), ("Blajed out!!", "red_flag"), ("paaed out...", "red_flag"),
+                ("pressuee in my chet during exercise?", "red_flag"), ("i have chest pina ?", "red_flag"),
+                ("she has fallen, she fell last year too", "red_flag"), ("fell over, hip sore", "red_flag"),
+                ("when is the best time of year for pruning", None), ("i want to dine out tonight", None),
+                ("pina colada with my knee", None)]
+
+
+def test_safety_phrases_typed_with_one_slip():
+    wrong = [(t, g) for t, want in SAFETY_TYPOS if (g := _got(KNEE, t)) != want and not (want is None and g not in URGENT)]
+    assert not wrong, wrong
