@@ -1,32 +1,32 @@
 {
- "rules_version": "chat-rules-3.55",
+ "rules_version": "chat-rules-3.59",
  "seed": 1,
  "messages": 10000,
- "passed": 9839,
- "rate": 0.9839,
+ "passed": 9841,
+ "rate": 0.9841,
  "by_kind": {
   "written": {
-   "passed": 2981,
+   "passed": 2980,
    "messages": 3038
   },
   "short": {
-   "passed": 2564,
+   "passed": 2565,
    "messages": 2619
   },
   "exercises": {
-   "passed": 826,
+   "passed": 825,
    "messages": 838
   },
   "red_flags": {
-   "passed": 1194,
+   "passed": 1195,
    "messages": 1203
   },
   "restricted": {
-   "passed": 644,
+   "passed": 645,
    "messages": 657
   },
   "mistakes": {
-   "passed": 392,
+   "passed": 393,
    "messages": 401
   },
   "follow": {
@@ -39,15 +39,14 @@
   }
  },
  "commonest_misses": [
-  "('crisis', 'red_flag') -> None: 7",
-  "('posture_result',) -> None: 3",
+  "('crisis', 'red_flag') -> None: 5",
   "('condition_advice',) -> None: 3",
   "('red_flag',) -> fear_of_falling: 3",
   "('reminder_late_or_off',) -> age_limit: 2",
-  "('red_flag',) -> None: 2",
+  "('posture_result',) -> None: 2",
+  "('pain_or_discomfort',) -> None: 2",
   "('safety',) -> plan_progress: 2",
   "('reminder_late_or_off',) -> reminders_help: 2",
-  "('fear_of_falling',) -> safety: 2",
   "('exercise:knee_extension', 'how_to') -> diagnosis: 2",
   "('diagnosis',) -> condition_advice: 2",
   "('exercise:wrist_extension',) -> None: 2",
@@ -64,6 +63,7 @@
   "('crisis',) -> None: 2",
   "('acknowledge',) -> None: 2",
   "('bot_identity',) -> None: 2",
+  "('crisis', 'red_flag') -> weakness_balance: 2",
   "('how_often', 'plan_exercises') -> None: 1",
   "('exercise:heel_raise',) -> difficulty: 1",
   "('multiple_plans',) -> medication: 1",
@@ -294,6 +294,25 @@
    }
   },
   {
+   "text": "lututskit lah, can senaman not??",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": null,
+   "seed_question": "my knee pain lah, can exercise or not",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "pain_sharp",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     4,
+     45
+    ]
+   }
+  },
+  {
    "text": "sskti!!",
    "want": [
     "pain_mild",
@@ -346,25 +365,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "Saa jatuh semalam",
-   "want": [
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "saya jatuh semalam",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     20,
-     45
-    ]
    }
   },
   {
@@ -560,22 +560,6 @@
    }
   },
   {
-   "text": "Excuse me why sheugging",
-   "want": [
-    "mistake:shoulder_shrug"
-   ],
-   "got": null,
-   "seed_question": "why shrugging",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
    "text": "can explain heltoe??",
    "want": [
     "exercise:tandem_stance"
@@ -591,28 +575,6 @@
     ],
     "risk_level": "Medium",
     "local_time": null
-   }
-  },
-  {
-   "text": "why myscoe so low?",
-   "want": [
-    "posture_result"
-   ],
-   "got": null,
-   "seed_question": "why my score so low",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": [
-     "KIDNEY_DISEASE",
-     "PREGNANCY"
-    ],
-    "risk_level": null,
-    "local_time": [
-     4,
-     30
-    ]
    }
   },
   {
@@ -636,7 +598,7 @@
    "want": [
     "fear_of_falling"
    ],
-   "got": "safety",
+   "got": "weakness_balance",
    "seed_question": "what if i can't get up after a fall",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -695,24 +657,6 @@
     "previous_category": null,
     "restriction": null,
     "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "how long toreocver ???",
-   "want": [
-    "plan_progress"
-   ],
-   "got": "how_often",
-   "seed_question": "how long to recover",
-   "context": {
-    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "DIABETES"
-    ],
     "risk_level": null,
     "local_time": null
    }
@@ -836,25 +780,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "Is mydta safe?",
-   "want": [
-    "privacy_data"
-   ],
-   "got": "safety",
-   "seed_question": "is my data safe",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     2,
-     45
-    ]
    }
   },
   {
@@ -1177,26 +1102,6 @@
    }
   },
   {
-   "text": "jatuh tak boleeh bangunlah",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "jatuh tak boleh bangun lah",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:head_tilt",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": [
-     8,
-     45
-    ]
-   }
-  },
-  {
    "text": "hello what happens after finish plan",
    "want": [
     "plan_progress"
@@ -1211,6 +1116,25 @@
      "ARTHRITIS"
     ],
     "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "fel sakkit after exercising ah ?",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": "red_flag",
+   "seed_question": "I feel pain after exercising",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": "High",
     "local_time": null
    }
   },
@@ -1417,7 +1341,7 @@
    "want": [
     "fall_alert"
    ],
-   "got": "fear_of_falling",
+   "got": null,
    "seed_question": "if i fell would the app know",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -1617,6 +1541,22 @@
    }
   },
   {
+   "text": "txttoo small!!",
+   "want": [
+    "text_size"
+   ],
+   "got": null,
+   "seed_question": "text too small",
+   "context": {
+    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
    "text": "ternia kasih!!",
    "want": [
     "thanks"
@@ -1811,6 +1751,24 @@
      0,
      15
     ]
+   }
+  },
+  {
+   "text": "my lutut huts so much...",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": null,
+   "seed_question": "MY KNEE HURTS SO MUCH",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
    }
   },
   {
@@ -2158,6 +2116,22 @@
    }
   },
   {
+   "text": "kne extesnions instructions",
+   "want": [
+    "exercise:knee_extension"
+   ],
+   "got": "how_to",
+   "seed_question": "knee extensions instructions",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "diagnosis",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
    "text": "Can i split the exercises mornning and evening!",
    "want": [
     "best_time",
@@ -2267,22 +2241,6 @@
    }
   },
   {
-   "text": "my eyesight isbluurry suddeny ya",
-   "want": [
-    "red_flag"
-   ],
-   "got": "text_size",
-   "seed_question": "my eyesight is blurry suddenly",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "where edit weigt",
    "want": [
     "profile_help"
@@ -2322,7 +2280,7 @@
     "crisis",
     "red_flag"
    ],
-   "got": null,
+   "got": "weakness_balance",
    "seed_question": "help fell and cannot get up",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -2551,22 +2509,6 @@
    }
   },
   {
-   "text": "afraid offallung??",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": null,
-   "seed_question": "afraid of falling",
-   "context": {
-    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
    "text": "excuse me is warng up necessary ???",
    "want": [
     "safety"
@@ -2775,7 +2717,7 @@
     "crisis",
     "red_flag"
    ],
-   "got": "motivation",
+   "got": "weakness_balance",
    "seed_question": "i feel fell and cannot get up",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
@@ -2977,6 +2919,22 @@
      15,
      15
     ]
+   }
+  },
+  {
+   "text": "my lower back aches during biird dog lah?",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": "exercise:bird_dog",
+   "seed_question": "my lower back aches during bird dog",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": "pain_mild",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
    }
   },
   {

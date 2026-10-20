@@ -1,0 +1,3552 @@
+{
+ "rules_version": "chat-rules-3.59",
+ "seed": 3,
+ "messages": 10000,
+ "passed": 9809,
+ "rate": 0.9809,
+ "by_kind": {
+  "written": {
+   "passed": 3036,
+   "messages": 3110
+  },
+  "conditions": {
+   "passed": 518,
+   "messages": 524
+  },
+  "follow": {
+   "passed": 683,
+   "messages": 683
+  },
+  "exercises": {
+   "passed": 862,
+   "messages": 872
+  },
+  "short": {
+   "passed": 2480,
+   "messages": 2549
+  },
+  "red_flags": {
+   "passed": 1205,
+   "messages": 1211
+  },
+  "mistakes": {
+   "passed": 425,
+   "messages": 437
+  },
+  "restricted": {
+   "passed": 600,
+   "messages": 614
+  }
+ },
+ "commonest_misses": [
+  "('crisis', 'red_flag') -> None: 6",
+  "('crisis',) -> None: 4",
+  "('plan_and_reminders',) -> plan_exercises: 4",
+  "('family_help',) -> for_someone_else: 3",
+  "('fear_of_falling',) -> safety: 3",
+  "('red_flag',) -> fear_of_falling: 3",
+  "('age_limit',) -> None: 3",
+  "('greeting',) -> None: 3",
+  "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 3",
+  "('app_facts',) -> account_help: 3",
+  "('acknowledge',) -> None: 3",
+  "('equipment',) -> None: 2",
+  "('tired',) -> acknowledge: 2",
+  "('thanks',) -> None: 2",
+  "('bot_identity',) -> None: 2",
+  "('pain_or_discomfort',) -> exercise:bird_dog: 2",
+  "('family_help',) -> bot_identity: 2",
+  "('eating_concern',) -> diet: 2",
+  "('tired',) -> None: 2",
+  "('plan_progress',) -> plan_exercises: 2",
+  "('plan_exercises',) -> how_to: 2",
+  "('pain_mild',) -> pain_or_discomfort: 2",
+  "('difficulty',) -> other_activity: 2",
+  "('treatment_nav',) -> plan_exercises: 2",
+  "('fear_of_falling', 'safety') -> weakness_balance: 2",
+  "('exercise:wrist_extension',) -> None: 2",
+  "('app_facts',) -> plan_progress: 2",
+  "('fear_of_falling',) -> None: 2",
+  "('weakness_balance',) -> None: 2",
+  "('guardian_consent',) -> app_help: 2",
+  "('account_help',) -> None: 2",
+  "('safety_limits',) -> how_often: 2",
+  "('fear_of_falling',) -> red_flag: 2",
+  "('condition_advice',) -> plan_exercises: 2",
+  "('diagnosis',) -> None: 2",
+  "('getting_started',) -> None: 1",
+  "('tired',) -> equipment: 1",
+  "('mistake:no_arm_swing',) -> None: 1",
+  "('fall_alert',) -> acknowledge: 1",
+  "('mistake:bent_elbow',) -> None: 1"
+ ],
+ "misses": [
+  {
+   "text": "i wish i was deds",
+   "want": [
+    "crisis"
+   ],
+   "got": null,
+   "seed_question": "i wish i was dead",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     18,
+     15
+    ]
+   }
+  },
+  {
+   "text": "No csir!",
+   "want": [
+    "equipment"
+   ],
+   "got": null,
+   "seed_question": "no chair",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": "mistake:arm_leg_low",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     15,
+     15
+    ]
+   }
+  },
+  {
+   "text": "my son can heppl",
+   "want": [
+    "family_help"
+   ],
+   "got": "for_someone_else",
+   "seed_question": "my son can help",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     15,
+     15
+    ]
+   }
+  },
+  {
+   "text": "Not dizzy, tired?",
+   "want": [
+    "tired"
+   ],
+   "got": "acknowledge",
+   "seed_question": "I'm not dizzy, just tired",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     20,
+     15
+    ]
+   }
+  },
+  {
+   "text": "don't want libeaymore ?",
+   "want": [
+    "crisis"
+   ],
+   "got": null,
+   "seed_question": "i don't want to live anymore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": null,
+    "local_time": [
+     11,
+     0
+    ]
+   }
+  },
+  {
+   "text": "new uar",
+   "want": [
+    "getting_started"
+   ],
+   "got": null,
+   "seed_question": "new user",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS",
+     "HYPERTENSION"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "How get upafter fall ?",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "safety",
+   "seed_question": "how do i get up after a fall",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     22,
+     45
+    ]
+   }
+  },
+  {
+   "text": "doc i'm not feeling wll!",
+   "want": [
+    "tired"
+   ],
+   "got": "equipment",
+   "seed_question": "I'm not feeling well",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Terima kiah",
+   "want": [
+    "thanks"
+   ],
+   "got": null,
+   "seed_question": "terima kasih",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "fell over morning, hip sore ?",
+   "want": [
+    "red_flag"
+   ],
+   "got": "fear_of_falling",
+   "seed_question": "fell over this morning, hip sore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "IT SAUS NO ARM SWIG??",
+   "want": [
+    "mistake:no_arm_swing"
+   ],
+   "got": null,
+   "seed_question": "it says no arm swing",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "PREGNANCY"
+    ],
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hmm if i feell would the app knw ya",
+   "want": [
+    "fall_alert"
+   ],
+   "got": "acknowledge",
+   "seed_question": "if i fell would the app know",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:back_arch",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Bent elvw",
+   "want": [
+    "mistake:bent_elbow"
+   ],
+   "got": null,
+   "seed_question": "bent elbow?",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "body_map",
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "how bired dog leh",
+   "want": [
+    "exercise:bird_dog"
+   ],
+   "got": "difficulty",
+   "seed_question": "how to do the bird dog",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "My son can hkep??",
+   "want": [
+    "family_help"
+   ],
+   "got": "for_someone_else",
+   "seed_question": "my son can help",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "wich days exercise...",
+   "want": [
+    "age_limit"
+   ],
+   "got": null,
+   "seed_question": "which days should i exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "partial_reps",
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hmm feeilg low",
+   "want": [
+    "low_mood"
+   ],
+   "got": "acknowledge",
+   "seed_question": "feeling low",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Thigh lfft",
+   "want": [
+    "mistake:thigh_lift"
+   ],
+   "got": null,
+   "seed_question": "thigh lift?",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:knee_not_straight",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "text": "how to fix too deppe??",
+   "want": [
+    "mistake:too_deep"
+   ],
+   "got": "plan_progress",
+   "seed_question": "how to fix too deep",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS",
+     "PREGNANCY"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "WHAT'SPIONT LIING!",
+   "want": [
+    "crisis"
+   ],
+   "got": null,
+   "seed_question": "what's the point of living",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     1,
+     45
+    ]
+   }
+  },
+  {
+   "text": "Sajt bila buat bird-dog!",
+   "want": [
+    "pain_mild",
+    "pain_or_discomfort",
+    "pain_sharp",
+    "red_flag"
+   ],
+   "got": "exercise:bird_dog",
+   "seed_question": "sakit bila buat bird-dog",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "gdo evening!!",
+   "want": [
+    "greeting"
+   ],
+   "got": null,
+   "seed_question": "good evening",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "posture_result",
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "COPD",
+     "HEART_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     10,
+     45
+    ]
+   }
+  },
+  {
+   "text": "Thkn you so much ?",
+   "want": [
+    "thanks"
+   ],
+   "got": null,
+   "seed_question": "thank you so much",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     1,
+     0
+    ]
+   }
+  },
+  {
+   "text": "WHAT EXERCISE GOOD SAKIT BUAH PINGGGANG LEH",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "what exercise is good for sakit buah pinggang",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "cannot logn le?",
+   "want": [
+    "forgot_password"
+   ],
+   "got": null,
+   "seed_question": "cannot login le",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     3,
+     45
+    ]
+   }
+  },
+  {
+   "text": "Kencing mais exercise??",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "family_help",
+   "seed_question": "kencing manis exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PREGNANCY"
+    ],
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "changgemy age ya!!",
+   "want": [
+    "guardian_consent",
+    "profile_help"
+   ],
+   "got": null,
+   "seed_question": "change my age",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     2,
+     15
+    ]
+   }
+  },
+  {
+   "text": "plaan 5 times week? that's lot!!",
+   "want": [
+    "how_often"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "this plan is 5 times a week? that's a lot",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "DIABETES"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "mased session!!",
+   "want": [
+    "missed_session"
+   ],
+   "got": "history_help",
+   "seed_question": "missed session",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "are you humnna",
+   "want": [
+    "bot_identity"
+   ],
+   "got": null,
+   "seed_question": "are you human",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": "mistake:hands_used",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "i feel hsrt racing??",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "i feel heart racing",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:slouching",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "new paswrd",
+   "want": [
+    "change_password"
+   ],
+   "got": "forgot_password",
+   "seed_question": "new password",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "you rovt ?",
+   "want": [
+    "bot_identity"
+   ],
+   "got": null,
+   "seed_question": "you robot?",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     8,
+     45
+    ]
+   }
+  },
+  {
+   "text": "how fix lanign forward?",
+   "want": [
+    "mistake:leaning_forward"
+   ],
+   "got": "plan_progress",
+   "seed_question": "how to fix leaning forward",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hw to fix hand uwsd",
+   "want": [
+    "mistake:hands_used"
+   ],
+   "got": "plan_progress",
+   "seed_question": "how to fix hand used",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "hello syash sangat ah?",
+   "want": [
+    "difficulty"
+   ],
+   "got": "greeting",
+   "seed_question": "susah sangat",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION",
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": null,
+    "local_time": [
+     8,
+     15
+    ]
+   }
+  },
+  {
+   "text": "hi camera front side arm raises huh",
+   "want": [
+    "recording_help"
+   ],
+   "got": "exercise:shoulder_abduction",
+   "seed_question": "camera in front or at the side for arm raises?",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE",
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "it sayslow raaise leh...",
+   "want": [
+    "mistake:low_raise"
+   ],
+   "got": null,
+   "seed_question": "it says low raise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "knee psn?",
+   "want": [
+    "pain_mild",
+    "pain_or_discomfort",
+    "pain_sharp"
+   ],
+   "got": null,
+   "seed_question": "knee pain",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     19,
+     45
+    ]
+   }
+  },
+  {
+   "text": "why lohgd out!",
+   "want": [
+    "session_expired"
+   ],
+   "got": "account_help",
+   "seed_question": "why logged out",
+   "context": {
+    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+    "previous_category": "wrong_exercise",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     16,
+     30
+    ]
+   }
+  },
+  {
+   "text": "my lower back axhesduring bird dog ?!!",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": "exercise:bird_dog",
+   "seed_question": "my lower back aches during bird dog",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "ASTHMA"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "didnt sleep wll last night!",
+   "want": [
+    "tired"
+   ],
+   "got": "best_time",
+   "seed_question": "i didnt sleep well last night",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PARKINSONS",
+     "STROKE"
+    ],
+    "risk_level": "Low",
+    "local_time": [
+     14,
+     45
+    ]
+   }
+  },
+  {
+   "text": "Hello pbeat",
+   "want": [
+    "tired"
+   ],
+   "got": "red_flag",
+   "seed_question": "penat",
+   "context": {
+    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     16,
+     15
+    ]
+   }
+  },
+  {
+   "text": "Mre than one plan?",
+   "want": [
+    "multiple_plans"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "more than one plan",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PARKINSONS",
+     "ASTHMA"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "craeer help ?",
+   "want": [
+    "family_help"
+   ],
+   "got": "bot_identity",
+   "seed_question": "carer help",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "NOT DIZZY, TRED",
+   "want": [
+    "tired"
+   ],
+   "got": "acknowledge",
+   "seed_question": "I'm not dizzy, just tired",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:glute_bridge",
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE",
+     "PREGNANCY"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "mini sqst how many reps",
+   "want": [
+    "exercise:mini_squat"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "mini sqat how many reps",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "diagnosis",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "is my plsan helping at all...",
+   "want": [
+    "plan_progress"
+   ],
+   "got": "bot_identity",
+   "seed_question": "is my plan helping at all?",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "equipment",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     3,
+     45
+    ]
+   }
+  },
+  {
+   "text": "SJP MEALS",
+   "want": [
+    "eating_concern"
+   ],
+   "got": "diet",
+   "seed_question": "skip meals",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS",
+     "HEART_DISEASE"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "what if can't get up after fal??",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "weakness_balance",
+   "seed_question": "what if i can't get up after a fall",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "How cose wll stand!!",
+   "want": [
+    "exercise:wall_push_up"
+   ],
+   "got": "verification_code",
+   "seed_question": "how close to the wall should i stand",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     14,
+     30
+    ]
+   }
+  },
+  {
+   "text": "sorry my scoore is 79 so cose??",
+   "want": [
+    "posture_result"
+   ],
+   "got": "verification_code",
+   "seed_question": "my score is 79 so close",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "ASTHMA",
+     "PREGNANCY"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "how long do you keep my dta?",
+   "want": [
+    "privacy_data"
+   ],
+   "got": "how_often",
+   "seed_question": "how long do you keep my data",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "What deeoslow hips mean",
+   "want": [
+    "mistake:low_hips"
+   ],
+   "got": "mistake:too_deep",
+   "seed_question": "what does low hips mean",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "STROKE",
+     "COPD"
+    ],
+    "risk_level": null,
+    "local_time": [
+     19,
+     45
+    ]
+   }
+  },
+  {
+   "text": "WHO EMAIL HRKP...",
+   "want": [
+    "app_facts"
+   ],
+   "got": "account_help",
+   "seed_question": "who do i email for help",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     20,
+     30
+    ]
+   }
+  },
+  {
+   "text": "so pent!",
+   "want": [
+    "tired"
+   ],
+   "got": null,
+   "seed_question": "so tired",
+   "context": {
+    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "pinkiler ok?",
+   "want": [
+    "medication"
+   ],
+   "got": null,
+   "seed_question": "painkiller ok",
+   "context": {
+    "plan_id": null,
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "coretc way",
+   "want": [
+    "how_to"
+   ],
+   "got": null,
+   "seed_question": "correct way",
+   "context": {
+    "plan_id": null,
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     20,
+     45
+    ]
+   }
+  },
+  {
+   "text": "my lower back aches during bitd dog",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": "exercise:bird_dog",
+   "seed_question": "my lower back aches during bird dog",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": "equipment",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Where edit weight!",
+   "want": [
+    "profile_help"
+   ],
+   "got": "equipment",
+   "seed_question": "where to edit my weight",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "ARTHRITIS",
+     "HEART_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     2,
+     45
+    ]
+   }
+  },
+  {
+   "text": "wat core plna??",
+   "want": [
+    "plan_progress"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "what does the core plan do for me",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     3,
+     30
+    ]
+   }
+  },
+  {
+   "text": "what happens after finish plsn ?",
+   "want": [
+    "plan_progress"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "what happens after I finish the plan",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:no_forward_lean",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     21,
+     15
+    ]
+   }
+  },
+  {
+   "text": "who email hellp ?",
+   "want": [
+    "app_facts"
+   ],
+   "got": "account_help",
+   "seed_question": "who do i email for help",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     6,
+     15
+    ]
+   }
+  },
+  {
+   "text": "hello exercise lst...",
+   "want": [
+    "plan_exercises"
+   ],
+   "got": "how_to",
+   "seed_question": "exercise list",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": "Medium",
+    "local_time": [
+     15,
+     45
+    ]
+   }
+  },
+  {
+   "text": "my son can hlp!!",
+   "want": [
+    "family_help"
+   ],
+   "got": "for_someone_else",
+   "seed_question": "my son can help",
+   "context": {
+    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hello slipped bathroom 2 years ago!!",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "safety",
+   "seed_question": "i slipped in the bathroom 2 years ago",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "SORRY OK!!",
+   "want": [
+    "acknowledge"
+   ],
+   "got": null,
+   "seed_question": "ok",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "sffae or not!!",
+   "want": [
+    "safety"
+   ],
+   "got": null,
+   "seed_question": "safe or not",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": "exercise:elbow_flexion",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "i have diabetes, what time is bst to exercise lah...",
+   "want": [
+    "best_time"
+   ],
+   "got": "condition_advice",
+   "seed_question": "i have diabetes, what time is best to exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION"
+    ],
+    "risk_level": null,
+    "local_time": [
+     4,
+     45
+    ]
+   }
+  },
+  {
+   "text": "It's only little sre ya?",
+   "want": [
+    "pain_mild"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "it's only a little sore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "ASTHMA",
+     "HEART_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     1,
+     45
+    ]
+   }
+  },
+  {
+   "text": "ok show marching plae ?",
+   "want": [
+    "exercise:march_in_place"
+   ],
+   "got": "exercise:seated_marching",
+   "seed_question": "show me marching in place",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Blerdigna lot?",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "bleeding a lot",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Hiiuii??",
+   "want": [
+    "greeting"
+   ],
+   "got": null,
+   "seed_question": "hiiiii",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     6,
+     15
+    ]
+   }
+  },
+  {
+   "text": "HELTO TOE ?",
+   "want": [
+    "exercise:tandem_stance"
+   ],
+   "got": "greeting",
+   "seed_question": "heel to toe",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Who emaul help?",
+   "want": [
+    "app_facts"
+   ],
+   "got": "account_help",
+   "seed_question": "who do i email for help",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "tak dapat cde",
+   "want": [
+    "verification_code"
+   ],
+   "got": "acknowledge",
+   "seed_question": "tak dapat code",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     12,
+     15
+    ]
+   }
+  },
+  {
+   "text": "hi can tekl how knee one??",
+   "want": [
+    "exercise:knee_extension",
+    "how_to"
+   ],
+   "got": "diagnosis",
+   "seed_question": "hi can you tell me how to do the knee one",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "is it normal to sweeta a lot!",
+   "want": [
+    "safety",
+    "tired"
+   ],
+   "got": null,
+   "seed_question": "is it normal to sweat a lot",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     2,
+     45
+    ]
+   }
+  },
+  {
+   "text": "can seim instead these exercises",
+   "want": [
+    "difficulty"
+   ],
+   "got": "other_activity",
+   "seed_question": "can I swim instead of these exercises",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": "acknowledge",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     2,
+     15
+    ]
+   }
+  },
+  {
+   "text": "my hisoy ?",
+   "want": [
+    "history_help"
+   ],
+   "got": null,
+   "seed_question": "my history",
+   "context": {
+    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "hi after session knee feels warm loos bigger...",
+   "want": [
+    "pain_swelling"
+   ],
+   "got": "greeting",
+   "seed_question": "after the session my knee feels warm and looks bigger",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "the tasn??",
+   "want": [
+    "app_help"
+   ],
+   "got": null,
+   "seed_question": "the tabs",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hiioii",
+   "want": [
+    "greeting"
+   ],
+   "got": null,
+   "seed_question": "hiiiii",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "i forgot my emal",
+   "want": [
+    "account_help",
+    "forgot_password"
+   ],
+   "got": "missed_session",
+   "seed_question": "i forgot my email",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Ooenmy paln!!",
+   "want": [
+    "treatment_nav"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "open my plan",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "DIABETES",
+     "ASTHMA"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "sop plan ah?",
+   "want": [
+    "plan_and_reminders"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "stop plan",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "when arms stronger!",
+   "want": [
+    "plan_progress"
+   ],
+   "got": null,
+   "seed_question": "when will my arms be stronger",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     22,
+     30
+    ]
+   }
+  },
+  {
+   "text": "wat if cannot get up agter fall!!",
+   "want": [
+    "fear_of_falling",
+    "safety"
+   ],
+   "got": "weakness_balance",
+   "seed_question": "what if i cannot get up after a fall",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "the exercise is too easy for me!!",
+   "want": [
+    "difficulty"
+   ],
+   "got": "exercise:mini_squat",
+   "seed_question": "the exercise is too easy for me",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:mini_squat",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "WNAT UPDATE AGE!!",
+   "want": [
+    "profile_help"
+   ],
+   "got": "change_password",
+   "seed_question": "i want to update my age",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "lst of exrrcises?",
+   "want": [
+    "plan_exercises"
+   ],
+   "got": "how_to",
+   "seed_question": "list of exercises",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION"
+    ],
+    "risk_level": "Low",
+    "local_time": [
+     3,
+     45
+    ]
+   }
+  },
+  {
+   "text": "how do i sttr?",
+   "want": [
+    "age_limit"
+   ],
+   "got": null,
+   "seed_question": "HOW DO I START",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     13,
+     15
+    ]
+   }
+  },
+  {
+   "text": "i feel alnostfaintted",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "i feel almost fainted",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     6,
+     0
+    ]
+   }
+  },
+  {
+   "text": "doc cuca paas??",
+   "want": [
+    "hot_weather"
+   ],
+   "got": "posture_result",
+   "seed_question": "cuaca panas",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     7,
+     30
+    ]
+   }
+  },
+  {
+   "text": "how long should the vudeobe",
+   "want": [
+    "recording_help"
+   ],
+   "got": "how_often",
+   "seed_question": "how long should the video be",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "plan_and_reminders",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "my acpunt",
+   "want": [
+    "account_help",
+    "profile_help"
+   ],
+   "got": null,
+   "seed_question": "my account",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     3,
+     15
+    ]
+   }
+  },
+  {
+   "text": "how dwlte account",
+   "want": [
+    "delete_account"
+   ],
+   "got": "account_help",
+   "seed_question": "how to delete my account",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     21,
+     30
+    ]
+   }
+  },
+  {
+   "text": "for my fatre can leh!",
+   "want": [
+    "for_someone_else"
+   ],
+   "got": null,
+   "seed_question": "for my father can",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "stp plna",
+   "want": [
+    "plan_and_reminders"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "stop plan",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "ARTHRITIS",
+     "HEART_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "hw many wrost ligt should i do",
+   "want": [
+    "exercise:wrist_extension"
+   ],
+   "got": null,
+   "seed_question": "how many wrist lift should i do",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:no_forward_lean",
+    "restriction": null,
+    "conditions": [
+     "ASTHMA",
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     23,
+     15
+    ]
+   }
+  },
+  {
+   "text": "Go back hnoe...",
+   "want": [
+    "app_help",
+    "exit_exercise"
+   ],
+   "got": null,
+   "seed_question": "go back home",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Is my dta safe...",
+   "want": [
+    "privacy_data"
+   ],
+   "got": "safety",
+   "seed_question": "is my data safe",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "phone old work!!",
+   "want": [
+    "app_facts"
+   ],
+   "got": "plan_progress",
+   "seed_question": "my phone is old will it work",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "hmm tres and conditions ya?",
+   "want": [
+    "terms_help"
+   ],
+   "got": "acknowledge",
+   "seed_question": "terms and conditions",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "y tode up",
+   "want": [
+    "mistake:toes_up"
+   ],
+   "got": null,
+   "seed_question": "why toes up",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "notificatioon lae??",
+   "want": [
+    "reminder_late_or_off"
+   ],
+   "got": "reminders_help",
+   "seed_question": "notification late",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": "mistake:stepping_out",
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION"
+    ],
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "how colse wall sttand??",
+   "want": [
+    "exercise:wall_push_up"
+   ],
+   "got": "equipment",
+   "seed_question": "how close to the wall should i stand",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hw ofne shuld exersise",
+   "want": [
+    "how_often"
+   ],
+   "got": "how_to",
+   "seed_question": "hw ofen shuld i exersise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     0,
+     30
+    ]
+   }
+  },
+  {
+   "text": "sipped bathroom 2 years ago ?",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": null,
+   "seed_question": "i slipped in the bathroom 2 years ago",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "i feel uneady?",
+   "want": [
+    "weakness_balance"
+   ],
+   "got": null,
+   "seed_question": "I feel unsteady",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "can chidl use app??",
+   "want": [
+    "guardian_consent"
+   ],
+   "got": "app_help",
+   "seed_question": "can my child use this app",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "sinf out!!",
+   "want": [
+    "account_help"
+   ],
+   "got": null,
+   "seed_question": "sign out",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Bledig a lot lah??",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "bleeding a lot lah",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "psn ?",
+   "want": [
+    "pain_mild",
+    "pain_or_discomfort",
+    "pain_sharp"
+   ],
+   "got": null,
+   "seed_question": "pain",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PREGNANCY"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Skit bila buat shouser flexion",
+   "want": [
+    "pain_mild",
+    "pain_or_discomfort",
+    "pain_sharp",
+    "red_flag"
+   ],
+   "got": "exercise:shoulder_flexion",
+   "seed_question": "sakit bila buat shouder flexion",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "i hae ms",
+   "want": [
+    "condition_advice"
+   ],
+   "got": null,
+   "seed_question": "i have ms",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:tandem_stance",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "sorry ok?",
+   "want": [
+    "acknowledge"
+   ],
+   "got": null,
+   "seed_question": "ok",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": "pain_or_discomfort",
+    "restriction": null,
+    "conditions": [
+     "ASTHMA"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "excuse me check with doktor first kenapa ?!!",
+   "want": [
+    "doctor_clearance"
+   ],
+   "got": null,
+   "seed_question": "check with doctor first why",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "i have bacekd out what should i do pls??",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "i have blacked out what should i do",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "my psn is 3 out of 10 is that ok...",
+   "want": [
+    "pain_mild",
+    "pain_or_discomfort"
+   ],
+   "got": null,
+   "seed_question": "my pain is 3 out of 10 is that ok",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     8,
+     0
+    ]
+   }
+  },
+  {
+   "text": "penya ?",
+   "want": [
+    "tired"
+   ],
+   "got": null,
+   "seed_question": "penat",
+   "context": {
+    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "can chid use app?",
+   "want": [
+    "guardian_consent"
+   ],
+   "got": "app_help",
+   "seed_question": "can my child use this app",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PARKINSONS",
+     "HEART_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": [
+     11,
+     0
+    ]
+   }
+  },
+  {
+   "text": "malan apa??",
+   "want": [
+    "diet"
+   ],
+   "got": null,
+   "seed_question": "makan apa",
+   "context": {
+    "plan_id": null,
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Cant read saml??",
+   "want": [
+    "text_size"
+   ],
+   "got": null,
+   "seed_question": "cant read small",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS",
+     "STROKE"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "teach me the mini sqta!",
+   "want": [
+    "exercise:mini_squat"
+   ],
+   "got": "how_to",
+   "seed_question": "teach me the mini sqat",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION",
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": null,
+    "local_time": [
+     8,
+     45
+    ]
+   }
+  },
+  {
+   "text": "had hip replacemeentladt month",
+   "want": [
+    "condition_advice",
+    "doctor_said",
+    "safety"
+   ],
+   "got": null,
+   "seed_question": "just had hip replacement last month",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "STROKE",
+     "PREGNANCY"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "app never nofy!!",
+   "want": [
+    "age_limit"
+   ],
+   "got": null,
+   "seed_question": "the app never notify me",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:hips_back",
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     21,
+     0
+    ]
+   }
+  },
+  {
+   "text": "opn my pln??",
+   "want": [
+    "treatment_nav"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "open my plan",
+   "context": {
+    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "PREGNANCY"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "y ony 20 min...",
+   "want": [
+    "safety_limits"
+   ],
+   "got": "how_often",
+   "seed_question": "why only 20 min",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "doctor_said",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "ok famlyi help me?",
+   "want": [
+    "family_help"
+   ],
+   "got": "bot_identity",
+   "seed_question": "family help me",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PREGNANCY"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "wamt end ?",
+   "want": [
+    "crisis"
+   ],
+   "got": null,
+   "seed_question": "i want to end it",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "sop plan",
+   "want": [
+    "plan_and_reminders"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "stop plan",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": "how_to",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "how get up after fall pls",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "safety",
+   "seed_question": "how do i get up after a fall",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:arm_leg_low",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     10,
+     45
+    ]
+   }
+  },
+  {
+   "text": "Byi lutut ?",
+   "want": [
+    "joint_noise"
+   ],
+   "got": "how_to",
+   "seed_question": "bunyi lutut",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PARKINSONS"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     8,
+     15
+    ]
+   }
+  },
+  {
+   "text": "she fell. last year, now fine huh",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "red_flag",
+   "seed_question": "she fell. that was last year, now fine",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     7,
+     15
+    ]
+   }
+  },
+  {
+   "text": "can swwim instead these exxercises??",
+   "want": [
+    "difficulty"
+   ],
+   "got": "other_activity",
+   "seed_question": "can I swim instead of these exercises",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     22,
+     15
+    ]
+   }
+  },
+  {
+   "text": "erm why cant i get a plan it says cheeck wth my doctor first ?",
+   "want": [
+    "doctor_clearance"
+   ],
+   "got": "age_limit",
+   "seed_question": "why cant i get a plan it says check with my doctor first",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:bird_dog",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     13,
+     45
+    ]
+   }
+  },
+  {
+   "text": "stp plan!",
+   "want": [
+    "plan_and_reminders"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "stop plan",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "plan ok ms ?",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "is this plan ok for ms",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "verification_code",
+    "restriction": null,
+    "conditions": [
+     "COPD",
+     "PREGNANCY"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "ok legs wek since stayed bed months",
+   "want": [
+    "getting_started",
+    "muscle_loss",
+    "weakness_balance"
+   ],
+   "got": "equipment",
+   "seed_question": "my legs very weak since i stayed in bed for months",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Where shoudl iput my phoen",
+   "want": [
+    "recording_help"
+   ],
+   "got": null,
+   "seed_question": "where should I put my phone",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     18,
+     0
+    ]
+   }
+  },
+  {
+   "text": "How to fix unren arm!!",
+   "want": [
+    "mistake:uneven_arms"
+   ],
+   "got": "plan_progress",
+   "seed_question": "how to fix uneven arm",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "COPD"
+    ],
+    "risk_level": "Medium",
+    "local_time": [
+     4,
+     0
+    ]
+   }
+  },
+  {
+   "text": "KEEP EXERCISE VIDEOS?",
+   "want": [
+    "privacy_data"
+   ],
+   "got": "recording_help",
+   "seed_question": "do you keep my exercise videos",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "doc muscel lss",
+   "want": [
+    "muscle_loss"
+   ],
+   "got": "diagnosis",
+   "seed_question": "muscle loss",
+   "context": {
+    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "cgnese can!!",
+   "want": [
+    "language"
+   ],
+   "got": null,
+   "seed_question": "chinese can",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": [
+     20,
+     45
+    ]
+   }
+  },
+  {
+   "text": "it syss hips_sag pls",
+   "want": [
+    "mistake:hips_sag"
+   ],
+   "got": null,
+   "seed_question": "it says hips_sag",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "erm okay",
+   "want": [
+    "acknowledge"
+   ],
+   "got": null,
+   "seed_question": "okay",
+   "context": {
+    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "STROKE"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     14,
+     15
+    ]
+   }
+  },
+  {
+   "text": "how faat should imarch",
+   "want": [
+    "exercise:march_in_place"
+   ],
+   "got": "best_time",
+   "seed_question": "how fast should i march",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": [
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "she fell. that was lats year, now fine...",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "best_time",
+   "seed_question": "she fell. that was last year, now fine",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:sit_to_stand",
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "kiocked out",
+   "want": [
+    "session_expired"
+   ],
+   "got": null,
+   "seed_question": "kicked out",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "DIABETES",
+     "STROKE"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     5,
+     30
+    ]
+   }
+  },
+  {
+   "text": "teenaaercan use ya??",
+   "want": [
+    "guardian_consent"
+   ],
+   "got": null,
+   "seed_question": "teenager can use",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "STROKE"
+    ],
+    "risk_level": "High",
+    "local_time": [
+     4,
+     45
+    ]
+   }
+  },
+  {
+   "text": "a fot ulcer exercise",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "hot_weather",
+   "seed_question": "a foot ulcer exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "account_help",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "how loe weight??",
+   "want": [
+    "diet"
+   ],
+   "got": "equipment",
+   "seed_question": "how do I lose weight",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "text": "hmm frll oevr morning, hipsore ?",
+   "want": [
+    "red_flag"
+   ],
+   "got": "fear_of_falling",
+   "seed_question": "fell over this morning, hip sore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "sggin out!",
+   "want": [
+    "account_help"
+   ],
+   "got": null,
+   "seed_question": "sign out",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "what if cannot get up after fall!!",
+   "want": [
+    "fear_of_falling",
+    "safety"
+   ],
+   "got": "weakness_balance",
+   "seed_question": "what if i cannot get up after a fall",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "it's only little sore?",
+   "want": [
+    "pain_mild"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "it's only a little sore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     1,
+     15
+    ]
+   }
+  },
+  {
+   "text": "ok apa todday ?",
+   "want": [
+    "getting_started",
+    "plan_exercises",
+    "treatment_nav"
+   ],
+   "got": "acknowledge",
+   "seed_question": "what should i do today",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:arm_leg_low",
+    "restriction": null,
+    "conditions": [
+     "HEART_DISEASE",
+     "COPD"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "hello trkncing ?",
+   "want": [
+    "bladder_leak"
+   ],
+   "got": "greeting",
+   "seed_question": "terkencing",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": "mistake:body_swing",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "ral peron?",
+   "want": [
+    "bot_identity"
+   ],
+   "got": "equipment",
+   "seed_question": "are you a real person",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "Erm hw long glute broge",
+   "want": [
+    "exercise:glute_bridge"
+   ],
+   "got": "how_often",
+   "seed_question": "how long for glute brige",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     15,
+     15
+    ]
+   }
+  },
+  {
+   "text": "netc exercise where!",
+   "want": [
+    "treatment_nav"
+   ],
+   "got": "neck_not_covered",
+   "seed_question": "next exercise where",
+   "context": {
+    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "if she fllas wat should i do!!",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": null,
+   "seed_question": "if she falls what should i do",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     11,
+     0
+    ]
+   }
+  },
+  {
+   "text": "It huts...",
+   "want": [
+    "pain_mild",
+    "pain_or_discomfort",
+    "pain_sharp"
+   ],
+   "got": null,
+   "seed_question": "it hurts",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "HYPERTENSION",
+     "ASTHMA"
+    ],
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "when stop exercising??",
+   "want": [
+    "safety"
+   ],
+   "got": "plan_progress",
+   "seed_question": "when should i stop exercising",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "family_help",
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS",
+     "ARTHRITIS"
+    ],
+    "risk_level": null,
+    "local_time": [
+     19,
+     15
+    ]
+   }
+  },
+  {
+   "text": "Is it tirn?",
+   "want": [
+    "diagnosis"
+   ],
+   "got": null,
+   "seed_question": "is it torn",
+   "context": {
+    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
+    "previous_category": "mistake:hands_used",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "after eatbigcan!!",
+   "want": [
+    "best_time",
+    "diet",
+    "eating_concern"
+   ],
+   "got": null,
+   "seed_question": "after eating can",
+   "context": {
+    "plan_id": "2d9ac62b-2213-59d1-9eb9-dd228882c1aa",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "phone old wooork??",
+   "want": [
+    "app_facts"
+   ],
+   "got": "plan_progress",
+   "seed_question": "my phone is old will it work",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "doc bed rest wek ?!!",
+   "want": [
+    "muscle_loss"
+   ],
+   "got": "doctor_said",
+   "seed_question": "bed rest weak",
+   "context": {
+    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     23,
+     45
+    ]
+   }
+  },
+  {
+   "text": "Exercise liits",
+   "want": [
+    "plan_exercises"
+   ],
+   "got": "hot_weather",
+   "seed_question": "exercise list",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "PARKINSONS"
+    ],
+    "risk_level": null,
+    "local_time": [
+     17,
+     45
+    ]
+   }
+  },
+  {
+   "text": "is it titn pls...",
+   "want": [
+    "diagnosis"
+   ],
+   "got": null,
+   "seed_question": "is it torn",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": "mistake:upper_arm_moves",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "she fell. thta was last year, now fine ah?",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "red_flag",
+   "seed_question": "she fell. that was last year, now fine",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "no point annyore!!",
+   "want": [
+    "crisis"
+   ],
+   "got": "plan_progress",
+   "seed_question": "no point anymore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "muscle_loss",
+    "restriction": null,
+    "conditions": [
+     "OSTEOPOROSIS",
+     "PARKINSONS"
+    ],
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
+   "text": "fell oevr morning, hip sore",
+   "want": [
+    "red_flag"
+   ],
+   "got": "fear_of_falling",
+   "seed_question": "fell over this morning, hip sore",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "ARTHRITIS",
+     "STROKE"
+    ],
+    "risk_level": "Medium",
+    "local_time": [
+     12,
+     0
+    ]
+   }
+  },
+  {
+   "text": "fell todyya",
+   "want": [
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "fell today",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "mistake:hands_used",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "siikp meals?",
+   "want": [
+    "eating_concern"
+   ],
+   "got": "diet",
+   "seed_question": "skip meals",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "swming ok??",
+   "want": [
+    "other_activity"
+   ],
+   "got": "mistake:body_swing",
+   "seed_question": "swimming ok",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE"
+    ],
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "bed rst weak",
+   "want": [
+    "muscle_loss"
+   ],
+   "got": "weakness_balance",
+   "seed_question": "bed rest weak",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     10,
+     45
+    ]
+   }
+  },
+  {
+   "text": "what does knews bnd mean",
+   "want": [
+    "mistake:knees_bend"
+   ],
+   "got": "equipment",
+   "seed_question": "what does knees bend mean",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     16,
+     30
+    ]
+   }
+  },
+  {
+   "text": "FATHER KEEPS SAYING HE WSNS DIE",
+   "want": [
+    "crisis"
+   ],
+   "got": "for_someone_else",
+   "seed_question": "my father keeps saying he wants to die",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     9,
+     15
+    ]
+   }
+  },
+  {
+   "text": "seated maring",
+   "want": [
+    "exercise:seated_marching"
+   ],
+   "got": "equipment",
+   "seed_question": "seated marcing?",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "cara buatlft my wrist!!",
+   "want": [
+    "exercise:wrist_extension"
+   ],
+   "got": null,
+   "seed_question": "cara buat lift my wrist",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "plan_exercises",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "chetvery tight la!",
+   "want": [
+    "red_flag"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "chest very tight la",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": "AGE_65_PLUS",
+    "conditions": null,
+    "risk_level": null,
+    "local_time": [
+     1,
+     30
+    ]
+   }
+  },
+  {
+   "text": "pressuee in my chet during exercise?",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": null,
+   "seed_question": "pressure in my chest during exercise",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     19,
+     30
+    ]
+   }
+  },
+  {
+   "text": "no chati...",
+   "want": [
+    "equipment"
+   ],
+   "got": null,
+   "seed_question": "no chair",
+   "context": {
+    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "not eaatng",
+   "want": [
+    "eating_concern"
+   ],
+   "got": "acknowledge",
+   "seed_question": "not eating",
+   "context": {
+    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
+    "previous_category": "reminders_help",
+    "restriction": null,
+    "conditions": [
+     "KIDNEY_DISEASE",
+     "COPD"
+    ],
+    "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "doc why is my sesison ony 20 mins ya",
+   "want": [
+    "safety_limits"
+   ],
+   "got": "how_often",
+   "seed_question": "why is my session only 20 minutes",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": [
+     12,
+     0
+    ]
+   }
+  },
+  {
+   "text": "remove accot...",
+   "want": [
+    "delete_account"
+   ],
+   "got": null,
+   "seed_question": "remove account",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": "mistake:feet_forward",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "what exercise good heeat problem",
+   "want": [
+    "condition_advice"
+   ],
+   "got": "plan_exercises",
+   "seed_question": "what exercise is good for a heart problem",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "Hads shay pls...",
+   "want": [
+    "weakness_balance"
+   ],
+   "got": null,
+   "seed_question": "hands shaky",
+   "context": {
+    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     18,
+     15
+    ]
+   }
+  },
+  {
+   "text": "hlwp",
+   "want": [
+    "app_help",
+    "bot_identity",
+    "getting_started",
+    "greeting"
+   ],
+   "got": null,
+   "seed_question": "help",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  }
+ ]
+}
