@@ -1666,6 +1666,15 @@ def _inside_exercise_names(text: str, hits: list) -> list:
 
 
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
+    """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
+    its words weighed together, is about another domain (3.61)."""
+    chosen, how = _match_any(plan_id, text)
+    if chosen is not None and not chosen.get("small_talk") and _weighted_off_domain(text):
+        return None, None
+    return chosen, how
+
+
+def _match_any(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched. When nothing, or only a loose
     likeness, matched, the respelled message is tried too (3.55: "hurs", "pasword", "bernfas")."""
     plain = " ".join(re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split())
@@ -1730,6 +1739,54 @@ def _domain_words() -> tuple[frozenset, frozenset]:
     rehab = frozenset(w for w in kw if w not in generic and (w not in spread or spread[w][0] <= 4)
                       and len(w) >= 3 and w not in STOP)
     return other, rehab
+
+
+# 3.61: the words' weights add up to more than OFF_DOMAIN_SCORE, or to more than OFF_DOMAIN_STRONG_SCORE with
+# one word of weight OFF_DOMAIN_STRONG_WORD or more ("credit", "money", "car", "pay"). Measured: CLINC other
+# domains 2443 -> 2961/3270, out-of-scope 745 -> 815/1100; the chatbot's own 995 questions and a 2 000-message
+# sample of the random typing test unchanged (gate_variants, 20 Oct).
+OFF_DOMAIN_SCORE = 7.0
+OFF_DOMAIN_STRONG_WORD = 3.0
+OFF_DOMAIN_STRONG_SCORE = 5.0
+# Words clearly about rehabilitation besides the symptoms, body parts and exercise names: a message with
+# one is never shut out by the word weights.
+ANCHOR_WORDS = frozenset({"exercise", "exercises", "exercising", "senaman", "bersenam", "physio",
+                          "physiotherapy", "physiotherapist", "rehab", "rehabilitation", "posture", "reps",
+                          "repetitions", "workout", "stretch", "stretching", "app", "reminder", "reminders"})
+
+
+@lru_cache(maxsize=1)
+def _domain_weights() -> dict:
+    """{word stem: how much likelier in other domains' questions than in the rules} (build_domain_words)."""
+    path = Path(__file__).with_name("domain_weights.json")
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+
+@lru_cache(maxsize=1)
+def _rehab_anchors() -> tuple[frozenset, tuple]:
+    """(symptom, body-part and rehabilitation words; exercise names and other names, whole: "heel raise",
+    not "raise", which is also "raise my credit score")."""
+    words = set(SIGN_WORDS) | {w for w in SIGN_CONTEXT if len(w) > 3} | set(ANCHOR_WORDS)
+    names = {clean(a) for e in rules()["exercises"].values() for a in [e["name"]] + e["aliases"]}
+    return frozenset(words - STOP), tuple(sorted(names, key=len, reverse=True))
+
+
+def _weighted_off_domain(text: str) -> bool:
+    """The message's words, weighed together, belong to another domain ("can you help me move money
+    between accounts", "how can I raise my credit score", "a table for 3 at olive garden") and none is
+    clearly about rehabilitation (3.61)."""
+    weights = _domain_weights()
+    if not weights:
+        return False
+    plain = clean(respell(text))
+    words, names = _rehab_anchors()
+    if set(plain.split()) & words or any(f" {n} " in f" {plain} " for n in names):
+        return False
+    stems = {stem(w) for w in re.findall(r"[a-z][a-z']+", clean(text)) if w not in STOP}
+    found = [weights.get(s, 0.0) for s in stems]
+    total = sum(found)
+    return total > OFF_DOMAIN_SCORE or (bool(found) and max(found) >= OFF_DOMAIN_STRONG_WORD
+                                         and total > OFF_DOMAIN_STRONG_SCORE)
 
 
 def _off_domain(text: str) -> bool:

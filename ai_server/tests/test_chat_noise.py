@@ -93,3 +93,42 @@ SPACING = [("sesak  nafas", {"red_flag"}), ("selamat  pagi", {"greeting"}), ("te
 def test_spacing_junk_and_code_like_questions():
     wrong = [(t, g) for t, want in SPACING if (g := _got(KNEE, t)) not in want]
     assert not wrong, wrong
+
+
+# 3.61: other domains' questions that share a word with this chatbot (account, plan, score, table, pay,
+# pressure), weighed as a whole; and everyday questions of this chatbot with the same words keep their topic.
+# Known miss: "how can i raise my credit score" is still the posture score ("raise" is an exercise word).
+OTHER_DOMAIN = ["can you help me move money between my accounts",
+                "book a table for two at 7pm tonight", "what is the tire pressure for my car",
+                "i want to switch to a new insurance plan", "when is my next pay day",
+                "how long will it take to get a replacement credit card"]
+OWN_DOMAIN = [("how many times a week", {"how_often"}), ("my score dropped from 90 to 60", {"posture_result"}),
+              ("how do i change my password", {"change_password", "account_help"}),
+              ("can i change my plan", {"plan_and_reminders", "change_plan"}),
+              ("remind me only on monday wednesday friday", {"reminders_help", "plan_and_reminders"}),
+              ("my blood pressure is 150 over 95, can i exercise", {"condition_advice", "red_flag", "safety"})]
+
+
+def test_other_domains_weighed_as_a_whole_are_not_given_a_topic():
+    wrong = [(t, g) for t in OTHER_DOMAIN if (g := _got(KNEE, t)) is not None]
+    assert not wrong, wrong
+
+
+def test_this_chatbots_questions_with_the_same_words_keep_their_topic():
+    wrong = [(t, g) for t, want in OWN_DOMAIN if (g := _got(KNEE, t)) not in want]
+    assert not wrong, wrong
+
+
+def test_domain_weights_match_the_rules():
+    """domain_weights.json is learnt from the rules too: rebuild it (build_domain_words.py) after changing
+    them. Needs the CLINC and MASSIVE files (training/data/public, not in git)."""
+    import json
+    from pathlib import Path
+
+    import pytest
+
+    from app.chat import build_domain_words as b
+    if not (b.DATA.exists() and all(p.exists() for p in b.MASSIVE)):
+        pytest.skip("CLINC150 / MASSIVE not downloaded here")
+    saved = json.loads(Path(engine.__file__).with_name("domain_weights.json").read_text(encoding="utf-8"))
+    assert saved == b.domain_weights(), "run: python app/chat/build_domain_words.py"

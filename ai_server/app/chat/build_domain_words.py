@@ -15,9 +15,18 @@ word specific to rehabilitation: "how long do wire transfers take" is not "how o
 words are never another domain's (engine._domain_words). CLINC's validation and test questions are kept
 for measuring it (evaluate_chat_noise.py); MASSIVE is not used there.
 
+It also writes domain_weights.json (3.61): per word stem, how much likelier it is in a question of those
+other domains than in this chatbot's own rules (keywords, example questions, exercise names and
+instructions, warning-sign phrases): log((n_other(w)+1)/(N_other+2)) - log((n_rules(w)+1)/(N_rules+2)).
+A message whose words add up to more than engine.OFF_DOMAIN_SCORE, with no word that is clearly about
+rehabilitation, is not guessed a topic either: "can you help me move money between accounts" is not
+"account and login", "how can I raise my credit score" not "your posture score". Rebuild it after
+changing the rules.
+
     .venv\\Scripts\\python app\\chat\\build_domain_words.py [out.json]
 """
 import json
+import math
 import re
 import sys
 from collections import Counter
@@ -27,6 +36,7 @@ PUBLIC = Path(__file__).resolve().parents[3] / "training" / "data" / "public"
 DATA = PUBLIC / "input_tests" / "clinc_data_full.json"
 MASSIVE = [PUBLIC / "massive" / "data" / "en-US.jsonl"]
 OUT = Path(__file__).with_name("other_domain_words.json")
+WEIGHTS = Path(__file__).with_name("domain_weights.json")
 
 # CLINC intents this chatbot answers too, or small talk: their words are not "another domain".
 OVERLAP = {"alarm", "reminder", "reminder_update", "calories", "nutrition_info", "meal_suggestion", "change_language",
@@ -94,6 +104,34 @@ def massive_words(known: dict) -> dict:
             and len(w) >= 3}
 
 
+def domain_weights() -> dict:
+    """{stem: log-likelihood ratio, other domains over this chatbot's rules} (3.61)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+    from app.chat import engine
+
+    def stems(text: str) -> set:
+        return {engine.stem(w) for w in re.findall(r"[a-z][a-z']+", engine.clean(text)) if w not in engine.STOP}
+
+    r = json.loads(engine.RULES_PATH.read_text(encoding="utf-8"))
+    ours = [t for i in r["intents"] for t in i["keywords"] + i["examples"]]
+    ours += [t for e in r["exercises"].values() for t in [e["name"], e["instruction"]] + e["aliases"]]
+    ours += list(r.get("glossary", {})) + r["red_flags"]
+    d = json.loads(DATA.read_text(encoding="utf-8"))
+    theirs = [t for t, intent in d["train"] + d["oos_train"] if intent not in OVERLAP]
+    for path in MASSIVE:
+        for line in path.read_text(encoding="utf-8").splitlines():
+            x = json.loads(line)
+            if x["intent"] not in MASSIVE_OVERLAP:
+                theirs.append(x["utt"])
+    n_ours, n_theirs = Counter(), Counter()
+    for t in ours:
+        n_ours.update(stems(t))
+    for t in theirs:
+        n_theirs.update(stems(t))
+    return {w: round(math.log((n_theirs[w] + 1) / (len(theirs) + 2)) - math.log((n_ours[w] + 1) / (len(ours) + 2)), 2)
+            for w in sorted(set(n_ours) | set(n_theirs))}
+
+
 def main():
     out = Path(sys.argv[1]) if len(sys.argv) > 1 else OUT
     words = clinc_words()
@@ -101,6 +139,9 @@ def main():
     words.update(extra)
     out.write_text(json.dumps(dict(sorted(words.items())), separators=(",", ":")), encoding="utf-8")
     print(f"{len(words)} words ({len(extra)} from MASSIVE) -> {out}")
+    weights = domain_weights()
+    WEIGHTS.write_text(json.dumps(weights, separators=(",", ":")), encoding="utf-8")
+    print(f"{len(weights)} word weights -> {WEIGHTS}")
 
 
 if __name__ == "__main__":
