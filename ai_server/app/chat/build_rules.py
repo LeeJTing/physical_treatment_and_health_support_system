@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.55"
+VERSION = "chat-rules-3.57"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -1337,7 +1337,8 @@ RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
               "slipped toilet", "today slipped", "slipped today", "he's floor",
               "she's floor", "is on floor", "on floor cannot", "hasn't been same since", "not been same since",
               "not same since", "fell during exercise", "fell down during exercise", "fall down during exercise",
-              "fell while exercising", "fell during the exercise", "fell during senaman",
+              "fell while exercising", "fell during the exercise", "fell during senaman", "help fell",
+              "help i fell", "need help fell", "fell down help", "fell now", "i fell now",
               "cannot move one side", "can't move one side", "fell hit head", "fell hit my head",
               "pressure chest", "chest pressure",
               # 3.54 (15 Oct, generated warning signs)
@@ -1377,6 +1378,7 @@ CRISIS = [
     "whats point living", "what point living", "point of living", "no point living", "tired living",
     "wish sleep not wake", "sleep not wake up", "sleep and not wake", "could sleep and not wake",
     "thinking ending all", "thinking of ending", "ending it all", "end it all", "want end it",
+    "wish dead", "wish i were dead", "wants die", "wants to die", "want to live anymore", "want live anymore",
     "take an overdose", "taken an overdose", "overdose on",
     "saving up my pills", "saving up my sleeping pills", "saving my sleeping pills", "saving up pills",
     # laptop safety pass 3

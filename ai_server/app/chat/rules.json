@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.55",
+  "version": "chat-rules-3.57",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -7211,6 +7211,12 @@
     "fell while exercising",
     "fell during the exercise",
     "fell during senaman",
+    "help fell",
+    "help i fell",
+    "need help fell",
+    "fell down help",
+    "fell now",
+    "i fell now",
     "cannot move one side",
     "can't move one side",
     "fell hit head",
@@ -7372,6 +7378,12 @@
     "ending it all",
     "end it all",
     "want end it",
+    "wish dead",
+    "wish i were dead",
+    "wants die",
+    "wants to die",
+    "want to live anymore",
+    "want live anymore",
     "take an overdose",
     "taken an overdose",
     "overdose on",

@@ -118,7 +118,7 @@ CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", 
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
 # 3.55: short forms typed for whole words (respell reads them as the word)
-SHORT_WORDS_TYPED = {"y": "why", "pln": "plan", "acc": "account", "pwd": "password", "pw": "password",
+SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", "acc": "account", "pwd": "password", "pw": "password",
                      "tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
                      "rly": "really", "noe": "know", "bcos": "because", "bcoz": "because", "coz": "because",
                      "wat": "what", "wht": "what", "hw": "how", "mins": "minutes", "min": "minutes",
@@ -135,7 +135,7 @@ def rules() -> dict:
 
 @lru_cache(maxsize=20000)
 def clean(text: str) -> str:
-    t = text.lower().replace("’", "'").replace("%", " percent ")
+    t = re.sub(r"(\d)\s*%", r"\1 percent ", text.lower().replace("’", "'"))
     t = re.sub(r"<[^>]*>", " ", t)                     # pasted HTML / script tags
     for e, word in EMOJI.items():
         t = t.replace(e, word)
@@ -292,7 +292,9 @@ def correct(text: str) -> str:
             if likely is not None:
                 w = likely
             elif not (len(w) >= 4 and _near_known(w)):
-                candidates = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1]
+                # Sorted: a tie must not depend on the set's order (it changes every run); a warning-sign
+                # word first, "fell" before "fall" ("flwl").
+                candidates = sorted((v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1), key=_tie_order)
                 hit = process.extractOne(w, candidates, scorer=fuzz.ratio, score_cutoff=80) if candidates else None
                 w = hit[0] if hit else w
         out.append(w)
@@ -321,21 +323,44 @@ def dictionary() -> frozenset:
 
 
 @lru_cache(maxsize=1)
+def rare_words() -> frozenset:
+    """English words ranked 20 000-50 000 (rare_words.txt, build_wordlist.py): real words, so never turned
+    into a warning-sign word ("pruning", "antifreeze"), though other corrections stay possible."""
+    path = Path(__file__).with_name("rare_words.txt")
+    return frozenset(path.read_text(encoding="utf-8").split()) if path.exists() else frozenset()
+
+
+@lru_cache(maxsize=1)
 def _respell_vocab() -> frozenset:
     v = set(vocabulary()) | COMMON_MALAY | set(MALAY) | set(SYNONYMS) | set(CONTRACTIONS)
     for p in MALAY_PHRASES:
         v.update(p.split())
     for p in rules()["red_flags"]:
         v.update(p.split())
+    for p in rules().get("glossary", {}):                # posture mistake names (3.56)
+        v.update(p.replace("_", " ").split())
+    for p in rules().get("crisis", []):                  # thoughts of suicide (3.57: "anymore")
+        v.update(p.split())
+    v |= ADDRESS_WORDS | HEALTH_SENSE_WORDS
     return frozenset(w for w in v if w)
 
 
+# 3.57: how Malaysians address someone ("boss how to start"), and health words the topics do not name:
+# known words, so never "another domain".
+ADDRESS_WORDS = frozenset({"boss", "bro", "brother", "sis", "sister", "uncle", "aunty", "auntie", "kak", "akak",
+                           "encik", "cik", "puan", "tuan", "dato", "datin", "madam", "sir", "dear", "friend"})
+HEALTH_SENSE_WORDS = frozenset({"hearing", "deaf", "eyesight", "vision", "blind", "glasses", "spectacles", "memory",
+                                "forgetful", "dementia", "hearing aid", "cataract", "tinnitus"})
+
+
 def _exact_split(w: str, vocab) -> list[str] | None:
-    """Two known words typed without the space, the parts as even as possible; never "no" first."""
+    """Two known words typed without the space, the parts as even as possible; never "no" first, except
+    "not" before a word of 4+ letters ("notspread")."""
     best = None
     for i in range(2, len(w) - 1):
         a, b = w[:i], w[i:]
-        if a in vocab and b in vocab and a not in NEGATORS and min(len(a), len(b)) >= 2:
+        negator_ok = a not in NEGATORS or (a == "not" and len(b) >= 4)
+        if a in vocab and b in vocab and negator_ok and min(len(a), len(b)) >= 2:
             if best is None or abs(len(a) - len(b)) < abs(len(best[0]) - len(best[1])):
                 best = (a, b)
     return list(best) if best else None
@@ -352,7 +377,7 @@ def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
                 best = (a, b)
     if best:
         return list(best)
-    for i in range(3, len(w) - 2):
+    for i in range(2, len(w) - 2):
         a, b = w[:i], w[i:]
         if a in vocab and a not in NEGATORS and len(b) >= 3:
             fixed = _likeliest(b)
@@ -414,12 +439,17 @@ URGENT_WORDS = frozenset({"fell", "fall", "fallen", "falling", "jatuh", "pitam",
                           "bernafas", "chest", "faint", "fainted", "breath", "breathe", "bleed", "bleeding",
                           "heart", "stroke", "collapse", "collapsed", "sakit", "die", "dead", "suicide", "kill",
                           "bunuh", "mati", "pills", "overdose", "poison", "blood", "darah", "worst", "passed",
-                          "want", "wish", "live", "living", "hurts", "hurt"})
+                          "want", "wish", "live", "living", "hurts", "hurt", "wants", "diri", "muka", "pain"})
 URGENT_MARGIN = 0.3
 
 
+def _tie_order(v: str) -> tuple:
+    """Order for equally close words: warning-sign words first, "fell" first of them, then a to z."""
+    return v not in URGENT_WORDS, v != "fell", v
+
+
 def _closest(w: str, vocab, cutoff: float) -> str | None:
-    cands = [v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1 and len(v) >= 4]
+    cands = sorted((v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= 1 and len(v) >= 4), key=_tie_order)
     if 4 <= len(w) <= 6:
         # One swap, drop, extra or changed letter (OSA distance 1) when only one known word is that close.
         near = [v for v in cands if OSA.distance(w, v) <= 1]
@@ -527,6 +557,7 @@ def _word_use() -> dict:
     """How often each word appears in the rules' keywords, example questions and warning signs."""
     count: dict[str, int] = {}
     phrases = list(rules()["red_flags"]) + [p for i in rules()["intents"] for p in i["keywords"] + i["examples"]]
+    phrases += [p.replace("_", " ") for p in rules().get("glossary", {})]
     for p in phrases:
         for w in clean(p).split():
             count[w] = count.get(w, 0) + 1
@@ -541,20 +572,30 @@ def _likeliest(w: str) -> str | None:
     cands = {v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= spread and len(v) >= 4}
     words = {v for v in _dictionary_by_letter().get(w[0], ()) if abs(len(v) - len(w)) <= spread and len(v) >= 4}
     scored = sorted((typo_cost(w, v), v not in SAFETY_WORDS, v) for v in cands)
+    # Two slips in a warning-sign word ("ptsm", "piam" -> pitam), when all but one of the typed letters
+    # are in it in order ("psum" is not "pain"); never from a real but rarer word.
+    two_slips = [] if len(w) < 4 or w in rare_words() else [
+        s for s in scored if not s[1] and s[0] <= 1.5 and _in_order(w, s[2]) >= len(w) - 1]
+    if w in rare_words():
+        # A real but rarer word: never a warning sign, and only an easy slip of another word ("hurst" ->
+        # hurts; "pruning" is not "purging").
+        scored = [s for s in scored if s[1] and s[0] <= 0.5]
+    scored = [s for s in scored if s[1] or s[0] <= 1.0]  # warning-sign words: one slip at most here
     best_known = scored[0][0] if scored else 9.0
     extra = sorted((typo_cost(w, v), True, v) for v in words - cands)
+    # Nearly as likely as the likeliest reading of all (the rules' words and common words alike):
+    # "psun" is pain (not paun), but "paln" stays plan, "passwrd" password, "wamr" warm.
+    overall = min(best_known, extra[0][0] if extra else 9.0)
+    urgent_first = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(limit, overall + URGENT_MARGIN)]
+    if urgent_first:
+        return min(urgent_first, key=lambda s: (s[0], s[2] != "fell", -_word_use().get(s[2], 0)))[2]
     if extra and extra[0][0] <= best_known - 0.5 and extra[0][0] <= 0.8:
         # A common word fits clearly better (by half a slip) than any of the rules' words ("meaming" ->
         # meaning); otherwise the rules' word ("sqat" is squat, not swat).
         if len(extra) == 1 or extra[1][0] > extra[0][0]:
             return extra[0][2]
-    if not scored:
-        return None
-    if scored[0][0] > limit:
-        # Two slips in a warning-sign word ("ptsm", "piam" -> pitam), when all but one of the typed
-        # letters are in it in order ("psum" is not "pain").
-        safe = [s for s in scored if not s[1] and s[0] <= 1.5 and _in_order(w, s[2]) >= len(w) - 1]
-        return safe[0][2] if safe and len(w) >= 4 else None
+    if not scored or scored[0][0] > limit:
+        return two_slips[0][2] if two_slips else None
     urgent = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(limit, scored[0][0] + URGENT_MARGIN)]
     if urgent:
         return min(urgent, key=lambda s: (s[0], s[2] != "fell", -_word_use().get(s[2], 0)))[2]
@@ -1203,7 +1244,11 @@ def red_flag(text: str | None) -> bool:
     if not text:
         return False
     again = respell(text)
-    return _red_flag(again) if _plain(again) != _plain(text) else _red_flag(text)
+    base = again if _plain(again) != _plain(text) else text
+    # "ok fell over this morning", "sorry jatuh tahun lepas, tapi tadi lagi": a filler in front is not
+    # who fell (3.56).
+    bare = _LEADING_FILLER_RE.sub("", base)
+    return _red_flag(base) or (bare != base and bool(bare.strip()) and _red_flag(bare))
 
 
 def _red_flag(text: str) -> bool:
@@ -1572,17 +1617,56 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
             if c is not None and c.get("small_talk"):
                 return c, h
     chosen, how = _match(plan_id, text)
+    if chosen is not None and not chosen.get("small_talk") and _off_domain(text):
+        return None, None                        # about another domain: no rehabilitation topic guessed (3.57)
     again = respell(text)
-    if _plain(again) != plain and how != "glossary":
+    if _plain(again) != plain:
         # A slip was mended ("set remidner", "hw oftne"): the mended message wins when it matches more
         # of what was typed ("set reminder" over "set"), or when the message as typed matched nothing
         # or only loosely. A posture mistake's exact name stays ("shrugging" is not "struggling").
         c2, h2 = _match(plan_id, again)
+        if how == "glossary":
+            if h2 == "glossary" and c2 is not None and len(c2["key"]) > len(chosen["key"]):
+                return c2, h2
+            return chosen, how
         if c2 is not None and (chosen is None or how in ("similar_question", "keyword_overlap")
                                or _recognised(plan_id, again) >= _recognised(plan_id, text)
                                or (h2 == "glossary")):
             return c2, h2
     return chosen, how
+
+
+@lru_cache(maxsize=1)
+def _domain_words() -> tuple[frozenset, frozenset]:
+    """(words of other domains the rules never use, words specific to rehabilitation), from CLINC150's
+    training questions (other_domain_words.json, build_domain_words.py): a word used by at most 5 other
+    domains and not by the rules is another domain's; a word of the rules' keywords used by at most 4
+    other domains (4: "reminder"), and not one of the 349 used by 8 or more, is rehabilitation's."""
+    path = Path(__file__).with_name("other_domain_words.json")
+    if not path.exists():
+        return frozenset(), frozenset()
+    spread = json.loads(path.read_text(encoding="utf-8"))
+    vocab = _respell_vocab()
+    generic = {w for w, (s, _) in spread.items() if s >= 8}
+    other = frozenset(w for w, (s, _) in spread.items() if s <= 5 and w not in vocab)
+    kw = set()
+    for i in rules()["intents"]:
+        for k in i["keywords"]:
+            kw.update(clean(k).split())
+    for e in rules()["exercises"].values():
+        for a in [e["name"]] + e["aliases"]:
+            kw.update(clean(a).split())
+    kw.update(w for p in rules().get("glossary", {}) for w in p.replace("_", " ").split())
+    rehab = frozenset(w for w in kw if w not in generic and (w not in spread or spread[w][0] <= 4)
+                      and len(w) >= 3 and w not in STOP)
+    return other, rehab
+
+
+def _off_domain(text: str) -> bool:
+    """A word of another domain ("transfer", "flight", "nfl") and none of rehabilitation (3.57)."""
+    other, rehab = _domain_words()
+    words = set(_plain(text).split()) | set(_plain(respell(text)).split()) | set(clean(text).split())
+    return bool(words & other) and not (words & rehab)
 
 
 def _recognised(plan_id: str | None, text: str, topics: bool = False) -> int:
@@ -1592,6 +1676,8 @@ def _recognised(plan_id: str | None, text: str, topics: bool = False) -> int:
 
 
 # Words before or after a question that carry no topic of their own (3.55).
+_LEADING_FILLER_RE = re.compile(r"^\s*(?:(?:ok|okay|sorry|hi|hello|hey|hai|hmm|erm|um|uh|oh|eh|doc|excuse me|"
+                                r"please|pls)\b[\s,.!?]*)+", re.IGNORECASE)
 LEADING_FILLERS = ["excuse me", "hi there", "hello there", "hi", "hello", "hey", "hai", "helo", "doc", "doctor",
                    "sorry", "erm", "erm,", "um", "uh", "hmm", "hm", "ok", "okay", "oh", "eh", "so", "and", "then",
                    "please", "pls", "plz", "assalamualaikum", "salam"]
@@ -1797,11 +1883,32 @@ def _safety_again(base: dict, kind: str, r: dict) -> dict:
             "matched_by": "follow_up", "follow_ups": [], "notes": [], "action": None}
 
 
+INVISIBLE_RE = re.compile("[\u200b\u200c\u200d\u200e\u200f\u2060\ufeff\u00ad]")
+MAX_TOPIC_CHARS = 1500
+
+
+# Code and markup (Big List of Naughty Strings, 20 Oct): SQL, shell, HTML/script tags, templates, paths.
+CODE_RE = re.compile(r"(?i)(\bdrop\s+table\b|\bselect\b.+\bfrom\b|\binsert\s+into\b|\bunion\s+select\b|"
+                     r"\bexec\s|\$\(|`[^`]*`|</?[a-z][^>]*>|\{\{|\{%|/etc/|/dev/|/tmp/|\brm\s+-rf\b|"
+                     r"\(\)\s*\{|\w+\.\w+\([^)]*\)|%[0-9a-f]{2}|;\s*--|\bjndi:)")
+# Links, e-mail addresses and @handles carry no question of their own.
+LINK_RE = re.compile(r"(?i)(https?://\S+|www\.\S+|\S+@\S+\.\S+|(?<!\w)@\w+|\b[\w-]+\.(com|org|net|my|io)\b\S*)")
+
+
+def _nothing_to_read(text: str) -> bool:
+    """No letters in any script and no emoji the rules read ("!@#$%", "12345", "???")."""
+    if any(ch.isalpha() for ch in text):
+        return False
+    return not any(e in text for e in EMOJI)
+
+
 def reply(plan_id: str | None, category: str | None, text: str | None,
           conditions: list[str] | None = None, limitations: list[str] | None = None,
           risk_level: str | None = None, local_time: tuple[int, int] | None = None,
           previous_category: str | None = None, restriction: str | None = None) -> dict:
     r = rules()
+    if text:
+        text = INVISIBLE_RE.sub("", text)                  # zero-width spaces and joiners (3.57)
     by_key = {i["key"]: i for i in intents_for(plan_id)}
     base = {"categories": _listing(categories_for(plan_id, restriction)), "rules_version": r["version"]}
     rest = r.get("restrictions", {}).get(restriction or "")
@@ -1829,6 +1936,12 @@ def reply(plan_id: str | None, category: str | None, text: str | None,
                 "is_matched": True, "matched_by": "red_flag", "follow_ups": [], "notes": [], "action": None}
 
     chosen, how = None, None
+    if text:
+        text = LINK_RE.sub(" ", text)                     # links and addresses are not the question (3.57)
+    if text and (_nothing_to_read(text) or CODE_RE.search(text)):
+        text = ""                                         # nothing to answer: "not recognised" below (3.57)
+    elif text and len(text) > MAX_TOPIC_CHARS:
+        text = text[:MAX_TOPIC_CHARS]
     # A short follow-up continues the previous answer (3.53); a safety answer is given again.
     if not category and previous_category and previous_category not in NO_CONTEXT and pure_follow_up(text):
         if previous_category in SAFETY_ANSWERS:

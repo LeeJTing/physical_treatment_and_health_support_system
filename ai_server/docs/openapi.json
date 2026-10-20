@@ -432,7 +432,7 @@
             "anyOf": [
               {
                 "type": "string",
-                "maxLength": 500
+                "maxLength": 6000
               },
               {
                 "type": "null"
