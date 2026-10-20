@@ -22,7 +22,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.64"
+VERSION = "chat-rules-3.65"
 
 NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
 
@@ -751,7 +751,10 @@ INTENTS = [
     intent("pain_sharp", "Sharp or worsening pain", 9,
            ["sharp", "stabbing", "shooting", "getting worse", "worse", "worsening", "sudden pain", "pain during",
             "can't move", "cannot move", "very painful", "really hurts", "unbearable", "won't go away", "not going away",
-            "every time", "keeps hurting"],
+            # 3.64: not "every time" alone ("do i have to log in every time i open the app").
+            "hurts every time", "hurt every time", "pain every time", "painful every time", "sakit every time",
+            "every time i bend", "every time i move", "every time i stand", "every time i walk",
+            "every time i lift", "every time i do it", "keeps hurting"],
            ["I get a sharp pain during the exercise", "the pain is getting worse"],
            "Stop the exercise that causes it and rest. Do not push through sharp or worsening pain. If it does "
            "not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist "

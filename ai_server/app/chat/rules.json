@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.64",
+  "version": "chat-rules-3.65",
   "not_recognised": "The question is not recognised, please try asking other question.",
   "intents": [
     {
@@ -3195,7 +3195,17 @@
         "unbearable",
         "won't go away",
         "not going away",
-        "every time",
+        "hurts every time",
+        "hurt every time",
+        "pain every time",
+        "painful every time",
+        "sakit every time",
+        "every time i bend",
+        "every time i move",
+        "every time i stand",
+        "every time i walk",
+        "every time i lift",
+        "every time i do it",
         "keeps hurting"
       ],
       "examples": [

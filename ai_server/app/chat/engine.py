@@ -1437,6 +1437,8 @@ def _phrase_mend(text: str | None, kind: str) -> str | None:
                     len(w) < 3 or w in dictionary() or abs(len(p) - len(w)) > 2
                     or typo_cost(w, p) > (1.0 if len(p) < 6 else 1.5)):
                 continue
+            if p in ("fell", "fall", "fallen") and typo_cost(w, "feel") <= typo_cost(w, p):
+                continue                                 # "i fele so lazy": feel, as in respell (3.64)
             start = i - k
             if start < 0 or start + len(ws) > len(words):
                 continue
