@@ -11,7 +11,6 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
-import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chat_reply.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chatbot_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
