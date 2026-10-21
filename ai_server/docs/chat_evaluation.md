@@ -1,4 +1,4 @@
-# Chatbot evaluation (chat-rules-4.07)
+# Chatbot evaluation (chat-rules-4.08)
 
 Every test set the chatbot is measured on, and its latest result. Each set is generated from templates or the question sets with a fixed seed, so a run can be repeated exactly (`.venv\Scripts\python <script>`, from `ai_server`). *Warning signs*: messages that must get an urgent answer (emergency, crisis, overdose, poisoning); missing one is the worst mistake. The server tests (`pytest -q`) guard each set with a smaller, unseen seed.
 
@@ -32,7 +32,7 @@ Every test set the chatbot is measured on, and its latest result. Each set is ge
 ## Messages it should not answer
 
 - Big List of Naughty Strings (odd text, code, emoji): 508/515 handled without a wrong topic.
-- Out-of-scope questions (CLINC150): 815/1100; questions of other domains (CLINC150): 2968/3270 not given a rehabilitation answer.
+- Out-of-scope questions (CLINC150): 816/1100; questions of other domains (CLINC150): 2968/3270 not given a rehabilitation answer.
 - Random noise: 1948/2000; questions with random characters added: 1995/2000 still answered the same.
 - False emergencies among all of these: 2. Errors: 0.
 

@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.07"
+VERSION = "chat-rules-4.08"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1822,7 +1822,9 @@ PATTERNS = {
               r"\bkeep waking up\b", r"\b(?:can't|cannot|don't|not) sleep(?:ing)? well\b",
               r"\btidur tak lena\b", r"\btak lena tidur\b"],
     "pins_needles": [r"\bnumb(?:ness)? (?:every night|every morning|on and off|comes and goes)\b"],
-    "language": [r"\b(?:change|switch) (?:the )?language\b", r"\b(?:other|another) language\b"],
+    "language": [r"\b(?:change|switch) (?:the )?language\b", r"\b(?:other|another) language\b",
+                 # 4.08: "i cannot speak english well", "tak boleh cakap inggeris" (no longer "can't speak", a stroke)
+                 r"\b(?:can't|cannot|don't|do not|not|tak|tidak) (?:boleh |can |pandai |reti |good at )?(?:speak|cakap|bercakap|faham|understand|read|baca)(?: in)? (?:english|inggeris|bahasa inggeris|malay|melayu)\b"],
     "fear_of_falling": [r"\b(?:keep|always|often) trip(?:ping)?\b", r"\btrip(?:ping)? (?:a lot|often|over things)\b"],
     "plan_reasons": [r"\b(?:give|gave|gives) me this plan\b",
                      r"\b(?:choose|chose|chooses|choosing|pick|picked|picks) (?:my|the|this) plan\b",
@@ -2068,6 +2070,41 @@ RED_FLAGS = [
     "dada rasa berat", "berat dada", "rasa berat di dada", "berat di dada", "dada kena tekan", "dada macam kena tekan",
     "dada rasa ditekan", "dada ditekan", "dada tertekan", "dada rasa tertekan", "tekanan di dada", "dada dihimpit",
     "dada rasa dihimpit", "sitting on my chest", "elephant on my chest", "weight on my chest",
+]
+# 4.08 (thirteenth probe): warning signs as Malay is spoken, and their English, were not urgent. Kept apart
+# ("red_flags_more"): the engine reads them as the others, but they are not counted in the other-domain weights
+# (build_domain_words), as their Malay words clean into everyday English ("tadi": now, "nak": want) and had let
+# "what is the weather doing now" through.
+RED_FLAGS_MORE = [
+    # a stroke (one side, speech)
+    # a stroke (one side, speech)
+    "muka senget", "muka senget sebelah", "senget sebelah", "sebelah badan tak boleh gerak", "sebelah badan lemah",
+    "sebelah badan kebas", "separuh badan lumpuh", "separuh badan tak boleh gerak", "badan sebelah lemah",
+    "tak boleh bercakap", "tak boleh cakap", "susah nak bercakap", "cakap tak jelas", "one side of my body",
+    "one side of the body", "one side of his body", "one side of her body", "half my body", "half of my body",
+    "can't speak", "cannot speak", "unable to speak", "suddenly can't talk", "suddenly cannot talk",
+    # breathing, lips
+    "nafas pendek", "tercungap cungap", "tercungap-cungap", "tak cukup nafas", "nafas berbunyi", "nafas berdehit",
+    "semput teruk", "lelah teruk", "bibir jadi biru", "bibir bertukar biru", "muka jadi biru",
+    # vision going dark, the room spinning
+    "pandangan gelap", "pandangan jadi gelap", "mata gelap", "mata jadi gelap", "dunia berpusing", "bilik berpusing",
+    # the heart, a cold sweat
+    "jantung rasa nak tercabut", "jantung macam nak tercabut", "jantung nak tercabut", "denyutan jantung tak teratur",
+    "degupan jantung tak teratur", "jantung tak teratur", "jantung berdegup kencang", "peluh sejuk", "berpeluh sejuk",
+    "cold sweat", "cold sweats",
+    # bleeding that does not stop
+    "berdarah banyak", "darah banyak keluar", "keluar darah banyak", "luka tak berhenti berdarah", "darah tak berhenti",
+    "berdarah tak berhenti", "tak berhenti berdarah",
+    # sudden confusion, not remembering what happened
+    "keliru tiba tiba", "tiba tiba keliru", "tak ingat apa jadi", "tak ingat apa yang berlaku", "tak ingat apa berlaku",
+    "can't remember what happened", "cannot remember what happened",
+    # the worst headache
+    "sakit kepala teruk sangat", "sakit kepala paling teruk", "sakit kepala yang teruk", "sakit kepala amat teruk",
+    "sakit kepala teruk tiba tiba",
+    # a fit now ("saya ada sawan", epilepsy, is the condition advice)
+    "kena sawan", "terkena sawan", "tengah sawan", "sedang sawan", "sawan tadi", "dapat sawan", "dia sawan",
+]
+RED_FLAGS += [                                           # the phrases from 3.85 on, as before
     # 3.85: as whole phrases too, so a slip in one word is mended ("felll and cannot get up"); the looser
     # checks find them typed right. (Not "can't get up from the floor": "...the floor exercise without help".)
     "fell and cannot get up", "fell and can't get up", "fell and cant get up", "fallen and cannot get up",
@@ -2348,7 +2385,10 @@ RED_FLAG_COMBOS = [
       "drooping", "droop", "heavy", "no feeling"], 5,
      ["since my stroke", "since the stroke", "after my stroke", "from my stroke", "old stroke", "for years",
       "years ago", "always", "stronger", "weaker than", "since birth", "for a long time", "exercise one side",
-      "one side at a time"]],
+      "one side at a time",
+      # 4.08: the same in Malay ("sebelah badan lemah sejak strok"; "angin ahmar" is cleaned "stroke")
+      "sejak strok", "lepas strok", "sejak kena strok", "sejak stroke", "lepas stroke", "dah lama", "sejak dulu",
+      "bertahun", "sejak lahir"]],
     # One side of the face drooping (stroke), in everyday words ("face one side drop").
     [["face", "mouth"], ["drop", "droop", "drooping", "dropping", "dropped", "crooked", "lopsided",
                          "one side"], 3],
@@ -2861,6 +2901,7 @@ def build() -> dict:
                             **{w: code for code, words in LISTED_NAMES.items() for w in words}},
         "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
+        "red_flags_more": RED_FLAGS_MORE,
         "crisis": CRISIS,
         "crisis_answer": CRISIS_ANSWER,
         "crisis_answer_other": CRISIS_ANSWER_OTHER,

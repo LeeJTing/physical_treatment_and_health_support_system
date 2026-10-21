@@ -345,13 +345,21 @@ def _restricted(key: str, rest: dict) -> bool:
 # Text handling
 # ---------------------------------------------------------------------------
 
+@lru_cache(maxsize=1)
+def _red_flag_phrases() -> tuple[str, ...]:
+    """The warning-sign phrases: the rules' "red_flags" and (4.08) "red_flags_more", the second kept out of the
+    other-domain weights. A tuple: callers that add to it copy it first."""
+    r = rules()
+    return tuple(r["red_flags"]) + tuple(r.get("red_flags_more", []))
+
+
 @lru_cache
 def vocabulary() -> tuple[str, ...]:
     r = rules()
     # Everyday words are real words, never "typos" of a rule keyword ("stick" is not "sick",
     # "information" is not "inflammation").
     words = set(STOP) | set(NEGATORS) | set(COMMON_WORDS)
-    phrases = list(r["red_flags"])
+    phrases = list(_red_flag_phrases())
     # The free-word emergency rules' words too (round 15: "prevent", an exception there, was "corrected"
     # to "parent", so "how to prevent pain after a fall" read as an emergency).
     for combo in r.get("red_flag_combos", []):
@@ -429,7 +437,7 @@ def _respell_vocab() -> frozenset:
     v = set(vocabulary()) | COMMON_MALAY | set(MALAY) | set(SYNONYMS) | set(CONTRACTIONS)
     for p in MALAY_PHRASES:
         v.update(p.split())
-    for p in rules()["red_flags"]:
+    for p in _red_flag_phrases():
         v.update(p.split())
     for p in rules().get("glossary", {}):                # posture mistake names (3.56)
         v.update(p.replace("_", " ").split())
@@ -955,7 +963,7 @@ def _dictionary_by_letter() -> dict:
 def _word_use() -> dict:
     """How often each word appears in the rules' keywords, example questions and warning signs."""
     count: dict[str, int] = {}
-    phrases = list(rules()["red_flags"]) + [p for i in rules()["intents"] for p in i["keywords"] + i["examples"]]
+    phrases = list(_red_flag_phrases()) + [p for i in rules()["intents"] for p in i["keywords"] + i["examples"]]
     phrases += [p.replace("_", " ") for p in rules().get("glossary", {})]
     for p in phrases:
         for w in clean(p).split():
@@ -1430,6 +1438,15 @@ CHRONIC = {"numb": ["years ago", "for years", "since the operation", "since my o
 CHRONIC["numbness"] = CHRONIC["numb"]
 for _p in ['cannot talk properly', "can't talk properly", 'cannot speak properly', "can't speak properly", 'cannot get my words out', "can't get my words out", 'cannot get the words out', "can't get the words out", 'words come out wrong', 'words are jumbled', 'talking funny', 'speech is strange']:
     CHRONIC[_p] = CHRONIC["numb"]                   # "cannot talk properly since my stroke" is not new
+# 4.08: the new stroke phrases, and lasting since a stroke in Malay too ("sebelah badan lemah sejak strok")
+CHRONIC["numb"] += ["sejak strok", "lepas strok", "sejak kena strok", "since stroke", "after my stroke",
+                    "after the stroke", "dah lama", "sejak dulu", "bertahun", "years ago"]
+for _p in ["one side of my body", "one side of the body", "one side of his body", "one side of her body", "half my body",
+           "half of my body", "can't speak", "cannot speak", "unable to speak", "sebelah badan tak boleh gerak",
+           "sebelah badan lemah", "sebelah badan kebas", "separuh badan lumpuh", "separuh badan tak boleh gerak",
+           "badan sebelah lemah", "tak boleh bercakap", "tak boleh cakap", "susah nak bercakap", "cakap tak jelas",
+           "muka senget", "muka senget sebelah", "senget sebelah"]:
+    CHRONIC[_p] = CHRONIC["numb"]
 CHRONIC["vomiting"] = CHRONIC["vomit"]
 
 
@@ -1873,7 +1890,7 @@ def _phrase_index(kind: str) -> dict:
     """{first letter: [(phrase words, position, word)]} for the words of 3+ letters of the crisis or
     warning-sign phrases of two or more words (the other words are the evidence: "pening" alone is not)."""
     index: dict[str, list] = {}
-    for p in rules().get("crisis" if kind == "crisis" else "red_flags", []):
+    for p in rules().get("crisis", []) if kind == "crisis" else _red_flag_phrases():
         # As typed ("peeat hidup" is penat), and as the message is read once cleaned ("penat hduup": "penat" is
         # read as "tired", 3.85).
         for ws in dict.fromkeys([tuple(p.split()), tuple(clean(p).split())]):
@@ -2006,6 +2023,11 @@ CALL_TO_GET_UP_RE = re.compile(r"\bhelp(?: me)?(?: i)? (?:can't|cannot|cant) get
                                r"\bhelp me get off the floor\b|\bplease (?:bangunkan|angkat) i\b")
 
 
+SPEAK_WORDS = {"speak", "talk", "bercakap", "cakap"}
+LANGUAGE_WORDS = {"english", "malay", "melayu", "chinese", "mandarin", "tamil", "bahasa", "inggeris", "cina", "language",
+                  "languages"}
+
+
 def _red_flag(text: str) -> bool:
     if _reading_flag(text):
         return True
@@ -2022,13 +2044,21 @@ def _red_flag(text: str) -> bool:
     clauses = _clauses(text)
     if _recent_fall(clauses):
         return True
-    for variant in {base, correct(base)}:
+    variants = {base, correct(base)}
+    if MALAY_MY_RE.search(text.lower()):
+        # 4.08: "muka saya senget sebelah" ("saya", my, after the noun) is "muka senget sebelah" too
+        variants.add(" ".join(w for k, w in enumerate(base.split()) if w != "i" or k == 0))
+    for variant in variants:
         words = variant.split()
-        for phrase in r["red_flags"]:
+        for phrase in _red_flag_phrases():
             for i in find_phrase(phrase, words):
                 before = set(words[max(0, i - 2):i])
                 if NEGATORS & before:
                     continue
+                n = len(clean(phrase).split())
+                if SPEAK_WORDS & (set(phrase.split()) | set(clean(phrase).split())) \
+                        and LANGUAGE_WORDS & set(words[i + n:i + n + 2]):
+                    continue                           # "i can't speak malay", "tak boleh cakap inggeris" (4.08)
                 if NEAR_MISS & before and any(w in phrase.split() for w in ACCIDENT_WORDS):
                     continue
                 if OLD_ACCIDENT_WORDS & set(phrase.split()):

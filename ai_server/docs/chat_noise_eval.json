@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.07",
+ "rules_version": "chat-rules-4.08",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1948,
@@ -8,7 +8,7 @@
  "noisy": 2000,
  "blns_ok": 508,
  "blns": 515,
- "oos_ok": 815,
+ "oos_ok": 816,
  "oos": 1100,
  "clinc_ok": 2968,
  "clinc": 3270,
@@ -17,7 +17,7 @@
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 3.406,
+ "slowest_reply_sec": 4.5,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",
@@ -161,7 +161,6 @@
   "oos/oos: 'what are the symptoms of cancer' -> diagnosis (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'how long is the school year' -> how_often (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: \"why doesn't english have consistent forms\" -> how_to (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'where are most the servicemen right now' -> best_time (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'why did we elect this woman who made amazon leave ' -> bot_identity (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'what does a flashing yellow light mean' -> recording_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'will the anti-vaxxers die off if no one gives them' -> text_size (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
@@ -218,7 +217,8 @@
   "oos/oos: 'tell me what my current eyeglasses prescription is' -> medication (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'show me examples of cute eyeglass frames' -> recording_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'show me the goals of my local police department in' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'what is the distance between the goal posts in foo' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
+  "oos/oos: 'what is the distance between the goal posts in foo' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
+  "oos/oos: 'remind me what my weight loss goals are' -> reminders_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
  ],
- "seconds": 488
+ "seconds": 743
 }

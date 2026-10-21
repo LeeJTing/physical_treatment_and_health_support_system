@@ -284,3 +284,30 @@ def test_chest_tightness_in_everyday_malay_and_mixed_questions():
                        ("exercise ni untuk apa", "plan_progress"), ("aplikasi ni untuk apa", "app_help"),
                        ("boleh buat masa period", "period")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
+def test_warning_signs_as_malay_is_spoken():
+    # 4.08 (thirteenth probe): 23 of 40 were not urgent
+    for text in ["muka saya senget sebelah", "sebelah badan tak boleh gerak", "tak boleh bercakap", "nafas pendek",
+                 "tercungap cungap", "bibir jadi biru", "pandangan gelap", "dunia berpusing",
+                 "jantung rasa nak tercabut", "denyutan jantung tak teratur", "peluh sejuk", "berdarah banyak",
+                 "luka tak berhenti berdarah", "keliru tiba tiba", "tak ingat apa jadi", "sakit kepala paling teruk",
+                 "one side of my body can't move", "i can't speak", "cold sweat", "i can't remember what happened"]:
+        assert engine.reply(PLAN, None, text)["category"] == "red_flag", text
+    for text, want in [("i can't speak malay", "language"), ("tak boleh cakap inggeris", "language"),
+                       ("saya ada sawan", "condition_advice")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    assert engine.reply(PLAN, None, "derma darah banyak kali")["category"] != "red_flag"
+
+
+def test_lasting_weakness_after_a_stroke_is_not_a_new_emergency():
+    # 4.08: told as lasting, in English and Malay; sudden stays urgent
+    for text in ["one side of my body is weaker since my stroke years ago, can i still do it",
+                 "sebelah badan lemah sejak strok", "sebelah badan lemah sejak angin ahmar"]:
+        assert engine.reply(PLAN, None, text)["category"] != "red_flag", text
+    for text in ["sebelah badan tiba tiba lemah", "one side of my body suddenly weak"]:
+        assert engine.reply(PLAN, None, text)["category"] == "red_flag", text
+    # the warning-sign phrases are not added to by other rules' words (a cached list once was)
+    from app.chat import engine as e
+    e.vocabulary()
+    assert engine.reply(PLAN, None, "what is the weather doing now")["category"] != "red_flag"
