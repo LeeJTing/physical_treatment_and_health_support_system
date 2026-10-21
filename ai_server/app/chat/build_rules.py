@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.04"
+VERSION = "chat-rules-4.05"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1722,6 +1722,14 @@ EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju ata
 EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung", "after fall", "after my fall"]
 EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
 EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+# 4.05 (tenth probe, Malay)
+for _k, _v in {"wrong_exercise": ["salah senaman", "senaman salah"],
+               "recording_help": ["letak telefon", "telefon letak", "letak phone", "phone letak"],
+               "how_to": ["rehat antara", "rehat antara ulangan", "rehat antara set", "lutut masuk ke dalam",
+                          "lutut masuk dalam"],
+               "plan_and_reminders": ["berhenti pelan", "berhenti plan", "henti pelan"],
+               "missed_session": ["terlupa senaman", "lupa senaman", "lupa buat senaman"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
 # 4.00: someone holding the phone
 EXTRA_KEYWORDS_374["recording_help"] += ["hold the phone", "holding the phone", "hold my phone", "pegang phone",
                                          "pegang telefon"]
@@ -2697,11 +2705,65 @@ TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion",
 
 
 
+# 4.05: each tip as a patient describes it in Malay (tenth probe: "dia kata lutut saya tak lurus", "saya condong ke
+# depan", "saya guna tangan masa bangun", "tangan saya tak sama tinggi" were not recognised). The English names
+# are matched as names (glossary); these are keywords. No "jatuh" (fall) in them: hips dropping is "turun".
+MISTAKE_KEYWORDS = {
+    "not_closed": ["tangan tak tutup", "tak genggam penuh", "genggam tak penuh"],
+    "arm_leg_low": ["tangan dan kaki rendah", "kaki dan tangan rendah"],
+    "back_arch": ["belakang melengkung", "pinggang melengkung"],
+    "back_sag": ["belakang melendut", "pinggang melendut", "pinggul senget"],
+    "bent_elbow": ["siku bengkok", "siku tak lurus"],
+    "bent_knee": ["lutut bengkok", "lutut tak lurus masa angkat kaki"],
+    "body_swing": ["badan berayun", "hayun badan", "goyang badan"],
+    "drop_down": ["turun terlalu cepat", "turun laju sangat", "turun tangga laju"],
+    "feet_far": ["kaki terlalu jauh", "kaki jauh sangat", "kaki jauh dari punggung"],
+    "feet_forward": ["kaki terlalu ke depan", "kaki ke depan sangat"],
+    "feet_not_in_line": ["kaki tak segaris", "kaki tak satu garisan", "kaki sebelah menyebelah"],
+    "hands_used": ["guna tangan masa bangun", "guna tangan untuk bangun", "tolak dengan tangan", "tolak kerusi",
+                   "pegang lutut masa bangun"],
+    "heels_lift": ["tumit terangkat", "tumit naik"],
+    "hips_back": ["punggung ke belakang", "tolak punggung ke belakang"],
+    "hips_sag": ["pinggul turun", "punggung turun", "punggung jatuh", "pinggul jatuh"],
+    "incomplete_extension": ["lutut tak lurus sepenuhnya", "kaki tak lurus sepenuhnya", "tak luruskan lutut"],
+    "incomplete_stand": ["tak berdiri tegak", "tak berdiri lurus", "tak bangun sepenuhnya"],
+    "fingers_not_spread": ["jari tak terbuka", "jari tak buka luas", "jari rapat"],
+    "head_tilt": ["kepala senget", "kepala condong"],
+    "knee_not_straight": ["lutut tak lurus", "lutut tidak lurus", "kaki tak lurus"],
+    "knees_bend": ["lutut bengkok masa jengket", "lutut bengkok bila naik"],
+    "leaning": ["bersandar pada kaunter", "condong ke tepi", "bersandar kat kaunter"],
+    "leaning_back": ["condong ke belakang", "sandar ke belakang"],
+    "leaning_forward": ["condong ke depan", "badan condong ke depan", "tunduk ke depan"],
+    "leg_forward": ["kaki ke depan bukan ke sisi", "kaki pergi ke depan"],
+    "low_hips": ["pinggul tak cukup tinggi", "punggung tak cukup tinggi"],
+    "low_knee_lift": ["lutut tak cukup tinggi", "lutut rendah sangat"],
+    "low_raise": ["tumit tak cukup tinggi", "jengket tak tinggi"],
+    "low_range": ["pergerakan tak cukup", "gerak tak cukup jauh"],
+    "no_arm_swing": ["tangan tak hayun", "tak hayun tangan"],
+    "no_forward_lean": ["tak condong ke depan", "tak bongkok ke depan"],
+    "no_hold": ["tak tahan di atas", "tak tahan sekejap", "tak berhenti di atas"],
+    "over_arch": ["punggung terlalu tinggi", "pinggul terlalu tinggi"],
+    "shoulder_shrug": ["bahu terangkat", "bahu naik", "angkat bahu"],
+    "slouching": ["duduk bongkok", "badan bongkok", "membongkok", "belakang bengkok"],
+    "stepping_out": ["terlangkah keluar", "kaki terkeluar", "terkeluar dari posisi"],
+    "swinging": ["hayun tangan laju", "angkat tangan laju"],
+    "thigh_lift": ["paha terangkat", "peha terangkat", "paha naik"],
+    "toes_up": ["jari kaki terangkat", "jari kaki ke atas", "jari kaki ke luar"],
+    "too_deep": ["cangkung terlalu dalam", "turun terlalu rendah"],
+    "trunk_forward": ["bongkok di pinggang", "badan tunduk"],
+    "trunk_lean": ["badan condong ke tepi", "badan senget"],
+    "uncontrolled_sit": ["duduk terlalu cepat", "duduk laju sangat", "hempas duduk"],
+    "uneven_arms": ["tangan tak sama tinggi", "tangan tak sama"],
+    "upper_arm_moves": ["lengan atas bergerak", "lengan tak rapat badan"],
+    "using_hands": ["tarik kaki dengan tangan", "guna tangan tarik kaki"],
+}
+
+
 def mistake_intents():
     out = []
     for label, (meaning, tip) in MISTAKE_MEANING.items():
         words = label.replace("_", " ")
-        out.append(intent(f"mistake:{label}", words.capitalize(), 6, [],
+        out.append(intent(f"mistake:{label}", words.capitalize(), 6, MISTAKE_KEYWORDS.get(label, []),
                           [f"what does {words} mean", f"the result said {words}"],
                           f"\u201c{words.capitalize()}\u201d in your posture result means {meaning}. {tip}", show=False,
                           action={"key": "open_history", "label": "See my results"}))

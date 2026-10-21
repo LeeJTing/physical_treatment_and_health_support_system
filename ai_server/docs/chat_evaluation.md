@@ -1,4 +1,4 @@
-# Chatbot evaluation (chat-rules-4.04)
+# Chatbot evaluation (chat-rules-4.05)
 
 Every test set the chatbot is measured on, and its latest result. Each set is generated from templates or the question sets with a fixed seed, so a run can be repeated exactly (`.venv\Scripts\python <script>`, from `ai_server`). *Warning signs*: messages that must get an urgent answer (emergency, crisis, overdose, poisoning); missing one is the worst mistake. The server tests (`pytest -q`) guard each set with a smaller, unseen seed.
 

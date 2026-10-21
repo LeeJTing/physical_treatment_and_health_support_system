@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.04",
+  "version": "chat-rules-4.05",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -125,7 +125,12 @@
         "langkah",
         "show how",
         "laju atau perlahan",
-        "perlahan atau laju"
+        "perlahan atau laju",
+        "rehat antara",
+        "rehat antara ulangan",
+        "rehat antara set",
+        "lutut masuk ke dalam",
+        "lutut masuk dalam"
       ],
       "examples": [
         "how do I do the exercises",
@@ -328,7 +333,10 @@
         "forget to exercise",
         "forget my exercises",
         "forgot my exercises",
-        "forget to do my exercises"
+        "forget to do my exercises",
+        "terlupa senaman",
+        "lupa senaman",
+        "lupa buat senaman"
       ],
       "examples": [
         "I missed my session yesterday",
@@ -1125,6 +1133,10 @@
         "kamera",
         "kamera tak nampak",
         "tak nampak saya",
+        "letak telefon",
+        "telefon letak",
+        "letak phone",
+        "phone letak",
         "hold the phone",
         "holding the phone",
         "hold my phone",
@@ -2969,7 +2981,9 @@
         "you were sitting",
         "you were standing",
         "you were lying down",
-        "legs moved one at a time"
+        "legs moved one at a time",
+        "salah senaman",
+        "senaman salah"
       ],
       "examples": [
         "it says this video does not look like the exercise",
@@ -3309,7 +3323,10 @@
         "pause my plan",
         "pause the plan",
         "pause plan",
-        "pause this plan"
+        "pause this plan",
+        "berhenti pelan",
+        "berhenti plan",
+        "henti pelan"
       ],
       "examples": [
         "how do I change my plan",
@@ -6209,7 +6226,11 @@
       "title": "Not closed",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tangan tak tutup",
+        "tak genggam penuh",
+        "genggam tak penuh"
+      ],
       "examples": [
         "what does not closed mean",
         "the result said not closed"
@@ -6231,7 +6252,10 @@
       "title": "Arm leg low",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tangan dan kaki rendah",
+        "kaki dan tangan rendah"
+      ],
       "examples": [
         "what does arm leg low mean",
         "the result said arm leg low"
@@ -6253,7 +6277,10 @@
       "title": "Back arch",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "belakang melengkung",
+        "pinggang melengkung"
+      ],
       "examples": [
         "what does back arch mean",
         "the result said back arch"
@@ -6275,7 +6302,11 @@
       "title": "Back sag",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "belakang melendut",
+        "pinggang melendut",
+        "pinggul senget"
+      ],
       "examples": [
         "what does back sag mean",
         "the result said back sag"
@@ -6297,7 +6328,10 @@
       "title": "Bent elbow",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "siku bengkok",
+        "siku tak lurus"
+      ],
       "examples": [
         "what does bent elbow mean",
         "the result said bent elbow"
@@ -6319,7 +6353,10 @@
       "title": "Bent knee",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "lutut bengkok",
+        "lutut tak lurus masa angkat kaki"
+      ],
       "examples": [
         "what does bent knee mean",
         "the result said bent knee"
@@ -6341,7 +6378,11 @@
       "title": "Body swing",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "badan berayun",
+        "hayun badan",
+        "goyang badan"
+      ],
       "examples": [
         "what does body swing mean",
         "the result said body swing"
@@ -6363,7 +6404,11 @@
       "title": "Drop down",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "turun terlalu cepat",
+        "turun laju sangat",
+        "turun tangga laju"
+      ],
       "examples": [
         "what does drop down mean",
         "the result said drop down"
@@ -6385,7 +6430,11 @@
       "title": "Feet far",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "kaki terlalu jauh",
+        "kaki jauh sangat",
+        "kaki jauh dari punggung"
+      ],
       "examples": [
         "what does feet far mean",
         "the result said feet far"
@@ -6407,7 +6456,10 @@
       "title": "Feet forward",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "kaki terlalu ke depan",
+        "kaki ke depan sangat"
+      ],
       "examples": [
         "what does feet forward mean",
         "the result said feet forward"
@@ -6429,7 +6481,11 @@
       "title": "Feet not in line",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "kaki tak segaris",
+        "kaki tak satu garisan",
+        "kaki sebelah menyebelah"
+      ],
       "examples": [
         "what does feet not in line mean",
         "the result said feet not in line"
@@ -6451,7 +6507,13 @@
       "title": "Hands used",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "guna tangan masa bangun",
+        "guna tangan untuk bangun",
+        "tolak dengan tangan",
+        "tolak kerusi",
+        "pegang lutut masa bangun"
+      ],
       "examples": [
         "what does hands used mean",
         "the result said hands used"
@@ -6473,7 +6535,10 @@
       "title": "Heels lift",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tumit terangkat",
+        "tumit naik"
+      ],
       "examples": [
         "what does heels lift mean",
         "the result said heels lift"
@@ -6495,7 +6560,10 @@
       "title": "Hips back",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "punggung ke belakang",
+        "tolak punggung ke belakang"
+      ],
       "examples": [
         "what does hips back mean",
         "the result said hips back"
@@ -6517,7 +6585,12 @@
       "title": "Hips sag",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "pinggul turun",
+        "punggung turun",
+        "punggung jatuh",
+        "pinggul jatuh"
+      ],
       "examples": [
         "what does hips sag mean",
         "the result said hips sag"
@@ -6539,7 +6612,11 @@
       "title": "Incomplete extension",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "lutut tak lurus sepenuhnya",
+        "kaki tak lurus sepenuhnya",
+        "tak luruskan lutut"
+      ],
       "examples": [
         "what does incomplete extension mean",
         "the result said incomplete extension"
@@ -6561,7 +6638,11 @@
       "title": "Incomplete stand",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tak berdiri tegak",
+        "tak berdiri lurus",
+        "tak bangun sepenuhnya"
+      ],
       "examples": [
         "what does incomplete stand mean",
         "the result said incomplete stand"
@@ -6583,7 +6664,11 @@
       "title": "Fingers not spread",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "jari tak terbuka",
+        "jari tak buka luas",
+        "jari rapat"
+      ],
       "examples": [
         "what does fingers not spread mean",
         "the result said fingers not spread"
@@ -6605,7 +6690,10 @@
       "title": "Head tilt",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "kepala senget",
+        "kepala condong"
+      ],
       "examples": [
         "what does head tilt mean",
         "the result said head tilt"
@@ -6627,7 +6715,11 @@
       "title": "Knee not straight",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "lutut tak lurus",
+        "lutut tidak lurus",
+        "kaki tak lurus"
+      ],
       "examples": [
         "what does knee not straight mean",
         "the result said knee not straight"
@@ -6649,7 +6741,10 @@
       "title": "Knees bend",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "lutut bengkok masa jengket",
+        "lutut bengkok bila naik"
+      ],
       "examples": [
         "what does knees bend mean",
         "the result said knees bend"
@@ -6671,7 +6766,11 @@
       "title": "Leaning",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "bersandar pada kaunter",
+        "condong ke tepi",
+        "bersandar kat kaunter"
+      ],
       "examples": [
         "what does leaning mean",
         "the result said leaning"
@@ -6693,7 +6792,10 @@
       "title": "Leaning back",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "condong ke belakang",
+        "sandar ke belakang"
+      ],
       "examples": [
         "what does leaning back mean",
         "the result said leaning back"
@@ -6715,7 +6817,11 @@
       "title": "Leaning forward",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "condong ke depan",
+        "badan condong ke depan",
+        "tunduk ke depan"
+      ],
       "examples": [
         "what does leaning forward mean",
         "the result said leaning forward"
@@ -6737,7 +6843,10 @@
       "title": "Leg forward",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "kaki ke depan bukan ke sisi",
+        "kaki pergi ke depan"
+      ],
       "examples": [
         "what does leg forward mean",
         "the result said leg forward"
@@ -6759,7 +6868,10 @@
       "title": "Low hips",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "pinggul tak cukup tinggi",
+        "punggung tak cukup tinggi"
+      ],
       "examples": [
         "what does low hips mean",
         "the result said low hips"
@@ -6781,7 +6893,10 @@
       "title": "Low knee lift",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "lutut tak cukup tinggi",
+        "lutut rendah sangat"
+      ],
       "examples": [
         "what does low knee lift mean",
         "the result said low knee lift"
@@ -6803,7 +6918,10 @@
       "title": "Low raise",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tumit tak cukup tinggi",
+        "jengket tak tinggi"
+      ],
       "examples": [
         "what does low raise mean",
         "the result said low raise"
@@ -6825,7 +6943,10 @@
       "title": "Low range",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "pergerakan tak cukup",
+        "gerak tak cukup jauh"
+      ],
       "examples": [
         "what does low range mean",
         "the result said low range"
@@ -6847,7 +6968,10 @@
       "title": "No arm swing",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tangan tak hayun",
+        "tak hayun tangan"
+      ],
       "examples": [
         "what does no arm swing mean",
         "the result said no arm swing"
@@ -6869,7 +6993,10 @@
       "title": "No forward lean",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tak condong ke depan",
+        "tak bongkok ke depan"
+      ],
       "examples": [
         "what does no forward lean mean",
         "the result said no forward lean"
@@ -6891,7 +7018,11 @@
       "title": "No hold",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tak tahan di atas",
+        "tak tahan sekejap",
+        "tak berhenti di atas"
+      ],
       "examples": [
         "what does no hold mean",
         "the result said no hold"
@@ -6913,7 +7044,10 @@
       "title": "Over arch",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "punggung terlalu tinggi",
+        "pinggul terlalu tinggi"
+      ],
       "examples": [
         "what does over arch mean",
         "the result said over arch"
@@ -6935,7 +7069,11 @@
       "title": "Shoulder shrug",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "bahu terangkat",
+        "bahu naik",
+        "angkat bahu"
+      ],
       "examples": [
         "what does shoulder shrug mean",
         "the result said shoulder shrug"
@@ -6957,7 +7095,12 @@
       "title": "Slouching",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "duduk bongkok",
+        "badan bongkok",
+        "membongkok",
+        "belakang bengkok"
+      ],
       "examples": [
         "what does slouching mean",
         "the result said slouching"
@@ -6979,7 +7122,11 @@
       "title": "Stepping out",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "terlangkah keluar",
+        "kaki terkeluar",
+        "terkeluar dari posisi"
+      ],
       "examples": [
         "what does stepping out mean",
         "the result said stepping out"
@@ -7001,7 +7148,10 @@
       "title": "Swinging",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "hayun tangan laju",
+        "angkat tangan laju"
+      ],
       "examples": [
         "what does swinging mean",
         "the result said swinging"
@@ -7023,7 +7173,11 @@
       "title": "Thigh lift",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "paha terangkat",
+        "peha terangkat",
+        "paha naik"
+      ],
       "examples": [
         "what does thigh lift mean",
         "the result said thigh lift"
@@ -7045,7 +7199,11 @@
       "title": "Toes up",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "jari kaki terangkat",
+        "jari kaki ke atas",
+        "jari kaki ke luar"
+      ],
       "examples": [
         "what does toes up mean",
         "the result said toes up"
@@ -7067,7 +7225,10 @@
       "title": "Too deep",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "cangkung terlalu dalam",
+        "turun terlalu rendah"
+      ],
       "examples": [
         "what does too deep mean",
         "the result said too deep"
@@ -7089,7 +7250,10 @@
       "title": "Trunk forward",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "bongkok di pinggang",
+        "badan tunduk"
+      ],
       "examples": [
         "what does trunk forward mean",
         "the result said trunk forward"
@@ -7111,7 +7275,10 @@
       "title": "Trunk lean",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "badan condong ke tepi",
+        "badan senget"
+      ],
       "examples": [
         "what does trunk lean mean",
         "the result said trunk lean"
@@ -7133,7 +7300,11 @@
       "title": "Uncontrolled sit",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "duduk terlalu cepat",
+        "duduk laju sangat",
+        "hempas duduk"
+      ],
       "examples": [
         "what does uncontrolled sit mean",
         "the result said uncontrolled sit"
@@ -7155,7 +7326,10 @@
       "title": "Uneven arms",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tangan tak sama tinggi",
+        "tangan tak sama"
+      ],
       "examples": [
         "what does uneven arms mean",
         "the result said uneven arms"
@@ -7177,7 +7351,10 @@
       "title": "Upper arm moves",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "lengan atas bergerak",
+        "lengan tak rapat badan"
+      ],
       "examples": [
         "what does upper arm moves mean",
         "the result said upper arm moves"
@@ -7199,7 +7376,10 @@
       "title": "Using hands",
       "show": false,
       "priority": 6,
-      "keywords": [],
+      "keywords": [
+        "tarik kaki dengan tangan",
+        "guna tangan tarik kaki"
+      ],
       "examples": [
         "what does using hands mean",
         "the result said using hands"

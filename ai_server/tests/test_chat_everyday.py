@@ -244,3 +244,19 @@ def test_every_exercise_by_its_malay_name():
                       ("cara berkawad di tempat", "march_in_place"), ("cara kawad sambil duduk", "seated_marching"),
                       ("cara angkat pergelangan tangan", "wrist_extension")]:
         assert engine.reply(PLAN, None, text)["category"] == "exercise:" + key, text
+
+
+def test_posture_tips_described_in_malay():
+    # 4.05 (tenth probe): the tips as a patient describes them in Malay, with "saya" after the noun
+    for text, want in [("dia kata lutut saya tak lurus", "mistake:knee_not_straight"),
+                       ("belakang saya bengkok masa senaman", "mistake:slouching"),
+                       ("dia kata saya condong ke depan", "mistake:leaning_forward"),
+                       ("saya guna tangan masa bangun", "mistake:hands_used"),
+                       ("tangan saya tak sama tinggi", "mistake:uneven_arms"),
+                       ("punggung saya jatuh masa jambatan", "mistake:hips_sag"),
+                       ("kenapa dia kata salah senaman", "wrong_exercise"),
+                       ("saya terlupa senaman semalam", "missed_session")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    # a fall stays a fall
+    for text in ["saya jatuh semalam", "punggung saya sakit sebab jatuh", "ayah saya jatuh"]:
+        assert engine.reply(PLAN, None, text)["category"] == "red_flag", text

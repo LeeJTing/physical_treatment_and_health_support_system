@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.04",
+ "rules_version": "chat-rules-4.05",
  "seed": 1,
  "messages": 2000,
  "questions": 510,
@@ -13,5 +13,5 @@
   "'okay this extra size is killing me haha' -> acknowledge (want ['None', 'difficulty']; from 'this exercise is killing me haha')",
   "'um this extra size is killing me haha' -> None (want ['None', 'difficulty']; from 'this exercise is killing me haha')"
  ],
- "seconds": 173
+ "seconds": 164
 }

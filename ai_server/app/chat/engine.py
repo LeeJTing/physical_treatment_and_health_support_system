@@ -278,6 +278,7 @@ def plan_intents(plan: dict) -> list[dict]:
                       "plan working", "exercise working", "exercises working", "working for me", "even working",
                       "really working", "actually working", "be stronger", "arms stronger", "legs stronger",
                       "get stronger", "finish the plan", "finish plan", "after finish", "after finishing",
+                      "pelan habis", "plan habis", "habis pelan",                     # (4.05)
                       # 4.03: "I feel much better now, can I stop the exercises?" was how to
                       "can i stop the exercises", "can i stop my exercises", "can i stop exercising",
                       "stop doing the exercises", "stop doing my exercises", "boleh berhenti senaman",
@@ -1321,7 +1322,10 @@ PREFER_UNLESS = [# 3.78: "a stitch in my side" is not a surgical wound's stitche
 
 
 # Phrases that look like a fall but are not one ("I fell asleep", "I have fallen behind").
-NOT_A_FALL = [("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behind", "behind"),
+NOT_A_FALL = [# 4.05: hips dropping in the bridge, "punggung saya jatuh" (cleaned: "punggung i fell")
+              ("punggung i fell", "hips dropped"), ("pinggul i fell", "hips dropped"),
+              ("punggung fell", "hips dropped"), ("pinggul fell", "hips dropped"),
+              ("fell asleep", "slept"), ("fallen asleep", "slept"), ("fell behind", "behind"),
               ("fallen behind", "behind"), ("falling behind", "behind"), ("fell in love", "loved"),
               ("fallen in love", "loved"), ("tripped the alarm", "set off the alarm"),
               ("tripped the switch", "set off the switch"), ("tripped the breaker", "set off the breaker"),
@@ -2062,11 +2066,18 @@ def _red_flag(text: str) -> bool:
     return False
 
 
+MALAY_MY_RE = re.compile(r"\b(?:saya|aku|sy|sya)\b")
+
+
 def keyword_match(text: str, intent: dict, corrected: bool = False) -> int:
     """Length in words of the longest keyword phrase found (0 = none). With corrected=True the
     spell-corrected text is used instead of the patient's exact words."""
     best = 0
     variants = [(correct(text) if corrected else clean(text)).split()]
+    if MALAY_MY_RE.search(text.lower()):
+        # 4.05: Malay puts "saya" (my) after the noun ("lutut saya tak lurus" is cleaned "knee i not lurus"): the
+        # words without it too, so "lutut tak lurus" is found
+        variants.append([w for k, w in enumerate(variants[0]) if w != "i" or k == 0])
     for kw in intent["keywords"]:
         n = len(clean(kw).split())
         if n <= best:
