@@ -1,14 +1,14 @@
 {
- "rules_version": "chat-rules-3.77",
+ "rules_version": "chat-rules-3.78",
  "seed": 1,
  "messages": 1935,
- "passed": 1838,
- "rate": 0.9499,
+ "passed": 1837,
+ "rate": 0.9494,
  "urgent": 385,
  "urgent_passed": 385,
  "by_kind": {
   "story": {
-   "passed": 914,
+   "passed": 913,
    "messages": 989
   },
   "two_questions": {
@@ -67,6 +67,7 @@
   "story: 'it rained the whole morning... who made this app' -> how_often (want ['app_help', 'bot_identity'])",
   "story: 'my daughter helped me set up the phone, so where to put my phone when recording' -> family_help (want ['recording_help'])",
   "story: 'i just finished my breakfast and then hello, good afternoon. I am 68 years old, I just had knee surgery three ' -> diet (want ['how_often'])",
+  "story: \"i have been at home all week lah, I'm not sure if my form is good\" -> None (want ['how_to'])",
   "story: 'my daughter helped me set up the phone, do i do all three exercises every session' -> family_help (want ['plan_exercises'])",
   "story: 'the neighbours were noisy last night and then is it safe for old people' -> best_time (want ['condition_advice', 'safety'])",
   "story: \"the weather is very hot today lah, why my progress didn't update\" -> hot_weather (want ['history_help', 'plan_progress', 'posture_result'])",
@@ -114,5 +115,5 @@
   "story: 'my daughter helped me set up the phone and then what is health connect' -> family_help (want ['health_connect'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 153
+ "seconds": 182
 }

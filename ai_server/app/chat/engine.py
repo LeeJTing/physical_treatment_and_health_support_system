@@ -529,8 +529,10 @@ def respell(text: str) -> str:
         sign = _sign_reading(was)
         if not sign or near[k] & SIGN_WORDS:
             continue
-        if mended[k] in known and typo_cost(was, mended[k]) < typo_cost(was, sign):
-            continue                                     # a closer word of the rules: "frint arm raise" is front
+        # A closer word of the rules wins ("frint arm raise" is front), but not over the symptom word's own
+        # letters scrambled ("chest pina" is pain, not "pins" of pins and needles, 3.78).
+        if mended[k] in known and typo_cost(was, mended[k]) < typo_cost(was, sign) and sorted(was) != sorted(sign):
+            continue
         if any(near[j] & SIGN_CONTEXT for j in range(max(0, k - 3), min(len(typed), k + 4)) if j != k):
             mended[k] = sign
     parts[1::2] = mended
@@ -917,7 +919,14 @@ ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could
                         "maybe", "how do i know", "what is wrong", "should i see"]
 DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
                   "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
-PREFER = [# 3.76: a situation named ("haze", "puasa", "my period", "after my operation") over a general topic.
+PREFER = [# 3.78: the kind of symptom over the general pain answer.
+          ("cramp", "pain_or_discomfort"), ("cramp", "pain_mild"), ("cramp", "tired"), ("cramp", "weakness_balance"),
+          ("pins_needles", "pain_or_discomfort"), ("pins_needles", "tired"), ("pins_needles", "weakness_balance"),
+          ("stiffness", "pain_or_discomfort"), ("stiffness", "pain_mild"), ("neck_not_covered", "stiffness"),
+          ("stitch", "pain_or_discomfort"), ("stitch", "pain_sharp"), ("muscle_strain", "pain_or_discomfort"),
+          ("muscle_strain", "diagnosis"), ("muscle_strain", "pain_sharp"), ("joint_noise", "pain_or_discomfort"),
+          ("condition_advice", "stiffness"),
+          # 3.76: a situation named ("haze", "puasa", "my period", "after my operation") over a general topic.
           ("haze", "pain_sharp"), ("haze", "pain_or_discomfort"), ("haze", "equipment"), ("haze", "other_activity"),
           ("haze", "hot_weather"), ("fasting", "best_time"), ("fasting", "diet"), ("fasting", "eating_concern"),
           ("weather", "tired"), ("weather", "equipment"), ("weather", "best_time"), ("travel", "missed_session"),
@@ -1015,7 +1024,10 @@ PREFER = [# 3.76: a situation named ("haze", "puasa", "my period", "after my ope
 PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "results", "marks", "accuracy", "percent"]),
              # 3.74: "how many calories should i eat" is food
              ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"])]
-PREFER_UNLESS = [# 3.75: "i have a slipped disc, can i exercise" is the condition; "is it a slipped disc" a diagnosis.
+PREFER_UNLESS = [# 3.78: "a stitch in my side" is not a surgical wound's stitches.
+                 ("stitch", "condition_advice", ["wound", "operation", "surgery", "dressing", "removed", "cut",
+                                                 "incision", "oozing", "bleeding"]),
+                 # 3.75: "i have a slipped disc, can i exercise" is the condition; "is it a slipped disc" a diagnosis.
                  ("low_mood", "diagnosis", ASKING_FOR_DIAGNOSIS), ("neck_not_covered", "diagnosis", ASKING_FOR_DIAGNOSIS),
                  # "my doctor said i have gout" is about gout; "my doctor said to rest" the doctor's advice.
                  ("condition_advice", "doctor_said", DOCTOR_SAID_TO), ("neck_not_covered", "doctor_said", DOCTOR_SAID_TO),

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.77",
+ "rules_version": "chat-rules-3.78",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1948,
@@ -8,16 +8,16 @@
  "noisy": 2000,
  "blns_ok": 508,
  "blns": 515,
- "oos_ok": 806,
+ "oos_ok": 807,
  "oos": 1100,
- "clinc_ok": 2937,
+ "clinc_ok": 2958,
  "clinc": 3270,
  "false_emergencies": [
   "oos: \"what do you do if you can't stop vomiting\" -> red_flag",
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 3.036,
+ "slowest_reply_sec": 3.68,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",
@@ -166,7 +166,6 @@
   "oos/oos: 'how long is the school year' -> how_often (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: \"why doesn't english have consistent forms\" -> how_to (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'where are most the servicemen right now' -> best_time (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'what films are in the running for best song at thi' -> recording_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'why did we elect this woman who made amazon leave ' -> bot_identity (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'what does a flashing yellow light mean' -> recording_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'will the anti-vaxxers die off if no one gives them' -> text_size (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
@@ -218,7 +217,8 @@
   "oos/oos: 'is there any news if my parents survived the crash' -> guardian_consent (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'find an article on celebrities who made it out of ' -> bot_identity (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'who is the hardest working man in hollywood' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: \"tell me amazon's choice for a set of 4 dinner plat\" -> diet (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
+  "oos/oos: \"tell me amazon's choice for a set of 4 dinner plat\" -> diet (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
+  "oos/oos: 'find out what the maximum memory size is that i ca' -> equipment (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
  ],
- "seconds": 446
+ "seconds": 461
 }

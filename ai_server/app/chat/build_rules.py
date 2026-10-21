@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.77"
+VERSION = "chat-rules-3.78"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -972,8 +972,7 @@ INTENTS = [
     intent("travel", "Travelling or on holiday", 6,
            ["travelling", "traveling", "going to travel", "will travel", "travel next", "travel overseas", "travel abroad", "on holiday",
             "go on holiday", "going on holiday", "school holiday", "family holiday", "vacation", "balik kampung", "outstation", "overseas", "abroad",
-            "long flight", "my flight", "flight tomorrow", "on a flight", "hotel room", "cuti sekolah", "bercuti",
-            "going away", "away from home"],
+            "long flight", "my flight", "flight tomorrow", "on a flight", "hotel room", "cuti sekolah", "bercuti"],
            ["I am travelling this week", "I will be on holiday next week"],
            "You can take your plan with you: the exercises need only a sturdy chair and a little space, so a hotel "
            "room or a relative's house is fine. "
@@ -1030,6 +1029,64 @@ INTENTS = [
            "water; carry on with your exercises the next day. "
            "After a vaccine: light exercise is fine if you feel well; with a fever or feeling unwell, rest until it "
            "passes, and go easy on a sore arm that day.", show=False),
+    # 3.78 (symptoms test, chat_symptoms_set.py): symptoms by their kind. Before: a cramp was the general pain
+    # answer, "muscle spasm in my back" and "pins and needles in my feet" were not recognised, "stitch in my
+    # side" was the surgical-wound advice (stitches), "pulled hamstring" was not recognised.
+    intent("cramp", "Cramp or muscle spasm", 7,
+           ["cramp", "cramps", "cramped", "cramping", "muscle cramp", "leg cramp", "calf cramp", "charley horse",
+            "spasm", "spasms", "muscle spasm", "back spasm", "back is locked", "locked back", "back locked",
+            "kejang", "kejang otot", "otot kejang", "kaki kejang"],
+           ["I got a cramp in my calf", "muscle spasm in my back"],
+           "A cramp is a muscle suddenly tightening: it hurts, but usually passes within a few minutes. "
+           "Stop and gently stretch the muscle: for a calf cramp, straighten your leg and pull your toes towards "
+           "you, or stand with that heel down and lean on a chair. "
+           "Rub the muscle, walk around once it eases, and drink some water. "
+           "For a back spasm, rest in a comfortable position with a warm pack, and move gently as soon as you can. "
+           "Cramps that keep coming back, or a calf that stays swollen, red or painful, need your doctor.",
+           show=False),
+    intent("pins_needles", "Pins and needles", 7,
+           ["pins and needles", "pin and needles", "tingling", "tingle", "tingles", "tingly", "semut semut",
+            "rasa semut", "kebas lepas duduk", "kebas bila duduk"]
+           + [f"{p} fell asleep" for p in ("foot", "feet", "leg", "legs", "thigh", "calf", "hamstring", "back", "arm",
+                                           "arms", "hand", "hands", "toes", "fingers", "bum", "buttock")],
+           ["pins and needles in my feet", "my foot fell asleep"],
+           "Pins and needles usually come from sitting, kneeling or lying in one position, and pass within a few "
+           "minutes once you move. "
+           "Change position and move the arm or leg gently before you carry on. "
+           "If it does not pass, keeps coming back, or you have diabetes, tell your doctor. "
+           "Sudden numbness or weakness on one side of the body, a drooping face or slurred speech needs 999 at "
+           "once.", show=False),
+    intent("stiffness", "Stiff joints or muscles", 7,
+           ["stiff", "stiffness", "morning stiffness", "stiff in the morning", "feel stiff", "feels stiff",
+            "joints are stiff", "stiff joints", "tight muscles", "muscles are tight", "muscles feel tight",
+            "feels tight", "kaku", "sendi kaku", "badan kaku", "rasa kaku"],
+           ["my joints are stiff in the morning", "my muscles feel tight"],
+           "Stiffness is common after rest, especially in the morning and with arthritis, and usually eases as you "
+           "move. "
+           "Loosen up first with a warm shower or a few minutes of gentle movement, then do your exercises slowly "
+           "through a comfortable range. "
+           "Morning stiffness that lasts more than an hour, with swollen or warm joints, is worth telling your "
+           "doctor.", show=False),
+    intent("stitch", "A stitch in your side", 6,
+           ["stitch in my side", "stitch in the side", "side stitch", "got a stitch", "a stitch when",
+            "a stitch during", "side ache", "senak", "stitch under my ribs"],
+           ["I get a stitch in my side when walking"],
+           "A stitch is a sharp pain under the ribs when you walk or breathe fast. "
+           "Slow down, breathe out slowly and press on the sore spot: it passes within a few minutes. "
+           "Avoid a big meal or a lot to drink just before exercising. "
+           "Pain in your chest, or pain with breathlessness, is different: stop and call 999.", show=False),
+    intent("muscle_strain", "A pulled or strained muscle", 7,
+           ["pulled hamstring", "pulled my hamstring", "pulled calf", "pulled my calf", "pulled a muscle",
+            "pulled muscle", "pulled my back", "strained muscle", "muscle strain", "strained my", "tweaked my",
+            "otot tertarik", "salah urat"],
+           ["I pulled a muscle", "I think I strained my calf"],
+           "A pulled (strained) muscle usually heals in a few days to a few weeks. "
+           "For the first 2 to 3 days, rest it from the movement that hurts, and use a cold pack wrapped in a cloth "
+           "for 15 minutes a few times a day. "
+           "Then move it gently within what is comfortable and build back up; keep exercising the rest of your "
+           "body. "
+           "See a doctor if you cannot walk or bear weight, there is a big bruise or swelling, or it is not better "
+           "after two weeks.", show=False),
     # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
     # word's meaning.
     intent("word_meaning", "What a word means", 6, [], [],
@@ -1533,6 +1590,12 @@ DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "s
 # 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
+    # 3.78: soreness the day after; a joint that locks or catches
+    "pain_mild": ["doms", "delayed onset muscle soreness", "sore the next day", "sore 2 days after", "sore two days after"],
+    "joint_noise": ["knee locks", "knee locking", "knee gets stuck", "knee catches", "joint locks", "joint locking",
+                    "knee locked"],
+    "app_problem": ["screen stuck", "screen gets stuck", "screen is stuck", "screen frozen", "screen froze",
+                    "stuck on the screen", "stuck on loading", "page stuck", "button not working"],
     "medication": DRUG_NAMES + DRUG_PHRASES,
     "condition_advice": [w for words, _ in UNLISTED_CONDITIONS.values() for w in words]
                         + [w for words in LISTED_NAMES.values() for w in words],
@@ -1856,6 +1919,11 @@ CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you 
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
+    # 3.78: sudden tingling, or tingling in the face, is a stroke sign ("sudden tingling in my face and arm" was
+    # pins and needles); pins and needles after sitting are not sudden.
+    [["sudden", "suddenly", "tiba tiba", "tiba-tiba"], ["tingling", "tingly", "tingle", "tingles", "pins and needles"],
+     6],
+    [["face", "muka", "lips", "tongue"], ["tingling", "tingly", "tingle", "tingles", "pins and needles"], 3],
     # 3.75: a blood clot with swelling, pain or breathlessness now ("i have a blood clot in my leg, it is
     # swollen and painful" was the swelling answer).
     [["blood clot", "clot", "dvt", "thrombosis"], ["swollen", "swelling", "bengkak", "painful", "calf pain",

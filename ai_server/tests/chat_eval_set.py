@@ -65,9 +65,9 @@ EVAL = [
     ("is it normal to be sore", "pain_or_discomfort"),
     ("my muscles ache", "pain_or_discomfort"),
     ("pain?", "pain_or_discomfort"),
-    ("my joints are very stiff in the morning", "pain_or_discomfort"),
+    ("my joints are very stiff in the morning", ("pain_or_discomfort", "stiffness")),   # 3.78: stiffness
     ("it's painful when I bend my knee", "pain_or_discomfort"),
-    ("got cramp in my leg", "pain_or_discomfort"),
+    ("got cramp in my leg", ("pain_or_discomfort", "cramp")),   # 3.78: cramp
     ("my knee pain lah, can exercise or not", "pain_or_discomfort"),
     ("the pain is sharp and getting worse", "pain_sharp"),
     ("I get a shooting pain when I lift my leg", "pain_sharp"),

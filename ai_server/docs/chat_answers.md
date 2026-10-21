@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.77)
+# Chatbot answers (chat-rules-3.78)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -107,6 +107,16 @@ Stop exercising now.
 2) Other new pain, dizziness or a fall: sit down, rest, and contact your doctor before exercising again.
 ```
 
+## A pulled or strained muscle  (`muscle_strain`)
+*I pulled a muscle*
+
+```
+A pulled (strained) muscle usually heals in a few days to a few weeks.
+1) For the first 2 to 3 days, rest it from the movement that hurts, and use a cold pack wrapped in a cloth for 15 minutes a few times a day.
+2) Then move it gently within what is comfortable and build back up; keep exercising the rest of your body.
+3) See a doctor if you cannot walk or bear weight, there is a big bruise or swelling, or it is not better after two weeks.
+```
+
 ## A reminder to log your health readings  (`health_log_reminder`)
 *can I get a reminder to log my blood pressure*
 
@@ -114,6 +124,16 @@ Stop exercising now.
 Yes.
 Open Reminders and tap “Remind me to log my health readings”: it reminds you every day at 8 pm to record your blood pressure, sugar or weight, and it is never skipped.
 Tap the time or the days to change them, switch it off for a while, or delete it with the bin button.
+```
+
+## A stitch in your side  (`stitch`)
+*I get a stitch in my side when walking*
+
+```
+A stitch is a sharp pain under the ribs when you walk or breathe fast.
+1) Slow down, breathe out slowly and press on the sore spot: it passes within a few minutes.
+2) Avoid a big meal or a lot to drink just before exercising.
+3) Pain in your chest, or pain with breathlessness, is different: stop and call 999.
 ```
 
 ## About the app  (`app_facts`)
@@ -309,6 +329,17 @@ Open AI-assisted planning and choose Retrieve physical treatment.
 Clicking or cracking without pain is common and usually harmless; it is often gas or a tendon moving over the joint.
 1) Carry on if it does not hurt.
 2) If it comes with pain, swelling, or the joint catching or locking, stop that movement and ask your doctor or physiotherapist.
+```
+
+## Cramp or muscle spasm  (`cramp`)
+*I got a cramp in my calf*
+
+```
+A cramp is a muscle suddenly tightening: it hurts, but usually passes within a few minutes.
+1) Stop and gently stretch the muscle: for a calf cramp, straighten your leg and pull your toes towards you, or stand with that heel down and lean on a chair.
+2) Rub the muscle, walk around once it eases, and drink some water.
+3) For a back spasm, rest in a comfortable position with a warm pack, and move gently as soon as you can.
+4) Cramps that keep coming back, or a calf that stays swollen, red or painful, need your doctor.
 ```
 
 ## Deleting your account  (`delete_account`)
@@ -1074,6 +1105,16 @@ The posture check saw you moving but not as far as a full repetition, so it coun
 That is a fine start, especially after a long rest: move a little further each session, only as far as is comfortable, and pause briefly back at the start of each one.
 ```
 
+## Pins and needles  (`pins_needles`)
+*pins and needles in my feet*
+
+```
+Pins and needles usually come from sitting, kneeling or lying in one position, and pass within a few minutes once you move.
+1) Change position and move the arm or leg gently before you carry on.
+2) If it does not pass, keeps coming back, or you have diabetes, tell your doctor.
+3) Sudden numbness or weakness on one side of the body, a drooping face or slurred speech needs 999 at once.
+```
+
 ## Progress and results  (`plan_progress`)
 *when will I see results*
 
@@ -1170,6 +1211,15 @@ Sorry if my answer was not clear. What can I help you with? Choose a topic below
 
 ```
 “Stepping out” in your posture result means you stepped out of position during the hold. If you wobble, step out or hold the counter: that is the safe thing to do. With practice you will hold it for longer.
+```
+
+## Stiff joints or muscles  (`stiffness`)
+*my joints are stiff in the morning*
+
+```
+Stiffness is common after rest, especially in the morning and with arthritis, and usually eases as you move.
+1) Loosen up first with a warm shower or a few minutes of gentle movement, then do your exercises slowly through a comfortable range.
+2) Morning stiffness that lasts more than an hour, with swollen or warm joints, is worth telling your doctor.
 ```
 
 ## Swelling, redness or heat  (`pain_swelling`)

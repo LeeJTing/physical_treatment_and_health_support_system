@@ -23,7 +23,7 @@ ROUND9 = [
     (KNEE, "my doctor said no squats", "doctor_said"),
     (KNEE, "can do exercise after eat or not", ("diet", "best_time")),
     (KNEE, "i feel giddy after exercise", ("red_flag", "safety", "tired")),
-    (KNEE, "my calf cramp during heel raise", ("pain_or_discomfort", "pain_mild", "exercise:heel_raise")),
+    (KNEE, "my calf cramp during heel raise", ("pain_or_discomfort", "pain_mild", "exercise:heel_raise", "cramp")),
     (KNEE, "how many sets per day", "how_often"),
     (KNEE, "the exercise too easy already", "difficulty"),
     (KNEE, "can i add weights", ("difficulty", "equipment")),
