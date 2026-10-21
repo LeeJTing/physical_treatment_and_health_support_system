@@ -1,9 +1,9 @@
 {
- "rules_version": "chat-rules-3.89",
+ "rules_version": "chat-rules-3.90",
  "seed": 1,
  "messages": 2000,
- "passed": 1984,
- "rate": 0.992,
+ "passed": 1990,
+ "rate": 0.995,
  "by_kind": {
   "activity": {
    "passed": 177,
@@ -22,7 +22,7 @@
    "messages": 173
   },
   "chit_chat": {
-   "passed": 160,
+   "passed": 165,
    "messages": 166
   },
   "emoji": {
@@ -30,7 +30,7 @@
    "messages": 163
   },
   "feelings": {
-   "passed": 164,
+   "passed": 165,
    "messages": 166
   },
   "food": {
@@ -55,12 +55,8 @@
   }
  },
  "misses": [
-  "chit_chat: 'how are youuu lah??' -> None (want ['how_are_you']; from 'how are you')",
-  "chit_chat: 'nice to meet youuuu lah?' -> thanks (want ['greeting']; from 'nice to meet you')",
-  "chit_chat: 'nice to meet youuuu lah' -> thanks (want ['greeting']; from 'nice to meet you')",
   "body_part: 'shouderrrr pls' -> exercise:shoulder_flexion (want ['None', 'body_map', 'clarify', 'pain_mild', 'pain_or_discomfort', 'pain_sharp']; from 'shoulder')",
   "food: 'HOW MUCH WAER LEH!' -> app_facts (want ['diet']; from 'how much water')",
-  "chit_chat: 'how are youuu huh...' -> None (want ['how_are_you']; from 'how are you')",
   "yes_no: 'noe huh??' -> None (want ['acknowledge', 'clarify', 'safety']; from 'nope')",
   "app_feature: 'Bigger txtttt??' -> None (want ['text_size']; from 'bigger text')",
   "time_alone: 'LATR AH...' -> best_time (want ['None', 'acknowledge', 'clarify']; from 'later')",
@@ -68,9 +64,7 @@
   "food: 'How much waer' -> app_facts (want ['diet']; from 'how much water')",
   "feelings: 'i fel down pls' -> red_flag (want ['low_mood']; from 'i feel down')",
   "chit_chat: 'have you eatn...' -> equipment (want ['greeting', 'how_are_you']; from 'have you eaten')",
-  "feelings: \"I'M SADD AH\" -> None (want ['low_mood']; from \"i'm sad\")",
-  "chit_chat: 'nice to meet youuuu pls' -> thanks (want ['greeting']; from 'nice to meet you')",
   "body_part: 'kneeeee ah?' -> diagnosis (want ['None', 'body_map', 'clarify', 'pain_mild', 'pain_or_discomfort', 'pain_sharp']; from 'knee')"
  ],
- "seconds": 122
+ "seconds": 139
 }

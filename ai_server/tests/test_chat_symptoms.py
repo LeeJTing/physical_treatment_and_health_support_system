@@ -51,6 +51,9 @@ def test_malay_chest_tightness_is_urgent():
                        ("felll and cannot get up", "red_flag"), ("peeat hidup!", "crisis"),
                        ("She fell last month, but it happened again today ah??", "red_flag")]:
         assert _got(text) == want, text
+    # 3.90: a doubled last letter is not read away when a warning-sign word is as near ("feell" is fell)
+    for text in ["help feell and cannotget up??", "feell today!!", "She feell agaun?", "i feell in the paast hour"]:
+        assert _got(text) == "red_flag", text
     for text in ["my chest stretch feels good", "head tilt", "sekolah anak saya"]:
         assert _got(text) not in ("crisis", "red_flag"), text
     for text in ["nak mat yoga", "dr said rest", "rumah saya jauh"]:

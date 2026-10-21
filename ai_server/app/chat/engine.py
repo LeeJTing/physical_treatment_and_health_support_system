@@ -47,7 +47,11 @@ def unstretch(w: str) -> str:
     if not re.search(r"(.)\1{2,}", w):
         return w
     one = re.sub(r"(.)\1{2,}", r"\1", w)
-    return one if one in SHORT_WORDS else re.sub(r"(.)\1{2,}", r"\1\1", w)
+    two = re.sub(r"(.)\1{2,}", r"\1\1", w)
+    for v in (two, one):                                 # the word it is: "goooood" good, "youuu" you (3.90)
+        if v in SHORT_WORDS or v in dictionary():
+            return v
+    return two
 NEGATORS = {"no", "not", "without", "never", "don't", "dont", "didn't", "didnt", "haven't", "havent", "isn't",
             "isnt", "wasn't", "wasnt", "nor"}
 # Everyday words mapped onto the words the rules use.
@@ -754,6 +758,9 @@ def _respell_words(token: str) -> str:
             continue
         if w in vocab or w in dictionary() or len(w) < 3 or not w.replace("'", "").isalpha():
             out.append(w)                                # a known or a real word is what was typed
+            continue
+        if len(w) >= 4 and w[-1] == w[-2] and (w[:-1] in FEELING_WORDS or w[:-1] in SAFETY_WORDS)                 and not any(OSA.distance(w, u) <= 1 for u in URGENT_WORDS if u != w[:-1]):
+            out.append(w[:-1])                           # "sadd", "painn" (3.90); not "feell": fell is as near
             continue
         likely = _likeliest(w)
         easy = likely is not None and typo_cost(w, likely) <= 0.8
@@ -2877,7 +2884,7 @@ VOICE_FIXES = [(re.compile(p), r) for p, r in [
     (r"\bstore (?=\d|so\b|is\b|mean|low|high|only)", "score "),
     (r"\b(shoulder|knee|hip|heel|soldier|exercise|exercises|elbow|wrist|squat|my last|average) store\b", r"\1 score"),
     (r"\b(?:pasture|poster)(?= (?:score|store|result|results|check|analysis|accuracy|is|was|feedback)\b)", "posture"),
-    (r"\b(my|the|this|a|new|tukar|your|current|which|what|that|one|both|another|each|core|knee|shoulder|hip|"
+    (r"\b(my|the|this|a|new|tukar|your|current|which|what|that|one|both|another|each|core|knee|shoulder|hip|different|"
      r"hand|balance|strength|rehab|treatment|exercise) (?:plane|plant)(s?)\b",
      r"\1 plan\2"),
     (r"\b(?:plane|plant)(?= (?:for|am i|is|was|says)\b)", "plan"),
@@ -2892,7 +2899,8 @@ VOICE_FIXES = [(re.compile(p), r) for p, r in [
     (r"\bsoldiers?(?= (?:pain|pane|hurt|hurts|raise|raises|abduction|flexion|exercise|is|ache|press)\b)", "shoulder"),
     (r"\bshould a(?= (?:pain|pane|raise|raises|hurts|exercise|shrug|store|score|abduction|flexion)\b)", "shoulder"),
     (r"\b(my|left|right|both|the|your) needs?(?= (?:hurts?|hertz|is|feels?|pain|pane|swollen|swells|gives|clicks|"
-     r"cracks|bends|aches|sore|still|keeps|very|so)\b)", r"\1 knee"),
+     r"cracks|bends|aches|sore|still|keeps|very|so|goes|go|better|in|cannot|can't|went)\b)", r"\1 knee"),
+    (r"\bhe'?ll (?:rays|raise|raises|race|races)\b", "heel raise"),
     (r"\b(my|the|chest|knee|back|neck|shoulder|hip|no|in|more|sharp|bad|any|much) pane\b", r"\1 pain"),
     (r"\b(what|lose|losing|my|body|lift|heavier|light|lighter|which|gained|gain|put on|lost|gaining) wait\b",
      r"\1 weight"),

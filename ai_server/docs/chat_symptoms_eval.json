@@ -1,16 +1,16 @@
 {
- "rules_version": "chat-rules-3.89",
+ "rules_version": "chat-rules-3.90",
  "seed": 1,
  "messages": 2000,
- "passed": 1992,
- "rate": 0.996,
+ "passed": 1994,
+ "rate": 0.997,
  "by_kind": {
   "cramp": {
    "passed": 275,
    "messages": 275
   },
   "doms": {
-   "passed": 264,
+   "passed": 266,
    "messages": 266
   },
   "locking": {
@@ -41,12 +41,10 @@
  "misses": [
   "stitch: 'sie stitch' -> condition_advice (want ['stitch'])",
   "pins_needles: 'Pns and needles in my back??' -> hot_weather (want ['pins_needles'])",
-  "doms: 'My muscles are sore the day afterrrr huh?' -> pain_or_discomfort (want ['pain_mild'])",
   "stitch: 'Side ahe when i march lah ?' -> exercise:seated_marching (want ['stitch'])",
   "muscle_strain: 'pulld my calf yesterday huh ?' -> medication (want ['muscle_strain'])",
   "pins_needles: 'Tingling in my tors!' -> diagnosis (want ['pins_needles'])",
-  "doms: 'my muscles are sore the day afterrrr ah?' -> pain_or_discomfort (want ['pain_mild'])",
   "stiffness: 'morning stiiffnessss lah' -> how_often (want ['stiffness'])"
  ],
- "seconds": 120
+ "seconds": 145
 }

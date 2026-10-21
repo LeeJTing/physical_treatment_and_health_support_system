@@ -76,6 +76,15 @@ def test_everyday_local_words_for_aches():
         assert engine.reply(PLAN, None, text)["category"] in want, text
 
 
+def test_stretched_words_and_sound_alikes():
+    # 3.90: "youuu" is you, "kneeeee" knee, "sadd" sad; voice: "a different plant", "my need goes", "he'll races"
+    for text, want in [("how are youuu lah??", "how_are_you"), ("nice to meet youuuu lah", "greeting"),
+                       ("I'M SADD AH", "low_mood"), ("i want to change to a different plant", "plan_and_reminders"),
+                       ("how to straighten my need in the exercise", "exercise:knee_extension"),
+                       ("okay how many times should i do he'll races", "exercise:heel_raise")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
 def test_what_a_word_means():
     # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
     for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),
