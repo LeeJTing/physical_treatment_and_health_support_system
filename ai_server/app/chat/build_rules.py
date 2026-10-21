@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.00"
+VERSION = "chat-rules-4.01"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1719,7 +1719,7 @@ EXTRA_KEYWORDS_374["surgery"] = EXTRA_KEYWORDS_374.get("surgery", []) + [
 EXTRA_KEYWORDS_374["plan_and_reminders"] = EXTRA_KEYWORDS_374.get("plan_and_reminders", []) + [
     "pause my plan", "pause the plan", "pause plan", "pause this plan"]
 EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju atau perlahan", "perlahan atau laju"]
-EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung"]
+EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung", "after fall", "after my fall"]
 EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
 EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
 # 4.00: someone holding the phone
@@ -1768,7 +1768,10 @@ PATTERNS = {
     "safety": [r"\bold(?:er)? (?:people|person|persons|adults?|folks)\b"],
     "other_activity": [r"\b(?:is|are) walking (?:good|enough|ok|okay|better)\b", r"\bwalking (?:is )?(?:good|enough)\b",
                        r"\b(?:go|going|went) (?:for )?(?:a )?walk(?:s|ing)?\b", r"\bwalk (?:every day|daily)\b",
-                       r"\b(?:morning|evening) walks?\b", r"\bwalk(?:ing)? instead\b"],
+                       r"\b(?:morning|evening) walks?\b", r"\bwalk(?:ing)? instead\b",
+                       # 4.01: "is it ok to walk", "walk safe or not" were not recognised
+                       r"\b(?:ok|okay|safe|good|fine|alright) (?:for me )?to (?:go )?(?:for a )?walk(?:ing)?\b",
+                       r"\bwalk(?:ing)? (?:is )?(?:ok|okay|safe|fine|alright)\b"],
     "app_facts": [r"\b(?:app|it) (?:is )?(?:approved|certified|legit|legitimate|verified)\b",
                   r"\b(?:approved|certified|verified|made) by (?:a )?doctors?\b", r"\b(?:doctor|medically) approved\b"],
     "ice_heat": [r"\b(?:put|apply|use|using|putting) (?:an? |some )?(?:ice|heat|hot pack|cold pack|heat pack|ice pack)\b",
@@ -1812,6 +1815,8 @@ PATTERNS = {
     "pain_swelling": [r"\b(?:knee|joint|ankle|hip|elbow|wrist|shoulder)s? (?:is |are |feels? |feel |getting |gets )?(?:very |so )?(?:warm|hot)\b"],
     "app_problem": [r"\banaly[sz](?:is|ing|e)\b.{0,20}\b(?:long|slow|forever|stuck|taking)\b",
                     r"\bphone (?:gets |is |getting |becomes |goes )?(?:very |so |too )?(?:hot|warm|overheat|overheating|panas)\b"],
+    # 4.01: "why only 20 min" (the daily limit) was how often; also typed "why olby 20 min"
+    "safety_limits": [r"\bwhy (?:\w{2,6} )?\d+ ?(?:min|mins|minutes)\b"],
     # 3.99: "i don't want to exercise today" was the plan's exercises ("exercises today")
     "motivation": [r"\b(?:don't|do not|not|never) (?:really )?(?:want|feel like) (?:to )?(?:do (?:my |the |any )?)?exercis"],
     "posture_result": [r"\bscore (?:changed|went down|dropped|is different|different|lower|went up)\b",

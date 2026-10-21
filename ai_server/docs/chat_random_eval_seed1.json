@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-4.00",
+ "rules_version": "chat-rules-4.01",
  "seed": 1,
  "messages": 10000,
- "passed": 9855,
- "rate": 0.9855,
+ "passed": 9862,
+ "rate": 0.9862,
  "by_kind": {
   "written": {
-   "passed": 2998,
+   "passed": 3002,
    "messages": 3055
   },
   "mistakes": {
@@ -18,7 +18,7 @@
    "messages": 628
   },
   "short": {
-   "passed": 2554,
+   "passed": 2557,
    "messages": 2605
   },
   "red_flags": {
@@ -39,7 +39,7 @@
   }
  },
  "commonest_misses": [
-  "('plan_progress',) -> plan_exercises: 7",
+  "('plan_progress',) -> plan_exercises: 4",
   "('reminder_late_or_off',) -> reminders_help: 3",
   "('crisis', 'red_flag') -> None: 3",
   "('condition_advice',) -> best_time: 2",
@@ -58,7 +58,6 @@
   "('multiple_plans',) -> None: 2",
   "('video_quality',) -> recording_help: 2",
   "('best_time',) -> how_to: 2",
-  "('family_help',) -> None: 2",
   "('multiple_plans',) -> medication: 1",
   "('app_help', 'getting_started') -> plan_exercises: 1",
   "('terms_help',) -> None: 1",
@@ -78,7 +77,8 @@
   "('mistake:no_arm_swing',) -> plan_progress: 1",
   "('plan_exercises',) -> exercise:sit_to_stand: 1",
   "('greeting',) -> pardon: 1",
-  "('app_help',) -> None: 1"
+  "('app_help',) -> None: 1",
+  "('mistake:back_sag',) -> plan_progress: 1"
  ],
  "misses": [
   {
@@ -555,22 +555,6 @@
      19,
      30
     ]
-   }
-  },
-  {
-   "text": "whaat happens after finish plan",
-   "want": [
-    "plan_progress"
-   ],
-   "got": "plan_exercises",
-   "seed_question": "what happens after I finish the plan",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
    }
   },
   {
@@ -1096,25 +1080,6 @@
    }
   },
   {
-   "text": "why olby 20 min ?",
-   "want": [
-    "safety_limits"
-   ],
-   "got": "how_often",
-   "seed_question": "why only 20 min",
-   "context": {
-    "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "DIABETES",
-     "HYPERTENSION"
-    ],
-    "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
    "text": "How close wall stand??",
    "want": [
     "exercise:wall_push_up"
@@ -1167,24 +1132,6 @@
      5,
      45
     ]
-   }
-  },
-  {
-   "text": "hello what happens after finish plan",
-   "want": [
-    "plan_progress"
-   ],
-   "got": "plan_exercises",
-   "seed_question": "what happens after I finish the plan",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "ARTHRITIS"
-    ],
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -2108,25 +2055,6 @@
    }
   },
   {
-   "text": "can family hep!",
-   "want": [
-    "family_help"
-   ],
-   "got": null,
-   "seed_question": "can family help",
-   "context": {
-    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS",
-     "PREGNANCY"
-    ],
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "Wjat plan",
    "want": [
     "plan_progress"
@@ -2234,22 +2162,6 @@
      10,
      15
     ]
-   }
-  },
-  {
-   "text": "Hello what happens after finish plan?",
-   "want": [
-    "plan_progress"
-   ],
-   "got": "plan_exercises",
-   "seed_question": "what happens after I finish the plan",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
    }
   },
   {
@@ -2375,22 +2287,6 @@
      21,
      45
     ]
-   }
-  },
-  {
-   "text": "can family hep ya...",
-   "want": [
-    "family_help"
-   ],
-   "got": null,
-   "seed_question": "can family help",
-   "context": {
-    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
    }
   },
   {
@@ -2640,24 +2536,6 @@
    "context": {
     "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
     "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Wat tdy ?",
-   "want": [
-    "getting_started",
-    "plan_exercises",
-    "treatment_nav"
-   ],
-   "got": "weather",
-   "seed_question": "what should i do today",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "treatment_nav",
     "restriction": null,
     "conditions": null,
     "risk_level": null,

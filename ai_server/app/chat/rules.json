@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.00",
+  "version": "chat-rules-4.01",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -2189,7 +2189,9 @@
         "nervous about falling",
         "anxious i will fall",
         "tersadung",
-        "selalu tersadung"
+        "selalu tersadung",
+        "after fall",
+        "after my fall"
       ],
       "examples": [
         "I am scared I will fall",
@@ -2679,7 +2681,9 @@
         "\\b(?:go|going|went) (?:for )?(?:a )?walk(?:s|ing)?\\b",
         "\\bwalk (?:every day|daily)\\b",
         "\\b(?:morning|evening) walks?\\b",
-        "\\bwalk(?:ing)? instead\\b"
+        "\\bwalk(?:ing)? instead\\b",
+        "\\b(?:ok|okay|safe|good|fine|alright) (?:for me )?to (?:go )?(?:for a )?walk(?:ing)?\\b",
+        "\\bwalk(?:ing)? (?:is )?(?:ok|okay|safe|fine|alright)\\b"
       ],
       "time_aware": false
     },
@@ -5978,6 +5982,9 @@
         "label": "Open my profile"
       },
       "more_actions": [],
+      "patterns": [
+        "\\bwhy (?:\\w{2,6} )?\\d+ ?(?:min|mins|minutes)\\b"
+      ],
       "time_aware": false
     },
     {

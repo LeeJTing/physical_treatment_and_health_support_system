@@ -262,7 +262,10 @@ def plan_intents(plan: dict) -> list[dict]:
                       "this plan", "exercise list", "list of exercises", "what order", "which order", "first exercise",
                       "next exercise", "how many reps", "how many repetitions", "repetitions", "reps", "sets",
                       "every session", "each session", "all the exercises", "all exercises", "all three",
-                      "comes first", "which first", "which one first", "order"] + _area_keywords(plan["plan_name"]),
+                      "comes first", "which first", "which one first", "order",
+                      # 4.01: "what today" was the weather (a loose likeness to "it is raining today")
+                      "what today", "what to do today", "what do today", "do what today", "buat apa hari ni",
+                      "apa hari ni"] + _area_keywords(plan["plan_name"]),
          "examples": ["what exercises are in my plan", "which exercise do I do first", "how many repetitions",
                       "what is in this plan"],
          "answer": f"Your plan, {plan['plan_name']}, has {len(plan['exercises'])} exercises, done in this order:\n"
@@ -274,7 +277,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "when will", "getting better", "get better", "is it working", "is this working", "it working",
                       "plan working", "exercise working", "exercises working", "working for me", "even working",
                       "really working", "actually working", "be stronger", "arms stronger", "legs stronger",
-                      "get stronger", "finish the plan",
+                      "get stronger", "finish the plan", "finish plan", "after finish", "after finishing",
+                      "finished plan", "complete plan", "habis plan",
                       "finished the plan", "complete the plan", "after this plan", "next plan", "recover", "recovery",
                       "is it helping", "plan helping", "helping me", "help me recover", "effective", "worth it", "making a difference", "any difference",
                       "fix", "cure", "heal", "do for me", "purpose", "aim", "goal", "benefit", "benefits",
@@ -1238,7 +1242,10 @@ PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "resul
              # 3.91: "now 2am cannot sleep, can i exercise" asks about exercising now (rest, it is late)
              ("best_time", "sleep", ["exercise", "exercises", "exercising", "senaman", "senam", "workout"]),
              # 4.00: "should i wear tight clothes for recording" is what to wear, not tightness
-             ("video_quality", "pain_or_discomfort", ["clothes", "clothing", "shirt", "pants", "trousers", "wear"])]
+             ("video_quality", "pain_or_discomfort", ["clothes", "clothing", "shirt", "pants", "trousers", "wear"]),
+             # 4.01: "walking ok after fall?" is about the fall
+             ("fear_of_falling", "other_activity", ["fall", "fell", "fallen", "falling", "jatuh"]),
+             ("fear_of_falling", "safety", ["after fall", "after a fall", "after falling", "after my fall"])]
 # 3.98: an operation told as the story before "how often should I exercise" (round 8: "...I just had knee surgery
 # three months ago and my physiotherapist recommended this app. I want to know how often I should exercise."), but
 # not "how often after my surgery".
@@ -3131,8 +3138,9 @@ def _manglish(text: str) -> str:
     for pattern, english in MANGLISH:
         m = pattern.match(low)
         words = [w for w in re.findall(r"[a-z']+", m.group("x"))] if m else []
-        if not [w for w in words if w not in _PARTICLE_FILLERS and w not in ("lor", "meh", "hor", "one")]:
-            continue                                     # "how ah lah", "how ah ?": nothing but particles
+        if not [w for w in words if w not in _PARTICLE_FILLERS and w not in ("lor", "meh", "hor", "one")
+                and w not in PURE_FILLERS and w not in ("hi", "hello", "hey", "hai", "boss", "doc", "doctor")]:
+            continue                                     # "how ah lah"; "hi safe or not?" (not "is it ok to hi", 4.01)
         if m and m.group("x").strip(" ,") and m.group("x").split()[-1] not in (
                 "cannot", "can", "not", "i", "really", "just", "still", "also", "already", "me", "you"):
             if english == "can i {x}" and m.group("x").split()[-1] in ("ok", "okay", "safe"):
@@ -3188,7 +3196,9 @@ VOICE_FIXES = [(re.compile(p), r) for p, r in [
     (r"\bglue bridge\b", "glute bridge"), (r"\bflection\b", "flexion"),
     (r"\b(my|your|the|on) tows\b", r"\1 toes"), (r"\b(heel to) tow\b", r"\1 toe"),
     (r"\b(so|very|just|feel|feels|feeling|i'm|im|am|too|always|really) tied\b", r"\1 tired"),
-    (r"\bhep\b", "hip"), (r"\bsquads\b", "squats"), (r"\bsquad\b", "squat"),
+    (r"\b(my|the|left|right|both|her|his) hep\b", r"\1 hip"),
+    (r"\bhep (replacement|surgery|operation|pain|joint|bone|fracture|abduction|hurts?|is|area)\b", r"hip \1"),
+    (r"\bsquads\b", "squats"), (r"\bsquad\b", "squat"),
     (r"\b(can't|cant|cannot|hard to|unable to|to|short of|hardly|barely|not|i|should i|while i|can) breed\b",
      r"\1 breathe"),
     (r"\brist\b", "wrist"), (r"\bfizzy oh\b", "physio"), (r"\broute in\b", "routine"), (r"\blefting\b", "lifting"),

@@ -213,3 +213,13 @@ def test_the_posture_check_and_recording():
         assert engine.reply(PLAN, None, text)["category"] == want, text
     for text in ["my vision is blurry", "everything is blurry"]:
         assert engine.reply(PLAN, None, text)["category"] == "red_flag", text
+
+
+def test_short_forms_and_manglish_of_the_random_test():
+    # 4.01: the random typing test's commonest misses
+    for text, want in [("can family hep!", "family_help"), ("hi safe or not?", "safety"),
+                       ("What today lah", "plan_exercises"), ("hello what happens after finish plan", "plan_progress"),
+                       ("why olby 20 min ?", "safety_limits"), ("walk safe or not", "other_activity"),
+                       ("is it ok to walk", "other_activity")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    assert engine.reply(PLAN, None, "my hep hurts")["category"] != "family_help"

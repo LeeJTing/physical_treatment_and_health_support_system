@@ -1,16 +1,16 @@
 {
- "rules_version": "chat-rules-4.00",
+ "rules_version": "chat-rules-4.01",
  "seed": 2,
  "messages": 10000,
- "passed": 9867,
- "rate": 0.9867,
+ "passed": 9874,
+ "rate": 0.9874,
  "by_kind": {
   "restricted": {
    "passed": 646,
    "messages": 651
   },
   "short": {
-   "passed": 2434,
+   "passed": 2439,
    "messages": 2490
   },
   "follow": {
@@ -22,7 +22,7 @@
    "messages": 860
   },
   "written": {
-   "passed": 3044,
+   "passed": 3046,
    "messages": 3092
   },
   "conditions": {
@@ -48,21 +48,17 @@
   "('fear_of_falling',) -> safety: 2",
   "('medication',) -> None: 2",
   "('condition_advice',) -> pain_or_discomfort: 2",
-  "('getting_started', 'plan_exercises', 'treatment_nav') -> weather: 2",
   "('best_time',) -> condition_advice: 2",
   "('forgot_password',) -> None: 2",
   "('mistake:heels_lift',) -> plan_progress: 2",
   "('exercise:wall_push_up',) -> equipment: 2",
-  "('family_help',) -> None: 2",
   "('plan_exercises',) -> how_to: 2",
   "('privacy_data',) -> recording_help: 2",
   "('multiple_plans',) -> plan_exercises: 2",
   "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 2",
   "('bot_identity',) -> None: 2",
   "('acknowledge',) -> None: 2",
-  "('safety_limits',) -> how_often: 2",
   "('bot_identity',) -> how_are_you: 2",
-  "('safety_limits',) -> None: 1",
   "('tired',) -> acknowledge: 1",
   "('doctor_clearance',) -> plan_exercises: 1",
   "('exercise:hand_open_close',) -> verification_code: 1",
@@ -78,30 +74,13 @@
   "('app_facts',) -> bot_identity: 1",
   "('guide_animation',) -> None: 1",
   "('other_activity', 'weakness_balance') -> equipment: 1",
-  "('exercise:tandem_stance',) -> how_often: 1"
+  "('exercise:tandem_stance',) -> how_often: 1",
+  "('motivation',) -> None: 1",
+  "('condition_advice',) -> family_help: 1",
+  "('diagnosis',) -> None: 1",
+  "('mistake:low_knee_lift',) -> None: 1"
  ],
  "misses": [
-  {
-   "text": "Why oly 20min ?",
-   "want": [
-    "safety_limits"
-   ],
-   "got": null,
-   "seed_question": "why only 20 min",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:upper_arm_moves",
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION"
-    ],
-    "risk_level": null,
-    "local_time": [
-     11,
-     30
-    ]
-   }
-  },
   {
    "text": "dlrte acc",
    "want": [
@@ -550,27 +529,6 @@
    }
   },
   {
-   "text": "What today lah",
-   "want": [
-    "getting_started",
-    "plan_exercises",
-    "treatment_nav"
-   ],
-   "got": "weather",
-   "seed_question": "what should i do today",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": [
-     15,
-     15
-    ]
-   }
-  },
-  {
    "text": "how long for taem stance",
    "want": [
     "exercise:tandem_stance"
@@ -979,24 +937,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "hi safe or not?",
-   "want": [
-    "safety"
-   ],
-   "got": "greeting",
-   "seed_question": "safe or not",
-   "context": {
-    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "STROKE"
-    ],
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -1796,25 +1736,6 @@
    }
   },
   {
-   "text": "WHY ONY 20 MIN!",
-   "want": [
-    "safety_limits"
-   ],
-   "got": "how_often",
-   "seed_question": "why only 20 min",
-   "context": {
-    "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
-    "previous_category": "mistake:back_sag",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     6,
-     30
-    ]
-   }
-  },
-  {
    "text": "where edit weight!!",
    "want": [
     "profile_help"
@@ -1882,22 +1803,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "Can familly hep!",
-   "want": [
-    "family_help"
-   ],
-   "got": null,
-   "seed_question": "can family help",
-   "context": {
-    "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -1988,22 +1893,6 @@
      11,
      30
     ]
-   }
-  },
-  {
-   "text": "why oly 20 min!",
-   "want": [
-    "safety_limits"
-   ],
-   "got": "how_often",
-   "seed_question": "why only 20 min",
-   "context": {
-    "plan_id": null,
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
    }
   },
   {
@@ -2340,26 +2229,6 @@
      0,
      15
     ]
-   }
-  },
-  {
-   "text": "wat tdy!!",
-   "want": [
-    "getting_started",
-    "plan_exercises",
-    "treatment_nav"
-   ],
-   "got": "weather",
-   "seed_question": "what should i do today",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS"
-    ],
-    "risk_level": "High",
-    "local_time": null
    }
   },
   {
