@@ -1,0 +1,25 @@
+{
+ "rules_version": "chat-rules-3.77",
+ "seed": 1,
+ "messages": 2000,
+ "passed": 2000,
+ "rate": 1.0,
+ "urgent": 512,
+ "urgent_passed": 512,
+ "by_kind": {
+  "mention": {
+   "passed": 980,
+   "messages": 980
+  },
+  "normal": {
+   "passed": 508,
+   "messages": 508
+  },
+  "too_many": {
+   "passed": 512,
+   "messages": 512
+  }
+ },
+ "misses": [],
+ "seconds": 29
+}

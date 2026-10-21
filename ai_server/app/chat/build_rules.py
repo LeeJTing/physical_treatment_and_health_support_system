@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.76"
+VERSION = "chat-rules-3.77"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1511,9 +1511,29 @@ CONDITION_CLOSING_OTHER = ("This condition is not on the health profile's list: 
                            "before you start.")
 
 
+# 3.77 (medicines test, chat_medicines_set.py): medicines by the names people in Malaysia take them under,
+# generic and brand. They are the medicines answer's keywords (still "ask your doctor or pharmacist") and
+# count as medicine for the overdose check ("i took 30 amlodipine" was not recognised; overdoses 205/512).
+DRUG_NAMES = """aspirin cardiprin ibuprofen nurofen brufen naproxen diclofenac voltaren arcoxia etoricoxib celebrex
+celecoxib ponstan mefenamic tramadol codeine morphine gabapentin pregabalin lyrica neurontin
+metformin glucophage gliclazide diamicron sitagliptin januvia empagliflozin jardiance dapagliflozin
+forxiga lantus mixtard novorapid amlodipine norvasc losartan cozaar perindopril coversyl lisinopril
+enalapril hydrochlorothiazide bisoprolol atenolol metoprolol propranolol nifedipine frusemide
+furosemide lasix spironolactone diuretic diuretics statin statins atorvastatin lipitor simvastatin
+rosuvastatin crestor clopidogrel plavix rivaroxaban xarelto apixaban eliquis dabigatran isosorbide
+digoxin nitroglycerin prednisolone prednisone dexamethasone steroid steroids cortisone ventolin
+salbutamol seretide symbicort thyroxine levothyroxine euthyrox carbimazole allopurinol colchicine
+alendronate fosamax zolpidem stilnox diazepam valium antidepressant antidepressants sertraline
+fluoxetine escitalopram amitriptyline levodopa madopar sinemet jamu""".split()
+DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "sleeping pill", "sleeping pills",
+                "tongkat ali", "ubat tradisional", "ubat kampung", "chinese medicine", "herbal medicine",
+                "calcium tablets", "vitamin d", "steroid injection"]
+
+
 # 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
+    "medication": DRUG_NAMES + DRUG_PHRASES,
     "condition_advice": [w for words, _ in UNLISTED_CONDITIONS.values() for w in words]
                         + [w for words in LISTED_NAMES.values() for w in words],
     "neck_not_covered": ["whiplash"],
@@ -2275,6 +2295,8 @@ TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion",
                 "range of movement": "range of motion"}
 
 
+
+
 def mistake_intents():
     out = []
     for label, (meaning, tip) in MISTAKE_MEANING.items():
@@ -2340,6 +2362,7 @@ def build() -> dict:
         | {k: layout(text) for k, (_, text) in UNLISTED_CONDITIONS.items()},
         "condition_closing": CONDITION_CLOSING,
         "condition_closing_other": CONDITION_CLOSING_OTHER,
+        "drug_names": DRUG_NAMES,
         "unlisted_conditions": sorted(UNLISTED_CONDITIONS),
         "condition_words": {**{w: code for code, (words, _) in UNLISTED_CONDITIONS.items() for w in words},
                             **{w: code for code, words in LISTED_NAMES.items() for w in words}},

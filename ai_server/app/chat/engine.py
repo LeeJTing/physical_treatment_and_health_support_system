@@ -1470,8 +1470,15 @@ POISON_ANSWER = ("Swallowing a cleaning product, pesticide or other chemical is 
                  "Befrienders KL 03-7627 2929 (24 hours) or Talian HEAL 15555 (8 am to midnight).")
 
 
+@lru_cache(maxsize=1)
+def _drug_names() -> frozenset:
+    """Medicines by name (3.77: "amlodipine", "metformin", "arcoxia"), from the rules."""
+    return frozenset(rules().get("drug_names", []))
+
+
 def _is_medicine(w: str) -> bool:
-    return w in OD_SUBSTANCES or w.startswith("pill") or w.startswith("tablet") or w.startswith("painkiller")
+    return w in OD_SUBSTANCES or w in _drug_names() or w.startswith("pill") or w.startswith("tablet") \
+        or w.startswith("painkiller")
 
 
 def _counts_medicine(words: list[str], j: int, stop: int) -> bool:

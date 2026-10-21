@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.76",
+ "rules_version": "chat-rules-3.77",
  "seed": 1,
  "messages": 2000,
  "questions": 510,
@@ -18,5 +18,5 @@
   "'Uh my need goes inwards when i stand up.' -> None (want ['exercise:sit_to_stand', 'how_to']; from 'my knee goes inwards when i stand up')",
   "'uh my need goes inwards when i stand up' -> None (want ['exercise:sit_to_stand', 'how_to']; from 'my knee goes inwards when i stand up')"
  ],
- "seconds": 116
+ "seconds": 130
 }
