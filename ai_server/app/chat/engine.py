@@ -2175,6 +2175,35 @@ def _question_after_story(text: str) -> str | None:
     return last
 
 
+# 3.88 (compound test): a scene told first, then the point ("the weather is very hot today, i missed 2 weeks
+# because i was in hospital", "my daughter helped me set up the phone, how is my risk calculated", "i just
+# finished my breakfast, so thank you doctor"): the later part's own topic is answered. The scene stays when the
+# later part is about it (hot weather and jogging; "can she do it"). {scene: topics that keep the scene}
+SCENES = {"hot_weather": {"safety", "best_time", "other_activity", "how_to", "how_often", "equipment", "difficulty",
+                          "weather"},
+          "weather": {"safety", "best_time", "other_activity", "how_to", "how_often", "equipment", "difficulty",
+                      "hot_weather"},
+          "family_help": {"for_someone_else"}, "for_someone_else": {"family_help"},
+          "diet": {"best_time", "eating_concern", "calories"}}
+THIRD_PERSON = {"she", "he", "her", "him", "his", "they", "them", "their", "dia"}
+
+
+def _point_after_scene(plan_id: str | None, text: str, scene: dict) -> tuple[dict | None, str | None] | None:
+    parts = [p.strip() for p in STORY_BREAK.split(text.lower()) if len(p.split()) >= 2]
+    if len(parts) < 2:
+        return None
+    for part in reversed(parts[1:]):
+        c, h = _match_whole(plan_id, part)
+        if c is None or (c.get("small_talk") and c["key"] not in ("thanks", "goodbye")) or c["key"] == "acknowledge":
+            continue
+        if c["key"] == scene["key"] or c["key"] in SCENES[scene["key"]]:
+            return None                                  # the later part is about the scene too
+        if scene["key"] == "for_someone_else" and THIRD_PERSON & set(part.split()):
+            return None                                  # "...can she do this": still about her
+        return c, h
+    return None
+
+
 # 3.72: "what is abduction", "what does flexion mean", "range of motion means?", "apa maksud BMI".
 DEFINITION_RE = re.compile(r"^(?:what(?:'s| is| are| does| do)?|whats|define|meaning of|apa itu|apa maksud|maksud|"
                            r"what is the meaning of|what do you mean by|what does it mean by)\s+(?:a |an |the )?"
@@ -2272,6 +2301,10 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         if meaning is not None:
             return meaning, "definition"                 # "what does flexion mean" (3.72)
     chosen, how = _match_whole(plan_id, text)
+    if chosen is not None and chosen["key"] in SCENES:
+        point = _point_after_scene(plan_id, text, chosen)
+        if point is not None:
+            return point                                 # the point after a scene (3.88)
     mine = _as_if_mine(text) if chosen is None or chosen["key"] not in KEEP_FOR_OTHERS else None
     if mine:
         c2, h2 = _match_whole(plan_id, mine)
@@ -2478,7 +2511,10 @@ OFF_DOMAIN_STRONG_SCORE = 5.0
 # one is never shut out by the word weights.
 # 3.80: phrases that tie a message to this chatbot ("going on vacation, what about my plan").
 ANCHOR_PHRASES = ("my plan", "my plans", "this plan", "the plan", "my treatment", "my exercises", "my exercise",
-                  "the exercises", "my physio", "my physiotherapist", "pelan saya")
+                  "the exercises", "my physio", "my physiotherapist", "pelan saya",
+                  # 3.88: hot weather is this chatbot's topic too ("the weather is very hot today")
+                  "very hot today", "so hot today", "weather is very hot", "weather is so hot", "weather is hot",
+                  "hot weather", "cuaca panas")
 ANCHOR_WORDS = frozenset({"exercise", "exercises", "exercising", "senaman", "bersenam", "physio",
                           "physiotherapy", "physiotherapist", "rehab", "rehabilitation", "posture", "reps",
                           "repetitions", "workout", "stretch", "stretching", "app", "reminder", "reminders"})

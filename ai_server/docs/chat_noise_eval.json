@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.87",
+ "rules_version": "chat-rules-3.88",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1948,
@@ -17,7 +17,7 @@
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 4.76,
+ "slowest_reply_sec": 3.73,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",
@@ -220,5 +220,5 @@
   "oos/oos: 'remind me what my weight loss goals are' -> reminders_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'please book another boat for this weekends trip' -> reminders_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
  ],
- "seconds": 519
+ "seconds": 483
 }

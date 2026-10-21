@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.87",
+ "rules_version": "chat-rules-3.88",
  "seed": 1,
  "messages": 2000,
  "questions": 179,
@@ -13,5 +13,5 @@
   "'all 3 exercises today feeling good done already!' -> plan_exercises (want ['acknowledge', 'how_often']; from 'i did all 3 exercises today feeling good')",
   "'all exercises what now done already?' -> getting_started (want ['plan_and_reminders', 'plan_progress']; from 'i finished all exercises what now')"
  ],
- "seconds": 111
+ "seconds": 118
 }

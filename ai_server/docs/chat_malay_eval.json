@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.87",
+ "rules_version": "chat-rules-3.88",
  "seed": 1,
  "messages": 2000,
  "questions": 246,
@@ -25,5 +25,5 @@
   "'suddenly mk swngetlah...' -> None (want ['crisis', 'red_flag']; from 'suddenly muka senget')",
   "'tkt jthalh' -> None (want ['fear_of_falling']; from 'takut jatuh')"
  ],
- "seconds": 126
+ "seconds": 137
 }

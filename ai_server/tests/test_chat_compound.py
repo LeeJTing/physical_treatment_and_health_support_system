@@ -31,3 +31,17 @@ def test_old_or_settled_falls_split_off_are_not_urgent():
         assert engine.reply(PLAN, None, text)["category"] != "red_flag", text
     assert engine.reply(PLAN, None, "my son bought me a new phone. anyway my eyesight is blurry suddenly")["category"] \
         == "red_flag"
+
+
+def test_the_point_after_a_scene():
+    # 3.88: a scene told first ("the weather is very hot today", "my daughter helped me set up the phone"), then
+    # the point; the scene stays when the point is about it.
+    from app.chat import engine as e
+    plan = "88c1e725-4b64-5689-a70d-47d37b2fcd7e"
+    for text, want in [("the weather is very hot today, I missed 2 weeks because I was in hospital", "missed_session"),
+                       ("my daughter helped me set up the phone, how is my risk calculated", "risk_level"),
+                       ("i just finished my breakfast, so thank you doctor", "thanks"),
+                       ("the weather is very hot today, can i exercise outside", "hot_weather"),
+                       ("my mother wants to use the app, can she do these exercises", "for_someone_else"),
+                       ("the weather is very hot today", "hot_weather")]:
+        assert e.reply(plan, None, text)["category"] == want, text
