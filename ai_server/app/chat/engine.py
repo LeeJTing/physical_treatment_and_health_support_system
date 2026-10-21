@@ -278,6 +278,9 @@ def plan_intents(plan: dict) -> list[dict]:
                       "plan working", "exercise working", "exercises working", "working for me", "even working",
                       "really working", "actually working", "be stronger", "arms stronger", "legs stronger",
                       "get stronger", "finish the plan", "finish plan", "after finish", "after finishing",
+                      # 4.03: "I feel much better now, can I stop the exercises?" was how to
+                      "can i stop the exercises", "can i stop my exercises", "can i stop exercising",
+                      "stop doing the exercises", "stop doing my exercises", "boleh berhenti senaman",
                       "finished plan", "complete plan", "habis plan",
                       "finished the plan", "complete the plan", "after this plan", "next plan", "recover", "recovery",
                       "is it helping", "plan helping", "helping me", "help me recover", "effective", "worth it", "making a difference", "any difference",
@@ -1232,7 +1235,7 @@ PREFER = [# 3.91: sleeping badly is not the best time to exercise; "how much pro
           ("family_help", "bot_identity"), ("muscle_loss", "weakness_balance"), ("bladder_leak", "pain_mild"),
           ("bladder_leak", "pain_or_discomfort"), ("plan_and_reminders", "plan_exercises"),
           ("plan_and_reminders", "pain_or_discomfort"), ("google_setup", "account_help"),
-          ("app_help", "condition_advice"), ("fear_of_falling", "pain_or_discomfort"),
+          ("fear_of_falling", "pain_or_discomfort"),
           ("privacy_data", "how_often"), ("health_log_reminder", "condition_advice"),
           ("health_log_reminder", "reminders_help"), ("eating_concern", "diet"), ("fear_of_falling", "safety"),
           ("safety", "posture_result"), ("hot_weather", "treatment_nav"), ("change_password", "forgot_password"),
@@ -1255,14 +1258,20 @@ PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "resul
              ("video_quality", "pain_or_discomfort", ["clothes", "clothing", "shirt", "pants", "trousers", "wear"]),
              # 4.01: "walking ok after fall?" is about the fall
              ("fear_of_falling", "other_activity", ["fall", "fell", "fallen", "falling", "jatuh"]),
-             ("fear_of_falling", "safety", ["after fall", "after a fall", "after falling", "after my fall"])]
+             ("fear_of_falling", "safety", ["after fall", "after a fall", "after falling", "after my fall"]),
+             # 4.03: "I have diabetes, can I use this app?" (the other way round in PREFER_UNLESS_398)
+             ("condition_advice", "app_help", ["can i use", "can i still use", "able to use", "suitable", "boleh guna"])]
 # 3.98: an operation told as the story before "how often should I exercise" (round 8: "...I just had knee surgery
 # three months ago and my physiotherapist recommended this app. I want to know how often I should exercise."), but
 # not "how often after my surgery".
 AFTER_OPERATION = ["after surgery", "after my surgery", "after the surgery", "after operation", "after my operation",
                    "after the operation", "after knee surgery", "after hip surgery", "after my knee surgery",
                    "after my hip surgery", "post op", "lepas bedah", "lepas pembedahan", "selepas pembedahan"]
-PREFER_UNLESS_398 = [("how_often", "surgery", AFTER_OPERATION), ("best_time", "surgery", AFTER_OPERATION)]
+PREFER_UNLESS_398 = [("how_often", "surgery", AFTER_OPERATION), ("best_time", "surgery", AFTER_OPERATION),
+                     # 4.03 (was unconditional, 3.55): "I had a stroke last year, can I use this app?" asks whether it
+                     # suits the condition
+                     ("app_help", "condition_advice", ["can i use", "can i still use", "able to use", "suitable",
+                                                      "boleh guna"])]
 PREFER_UNLESS = [# 3.78: "a stitch in my side" is not a surgical wound's stitches.
                  ("stitch", "condition_advice", ["wound", "operation", "surgery", "dressing", "removed", "cut",
                                                  "incision", "oozing", "bleeding"]),

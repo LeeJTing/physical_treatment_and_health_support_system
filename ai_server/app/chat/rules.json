@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.02",
+  "version": "chat-rules-4.03",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -1364,7 +1364,14 @@
         "susah guna",
         "susah nak guna",
         "sukar guna",
-        "sukar digunakan"
+        "sukar digunakan",
+        "macam mana nak guna",
+        "tak tahu nak guna",
+        "cara guna",
+        "cara nak guna",
+        "tak reti guna",
+        "tak pandai guna",
+        "pasang aplikasi"
       ],
       "examples": [
         "how does this app work",

@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.02"
+VERSION = "chat-rules-4.03"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1733,7 +1733,10 @@ for _k, _v in {"low_mood": ["sunyi", "rasa sunyi", "kesunyian", "keseorangan", "
                                 "proud of myself"],
                "reminder_late_or_off": ["peringatan tak keluar", "notifikasi tak keluar", "notification tak keluar",
                                         "peringatan tak masuk", "tak dapat peringatan", "tak terima peringatan"],
-               "app_help": ["susah guna", "susah nak guna", "sukar guna", "sukar digunakan"],
+               "app_help": ["susah guna", "susah nak guna", "sukar guna", "sukar digunakan",
+                            # 4.03: "anak saya yang pasang aplikasi ini, saya tak tahu macam mana nak guna"
+                            "macam mana nak guna", "tak tahu nak guna", "cara guna", "cara nak guna", "tak reti guna",
+                            "tak pandai guna", "pasang aplikasi"],
                "pardon": ["tak faham", "tidak faham", "tak paham", "x faham", "kurang faham", "tak fhm"],
                "goodbye": ["selamat malam", "selamat tidur", "jumpa lagi"],
                "account_help": ["telefon baru", "handphone baru", "tukar phone"]}.items():

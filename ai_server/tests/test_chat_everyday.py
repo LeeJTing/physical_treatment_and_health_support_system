@@ -223,3 +223,13 @@ def test_short_forms_and_manglish_of_the_random_test():
                        ("is it ok to walk", "other_activity")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
     assert engine.reply(PLAN, None, "my hep hurts")["category"] != "family_help"
+
+
+def test_long_polite_messages():
+    # 4.03 (eighth probe)
+    for text, want in [("Hello, my name is Ahmad, I am 58 years old, I had a stroke last year, can I use this app?",
+                        "condition_advice"), ("i have diabetes can i use this app", "condition_advice"),
+                       ("I feel much better now, can I stop the exercises?", "plan_progress"),
+                       ("Anak saya yang pasang aplikasi ini, saya tak tahu macam mana nak guna.", "app_help"),
+                       ("how to use app, i have diabetes", "app_help")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text

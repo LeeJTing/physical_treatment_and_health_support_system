@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.02",
+ "rules_version": "chat-rules-4.03",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1948,
@@ -17,7 +17,7 @@
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 4.22,
+ "slowest_reply_sec": 4.255,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",
@@ -220,5 +220,5 @@
   "oos/oos: 'show me the goals of my local police department in' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'what is the distance between the goal posts in foo' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
  ],
- "seconds": 675
+ "seconds": 691
 }
