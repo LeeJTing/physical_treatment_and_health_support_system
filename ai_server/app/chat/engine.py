@@ -1005,7 +1005,7 @@ ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could
 DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
                   "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
 PREFER = [# 3.91: sleeping badly is not the best time to exercise; "how much protein" is not the app's price.
-          ("sleep", "tired"), ("diet", "app_facts"), ("difficulty", "how_often"),
+          ("sleep", "tired"), ("diet", "app_facts"), ("difficulty", "how_often"), ("sleep", "posture_result"),
           ("low_mood", "bot_identity"),
           # 3.86: "fever today, exercise?" is about the fever, not today's exercise.
           ("tired", "treatment_nav"),

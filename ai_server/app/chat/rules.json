@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.94",
+  "version": "chat-rules-3.95",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -2399,7 +2399,11 @@
         "improve my mood",
         "mood better",
         "exercise for depression",
-        "exercise and mood"
+        "exercise and mood",
+        "mental health",
+        "kesihatan mental",
+        "my mental",
+        "emotional health"
       ],
       "examples": [
         "I feel sad",

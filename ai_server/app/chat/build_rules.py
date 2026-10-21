@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.94"
+VERSION = "chat-rules-3.95"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1606,7 +1606,9 @@ DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "s
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
     # 3.91: mood, belly fat, doing more than the plan
-    "low_mood": ["help my mood", "improve my mood", "mood better", "exercise for depression", "exercise and mood"],
+    "low_mood": ["help my mood", "improve my mood", "mood better", "exercise for depression", "exercise and mood",
+                 # 3.95: "how can i get help for my mental health" was about the assistant
+                 "mental health", "kesihatan mental", "my mental", "emotional health"],
     "calories": ["belly fat", "lose fat", "tummy fat", "perut buncit", "lose belly"],
     "difficulty": ["more than my plan", "more than the plan", "do extra", "extra exercises", "add more exercises"],
     # 3.87: an upset stomach is feeling unwell (skip and rest); "anxious about falling" is the fear of falling
