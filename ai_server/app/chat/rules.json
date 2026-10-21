@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.05",
+  "version": "chat-rules-4.06",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -1611,7 +1611,13 @@
         "health conditions",
         "my limitations",
         "bmi",
-        "body mass index"
+        "body mass index",
+        "tukar berat badan",
+        "kemaskini berat badan",
+        "tukar berat",
+        "kemaskini berat",
+        "tukar tinggi",
+        "kemaskini profil"
       ],
       "examples": [
         "how do I update my health profile",
@@ -1679,7 +1685,14 @@
         "remove a reminder",
         "remove reminder",
         "delete button",
-        "bin icon"
+        "bin icon",
+        "tetapkan peringatan",
+        "pasang peringatan",
+        "buat peringatan",
+        "tutup peringatan",
+        "matikan peringatan",
+        "hentikan peringatan",
+        "tukar peringatan"
       ],
       "examples": [
         "how do I change my reminder time",
@@ -1699,6 +1712,9 @@
         "label": "Open reminders"
       },
       "more_actions": [],
+      "patterns": [
+        "\\bset peringatan\\b"
+      ],
       "time_aware": false
     },
     {
@@ -2509,6 +2525,11 @@
         "rindu",
         "rindu keluarga",
         "rindu arwah",
+        "risau",
+        "rasa risau",
+        "bimbang",
+        "cemas",
+        "gelisah",
         "sunyi",
         "rasa sunyi",
         "kesunyian",
@@ -2596,7 +2617,9 @@
         "want to give up",
         "quit",
         "want to quit",
-        "stop trying"
+        "stop trying",
+        "bosan",
+        "rasa bosan"
       ],
       "examples": [
         "I feel too lazy to exercise",
@@ -2759,7 +2782,14 @@
         "progress with my doctor",
         "send my results",
         "send my progress",
-        "show the doctor my results"
+        "show the doctor my results",
+        "keputusan lama",
+        "tengok keputusan",
+        "lihat keputusan",
+        "sejarah sesi",
+        "hantar keputusan",
+        "keputusan kepada doktor",
+        "tunjuk keputusan"
       ],
       "examples": [
         "where can I see my past results",
@@ -3398,7 +3428,12 @@
         "unable to log in",
         "cannot login",
         "can't login",
-        "cant login"
+        "cant login",
+        "tak boleh log masuk",
+        "tak dapat log masuk",
+        "gagal log masuk",
+        "tak boleh masuk akaun",
+        "tak dapat masuk akaun"
       ],
       "examples": [
         "I forgot my password",
@@ -3511,6 +3546,12 @@
         "username",
         "google sign in",
         "change my details",
+        "log masuk",
+        "log keluar",
+        "daftar akaun",
+        "buat akaun",
+        "cipta akaun",
+        "daftar masuk",
         "telefon baru",
         "handphone baru",
         "tukar phone"
@@ -5445,6 +5486,15 @@
         "stuck on loading",
         "page stuck",
         "button not working",
+        "aplikasi tergantung",
+        "app tergantung",
+        "skrin tergantung",
+        "tutup sendiri",
+        "skrin hitam",
+        "skrin gelap",
+        "skrin putih",
+        "aplikasi rosak",
+        "tak boleh buka aplikasi",
         "phone panas",
         "telefon panas"
       ],
@@ -5949,7 +5999,9 @@
         "risk say high",
         "risk high",
         "risk is high",
-        "risk tinggi"
+        "risk tinggi",
+        "risiko sederhana",
+        "risiko rendah"
       ],
       "examples": [
         "why am I high risk",

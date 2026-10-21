@@ -260,3 +260,14 @@ def test_posture_tips_described_in_malay():
     # a fall stays a fall
     for text in ["saya jatuh semalam", "punggung saya sakit sebab jatuh", "ayah saya jatuh"]:
         assert engine.reply(PLAN, None, text)["category"] == "red_flag", text
+
+
+def test_the_app_and_account_in_everyday_malay():
+    # 4.06 (eleventh probe)
+    for text, want in [("saya tak boleh log masuk", "forgot_password"), ("macam mana nak daftar akaun", "account_help"),
+                       ("macam mana nak tengok keputusan lama", "history_help"),
+                       ("macam mana nak tukar berat badan", "profile_help"),
+                       ("apa maksud risiko sederhana", "risk_level"), ("macam mana nak set peringatan", "reminders_help"),
+                       ("aplikasi tergantung", "app_problem"), ("skrin hitam", "app_problem"),
+                       ("saya bosan", "motivation"), ("saya risau", "low_mood")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text

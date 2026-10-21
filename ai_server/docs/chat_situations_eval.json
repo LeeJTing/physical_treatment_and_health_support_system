@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.05",
+ "rules_version": "chat-rules-4.06",
  "seed": 1,
  "messages": 2000,
  "passed": 1996,
@@ -44,5 +44,5 @@
   "after_treatment: 'can i exercise after urt?' -> diet (want ['after_treatment'])",
   "travel: 'Going on vacation, what about my plannnn leh?' -> plan_exercises (want ['travel'])"
  ],
- "seconds": 156
+ "seconds": 144
 }

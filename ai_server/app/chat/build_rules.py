@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.05"
+VERSION = "chat-rules-4.06"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1722,6 +1722,22 @@ EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju ata
 EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung", "after fall", "after my fall"]
 EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
 EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+# 4.06 (eleventh probe): the app, the account and feelings in everyday Malay
+for _k, _v in {"forgot_password": ["tak boleh log masuk", "tak dapat log masuk", "gagal log masuk", "tak boleh masuk akaun",
+                                   "tak dapat masuk akaun"],
+               "account_help": ["log masuk", "log keluar", "daftar akaun", "buat akaun", "cipta akaun", "daftar masuk"],
+               "history_help": ["keputusan lama", "tengok keputusan", "lihat keputusan", "sejarah sesi", "hantar keputusan",
+                                "keputusan kepada doktor", "tunjuk keputusan"],
+               "profile_help": ["tukar berat badan", "kemaskini berat badan", "tukar berat", "kemaskini berat",
+                                "tukar tinggi", "kemaskini profil"],
+               "risk_level": ["risiko sederhana", "risiko rendah", "risiko tinggi", "tahap risiko"],
+               "reminders_help": ["tetapkan peringatan", "pasang peringatan", "buat peringatan",
+                                  "tutup peringatan", "matikan peringatan", "hentikan peringatan", "tukar peringatan"],
+               "app_problem": ["aplikasi tergantung", "app tergantung", "skrin tergantung", "tutup sendiri",
+                               "skrin hitam", "skrin gelap", "skrin putih", "aplikasi rosak", "tak boleh buka aplikasi"],
+               "motivation": ["bosan", "rasa bosan"],
+               "low_mood": ["risau", "rasa risau", "bimbang", "cemas", "gelisah"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
 # 4.05 (tenth probe, Malay)
 for _k, _v in {"wrong_exercise": ["salah senaman", "senaman salah"],
                "recording_help": ["letak telefon", "telefon letak", "letak phone", "phone letak"],
@@ -1813,6 +1829,8 @@ PATTERNS = {
     "getting_started": [r"(?<!don't )(?<!not )(?<!never )\bwant to (?:start )?exercis(?:e|ing)\b(?! (?:my|the|for) )"],
     "app_help": [r"\b(?:app|apps|this) (?:is |so |very |too )*(?:hard|difficult|confusing) to use\b"],
     "session_done": [r"^(?:\w+ )?i did it$"],
+    # 4.06: "set peringatan" as a pattern ("set" as a keyword let "can i set up mobile deposits" through)
+    "reminders_help": [r"\bset peringatan\b"],
     # "new" as a keyword had let "chinese new year" and "new checks" through (other-domain weights)
     "account_help": [r"\b(?:a |my )?new (?:phone|handphone|mobile)\b", r"\b(?:changed?|switched?) (?:my )?phones?\b"],
     # 4.00 (seventh probe, the posture check): "should i wear tight clothes for recording" was the pain answer,
