@@ -36,6 +36,13 @@ def test_malay_chest_tightness_is_urgent():
     for text in ["senak dada", "dada senak", "senak nafas", "rasa senak nafas lepas senam"]:
         assert _got(text) == "red_flag", text
     assert _got("senak bila jalan") == "stitch"
+    # 3.83: Malay texting around warning signs ("lah" stuck on, "lha"/"lsh" for "lah", "dr" for diri)
+    for text, want in [("sya rasa nak bunuh drlah", "crisis"), ("saya nk matlah", "crisis"),
+                       ("janutng ljlah...", "red_flag"), ("nak ptmah", "red_flag"), ("pitamlha!!", "red_flag"),
+                       ("skt ddlsh?", "red_flag"), ("mk sneget", "red_flag"), ("suddenly xbokeh bernafas", "red_flag")]:
+        assert _got(text) == want, text
+    for text in ["nak mat yoga", "dr said rest", "rumah saya jauh"]:
+        assert _got(text) not in ("crisis", "red_flag"), text
     # sudden weakness told in Malay word order ("my leg weak suddenly")
     for text in ["kaki saya lemah tiba tiba", "kaki lemah tiba-tiba", "tangan lemah tiba tiba"]:
         assert _got(text) == "red_flag", text

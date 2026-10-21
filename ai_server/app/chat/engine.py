@@ -624,21 +624,41 @@ MALAY_TWO = {"dd": "dada", "mt": "mati", "rs": "rasa", "kk": "kaki", "br": "baru
 MALAY_PAIRS = {("mk", "sngt"): ("muka", "senget"), ("mk", "senget"): ("muka", "senget"),
                ("mk", "snget"): ("muka", "senget"), ("kt", "lln"): ("kata", "laluan"),
                ("kt", "laluan"): ("kata", "laluan")}
+# 3.83: "lah" typed as "lha" or "lsh" ("pitamlha", "ddlsh"), split off like "lah".
+PARTICLE_ENDINGS = ("lah", "lha", "lsh")
+
+
+def _without_particle(w: str) -> str:
+    for s in PARTICLE_ENDINGS:
+        if w.endswith(s) and len(w) > len(s):
+            return w[:-len(s)]
+    return w
 
 
 def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
     malay = set(COMMON_MALAY) | set(MALAY) | MALAY_SIGN_WORDS | {w for p in MALAY_PHRASES for w in p.split()}
-    if not any(x in malay for m in mended for x in m.split()):
+    if not any(x in malay for m in mended for x in m.split()) \
+            and not any(_without_particle(w) in malay for w in typed):           # "pitamlha" alone (3.83)
         return mended
     out = list(mended)
-    bare = [w[:-3] if w.endswith("lah") and len(w) > 3 else w for w in typed]     # "mtlah", "drlah", "pglah"
+    bare = [_without_particle(w) for w in typed]          # "mtlah", "drlah", "pglah", "pitamlha"
     for k, w in enumerate(bare):
         as_typed = typed[k]
         nxt = bare[k + 1] if k + 1 < len(bare) else ""
-        if (w, nxt) in MALAY_PAIRS:
-            out[k], out[k + 1] = MALAY_PAIRS[(w, nxt)]
+        mended_nxt = mended[k + 1] if k + 1 < len(mended) else ""
+        if (w, nxt) in MALAY_PAIRS or (w, mended_nxt) in MALAY_PAIRS:
+            out[k], out[k + 1] = MALAY_PAIRS.get((w, nxt)) or MALAY_PAIRS[(w, mended_nxt)]
+            continue                                     # (3.83: also with the next word's slip mended: "mk sneget")
+        if k and ((bare[k - 1], w) in MALAY_PAIRS or (bare[k - 1], mended[k]) in MALAY_PAIRS):
             continue
-        if k and (bare[k - 1], w) in MALAY_PAIRS:
+        if w == "dr" and k and (bare[k - 1] in ("bunuh", "bnh") or out[k - 1] == "bunuh"):
+            out[k] = "diri"                              # "bunuh drlah": suicide (3.83: before "dr" = doctor)
+            continue
+        if w == "mat" and k and bare[k - 1] in ("nk", "nak") and (as_typed != w or k == len(bare) - 1):
+            out[k] = "mati"                              # "saya nk matlah" (3.83), not "nak mat yoga"
+            continue
+        if w != as_typed and mended[k] == as_typed and (w in MALAY_SIGN_WORDS or w in SAFETY_WORDS):
+            out[k] = w                                   # "pitamlha": pitam (3.83)
             continue
         if w == "x" and nxt.isalpha() and not (k and bare[k - 1].isdigit()):
             out[k] = "tak"                               # "x boleh", "x nak": tak (3.64)
@@ -647,19 +667,22 @@ def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
             out[k] = SHORT_WORDS_TYPED[w]                # "pglah", "lglah"
             continue
         if w.startswith("x") and len(w) >= 3 and mended[k] == as_typed:
+            likely = _likeliest(w[1:]) if len(w) >= 5 else None                 # "xbokeh": tak boleh (3.83)
             rest = SHORT_WORDS_TYPED.get(w[1:]) or MALAY_TWO.get(w[1:]) or _malay_texted(w[1:]) or (
-                w[1:] if w[1:] in COMMON_MALAY or w[1:] in MALAY_SIGN_WORDS else None)
+                w[1:] if w[1:] in COMMON_MALAY or w[1:] in MALAY_SIGN_WORDS else None) or (
+                likely if likely in COMMON_MALAY or likely in MALAY_SIGN_WORDS else None)
             if rest:
                 out[k] = "tak " + rest                   # "xnk", "xbole", "xbngn"
                 continue
-        if w == "dr" and k and typed[k - 1] in ("bunuh", "bnh"):
-            out[k] = "diri"                              # "bunuh dr": suicide
-        elif w in MALAY_TWO and mended[k] == as_typed:
+        if w in MALAY_TWO and (mended[k] == as_typed or w != as_typed):     # (3.83: "ljlah" is laju lah)
             nxt = typed[k + 1] if k + 1 < len(typed) else ""
             if (w == "ms" and nxt in ("", "pain", "sakit")) or (w == "ml" and k and bare[k - 1].isdigit()):
                 out[k] = w                               # "i have ms": MS; "500 ml"
             else:
                 out[k] = MALAY_TWO[w]
+        elif w == as_typed and len(w) >= 5 and w.endswith("ah") and mended[k] == as_typed \
+                and _malay_texted(w[:-2]) in MALAY_SIGN_WORDS:
+            out[k] = _malay_texted(w[:-2])               # "ptmah": pitam ah (3.83)
     return out
 
 

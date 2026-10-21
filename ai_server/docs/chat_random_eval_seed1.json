@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.82",
+ "rules_version": "chat-rules-3.83",
  "seed": 1,
  "messages": 10000,
  "passed": 9848,

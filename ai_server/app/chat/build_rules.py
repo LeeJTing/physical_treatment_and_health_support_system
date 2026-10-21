@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.82"
+VERSION = "chat-rules-3.83"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -972,7 +972,7 @@ INTENTS = [
     intent("travel", "Travelling or on holiday", 6,
            ["travelling", "traveling", "going to travel", "will travel", "travel next", "travel overseas", "travel abroad", "on holiday",
             "go on holiday", "going on holiday", "school holiday", "family holiday", "vacation", "balik kampung", "outstation", "overseas", "abroad",
-            "long flight", "my flight", "flight tomorrow", "on a flight", "hotel room", "cuti sekolah", "bercuti"],
+            "long flight", "my flight", "on a flight", "hotel room", "cuti sekolah", "bercuti"],
            ["I am travelling this week", "I will be on holiday next week"],
            "You can take your plan with you: the exercises need only a sturdy chair and a little space, so a hotel "
            "room or a relative's house is fine. "
