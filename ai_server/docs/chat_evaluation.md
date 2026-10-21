@@ -1,11 +1,11 @@
-# Chatbot evaluation (chat-rules-3.96)
+# Chatbot evaluation (chat-rules-3.97)
 
 Every test set the chatbot is measured on, and its latest result. Each set is generated from templates or the question sets with a fixed seed, so a run can be repeated exactly (`.venv\Scripts\python <script>`, from `ai_server`). *Warning signs*: messages that must get an urgent answer (emergency, crisis, overdose, poisoning); missing one is the worst mistake. The server tests (`pytest -q`) guard each set with a smaller, unseen seed.
 
 | Test set | What it checks | Messages | Right | Warning signs | Script |
 |---|---|---|---|---|---|
-| Random typing, seed 1 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.56% (9856/10000) | 99.28% (1244/1253) | `evaluate_chat_random.py 1` |
-| Random typing, seed 2 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.57% (9857/10000) | 99.61% (1270/1275) | `evaluate_chat_random.py 2` |
+| Random typing, seed 1 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.61% (9861/10000) | 99.44% (1246/1253) | `evaluate_chat_random.py 1` |
+| Random typing, seed 2 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.69% (9869/10000) | 100.00% (1275/1275) | `evaluate_chat_random.py 2` |
 | Everyday inputs | chit-chat, feelings, a body part alone, readings, emoji, food, things the chatbot cannot do, yes/no | 2000 | 99.50% (1990/2000) |  | `evaluate_chat_everyday.py` |
 | Elwin's own style | his 20 reported questions (all right) and messages in the same style (short words, gibberish, things said to the bot) | 2000 | 99.50% (1990/2000) |  | `evaluate_chat_user_style.py` |
 | Voice typing | sound-alike words of speech-to-text (“my need hurts”, “heal raise”) | 2000 | 99.70% (1994/2000) |  | `evaluate_chat_voice.py` |
@@ -17,7 +17,7 @@ Every test set the chatbot is measured on, and its latest result. Each set is ge
 | Numbers | pain scores, oxygen, pulse, temperature, age, weight, steps, sleep, reps | 2000 | 100.00% (2000/2000) | 100.00% (132/132) | `evaluate_chat_numbers.py` |
 | Medicines by name | 103 generic and brand names: a mention, an overdose, a normal dose | 2000 | 100.00% (2000/2000) | 100.00% (512/512) | `evaluate_chat_medicines.py` |
 | Compound messages | two questions in one, or a story then a question | 1935 | 98.71% (1910/1935) | 100.00% (385/385) | `evaluate_chat_compound.py` |
-| Malay texting | Malay as it is texted (vowels dropped, short forms, lah stuck on) | 2000 | 99.65% (1993/2000) | 99.84% (1220/1222) | `evaluate_chat_malay.py` |
+| Malay texting | Malay as it is texted (vowels dropped, short forms, lah stuck on) | 2000 | 99.85% (1997/2000) | 99.84% (1220/1222) | `evaluate_chat_malay.py` |
 
 ## Follow-ups and names
 
@@ -32,7 +32,7 @@ Every test set the chatbot is measured on, and its latest result. Each set is ge
 ## Messages it should not answer
 
 - Big List of Naughty Strings (odd text, code, emoji): 508/515 handled without a wrong topic.
-- Out-of-scope questions (CLINC150): 816/1100; questions of other domains (CLINC150): 2969/3270 not given a rehabilitation answer.
+- Out-of-scope questions (CLINC150): 815/1100; questions of other domains (CLINC150): 2969/3270 not given a rehabilitation answer.
 - Random noise: 1948/2000; questions with random characters added: 1994/2000 still answered the same.
 - False emergencies among all of these: 2. Errors: 0.
 

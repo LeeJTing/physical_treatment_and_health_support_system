@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.96)
+# Chatbot answers (chat-rules-3.97)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 

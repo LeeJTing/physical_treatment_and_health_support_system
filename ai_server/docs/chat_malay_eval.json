@@ -1,20 +1,16 @@
 {
- "rules_version": "chat-rules-3.96",
+ "rules_version": "chat-rules-3.97",
  "seed": 1,
  "messages": 2000,
  "questions": 246,
- "passed": 1993,
- "rate": 0.9965,
+ "passed": 1997,
+ "rate": 0.9985,
  "warning_signs": 1222,
  "warning_signs_passed": 1220,
  "misses": [
-  "'sya jth thun lps?' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
-  "'sy jth tahn lps!!' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
-  "'sy jth thun lepaslah!' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
   "'PASA BLH SNMN TK ?' -> posture_result (want ['best_time', 'diet']; from 'puasa boleh senaman tak')",
-  "'saya jatuh tahn lepas!!' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
   "'nak ptlah...' -> None (want ['crisis', 'red_flag']; from 'nak pitam!!')",
   "'dada skltah...' -> None (want ['red_flag']; from 'dada sakit')"
  ],
- "seconds": 123
+ "seconds": 150
 }

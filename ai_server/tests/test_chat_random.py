@@ -39,3 +39,18 @@ def test_warning_signs_and_crisis_typed_badly_are_still_caught():
 def test_follow_ups_in_the_sample_all_continue():
     follow = [(c, g) for c, g in RESULTS if c["kind"] == "follow"]
     assert all(g in c["want"] for c, g in follow), [(c["text"], g) for c, g in follow if g not in c["want"]]
+
+
+def test_warning_signs_with_two_slips_are_read():
+    # 3.97: the misses of seeds 1 and 2 among the warning signs, and the false emergency "ankles fel sore"
+    plan = "88c1e725-4b64-5689-a70d-47d37b2fcd7e"
+    for text in ["HAED TO BREATEH", "my mother has hardto brate", "i can't get up from the foor ?",
+                 "sudsenly shoortof breath??", "Hi suddwnlypasseed out", "hepfelll and cannot get up!",
+                 "i feel about to fnt", "bteter if i was goe...", "Sjit dada during exercise leh!"]:
+        assert engine.reply(plan, None, text)["category"] in URGENT, text
+    for text, want in [("My ankles fel sore", "pain_or_discomfort"), ("change fnt size", "text_size"),
+                       ("excuse me saya jatuh thun lepas!", "fear_of_falling"),
+                       ("i fell in the bthroom lst month, can i still exercise", "fear_of_falling")]:
+        assert engine.reply(plan, None, text)["category"] == want, text
+    for text in ["erm i fellt leh", "my foor hurts", "pain on the foor"]:
+        assert engine.reply(plan, None, text)["category"] not in URGENT, text

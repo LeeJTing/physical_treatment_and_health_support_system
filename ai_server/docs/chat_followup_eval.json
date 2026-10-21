@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.96",
+ "rules_version": "chat-rules-3.97",
  "topics": 170,
  "follow_ups": 73,
  "messy_variants": 1200,
@@ -32,5 +32,5 @@
   "rate": 1.0,
   "misses": []
  },
- "seconds": 482
+ "seconds": 452
 }

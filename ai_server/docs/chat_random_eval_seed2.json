@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.96",
+ "rules_version": "chat-rules-3.97",
  "seed": 2,
  "messages": 10000,
- "passed": 9857,
- "rate": 0.9857,
+ "passed": 9869,
+ "rate": 0.9869,
  "by_kind": {
   "restricted": {
-   "passed": 627,
+   "passed": 628,
    "messages": 632
   },
   "short": {
@@ -22,7 +22,7 @@
    "messages": 870
   },
   "written": {
-   "passed": 3054,
+   "passed": 3060,
    "messages": 3109
   },
   "conditions": {
@@ -30,7 +30,7 @@
    "messages": 508
   },
   "red_flags": {
-   "passed": 1270,
+   "passed": 1275,
    "messages": 1275
   },
   "mistakes": {
@@ -39,22 +39,19 @@
   }
  },
  "commonest_misses": [
-  "('crisis',) -> None: 3",
   "('exercise:wall_push_up',) -> how_to: 3",
   "('age_limit',) -> None: 3",
   "('exit_exercise', 'goodbye') -> None: 3",
   "('bot_identity',) -> None: 3",
   "('difficulty', 'weakness_balance') -> partial_reps: 3",
+  "('crisis',) -> None: 2",
   "('delete_account',) -> account_help: 2",
   "('exercise:wrist_extension',) -> None: 2",
-  "('fear_of_falling',) -> red_flag: 2",
   "('fear_of_falling',) -> safety: 2",
   "('medication',) -> None: 2",
-  "('red_flag',) -> weakness_balance: 2",
   "('condition_advice',) -> pain_or_discomfort: 2",
   "('best_time',) -> condition_advice: 2",
   "('forgot_password',) -> None: 2",
-  "('crisis', 'red_flag') -> safety: 2",
   "('exercise:wall_push_up',) -> equipment: 2",
   "('family_help',) -> None: 2",
   "('plan_exercises',) -> how_to: 2",
@@ -78,7 +75,10 @@
   "('safety',) -> period: 1",
   "None -> acknowledge: 1",
   "('age_limit', 'safety') -> how_to: 1",
-  "('family_help',) -> bot_identity: 1"
+  "('family_help',) -> bot_identity: 1",
+  "('app_facts',) -> bot_identity: 1",
+  "('guide_animation',) -> None: 1",
+  "('other_activity', 'weakness_balance') -> equipment: 1"
  ],
  "misses": [
   {
@@ -238,25 +238,6 @@
    }
   },
   {
-   "text": "excuse me saya jatuh thun lepas!",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "red_flag",
-   "seed_question": "saya jatuh tahun lepas",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:low_raise",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     18,
-     45
-    ]
-   }
-  },
-  {
    "text": "ok lpa exercise?",
    "want": [
     "missed_session"
@@ -345,22 +326,6 @@
      1,
      45
     ]
-   }
-  },
-  {
-   "text": "bteter if i was goe...",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "better if i was gone",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "med_help",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
    }
   },
   {
@@ -587,22 +552,6 @@
      21,
      0
     ]
-   }
-  },
-  {
-   "text": "i can't get up from the foor ?",
-   "want": [
-    "red_flag"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "i can't get up from the floor",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
    }
   },
   {
@@ -910,26 +859,6 @@
     "previous_category": null,
     "restriction": null,
     "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "sudsenly shoortof breath??",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "safety",
-   "seed_question": "suddenly short of breath",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "PREGNANCY",
-     "KIDNEY_DISEASE"
-    ],
     "risk_level": null,
     "local_time": null
    }
@@ -1365,25 +1294,6 @@
    }
   },
   {
-   "text": "my ankles fel sore \ud83d\ude23 ?",
-   "want": [
-    "pain_or_discomfort"
-   ],
-   "got": "red_flag",
-   "seed_question": "my ankles feel sore \ud83d\ude23",
-   "context": {
-    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
-    "previous_category": "mistake:feet_far",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": [
-     5,
-     45
-    ]
-   }
-  },
-  {
    "text": "how long do u keep my dta!!",
    "want": [
     "privacy_data"
@@ -1417,23 +1327,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Sjit dada during exercise leh!",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "sakit dada during exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "pins_needles",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
     "local_time": null
    }
   },
@@ -1759,25 +1652,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "CAN'T GET UP FROM FOOR AH ?",
-   "want": [
-    "red_flag"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "i can't get up from the floor",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     12,
-     30
-    ]
    }
   },
   {
@@ -2157,23 +2031,6 @@
    }
   },
   {
-   "text": "Sorry my mother has hardto brate",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "for_someone_else",
-   "seed_question": "my mother has hard to breathe",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "y no psn 65...",
    "want": [
     "age_limit"
@@ -2265,26 +2122,6 @@
    }
   },
   {
-   "text": "Hi suddwnlypasseed out",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "greeting",
-   "seed_question": "suddenly passed out",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "STROKE",
-     "COPD"
-    ],
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
    "text": "sakit buh pinggang exerise!!",
    "want": [
     "condition_advice"
@@ -2301,24 +2138,6 @@
      13,
      30
     ]
-   }
-  },
-  {
-   "text": "i fell in the bthroom lst month, can i still exercise",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "red_flag",
-   "seed_question": "i fell in the bathroom last month, can i still exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION"
-    ],
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -2551,22 +2370,6 @@
    }
   },
   {
-   "text": "wattabllets help joint pain?",
-   "want": [
-    "medication"
-   ],
-   "got": "pain_or_discomfort",
-   "seed_question": "what tablets help joint pain",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
    "text": "cannot logn le!!",
    "want": [
     "forgot_password"
@@ -2599,23 +2402,6 @@
      20,
      15
     ]
-   }
-  },
-  {
-   "text": "HAED TO BREATEH",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "safety",
-   "seed_question": "hard to breathe!!",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "condition_advice",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
    }
   },
   {

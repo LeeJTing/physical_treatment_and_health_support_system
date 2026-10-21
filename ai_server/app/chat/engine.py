@@ -450,6 +450,27 @@ def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
             fixed = _likeliest(a)
             if fixed and fixed not in NEGATORS and typo_cost(a, fixed) <= 0.8:
                 return [fixed, b]
+    # 3.97: only easy slips (a doubled, swapped or neighbouring letter), into common words: "shoortof" -> short
+    # of; and a slip in both parts when one is a warning-sign word ("suddwnlypasseed" -> suddenly passed,
+    # "hepfelll" -> help fell). Not "exteson" (exit espn), "aniston" (anis torn) or "felion" (felo on).
+    common = dictionary() | SAFETY_WORDS
+    a, b = w[:-2], w[-2:]
+    if b in vocab and len(a) >= 5:
+        fixed = _likeliest(a)
+        if fixed in common and fixed not in NEGATORS and typo_cost(a, fixed) <= 0.5:
+            return [fixed, b]
+    both = []
+    for i in range(3, len(w) - 2):
+        a, b = w[:i], w[i:]
+        fa = SHORT_WORDS_TYPED.get(a) or _likeliest(a)
+        fb = _likeliest(b)
+        if fa in common and fb in common and fa not in NEGATORS and fb not in NEGATORS                 and (fa in SAFETY_WORDS | URGENT_WORDS or fb in SAFETY_WORDS | URGENT_WORDS):
+            ca = 0.0 if a in SHORT_WORDS_TYPED else typo_cost(a, fa)
+            if ca <= 0.5 and typo_cost(b, fb) <= 0.5:
+                both.append((ca + typo_cost(b, fb), fa, fb))
+    if both:
+        best = min(both)
+        return [best[1], best[2]]
     return None
 
 
@@ -533,29 +554,71 @@ FEELING_WORDS = {"lazy", "tired", "sakit", "pain", "sick", "unwell", "dizzy", "g
 @lru_cache(maxsize=20000)
 def respell(text: str) -> str:
     """The message with its unknown words mended, in lower case, punctuation kept."""
+    parts, _, mended = _respelled(text)
+    out = list(parts)
+    out[1::2] = mended
+    return "".join(out)
+
+
+# 3.97: a slip read by the words around it. "the foor" beside getting up or lying is the floor (was "foot");
+# "fnt" is faint unless the message is about the text ("about to fnt" was the text-size answer); "lst" before a
+# time word is "last" ("fell in the bathroom lst month" was a fall just now).
+GET_UP_CUES = ("get up", "getup", "bangun", "lying", "lie on", "fell", "fallen", "jatuh", "slipped", "tripped",
+               "still on", "stand up")
+FONT_CUES = {"size", "text", "word", "words", "letters", "small", "smaller", "big", "bigger", "large", "larger",
+             "screen", "change", "font", "huruf", "tulisan", "kecil", "besar", "app", "read"}
+TIME_AFTER_LAST = {"month", "months", "week", "weeks", "year", "years", "night", "time", "weekend", "morning",
+                   "sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "visit", "session"}
+
+
+def _read_by_context(typed: list[str], mended: list[str]) -> None:
+    plain = " ".join(mended)
+    for k, was in enumerate(typed):
+        if was in dictionary() or was in vocabulary():
+            continue
+        before = mended[k - 1] if k else ""
+        after = mended[k + 1] if k + 1 < len(mended) else ""
+        if was[0] == "f" and len(was) >= 3 and typo_cost(was, "floor") <= 1.0 and before in ("the", "on", "from") \
+                and any(c in plain for c in GET_UP_CUES):
+            mended[k] = "floor"
+        elif was == "fnt" and not FONT_CUES & set(plain.split()):
+            mended[k] = "faint"
+        elif was == "lst" and after in TIME_AFTER_LAST:
+            mended[k] = "last"
+
+
+@lru_cache(maxsize=20000)
+def _respelled(text: str) -> tuple[tuple, tuple, tuple]:
+    """(the message in words and what is between them, each word as typed, each word as read)."""
     low = text.lower().replace("’", "'")
     parts = re.split(r"([a-z0-9']+)", low)
     typed = parts[1::2]
     mended = _malay_two(typed, [_respell_words(w) for w in typed])
+    felt = set()
     for k, (was, now) in enumerate(zip(typed, mended)):
         # A slip read as fell/fall before a feeling word was "feel" ("fel lazy today", "fel sakit"):
         # only that word, and only when it was not typed as fell/fall.
         if now in ("fell", "fall") and was not in ("fell", "fall") and k + 1 < len(mended) \
                 and mended[k + 1] in FEELING_WORDS:
             mended[k] = "feel"
+            felt.add(k)                                  # and kept (3.97: "my ankles fel sore" was a fall)
     # 3.59: an unknown or rarer word within three words of a symptom is read as a symptom word one slip
     # away ("chet pain", "herat pounding", "dada skit", "chest pina", "leer kersa dan demam"); alone it
     # is not ("pruning", "chet" stay as typed).
     near = [set(m.split()) for m in mended]
     known = vocabulary()
     for k, was in enumerate(typed):
+        if k in felt:
+            continue
         before = [m for m in mended[max(0, k - 2):k]]
-        if before and (before[-1] in CHEST_WORDS or (len(before) == 2 and before[0] in CHEST_WORDS
-                                                     and before[1] in ("very", "so", "is", "rasa", "feels", "feel",
-                                                                       "really", "sangat", "macam"))):
+        after = mended[k + 1] if k + 1 < len(mended) else ""
+        if (before and (before[-1] in CHEST_WORDS or (len(before) == 2 and before[0] in CHEST_WORDS
+                                                      and before[1] in ("very", "so", "is", "rasa", "feels", "feel",
+                                                                        "really", "sangat", "macam")))) \
+                or after in CHEST_WORDS:
             chest = _chest_reading(was)
             if chest:
-                mended[k] = chest                        # "chest very tijt": tight (3.84)
+                mended[k] = chest                        # "chest very tijt": tight (3.84); "sjit dada" (3.97)
                 continue
         sign = _sign_reading(was)
         if not sign or near[k] & SIGN_WORDS:
@@ -566,8 +629,8 @@ def respell(text: str) -> str:
             continue
         if any(near[j] & SIGN_CONTEXT for j in range(max(0, k - 3), min(len(typed), k + 4)) if j != k):
             mended[k] = sign
-    parts[1::2] = mended
-    return "".join(parts)
+    _read_by_context(typed, mended)
+    return tuple(parts), tuple(typed), tuple(mended)
 
 
 # Symptoms and the body parts they are felt in (3.59), narrower than SAFETY_WORDS.
@@ -728,10 +791,23 @@ def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
         elif w == as_typed and len(w) >= 5 and w.endswith("ah") and mended[k] == as_typed \
                 and _malay_texted(w[:-2]) in MALAY_SIGN_WORDS:
             out[k] = _malay_texted(w[:-2])               # "ptmah": pitam ah (3.83)
+        elif w == as_typed and as_typed not in dictionary() and _malay_vowels_dropped(w):
+            out[k] = _malay_vowels_dropped(w)            # "saya jatuh thun lepas": tahun, was "thin" (3.97)
     for k in range(len(out) - 1):                        # a pair seen once its second word is mended (3.92:
         if (bare[k], out[k + 1]) in MALAY_PAIRS:         # "mk swngetlah": muka senget)
             out[k], out[k + 1] = MALAY_PAIRS[(bare[k], out[k + 1])]
     return out
+
+
+@lru_cache(maxsize=5000)
+def _malay_vowels_dropped(w: str) -> str | None:
+    """3.97: the one Malay word [w] is with some of its vowels left out ("thun": tahun), in a Malay message."""
+    if len(w) < 4 or not w.isalpha() or w in _respell_vocab() or w in SHORT_WORDS_TYPED:
+        return None
+    malay = set(COMMON_MALAY) | set(MALAY) | MALAY_SIGN_WORDS | {x for p in MALAY_PHRASES for x in p.split()}
+    hits = {m for m in malay if len(m) > len(w) and m[0] == w[0] and m[-1] == w[-1]
+            and _skeleton(m) == _skeleton(w) and _in_order(w, m) == len(w)}
+    return hits.pop() if len(hits) == 1 else None
 
 
 def _malay_texted(w: str) -> str | None:
@@ -1733,8 +1809,8 @@ def _phrase_mend(text: str | None, kind: str) -> str | None:
                     len(w) < 3 or w in dictionary() or abs(len(p) - len(w)) > 2
                     or typo_cost(w, p) > (1.0 if len(p) < 4 else 1.5 if len(p) < 6 else 2.0)):
                 continue
-            if p in ("fell", "fall", "fallen") and typo_cost(w, "feel") <= typo_cost(w, p):
-                continue                                 # "i fele so lazy": feel, as in respell (3.64)
+            if p in ("fell", "fall", "fallen") and min(typo_cost(w, "feel"), typo_cost(w, "felt")) <= typo_cost(w, p):
+                continue                                 # "i fele so lazy": feel, as in respell (3.64); "fellt" (3.97)
             start = i - k
             if start < 0 or start + len(ws) > len(words):
                 continue
@@ -1744,6 +1820,33 @@ def _phrase_mend(text: str | None, kind: str) -> str | None:
                    for j in others):
                 mended = words[:start] + list(ws) + words[start + len(ws):]
                 return " ".join(mended)
+    return _phrase_mend_read(text, kind)
+
+
+def _phrase_mend_read(text: str, kind: str) -> str | None:
+    """3.97: the same with the rest of the phrase as respelled, when two of its words had slips ("haed to
+    breateh": hard to breathe, "haed" was read as "head"; "bteter if i was goe"; "hardto brate"). The word
+    replaced was unknown or respelled; the others are read as respell reads them."""
+    _, typed, mended = _respelled(text)
+    pairs = []
+    for t, m in zip(typed, mended):
+        ms = m.split()
+        pairs += [(t, ms[0])] if len(ms) == 1 else [(None, x) for x in ms]     # a joined word's parts
+    words = [m for _, m in pairs]
+    known = vocabulary()
+    for i, (t, m) in enumerate(pairs):
+        if t is None or len(t) < 3 or not t.isalpha() or t in rare_words() or (t == m and (t in known or t in dictionary())):
+            continue
+        for ws, k, p in _phrase_index(kind).get(t[0], ()):
+            if p == m or abs(len(p) - len(t)) > 2 or typo_cost(t, p) > (1.0 if len(p) < 4 else 1.5 if len(p) < 6 else 2.0):
+                continue
+            if p in ("fell", "fall", "fallen") and min(typo_cost(t, "feel"), typo_cost(t, "felt")) <= typo_cost(t, p):
+                continue
+            start = i - k
+            if start < 0 or start + len(ws) > len(words):
+                continue
+            if all(words[start + j] == ws[j] for j in range(len(ws)) if j != k):
+                return " ".join(words[:start] + list(ws) + words[start + len(ws):])
     return None
 
 

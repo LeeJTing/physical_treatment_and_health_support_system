@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.96",
+ "rules_version": "chat-rules-3.97",
  "seed": 1,
  "messages": 10000,
- "passed": 9856,
- "rate": 0.9856,
+ "passed": 9861,
+ "rate": 0.9861,
  "by_kind": {
   "written": {
-   "passed": 2993,
+   "passed": 2996,
    "messages": 3048
   },
   "mistakes": {
@@ -22,7 +22,7 @@
    "messages": 2581
   },
   "red_flags": {
-   "passed": 1244,
+   "passed": 1246,
    "messages": 1253
   },
   "exercises": {
@@ -60,7 +60,6 @@
   "('getting_started', 'plan_exercises', 'treatment_nav') -> weather: 2",
   "('difficulty',) -> plan_exercises: 1",
   "('multiple_plans',) -> medication: 1",
-  "(None, 'acknowledge') -> red_flag: 1",
   "('app_help', 'getting_started') -> plan_exercises: 1",
   "('terms_help',) -> None: 1",
   "('mistake:low_knee_lift',) -> exercise:heel_raise: 1",
@@ -78,7 +77,8 @@
   "('mistake:incomplete_stand',) -> pain_or_discomfort: 1",
   "('app_help',) -> None: 1",
   "('mistake:back_sag',) -> plan_progress: 1",
-  "('crisis', 'red_flag') -> pain_or_discomfort: 1"
+  "('crisis', 'red_flag') -> pain_or_discomfort: 1",
+  "('safety',) -> None: 1"
  ],
  "misses": [
   {
@@ -157,23 +157,6 @@
      20,
      45
     ]
-   }
-  },
-  {
-   "text": "erm i fellt leh",
-   "want": [
-    "None",
-    "acknowledge"
-   ],
-   "got": "red_flag",
-   "seed_question": "i felt",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -1364,27 +1347,6 @@
    }
   },
   {
-   "text": "My ankles fel sore \ud83d\ude23...",
-   "want": [
-    "pain_or_discomfort"
-   ],
-   "got": "red_flag",
-   "seed_question": "my ankles feel sore \ud83d\ude23",
-   "context": {
-    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "ARTHRITIS"
-    ],
-    "risk_level": "High",
-    "local_time": [
-     18,
-     0
-    ]
-   }
-  },
-  {
    "text": "my result said too dep",
    "want": [
     "mistake:too_deep"
@@ -2040,26 +2002,6 @@
    }
   },
   {
-   "text": "hepfelll and cannot get up!",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "weakness_balance",
-   "seed_question": "help fell and cannot get up",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HEART_DISEASE",
-     "OSTEOPOROSIS"
-    ],
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "too drrak ?",
    "want": [
     "video_quality"
@@ -2185,24 +2127,6 @@
    }
   },
   {
-   "text": "excuse me hi, my kmeehurtts...",
-   "want": [
-    "pain_or_discomfort"
-   ],
-   "got": "pardon",
-   "seed_question": "hi, my knee hurts",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:uneven_arms",
-    "restriction": null,
-    "conditions": [
-     "PARKINSONS"
-    ],
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "have haed breathe?",
    "want": [
     "crisis",
@@ -2217,28 +2141,6 @@
     "conditions": null,
     "risk_level": "Low",
     "local_time": null
-   }
-  },
-  {
-   "text": "i feel about to fnt",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "text_size",
-   "seed_question": "i feel about to faint",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION"
-    ],
-    "risk_level": null,
-    "local_time": [
-     6,
-     45
-    ]
    }
   },
   {
