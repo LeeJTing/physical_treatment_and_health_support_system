@@ -342,7 +342,13 @@ class _MessageTile extends StatelessWidget {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.sizeOf(context).width * 0.8,
               ),
-              child: NoticeBanner(reply.notes.join(' '), warning: true),
+              // One note per line, so several are not run together into one paragraph.
+              child: NoticeBanner(
+                reply.notes.length == 1
+                    ? reply.notes.single
+                    : reply.notes.map((n) => '• $n').join('\n'),
+                warning: true,
+              ),
             ),
           ],
           // Buttons to the screens the answer names: the first filled, a second outlined. An
