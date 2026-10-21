@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.84",
+ "rules_version": "chat-rules-3.85",
  "seed": 1,
  "messages": 10000,
- "passed": 9852,
- "rate": 0.9852,
+ "passed": 9854,
+ "rate": 0.9854,
  "by_kind": {
   "written": {
-   "passed": 2998,
+   "passed": 3000,
    "messages": 3056
   },
   "mistakes": {
@@ -1353,22 +1353,6 @@
    }
   },
   {
-   "text": "suide thoughts",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "sucide thoughts",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "so teied",
    "want": [
     "tired"
@@ -1617,22 +1601,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "she fell. thaat was last year, now fine ah",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": "red_flag",
-   "seed_question": "she fell. that was last year, now fine",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:back_sag",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },

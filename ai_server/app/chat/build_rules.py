@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.84"
+VERSION = "chat-rules-3.85"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1791,6 +1791,10 @@ RED_FLAGS = [
     # 3.82: Malay chest tightness and breathlessness with "senak" (not a stitch)
     "senak dada", "dada senak", "dada rasa senak", "senak di dada", "senak nafas", "nafas senak", "dada sesak",
     "sesak dada",
+    # 3.85: as whole phrases too, so a slip in one word is mended ("felll and cannot get up"); the looser
+    # checks find them typed right. (Not "can't get up from the floor": "...the floor exercise without help".)
+    "fell and cannot get up", "fell and can't get up", "fell and cant get up", "fallen and cannot get up",
+    "fallen and can't get up",
     # 3.75 (conditions test): a seizure or fit happening now ("she is having a fit" was not recognised, "my
     # father had a seizure just now" the answer for a family member). Not "seizures" alone: "my seizures are
     # controlled" is epilepsy advice; "had a seizure last year" is past (engine.HISTORY_EVENTS).

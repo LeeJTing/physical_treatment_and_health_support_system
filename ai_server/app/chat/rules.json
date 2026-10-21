@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.84",
+  "version": "chat-rules-3.85",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -7942,6 +7942,11 @@
     "nafas senak",
     "dada sesak",
     "sesak dada",
+    "fell and cannot get up",
+    "fell and can't get up",
+    "fell and cant get up",
+    "fallen and cannot get up",
+    "fallen and can't get up",
     "having a seizure",
     "had a seizure",
     "has a seizure",

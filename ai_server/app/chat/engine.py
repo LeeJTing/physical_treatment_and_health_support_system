@@ -1211,7 +1211,8 @@ PEOPLE = {"i", "he", "she", "dia", "mother", "father", "mum", "mom", "dad", "gra
           "grandfather", "husband", "wife", "son", "daughter", "we", "they", "uncle", "aunt", "patient"}
 # What may follow "slipped"/"tripped" in a fall ("slipped in the bathroom"), not "slipped the note under".
 AGAIN_FILLER = {"again", "lagi", "and", "it", "happened", "the", "same", "thing", "once", "more", "she", "he", "i",
-                "dia", "saya", "did", "so", "then", "now", "sekali"}
+                "dia", "saya", "did", "so", "then", "now", "sekali",
+                "ah", "leh", "lor", "meh", "huh", "pls", "please"}       # 3.85: "it happened again today ah"
 TIME_FILLER = AGAIN_FILLER | {"it", "was", "that", "this", "about", "around", "already", "la", "lah", "maybe", "like",
                               "only", "yes", "ya", "a", "an", "few", "some", "two", "three", "2", "3", "4", "5"}
 # Good-news words may follow a past time only ("that was last year, now fine"; not "today i'm fine").
@@ -1663,12 +1664,14 @@ def _phrase_index(kind: str) -> dict:
     warning-sign phrases of two or more words (the other words are the evidence: "pening" alone is not)."""
     index: dict[str, list] = {}
     for p in rules().get("crisis" if kind == "crisis" else "red_flags", []):
-        ws = tuple(p.split())
-        if len(ws) < 2:
-            continue
-        for k, w in enumerate(ws):
-            if len(w) >= 3 and w.isalpha():
-                index.setdefault(w[0], []).append((ws, k, w))
+        # As typed ("peeat hidup" is penat), and as the message is read once cleaned ("penat hduup": "penat" is
+        # read as "tired", 3.85).
+        for ws in dict.fromkeys([tuple(p.split()), tuple(clean(p).split())]):
+            if len(ws) < 2:
+                continue
+            for k, w in enumerate(ws):
+                if len(w) >= 3 and w.isalpha():
+                    index.setdefault(w[0], []).append((ws, k, w))
     return index
 
 
@@ -1676,7 +1679,9 @@ def _phrase_index(kind: str) -> dict:
 def _phrase_mend(text: str | None, kind: str) -> str | None:
     """The message with one unknown word (not a rules word, not a real word) replaced by the word of a
     crisis or warning-sign phrase it is one slip from, when the rest of that phrase is there as typed;
-    None when there is no such phrase (3.62: "better if i was goe", "blajed out", "peeat hidup")."""
+    None when there is no such phrase (3.62: "better if i was goe", "blajed out", "peeat hidup"). 3.85:
+    two slips in a word of 4+ letters too ("bledig a lot", "herrat pounding", "penat hduup", "sucde thoughts"):
+    the rest of the phrase, as typed, is the evidence."""
     if not text:
         return None
     words = clean(text).split()
@@ -1690,7 +1695,7 @@ def _phrase_mend(text: str | None, kind: str) -> str | None:
         for ws, k, p in _phrase_index(kind).get(w[0], ()):
             if not (_skeleton(p) == w and texted) and (
                     len(w) < 3 or w in dictionary() or abs(len(p) - len(w)) > 2
-                    or typo_cost(w, p) > (1.0 if len(p) < 6 else 1.5)):
+                    or typo_cost(w, p) > (1.0 if len(p) < 4 else 1.5 if len(p) < 6 else 2.0)):
                 continue
             if p in ("fell", "fall", "fallen") and typo_cost(w, "feel") <= typo_cost(w, p):
                 continue                                 # "i fele so lazy": feel, as in respell (3.64)
