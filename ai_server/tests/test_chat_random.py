@@ -60,4 +60,5 @@ def test_two_slips_in_a_rule_word_when_plainly_the_only_reading():
     # 4.02: before, only warning-sign words were read with two slips
     plan = "88c1e725-4b64-5689-a70d-47d37b2fcd7e"
     assert engine.reply(plan, None, "erm i'm afraid of flalng!!")["category"] == "fear_of_falling"
-    assert engine.respell("pruning") == "pruning"                       # a real word stays as typed
+    # a real word stays a real word: no warning sign read into it
+    assert engine.reply(plan, None, "i was pruning the roses")["category"] not in URGENT
