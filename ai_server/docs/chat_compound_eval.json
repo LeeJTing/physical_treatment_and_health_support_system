@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.78",
+ "rules_version": "chat-rules-3.79",
  "seed": 1,
  "messages": 1935,
  "passed": 1837,
@@ -115,5 +115,5 @@
   "story: 'my daughter helped me set up the phone and then what is health connect' -> family_help (want ['health_connect'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 182
+ "seconds": 178
 }

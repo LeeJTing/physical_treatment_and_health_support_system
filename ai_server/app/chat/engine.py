@@ -247,7 +247,10 @@ def plan_intents(plan: dict) -> list[dict]:
                       "point of doing", "what is the point of", "what's the point of this",
                       "still need to continue", "need to continue", "continue or not", "better already",
                       "already better", "how long more", "walk normally", "walk again", "walk properly",
-                      "how long before", "did all", "did all my", "done my exercises"],
+                      "how long before", "did all", "did all my", "done my exercises",
+                      # 3.79: "it's been 2 weeks and no change"
+                      "no change", "no improvement", "not improving", "not getting better", "still the same",
+                      "same as before", "tak ada perubahan", "takde perubahan", "tiada perubahan"],
          "examples": ["when will I see results", "how do I know I am improving", "is the plan working",
                       "what happens when I finish this plan"],
          "answer": f"This plan aims to help you {plan['goal_text']}. Most people notice a difference after two to "
@@ -919,7 +922,9 @@ ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could
                         "maybe", "how do i know", "what is wrong", "should i see"]
 DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
                   "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
-PREFER = [# 3.78: the kind of symptom over the general pain answer.
+PREFER = [# 3.79: a tablet computer is not a pill; "contact support" is not holding on to a support.
+          ("app_facts", "medication"), ("app_facts", "safety"),
+          # 3.78: the kind of symptom over the general pain answer.
           ("cramp", "pain_or_discomfort"), ("cramp", "pain_mild"), ("cramp", "tired"), ("cramp", "weakness_balance"),
           ("pins_needles", "pain_or_discomfort"), ("pins_needles", "tired"), ("pins_needles", "weakness_balance"),
           ("stiffness", "pain_or_discomfort"), ("stiffness", "pain_mild"), ("neck_not_covered", "stiffness"),

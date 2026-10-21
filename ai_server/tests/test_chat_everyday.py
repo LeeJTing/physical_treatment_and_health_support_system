@@ -36,6 +36,14 @@ def test_a_body_part_alone_is_asked_about():
     assert x["category"] == "clarify" and "your knee" in x["answer"]
 
 
+def test_app_questions_in_other_topics_words():
+    # 3.79: "tablet" is also a pill, "support" also something to hold on to.
+    for text, want in [("can i use it on tablet", "app_facts"), ("how to contact support", "app_facts"),
+                       ("share my progress with my doctor", "history_help"), ("i take 2 tablets a day", "medication"),
+                       ("hold on to a support while standing", "safety")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
 def test_what_a_word_means():
     # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
     for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.78",
+ "rules_version": "chat-rules-3.79",
  "seed": 1,
  "messages": 2000,
  "passed": 1984,
@@ -72,5 +72,5 @@
   "chit_chat: 'nice to meet youuuu pls' -> thanks (want ['greeting']; from 'nice to meet you')",
   "body_part: 'kneeeee ah?' -> diagnosis (want ['None', 'body_map', 'clarify', 'pain_mild', 'pain_or_discomfort', 'pain_sharp']; from 'knee')"
  ],
- "seconds": 104
+ "seconds": 130
 }

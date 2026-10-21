@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.78"
+VERSION = "chat-rules-3.79"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1590,6 +1590,12 @@ DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "s
 # 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
+    # 3.79: app questions in another topic's words ("can i use it on tablet" was the medicines answer, "how to
+    # contact support" safety, "share my progress with my doctor" the plan's progress).
+    "app_facts": ["on tablet", "on a tablet", "on my tablet", "use a tablet", "android tablet", "samsung tab",
+                  "on tab", "contact support", "how to contact", "helpdesk", "help desk", "who to contact"],
+    "history_help": ["share my progress", "show my progress", "progress with my doctor", "send my results",
+                     "send my progress", "show the doctor my results"],
     # 3.78: soreness the day after; a joint that locks or catches
     "pain_mild": ["doms", "delayed onset muscle soreness", "sore the next day", "sore 2 days after", "sore two days after"],
     "joint_noise": ["knee locks", "knee locking", "knee gets stuck", "knee catches", "joint locks", "joint locking",

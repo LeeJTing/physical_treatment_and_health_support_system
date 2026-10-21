@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.78",
+  "version": "chat-rules-3.79",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -2599,7 +2599,13 @@
         "can doctor see",
         "show my doctor",
         "share my results",
-        "share results"
+        "share results",
+        "share my progress",
+        "show my progress",
+        "progress with my doctor",
+        "send my results",
+        "send my progress",
+        "show the doctor my results"
       ],
       "examples": [
         "where can I see my past results",
@@ -5695,7 +5701,19 @@
         "email support",
         "free",
         "app price",
-        "harga app"
+        "harga app",
+        "on tablet",
+        "on a tablet",
+        "on my tablet",
+        "use a tablet",
+        "android tablet",
+        "samsung tab",
+        "on tab",
+        "contact support",
+        "how to contact",
+        "helpdesk",
+        "help desk",
+        "who to contact"
       ],
       "examples": [
         "is this app free",
