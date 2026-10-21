@@ -849,11 +849,16 @@ def content_words(text: str) -> str:
     return " ".join(w for w in correct(text).split() if w not in STOP)
 
 
+# 3.76: words whose stem means something else ("fasting" is not "walk fast", "travelling" not "how far the
+# knee travels", "raining" not "rain forest").
+STEM_KEPT = {"fasting", "travelling", "traveling", "raining"}
+
+
 @lru_cache(maxsize=8192)
 def stem(w: str) -> str:
     """Crude suffix stripping so burn / burns / burning and raise / raises / raising compare equal.
     The same function is applied to the rules and the question, so only consistency matters."""
-    if len(w) <= 3 or "'" in w:
+    if len(w) <= 3 or "'" in w or w in STEM_KEPT:
         return w
     if w.endswith("ies") and len(w) > 4:
         return w[:-3] + "y"
@@ -912,7 +917,18 @@ ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could
                         "maybe", "how do i know", "what is wrong", "should i see"]
 DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
                   "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
-PREFER = [# 3.74: "how many calories did i burn" is not burning pain; "hot temperature outside" is the weather.
+PREFER = [# 3.76: a situation named ("haze", "puasa", "my period", "after my operation") over a general topic.
+          ("haze", "pain_sharp"), ("haze", "pain_or_discomfort"), ("haze", "equipment"), ("haze", "other_activity"),
+          ("haze", "hot_weather"), ("fasting", "best_time"), ("fasting", "diet"), ("fasting", "eating_concern"),
+          ("weather", "tired"), ("weather", "equipment"), ("weather", "best_time"), ("travel", "missed_session"),
+          ("travel", "plan_and_reminders"), ("travel", "equipment"), ("travel", "plan_progress"),
+          ("travel", "plan_exercises"), ("fasting", "missed_session"), ("surgery", "diagnosis"), ("surgery", "safety"),
+          ("surgery", "plan_progress"), ("surgery", "treatment_nav"), ("condition_advice", "surgery"),
+          ("period", "pain_or_discomfort"), ("period", "pain_mild"), ("period", "pain_sharp"), ("period", "tired"),
+          ("period", "diet"), ("alcohol_smoking", "diet"), ("alcohol_smoking", "tired"), ("after_treatment", "diet"),
+          ("after_treatment", "condition_advice"), ("after_treatment", "muscle_loss"), ("after_treatment", "tired"),
+          ("after_treatment", "pain_or_discomfort"),
+          # 3.74: "how many calories did i burn" is not burning pain; "hot temperature outside" is the weather.
           ("calories", "pain_or_discomfort"), ("calories", "equipment"),
           ("hot_weather", "health_readings"), ("tired", "health_readings"), ("calories", "posture_result"),
           ("calories", "plan_progress"),
@@ -2036,7 +2052,9 @@ ABOUT_THE_PERSON = {"pain_or_discomfort", "pain_mild", "pain_sharp", "pain_swell
                     "weakness_balance", "fear_of_falling", "condition_advice", "medication", "diagnosis",
                     "hot_weather", "safety", "doctor_said", "doctor_clearance", "muscle_loss", "joint_noise",
                     "eating_concern", "missed_session", "motivation", "bladder_leak", "for_someone_else",
-                    "family_help", "partial_reps", "age_limit", "wrong_exercise", "adjusted_targets"}
+                    "family_help", "partial_reps", "age_limit", "wrong_exercise", "adjusted_targets",
+                    # 3.76: a situation told first ("air quality is bad, can i still exercise")
+                    "haze", "fasting", "weather", "travel", "surgery", "period", "alcohol_smoking", "after_treatment"}
 # A question that points back at the story ("i only did half of each movement, does it count").
 POINTS_BACK = {"it", "this", "that", "them", "these", "those", "so", "one"}
 

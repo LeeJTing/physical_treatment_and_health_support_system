@@ -58,6 +58,9 @@ runner rush sandals selfie shape shut sucks summer sunblock sunscreen sweater ta
 warned windy upwards disturbed screwed enable disable activate launch notes contacts photos pictures selected
 selection television value worker shoot dust cleaner hat coat golf basketball chess girlfriend guys women's
 upwards bright brighter brightness darker darken dim lamp""".split())
+# 3.76: topics of this chatbot whose words are other domains' too ("travel", "flight", "hotel", "weather",
+# "rain", "wine"): left out of the weighing, so "book a flight to boston" stays another domain's.
+SHARED_TOPICS = {"travel", "weather", "haze", "alcohol_smoking"}
 MIN_COUNT = 3          # in at least 3 questions of other domains
 MASSIVE_SPREAD = 2     # a MASSIVE word: in at most 2 of its 18 domains (scenarios)
 
@@ -113,7 +116,7 @@ def domain_weights() -> dict:
         return {engine.stem(w) for w in re.findall(r"[a-z][a-z']+", engine.clean(text)) if w not in engine.STOP}
 
     r = json.loads(engine.RULES_PATH.read_text(encoding="utf-8"))
-    ours = [t for i in r["intents"] for t in i["keywords"] + i["examples"]]
+    ours = [t for i in r["intents"] if i["key"] not in SHARED_TOPICS for t in i["keywords"] + i["examples"]]
     ours += [t for e in r["exercises"].values() for t in [e["name"], e["instruction"]] + e["aliases"]]
     ours += list(r.get("glossary", {})) + r["red_flags"]
     d = json.loads(DATA.read_text(encoding="utf-8"))

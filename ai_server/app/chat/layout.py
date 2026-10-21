@@ -33,8 +33,8 @@ def sentences(text: str) -> list[str]:
 
 # Lines that speak to the person rather than make a point ("Choose an option below.", "Which describes your
 # pain best?", "For example: ..."): on a line of their own, not numbered.
-_PROMPT = re.compile(r"^(?:Tap |Choose |Pick |You can also (?:pick|tap|choose|try|ask)|For example|Which |What |Is |"
-                     r"Are |Do |Does |Would )|\?$")
+# 3.76: a question only when it ends with "?" ("Do not exercise after drinking alcohol" is a point).
+_PROMPT = re.compile(r"^(?:Tap |Choose |Pick |You can also (?:pick|tap|choose|try|ask)|For example)|\?$")
 
 
 def layout(text: str) -> str:

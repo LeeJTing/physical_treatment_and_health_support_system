@@ -1,18 +1,18 @@
 {
- "rules_version": "chat-rules-3.75",
+ "rules_version": "chat-rules-3.76",
  "seed": 1,
  "messages": 1935,
- "passed": 1836,
- "rate": 0.9488,
+ "passed": 1838,
+ "rate": 0.9499,
  "urgent": 385,
  "urgent_passed": 385,
  "by_kind": {
   "story": {
-   "passed": 913,
+   "passed": 914,
    "messages": 989
   },
   "two_questions": {
-   "passed": 923,
+   "passed": 924,
    "messages": 946
   }
  },
@@ -30,13 +30,12 @@
   "two_questions: 'how to stand heel to toe. my hip clicks when i lift my leg sideways' -> plan_exercises (want ['exercise:hip_abduction', 'exercise:tandem_stance', 'joint_noise'])",
   "story: 'my daughter helped me set up the phone and then my knees go past my toes in squat' -> family_help (want ['exercise:mini_squat', 'posture_result'])",
   "story: 'yesterday i went to the market, she fell. that was last year, now fine' -> None (want ['fear_of_falling'])",
-  "story: 'the weather is very hot today, I missed 2 weeks because I was in hospital' -> None (want ['missed_session'])",
+  "story: 'the weather is very hot today, I missed 2 weeks because I was in hospital' -> hot_weather (want ['missed_session'])",
   "story: 'my wife is at work now, so cheers, that helps' -> plan_progress (want ['thanks'])",
   "two_questions: 'push up against the wall, and marching on the spot how long' -> plan_exercises (want ['exercise:march_in_place', 'exercise:wall_push_up'])",
   "story: 'i just finished my breakfast lah, can i use it on iphone' -> diet (want ['app_facts'])",
   "story: 'the weather is very hot today. can i go jogging' -> hot_weather (want ['difficulty', 'other_activity', 'safety'])",
   "story: 'the weather is very hot today, so i have fallen behind on my exercises' -> hot_weather (want ['missed_session'])",
-  "two_questions: \"i'm taking care of my mum with dementia, can she use this... good morning doctor\" -> condition_advice (want ['for_someone_else', 'greeting'])",
   "two_questions: \"i fell last year but today i'm fine again plus will i hurt myself doing squats\" -> red_flag (want ['difficulty', 'exercise:mini_squat', 'fear_of_falling'])",
   "story: 'my daughter helped me set up the phone. where can i see my score last week' -> family_help (want ['history_help'])",
   "two_questions: 'leg out to the side exercise lah, glute bridge on bed or floor' -> plan_exercises (want ['equipment', 'exercise:glute_bridge', 'exercise:hip_abduction'])",
@@ -63,7 +62,6 @@
   "story: 'i just finished my breakfast lah, feeling very weak and shaky today' -> diet (want ['weakness_balance'])",
   "story: 'my daughter helped me set up the phone and then can i use my hands to stand up first' -> family_help (want ['difficulty', 'exercise:sit_to_stand', 'weakness_balance'])",
   "story: 'my daughter helped me set up the phone and then can i go jogging also' -> family_help (want ['other_activity'])",
-  "story: \"i finished my prayers. i'm taking care of my mum with dementia, can she use this\" -> condition_advice (want ['for_someone_else'])",
   "story: 'my daughter helped me set up the phone... can i exercise after eating' -> family_help (want ['best_time'])",
   "story: 'i just finished my breakfast and then feeling very weak and shaky today' -> diet (want ['weakness_balance'])",
   "story: 'it rained the whole morning... who made this app' -> how_often (want ['app_help', 'bot_identity'])",
@@ -116,5 +114,5 @@
   "story: 'my daughter helped me set up the phone and then what is health connect' -> family_help (want ['health_connect'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 145
+ "seconds": 140
 }

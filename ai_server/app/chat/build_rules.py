@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.75"
+VERSION = "chat-rules-3.76"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -935,6 +935,101 @@ INTENTS = [
            "Rest, drink some water, and notice how you feel: mild muscle soreness the next day is normal. "
            "Each plan gives you one exercise a day: the next one comes tomorrow, and your reminder will tell you "
            "when.", show=False),
+    # 3.76 (situations test, chat_situations_set.py): everyday situations around exercising. Before: "the haze
+    # is bad today", "i'm on holiday", "i smoke" were not recognised, fasting got the general best time,
+    # "can i exercise after blood donation" condition advice.
+    intent("haze", "Haze and air quality", 7,
+           ["haze", "hazy", "jerebu", "berjerebu", "air quality", "air pollution", "pollution", "polluted",
+            "api reading", "api index", "api level", "air pollutant index", "ipu", "smoky outside", "air is smoky",
+            "smoky air", "berasap", "asap tebal",
+            "asap jerebu"],
+           ["the haze is bad today", "the air quality is bad"],
+           "On hazy days, exercise indoors with the windows and doors closed: all your exercises can be done at home. "
+           "Check the Air Pollutant Index (API): above 100 is unhealthy, so do not exercise outdoors. "
+           "With asthma, COPD or heart disease, keep your inhaler or medicines close, and stop if you cough, wheeze "
+           "or feel short of breath. "
+           "Drink plenty of water.", show=False),
+    intent("fasting", "Exercising while fasting", 7,
+           ["fasting",
+            "puasa", "berpuasa", "ramadan", "ramadhan", "bulan puasa", "iftar", "berbuka",
+            "buka puasa", "sahur", "sahoor", "suhoor", "intermittent fasting"],
+           ["I am fasting in Ramadan", "exercise during Ramadan"],
+           "You can keep doing your exercises while fasting, at a gentle pace. "
+           "The easiest time is 1 to 2 hours after breaking your fast, or before sahur; avoid the late afternoon, "
+           "when you are most tired and thirsty. "
+           "Drink plenty of water between breaking your fast and sahur. "
+           "If you have diabetes, especially with insulin or tablets that can cause low sugar, ask your doctor "
+           "before exercising while fasting, and stop if you feel shaky, sweaty, dizzy or confused.", show=False),
+    intent("weather", "Rain, cold and air-conditioning", 6,
+           ["raining", "rainy", "in the rain", "rain today", "heavy rain", "hujan", "too cold", "very cold", "so cold", "cold room", "room is cold",
+            "room is very cold", "cold weather", "weather is cold", "sejuk", "cuaca sejuk", "aircond", "air cond",
+            "aircon", "air con", "air conditioner", "air conditioned", "air-conditioned", "air conditioning"],
+           ["it is raining today", "my room is very cold"],
+           "Rain does not stop your exercises: they can all be done indoors. "
+           "In a cold or air-conditioned room, warm up for a few minutes longer and wear a layer you can take off. "
+           "With asthma, cold air can bring on wheezing, so keep your inhaler close. "
+           "On hot days, exercise in a cool, airy room and drink water.", show=False),
+    intent("travel", "Travelling or on holiday", 6,
+           ["travelling", "traveling", "going to travel", "will travel", "travel next", "travel overseas", "travel abroad", "on holiday",
+            "go on holiday", "going on holiday", "school holiday", "family holiday", "vacation", "balik kampung", "outstation", "overseas", "abroad",
+            "long flight", "my flight", "flight tomorrow", "on a flight", "hotel room", "cuti sekolah", "bercuti",
+            "going away", "away from home"],
+           ["I am travelling this week", "I will be on holiday next week"],
+           "You can take your plan with you: the exercises need only a sturdy chair and a little space, so a hotel "
+           "room or a relative's house is fine. "
+           "Reminders follow your phone's time, also in another time zone. "
+           "On long journeys, get up and walk, or move your ankles, every hour. "
+           "If you miss a few days, start again gently with fewer repetitions.", show=False),
+    intent("surgery", "Before or after an operation", 7,
+           ["going for surgery", "having surgery", "have surgery", "surgery next", "surgery soon", "surgery on",
+            "operation next", "operation soon", "an operation", "before surgery", "before my surgery",
+            "before the surgery", "before my operation", "before the operation", "after surgery", "after my surgery",
+            "after the surgery", "after my operation", "after the operation", "after operation", "had surgery",
+            "had an operation", "post op", "post-op", "postop", "pembedahan", "lepas operation", "lepas operate",
+            "kena operate", "nak operate", "bedah"],
+           ["I am going for surgery next week", "when can I start again after my operation"],
+           "Before and after an operation, your surgeon's and physiotherapist's advice comes first. "
+           "Before it: keep doing your exercises if they feel comfortable, unless your doctor says otherwise; being "
+           "stronger helps you recover. "
+           "After it: ask them when you may start again and which movements to avoid; you can switch your "
+           "reminders off meanwhile, and your progress is kept. "
+           "Update your health profile if the operation changes anything, such as a new hip or knee.", show=False),
+    intent("period", "Exercising during your period", 7,
+           ["my period", "on my period", "on period", "having my period", "period pain", "period pains",
+            "period cramps", "menstrual", "menstruation", "menstruating", "menses", "haid", "datang bulan",
+            "senggugut", "during my period", "during period", "pms"],
+           ["I am on my period", "period pain"],
+           "Exercising during your period is fine, and gentle exercise can ease cramps. "
+           "Go at an easier pace on heavy or painful days, and drink water. "
+           "Stop and rest if you feel dizzy or faint. "
+           "Very heavy bleeding, or pain that stops you doing daily things, is worth telling your doctor.",
+           show=False),
+    intent("alcohol_smoking", "Alcohol and smoking", 7,
+           ["alcohol", "drinking alcohol", "drank alcohol", "beer", "wine", "liquor", "whisky", "arak", "tuak",
+            "hangover", "i smoke", "smoking", "smoker", "cigarette", "cigarettes", "rokok", "merokok",
+            "vape", "vaping", "quit smoking", "stop smoking", "berhenti merokok"],
+           ["I drank alcohol last night", "I smoke cigarettes"],
+           "Alcohol and smoking both make exercise harder and less safe. "
+           "Do not exercise after drinking alcohol: it upsets your balance, makes falls more likely and dries you "
+           "out, so wait until the next day. "
+           "Smoking makes exercise harder because your muscles get less oxygen; avoid smoking just before or after "
+           "exercising. "
+           "Stopping smoking helps your breathing within weeks, and your clinic or doctor can help you quit.",
+           show=False),
+    intent("after_treatment", "After a massage, blood donation or vaccine", 6,
+           ["massage", "urut", "tukang urut", "acupuncture", "akupunktur", "cupping", "bekam", "blood donation",
+            "donate blood", "donated blood", "donating blood", "derma darah", "after vaccine", "after my vaccine",
+            "after the vaccine", "after a vaccine", "after vaccination", "after covid vaccine", "after my covid vaccine",
+            "had my vaccine", "got my vaccine", "vaccine yesterday", "vaccine today", "just vaccinated",
+            "got vaccinated", "after the jab", "after my jab", "got my flu shot", "had my flu shot",
+            "flu shot today", "after booster", "after my booster", "lepas vaksin", "selepas vaksin"],
+           ["I just had a massage", "I just donated blood"],
+           "Gentle exercise is usually fine afterwards, with a little care. "
+           "After a massage, urut or cupping: if the area is sore or bruised, rest it for a day. "
+           "After giving blood: avoid hard exercise and heavy lifting for the rest of the day and drink extra "
+           "water; carry on with your exercises the next day. "
+           "After a vaccine: light exercise is fine if you feel well; with a fever or feeling unwell, rest until it "
+           "passes, and go easy on a sore arm that day.", show=False),
     # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
     # word's meaning.
     intent("word_meaning", "What a word means", 6, [], [],

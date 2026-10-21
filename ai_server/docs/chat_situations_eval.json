@@ -1,0 +1,50 @@
+{
+ "rules_version": "chat-rules-3.76",
+ "seed": 1,
+ "messages": 2000,
+ "passed": 1994,
+ "rate": 0.997,
+ "by_kind": {
+  "after_treatment": {
+   "passed": 240,
+   "messages": 241
+  },
+  "alcohol_smoking": {
+   "passed": 220,
+   "messages": 221
+  },
+  "fasting": {
+   "passed": 250,
+   "messages": 252
+  },
+  "haze": {
+   "passed": 283,
+   "messages": 283
+  },
+  "period": {
+   "passed": 267,
+   "messages": 267
+  },
+  "surgery": {
+   "passed": 224,
+   "messages": 224
+  },
+  "travel": {
+   "passed": 252,
+   "messages": 253
+  },
+  "weather": {
+   "passed": 258,
+   "messages": 259
+  }
+ },
+ "misses": [
+  "fasting: 'fasting mnth can i continue my plan ah?' -> red_flag (want ['fasting'])",
+  "weather: 'my room is very cld huh' -> equipment (want ['weather'])",
+  "fasting: 'when to exercise during ramadannnn leh...' -> best_time (want ['fasting'])",
+  "alcohol_smoking: 'had some wie at dinner ah' -> diet (want ['alcohol_smoking'])",
+  "after_treatment: 'can i exercise after urt?' -> diet (want ['after_treatment'])",
+  "travel: 'Going on vacation, what about my plannnn leh?' -> plan_exercises (want ['travel'])"
+ ],
+ "seconds": 106
+}

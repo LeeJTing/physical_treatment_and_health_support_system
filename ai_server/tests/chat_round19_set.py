@@ -48,7 +48,7 @@ ROUND19 = [
     (KNEE, "can my child use this app", "guardian_consent"),
     (KNEE, "how are repetitions counted", "posture_result"),
     (KNEE, "can i restart my plan", "plan_and_reminders"),
-    (KNEE, "can i exercise during ramadan fasting", "best_time"),
+    (KNEE, "can i exercise during ramadan fasting", ("best_time", "fasting")),   # 3.76
     (KNEE, "i take blood thinners can i exercise", "medication"),
     (KNEE, "i just had covid can i exercise", "tired"),
     (KNEE, "can i exercise if i have a cold", "tired"),

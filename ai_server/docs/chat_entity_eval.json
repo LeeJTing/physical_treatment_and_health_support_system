@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.75",
+ "rules_version": "chat-rules-3.76",
  "exercises": {
   "questions": 1876,
   "correct": 1876,
@@ -8,12 +8,9 @@
  },
  "conditions": {
   "questions": 490,
-  "correct": 488,
-  "misses": [
-   "'i have cancer is it safe to exercise' -> diagnosis",
-   "'is this plan ok for cancer' -> diagnosis"
-  ],
-  "rate": 0.9959
+  "correct": 490,
+  "misses": [],
+  "rate": 1.0
  },
  "mistakes": {
   "questions": 582,
@@ -27,5 +24,5 @@
   "misses": [],
   "rate": 1.0
  },
- "seconds": 121
+ "seconds": 149
 }

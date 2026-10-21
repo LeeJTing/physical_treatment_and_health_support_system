@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.75)
+# Chatbot answers (chat-rules-3.76)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -94,8 +94,8 @@ Flexion means bending a joint, or lifting a limb forward. Elbow flexion bends yo
 
 ```
 Stop the exercise that causes it and rest.
-Do not push through sharp or worsening pain.
-If it does not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist before you continue with that exercise.
+1) Do not push through sharp or worsening pain.
+2) If it does not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist before you continue with that exercise.
 ```
 
 ## A low oxygen reading
@@ -167,6 +167,27 @@ Being afraid of falling is common.
 5) Tell your doctor about any fall or near-fall; they can check your balance and medicines.
 ```
 
+## After a massage, blood donation or vaccine  (`after_treatment`)
+*I just had a massage*
+
+```
+Gentle exercise is usually fine afterwards, with a little care.
+1) After a massage, urut or cupping: if the area is sore or bruised, rest it for a day.
+2) After giving blood: avoid hard exercise and heavy lifting for the rest of the day and drink extra water; carry on with your exercises the next day.
+3) After a vaccine: light exercise is fine if you feel well.
+4) With a fever or feeling unwell, rest until it passes, and go easy on a sore arm that day.
+```
+
+## Alcohol and smoking  (`alcohol_smoking`)
+*I drank alcohol last night*
+
+```
+Alcohol and smoking both make exercise harder and less safe.
+1) Do not exercise after drinking alcohol: it upsets your balance, makes falls more likely and dries you out, so wait until the next day.
+2) Smoking makes exercise harder because your muscles get less oxygen; avoid smoking just before or after exercising.
+3) Stopping smoking helps your breathing within weeks, and your clinic or doctor can help you quit.
+```
+
 ## Allergies  (`allergy`)
 *I have an allergy*
 
@@ -195,6 +216,16 @@ If you have an allergy, tell your doctor before starting your exercises, and kee
 
 ```
 “Back sag” in your posture result means your lower back dipped or your hips tilted while you stretched. Keep your back flat and your hips level.
+```
+
+## Before or after an operation  (`surgery`)
+*I am going for surgery next week*
+
+```
+Before and after an operation, your surgeon's and physiotherapist's advice comes first.
+1) Before it: keep doing your exercises if they feel comfortable, unless your doctor says otherwise; being stronger helps you recover.
+2) After it: ask them when you may start again and which movements to avoid; you can switch your reminders off meanwhile, and your progress is kept.
+3) Update your health profile if the operation changes anything, such as a new hip or knee.
 ```
 
 ## Bent elbow  (`mistake:bent_elbow`)
@@ -331,6 +362,16 @@ An exercise reminder says which exercise is next, and tapping it opens that plan
 7) The sound follows your phone's notification settings.
 ```
 
+## Exercising during your period  (`period`)
+*I am on my period*
+
+```
+Exercising during your period is fine, and gentle exercise can ease cramps.
+1) Go at an easier pace on heavy or painful days, and drink water.
+2) Stop and rest if you feel dizzy or faint.
+3) Very heavy bleeding, or pain that stops you doing daily things, is worth telling your doctor.
+```
+
 ## Exercising for a family member  (`for_someone_else`)
 *can my mother do these exercises*
 
@@ -359,6 +400,16 @@ Exercise next to a sturdy chair or counter, on a dry non-slip floor, and breathe
 1) Warm up with a few minutes of gentle movement first.
 2) Stop if you feel dizzy, short of breath, or unwell.
 3) Your plan already stays within the safety limits from your health profile.
+```
+
+## Exercising while fasting  (`fasting`)
+*I am fasting in Ramadan*
+
+```
+You can keep doing your exercises while fasting, at a gentle pace.
+1) The easiest time is 1 to 2 hours after breaking your fast, or before sahur; avoid the late afternoon, when you are most tired and thirsty.
+2) Drink plenty of water between breaking your fast and sahur.
+3) If you have diabetes, especially with insulin or tablets that can cause low sugar, ask your doctor before exercising while fasting, and stop if you feel shaky, sweaty, dizzy or confused.
 ```
 
 ## Exercising with a health condition  (`condition_advice`)
@@ -482,6 +533,16 @@ Hello! I can answer questions about your rehabilitation exercises, pain, safety,
 
 ```
 “Hands used” in your posture result means your hands pushed on your legs or the chair to help you stand. If you can, stand up with your arms crossed; if you need your hands to stand safely, that is fine.
+```
+
+## Haze and air quality  (`haze`)
+*the haze is bad today*
+
+```
+On hazy days, exercise indoors with the windows and doors closed: all your exercises can be done at home.
+1) Check the Air Pollutant Index (API): above 100 is unhealthy, so do not exercise outdoors.
+2) With asthma, COPD or heart disease, keep your inhaler or medicines close, and stop if you cough, wheeze or feel short of breath.
+3) Drink plenty of water.
 ```
 
 ## Head tilt  (`mistake:head_tilt`)
@@ -1022,6 +1083,16 @@ This plan aims to help you move your joints more freely.
 2) Your progress bar moves forward each time you complete an exercise with good posture; when the plan is complete, request a new recommendation to move on.
 ```
 
+## Rain, cold and air-conditioning  (`weather`)
+*it is raining today*
+
+```
+Rain does not stop your exercises: they can all be done indoors.
+1) In a cold or air-conditioned room, warm up for a few minutes longer and wear a layer you can take off.
+2) With asthma, cold air can bring on wheezing, so keep your inhaler close.
+3) On hot days, exercise in a cool, airy room and drink water.
+```
+
 ## Recording your exercise video  (`recording_help`)
 *how do I record my exercise*
 
@@ -1059,8 +1130,8 @@ You can also try asking in other words, or pick a topic below.
 
 ```
 Stop the exercise that causes it and rest.
-Do not push through sharp or worsening pain.
-If it does not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist before you continue with that exercise.
+1) Do not push through sharp or worsening pain.
+2) If it does not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist before you continue with that exercise.
 ```
 
 ## Shoulder shrug  (`mistake:shoulder_shrug`)
@@ -1226,7 +1297,17 @@ I cannot make calls, send messages, book appointments, order things or play musi
 If an exercise is too hard, do fewer repetitions with good form and rest between them; it should feel like effort, not pain.
 1) If you cannot move as far as the picture, go only as far as is comfortable and a little further each week.
 2) If it feels too easy, keep the same plan until you finish it, then request a new recommendation from the planning page: it will suggest a plan for your new level.
-Do not add weight, extra sets or other exercises on your own.
+3) Do not add weight, extra sets or other exercises on your own.
+```
+
+## Travelling or on holiday  (`travel`)
+*I am travelling this week*
+
+```
+You can take your plan with you: the exercises need only a sturdy chair and a little space, so a hotel room or a relative's house is fine.
+1) Reminders follow your phone's time, also in another time zone.
+2) On long journeys, get up and walk, or move your ankles, every hour.
+3) If you miss a few days, start again gently with fewer repetitions.
 ```
 
 ## Trunk forward  (`mistake:trunk_forward`)
