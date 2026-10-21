@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.88",
+ "rules_version": "chat-rules-3.89",
  "seed": 1,
  "messages": 2000,
  "reported_ok": 20,
@@ -185,8 +185,8 @@
    "answer": "I am the rehabilitation assistant for your treatment plan.\n1) I answer common questions using answers prepared in advance, so I cannot diagnose or give medical advice.\n2) You can ask about how to do y"
   }
  ],
- "passed": 1973,
- "rate": 0.9865,
+ "passed": 1990,
+ "rate": 0.995,
  "by_kind": {
   "about_bot": {
    "passed": 260,
@@ -197,7 +197,7 @@
    "messages": 137
   },
   "emergency": {
-   "passed": 195,
+   "passed": 196,
    "messages": 196
   },
   "gibberish": {
@@ -205,7 +205,7 @@
    "messages": 211
   },
   "health_word": {
-   "passed": 224,
+   "passed": 234,
    "messages": 234
   },
   "report": {
@@ -213,46 +213,29 @@
    "messages": 144
   },
   "small_talk": {
-   "passed": 316,
+   "passed": 317,
    "messages": 318
   },
   "to_bot": {
-   "passed": 158,
+   "passed": 159,
    "messages": 161
   },
   "vague": {
-   "passed": 335,
+   "passed": 339,
    "messages": 339
   }
  },
  "misses": [
-  "health_word: 'MEFIC' -> None (want ['med_help']; from 'medic')",
   "gibberish: 'milp' -> diet (want ['None']; from '(random letters)')",
   "to_bot: 'I LOE YOU PLS...' -> weakness_balance (want ['bot_identity']; from 'i love you')",
-  "health_word: 'MEDD AH ?' -> medication (want ['med_help']; from 'med')",
-  "health_word: 'Meddd pls' -> medication (want ['med_help']; from 'med')",
   "to_bot: 'i loe you ?' -> weakness_balance (want ['bot_identity']; from 'i love you')",
-  "to_bot: 'i lve you ah' -> None (want ['bot_identity']; from 'i love you')",
-  "health_word: 'medci leh ?' -> None (want ['med_help']; from 'medic')",
-  "health_word: 'mdic ah...' -> None (want ['med_help']; from 'medic')",
-  "vague: 'Um whaat!' -> None (want ['clarify']; from 'um what')",
   "small_talk: 'coe again pls...' -> verification_code (want ['pardon']; from 'come again?')",
   "gibberish: 'har' -> difficulty (want ['None']; from '(random letters)')",
   "gibberish: 'hm' -> acknowledge (want ['None']; from '(random letters)')",
   "gibberish: 'ggo' -> other_activity (want ['None']; from '(random letters)')",
-  "health_word: 'meddic lah...' -> None (want ['med_help']; from 'medic')",
   "gibberish: 'tzy' -> thanks (want ['None']; from '(random letters)')",
   "gibberish: 'okg' -> acknowledge (want ['None']; from '(random letters)')",
-  "gibberish: 'ye' -> goodbye (want ['None']; from '(random letters)')",
-  "health_word: 'mdeic pls??' -> None (want ['med_help']; from 'medic')",
-  "health_word: 'Meduc huh??' -> None (want ['med_help']; from 'medic')",
-  "vague: 'whaat' -> None (want ['clarify']; from 'what')",
-  "health_word: 'Medicccc leh ?' -> None (want ['med_help']; from 'medic')",
-  "small_talk: 'cme again?' -> None (want ['pardon']; from 'come again?')",
-  "vague: 'um whhat??' -> None (want ['clarify']; from 'um what')",
-  "emergency: 'Disl 999!' -> None (want ['red_flag']; from 'dial 999')",
-  "health_word: 'medci ah??' -> None (want ['med_help']; from 'medic')",
-  "vague: 'whhat leh...' -> None (want ['clarify']; from 'what')"
+  "gibberish: 'ye' -> goodbye (want ['None']; from '(random letters)')"
  ],
- "seconds": 157
+ "seconds": 132
 }

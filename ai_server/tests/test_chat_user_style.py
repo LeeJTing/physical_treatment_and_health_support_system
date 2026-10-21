@@ -33,6 +33,16 @@ def test_really_after_an_answer_continues_it():
     assert _got("are you sure lah", "pain_or_discomfort") == "pain_or_discomfort"
 
 
+def test_slips_of_short_words_from_the_reports():
+    # 3.89: "medic", "what", "dial 999", "i love you", "come again" typed with a slip or stretched
+    for text, want in [("medci leh ?", "med_help"), ("Medicccc leh ?", "med_help"), ("MEDD AH ?", "med_help"),
+                       ("whaat", "clarify"), ("um whhat??", "clarify"), ("Disl 999!", "red_flag"),
+                       ("i lve you ah", "bot_identity"), ("cme again?", "pardon")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    for text in ["media", "medal"]:
+        assert engine.reply(PLAN, None, text)["category"] != "med_help", text
+
+
 def test_not_recognised_echoes_a_short_message():
     x = _reply("going")
     assert x["answer"].startswith("Question not recognised") and '"going"' in x["answer"]       # FR500_22

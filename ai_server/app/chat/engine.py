@@ -148,7 +148,8 @@ SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", 
                      "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video",
                      # 3.80: "fasting mnth" was read as Malay "muntah" (vomiting)
                      "mnth": "month", "mth": "month", "mths": "months", "mnths": "months", "wk": "week",
-                     "wks": "weeks", "yr": "year", "yrs": "years", "hrs": "hours", "hlp": "help", "hep": "help"}
+                     "wks": "weeks", "yr": "year", "yrs": "years", "hrs": "hours", "hlp": "help", "hep": "help",
+                     "lve": "love", "luv": "love", "cme": "come"}
 # Malay as it is texted (3.59, the random typing test: "sya jatuh semalam", "xleh bangun", "jatuh td").
 SHORT_WORDS_TYPED.update({
     "cot": "cost",                                   # 3.75: not "clot" (a blood clot is a condition now)
@@ -2421,7 +2422,10 @@ def _match_whole(plan_id: str | None, text: str) -> tuple[dict | None, str | Non
         advice = {i["key"]: i for i in intents_for(plan_id)}.get("condition_advice")
         if advice is not None:
             return advice, "keyword"                     # "sugar 3.2", "bp 120/80" (3.67)
-    if core in (["med"], ["medic"]):                     # "med" alone: medicine or medical help? (3.66)
+    single = re.sub(r"(.)\1+", r"\1", core[0]) if len(core) == 1 else ""
+    if single in ("med", "medic") or (len(single) >= 4 and single[0] == "m" and single not in dictionary()
+                                      and typo_cost(single, "medic") <= 1.0):
+        # "med" alone: medicine or medical help? (3.66); also "medci", "mdic", "medicccc" (3.89)
         helper = {i["key"]: i for i in intents_for(plan_id)}.get("med_help")
         if helper is not None:
             return helper, "keyword"
@@ -2734,6 +2738,9 @@ def _follow_word(w: str) -> str | None:
     single = re.sub(r"(.)\1+$", r"\1", w)                    # "againn" -> "again", "whyy" -> "why"
     if single in FOLLOW_TRIGGERS or single in FOLLOW_FILLERS:
         return single
+    once = re.sub(r"(.)\1+", r"\1", w)                       # "whaat", "whhat" -> what (3.89)
+    if once in FOLLOW_TRIGGERS or once in FOLLOW_FILLERS or once == "what":
+        return once
     if len(w) >= 3:
         for v in _FOLLOW_VOCAB:                                 # "berap" -> "berapa", "explai" -> "explain"
             if len(v) == len(w) + 1 and v.startswith(w) and len(v) >= 4:
@@ -2989,7 +2996,12 @@ def _body_part_alone(text: str | None) -> str | None:
 def _emergency_call(text: str) -> bool:
     """Only an emergency number or a call for an ambulance, as typed, stretched or misspelt."""
     low = re.sub(r"([a-z])\1{2,}", r"\1", text.lower())          # "ambulanceeee"
-    return bool(EMERGENCY_CALL_RE.match(low) or EMERGENCY_CALL_RE.match(respell(low)))
+    if EMERGENCY_CALL_RE.match(low) or EMERGENCY_CALL_RE.match(respell(low)):
+        return True
+    first, _, rest = low.strip().partition(" ")                  # "disl 999", "cal 999" (3.89)
+    word = re.sub(r"[^a-z]", "", first)
+    return bool(rest) and any(typo_cost(word, v) <= 1.0 for v in ("call", "dial", "phone")) \
+        and bool(EMERGENCY_CALL_RE.match("call " + rest))
 
 
 def _shown(typed: str | None) -> str | None:
