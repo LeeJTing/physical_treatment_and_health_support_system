@@ -11,6 +11,7 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chat_reply.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chatbot_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -536,5 +537,20 @@ void main() {
     expect(h.server.asked.first.containsKey('previous_category'), isFalse);
     await h.vm.ask('is that normal');
     expect(h.server.asked.last['previous_category'], 'pain_or_discomfort');
+  });
+
+  test('the main answer keeps its own paragraphs; only the notes go to the box', () {
+    // A condition answer has a paragraph per condition and a closing one; the notes come last.
+    final reply = ChatReply.fromJson({
+      'answer':
+          'With high blood pressure, exercise helps.\n\nCheck with your doctor before doing more.'
+          '\n\nNote: It is late.\nNote: Your risk level is High.',
+      'is_matched': true,
+      'notes': ['It is late.', 'Your risk level is High.'],
+    });
+    expect(
+      reply.mainAnswer,
+      'With high blood pressure, exercise helps.\n\nCheck with your doctor before doing more.',
+    );
   });
 }
