@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.99",
+  "version": "chat-rules-4.00",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -1124,7 +1124,12 @@
         "video upload failed",
         "kamera",
         "kamera tak nampak",
-        "tak nampak saya"
+        "tak nampak saya",
+        "hold the phone",
+        "holding the phone",
+        "hold my phone",
+        "pegang phone",
+        "pegang telefon"
       ],
       "examples": [
         "how do I record my exercise",
@@ -1239,6 +1244,9 @@
       },
       "more_actions": [],
       "patterns": [
+        "\\bscore (?:changed|went down|dropped|is different|different|lower|went up)\\b",
+        "\\b(?:different|lower|another) score\\b",
+        "\\bcounted (?:only )?\\d+\\b",
         "\\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\\b",
         "\\b(?:did|says|shows|counted) (?:0|zero)\\b",
         "\\bcounted (?:none|nothing)\\b",
@@ -1843,7 +1851,7 @@
         "it says my video is quite dark",
         "why does it say move the phone closer"
       ],
-      "answer": "A dark video, or you looking small in the picture, makes the posture check less accurate.\nRecord with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away so your whole body fills most of the picture, from head to feet.",
+      "answer": "A dark video, or you looking small in the picture, makes the posture check less accurate.\n1) Record with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away so your whole body fills most of the picture, from head to feet.\n2) Wear fitted clothes rather than loose ones, and keep other people and pets out of the picture.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -1854,6 +1862,12 @@
         "label": "Record an exercise"
       },
       "more_actions": [],
+      "patterns": [
+        "\\b(?:wear|wearing|clothes|clothing|shirt|pants|trousers|sarong|baju)\\b.{0,30}\\b(?:record|recording|video|camera)\\b",
+        "\\b(?:tight|loose|baggy|fitted) (?:clothes|clothing|shirt|pants|trousers)\\b",
+        "\\b(?:other people|someone else|people|family|kids|children|cat|dog|pet)s? (?:are |is )?(?:in|walk(?:ed|ing|s)? (?:in front of|into|across)) (?:the |my )?(?:room|picture|video|frame|background|camera)\\b",
+        "\\b(?:picture|video|image|recording|camera)(?: is| looks)? (?:blurry|blurred|blur|kabur)\\b"
+      ],
       "time_aware": false
     },
     {
@@ -3620,6 +3634,9 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\b(?:knee|joint|ankle|hip|elbow|wrist|shoulder)s? (?:is |are |feels? |feel |getting |gets )?(?:very |so )?(?:warm|hot)\\b"
+      ],
       "time_aware": false
     },
     {
@@ -5399,7 +5416,9 @@
         "stuck on the screen",
         "stuck on loading",
         "page stuck",
-        "button not working"
+        "button not working",
+        "phone panas",
+        "telefon panas"
       ],
       "examples": [
         "the app keeps crashing",
@@ -5413,6 +5432,10 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\banaly[sz](?:is|ing|e)\\b.{0,20}\\b(?:long|slow|forever|stuck|taking)\\b",
+        "\\bphone (?:gets |is |getting |becomes |goes )?(?:very |so |too )?(?:hot|warm|overheat|overheating|panas)\\b"
+      ],
       "time_aware": false
     },
     {

@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.99)
+# Chatbot answers (chat-rules-4.00)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -1500,7 +1500,8 @@ The 6-digit code is sent to the email you registered with.
 
 ```
 A dark video, or you looking small in the picture, makes the posture check less accurate.
-Record with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away so your whole body fills most of the picture, from head to feet.
+1) Record with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away so your whole body fills most of the picture, from head to feet.
+2) Wear fitted clothes rather than loose ones, and keep other people and pets out of the picture.
 ```
 
 ## Weak muscles after bed rest  (`muscle_loss`)

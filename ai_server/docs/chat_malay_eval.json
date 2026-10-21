@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.99",
+ "rules_version": "chat-rules-4.00",
  "seed": 1,
  "messages": 2000,
  "questions": 246,
@@ -12,5 +12,5 @@
   "'nak ptlah...' -> None (want ['crisis', 'red_flag']; from 'nak pitam!!')",
   "'dada skltah...' -> None (want ['red_flag']; from 'dada sakit')"
  ],
- "seconds": 114
+ "seconds": 99
 }

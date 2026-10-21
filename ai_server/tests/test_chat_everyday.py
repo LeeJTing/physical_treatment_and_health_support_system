@@ -199,3 +199,17 @@ def test_feelings_reminders_and_account_in_everyday_malay():
         assert engine.reply(PLAN, None, text)["category"] == want, text
     # "selamat ke?" still asks whether the last answer's activity is safe
     assert engine.reply(PLAN, None, "selamat ke", previous_category="other_activity")["category"] == "other_activity"
+
+
+def test_the_posture_check_and_recording():
+    # 4.00 (seventh probe)
+    for text, want in [("should i wear tight clothes for recording", "video_quality"),
+                       ("there are other people in the room", "video_quality"),
+                       ("my cat walked in front of the camera", "video_quality"),
+                       ("the picture is blurry", "video_quality"), ("can someone else hold the phone", "recording_help"),
+                       ("the analysis takes very long", "app_problem"), ("my phone gets hot", "app_problem"),
+                       ("my score changed when i redid it", "posture_result"),
+                       ("the app counted 8 but i did 10", "posture_result"), ("my knee is warm", "pain_swelling")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    for text in ["my vision is blurry", "everything is blurry"]:
+        assert engine.reply(PLAN, None, text)["category"] == "red_flag", text

@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.99"
+VERSION = "chat-rules-4.00"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -374,8 +374,10 @@ INTENTS = [
            ["it says my video is quite dark", "why does it say move the phone closer"],
            "A dark video, or you looking small in the picture, makes the posture check less accurate. Record "
            "with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away "
-           "so your whole body fills most of the picture, from head to feet.", show=False,
-           action={"key": "open_treatment", "label": "Record an exercise"}),
+           "so your whole body fills most of the picture, from head to feet. "
+           # 4.00: what to wear, and no one else in the picture
+           "Wear fitted clothes rather than loose ones, and keep other people and pets out of the picture.",
+           show=False, action={"key": "open_treatment", "label": "Record an exercise"}),
     # 8 Oct (round 13): which languages the assistant understands.
     intent("language", "Languages", 5,
            ["what language", "which language", "languages", "bahasa melayu", "guna bahasa", "speak malay",
@@ -1720,6 +1722,10 @@ EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju ata
 EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung"]
 EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
 EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+# 4.00: someone holding the phone
+EXTRA_KEYWORDS_374["recording_help"] += ["hold the phone", "holding the phone", "hold my phone", "pegang phone",
+                                         "pegang telefon"]
+EXTRA_KEYWORDS_374["app_problem"] = EXTRA_KEYWORDS_374.get("app_problem", []) + ["phone panas", "telefon panas"]
 # 3.99 (sixth probe): everyday Malay and English for feelings, reminders and the account
 for _k, _v in {"low_mood": ["sunyi", "rasa sunyi", "kesunyian", "keseorangan", "sorang sorang",
                             "takut tak boleh jalan"],
@@ -1795,9 +1801,22 @@ PATTERNS = {
     "session_done": [r"^(?:\w+ )?i did it$"],
     # "new" as a keyword had let "chinese new year" and "new checks" through (other-domain weights)
     "account_help": [r"\b(?:a |my )?new (?:phone|handphone|mobile)\b", r"\b(?:changed?|switched?) (?:my )?phones?\b"],
+    # 4.00 (seventh probe, the posture check): "should i wear tight clothes for recording" was the pain answer,
+    # "there are other people in the room" equipment, "the picture is blurry" and "my phone gets hot" not
+    # recognised, "the analysis takes very long" how often, "my score changed when i redid it" swelling ("red")
+    "video_quality": [r"\b(?:wear|wearing|clothes|clothing|shirt|pants|trousers|sarong|baju)\b.{0,30}\b(?:record|recording|video|camera)\b",
+                      r"\b(?:tight|loose|baggy|fitted) (?:clothes|clothing|shirt|pants|trousers)\b",
+                      r"\b(?:other people|someone else|people|family|kids|children|cat|dog|pet)s? (?:are |is )?(?:in|walk(?:ed|ing|s)? (?:in front of|into|across)) (?:the |my )?(?:room|picture|video|frame|background|camera)\b",
+                      r"\b(?:picture|video|image|recording|camera)(?: is| looks)? (?:blurry|blurred|blur|kabur)\b"],
+    # 4.00: "my knee is warm" was the safety answer (warm up)
+    "pain_swelling": [r"\b(?:knee|joint|ankle|hip|elbow|wrist|shoulder)s? (?:is |are |feels? |feel |getting |gets )?(?:very |so )?(?:warm|hot)\b"],
+    "app_problem": [r"\banaly[sz](?:is|ing|e)\b.{0,20}\b(?:long|slow|forever|stuck|taking)\b",
+                    r"\bphone (?:gets |is |getting |becomes |goes )?(?:very |so |too )?(?:hot|warm|overheat|overheating|panas)\b"],
     # 3.99: "i don't want to exercise today" was the plan's exercises ("exercises today")
     "motivation": [r"\b(?:don't|do not|not|never) (?:really )?(?:want|feel like) (?:to )?(?:do (?:my |the |any )?)?exercis"],
-    "posture_result": [r"\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\b",
+    "posture_result": [r"\bscore (?:changed|went down|dropped|is different|different|lower|went up)\b",
+                       r"\b(?:different|lower|another) score\b", r"\bcounted (?:only )?\d+\b",
+                       r"\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\b",
                        r"\b(?:did|says|shows|counted) (?:0|zero)\b", r"\bcounted (?:none|nothing)\b",
                        r"\b(?:didn't|did not) count any\b"],
     "how_to": [r"\bhow (?:fast|slow|slowly|quickly) (?:should|do|to|must|can)\b", r"\bspeed of each\b"],

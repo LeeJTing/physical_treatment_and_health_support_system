@@ -159,7 +159,9 @@ SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", 
                      # 3.80: "fasting mnth" was read as Malay "muntah" (vomiting)
                      "mnth": "month", "mth": "month", "mths": "months", "mnths": "months", "wk": "week",
                      "wks": "weeks", "yr": "year", "yrs": "years", "hrs": "hours", "hlp": "help", "hep": "help",
-                     "lve": "love", "luv": "love", "cme": "come"}
+                     "lve": "love", "luv": "love", "cme": "come",
+                     # 4.00: "when i redid it" was "red" (swelling); as rule words they took "reibd" (remind)
+                     "redid": "did again", "redo": "do again", "redone": "done again"}
 # Malay as it is texted (3.59, the random typing test: "sya jatuh semalam", "xleh bangun", "jatuh td").
 SHORT_WORDS_TYPED.update({
     "cot": "cost",                                   # 3.75: not "clot" (a blood clot is a condition now)
@@ -1234,7 +1236,9 @@ PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "resul
              # 3.74: "how many calories should i eat" is food
              ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"]),
              # 3.91: "now 2am cannot sleep, can i exercise" asks about exercising now (rest, it is late)
-             ("best_time", "sleep", ["exercise", "exercises", "exercising", "senaman", "senam", "workout"])]
+             ("best_time", "sleep", ["exercise", "exercises", "exercising", "senaman", "senam", "workout"]),
+             # 4.00: "should i wear tight clothes for recording" is what to wear, not tightness
+             ("video_quality", "pain_or_discomfort", ["clothes", "clothing", "shirt", "pants", "trousers", "wear"])]
 # 3.98: an operation told as the story before "how often should I exercise" (round 8: "...I just had knee surgery
 # three months ago and my physiotherapist recommended this app. I want to know how often I should exercise."), but
 # not "how often after my surgery".
