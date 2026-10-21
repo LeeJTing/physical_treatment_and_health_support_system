@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.98",
+  "version": "chat-rules-3.99",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -66,6 +66,9 @@
           "key": "open_profile",
           "label": "Open Profile"
         }
+      ],
+      "patterns": [
+        "(?<!don't )(?<!not )(?<!never )\\bwant to (?:start )?exercis(?:e|ing)\\b(?! (?:my|the|for) )"
       ],
       "time_aware": true
     },
@@ -1349,7 +1352,11 @@
         "what can this app do",
         "what can app do",
         "what does this app do",
-        "how app works"
+        "how app works",
+        "susah guna",
+        "susah nak guna",
+        "sukar guna",
+        "sukar digunakan"
       ],
       "examples": [
         "how does this app work",
@@ -1370,6 +1377,9 @@
           "key": "open_profile",
           "label": "Open Profile"
         }
+      ],
+      "patterns": [
+        "\\b(?:app|apps|this) (?:is |so |very |too )*(?:hard|difficult|confusing) to use\\b"
       ],
       "time_aware": false
     },
@@ -2463,7 +2473,13 @@
         "emotional health",
         "rindu",
         "rindu keluarga",
-        "rindu arwah"
+        "rindu arwah",
+        "sunyi",
+        "rasa sunyi",
+        "kesunyian",
+        "keseorangan",
+        "sorang sorang",
+        "takut tak boleh jalan"
       ],
       "examples": [
         "I feel sad",
@@ -2563,6 +2579,9 @@
         "label": "See my progress"
       },
       "more_actions": [],
+      "patterns": [
+        "\\b(?:don't|do not|not|never) (?:really )?(?:want|feel like) (?:to )?(?:do (?:my |the |any )?)?exercis"
+      ],
       "time_aware": false
     },
     {
@@ -3068,7 +3087,13 @@
         "don't allow",
         "do not allow",
         "peringatan lambat",
-        "notifikasi lambat"
+        "notifikasi lambat",
+        "peringatan tak keluar",
+        "notifikasi tak keluar",
+        "notification tak keluar",
+        "peringatan tak masuk",
+        "tak dapat peringatan",
+        "tak terima peringatan"
       ],
       "examples": [
         "why did my reminder come late",
@@ -3443,7 +3468,10 @@
         "email",
         "username",
         "google sign in",
-        "change my details"
+        "change my details",
+        "telefon baru",
+        "handphone baru",
+        "tukar phone"
       ],
       "examples": [
         "how do I log in",
@@ -3465,6 +3493,10 @@
           "key": "open_reset_password",
           "label": "Reset password"
         }
+      ],
+      "patterns": [
+        "\\b(?:a |my )?new (?:phone|handphone|mobile)\\b",
+        "\\b(?:changed?|switched?) (?:my )?phones?\\b"
       ],
       "time_aware": false
     },
@@ -4087,7 +4119,10 @@
         "no more questions",
         "exit",
         "close",
-        "good night"
+        "good night",
+        "selamat malam",
+        "selamat tidur",
+        "jumpa lagi"
       ],
       "examples": [
         "bye",
@@ -4214,7 +4249,13 @@
         "i beg your pardon",
         "sorry",
         "sorry what",
-        "huh what"
+        "huh what",
+        "tak faham",
+        "tidak faham",
+        "tak paham",
+        "x faham",
+        "kurang faham",
+        "tak fhm"
       ],
       "examples": [
         "excuse me?",
@@ -4392,7 +4433,12 @@
         "dah siap senaman",
         "sudah siap senaman",
         "selesai senaman",
-        "habis senaman"
+        "habis senaman",
+        "dah buat senaman",
+        "dah buat semua senaman",
+        "sudah buat senaman",
+        "dah siap buat",
+        "proud of myself"
       ],
       "examples": [
         "I finished my exercise",
@@ -4406,6 +4452,9 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "^(?:\\w+ )?i did it$"
+      ],
       "time_aware": false
     },
     {

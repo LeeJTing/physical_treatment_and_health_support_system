@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.98"
+VERSION = "chat-rules-3.99"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1720,6 +1720,19 @@ EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju ata
 EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung"]
 EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
 EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+# 3.99 (sixth probe): everyday Malay and English for feelings, reminders and the account
+for _k, _v in {"low_mood": ["sunyi", "rasa sunyi", "kesunyian", "keseorangan", "sorang sorang",
+                            "takut tak boleh jalan"],
+               "session_done": ["dah buat senaman", "dah buat semua senaman", "sudah buat senaman", "dah siap buat",
+                                "proud of myself"],
+               "reminder_late_or_off": ["peringatan tak keluar", "notifikasi tak keluar", "notification tak keluar",
+                                        "peringatan tak masuk", "tak dapat peringatan", "tak terima peringatan"],
+               "app_help": ["susah guna", "susah nak guna", "sukar guna", "sukar digunakan"],
+               "pardon": ["tak faham", "tidak faham", "tak paham", "x faham", "kurang faham", "tak fhm"],
+               "goodbye": ["selamat malam", "selamat tidur", "jumpa lagi"],
+               "account_help": ["telefon baru", "handphone baru", "tukar phone"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
+
 EXTRA_KEYWORDS_374["posture_result"] += ["markah", "markah saya", "markah rendah", "skor saya", "kenapa skor"]
 for _k, _v in EXTRA_KEYWORDS_374.items():
     EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
@@ -1775,6 +1788,15 @@ PATTERNS = {
                      r"\bplans? (?:are |were |is |was )?chosen\b", r"\bhow (?:does|did) the app (?:choose|pick)\b",
                      r"\bwhy (?:did|do) i get this plan\b"],
     "plan_and_reminders": [r"\bstop a plan\b", r"\btake a break from (?:my|the) plan\b", r"\bhold my plan\b"],
+    # 3.99: "i want to exercise" was the body map (a loose likeness to "exercise for my hand"); not "i don't want
+    # to exercise" (motivation) or "want to exercise my hand" (the body map)
+    "getting_started": [r"(?<!don't )(?<!not )(?<!never )\bwant to (?:start )?exercis(?:e|ing)\b(?! (?:my|the|for) )"],
+    "app_help": [r"\b(?:app|apps|this) (?:is |so |very |too )*(?:hard|difficult|confusing) to use\b"],
+    "session_done": [r"^(?:\w+ )?i did it$"],
+    # "new" as a keyword had let "chinese new year" and "new checks" through (other-domain weights)
+    "account_help": [r"\b(?:a |my )?new (?:phone|handphone|mobile)\b", r"\b(?:changed?|switched?) (?:my )?phones?\b"],
+    # 3.99: "i don't want to exercise today" was the plan's exercises ("exercises today")
+    "motivation": [r"\b(?:don't|do not|not|never) (?:really )?(?:want|feel like) (?:to )?(?:do (?:my |the |any )?)?exercis"],
     "posture_result": [r"\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\b",
                        r"\b(?:did|says|shows|counted) (?:0|zero)\b", r"\bcounted (?:none|nothing)\b",
                        r"\b(?:didn't|did not) count any\b"],

@@ -1,14 +1,14 @@
 {
- "rules_version": "chat-rules-3.98",
+ "rules_version": "chat-rules-3.99",
  "seed": 1,
  "messages": 1935,
- "passed": 1910,
- "rate": 0.9871,
+ "passed": 1911,
+ "rate": 0.9876,
  "urgent": 385,
  "urgent_passed": 385,
  "by_kind": {
   "story": {
-   "passed": 974,
+   "passed": 975,
    "messages": 989
   },
   "two_questions": {
@@ -25,9 +25,8 @@
   "story: \"the neighbours were noisy last night, so what if she falls and can't get up\" -> red_flag (want ['fear_of_falling'])",
   "two_questions: \"my kneee hurtss... i fell last month and since then i'm scared\" -> red_flag (want ['fear_of_falling', 'pain_or_discomfort'])",
   "two_questions: 'do i need special shoes, and remind me only on monday wednesday friday' -> None (want ['equipment', 'reminders_help'])",
-  "story: 'my son bought me a new phone. tq so much' -> for_someone_else (want ['thanks'])",
+  "story: 'my son bought me a new phone. tq so much' -> account_help (want ['thanks'])",
   "story: 'it rained the whole morning... who made this app' -> how_often (want ['app_help', 'bot_identity'])",
-  "story: \"i have been at home all week lah, I'm not sure if my form is good\" -> None (want ['how_to'])",
   "story: 'the neighbours were noisy last night and then is it safe for old people' -> best_time (want ['condition_advice', 'safety'])",
   "two_questions: 'my calves are aching since yesterday plus i fell in the bathroom last month, can i still exercise' -> red_flag (want ['fear_of_falling', 'pain_or_discomfort'])",
   "story: \"the weather is very hot today, so i fell last month and since then i'm scared\" -> red_flag (want ['fear_of_falling'])",
@@ -43,5 +42,5 @@
   "story: 'we went to the mall on sunday and then boss how to start this one ah' -> None (want ['getting_started'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 171
+ "seconds": 185
 }

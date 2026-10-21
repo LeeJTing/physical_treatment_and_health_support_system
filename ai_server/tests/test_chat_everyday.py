@@ -176,3 +176,26 @@ def test_exercises_for_a_body_part_and_names_near_other_words():
                        ("how to do wall pus-up", "exercise:wall_push_up"),
                        ("how often should i exercise after my knee surgery", "surgery")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
+def test_wanting_to_end_it_and_wanting_to_exercise():
+    # 3.99: "want end", "i want to end" alone and "i wanna end it" are thoughts of ending one's life; "i want to
+    # exercise" is how to start (was the body map), "i don't want to exercise today" motivation (the plan's list)
+    for text in ["want end", "Wabt end huh...", "i want to end", "i wanna end it", "wanna kill myself"]:
+        assert engine.reply(PLAN, None, text)["category"] == "crisis", text
+    for text, want in [("i want to end the session", "session_expired"), ("want to end my plan", "plan_and_reminders"),
+                       ("i want to exercise", "getting_started"), ("i wanna exercise", "getting_started"),
+                       ("i want to exercise my hand", "body_map"), ("i don't want to exercise today", "motivation")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
+def test_feelings_reminders_and_account_in_everyday_malay():
+    # 3.99 (sixth probe)
+    for text, want in [("saya rasa sunyi", "low_mood"), ("saya takut tak boleh jalan lagi", "low_mood"),
+                       ("saya dah buat semua senaman", "session_done"), ("i am proud of myself", "session_done"),
+                       ("peringatan tak keluar", "reminder_late_or_off"), ("apps ni susah guna", "app_help"),
+                       ("the app is hard to use", "app_help"), ("saya tak faham", "pardon"),
+                       ("selamat malam", "goodbye"), ("selamat pagi", "greeting"), ("i got a new phone", "account_help")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    # "selamat ke?" still asks whether the last answer's activity is safe
+    assert engine.reply(PLAN, None, "selamat ke", previous_category="other_activity")["category"] == "other_activity"

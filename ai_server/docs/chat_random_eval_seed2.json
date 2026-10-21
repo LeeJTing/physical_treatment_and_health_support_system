@@ -1,9 +1,9 @@
 {
- "rules_version": "chat-rules-3.98",
+ "rules_version": "chat-rules-3.99",
  "seed": 2,
  "messages": 10000,
- "passed": 9865,
- "rate": 0.9865,
+ "passed": 9867,
+ "rate": 0.9867,
  "by_kind": {
   "restricted": {
    "passed": 646,
@@ -22,7 +22,7 @@
    "messages": 860
   },
   "written": {
-   "passed": 3042,
+   "passed": 3044,
    "messages": 3092
   },
   "conditions": {
@@ -43,7 +43,6 @@
   "('age_limit',) -> None: 3",
   "('exit_exercise', 'goodbye') -> None: 3",
   "('difficulty', 'weakness_balance') -> partial_reps: 3",
-  "('crisis',) -> None: 2",
   "('delete_account',) -> account_help: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('fear_of_falling',) -> safety: 2",
@@ -78,25 +77,10 @@
   "('family_help',) -> bot_identity: 1",
   "('app_facts',) -> bot_identity: 1",
   "('guide_animation',) -> None: 1",
-  "('other_activity', 'weakness_balance') -> equipment: 1"
+  "('other_activity', 'weakness_balance') -> equipment: 1",
+  "('exercise:tandem_stance',) -> how_often: 1"
  ],
  "misses": [
-  {
-   "text": "want end",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "i want to end it",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
   {
    "text": "Why oly 20min ?",
    "want": [
@@ -447,22 +431,6 @@
    ],
    "got": "acknowledge",
    "seed_question": "this exercise is killing me haha",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Wabt end huh...",
-   "want": [
-    "crisis"
-   ],
-   "got": null,
-   "seed_question": "i want to end it",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
     "previous_category": null,

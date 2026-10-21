@@ -143,7 +143,9 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
                  "low bp": "low blood pressure", "bp": "blood pressure"}
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
-                "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
+                "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about",
+                # 3.99: "i wanna end it" was not recognised
+                "wanna": "want to", "wana": "want to", "gonna": "going to", "gotta": "got to"}
 MALAY["doktor"] = "doctor"                           # 3.98: "doktor say no senaman" was not the doctor's advice
 # 3.55: short forms typed for whole words (respell reads them as the word)
 SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", "acc": "account", "pwd": "password", "pw": "password",
@@ -1557,11 +1559,20 @@ def high_bp(text: str) -> bool:
     return False
 
 
+# 3.99: the whole message is only "want end", "i want to end" (fillers aside): "i want to end it" told short, as the
+# random typing test types it. A gentle crisis answer is the safer mistake; "i want to end the session" or "end my
+# plan" say what is ended and are not this.
+CRISIS_BARE = {"want end", "i want end", "want to end", "i want to end", "just want to end", "i just want to end",
+               "want to end all", "i want to end all"}
+
+
 def crisis(text: str | None) -> bool:
     """Thoughts of suicide or self-harm: checked before everything else, also with slips mended
     ("suicdie", "i wsnt to die", "tired of livign", 3.55), and with an unknown word read as the word of
     a crisis phrase it is one slip from ("better if i was goe", "i wsant to die", 3.62); each part of a
     message that changes topic on its own too (3.70)."""
+    if text and clean(_without_fillers(_plain(respell(text)))) in CRISIS_BARE:
+        return True
     return any(_crisis_whole(p) for p in [text] + _topic_parts(text))
 
 
@@ -2391,7 +2402,10 @@ SCENES = {"hot_weather": {"safety", "best_time", "other_activity", "how_to", "ho
           "family_help": {"for_someone_else"}, "for_someone_else": {"family_help"},
           "diet": {"best_time", "eating_concern", "calories"},
           # 3.96: "last night", "this morning" told as the scene
-          "best_time": {"how_often", "tired", "sleep", "diet", "hot_weather", "weather", "safety"}}
+          "best_time": {"how_often", "tired", "sleep", "diet", "hot_weather", "weather", "safety"},
+          # 3.99: "my son bought me a new phone. can i do this on my bed"
+          "account_help": {"forgot_password", "change_password", "google_setup", "verification_code", "delete_account",
+                           "app_problem", "app_help", "session_expired", "privacy_data"}}
 THIRD_PERSON = {"she", "he", "her", "him", "his", "they", "them", "their", "dia"}
 
 
@@ -2399,6 +2413,7 @@ def _point_after_scene(plan_id: str | None, text: str, scene: dict) -> tuple[dic
     parts = [p.strip() for p in STORY_BREAK.split(text.lower()) if len(p.split()) >= 2]
     if len(parts) < 2:
         return None
+    small = None
     for part in reversed(parts[1:]):
         c, h = _match_whole(plan_id, part)
         if c is None or (c.get("small_talk") and c["key"] not in ("thanks", "goodbye", "bot_identity")) \
@@ -2408,8 +2423,11 @@ def _point_after_scene(plan_id: str | None, text: str, scene: dict) -> tuple[dic
             return None                                  # the later part is about the scene too
         if scene["key"] == "for_someone_else" and THIRD_PERSON & set(part.split()):
             return None                                  # "...can she do this": still about her
+        if c.get("small_talk"):
+            small = small or (c, h)                      # thanks after a question is not the point (3.99:
+            continue                                     # "...this plan is 5 times a week? that's a lot")
         return c, h
-    return None
+    return small
 
 
 def _first_of_two_points(plan_id: str | None, text: str, chosen: dict | None) -> tuple[dict, str] | None:
@@ -3013,6 +3031,10 @@ def _follow_word(w: str) -> str | None:
     return None
 
 
+MALAY_GREETING_TIMES = {"pagi", "petang", "malam", "tengahari", "siang", "tidur", "datang", "jalan", "tinggal",
+                        "sejahtera"}
+
+
 def pure_follow_up(text: str | None) -> bool:
     """Only follow-up words, at least one of them a trigger, at most six words."""
     if not text:
@@ -3021,6 +3043,8 @@ def pure_follow_up(text: str | None) -> bool:
     words = re.sub(r"[^a-z0-9' ]", " ", text.lower().replace("’", "'")).split()
     if not words or len(words) > 6:
         return False
+    if words[0] == "selamat" and len(words) > 1 and words[1] in MALAY_GREETING_TIMES:
+        return False                                     # "selamat malam" is good night, not "safe?" (3.99)
     core = [w for w in words if w not in ("lah", "ah", "leh", "huh", "pls", "ya", "lor", "meh", "hor", "ke")]
     if core and core[-1] != "sure" and typo_cost(core[-1], "sure") <= 1.0 and core[-1][0] == "s":
         core[-1] = "sure"                                # "are you syre"
