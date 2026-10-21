@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.90"
+VERSION = "chat-rules-3.91"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1088,6 +1088,19 @@ INTENTS = [
            "body. "
            "See a doctor if you cannot walk or bear weight, there is a big bruise or swelling, or it is not better "
            "after two weeks.", show=False),
+    # 3.91: sleeping badly most nights ("i can't sleep at night" was the best time to exercise, "i have
+    # insomnia" not recognised). A bad night once is the tired answer ("didn't sleep well").
+    intent("sleep", "Sleeping better", 6,
+           ["can't sleep", "cannot sleep", "cant sleep", "insomnia", "sleep better", "trouble sleeping",
+            "hard to sleep", "sleep problem", "sleep problems", "help me sleep", "tak boleh tidur", "susah tidur",
+            "wake up at night", "waking up at night", "sleep well at night"],
+           ["I can't sleep at night", "how can I sleep better"],
+           "Regular exercise usually helps you sleep better, as long as it is not in the last hour or two before "
+           "bed. "
+           "Keep a regular bedtime, get some daylight in the morning, and avoid coffee or tea after mid-afternoon and "
+           "large meals late at night. "
+           "If you sleep badly most nights for more than a few weeks, or snore loudly and feel sleepy in the day, "
+           "tell your doctor.", show=False),
     # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
     # word's meaning.
     intent("word_meaning", "What a word means", 6, [], [],
@@ -1591,6 +1604,10 @@ DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "s
 # 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
+    # 3.91: mood, belly fat, doing more than the plan
+    "low_mood": ["help my mood", "improve my mood", "mood better", "exercise for depression", "exercise and mood"],
+    "calories": ["belly fat", "lose fat", "tummy fat", "perut buncit", "lose belly"],
+    "difficulty": ["more than my plan", "more than the plan", "do extra", "extra exercises", "add more exercises"],
     # 3.87: an upset stomach is feeling unwell (skip and rest); "anxious about falling" is the fear of falling
     "tired": ["diarrhoea", "diarrhea", "stomach ache", "stomachache", "upset stomach", "food poisoning"],
     "fear_of_falling": ["anxious about falling", "nervous about falling", "anxious i will fall"],

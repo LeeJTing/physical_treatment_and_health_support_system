@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.90)
+# Chatbot answers (chat-rules-3.91)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -1190,6 +1190,15 @@ You can sign in with Continue with Google on the login screen.
 1) The first time, the app asks you to complete your account: choose a username and a password (at least 8 characters, with a letter and a number), so you can also log in with your email and password later.
 2) If you tap Cancel, nothing is kept and you return to the login screen; you can start again any time.
 3) If your Google email already has an account here, Google is linked to it and the app says “Your Google account has been linked to your existing account.”: your plans and results stay as they are.
+```
+
+## Sleeping better  (`sleep`)
+*I can't sleep at night*
+
+```
+Regular exercise usually helps you sleep better, as long as it is not in the last hour or two before bed.
+1) Keep a regular bedtime, get some daylight in the morning, and avoid coffee or tea after mid-afternoon and large meals late at night.
+2) If you sleep badly most nights for more than a few weeks, or snore loudly and feel sleepy in the day, tell your doctor.
 ```
 
 ## Slouching  (`mistake:slouching`)

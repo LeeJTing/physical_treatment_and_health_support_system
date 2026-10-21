@@ -85,6 +85,15 @@ def test_stretched_words_and_sound_alikes():
         assert engine.reply(PLAN, None, text)["category"] == want, text
 
 
+def test_everyday_wellness_questions():
+    # 3.91
+    for text, want in [("i can't sleep at night", "sleep"), ("i have insomnia", "sleep"),
+                       ("can exercise help my mood", "low_mood"), ("how to lose belly fat", "calories"),
+                       ("how much protein should i eat", "diet"), ("can i do more than my plan", "difficulty"),
+                       ("i didn't sleep well last night", "tired"), ("is this app free", "app_facts")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
 def test_what_a_word_means():
     # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
     for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),

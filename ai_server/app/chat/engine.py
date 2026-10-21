@@ -996,7 +996,10 @@ ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could
                         "maybe", "how do i know", "what is wrong", "should i see"]
 DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
                   "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
-PREFER = [# 3.86: "fever today, exercise?" is about the fever, not today's exercise.
+PREFER = [# 3.91: sleeping badly is not the best time to exercise; "how much protein" is not the app's price.
+          ("sleep", "tired"), ("diet", "app_facts"), ("difficulty", "how_often"),
+          ("low_mood", "bot_identity"),
+          # 3.86: "fever today, exercise?" is about the fever, not today's exercise.
           ("tired", "treatment_nav"),
           # 3.79: a tablet computer is not a pill; "contact support" is not holding on to a support.
           ("app_facts", "medication"), ("app_facts", "safety"),
@@ -1104,7 +1107,9 @@ PREFER = [# 3.86: "fever today, exercise?" is about the fever, not today's exerc
 # posture result; "very lonely since my wife passed away" stays low mood).
 PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "results", "marks", "accuracy", "percent"]),
              # 3.74: "how many calories should i eat" is food
-             ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"])]
+             ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"]),
+             # 3.91: "now 2am cannot sleep, can i exercise" asks about exercising now (rest, it is late)
+             ("best_time", "sleep", ["exercise", "exercises", "exercising", "senaman", "senam", "workout"])]
 PREFER_UNLESS = [# 3.78: "a stitch in my side" is not a surgical wound's stitches.
                  ("stitch", "condition_advice", ["wound", "operation", "surgery", "dressing", "removed", "cut",
                                                  "incision", "oozing", "bleeding"]),

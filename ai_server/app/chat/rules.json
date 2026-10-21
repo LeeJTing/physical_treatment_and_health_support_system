@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.90",
+  "version": "chat-rules-3.91",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -832,7 +832,12 @@
         "tough",
         "so tough",
         "too tough",
-        "very tough"
+        "very tough",
+        "more than my plan",
+        "more than the plan",
+        "do extra",
+        "extra exercises",
+        "add more exercises"
       ],
       "examples": [
         "the exercises are too easy",
@@ -2389,7 +2394,12 @@
         "frustrated",
         "irritated",
         "marah",
-        "tertekan"
+        "tertekan",
+        "help my mood",
+        "improve my mood",
+        "mood better",
+        "exercise for depression",
+        "exercise and mood"
       ],
       "examples": [
         "I feel sad",
@@ -4238,7 +4248,12 @@
         "how many steps do i",
         "steps a day",
         "steps per day",
-        "langkah sehari"
+        "langkah sehari",
+        "belly fat",
+        "lose fat",
+        "tummy fat",
+        "perut buncit",
+        "lose belly"
       ],
       "examples": [
         "how many calories did I burn",
@@ -4830,6 +4845,42 @@
         "I think I strained my calf"
       ],
       "answer": "A pulled (strained) muscle usually heals in a few days to a few weeks.\n1) For the first 2 to 3 days, rest it from the movement that hurts, and use a cold pack wrapped in a cloth for 15 minutes a few times a day.\n2) Then move it gently within what is comfortable and build back up; keep exercising the rest of your body.\n3) See a doctor if you cannot walk or bear weight, there is a big bruise or swelling, or it is not better after two weeks.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "time_aware": false
+    },
+    {
+      "key": "sleep",
+      "title": "Sleeping better",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "can't sleep",
+        "cannot sleep",
+        "cant sleep",
+        "insomnia",
+        "sleep better",
+        "trouble sleeping",
+        "hard to sleep",
+        "sleep problem",
+        "sleep problems",
+        "help me sleep",
+        "tak boleh tidur",
+        "susah tidur",
+        "wake up at night",
+        "waking up at night",
+        "sleep well at night"
+      ],
+      "examples": [
+        "I can't sleep at night",
+        "how can I sleep better"
+      ],
+      "answer": "Regular exercise usually helps you sleep better, as long as it is not in the last hour or two before bed.\n1) Keep a regular bedtime, get some daylight in the morning, and avoid coffee or tea after mid-afternoon and large meals late at night.\n2) If you sleep badly most nights for more than a few weeks, or snore loudly and feel sleepy in the day, tell your doctor.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.90",
+ "rules_version": "chat-rules-3.91",
  "seed": 1,
  "per_group": 2000,
  "noise_ok": 1948,
@@ -8,16 +8,16 @@
  "noisy": 2000,
  "blns_ok": 508,
  "blns": 515,
- "oos_ok": 817,
+ "oos_ok": 815,
  "oos": 1100,
- "clinc_ok": 2968,
+ "clinc_ok": 2970,
  "clinc": 3270,
  "false_emergencies": [
   "oos: \"what do you do if you can't stop vomiting\" -> red_flag",
   "long: 'carpet banana river sunday cloud pencil kitten laptop silver' -> red_flag"
  ],
  "errors": [],
- "slowest_reply_sec": 4.474,
+ "slowest_reply_sec": 1.75,
  "misses": [
   "noise/word_salad: 'orange coffee' -> diet",
   "noisy/spaced_letters: 'o k' -> None (want ['acknowledge'])",
@@ -50,7 +50,7 @@
   "oos/oos: 'how many firewalls should i have and what type' -> equipment (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'please get me my wheelchair' -> weakness_balance (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'how do you know when your dog is ill' -> tired (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'how much food should i feed my cat' -> app_facts (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
+  "oos/oos: 'how much food should i feed my cat' -> diet (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'what does it mean if i dream of falling off a buil' -> safety (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'do ducks eat meat, vegetables, or both' -> diet (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'what do geese eat' -> diet (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
@@ -125,6 +125,8 @@
   "oos/oos: \"where's the best place to hike in the rockies\" -> other_activity (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'what should i wear to hike' -> other_activity (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'i need tips on how to overcome insomnia' -> posture_result (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
+  "oos/oos: 'how many people have insomnia' -> sleep (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
+  "oos/oos: 'is insomnia curable' -> sleep (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'how long does it take to get your yellow belt in k' -> how_often (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'how can i get help for my mental health' -> bot_identity (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'when was the term \"zombie\" first used' -> terms_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
@@ -216,9 +218,7 @@
   "oos/oos: 'tell me what my current eyeglasses prescription is' -> medication (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'show me examples of cute eyeglass frames' -> recording_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
   "oos/oos: 'show me the goals of my local police department in' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'what is the distance between the goal posts in foo' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'remind me what my weight loss goals are' -> reminders_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])",
-  "oos/oos: 'please book another boat for this weekends trip' -> reminders_help (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
+  "oos/oos: 'what is the distance between the goal posts in foo' -> plan_progress (want ['None', 'acknowledge', 'cannot_do', 'clarify', 'goodbye', 'greeting', 'how_are_you', 'language', 'pardon', 'thanks'])"
  ],
- "seconds": 486
+ "seconds": 369
 }

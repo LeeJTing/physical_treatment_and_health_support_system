@@ -1,41 +1,41 @@
 {
- "rules_version": "chat-rules-3.90",
+ "rules_version": "chat-rules-3.91",
  "seed": 2,
  "messages": 10000,
- "passed": 9860,
- "rate": 0.986,
+ "passed": 9857,
+ "rate": 0.9857,
  "by_kind": {
   "restricted": {
-   "passed": 620,
-   "messages": 625
+   "passed": 627,
+   "messages": 632
   },
   "short": {
-   "passed": 2459,
-   "messages": 2512
+   "passed": 2447,
+   "messages": 2501
   },
   "follow": {
-   "passed": 682,
-   "messages": 682
+   "passed": 678,
+   "messages": 678
   },
   "exercises": {
-   "passed": 859,
-   "messages": 871
+   "passed": 857,
+   "messages": 870
   },
   "written": {
-   "passed": 3038,
-   "messages": 3092
+   "passed": 3054,
+   "messages": 3109
   },
   "conditions": {
-   "passed": 515,
-   "messages": 518
+   "passed": 505,
+   "messages": 508
   },
   "red_flags": {
-   "passed": 1272,
-   "messages": 1277
+   "passed": 1270,
+   "messages": 1275
   },
   "mistakes": {
-   "passed": 415,
-   "messages": 423
+   "passed": 419,
+   "messages": 427
   }
  },
  "commonest_misses": [
@@ -46,9 +46,9 @@
   "('bot_identity',) -> None: 3",
   "('difficulty', 'weakness_balance') -> partial_reps: 3",
   "('delete_account',) -> account_help: 2",
-  "('tired',) -> acknowledge: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('fear_of_falling',) -> red_flag: 2",
+  "('fear_of_falling',) -> safety: 2",
   "('medication',) -> None: 2",
   "('red_flag',) -> weakness_balance: 2",
   "('condition_advice',) -> pain_or_discomfort: 2",
@@ -66,19 +66,19 @@
   "('safety_limits',) -> how_often: 2",
   "('bot_identity',) -> how_are_you: 2",
   "('safety_limits',) -> None: 1",
+  "('tired',) -> acknowledge: 1",
   "('exercise:hand_open_close',) -> verification_code: 1",
   "('mistake:bent_knee',) -> plan_progress: 1",
-  "('difficulty',) -> None: 1",
+  "('missed_session',) -> safety: 1",
   "('change_password',) -> forgot_password: 1",
   "('app_help',) -> None: 1",
   "('exercise:seated_marching',) -> low_mood: 1",
   "('exercise:glute_bridge',) -> how_to: 1",
-  "('safety',) -> cannot_do: 1",
+  "('safety',) -> med_help: 1",
   "('safety',) -> period: 1",
   "None -> acknowledge: 1",
   "('age_limit', 'safety') -> how_to: 1",
-  "('family_help',) -> bot_identity: 1",
-  "('app_facts',) -> bot_identity: 1"
+  "('family_help',) -> bot_identity: 1"
  ],
  "misses": [
   {
@@ -246,7 +246,7 @@
    "seed_question": "saya jatuh tahun lepas",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:low_range",
+    "previous_category": "mistake:low_raise",
     "restriction": null,
     "conditions": null,
     "risk_level": null,
@@ -257,19 +257,36 @@
    }
   },
   {
-   "text": "cannot finhi...",
+   "text": "ok lpa exercise?",
    "want": [
-    "difficulty"
+    "missed_session"
    ],
-   "got": null,
-   "seed_question": "cannot finish",
+   "got": "safety",
+   "seed_question": "lupa exercise",
    "context": {
-    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "plan_id": null,
     "previous_category": null,
     "restriction": null,
-    "conditions": [
-     "HYPERTENSION"
-    ],
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     8,
+     15
+    ]
+   }
+  },
+  {
+   "text": "fer faalling leh",
+   "want": [
+    "fear_of_falling"
+   ],
+   "got": "safety",
+   "seed_question": "fear falling",
+   "context": {
+    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
+    "previous_category": "exercise:glute_bridge",
+    "restriction": null,
+    "conditions": null,
     "risk_level": "Low",
     "local_time": null
    }
@@ -339,7 +356,7 @@
    "seed_question": "better if i was gone",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "cannot_do",
+    "previous_category": "med_help",
     "restriction": null,
     "conditions": null,
     "risk_level": "Medium",
@@ -369,11 +386,11 @@
    "want": [
     "safety"
    ],
-   "got": "cannot_do",
+   "got": "med_help",
    "seed_question": "safe or not",
    "context": {
     "plan_id": "93ddd21e-2104-5363-a5ce-3f94904f52d3",
-    "previous_category": "cannot_do",
+    "previous_category": "med_help",
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
@@ -543,7 +560,7 @@
    "seed_question": "who do i email for help",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:knees_bend",
+    "previous_category": "mistake:knee_not_straight",
     "restriction": null,
     "conditions": [
      "STROKE",
@@ -630,7 +647,7 @@
    "seed_question": "how to do wall pus-up",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "exercise:wrist_extension",
+    "previous_category": "mistake:using_hands",
     "restriction": null,
     "conditions": null,
     "risk_level": null,
@@ -722,7 +739,7 @@
    "seed_question": "exit",
    "context": {
     "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": "mistake:bent_knee",
+    "previous_category": "mistake:bent_elbow",
     "restriction": null,
     "conditions": [
      "KIDNEY_DISEASE"
@@ -830,6 +847,22 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
+   "text": "cara buat stpw up",
+   "want": [
+    "exercise:step_up"
+   ],
+   "got": null,
+   "seed_question": "cara buat step up",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
     "local_time": null
    }
   },
@@ -995,6 +1028,22 @@
    }
   },
   {
+   "text": "My scte is 79 so close!",
+   "want": [
+    "posture_result"
+   ],
+   "got": "goodbye",
+   "seed_question": "my score is 79 so close",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": null
+   }
+  },
+  {
    "text": "Whoh exercises do i have!",
    "want": [
     "plan_exercises"
@@ -1036,7 +1085,7 @@
    "seed_question": "exit",
    "context": {
     "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": "mistake:not_closed",
+    "previous_category": "app_facts",
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
@@ -1316,6 +1365,25 @@
    }
   },
   {
+   "text": "my ankles fel sore \ud83d\ude23 ?",
+   "want": [
+    "pain_or_discomfort"
+   ],
+   "got": "red_flag",
+   "seed_question": "my ankles feel sore \ud83d\ude23",
+   "context": {
+    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
+    "previous_category": "mistake:feet_far",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "High",
+    "local_time": [
+     5,
+     45
+    ]
+   }
+  },
+  {
    "text": "how long do u keep my dta!!",
    "want": [
     "privacy_data"
@@ -1432,7 +1500,7 @@
    "seed_question": "how to fix heels lift",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:low_hips",
+    "previous_category": "mistake:leg_forward",
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
@@ -1452,7 +1520,7 @@
    "seed_question": "doctor say no exercise",
    "context": {
     "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
-    "previous_category": "mistake:using_hands",
+    "previous_category": "mistake:upper_arm_moves",
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
@@ -1468,7 +1536,7 @@
    "seed_question": "reminder not on time",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:incomplete_extension",
+    "previous_category": "mistake:hips_sag",
     "restriction": null,
     "conditions": null,
     "risk_level": null,
@@ -1636,7 +1704,7 @@
    "seed_question": "why cant i get a plan it says check with my doctor first",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:swinging",
+    "previous_category": "mistake:stepping_out",
     "restriction": "AGE_65_PLUS",
     "conditions": null,
     "risk_level": null,
@@ -1721,7 +1789,7 @@
    "seed_question": "low hips?",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "doctor_clearance",
+    "previous_category": "guardian_consent",
     "restriction": null,
     "conditions": null,
     "risk_level": null,
@@ -1828,7 +1896,7 @@
    "seed_question": "help",
    "context": {
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "word_meaning",
+    "previous_category": "sleep",
     "restriction": null,
     "conditions": [
      "HEART_DISEASE",
@@ -1887,7 +1955,7 @@
    "seed_question": "why only 20 min",
    "context": {
     "plan_id": "1aba07fd-cf5b-5d4c-a948-24e4c0d9fd90",
-    "previous_category": "mistake:feet_forward",
+    "previous_category": "mistake:feet_far",
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
@@ -1993,7 +2061,7 @@
    "seed_question": "makan apa",
    "context": {
     "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": "mistake:stepping_out",
+    "previous_category": "mistake:slouching",
     "restriction": null,
     "conditions": null,
     "risk_level": "Medium",
@@ -2063,7 +2131,7 @@
    "seed_question": "bengkak",
    "context": {
     "plan_id": null,
-    "previous_category": "guardian_consent",
+    "previous_category": "terms_help",
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
@@ -2114,7 +2182,7 @@
    "seed_question": "why no plan 65",
    "context": {
     "plan_id": "526ee6e0-0ca2-54d2-90bf-ad4476f08e2c",
-    "previous_category": "mistake:not_closed",
+    "previous_category": "app_facts",
     "restriction": null,
     "conditions": null,
     "risk_level": null,
@@ -2386,25 +2454,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "hello not dizzy, tireed?",
-   "want": [
-    "tired"
-   ],
-   "got": "acknowledge",
-   "seed_question": "I'm not dizzy, just tired",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "medication",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     15,
-     0
-    ]
    }
   },
   {
