@@ -9,7 +9,9 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
@@ -115,5 +117,69 @@ void main() {
     await tester.pump();
     expect(find.byKey(const Key('test_mode_notice')), findsOneWidget);
     expect(find.byKey(const Key('test_exercise_bird_dog')), findsOneWidget);
+  });
+
+  // Exit on the analysing error screen went home in testing mode (laptop emulator test, 22 Oct).
+  Future<void> exitFromExercise(
+    WidgetTester tester, {
+    required bool testing,
+  }) async {
+    final h = Harness();
+    await tester.runAsync(() => h.setUp(tmp));
+    final e = (await tester.runAsync(() => anyExercise(h.vm, 'bird_dog')))!;
+    final nav = GlobalKey<NavigatorState>();
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: h.vm,
+        child: MaterialApp(
+          navigatorKey: nav,
+          routes: {Routes.home: (_) => const Scaffold(body: Text('HOME'))},
+          home: const Scaffold(body: Text('TREATMENT TAB')),
+        ),
+      ),
+    );
+    nav.currentState!.push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: TestExercisesView.routeName),
+        builder: (_) => const TestExercisesView(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    if (testing) {
+      h.vm.startTest(e);
+    } else {
+      await tester.runAsync(() => h.vm.startExercise(e));
+    }
+    nav.currentState!.push(
+      MaterialPageRoute<void>(
+        builder: (_) =>
+            const Scaffold(body: Center(child: ExitExerciseButton())),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.tap(find.text('Exit'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    expect(h.vm.testing, isFalse);
+    expect(find.byType(ExitExerciseButton), findsNothing);
+    if (testing) {
+      expect(find.byKey(const Key('test_mode_notice')), findsOneWidget);
+      expect(find.text('HOME'), findsNothing);
+    } else {
+      expect(find.text('HOME'), findsOneWidget);
+      expect(find.byKey(const Key('test_mode_notice')), findsNothing);
+    }
+  }
+
+  testWidgets('Exit in testing mode goes back to the testing list', (
+    tester,
+  ) async {
+    await exitFromExercise(tester, testing: true);
+  });
+
+  testWidgets('Exit outside testing mode still goes home', (tester) async {
+    await exitFromExercise(tester, testing: false);
   });
 }

@@ -7,11 +7,12 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// "Exit" on the recording, analysing and result screens (FR300_13): cancels the exercise in
-/// progress and goes back to the home page. Asks first when [confirm] is given (while
-/// recording or analysing, when something would be lost).
+/// progress and goes back to the home page, or in testing mode to the testing list. Asks first
+/// when [confirm] is given (while recording or analysing, when something would be lost).
 class ExitExerciseButton extends StatelessWidget {
   final String? confirm;
   const ExitExerciseButton({super.key, this.confirm});
@@ -37,10 +38,17 @@ class ExitExerciseButton extends StatelessWidget {
       );
       if (ok != true || !context.mounted) return;
     }
-    context.read<TreatmentViewModel>().cancelExercise();
-    Navigator.of(
-      context,
-    ).pushNamedAndRemoveUntil(Routes.home, (_) => false);
+    final vm = context.read<TreatmentViewModel>();
+    final testing = vm.testing;
+    vm.cancelExercise();
+    if (testing) {
+      // Testing mode: back to the exercise list, as Continue does (laptop emulator test, 22 Oct).
+      Navigator.of(context).popUntil(
+        (r) => r.settings.name == TestExercisesView.routeName || r.isFirst,
+      );
+      return;
+    }
+    Navigator.of(context).pushNamedAndRemoveUntil(Routes.home, (_) => false);
   }
 
   @override
