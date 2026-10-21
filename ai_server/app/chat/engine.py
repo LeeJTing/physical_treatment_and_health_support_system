@@ -136,7 +136,10 @@ SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", 
                      "tq": "thank you", "thx": "thanks", "w": "with", "wif": "with", "dun": "don't",
                      "cnt": "can't", "nt": "not", "smtg": "something", "sth": "something", "bf": "before",
                      "lyk": "like", "gd": "good", "nite": "night", "tonite": "tonight", "pple": "people",
-                     "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video"}
+                     "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video",
+                     # 3.80: "fasting mnth" was read as Malay "muntah" (vomiting)
+                     "mnth": "month", "mth": "month", "mths": "months", "mnths": "months", "wk": "week",
+                     "wks": "weeks", "yr": "year", "yrs": "years", "hrs": "hours"}
 # Malay as it is texted (3.59, the random typing test: "sya jatuh semalam", "xleh bangun", "jatuh td").
 SHORT_WORDS_TYPED.update({
     "cot": "cost",                                   # 3.75: not "clot" (a blood clot is a condition now)
@@ -233,7 +236,9 @@ def plan_intents(plan: dict) -> list[dict]:
          "action": {"key": "open_treatment", "label": "Open my treatment plan"}},
         {"key": "plan_progress", "title": "Progress and results", "show": True, "priority": 6,
          "keywords": ["results", "see results", "progress", "improve", "improving", "improvement", "how long until",
-                      "when will", "getting better", "get better", "working", "is it working", "finish the plan",
+                      "when will", "getting better", "get better", "is it working", "is this working", "it working",
+                      "plan working", "exercise working", "exercises working", "working for me", "even working",
+                      "really working", "actually working", "finish the plan",
                       "finished the plan", "complete the plan", "after this plan", "next plan", "recover", "recovery",
                       "is it helping", "plan helping", "helping me", "help me recover", "effective", "worth it", "making a difference", "any difference",
                       "fix", "cure", "heal", "do for me", "purpose", "aim", "goal", "benefit", "benefits",
@@ -2402,6 +2407,9 @@ OFF_DOMAIN_STRONG_WORD = 3.0
 OFF_DOMAIN_STRONG_SCORE = 5.0
 # Words clearly about rehabilitation besides the symptoms, body parts and exercise names: a message with
 # one is never shut out by the word weights.
+# 3.80: phrases that tie a message to this chatbot ("going on vacation, what about my plan").
+ANCHOR_PHRASES = ("my plan", "my plans", "this plan", "the plan", "my treatment", "my exercises", "my exercise",
+                  "the exercises", "my physio", "my physiotherapist", "pelan saya")
 ANCHOR_WORDS = frozenset({"exercise", "exercises", "exercising", "senaman", "bersenam", "physio",
                           "physiotherapy", "physiotherapist", "rehab", "rehabilitation", "posture", "reps",
                           "repetitions", "workout", "stretch", "stretching", "app", "reminder", "reminders"})
@@ -2421,6 +2429,7 @@ def _rehab_anchors() -> tuple[frozenset, tuple]:
     # "pressure" points to a symptom word beside it (3.62) but is no anchor: "tire pressure for my car".
     words = set(SIGN_WORDS) | {w for w in SIGN_CONTEXT if len(w) > 3 and w != "pressure"} | set(ANCHOR_WORDS)
     names = {clean(a) for e in rules()["exercises"].values() for a in [e["name"]] + e["aliases"]}
+    names |= {clean(p) for p in ANCHOR_PHRASES}
     return frozenset(words - STOP), tuple(sorted(names, key=len, reverse=True))
 
 

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.79",
+ "rules_version": "chat-rules-3.80",
  "seed": 1,
  "messages": 2000,
  "passed": 1991,
@@ -49,5 +49,5 @@
   "doms: 'my muscles are sore the day afterrrr ah?' -> pain_or_discomfort (want ['pain_mild'])",
   "stiffness: 'morning stiiffnessss lah' -> how_often (want ['stiffness'])"
  ],
- "seconds": 147
+ "seconds": 138
 }

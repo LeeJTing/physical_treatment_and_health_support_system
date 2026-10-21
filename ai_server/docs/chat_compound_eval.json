@@ -1,18 +1,18 @@
 {
- "rules_version": "chat-rules-3.79",
+ "rules_version": "chat-rules-3.80",
  "seed": 1,
  "messages": 1935,
- "passed": 1837,
- "rate": 0.9494,
+ "passed": 1843,
+ "rate": 0.9525,
  "urgent": 385,
  "urgent_passed": 385,
  "by_kind": {
   "story": {
-   "passed": 913,
+   "passed": 918,
    "messages": 989
   },
   "two_questions": {
-   "passed": 924,
+   "passed": 925,
    "messages": 946
   }
  },
@@ -21,7 +21,7 @@
   "story: 'i had nasi lemak for breakfast and then I have no chest pain, how often should I exercise' -> diet (want ['how_often'])",
   "story: 'i just finished my breakfast lah, she fell. that was last year, now fine' -> diet (want ['fear_of_falling'])",
   "story: 'i just finished my breakfast, so thank you doctor' -> diet (want ['thanks'])",
-  "story: 'my wife is at work now, so thank you very much doctor' -> plan_progress (want ['thanks'])",
+  "story: 'my wife is at work now, so thank you very much doctor' -> for_someone_else (want ['thanks'])",
   "story: \"the weather is very hot today and then I'm too tired to exercise today\" -> hot_weather (want ['tired'])",
   "two_questions: 'my grandson set this up, i dont know how to use, also should i wear shoes' -> None (want ['app_help', 'equipment', 'getting_started'])",
   "story: 'the weather is very hot today and then i feel so lazy today' -> hot_weather (want ['motivation'])",
@@ -31,7 +31,6 @@
   "story: 'my daughter helped me set up the phone and then my knees go past my toes in squat' -> family_help (want ['exercise:mini_squat', 'posture_result'])",
   "story: 'yesterday i went to the market, she fell. that was last year, now fine' -> None (want ['fear_of_falling'])",
   "story: 'the weather is very hot today, I missed 2 weeks because I was in hospital' -> None (want ['missed_session'])",
-  "story: 'my wife is at work now, so cheers, that helps' -> plan_progress (want ['thanks'])",
   "two_questions: 'push up against the wall, and marching on the spot how long' -> plan_exercises (want ['exercise:march_in_place', 'exercise:wall_push_up'])",
   "story: 'i just finished my breakfast lah, can i use it on iphone' -> diet (want ['app_facts'])",
   "story: 'the weather is very hot today. can i go jogging' -> hot_weather (want ['difficulty', 'other_activity', 'safety'])",
@@ -47,10 +46,8 @@
   "story: 'my daughter helped me set up the phone... i just had covid can i exercise' -> family_help (want ['tired'])",
   "story: 'i cooked lunch for the family, so can i do it everyday' -> diet (want ['how_often'])",
   "story: 'it rained the whole morning lah, she fell. that was last year, now fine' -> how_often (want ['fear_of_falling'])",
-  "story: 'my wife is at work now. that didnt answer my question' -> plan_progress (want ['report_answer'])",
-  "story: 'my wife is at work now, Is it safe for me to exercise?' -> plan_progress (want ['safety'])",
   "story: \"the neighbours were noisy last night, so what if she falls and can't get up\" -> red_flag (want ['fear_of_falling'])",
-  "story: 'my wife is at work now... thank you so much' -> plan_progress (want ['thanks'])",
+  "story: 'my wife is at work now... thank you so much' -> for_someone_else (want ['thanks'])",
   "two_questions: \"my kneee hurtss... i fell last month and since then i'm scared\" -> red_flag (want ['fear_of_falling', 'pain_or_discomfort'])",
   "two_questions: 'my hip clicks when i lift my leg sideways also how to stand heel to toe' -> plan_exercises (want ['exercise:hip_abduction', 'exercise:tandem_stance', 'joint_noise'])",
   "story: 'my daughter helped me set up the phone. how to stand heel to toe' -> family_help (want ['exercise:tandem_stance'])",
@@ -58,16 +55,15 @@
   "story: 'my daughter helped me set up the phone, how is my risk calculated' -> family_help (want ['risk_level'])",
   "two_questions: 'do i need special shoes, and remind me only on monday wednesday friday' -> None (want ['equipment', 'reminders_help'])",
   "story: 'my son bought me a new phone. tq so much' -> for_someone_else (want ['thanks'])",
-  "two_questions: 'how this app works also my phone fell down while recording' -> plan_progress (want ['app_help', 'bot_identity', 'getting_started'])",
   "story: 'i just finished my breakfast lah, feeling very weak and shaky today' -> diet (want ['weakness_balance'])",
   "story: 'my daughter helped me set up the phone and then can i use my hands to stand up first' -> family_help (want ['difficulty', 'exercise:sit_to_stand', 'weakness_balance'])",
   "story: 'my daughter helped me set up the phone and then can i go jogging also' -> family_help (want ['other_activity'])",
   "story: 'my daughter helped me set up the phone... can i exercise after eating' -> family_help (want ['best_time'])",
   "story: 'i just finished my breakfast and then feeling very weak and shaky today' -> diet (want ['weakness_balance'])",
   "story: 'it rained the whole morning... who made this app' -> how_often (want ['app_help', 'bot_identity'])",
+  "story: 'my wife is at work now, so how high should i lift my arms' -> for_someone_else (want ['exercise:shoulder_abduction', 'exercise:shoulder_flexion', 'how_to'])",
   "story: 'my daughter helped me set up the phone, so where to put my phone when recording' -> family_help (want ['recording_help'])",
   "story: 'i just finished my breakfast and then hello, good afternoon. I am 68 years old, I just had knee surgery three ' -> diet (want ['how_often'])",
-  "story: \"i have been at home all week lah, I'm not sure if my form is good\" -> None (want ['how_to'])",
   "story: 'my daughter helped me set up the phone, do i do all three exercises every session' -> family_help (want ['plan_exercises'])",
   "story: 'the neighbours were noisy last night and then is it safe for old people' -> best_time (want ['condition_advice', 'safety'])",
   "story: \"the weather is very hot today lah, why my progress didn't update\" -> hot_weather (want ['history_help', 'plan_progress', 'posture_result'])",
@@ -94,9 +90,7 @@
   "story: 'my daughter helped me set up the phone. I skipped two sessions this week' -> family_help (want ['missed_session'])",
   "story: 'i took my dog for a short walk... can i restart my plan' -> weakness_balance (want ['plan_and_reminders'])",
   "story: 'the weather is very hot today lah, my knee goes inwards when i stand up' -> hot_weather (want ['exercise:sit_to_stand', 'how_to', 'posture_result'])",
-  "story: 'my wife is at work now... why my score so low' -> plan_progress (want ['posture_result'])",
   "story: 'the weather is very hot today, so i feel so lazy to exercise' -> hot_weather (want ['difficulty', 'motivation', 'tired'])",
-  "story: 'my wife is at work now, so who made this app' -> plan_progress (want ['app_help', 'bot_identity'])",
   "story: 'the neighbours were noisy last night, so no mood to exercise today' -> best_time (want ['motivation'])",
   "two_questions: 'is step up safe for my knees lah, mini squats - how deep should I go' -> plan_exercises (want ['exercise:mini_squat', 'exercise:step_up', 'safety'])",
   "story: 'my daughter helped me set up the phone lah, can i do this on my bed' -> family_help (want ['difficulty', 'equipment', 'how_to'])",
@@ -115,5 +109,5 @@
   "story: 'my daughter helped me set up the phone and then what is health connect' -> family_help (want ['health_connect'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 178
+ "seconds": 184
 }

@@ -1,9 +1,9 @@
 {
- "rules_version": "chat-rules-3.79",
+ "rules_version": "chat-rules-3.80",
  "seed": 1,
  "messages": 2000,
- "passed": 1994,
- "rate": 0.997,
+ "passed": 1995,
+ "rate": 0.9975,
  "by_kind": {
   "after_treatment": {
    "passed": 240,
@@ -14,7 +14,7 @@
    "messages": 221
   },
   "fasting": {
-   "passed": 250,
+   "passed": 251,
    "messages": 252
   },
   "haze": {
@@ -39,12 +39,11 @@
   }
  },
  "misses": [
-  "fasting: 'fasting mnth can i continue my plan ah?' -> red_flag (want ['fasting'])",
   "weather: 'my room is very cld huh' -> equipment (want ['weather'])",
   "fasting: 'when to exercise during ramadannnn leh...' -> best_time (want ['fasting'])",
   "alcohol_smoking: 'had some wie at dinner ah' -> diet (want ['alcohol_smoking'])",
   "after_treatment: 'can i exercise after urt?' -> diet (want ['after_treatment'])",
   "travel: 'Going on vacation, what about my plannnn leh?' -> plan_exercises (want ['travel'])"
  ],
- "seconds": 149
+ "seconds": 125
 }

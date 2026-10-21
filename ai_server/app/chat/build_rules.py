@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.79"
+VERSION = "chat-rules-3.80"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1707,6 +1707,33 @@ ALIASES = {
                        "standing march", "marching standing", "march", "marching", "march place",
                        "march spot", "marching place", "marching spot"],
 }
+# 3.80: the exercises described in everyday words, English and Malay ("walking on the spot", "the one where i
+# kneel on all fours", "push against the wall", "small knee bend" were not recognised or another topic).
+for _k, _v in {
+    "glute_bridge": ["lift my hips", "lift my bottom", "lift my bum", "bum lift", "butt lift", "hip lift",
+                     "hips up lying down", "angkat punggung"],
+    "heel_raise": ["up on my toes", "on my toes", "toes up and down", "angkat tumit", "jengket", "jinjit"],
+    "sit_to_stand": ["sitting down standing up", "sit down stand up", "stand up sit down", "get up from the chair",
+                     "get up from a chair", "duduk bangun", "bangun dari kerusi"],
+    "wall_push_up": ["push against the wall", "push the wall", "pushing the wall", "wall press", "tolak dinding"],
+    "bird_dog": ["all fours", "on all fours", "hands and knees", "kneel on all fours", "crawling position",
+                 "merangkak"],
+    "march_in_place": ["walking on the spot", "walk on the spot", "walking in place", "walk in place",
+                       "jalan setempat"],
+    "seated_marching": ["lift knees while sitting", "lift my knees sitting", "lift my knees while sitting",
+                        "knee lifts sitting", "sitting knee lift", "sitting knee lifts"],
+    "knee_extension": ["straighten leg while sitting", "straighten my leg sitting", "straighten my leg while sitting",
+                       "kick out my leg", "leg kick sitting", "luruskan kaki"],
+    "mini_squat": ["small knee bend", "small knee bends", "knee bends", "bend my knees a little", "shallow squat",
+                   "cangkung sikit"],
+    "tandem_stance": ["feet in line", "feet in a line", "one foot in front"],
+    "step_up": ["step onto a stair", "step onto the step", "step on and off", "naik tangga"],
+    "shoulder_flexion": ["arm up in front", "arms up in front", "lift my arms in front", "raise arms in front",
+                         "angkat tangan ke depan"],
+    "shoulder_abduction": ["angkat tangan ke tepi"],
+    "hand_open_close": ["squeeze my hand", "genggam tangan", "buka tutup tangan"],
+}.items():
+    ALIASES[_k] = ALIASES[_k] + [a for a in _v if a not in ALIASES[_k]]
 
 CONDITION_NOTES = {
     "HYPERTENSION": "Because you have high blood pressure: breathe out as you lift and never hold your breath, and "

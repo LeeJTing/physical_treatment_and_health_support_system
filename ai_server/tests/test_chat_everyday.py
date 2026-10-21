@@ -44,6 +44,19 @@ def test_app_questions_in_other_topics_words():
         assert engine.reply(PLAN, None, text)["category"] == want, text
 
 
+def test_exercises_described_in_everyday_words():
+    # 3.80: the exercise meant, from how people describe it.
+    for text, want in [("walking on the spot", "march_in_place"), ("the one where i kneel on all fours", "bird_dog"),
+                       ("push against the wall", "wall_push_up"), ("small knee bend", "mini_squat"),
+                       ("lift knees while sitting", "seated_marching"), ("straighten leg while sitting",
+                       "knee_extension"), ("up on my toes exercise", "heel_raise"), ("angkat tumit", "heel_raise"),
+                       ("the sitting down standing up one", "sit_to_stand"), ("step onto a stair", "step_up"),
+                       ("which muscle does the bridge work", "glute_bridge")]:
+        assert engine.reply(PLAN, None, text)["category"] == f"exercise:{want}", text
+    for text in ["my hands and knees hurt", "pain on my toes"]:
+        assert engine.reply(PLAN, None, text)["category"] in ("pain_or_discomfort", "pain_mild"), text
+
+
 def test_what_a_word_means():
     # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
     for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),
