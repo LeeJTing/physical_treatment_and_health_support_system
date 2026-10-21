@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.81",
+  "version": "chat-rules-3.82",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -4777,8 +4777,12 @@
         "a stitch when",
         "a stitch during",
         "side ache",
-        "senak",
-        "stitch under my ribs"
+        "stitch under my ribs",
+        "senak bila jalan",
+        "senak masa jalan",
+        "senak bila berjalan",
+        "senak perut",
+        "senak tepi"
       ],
       "examples": [
         "I get a stitch in my side when walking"
@@ -7931,6 +7935,12 @@
     "HEART_DISEASE": "With heart disease, keep salt and saturated fat low and avoid exercising after a large meal."
   },
   "red_flags": [
+    "senak dada",
+    "dada senak",
+    "dada rasa senak",
+    "senak di dada",
+    "senak nafas",
+    "nafas senak",
     "having a seizure",
     "had a seizure",
     "has a seizure",
@@ -10009,7 +10019,10 @@
     [
       [
         "suddenly",
-        "sudden"
+        "sudden",
+        "tiba tiba",
+        "tiba-tiba",
+        "mengejut"
       ],
       [
         "weak",

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.81",
+ "rules_version": "chat-rules-3.82",
  "seed": 1,
  "messages": 2000,
  "questions": 246,
@@ -41,5 +41,5 @@
   "'tkt jthalh' -> None (want ['fear_of_falling']; from 'takut jatuh')",
   "'suddenly xbokeh bernafas' -> safety (want ['crisis', 'red_flag']; from 'suddenly tak boleh bernafas')"
  ],
- "seconds": 120
+ "seconds": 94
 }

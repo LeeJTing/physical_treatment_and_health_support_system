@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.81"
+VERSION = "chat-rules-3.82"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1069,7 +1069,8 @@ INTENTS = [
            "doctor.", show=False),
     intent("stitch", "A stitch in your side", 6,
            ["stitch in my side", "stitch in the side", "side stitch", "got a stitch", "a stitch when",
-            "a stitch during", "side ache", "senak", "stitch under my ribs"],
+            "a stitch during", "side ache", "stitch under my ribs", "senak bila jalan", "senak masa jalan",
+            "senak bila berjalan", "senak perut", "senak tepi"],
            ["I get a stitch in my side when walking"],
            "A stitch is a sharp pain under the ribs when you walk or breathe fast. "
            "Slow down, breathe out slowly and press on the sore spot: it passes within a few minutes. "
@@ -1787,6 +1788,8 @@ RISK_NOTES = {
 }
 
 RED_FLAGS = [
+    # 3.82: Malay chest tightness and breathlessness with "senak" (not a stitch)
+    "senak dada", "dada senak", "dada rasa senak", "senak di dada", "senak nafas", "nafas senak",
     # 3.75 (conditions test): a seizure or fit happening now ("she is having a fit" was not recognised, "my
     # father had a seizure just now" the answer for a family member). Not "seizures" alone: "my seizures are
     # controlled" is epilepsy advice; "had a seizure last year" is past (engine.HISTORY_EVENTS).
@@ -2071,7 +2074,8 @@ RED_FLAG_COMBOS = [
     [["breathe", "breath", "breathing"], ["hardly", "barely", "can't", "cannot", "difficult", "difficulty",
                                           "trouble", "struggle", "struggling", "hard", "gasping"], 3,
      ["breathing hard", "breathe hard", "breathing heavily", "breathing heavy", "breathe heavily"]],
-    [["suddenly", "sudden"], ["weak", "weakness", "numb", "numbness", "can't move", "cannot move",
+    [["suddenly", "sudden", "tiba tiba", "tiba-tiba", "mengejut"], ["weak", "weakness", "numb", "numbness",
+                                                                    "can't move", "cannot move",
                               "paralysed", "paralyzed", "drooping", "droop", "slurred", "can't speak",
                               "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see",
                               "cannot talk", "can't talk", "cant talk", "talk properly", "speak properly",

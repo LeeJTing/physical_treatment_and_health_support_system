@@ -1,9 +1,9 @@
 {
- "rules_version": "chat-rules-3.81",
+ "rules_version": "chat-rules-3.82",
  "seed": 1,
  "messages": 10000,
- "passed": 9849,
- "rate": 0.9849,
+ "passed": 9848,
+ "rate": 0.9848,
  "by_kind": {
   "written": {
    "passed": 2996,
@@ -18,7 +18,7 @@
    "messages": 623
   },
   "short": {
-   "passed": 2526,
+   "passed": 2525,
    "messages": 2577
   },
   "red_flags": {
@@ -2523,6 +2523,25 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Medium",
+    "local_time": null
+   }
+  },
+  {
+   "text": "doctor saddi rest??",
+   "want": [
+    "doctor_said"
+   ],
+   "got": "low_mood",
+   "seed_question": "doctor said rest",
+   "context": {
+    "plan_id": "1e9ec416-4c4b-52bc-a070-1dc4a614a807",
+    "previous_category": "health_connect",
+    "restriction": null,
+    "conditions": [
+     "DIABETES",
+     "ASTHMA"
+    ],
+    "risk_level": null,
     "local_time": null
    }
   },

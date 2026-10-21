@@ -31,6 +31,16 @@ def test_tingling_that_is_a_stroke_sign_is_urgent():
         assert _got(text) == "pins_needles", text
 
 
+def test_malay_chest_tightness_is_urgent():
+    # 3.82: "senak dada" (chest tightness), "senak nafas" (a slip of "sesak nafas") are warning signs.
+    for text in ["senak dada", "dada senak", "senak nafas", "rasa senak nafas lepas senam"]:
+        assert _got(text) == "red_flag", text
+    assert _got("senak bila jalan") == "stitch"
+    # sudden weakness told in Malay word order ("my leg weak suddenly")
+    for text in ["kaki saya lemah tiba tiba", "kaki lemah tiba-tiba", "tangan lemah tiba tiba"]:
+        assert _got(text) == "red_flag", text
+
+
 def test_the_same_words_meaning_something_else():
     assert _got("my stitches are oozing") != "stitch"                 # a surgical wound
     assert _got("the screen gets stuck") == "app_problem"

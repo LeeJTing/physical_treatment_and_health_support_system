@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.81",
+ "rules_version": "chat-rules-3.82",
  "seed": 1,
  "messages": 2000,
  "reported_ok": 20,
@@ -254,5 +254,5 @@
   "health_word: 'medci ah??' -> None (want ['med_help']; from 'medic')",
   "vague: 'whhat leh...' -> None (want ['clarify']; from 'what')"
  ],
- "seconds": 128
+ "seconds": 139
 }

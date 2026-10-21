@@ -1,9 +1,9 @@
 {
- "rules_version": "chat-rules-3.81",
+ "rules_version": "chat-rules-3.82",
  "seed": 1,
  "messages": 2000,
- "passed": 1991,
- "rate": 0.9955,
+ "passed": 1992,
+ "rate": 0.996,
  "by_kind": {
   "cramp": {
    "passed": 275,
@@ -34,12 +34,11 @@
    "messages": 256
   },
   "stitch": {
-   "passed": 235,
+   "passed": 236,
    "messages": 238
   }
  },
  "misses": [
-  "stitch: 'Snak bila jalan??' -> None (want ['stitch'])",
   "stitch: 'sie stitch' -> condition_advice (want ['stitch'])",
   "pins_needles: 'Pns and needles in my back??' -> hot_weather (want ['pins_needles'])",
   "doms: 'My muscles are sore the day afterrrr huh?' -> pain_or_discomfort (want ['pain_mild'])",
@@ -49,5 +48,5 @@
   "doms: 'my muscles are sore the day afterrrr ah?' -> pain_or_discomfort (want ['pain_mild'])",
   "stiffness: 'morning stiiffnessss lah' -> how_often (want ['stiffness'])"
  ],
- "seconds": 124
+ "seconds": 137
 }
