@@ -116,3 +116,63 @@ def test_what_a_word_means():
                        ("what is a stitch", "two things"), ("what is cpap", "CPAP")]:
         x = engine.reply(PLAN, None, text)
         assert x["category"] == "word_meaning" and word in x["answer"], text
+
+
+def test_everyday_questions_probed_by_hand():
+    # 3.98: questions a patient asks that were not recognised or got another topic
+    for text, want in [("should i use ice or heat", "ice_heat"), ("can i put an ice pack on my knee", "ice_heat"),
+                       ("can this app replace my physiotherapist", "physio_role"),
+                       ("can i talk to a real physiotherapist", "physio_role"),
+                       ("my feet are always cold", "cold_hands_feet"),
+                       ("can i use knee brace during exercise", "brace_support"),
+                       ("should i wear knee guard", "brace_support"),
+                       ("can old people exercise", "safety"), ("is walking enough", "other_activity"),
+                       ("i wake up many times at night", "sleep"), ("i keep tripping", "fear_of_falling"),
+                       ("i miss my wife", "low_mood"), ("it says i did 0 reps", "posture_result"),
+                       ("is this app approved by doctors", "app_facts"),
+                       ("my hands are numb every night", "pins_needles"),
+                       ("macam mana nak tukar bahasa", "language"), ("siapa buat apps ni", "bot_identity"),
+                       ("kenapa markah saya rendah", "posture_result"), ("kamera tak nampak saya", "recording_help"),
+                       ("senaman ni sesuai untuk saya ke", "safety"),
+                       ("boleh ke orang tua buat senaman ni", "safety")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    # unchanged: a missed session, a cold, sudden numbness
+    assert engine.reply(PLAN, None, "i missed my session yesterday")["category"] == "missed_session"
+    assert engine.reply(PLAN, None, "should i exercise when i have a cold")["category"] == "tired"
+    assert engine.reply(PLAN, None, "my arm suddenly numb every night")["category"] == "red_flag"
+
+
+def test_a_call_for_help_to_get_up_and_a_carer_helping_someone_move():
+    # 3.98: "help me get up" was "what can you do"; how a carer helps someone stand up or walk was not answered
+    for text in ["help me get up", "help i cannot get up", "tolong bangunkan saya"]:
+        assert engine.reply(PLAN, None, text)["category"] == "red_flag", text
+    for text in ["how to help my mother stand up", "how do i help my mother get out of a chair",
+                 "how to help my father walk"]:
+        assert engine.reply(PLAN, None, text)["category"] == "helping_someone_move", text
+    assert engine.reply(PLAN, None, "how to help my mother exercise")["category"] == "family_help"
+
+
+def test_surgery_sciatica_plan_choice_and_pace():
+    # 3.98 (third probe) and the replay of the random typing test
+    for text, want in [("i had knee surgery 6 weeks ago", "surgery"), ("i have sciatica", "condition_advice"),
+                       ("why did the app give me this plan", "plan_reasons"),
+                       ("how does the app choose my plan", "plan_reasons"),
+                       ("can i pause my plan", "plan_and_reminders"), ("how slow should i go", "how_to"),
+                       ("how fast should i do each rep", "how_to"), ("doktor say no senaman", "doctor_said"),
+                       ("how to raise my arms to the side properly leh??", "exercise:shoulder_abduction"),
+                       ("excuse me i dontwant to live aymore?", "crisis"),
+                       ("ok suddenly heartraccing pls...", "red_flag"),
+                       ("sorry she fell. laats year, now fine??", "fear_of_falling")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
+def test_exercises_for_a_body_part_and_names_near_other_words():
+    # 3.98 (exercise probe): "exercise for shoulder" was the hot-weather answer; the plan's own area lists the plan
+    # (PLAN is Early Knee Recovery); "how high to lift my knees when marching" was "toe raise" (the heel raise)
+    for text, want in [("exercise for shoulder", "body_map"), ("i want a plan for my shoulder", "body_map"),
+                       ("what exercise for knee", "plan_exercises"), ("exercise for my knee", "plan_exercises"),
+                       ("can i use armrest", "equipment"),
+                       ("how high to lift my knees when marching", "exercise:seated_marching"),
+                       ("how to do wall pus-up", "exercise:wall_push_up"),
+                       ("how often should i exercise after my knee surgery", "surgery")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text

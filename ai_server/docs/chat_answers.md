@@ -1,4 +1,4 @@
-# Chatbot answers (chat-rules-3.97)
+# Chatbot answers (chat-rules-3.98)
 
 Every topic's answer as the app shows it (line breaks as on screen). Example question in italics. Asked with the knee plan, no conditions, in the daytime; notes for conditions, time of day and risk level are added under the answer when they apply.
 
@@ -331,6 +331,16 @@ Clicking or cracking without pain is common and usually harmless; it is often ga
 2) If it comes with pain, swelling, or the joint catching or locking, stop that movement and ask your doctor or physiotherapist.
 ```
 
+## Cold hands or feet  (`cold_hands_feet`)
+*my feet are always cold*
+
+```
+Cold hands or feet are common when you sit still for a long time or in an air-conditioned room.
+1) Keep them warm with socks or a blanket, and move your ankles, toes and fingers often; your exercises help the blood flow too.
+2) Tell your doctor if they are often numb, pale or bluish, if your calves hurt when you walk and ease when you rest, or if you have diabetes.
+3) A hand or foot that is suddenly cold, pale and painful needs a doctor at once.
+```
+
 ## Cramp or muscle spasm  (`cramp`)
 *I got a cramp in my calf*
 
@@ -610,6 +620,19 @@ Yes.
 3) They can stay close by in case you lose your balance.
 ```
 
+## Helping someone stand up or walk  (`helping_someone_move`)
+*how do I get my mother out of a chair*
+
+```
+To help someone stand up from a chair, let them do as much as they can.
+1) Ask them to move to the front of the seat with their feet flat and slightly apart, lean forward (nose over toes) and push up on the armrests while you stand at their side and steady them at the waist.
+2) Never pull on their arms or neck.
+3) Let them stand still for a moment before walking, in case they feel dizzy.
+4) When walking, stay on their weaker side, a little behind, with a hand at their waist, and let them use their walking aid.
+5) If they cannot take most of their own weight, do not lift them alone.
+6) If they have fallen and are hurt or cannot get up with a little help, call 999.
+```
+
 ## Hips back  (`mistake:hips_back`)
 *what does hips back mean*
 
@@ -871,6 +894,16 @@ Each exercise in your plan has its own steps and safety points: open it from you
 You can also ask me how to do a specific exercise, for example "how do I do the heel raise?"
 ```
 
+## Ice or heat  (`ice_heat`)
+*should I use ice or heat*
+
+```
+Ice or heat can ease pain; choose by what the pain is like.
+1) Ice is for a new injury, swelling or a joint that feels hot, in the first 2 days: wrap an ice pack or a bag of frozen peas in a towel and hold it on for 10 to 15 minutes.
+2) Heat is for stiffness and old aches, for example a stiff back in the morning or before exercising: use a warm (not hot) towel or pack for up to 20 minutes, never on a swollen or hot joint.
+3) Never put ice or heat straight on the skin, and ask your doctor first if the skin there feels numb or you have diabetes or poor circulation.
+```
+
 ## Incomplete extension  (`mistake:incomplete_extension`)
 *what does incomplete extension mean*
 
@@ -894,6 +927,16 @@ Many people feel this way.
 2) Exercising with a family member helps, and Results shows how far you have come.
 3) Strength comes back slowly after a long rest, so every session counts, even a short one.
 4) If you have felt low or lost interest in most things for more than two weeks, please talk to your doctor.
+```
+
+## Knee braces and supports  (`brace_support`)
+*can I use a knee brace during exercise*
+
+```
+You can wear a brace or support that your doctor or physiotherapist gave you while exercising, unless they said otherwise.
+1) It should feel snug, not tight: take it off if your toes or fingers tingle, go numb or change colour.
+2) A support you chose yourself is fine for a short time, but your exercises are what build the muscles that support the joint.
+3) Ask your physiotherapist how long to use it.
 ```
 
 ## Knee not straight  (`mistake:knee_not_straight`)
@@ -1273,6 +1316,16 @@ The app follows your phone's text size.
 
 ```
 You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done.
+```
+
+## The app and your physiotherapist  (`physio_role`)
+*can this app replace my physiotherapist*
+
+```
+HealthGuide helps with your home exercises, but it does not replace your doctor or physiotherapist.
+1) It cannot examine you or change your treatment, and its posture check is a guide only.
+2) Keep any physiotherapy or clinic appointments you have, and tell them which exercises you do here.
+3) To see a physiotherapist, ask your doctor for a referral, or contact the physiotherapy unit of a hospital or a private clinic.
 ```
 
 ## The app is not working  (`app_problem`)
@@ -1998,6 +2051,17 @@ With rheumatoid arthritis, regular exercise is part of standard care: it keeps y
 Move within a comfortable range; during a flare, rest hot, swollen joints, do fewer repetitions and build up again as it settles.
 
 Your plan was chosen within the safety limits set from your health profile, so follow it as set and check with your doctor before doing more.
+```
+
+## Sciatica  (`SCIATICA`)
+*i have sciatica can i exercise*
+
+```
+With sciatica (nerve pain from the lower back down the leg), keep gently active: walking and your exercises usually help more than bed rest.
+1) Avoid movements that send the pain further down your leg, and stop if they do.
+2) See your doctor if your leg becomes weak or numb, and get help at once if you have numbness around your bottom or lose control of your bladder or bowels.
+
+This condition is not on the health profile's list: add it as “Other condition (not listed)” in your profile, and ask your doctor whether your plan suits you before you start.
 ```
 
 ## Scoliosis  (`SCOLIOSIS`)

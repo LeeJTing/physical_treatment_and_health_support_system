@@ -85,6 +85,9 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
                  "penyakit lelah": "asthma", "sakit lelah": "asthma", "ada lelah": "have asthma",
                  "ada semput": "have asthma", "bp tinggi": "high blood pressure", "high bp": "high blood pressure",
                  "baru bersalin": "just gave birth", "lepas bersalin": "just gave birth",
+                 # 3.98: "sesuai" alone is the best (time); for a person it is suitable
+                 "sesuai untuk saya": "suitable for me", "sesuai dengan saya": "suitable for me",
+                 "sesuai untuk aku": "suitable for me",
                  # 3.87: aches and feelings in everyday Malay and Malaysian Chinese
                  "dah tak larat": "no energy", "tak larat": "no energy", "tidak larat": "no energy",
                  "urat tegang": "muscles are tight", "suan tong": "sore", "pai seh": "sorry", "kan cheong": "anxious",
@@ -141,6 +144,7 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
 CONTRACTIONS = {"dont": "don't", "cant": "can't", "wont": "won't", "im": "i'm", "ive": "i've", "isnt": "isn't",
                 "doesnt": "doesn't", "didnt": "didn't", "havent": "haven't", "whats": "what's", "thats": "that's",
                 "u": "you", "ur": "your", "pls": "please", "plz": "please", "r": "are", "abt": "about"}
+MALAY["doktor"] = "doctor"                           # 3.98: "doktor say no senaman" was not the doctor's advice
 # 3.55: short forms typed for whole words (respell reads them as the word)
 SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", "acc": "account", "pwd": "password", "pw": "password",
                      "tdy": "today", "tmr": "tomorrow", "tmrw": "tomorrow", "b4": "before", "ppl": "people",
@@ -230,6 +234,19 @@ def _exercise_text(name: str, instruction: str, extra: str, camera: str) -> str:
     return "\n".join(lines)
 
 
+# 3.98: the body area in a plan's name ("Early Knee Recovery"): "exercise for knee" lists that plan; another area is
+# chosen on the body map.
+PLAN_AREAS = {"knee": ("knee", "knees"), "lower limb": ("leg", "legs", "lower limb"), "shoulder": ("shoulder", "shoulders"),
+              "upper limb": ("arm", "arms", "upper limb"), "hip": ("hip", "hips"), "balance": ("balance",),
+              "back": ("back", "lower back", "core"), "leg": ("leg", "legs"), "hand": ("hand", "hands", "wrist", "wrists")}
+
+
+def _area_keywords(plan_name: str) -> list[str]:
+    name = plan_name.lower()
+    parts = [p for area, words in PLAN_AREAS.items() if area in name for p in words]
+    return [f"{k} for{m} {p}" for k in ("exercise", "plan") for m in ("", " my") for p in parts]
+
+
 def plan_intents(plan: dict) -> list[dict]:
     lines = "\n".join(f"{e['order']}) {e['name']}: {e['repetitions']} repetitions (about {e['duration']})"
                        for e in plan["exercises"])
@@ -241,7 +258,7 @@ def plan_intents(plan: dict) -> list[dict]:
                       "this plan", "exercise list", "list of exercises", "what order", "which order", "first exercise",
                       "next exercise", "how many reps", "how many repetitions", "repetitions", "reps", "sets",
                       "every session", "each session", "all the exercises", "all exercises", "all three",
-                      "comes first", "which first", "which one first", "order"],
+                      "comes first", "which first", "which one first", "order"] + _area_keywords(plan["plan_name"]),
          "examples": ["what exercises are in my plan", "which exercise do I do first", "how many repetitions",
                       "what is in this plan"],
          "answer": f"Your plan, {plan['plan_name']}, has {len(plan['exercises'])} exercises, done in this order:\n"
@@ -418,15 +435,32 @@ HEALTH_SENSE_WORDS = frozenset({"hearing", "deaf", "eyesight", "vision", "blind"
 
 def _exact_split(w: str, vocab) -> list[str] | None:
     """Two known words typed without the space, the parts as even as possible; never "no" first, except
-    "not" before a word of 4+ letters ("notspread")."""
+    "not" before a word of 4+ letters ("notspread"; 3.98: "dontwant", "cantbreathe")."""
     best = None
     for i in range(2, len(w) - 1):
         a, b = w[:i], w[i:]
-        negator_ok = a not in NEGATORS or (a == "not" and len(b) >= 4)
+        negator_ok = a not in NEGATORS or (a in ("not", "dont", "cant", "didnt", "never") and len(b) >= 4)
         if a in vocab and b in vocab and negator_ok and min(len(a), len(b)) >= 2:
             if best is None or abs(len(a) - len(b)) < abs(len(best[0]) - len(best[1])):
                 best = (a, b)
     return list(best) if best else None
+
+
+@lru_cache(maxsize=20000)
+def _two_signs(w: str) -> list[str] | None:
+    """3.98: two warning-sign words typed without the space, at most one easy slip in all ("heartraccing")."""
+    if len(w) < 7 or not w.isalpha():
+        return None
+    for i in range(3, len(w) - 2):
+        a, b = w[:i], w[i:]
+        if a in SAFETY_WORDS and b in SAFETY_WORDS:
+            return [a, b]
+        for x, y in ((a, b), (b, a)):
+            if x in SAFETY_WORDS and len(y) >= 4:
+                fixed = _likeliest(y)
+                if fixed in SAFETY_WORDS and typo_cost(y, fixed) <= 0.5:
+                    return [x, fixed] if x == a else [fixed, x]
+    return None
 
 
 def _split_joined(w: str, vocab: frozenset) -> list[str] | None:
@@ -583,8 +617,8 @@ def _read_by_context(typed: list[str], mended: list[str]) -> None:
             mended[k] = "floor"
         elif was == "fnt" and not FONT_CUES & set(plain.split()):
             mended[k] = "faint"
-        elif was == "lst" and after in TIME_AFTER_LAST:
-            mended[k] = "last"
+        elif after in TIME_AFTER_LAST and was[0] == "l" and was.isalpha() and typo_cost(was, "last") <= 1.0:
+            mended[k] = "last"                           # "lst month", "laats year" (was "lasts", 3.98)
 
 
 @lru_cache(maxsize=20000)
@@ -848,6 +882,10 @@ def _respell_words(token: str) -> str:
             continue
         likely = _likeliest(w)
         easy = likely is not None and typo_cost(w, likely) <= 0.8
+        signs = None if easy else _two_signs(w)
+        if signs:
+            out.extend(signs)                            # "heartraccing" -> heart racing, not "hear tracing" (3.98)
+            continue
         exact = _exact_split(w, vocab)
         if exact and not easy:
             out.extend(exact)                            # "beenthe" -> been the, not "breathe"
@@ -1100,6 +1138,7 @@ PREFER = [# 3.91: sleeping badly is not the best time to exercise; "how much pro
           ("weather", "tired"), ("weather", "equipment"), ("weather", "best_time"), ("travel", "missed_session"),
           ("travel", "plan_and_reminders"), ("travel", "equipment"), ("travel", "plan_progress"),
           ("travel", "plan_exercises"), ("fasting", "missed_session"), ("surgery", "diagnosis"), ("surgery", "safety"),
+          ("muscle_loss", "surgery"),                  # 3.98: "my thigh got smaller after the knee surgery"
           ("surgery", "plan_progress"), ("surgery", "treatment_nav"), ("condition_advice", "surgery"),
           ("period", "pain_or_discomfort"), ("period", "pain_mild"), ("period", "pain_sharp"), ("period", "tired"),
           ("period", "diet"), ("alcohol_smoking", "diet"), ("alcohol_smoking", "tired"), ("after_treatment", "diet"),
@@ -1194,6 +1233,13 @@ PREFER_IF = [("posture_result", "low_mood", ["score", "scores", "result", "resul
              ("diet", "calories", ["eat", "eating", "food", "makan", "diet", "meal", "meals", "drink"]),
              # 3.91: "now 2am cannot sleep, can i exercise" asks about exercising now (rest, it is late)
              ("best_time", "sleep", ["exercise", "exercises", "exercising", "senaman", "senam", "workout"])]
+# 3.98: an operation told as the story before "how often should I exercise" (round 8: "...I just had knee surgery
+# three months ago and my physiotherapist recommended this app. I want to know how often I should exercise."), but
+# not "how often after my surgery".
+AFTER_OPERATION = ["after surgery", "after my surgery", "after the surgery", "after operation", "after my operation",
+                   "after the operation", "after knee surgery", "after hip surgery", "after my knee surgery",
+                   "after my hip surgery", "post op", "lepas bedah", "lepas pembedahan", "selepas pembedahan"]
+PREFER_UNLESS_398 = [("how_often", "surgery", AFTER_OPERATION), ("best_time", "surgery", AFTER_OPERATION)]
 PREFER_UNLESS = [# 3.78: "a stitch in my side" is not a surgical wound's stitches.
                  ("stitch", "condition_advice", ["wound", "operation", "surgery", "dressing", "removed", "cut",
                                                  "incision", "oozing", "bleeding"]),
@@ -1222,7 +1268,9 @@ PREFER_UNLESS = [# 3.78: "a stitch in my side" is not a surgical wound's stitche
                                                  "don't", "avoid", "no exercise", "wait", "until"]),
                  # 3.55: "my exercises" is the plan's list, unless it asks how to do them
                  ("plan_exercises", "how_to", ["rest", "between", "correct", "correctly", "properly", "how to",
-                                               "how do", "how should", "form", "technique"]),
+                                               "how do", "how should", "form", "technique",
+                                               # 3.98: "how fast should i do each rep" is how to move
+                                               "how fast", "how slow", "how slowly", "how quickly", "speed"]),
                  # 3.55: "help me" is asking what I can do, unless it is about the plan helping
                  ("bot_identity", "plan_progress", ["recover", "plan", "exercise", "exercises", "working", "progress",
                                                     "is it", "are they", "will it"]),
@@ -1335,7 +1383,10 @@ SLIP_NEXT = {"in", "on", "at", "dalam", "di", "over", "down", "and", "while", "w
 CHRONIC = {"numb": ["years ago", "for years", "since the operation", "since my operation", "since surgery",
                     "since the surgery", "since my surgery", "for a long time", "long time", "always", "since birth",
                     "since my stroke", "because of diabetes", "because of my diabetes", "from diabetes",
-                    "due to diabetes", "diabetic", "neuropathy", "since years", "for many years"],
+                    "due to diabetes", "diabetic", "neuropathy", "since years", "for many years",
+                    # 3.98: numbness that keeps coming back ("my hands are numb every night")
+                    "every night", "most nights", "every morning", "most mornings", "on and off", "comes and goes",
+                    "carpal tunnel", "for weeks", "for months", "for a few weeks", "for a few months"],
            "vomit": ["after eating", "right after eating", "after a meal", "after meals", "full stomach",
                      "after lunch", "after dinner", "after breakfast", "lepas makan"]}
 CHRONIC["numbness"] = CHRONIC["numb"]
@@ -1900,6 +1951,14 @@ def _reading_flag(text: str) -> bool:
     return high_bp(text) or low_sugar(text) or high_sugar(text) or low_oxygen(text) or odd_pulse(text)
 
 
+# 3.98: a call for help to get up ("help me get up" was "what can you do", "help i cannot get up" the weak legs
+# answer): the patient may be on the floor. Not "help me stand up", said of exercising too. A pattern here, not
+# rule phrases: those count in the other-domain weights, and "help" is a word of every domain. On the cleaned
+# message: "tolong" is "please", "saya" "i".
+CALL_TO_GET_UP_RE = re.compile(r"\bhelp(?: me)?(?: i)? (?:can't|cannot|cant) get up\b|\bhelp me (?:get )?up\b|"
+                               r"\bhelp me get off the floor\b|\bplease (?:bangunkan|angkat) i\b")
+
+
 def _red_flag(text: str) -> bool:
     if _reading_flag(text):
         return True
@@ -1911,6 +1970,8 @@ def _red_flag(text: str) -> bool:
     for a, b in NOT_A_FALL + PAST_PHRASES:
         padded = padded.replace(f" {a} ", f" {b} ")
     base = padded.strip()
+    if CALL_TO_GET_UP_RE.search(base):
+        return True
     clauses = _clauses(text)
     if _recent_fall(clauses):
         return True
@@ -1978,6 +2039,10 @@ def keyword_match(text: str, intent: dict, corrected: bool = False) -> int:
             if hits:
                 best = n
                 break
+    if best < 3 and intent.get("patterns"):
+        plain = " ".join(variants[0])
+        if any(re.search(p, plain) for p in intent["patterns"]):
+            best = 3                                     # a family of phrases ("help my mother stand", 3.98)
     return best
 
 
@@ -2240,9 +2305,25 @@ def _near_exercise_name(text: str, intents: list[dict]):
             # Within a longer message, the best-matching part of it; a message no longer than the name is
             # compared whole ("ste up" is step up, not the end of "wrist up").
             score = fuzz.partial_ratio(core, t) if len(t) > len(core) else fuzz.ratio(core, t)
-            if score >= 88 and (best is None or score > best[0]):
+            if score >= 88 and (best is None or score > best[0]) and not _grammar_word_differs(core, t):
                 best = (score, (i["priority"], len(alias.split()), i))
     return best[1] if best else None
+
+
+def _grammar_word_differs(core: str, t: str) -> bool:
+    """3.98: the words of [t] most like the name differ from it by a grammar word, which is no slip ("how high
+    to raise my knees" is not "toe raise", the heel raise)."""
+    if len(t) <= len(core):
+        return False
+    a = fuzz.partial_ratio_alignment(core, t)
+    sub = t[a.dest_start:a.dest_end]
+    s = a.dest_start + len(sub) - len(sub.lstrip())      # the matched letters, without spaces around them
+    e = a.dest_end - (len(sub) - len(sub.rstrip()))
+    start = t.rfind(" ", 0, s) + 1                      # widened to whole words
+    end = t.find(" ", e)
+    window = t[start:end if end >= 0 else len(t)].split()
+    names = core.split()
+    return len(window) == len(names) and any(w != n and w in STOP for w, n in zip(window, names))
 
 
 def _inside_exercise_names(text: str, hits: list) -> list:
@@ -2401,7 +2482,7 @@ THIRD_TO_FIRST = {"is": "am", "isn't": "am not", "has": "have", "hasn't": "haven
 BEFORE_I = {"does": "do", "is": "am", "has": "have", "doesn't": "don't", "isn't": "aren't", "hasn't": "haven't"}
 VERB_AFTER_PERSON = {"can", "cannot", "can't", "will", "won't", "was", "fell", "had", "did", "didn't", "should", "could",
                      "would", "must", "always", "never", "still", "just", "also", "often", "keeps", "felt", "got"}
-KEEP_FOR_OTHERS = {"family_help", "cannot_do", "word_meaning"}
+KEEP_FOR_OTHERS = {"family_help", "cannot_do", "word_meaning", "helping_someone_move"}     # (3.98: the last)
 GENERAL_FOR_OTHERS = {"how_to", "plan_exercises", "safety", "how_often", "difficulty", "start_plan", "app_help",
                       "getting_started", "for_someone_else", "family_help", "cannot_do"}
 
@@ -2448,6 +2529,15 @@ def _as_if_mine(text: str | None) -> str | None:
     return mine if mine != " ".join(words) else None
 
 
+def _names_the_person(intent: dict, text: str) -> bool:
+    """3.98: the topic's own keyword names the family member ("i miss my wife" is low mood, not "i miss me", a
+    missed session): the message is then not read as if they had typed it."""
+    words = clean(text).split()
+    plain = " ".join(words)
+    return any(set(clean(k).split()) & PERSON_NOUNS and find_phrase(k, words) for k in intent["keywords"]) or any(
+        (m := re.search(p, plain)) and set(m.group(0).split()) & PERSON_NOUNS for p in intent.get("patterns", ()))
+
+
 def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     """The rule a typed question resolves to, and how it was matched (_match_any); none when the message,
     its words weighed together, is about another domain (3.61)."""
@@ -2464,7 +2554,8 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         first = _first_of_two_points(plan_id, text, chosen)
         if first is not None:
             return first                                 # (3.96)
-    mine = _as_if_mine(text) if chosen is None or chosen["key"] not in KEEP_FOR_OTHERS else None
+    mine = _as_if_mine(text) if chosen is None or (chosen["key"] not in KEEP_FOR_OTHERS and (
+        chosen["key"] == "for_someone_else" or not _names_the_person(chosen, text))) else None
     if mine:
         c2, h2 = _match_whole(plan_id, mine)
         if c2 is not None and c2 is not chosen and not c2.get("small_talk") and c2["key"] not in KEEP_FOR_OTHERS \
@@ -2512,7 +2603,7 @@ WALK_RE = re.compile(r"\b\d[\d,]{2,6}\s*(?:steps|langkah)\b|"
 SLEEP_RE = re.compile(r"\b(?:slept|sleep|sleeping|tidur)\s+(?:(?:only|just|about|around|for|less than)\s+)*([1-5])\s*"
                       r"(?:hours?|hrs?|jam)\b|\b(?:only|just|got)\s+([1-5])\s*(?:hours?|hrs?|jam)\s+(?:of\s+)?"
                       r"(?:sleep|tidur)\b|\b([1-5])\s*(?:hours?|hrs?|jam)\s+(?:of\s+)?(?:sleep|tidur)\b")
-DONE_RE = re.compile(r"\b(?:done|did|finished|completed|siap)\s+(?:it\s+|my\s+|the\s+)?\d{1,3}\s*(?:reps?|repetitions?|"
+DONE_RE = re.compile(r"\b(?:done|did|finished|completed|siap)\s+(?:it\s+|my\s+|the\s+)?(?!0\b)\d{1,3}\s*(?:reps?|repetitions?|"
                      r"sets?|times|rounds|kali)\b(?!\s*(?:a|per|every|each)\s+(?:day|week))")
 READING_WEAK = frozenset({"acknowledge", "clarify", "posture_result", "condition_advice", "safety", "equipment",
                           "how_to", "plan_exercises", "how_often", "profile_help", "for_someone_else", "treatment_nav",
@@ -2818,11 +2909,15 @@ def _match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         # "My arm cannot go up to shoulder height" is about not managing it, not how the exercise goes.
         hits = [h for h in hits if not h[2]["key"].startswith("exercise:")]
         keys = {h[2]["key"] for h in hits}
+    plan = max((h[1] for h in hits if h[2]["key"] == "plan_exercises"), default=0)
+    if plan and plan >= max((h[1] for h in hits if h[2]["key"] == "body_map"), default=99):
+        hits = [h for h in hits if h[2]["key"] != "body_map"]      # "exercise for knee" in a knee plan (3.98)
+        keys = {h[2]["key"] for h in hits}
     for better, general in PREFER:
         if better in keys and general in keys:
             hits = [h for h in hits if h[2]["key"] != general]
     words = clean(text).split()
-    for better, general, unless in PREFER_UNLESS:
+    for better, general, unless in PREFER_UNLESS + PREFER_UNLESS_398:
         if better in keys and general in keys and not any(find_phrase(u, words) for u in unless):
             hits = [h for h in hits if h[2]["key"] != general]
     for better, general, only_if in PREFER_IF:

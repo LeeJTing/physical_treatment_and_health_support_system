@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.97",
+  "version": "chat-rules-3.98",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -120,7 +120,9 @@
         "exercise steps",
         "the steps",
         "langkah",
-        "show how"
+        "show how",
+        "laju atau perlahan",
+        "perlahan atau laju"
       ],
       "examples": [
         "how do I do the exercises",
@@ -140,6 +142,10 @@
         "label": "Open my treatment plan"
       },
       "more_actions": [],
+      "patterns": [
+        "\\bhow (?:fast|slow|slowly|quickly) (?:should|do|to|must|can)\\b",
+        "\\bspeed of each\\b"
+      ],
       "time_aware": true
     },
     {
@@ -400,7 +406,15 @@
         "safety tips",
         "safety tip",
         "safe tips",
-        "tips to be safe"
+        "tips to be safe",
+        "seniors",
+        "senior citizen",
+        "senior citizens",
+        "for the elderly",
+        "orang tua buat",
+        "orang tua boleh",
+        "untuk orang tua",
+        "orang tua senaman"
       ],
       "examples": [
         "is it safe for me to exercise",
@@ -417,6 +431,9 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\bold(?:er)? (?:people|person|persons|adults?|folks)\\b"
+      ],
       "time_aware": true
     },
     {
@@ -587,6 +604,10 @@
         "blood clot",
         "blood clots",
         "pembekuan darah",
+        "sciatica",
+        "sciatic nerve",
+        "sciatic pain",
+        "saraf siatik",
         "spinal stenosis",
         "stenosis",
         "herniated disc",
@@ -718,7 +739,11 @@
         "what do i need",
         "what i need",
         "anything i need",
-        "what to prepare"
+        "what to prepare",
+        "armrest",
+        "armrests",
+        "arm rest",
+        "arm rests"
       ],
       "examples": [
         "what equipment do I need",
@@ -1093,7 +1118,10 @@
         "failed to upload",
         "upload fail",
         "cannot upload video",
-        "video upload failed"
+        "video upload failed",
+        "kamera",
+        "kamera tak nampak",
+        "tak nampak saya"
       ],
       "examples": [
         "how do I record my exercise",
@@ -1180,7 +1208,15 @@
         "counts repetitions",
         "counts reps",
         "how does it count",
-        "how is it counted"
+        "how is it counted",
+        "0 reps",
+        "0 rep",
+        "0 repetitions",
+        "markah",
+        "markah saya",
+        "markah rendah",
+        "skor saya",
+        "kenapa skor"
       ],
       "examples": [
         "what does my posture score mean",
@@ -1199,6 +1235,12 @@
         "label": "See my results"
       },
       "more_actions": [],
+      "patterns": [
+        "\\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\\b",
+        "\\b(?:did|says|shows|counted) (?:0|zero)\\b",
+        "\\bcounted (?:none|nothing)\\b",
+        "\\b(?:didn't|did not) count any\\b"
+      ],
       "time_aware": false
     },
     {
@@ -1826,7 +1868,9 @@
         "chinese",
         "tamil",
         "chinese can",
-        "bahasa cina"
+        "bahasa cina",
+        "tukar bahasa",
+        "bahasa lain"
       ],
       "examples": [
         "what language can I use",
@@ -1840,6 +1884,10 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\b(?:change|switch) (?:the )?language\\b",
+        "\\b(?:other|another) language\\b"
+      ],
       "time_aware": false
     },
     {
@@ -2115,7 +2163,9 @@
         "fall when alone",
         "anxious about falling",
         "nervous about falling",
-        "anxious i will fall"
+        "anxious i will fall",
+        "tersadung",
+        "selalu tersadung"
       ],
       "examples": [
         "I am scared I will fall",
@@ -2130,6 +2180,10 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\b(?:keep|always|often) trip(?:ping)?\\b",
+        "\\btrip(?:ping)? (?:a lot|often|over things)\\b"
+      ],
       "time_aware": false
     },
     {
@@ -2236,6 +2290,9 @@
         "label": "Open my treatment plan"
       },
       "more_actions": [],
+      "patterns": [
+        "\\bhelp(?:ing)? (?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather|grandma|grandpa|parents?|patient)|him|her|them|someone|somebody|a person|an elderly(?: person)?|an old person) (?:to |with )?(?:do )?(?:the |my |his |her |their )?exercis"
+      ],
       "time_aware": false
     },
     {
@@ -2403,7 +2460,10 @@
         "mental health",
         "kesihatan mental",
         "my mental",
-        "emotional health"
+        "emotional health",
+        "rindu",
+        "rindu keluarga",
+        "rindu arwah"
       ],
       "examples": [
         "I feel sad",
@@ -2418,6 +2478,9 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\bmiss(?:ing)? (?:my (?:late )?(?:wife|husband|family|children|kids|grandchildren|grandkids|son|daughter|mother|father|mum|mom|dad|parents|friends?|partner|old life)|him|her|them|home)\\b"
+      ],
       "time_aware": false
     },
     {
@@ -2558,7 +2621,11 @@
         "play pickleball",
         "go bowling",
         "aerobics",
-        "line dance"
+        "line dance",
+        "brisk walking",
+        "jalan kaki",
+        "jalan pagi",
+        "berjalan kaki"
       ],
       "examples": [
         "can I go jogging",
@@ -2573,6 +2640,14 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\b(?:is|are) walking (?:good|enough|ok|okay|better)\\b",
+        "\\bwalking (?:is )?(?:good|enough)\\b",
+        "\\b(?:go|going|went) (?:for )?(?:a )?walk(?:s|ing)?\\b",
+        "\\bwalk (?:every day|daily)\\b",
+        "\\b(?:morning|evening) walks?\\b",
+        "\\bwalk(?:ing)? instead\\b"
+      ],
       "time_aware": false
     },
     {
@@ -2821,6 +2896,9 @@
         "label": "Open treatment planning"
       },
       "more_actions": [],
+      "patterns": [
+        "\\b(?:exercises?|plans?) for (?:my |the )?(?:knees?|shoulders?|back|lower back|hips?|legs?|arms?|hands?|wrists?|ankles?|elbows?|feet|foot|core|neck)\\b"
+      ],
       "time_aware": false
     },
     {
@@ -3177,7 +3255,11 @@
         "start over",
         "begin again",
         "restart plan",
-        "tukar plan"
+        "tukar plan",
+        "pause my plan",
+        "pause the plan",
+        "pause plan",
+        "pause this plan"
       ],
       "examples": [
         "how do I change my plan",
@@ -3199,6 +3281,11 @@
           "key": "open_reminders",
           "label": "Open reminders"
         }
+      ],
+      "patterns": [
+        "\\bstop a plan\\b",
+        "\\btake a break from (?:my|the) plan\\b",
+        "\\bhold my plan\\b"
       ],
       "time_aware": false
     },
@@ -4088,7 +4175,12 @@
         "you robot",
         "robot",
         "you human",
-        "bot"
+        "bot",
+        "siapa buat",
+        "siapa yang buat",
+        "siapa cipta",
+        "siapa reka",
+        "siapa bina"
       ],
       "examples": [
         "what can you do",
@@ -4515,7 +4607,11 @@
         "lepas operate",
         "kena operate",
         "nak operate",
-        "bedah"
+        "bedah",
+        "kena bedah",
+        "dibedah",
+        "lepas bedah",
+        "selepas pembedahan"
       ],
       "examples": [
         "I am going for surgery next week",
@@ -4529,6 +4625,11 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\b(?:knee|hip|back|spine|spinal|shoulder|ankle|foot|wrist|hand|elbow|neck|heart|bypass|hernia|cataract|eye|acl|ligament|stomach|abdominal|cancer|bowel|brain) (?:surgery|operation|op)\\b",
+        "\\b(?:surgery|operation) (?:\\w+ )?(?:days?|weeks?|months?) ago\\b",
+        "\\boperated on\\b"
+      ],
       "time_aware": false
     },
     {
@@ -4752,6 +4853,9 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\bnumb(?:ness)? (?:every night|every morning|on and off|comes and goes)\\b"
+      ],
       "time_aware": false
     },
     {
@@ -4878,13 +4982,200 @@
         "susah tidur",
         "wake up at night",
         "waking up at night",
-        "sleep well at night"
+        "sleep well at night",
+        "sleepless",
+        "terjaga malam",
+        "selalu terjaga"
       ],
       "examples": [
         "I can't sleep at night",
         "how can I sleep better"
       ],
       "answer": "Regular exercise usually helps you sleep better, as long as it is not in the last hour or two before bed.\n1) Keep a regular bedtime, get some daylight in the morning, and avoid coffee or tea after mid-afternoon and large meals late at night.\n2) If you sleep badly most nights for more than a few weeks, or snore loudly and feel sleepy in the day, tell your doctor.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "patterns": [
+        "\\bwak(?:e|ing) up (?:many times|often|a lot|in the night|too early|very early)\\b",
+        "\\bkeep waking up\\b",
+        "\\b(?:can't|cannot|don't|not) sleep(?:ing)? well\\b",
+        "\\btidur tak lena\\b",
+        "\\btak lena tidur\\b"
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "ice_heat",
+      "title": "Ice or heat",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "ice pack",
+        "heat pack",
+        "heating pad",
+        "tuam",
+        "tuam panas",
+        "tuam ais",
+        "tuaman",
+        "letak ais",
+        "demah"
+      ],
+      "examples": [
+        "should I use ice or heat",
+        "ice pack or heat pack for my knee"
+      ],
+      "answer": "Ice or heat can ease pain; choose by what the pain is like.\n1) Ice is for a new injury, swelling or a joint that feels hot, in the first 2 days: wrap an ice pack or a bag of frozen peas in a towel and hold it on for 10 to 15 minutes.\n2) Heat is for stiffness and old aches, for example a stiff back in the morning or before exercising: use a warm (not hot) towel or pack for up to 20 minutes, never on a swollen or hot joint.\n3) Never put ice or heat straight on the skin, and ask your doctor first if the skin there feels numb or you have diabetes or poor circulation.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "patterns": [
+        "\\b(?:put|apply|use|using|putting) (?:an? |some )?(?:ice|heat|hot pack|cold pack|heat pack|ice pack)\\b",
+        "\\bice or heat\\b",
+        "\\bheat or ice\\b",
+        "\\b(?:ice|cold|hot|heat|warm) (?:packs?|compress(?:es)?|pads?)\\b",
+        "\\bhot water bottle\\b",
+        "\\bice (?:it|my|on my)\\b"
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "physio_role",
+      "title": "The app and your physiotherapist",
+      "show": false,
+      "priority": 8,
+      "keywords": [
+        "real physiotherapist",
+        "ahli fisioterapi",
+        "jumpa fisioterapi",
+        "cari fisioterapi"
+      ],
+      "examples": [
+        "can this app replace my physiotherapist",
+        "can I talk to a real physiotherapist"
+      ],
+      "answer": "HealthGuide helps with your home exercises, but it does not replace your doctor or physiotherapist.\n1) It cannot examine you or change your treatment, and its posture check is a guide only.\n2) Keep any physiotherapy or clinic appointments you have, and tell them which exercises you do here.\n3) To see a physiotherapist, ask your doctor for a referral, or contact the physiotherapy unit of a hospital or a private clinic.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "patterns": [
+        "\\b(?:find|see|need|get|meet) (?:a |my )?physiotherapist\\b",
+        "\\bphysiotherapist near\\b",
+        "\\breplace (?:my |a |the )?(?:physiotherapist|physiotherapy|doctor)\\b",
+        "\\binstead of (?:going to |seeing )?(?:a |my )?(?:physiotherapist|physiotherapy)\\b",
+        "\\b(?:talk|speak) to (?:a |my )?(?:real )?physiotherapist\\b",
+        "\\bstill (?:need|go to|going to) (?:a |my )?(?:physiotherapist|physiotherapy)\\b",
+        "\\bstop going to (?:physiotherapist|physiotherapy)\\b"
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "cold_hands_feet",
+      "title": "Cold hands or feet",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "kaki sejuk",
+        "tangan sejuk",
+        "jari sejuk",
+        "peredaran darah"
+      ],
+      "examples": [
+        "my feet are always cold",
+        "cold hands and feet"
+      ],
+      "answer": "Cold hands or feet are common when you sit still for a long time or in an air-conditioned room.\n1) Keep them warm with socks or a blanket, and move your ankles, toes and fingers often; your exercises help the blood flow too.\n2) Tell your doctor if they are often numb, pale or bluish, if your calves hurt when you walk and ease when you rest, or if you have diabetes.\n3) A hand or foot that is suddenly cold, pale and painful needs a doctor at once.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "patterns": [
+        "\\bcold (?:hands?|feet|foot|toes|fingers)\\b",
+        "\\b(?:hands?|feet|foot|toes|fingers) (?:are |is |feel |feels |always |so |very |too )*cold\\b",
+        "\\b(?:poor|bad|blood) circulation\\b"
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "helping_someone_move",
+      "title": "Helping someone stand up or walk",
+      "show": false,
+      "priority": 7,
+      "keywords": [
+        "out of a chair",
+        "out of the chair",
+        "gait belt",
+        "bantu bangun",
+        "bantu berjalan",
+        "angkat pesakit"
+      ],
+      "examples": [
+        "how do I get my mother out of a chair",
+        "using a gait belt for my father"
+      ],
+      "answer": "To help someone stand up from a chair, let them do as much as they can.\n1) Ask them to move to the front of the seat with their feet flat and slightly apart, lean forward (nose over toes) and push up on the armrests while you stand at their side and steady them at the waist.\n2) Never pull on their arms or neck.\n3) Let them stand still for a moment before walking, in case they feel dizzy.\n4) When walking, stay on their weaker side, a little behind, with a hand at their waist, and let them use their walking aid.\n5) If they cannot take most of their own weight, do not lift them alone.\n6) If they have fallen and are hurt or cannot get up with a little help, call 999.",
+      "follow_ups": [],
+      "tailor": false,
+      "negatable": false,
+      "anchor_start": false,
+      "small_talk": false,
+      "action": null,
+      "more_actions": [],
+      "patterns": [
+        "\\bhelp(?:ing)? (?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather|grandma|grandpa|parents?|patient)|him|her|them|someone|somebody|a person|an elderly(?: person)?|an old person) (?:to )?(?:stand|get up|walk|get out of|sit down|move|get into bed|go to the toilet)\\b",
+        "\\b(?:raise|carry) (?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather)|someone|somebody|a person|the patient)\\b",
+        "\\b(?:raise|carry) (?:her|him|them) (?:up|out of|from|into|onto|off)\\b"
+      ],
+      "time_aware": false
+    },
+    {
+      "key": "brace_support",
+      "title": "Knee braces and supports",
+      "show": false,
+      "priority": 6,
+      "keywords": [
+        "knee brace",
+        "knee guard",
+        "knee support",
+        "knee sleeve",
+        "knee strap",
+        "back brace",
+        "back support",
+        "back belt",
+        "lumbar support",
+        "lumbar belt",
+        "ankle brace",
+        "ankle support",
+        "wrist brace",
+        "wrist support",
+        "wrist splint",
+        "splint",
+        "brace",
+        "pendakap",
+        "pendakap lutut",
+        "sokongan lutut",
+        "korset",
+        "tali pinggang sokongan"
+      ],
+      "examples": [
+        "can I use a knee brace during exercise",
+        "should I use a back support"
+      ],
+      "answer": "You can wear a brace or support that your doctor or physiotherapist gave you while exercising, unless they said otherwise.\n1) It should feel snug, not tight: take it off if your toes or fingers tingle, go numb or change colour.\n2) A support you chose yourself is fine for a short time, but your exercises are what build the muscles that support the joint.\n3) Ask your physiotherapist how long to use it.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -5526,6 +5817,13 @@
         "label": "Open treatment planning"
       },
       "more_actions": [],
+      "patterns": [
+        "\\b(?:give|gave|gives) me this plan\\b",
+        "\\b(?:choose|chose|chooses|choosing|pick|picked|picks) (?:my|the|this) plan\\b",
+        "\\bplans? (?:are |were |is |was )?chosen\\b",
+        "\\bhow (?:does|did) the app (?:choose|pick)\\b",
+        "\\bwhy (?:did|do) i get this plan\\b"
+      ],
       "time_aware": false
     },
     {
@@ -5780,7 +6078,8 @@
         "how to contact",
         "helpdesk",
         "help desk",
-        "who to contact"
+        "who to contact",
+        "can i trust this app"
       ],
       "examples": [
         "is this app free",
@@ -5795,6 +6094,11 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\b(?:app|it) (?:is )?(?:approved|certified|legit|legitimate|verified)\\b",
+        "\\b(?:approved|certified|verified|made) by (?:a )?doctors?\\b",
+        "\\b(?:doctor|medically) approved\\b"
+      ],
       "time_aware": false
     },
     {
@@ -7714,6 +8018,7 @@
     "EYE_CONDITION": "With an eye condition, exercise in a clear, well-lit space with a support nearby.\nWith glaucoma, avoid positions with your head lower than your heart; after eye surgery, ask your eye doctor when you may bend and exercise again.",
     "VARICOSE_VEINS": "With varicose veins, walking and ankle and calf exercises help the blood flow in your legs; raise your legs when you rest. A calf that is suddenly swollen, red, warm and painful needs a doctor the same day.",
     "DVT": "After a blood clot (DVT), follow your doctor's advice; once treatment has started, walking is usually encouraged.\n1) On blood thinners you bruise and bleed more easily, so take care not to fall.\n2) Sudden breathlessness or chest pain needs 999.",
+    "SCIATICA": "With sciatica (nerve pain from the lower back down the leg), keep gently active: walking and your exercises usually help more than bed rest.\n1) Avoid movements that send the pain further down your leg, and stop if they do.\n2) See your doctor if your leg becomes weak or numb, and get help at once if you have numbness around your bottom or lose control of your bladder or bowels.",
     "SPINE_DISC": "With a disc problem or narrowing in the spine, gentle movement and strengthening usually help more than rest.\nAvoid bending and lifting at the same time, stop if pain spreads down a leg or numbness gets worse, and get help at once if you lose control of your bladder or bowels or your legs become weak.",
     "ANKYLOSING_SPONDYLITIS": "With ankylosing spondylitis, daily stretching and movement are an important part of treatment and ease morning stiffness. Move smoothly within a comfortable range and build up gradually.",
     "TENDON": "With an irritated tendon or bursa, rest from the movement that brings on the pain for a while, then build up gently. Mild discomfort that settles quickly is fine; sharp or worsening pain means stop.",
@@ -7854,6 +8159,7 @@
     "NEUROPATHY",
     "OBESITY",
     "PLANTAR_FASCIITIS",
+    "SCIATICA",
     "SCOLIOSIS",
     "SLEEP_APNOEA",
     "SPINE_DISC",
@@ -7933,6 +8239,10 @@
     "blood clot": "DVT",
     "blood clots": "DVT",
     "pembekuan darah": "DVT",
+    "sciatica": "SCIATICA",
+    "sciatic nerve": "SCIATICA",
+    "sciatic pain": "SCIATICA",
+    "saraf siatik": "SCIATICA",
     "spinal stenosis": "SPINE_DISC",
     "stenosis": "SPINE_DISC",
     "herniated disc": "SPINE_DISC",

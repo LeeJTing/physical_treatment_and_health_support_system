@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.97"
+VERSION = "chat-rules-3.98"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1101,6 +1101,61 @@ INTENTS = [
            "large meals late at night. "
            "If you sleep badly most nights for more than a few weeks, or snore loudly and feel sleepy in the day, "
            "tell your doctor.", show=False),
+    # 3.98 (everyday questions probed by hand): "should i use ice or heat" and "can i talk to a real
+    # physiotherapist" were not recognised, "can this app replace my physiotherapist" was the too-hard answer,
+    # "my feet are always cold" the answer for a cold or flu.
+    intent("ice_heat", "Ice or heat", 6,
+           ["ice pack", "heat pack", "heating pad", "tuam", "tuam panas", "tuam ais", "tuaman", "letak ais", "demah"],
+           ["should I use ice or heat", "ice pack or heat pack for my knee"],
+           "Ice or heat can ease pain; choose by what the pain is like. "
+           "Ice is for a new injury, swelling or a joint that feels hot, in the first 2 days: wrap an ice pack or a "
+           "bag of frozen peas in a towel and hold it on for 10 to 15 minutes. "
+           "Heat is for stiffness and old aches, for example a stiff back in the morning or before exercising: use a "
+           "warm (not hot) towel or pack for up to 20 minutes, never on a swollen or hot joint. "
+           "Never put ice or heat straight on the skin, and ask your doctor first if the skin there feels numb or "
+           "you have diabetes or poor circulation.", show=False),
+    intent("physio_role", "The app and your physiotherapist", 8,      # over "too hard" (difficulty, 7)
+           ["real physiotherapist", "ahli fisioterapi", "jumpa fisioterapi", "cari fisioterapi"],
+           ["can this app replace my physiotherapist", "can I talk to a real physiotherapist"],
+           "HealthGuide helps with your home exercises, but it does not replace your doctor or physiotherapist. "
+           "It cannot examine you or change your treatment, and its posture check is a guide only. "
+           "Keep any physiotherapy or clinic appointments you have, and tell them which exercises you do here. "
+           "To see a physiotherapist, ask your doctor for a referral, or contact the physiotherapy unit of a "
+           "hospital or a private clinic.", show=False),
+    intent("cold_hands_feet", "Cold hands or feet", 6,
+           ["kaki sejuk", "tangan sejuk", "jari sejuk", "peredaran darah"],
+           ["my feet are always cold", "cold hands and feet"],
+           "Cold hands or feet are common when you sit still for a long time or in an air-conditioned room. "
+           "Keep them warm with socks or a blanket, and move your ankles, toes and fingers often; your exercises "
+           "help the blood flow too. "
+           "Tell your doctor if they are often numb, pale or bluish, if your calves hurt when you walk and ease "
+           "when you rest, or if you have diabetes. "
+           "A hand or foot that is suddenly cold, pale and painful needs a doctor at once.", show=False),
+    # 3.98: a carer helping someone up or along ("how to help my mother stand up" was "what can you do", "how
+    # do i help my mother get out of a chair" the equipment answer)
+    intent("helping_someone_move", "Helping someone stand up or walk", 7,
+           ["out of a chair", "out of the chair", "gait belt", "bantu bangun", "bantu berjalan", "angkat pesakit"],
+           ["how do I get my mother out of a chair", "using a gait belt for my father"],
+           "To help someone stand up from a chair, let them do as much as they can. "
+           "Ask them to move to the front of the seat with their feet flat and slightly apart, lean forward "
+           "(nose over toes) and push up on the armrests while you stand at their side and steady them at the "
+           "waist; never pull on their arms or neck. "
+           "Let them stand still for a moment before walking, in case they feel dizzy. "
+           "When walking, stay on their weaker side, a little behind, with a hand at their waist, and let them use "
+           "their walking aid. "
+           "If they cannot take most of their own weight, do not lift them alone; if they have fallen and are hurt "
+           "or cannot get up with a little help, call 999.", show=False),
+    intent("brace_support", "Knee braces and supports", 6,
+           ["knee brace", "knee guard", "knee support", "knee sleeve", "knee strap", "back brace", "back support",
+            "back belt", "lumbar support", "lumbar belt", "ankle brace", "ankle support", "wrist brace",
+            "wrist support", "wrist splint", "splint", "brace", "pendakap", "pendakap lutut", "sokongan lutut",
+            "korset", "tali pinggang sokongan"],
+           ["can I use a knee brace during exercise", "should I use a back support"],
+           "You can wear a brace or support that your doctor or physiotherapist gave you while exercising, unless "
+           "they said otherwise. "
+           "It should feel snug, not tight: take it off if your toes or fingers tingle, go numb or change colour. "
+           "A support you chose yourself is fine for a short time, but your exercises are what build the muscles "
+           "that support the joint; ask your physiotherapist how long to use it.", show=False),
     # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
     # word's meaning.
     intent("word_meaning", "What a word means", 6, [], [],
@@ -1534,6 +1589,12 @@ UNLISTED_CONDITIONS = {
             "After a blood clot (DVT), follow your doctor's advice; once treatment has started, walking is usually "
             "encouraged. On blood thinners you bruise and bleed more easily, so take care not to fall. Sudden "
             "breathlessness or chest pain needs 999."),
+    # 3.98: "i have sciatica" was "I cannot diagnose"
+    "SCIATICA": (["sciatica", "sciatic nerve", "sciatic pain", "saraf siatik"],
+                 "With sciatica (nerve pain from the lower back down the leg), keep gently active: walking and your "
+                 "exercises usually help more than bed rest. Avoid movements that send the pain further down your "
+                 "leg, and stop if they do. See your doctor if your leg becomes weak or numb, and get help at once if "
+                 "you have numbness around your bottom or lose control of your bladder or bowels."),
     "SPINE_DISC": (["spinal stenosis", "stenosis", "herniated disc", "slipped disc", "prolapsed disc", "bulging disc",
                     "disc bulge", "degenerative disc", "spondylosis", "spondylolisthesis", "disc problem",
                     "cakera tergelincir"],
@@ -1633,9 +1694,92 @@ EXTRA_KEYWORDS_374 = {
     "hot_weather": ["temperature outside", "outside temperature", "degrees outside", "hot outside", "hot today"],
     "how_often": ["times a day", "times per day", "days a week", "days per week", "minutes a day",
                   "minutes per day", "minutes enough", "enough minutes"],
+    # 3.98: everyday questions probed by hand ("can old people exercise", "is walking enough", "i wake up many
+    # times at night", "i keep tripping", "i miss my wife", "it says i did 0 reps", "is this app approved by
+    # doctors": not recognised, or another topic)
+    "safety": ["seniors", "senior citizen", "senior citizens", "for the elderly"],
+    "other_activity": ["brisk walk", "brisk walking", "jalan kaki", "jalan pagi", "berjalan kaki"],
+    "sleep": ["sleepless", "terjaga malam", "selalu terjaga"],
+    "posture_result": ["0 reps", "0 rep", "0 repetitions"],
+    "language": ["tukar bahasa", "bahasa lain"],
+    "bot_identity": ["siapa buat", "siapa yang buat", "siapa cipta", "siapa reka", "siapa bina"],
+    "recording_help": ["kamera", "kamera tak nampak", "tak nampak saya"],
 }
+EXTRA_KEYWORDS_374["safety"] += ["orang tua buat", "orang tua boleh", "untuk orang tua", "orang tua senaman"]
+# 3.98 (exercise probe): exercises or a plan for a body part are chosen on the body map (the plan's own area lists
+# the plan: engine.plan_intents); "can i use armrest" was not recognised.
+EXTRA_KEYWORDS_374["equipment"] = EXTRA_KEYWORDS_374.get("equipment", []) + [
+    "armrest", "armrests", "arm rest", "arm rests"]
+# 3.98 (third probe): "i had knee surgery 6 weeks ago" was "I cannot diagnose"; "why did the app give me this plan"
+# the plan's exercises; "can i pause my plan" the plan's exercises; "how slow should i go" not recognised.
+EXTRA_KEYWORDS_374["surgery"] = EXTRA_KEYWORDS_374.get("surgery", []) + [
+    "kena bedah", "dibedah", "lepas bedah", "selepas pembedahan"]
+EXTRA_KEYWORDS_374["plan_and_reminders"] = EXTRA_KEYWORDS_374.get("plan_and_reminders", []) + [
+    "pause my plan", "pause the plan", "pause plan", "pause this plan"]
+EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju atau perlahan", "perlahan atau laju"]
+EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung"]
+EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
+EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+EXTRA_KEYWORDS_374["posture_result"] += ["markah", "markah saya", "markah rendah", "skor saya", "kenapa skor"]
 for _k, _v in EXTRA_KEYWORDS_374.items():
     EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+
+# 3.98: families of phrases, as regular expressions over the cleaned message (engine.clean: lower case, Malay and
+# synonyms mapped, "lift" -> "raise"). A match counts as a three-word keyword (engine.keyword_match). Patterns are
+# not counted in the other-domain weights (build_domain_words), so the everyday words in them ("help", "him",
+# "people") stay as likely in other domains as before: written out as keywords, 600 phrases had let 37 more
+# questions of other domains through.
+_PERSON = (r"(?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather|grandma|grandpa|parents?|"
+           r"patient)|him|her|them|someone|somebody|a person|an elderly(?: person)?|an old person)")
+_PART = (r"(?:knees?|shoulders?|back|lower back|hips?|legs?|arms?|hands?|wrists?|ankles?|elbows?|feet|foot|core|"
+         r"neck)")
+PATTERNS = {
+    "helping_someone_move": [
+        rf"\bhelp(?:ing)? {_PERSON} (?:to )?(?:stand|get up|walk|get out of|sit down|move|get into bed|go to the toilet)\b",
+        # "lift my mother", not "lift her arms" (her: the person's, caregiver test)
+        r"\b(?:raise|carry) (?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather)|someone|"
+        r"somebody|a person|the patient)\b", r"\b(?:raise|carry) (?:her|him|them) (?:up|out of|from|into|onto|off)\b"],
+    "family_help": [rf"\bhelp(?:ing)? {_PERSON} (?:to |with )?(?:do )?(?:the |my |his |her |their )?exercis"],
+    "surgery": [r"\b(?:knee|hip|back|spine|spinal|shoulder|ankle|foot|wrist|hand|elbow|neck|heart|bypass|hernia|"
+                r"cataract|eye|acl|ligament|stomach|abdominal|cancer|bowel|brain) (?:surgery|operation|op)\b",
+                r"\b(?:surgery|operation) (?:\w+ )?(?:days?|weeks?|months?) ago\b", r"\boperated on\b"],
+    "low_mood": [r"\bmiss(?:ing)? (?:my (?:late )?(?:wife|husband|family|children|kids|grandchildren|grandkids|son|"
+                 r"daughter|mother|father|mum|mom|dad|parents|friends?|partner|old life)|him|her|them|home)\b"],
+    "body_map": [rf"\b(?:exercises?|plans?) for (?:my |the )?{_PART}\b"],
+    "safety": [r"\bold(?:er)? (?:people|person|persons|adults?|folks)\b"],
+    "other_activity": [r"\b(?:is|are) walking (?:good|enough|ok|okay|better)\b", r"\bwalking (?:is )?(?:good|enough)\b",
+                       r"\b(?:go|going|went) (?:for )?(?:a )?walk(?:s|ing)?\b", r"\bwalk (?:every day|daily)\b",
+                       r"\b(?:morning|evening) walks?\b", r"\bwalk(?:ing)? instead\b"],
+    "app_facts": [r"\b(?:app|it) (?:is )?(?:approved|certified|legit|legitimate|verified)\b",
+                  r"\b(?:approved|certified|verified|made) by (?:a )?doctors?\b", r"\b(?:doctor|medically) approved\b"],
+    "ice_heat": [r"\b(?:put|apply|use|using|putting) (?:an? |some )?(?:ice|heat|hot pack|cold pack|heat pack|ice pack)\b",
+                 r"\bice or heat\b", r"\bheat or ice\b", r"\b(?:ice|cold|hot|heat|warm) (?:packs?|compress(?:es)?|pads?)\b",
+                 r"\bhot water bottle\b", r"\bice (?:it|my|on my)\b"],
+    "physio_role": [r"\b(?:find|see|need|get|meet) (?:a |my )?physiotherapist\b", r"\bphysiotherapist near\b",
+                    r"\breplace (?:my |a |the )?(?:physiotherapist|physiotherapy|doctor)\b",
+                    r"\binstead of (?:going to |seeing )?(?:a |my )?(?:physiotherapist|physiotherapy)\b",
+                    r"\b(?:talk|speak) to (?:a |my )?(?:real )?physiotherapist\b",
+                    r"\bstill (?:need|go to|going to) (?:a |my )?(?:physiotherapist|physiotherapy)\b",
+                    r"\bstop going to (?:physiotherapist|physiotherapy)\b"],
+    "cold_hands_feet": [r"\bcold (?:hands?|feet|foot|toes|fingers)\b",
+                        r"\b(?:hands?|feet|foot|toes|fingers) (?:are |is |feel |feels |always |so |very |too )*cold\b",
+                        r"\b(?:poor|bad|blood) circulation\b"],
+    "sleep": [r"\bwak(?:e|ing) up (?:many times|often|a lot|in the night|too early|very early)\b",
+              r"\bkeep waking up\b", r"\b(?:can't|cannot|don't|not) sleep(?:ing)? well\b",
+              r"\btidur tak lena\b", r"\btak lena tidur\b"],
+    "pins_needles": [r"\bnumb(?:ness)? (?:every night|every morning|on and off|comes and goes)\b"],
+    "language": [r"\b(?:change|switch) (?:the )?language\b", r"\b(?:other|another) language\b"],
+    "fear_of_falling": [r"\b(?:keep|always|often) trip(?:ping)?\b", r"\btrip(?:ping)? (?:a lot|often|over things)\b"],
+    "plan_reasons": [r"\b(?:give|gave|gives) me this plan\b",
+                     r"\b(?:choose|chose|chooses|choosing|pick|picked|picks) (?:my|the|this) plan\b",
+                     r"\bplans? (?:are |were |is |was )?chosen\b", r"\bhow (?:does|did) the app (?:choose|pick)\b",
+                     r"\bwhy (?:did|do) i get this plan\b"],
+    "plan_and_reminders": [r"\bstop a plan\b", r"\btake a break from (?:my|the) plan\b", r"\bhold my plan\b"],
+    "posture_result": [r"\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\b",
+                       r"\b(?:did|says|shows|counted) (?:0|zero)\b", r"\bcounted (?:none|nothing)\b",
+                       r"\b(?:didn't|did not) count any\b"],
+    "how_to": [r"\bhow (?:fast|slow|slowly|quickly) (?:should|do|to|must|can)\b", r"\bspeed of each\b"],
+}
 
 
 def _no_repeated_keys():
@@ -1650,6 +1794,8 @@ def _no_repeated_keys():
 _no_repeated_keys()
 for _i in INTENTS:
     _i["keywords"] += [k for k in EXTRA_KEYWORDS.get(_i["key"], []) if k not in _i["keywords"]]
+    if PATTERNS.get(_i["key"]):
+        _i["patterns"] = PATTERNS[_i["key"]]
 # Answered when asked, but not offered as topic chips (the list stays short, as before 3.51).
 for _i in INTENTS:
     if _i["key"] in {"privacy_data", "delete_account", "terms_help", "guardian_consent", "doctor_clearance",

@@ -61,6 +61,12 @@ upwards bright brighter brightness darker darken dim lamp""".split())
 # 3.76: topics of this chatbot whose words are other domains' too ("travel", "flight", "hotel", "weather",
 # "rain", "wine"): left out of the weighing, so "book a flight to boston" stays another domain's.
 SHARED_TOPICS = {"travel", "weather", "haze", "alcohol_smoking"}
+# 3.98: the rules' phrase count in the weights is fixed at its size in chat-rules-3.97, where the thresholds
+# (engine.OFF_DOMAIN_SCORE...) were last measured. A weight is log((n_other+1)/(n_rules+1)) plus the constant
+# log((N_rules+2)/(N_other+2)); with the real N_rules, 600 new phrases raised every word's weight by 0.11 and
+# messages near the line ("we went to the mall on sunday, never receive email from you") were no longer answered.
+# New phrases now change only the weights of their own words.
+RULES_PHRASES = 5238
 MIN_COUNT = 3          # in at least 3 questions of other domains
 MASSIVE_SPREAD = 2     # a MASSIVE word: in at most 2 of its 18 domains (scenarios)
 
@@ -131,7 +137,8 @@ def domain_weights() -> dict:
         n_ours.update(stems(t))
     for t in theirs:
         n_theirs.update(stems(t))
-    return {w: round(math.log((n_theirs[w] + 1) / (len(theirs) + 2)) - math.log((n_ours[w] + 1) / (len(ours) + 2)), 2)
+    return {w: round(math.log((n_theirs[w] + 1) / (len(theirs) + 2)) - math.log((n_ours[w] + 1) / (RULES_PHRASES + 2)),
+                     2)
             for w in sorted(set(n_ours) | set(n_theirs))}
 
 

@@ -1,11 +1,11 @@
-# Chatbot evaluation (chat-rules-3.97)
+# Chatbot evaluation (chat-rules-3.98)
 
 Every test set the chatbot is measured on, and its latest result. Each set is generated from templates or the question sets with a fixed seed, so a run can be repeated exactly (`.venv\Scripts\python <script>`, from `ai_server`). *Warning signs*: messages that must get an urgent answer (emergency, crisis, overdose, poisoning); missing one is the worst mistake. The server tests (`pytest -q`) guard each set with a smaller, unseen seed.
 
 | Test set | What it checks | Messages | Right | Warning signs | Script |
 |---|---|---|---|---|---|
-| Random typing, seed 1 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.61% (9861/10000) | 99.44% (1246/1253) | `evaluate_chat_random.py 1` |
-| Random typing, seed 2 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.69% (9869/10000) | 100.00% (1275/1275) | `evaluate_chat_random.py 2` |
+| Random typing, seed 1 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.55% (9855/10000) | 99.52% (1233/1239) | `evaluate_chat_random.py 1` |
+| Random typing, seed 2 | 10 000 questions from all question sets, typed messily (slips, short forms, missing words, Malay mixed in) | 10000 | 98.65% (9865/10000) | 100.00% (1275/1275) | `evaluate_chat_random.py 2` |
 | Everyday inputs | chit-chat, feelings, a body part alone, readings, emoji, food, things the chatbot cannot do, yes/no | 2000 | 99.50% (1990/2000) |  | `evaluate_chat_everyday.py` |
 | Elwin's own style | his 20 reported questions (all right) and messages in the same style (short words, gibberish, things said to the bot) | 2000 | 99.50% (1990/2000) |  | `evaluate_chat_user_style.py` |
 | Voice typing | sound-alike words of speech-to-text (“my need hurts”, “heal raise”) | 2000 | 99.70% (1994/2000) |  | `evaluate_chat_voice.py` |
@@ -21,9 +21,9 @@ Every test set the chatbot is measured on, and its latest result. Each set is ge
 
 ## Follow-ups and names
 
-- Follow-up questions after each answer (“why?”, “how long?”): 100.00% (12410/12410).
+- Follow-up questions after each answer (“why?”, “how long?”): 100.00% (12775/12775).
 - The same, typed messily: 99.92% (11990/12000).
-- Controls (a new question after an answer is not taken as a follow-up): 100.00% (3060/3060).
+- Controls (a new question after an answer is not taken as a follow-up): 100.00% (3150/3150).
 - Every exercise by its names and aliases: 100.00% (1876/1876).
 - Every condition: 100.00% (490/490).
 - Every posture mistake: 100.00% (582/582).
