@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.93",
+ "rules_version": "chat-rules-3.94",
  "seed": 1,
  "messages": 1935,
  "passed": 1895,
@@ -58,5 +58,5 @@
   "story: 'we went to the mall on sunday and then boss how to start this one ah' -> None (want ['getting_started'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 206
+ "seconds": 173
 }

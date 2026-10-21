@@ -2725,12 +2725,15 @@ FOLLOW_TRIGGERS = {
     "understand", "come", "really", "so", "huh", "clarify", "further", "repeat", "after", "about",
     "cara", "caranya", "macam", "camne", "kenapa", "apasal", "berapa", "lagi", "maksud", "faham", "ulang",
     "selamat", "lepas", "kat", "betul",
+    # 3.94: "what else?", "is it serious?", "should i worry?" after an answer
+    "else", "serious", "worry", "worried", "concern", "concerned", "normal", "bad", "teruk", "bahaya",
 }
 FOLLOW_FILLERS = {
     "to", "do", "i", "it", "this", "that", "one", "what", "about", "me", "you", "is", "does", "the", "a",
     "can", "please", "pls", "plz", "for", "and", "after", "like", "ah", "lah", "leh", "eh", "ya", "sure",
     "times", "time", "sorry", "dont", "don't", "do not", "say", "that's", "thats", "much", "should", "we",
     "nak", "buat", "mana", "apa", "tu", "ni", "ke", "kali", "lama", "tak", "ya", "boleh", "itu", "ini",
+    "anything",
 }
 NO_CONTEXT = {"greeting", "thanks", "acknowledge", "goodbye", "language", "pardon", "how_are_you"}
 # What a follow-up with nothing before it may still answer ("how often" -> how often; "steps" -> how to).

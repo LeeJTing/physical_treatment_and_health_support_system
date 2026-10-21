@@ -60,3 +60,14 @@ def test_the_api_takes_previous_category():
                              json={"plan_id": KNEE, "text": "how to", "previous_category": "exercise:heel_raise"})
     assert r.status_code == 200 and r.json()["category"] == "exercise:heel_raise"
     assert r.json()["matched_by"] == "follow_up"
+
+
+def test_what_else_and_is_it_serious_continue_the_answer():
+    # 3.94: after an answer, "what else?", "is it serious?", "should i worry?" continue it
+    from app.chat import engine as e
+    plan = "88c1e725-4b64-5689-a70d-47d37b2fcd7e"
+    for prev in ["pain_or_discomfort", "cramp", "sleep"]:
+        for text in ["what else?", "is it serious?", "should i worry", "anything else"]:
+            assert e.reply(plan, None, text, previous_category=prev)["category"] == prev, (prev, text)
+    x = e.reply(plan, None, "why?", previous_category="word_meaning")
+    assert "Which word" in x["answer"]

@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.93"
+VERSION = "chat-rules-3.94"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1104,7 +1104,8 @@ INTENTS = [
     # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
     # word's meaning.
     intent("word_meaning", "What a word means", 6, [], [],
-           "Here is what that word means.", show=False),
+           "Which word would you like explained? For example, ask \u201cwhat does flexion mean\u201d or "
+           "\u201cwhat is SpO2\u201d.", show=False),
     # Matched only as the whole message (engine.match): "meds", "my med" are medicines.
     intent("med_help", "Medicine or medical help", 9,
            [],

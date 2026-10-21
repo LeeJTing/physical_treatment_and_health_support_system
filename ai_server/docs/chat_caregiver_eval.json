@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.93",
+ "rules_version": "chat-rules-3.94",
  "seed": 1,
  "messages": 2000,
  "passed": 2000,
@@ -13,5 +13,5 @@
   }
  },
  "misses": [],
- "seconds": 167
+ "seconds": 139
 }

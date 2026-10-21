@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.93",
+  "version": "chat-rules-3.94",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -4897,7 +4897,7 @@
       "priority": 6,
       "keywords": [],
       "examples": [],
-      "answer": "Here is what that word means.",
+      "answer": "Which word would you like explained? For example, ask “what does flexion mean” or “what is SpO2”.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
