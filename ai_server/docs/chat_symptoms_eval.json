@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.06",
+ "rules_version": "chat-rules-4.07",
  "seed": 1,
  "messages": 2000,
  "passed": 1994,
@@ -46,5 +46,5 @@
   "pins_needles: 'Tingling in my tors!' -> diagnosis (want ['pins_needles'])",
   "stiffness: 'morning stiiffnessss lah' -> how_often (want ['stiffness'])"
  ],
- "seconds": 150
+ "seconds": 137
 }

@@ -279,6 +279,8 @@ def plan_intents(plan: dict) -> list[dict]:
                       "really working", "actually working", "be stronger", "arms stronger", "legs stronger",
                       "get stronger", "finish the plan", "finish plan", "after finish", "after finishing",
                       "pelan habis", "plan habis", "habis pelan",                     # (4.05)
+                      "exercise ni untuk apa", "senaman ni untuk apa", "exercise untuk apa", "senaman untuk apa",
+                      "plan ni untuk apa", "pelan ni untuk apa", "tujuan senaman",    # (4.07: "exercise ni untuk apa")
                       # 4.03: "I feel much better now, can I stop the exercises?" was how to
                       "can i stop the exercises", "can i stop my exercises", "can i stop exercising",
                       "stop doing the exercises", "stop doing my exercises", "boleh berhenti senaman",

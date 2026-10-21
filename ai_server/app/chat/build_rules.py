@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.06"
+VERSION = "chat-rules-4.07"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1722,6 +1722,11 @@ EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju ata
 EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung", "after fall", "after my fall"]
 EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
 EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+# 4.07 (twelfth probe, mixed Malay and English)
+for _k, _v in {"difficulty": ["terlalu senang", "senang sangat", "mudah sangat", "terlalu mudah"],
+               "app_problem": ["app keluar sendiri", "aplikasi keluar sendiri", "keluar sendiri"],
+               "app_help": ["aplikasi ni untuk apa", "apps ni untuk apa", "app ni untuk apa"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
 # 4.06 (eleventh probe): the app, the account and feelings in everyday Malay
 for _k, _v in {"forgot_password": ["tak boleh log masuk", "tak dapat log masuk", "gagal log masuk", "tak boleh masuk akaun",
                                    "tak dapat masuk akaun"],
@@ -1831,6 +1836,8 @@ PATTERNS = {
     "session_done": [r"^(?:\w+ )?i did it$"],
     # 4.06: "set peringatan" as a pattern ("set" as a keyword let "can i set up mobile deposits" through)
     "reminders_help": [r"\bset peringatan\b"],
+    # 4.07: "boleh buat masa period" (cleaned "time period"): a pattern, as "time" is a word of every domain
+    "period": [r"\btime period\b"],
     # "new" as a keyword had let "chinese new year" and "new checks" through (other-domain weights)
     "account_help": [r"\b(?:a |my )?new (?:phone|handphone|mobile)\b", r"\b(?:changed?|switched?) (?:my )?phones?\b"],
     # 4.00 (seventh probe, the posture check): "should i wear tight clothes for recording" was the pain answer,
@@ -2055,6 +2062,12 @@ RED_FLAGS = [
     # 3.82: Malay chest tightness and breathlessness with "senak" (not a stitch)
     "senak dada", "dada senak", "dada rasa senak", "senak di dada", "senak nafas", "nafas senak", "dada sesak",
     "sesak dada",
+    # 4.07: chest tight (sempit), heavy (berat) or pressed (tekan, himpit) in everyday Malay, and "something sitting
+    # on my chest": were not recognised (the last was seated marching)
+    "dada sempit", "dada rasa sempit", "sempit dada", "rasa sempit dada", "sempit di dada", "dada berat",
+    "dada rasa berat", "berat dada", "rasa berat di dada", "berat di dada", "dada kena tekan", "dada macam kena tekan",
+    "dada rasa ditekan", "dada ditekan", "dada tertekan", "dada rasa tertekan", "tekanan di dada", "dada dihimpit",
+    "dada rasa dihimpit", "sitting on my chest", "elephant on my chest", "weight on my chest",
     # 3.85: as whole phrases too, so a slip in one word is mended ("felll and cannot get up"); the looser
     # checks find them typed right. (Not "can't get up from the floor": "...the floor exercise without help".)
     "fell and cannot get up", "fell and can't get up", "fell and cant get up", "fallen and cannot get up",

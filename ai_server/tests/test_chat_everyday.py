@@ -271,3 +271,16 @@ def test_the_app_and_account_in_everyday_malay():
                        ("aplikasi tergantung", "app_problem"), ("skrin hitam", "app_problem"),
                        ("saya bosan", "motivation"), ("saya risau", "low_mood")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
+def test_chest_tightness_in_everyday_malay_and_mixed_questions():
+    # 4.07: "dada rasa sempit", "dada berat", "dada kena tekan" were not recognised; "something sitting on my chest"
+    # was seated marching
+    for text in ["dada rasa sempit", "dada berat", "rasa macam dada kena tekan", "something sitting on my chest"]:
+        assert engine.reply(PLAN, None, text)["category"] == "red_flag", text
+    for text in ["saya rasa tertekan", "jalan sempit", "beg berat"]:
+        assert engine.reply(PLAN, None, text)["category"] != "red_flag", text
+    for text, want in [("exercise terlalu senang", "difficulty"), ("app keluar sendiri", "app_problem"),
+                       ("exercise ni untuk apa", "plan_progress"), ("aplikasi ni untuk apa", "app_help"),
+                       ("boleh buat masa period", "period")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text

@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.06",
+  "version": "chat-rules-4.07",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -873,7 +873,11 @@
         "more than the plan",
         "do extra",
         "extra exercises",
-        "add more exercises"
+        "add more exercises",
+        "terlalu senang",
+        "senang sangat",
+        "mudah sangat",
+        "terlalu mudah"
       ],
       "examples": [
         "the exercises are too easy",
@@ -1373,6 +1377,9 @@
         "what can app do",
         "what does this app do",
         "how app works",
+        "aplikasi ni untuk apa",
+        "apps ni untuk apa",
+        "app ni untuk apa",
         "susah guna",
         "susah nak guna",
         "sukar guna",
@@ -4803,6 +4810,9 @@
       "small_talk": false,
       "action": null,
       "more_actions": [],
+      "patterns": [
+        "\\btime period\\b"
+      ],
       "time_aware": false
     },
     {
@@ -5486,6 +5496,9 @@
         "stuck on loading",
         "page stuck",
         "button not working",
+        "app keluar sendiri",
+        "aplikasi keluar sendiri",
+        "keluar sendiri",
         "aplikasi tergantung",
         "app tergantung",
         "skrin tergantung",
@@ -8681,6 +8694,28 @@
     "nafas senak",
     "dada sesak",
     "sesak dada",
+    "dada sempit",
+    "dada rasa sempit",
+    "sempit dada",
+    "rasa sempit dada",
+    "sempit di dada",
+    "dada berat",
+    "dada rasa berat",
+    "berat dada",
+    "rasa berat di dada",
+    "berat di dada",
+    "dada kena tekan",
+    "dada macam kena tekan",
+    "dada rasa ditekan",
+    "dada ditekan",
+    "dada tertekan",
+    "dada rasa tertekan",
+    "tekanan di dada",
+    "dada dihimpit",
+    "dada rasa dihimpit",
+    "sitting on my chest",
+    "elephant on my chest",
+    "weight on my chest",
     "fell and cannot get up",
     "fell and can't get up",
     "fell and cant get up",
