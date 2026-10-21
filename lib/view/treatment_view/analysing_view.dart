@@ -235,12 +235,15 @@ class _StepRow extends StatelessWidget {
               : null,
         ),
         const SizedBox(width: 14),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: state == 1 ? FontWeight.w600 : FontWeight.w500,
-            color: state == 0 ? AppTokens.textMuted : AppTokens.text,
+        // Expanded: wraps with large phone text instead of overflowing (22 Oct).
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: state == 1 ? FontWeight.w600 : FontWeight.w500,
+              color: state == 0 ? AppTokens.textMuted : AppTokens.text,
+            ),
           ),
         ),
       ],

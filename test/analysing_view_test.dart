@@ -19,10 +19,12 @@ void main() {
   setUp(() => tmp = Directory.systemTemp.createTempSync('apths'));
   tearDown(() => tmp.deleteSync(recursive: true));
 
-  Future<Harness> open(WidgetTester tester, {String? errorCode}) async {
-    // 720 wide: the step labels have no Flexible and overflow 360 dp in the wide test font
-    // (reported to the PC, 22 Oct; no behaviour change here).
-    tester.view.physicalSize = const Size(2160, 4800);
+  Future<Harness> open(
+    WidgetTester tester, {
+    String? errorCode,
+    double textScale = 1,
+  }) async {
+    tester.view.physicalSize = const Size(1080, 4800); // 360 dp wide
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     final h = Harness();
@@ -37,6 +39,12 @@ void main() {
         value: h.vm,
         child: MaterialApp(
           navigatorKey: nav,
+          builder: (c, child) => MediaQuery(
+            data: MediaQuery.of(
+              c,
+            ).copyWith(textScaler: TextScaler.linear(textScale)),
+            child: child!,
+          ),
           routes: {Routes.home: (_) => const Scaffold(body: Text('HOME'))},
           home: const Scaffold(body: Text('RECORDER')),
         ),
@@ -120,4 +128,23 @@ void main() {
     expect(find.text('HOME'), findsOneWidget);
     expect(h.vm.current, isNull);
   });
+
+  // The step labels overflowed with large phone text (laptop test, 22 Oct): they now wrap.
+  for (final scale in [1.5, 2.0]) {
+    testWidgets('at ${scale}x text on 360 dp every step shows, no overflow', (
+      tester,
+    ) async {
+      final h = await open(tester, textScale: scale);
+      expect(tester.takeException(), isNull);
+      for (final step in [
+        'Video received',
+        'Body landmarks extracted',
+        'Analysing posture',
+        'Calculating accuracy score',
+      ]) {
+        expect(find.text(step), findsOneWidget);
+      }
+      await finishUpload(tester, h);
+    });
+  }
 }
