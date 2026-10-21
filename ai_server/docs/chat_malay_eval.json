@@ -1,29 +1,20 @@
 {
- "rules_version": "chat-rules-3.91",
+ "rules_version": "chat-rules-3.92",
  "seed": 1,
  "messages": 2000,
  "questions": 246,
- "passed": 1984,
- "rate": 0.992,
+ "passed": 1993,
+ "rate": 0.9965,
  "warning_signs": 1222,
- "warning_signs_passed": 1217,
+ "warning_signs_passed": 1220,
  "misses": [
-  "'saya lp kata llnlsh??' -> missed_session (want ['forgot_password']; from 'saya lupa kata laluan')",
-  "'ayh sya jthhlah...' -> for_someone_else (want ['red_flag']; from 'ayah saya jatuh')",
-  "'saya lp kt laluanlh??' -> missed_session (want ['forgot_password']; from 'saya lupa kata laluan')",
-  "'mcm mn nak tkr kt llnkah?' -> None (want ['change_password']; from 'macam mana nak tukar kata laluan')",
   "'sya jth thun lps?' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
   "'sy jth tahn lps!!' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
   "'sy jth thun lepaslah!' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
   "'PASA BLH SNMN TK ?' -> posture_result (want ['best_time', 'diet']; from 'puasa boleh senaman tak')",
-  "'sya rs drh bnyk klrlsh!' -> None (want ['crisis', 'red_flag']; from 'saya rasa darah banyak keluar')",
-  "'trm khslah?' -> None (want ['thanks']; from 'terima kasih')",
   "'saya jatuh tahn lepas!!' -> red_flag (want ['fear_of_falling']; from 'saya jatuh tahun lepas')",
-  "'boleh exercise kl knee sakitalh' -> None (want ['pain_or_discomfort']; from 'boleh exercise kalau knee sakit?')",
   "'nak ptlah...' -> None (want ['crisis', 'red_flag']; from 'nak pitam!!')",
-  "'dada skltah...' -> None (want ['red_flag']; from 'dada sakit')",
-  "'suddenly mk swngetlah...' -> None (want ['crisis', 'red_flag']; from 'suddenly muka senget')",
-  "'tkt jthalh' -> None (want ['fear_of_falling']; from 'takut jatuh')"
+  "'dada skltah...' -> None (want ['red_flag']; from 'dada sakit')"
  ],
- "seconds": 88
+ "seconds": 115
 }

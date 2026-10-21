@@ -660,9 +660,12 @@ MALAY_TWO = {"dd": "dada", "mt": "mati", "rs": "rasa", "kk": "kaki", "br": "baru
 # Two short forms that only make sense together ("mk sngt": muka senget, the face drooping).
 MALAY_PAIRS = {("mk", "sngt"): ("muka", "senget"), ("mk", "senget"): ("muka", "senget"),
                ("mk", "snget"): ("muka", "senget"), ("kt", "lln"): ("kata", "laluan"),
-               ("kt", "laluan"): ("kata", "laluan")}
-# 3.83: "lah" typed as "lha" or "lsh" ("pitamlha", "ddlsh"), split off like "lah".
-PARTICLE_ENDINGS = ("lah", "lha", "lsh")
+               ("kt", "laluan"): ("kata", "laluan"), ("kata", "lln"): ("kata", "laluan"),
+               ("trm", "khs"): ("terima", "kasih"), ("trm", "ksh"): ("terima", "kasih"),
+               ("terima", "khs"): ("terima", "kasih"), ("terima", "ksh"): ("terima", "kasih")}
+# 3.83: "lah" typed as "lha" or "lsh" ("pitamlha", "ddlsh"), split off like "lah"; 3.92: "alh", "lh", and the
+# question particle "kah" ("tkt jthalh", "kata laluanlh", "tkr kt llnkah").
+PARTICLE_ENDINGS = ("lah", "lha", "lsh", "alh", "kah", "lh")
 
 
 def _without_particle(w: str) -> str:
@@ -717,12 +720,17 @@ def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
         elif w != as_typed and as_typed not in dictionary() and as_typed not in COMMON_MALAY:
             # "lah" split off a word ("pitamlha", 3.83), also with a slip in it ("kelluarlah": keluar, 3.84)
             known = set(COMMON_MALAY) | MALAY_SIGN_WORDS | SAFETY_WORDS | set(MALAY)
-            r = w if w in known else _likeliest(w) if len(w) >= 4 else None
+            once = re.sub(r"(.)\1+", r"\1", w)
+            r = (w if w in known else _malay_texted(w) or _malay_texted(once)
+                 or (_likeliest(w) if len(w) >= 4 else None))    # (3.92: "khslah" kasih, "jthhlah" jatuh)
             if r in known:
                 out[k] = r
         elif w == as_typed and len(w) >= 5 and w.endswith("ah") and mended[k] == as_typed \
                 and _malay_texted(w[:-2]) in MALAY_SIGN_WORDS:
             out[k] = _malay_texted(w[:-2])               # "ptmah": pitam ah (3.83)
+    for k in range(len(out) - 1):                        # a pair seen once its second word is mended (3.92:
+        if (bare[k], out[k + 1]) in MALAY_PAIRS:         # "mk swngetlah": muka senget)
+            out[k], out[k + 1] = MALAY_PAIRS[(bare[k], out[k + 1])]
     return out
 
 
