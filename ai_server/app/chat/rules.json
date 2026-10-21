@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.80",
+  "version": "chat-rules-3.81",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -10145,6 +10145,28 @@
     "endurance": "stamina",
     "muscle atrophy": "atrophy",
     "disuse atrophy": "atrophy",
-    "range of movement": "range of motion"
+    "range of movement": "range of motion",
+    "fleksi": "flexion",
+    "ekstensi": "extension",
+    "abduksi": "abduction",
+    "adduksi": "adduction",
+    "julat pergerakan": "range of motion",
+    "ulangan": "repetition",
+    "pemulihan": "rehabilitation",
+    "fisioterapi": "physiotherapist",
+    "fisioterapis": "physiotherapist",
+    "ahli fisioterapi": "physiotherapist",
+    "postur": "posture",
+    "intensiti": "intensity",
+    "intensiti sederhana": "moderate intensity",
+    "intensiti rendah": "low intensity",
+    "memanaskan badan": "warm up",
+    "menyejukkan badan": "cool down",
+    "otot teras": "core",
+    "atrofi": "atrophy",
+    "keradangan": "inflammation",
+    "mobiliti": "mobility",
+    "daya tahan": "stamina",
+    "indeks jisim badan": "bmi"
   }
 }

@@ -57,7 +57,7 @@ SYNONYMS = {"pane": "pain", "panes": "pains", "workout": "exercise", "workouts":
 # Common Malay words patients mix into English (Malaysian users). Single words; phrases are in
 # MALAY_PHRASES. Body-part and symptom words map to the English the rules (and red flags) know.
 MALAY = {"apa": "what", "saya": "i", "aku": "i", "lemah": "weak", "mula": "start", "nak": "want", "tukar": "change", "sesuai": "best", "untuk": "for", "malam": "night", "pagi": "morning", "petang": "evening", "tengahari": "afternoon", "boleh": "can",
-         "buat": "do", "senaman": "exercise", "bersenam": "exercise", "lutut": "knee", "bahu": "shoulder",
+         "buat": "do", "senaman": "exercise", "bersenam": "exercise", "senam": "exercise", "lutut": "knee", "bahu": "shoulder",
          "kaki": "leg", "tangan": "arm", "pinggang": "back", "belakang": "back", "letih": "tired",
          "penat": "tired", "pening": "dizzy", "dada": "chest", "tak": "not", "tidak": "not", "dapat": "get",
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",

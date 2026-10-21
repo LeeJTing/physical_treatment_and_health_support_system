@@ -65,3 +65,8 @@ def test_what_a_word_means():
         assert x["category"] == "word_meaning" and word in x["answer"], text
     for text, want in [("what is tandem stance", "exercise:tandem_stance"), ("what is my risk level", "risk_level")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
+    # 3.81: in Malay too; "senam" (exercise) is not "senak" (a stitch)
+    for text, want in [("apa maksud fleksi", "word_meaning"), ("apa itu fisioterapi", "word_meaning"),
+                       ("ayah saya ada gaut boleh senam?", "condition_advice"), ("senak bila jalan", "stitch")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+    assert engine.reply(PLAN, None, "boleh senam?")["category"] != "stitch"

@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.80"
+VERSION = "chat-rules-3.81"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -2393,7 +2393,15 @@ TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion",
                 "body mass index": "bmi", "warm-up": "warm up", "warmup": "warm up", "cool-down": "cool down",
                 "glutes": "glute", "quads": "quadriceps", "quad": "quadriceps", "hamstring": "hamstrings",
                 "calves": "calf", "endurance": "stamina", "muscle atrophy": "atrophy", "disuse atrophy": "atrophy",
-                "range of movement": "range of motion"}
+                "range of movement": "range of motion",
+                # 3.81: the same words in Malay ("apa maksud fleksi")
+                "fleksi": "flexion", "ekstensi": "extension", "abduksi": "abduction", "adduksi": "adduction",
+                "julat pergerakan": "range of motion", "ulangan": "repetition", "pemulihan": "rehabilitation",
+                "fisioterapi": "physiotherapist", "fisioterapis": "physiotherapist", "ahli fisioterapi": "physiotherapist",
+                "postur": "posture", "intensiti": "intensity", "intensiti sederhana": "moderate intensity",
+                "intensiti rendah": "low intensity", "memanaskan badan": "warm up", "menyejukkan badan": "cool down",
+                "otot teras": "core", "atrofi": "atrophy", "keradangan": "inflammation", "mobiliti": "mobility",
+                "daya tahan": "stamina", "indeks jisim badan": "bmi"}
 
 
 
