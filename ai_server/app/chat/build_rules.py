@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.86"
+VERSION = "chat-rules-3.87"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1591,6 +1591,9 @@ DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "s
 # 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
 # went from safety to health_readings.)
 EXTRA_KEYWORDS_374 = {
+    # 3.87: an upset stomach is feeling unwell (skip and rest); "anxious about falling" is the fear of falling
+    "tired": ["diarrhoea", "diarrhea", "stomach ache", "stomachache", "upset stomach", "food poisoning"],
+    "fear_of_falling": ["anxious about falling", "nervous about falling", "anxious i will fall"],
     # 3.79: app questions in another topic's words ("can i use it on tablet" was the medicines answer, "how to
     # contact support" safety, "share my progress with my doctor" the plan's progress).
     "app_facts": ["on tablet", "on a tablet", "on my tablet", "use a tablet", "android tablet", "samsung tab",

@@ -1,14 +1,14 @@
 {
- "rules_version": "chat-rules-3.86",
+ "rules_version": "chat-rules-3.87",
  "seed": 1,
  "messages": 1935,
- "passed": 1843,
- "rate": 0.9525,
+ "passed": 1842,
+ "rate": 0.9519,
  "urgent": 385,
  "urgent_passed": 385,
  "by_kind": {
   "story": {
-   "passed": 918,
+   "passed": 917,
    "messages": 989
   },
   "two_questions": {
@@ -64,6 +64,7 @@
   "story: 'my wife is at work now, so how high should i lift my arms' -> for_someone_else (want ['exercise:shoulder_abduction', 'exercise:shoulder_flexion', 'how_to'])",
   "story: 'my daughter helped me set up the phone, so where to put my phone when recording' -> family_help (want ['recording_help'])",
   "story: 'i just finished my breakfast and then hello, good afternoon. I am 68 years old, I just had knee surgery three ' -> diet (want ['how_often'])",
+  "story: \"i have been at home all week lah, I'm not sure if my form is good\" -> None (want ['how_to'])",
   "story: 'my daughter helped me set up the phone, do i do all three exercises every session' -> family_help (want ['plan_exercises'])",
   "story: 'the neighbours were noisy last night and then is it safe for old people' -> best_time (want ['condition_advice', 'safety'])",
   "story: \"the weather is very hot today lah, why my progress didn't update\" -> hot_weather (want ['history_help', 'plan_progress', 'posture_result'])",

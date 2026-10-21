@@ -1,16 +1,16 @@
 {
- "rules_version": "chat-rules-3.86",
+ "rules_version": "chat-rules-3.87",
  "seed": 1,
  "messages": 10000,
- "passed": 9858,
- "rate": 0.9858,
+ "passed": 9857,
+ "rate": 0.9857,
  "by_kind": {
   "written": {
    "passed": 3003,
    "messages": 3056
   },
   "mistakes": {
-   "passed": 411,
+   "passed": 410,
    "messages": 421
   },
   "restricted": {
@@ -74,11 +74,11 @@
   "('exercise:glute_bridge',) -> eating_concern: 1",
   "('mistake:heels_lift',) -> history_help: 1",
   "('difficulty',) -> None: 1",
+  "('mistake:incomplete_stand',) -> pain_or_discomfort: 1",
   "('app_help',) -> None: 1",
   "('mistake:back_sag',) -> plan_progress: 1",
   "('crisis', 'red_flag') -> pain_or_discomfort: 1",
-  "('safety',) -> None: 1",
-  "('medication',) -> None: 1"
+  "('safety',) -> None: 1"
  ],
  "misses": [
   {
@@ -513,6 +513,28 @@
     "local_time": [
      1,
      45
+    ]
+   }
+  },
+  {
+   "text": "it suas incomplete_stand!",
+   "want": [
+    "mistake:incomplete_stand"
+   ],
+   "got": "pain_or_discomfort",
+   "seed_question": "it says incomplete_stand",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "exercise:seated_marching",
+    "restriction": null,
+    "conditions": [
+     "PARKINSONS",
+     "PREGNANCY"
+    ],
+    "risk_level": "Low",
+    "local_time": [
+     19,
+     30
     ]
    }
   },

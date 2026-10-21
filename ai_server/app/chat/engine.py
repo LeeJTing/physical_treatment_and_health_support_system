@@ -63,6 +63,11 @@ MALAY = {"apa": "what", "saya": "i", "aku": "i", "lemah": "weak", "mula": "start
          "kod": "code", "lupa": "forgot", "bila": "when", "masa": "time", "tolong": "please", "bengkak": "swollen",
          "pitam": "fainted", "senget": "crooked", "herot": "crooked", "pelat": "slurred", "kebas": "numb",
          "lumpuh": "paralysed",
+         # 3.87: aches in everyday Malay, Malaysian Chinese and Tamil ("lenguh badan", "my leg very suan",
+         # "mutti vali": knee pain)
+         "lenguh": "sore", "sengal": "aching", "suan": "sore", "sien": "bored", "paiseh": "sorry",
+         "kancheong": "anxious", "vali": "pain", "mutti": "knee", "kaal": "leg", "thalai": "head",
+         "mudhugu": "back", "kazhuthu": "neck", "romba": "very",
          "jatuh": "fell", "terjatuh": "fell", "tergelincir": "slipped", "tersandung": "tripped",
          "tersadung": "tripped", "tergolek": "fell", "rebah": "collapsed", "tadi": "just now", "mengecil": "shrank", "otot": "muscles", "ketat": "tight", "bernafas": "breathe", "nafas": "breath",
          "susah": "hard", "duduk": "sitting", "sambil": "while",
@@ -76,6 +81,10 @@ MALAY_PHRASES = {# 3.54 (15 Oct): everyday and Malay names for the profile's con
                  "penyakit lelah": "asthma", "sakit lelah": "asthma", "ada lelah": "have asthma",
                  "ada semput": "have asthma", "bp tinggi": "high blood pressure", "high bp": "high blood pressure",
                  "baru bersalin": "just gave birth", "lepas bersalin": "just gave birth",
+                 # 3.87: aches and feelings in everyday Malay and Malaysian Chinese
+                 "dah tak larat": "no energy", "tak larat": "no energy", "tidak larat": "no energy",
+                 "urat tegang": "muscles are tight", "suan tong": "sore", "pai seh": "sorry", "kan cheong": "anxious",
+                 "lau sai": "diarrhoea", "cirit birit": "diarrhoea", "sakit perut": "stomach ache",
                  "selamat pagi": "good morning", "selamat petang": "good afternoon",
                  "selamat tengahari": "good afternoon", "selamat malam": "good night", "apa itu": "what is",
                  "apa maksud": "what does mean", "kata laluan": "password", "terima kasih": "thank you",

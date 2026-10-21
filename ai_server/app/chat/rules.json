@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.86",
+  "version": "chat-rules-3.87",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -913,7 +913,13 @@
         "batuk",
         "nausea",
         "nauseous",
-        "loya"
+        "loya",
+        "diarrhoea",
+        "diarrhea",
+        "stomach ache",
+        "stomachache",
+        "upset stomach",
+        "food poisoning"
       ],
       "examples": [
         "I feel too tired to exercise",
@@ -2101,7 +2107,10 @@
         "scared getting hurt",
         "worried fall",
         "fall when nobody",
-        "fall when alone"
+        "fall when alone",
+        "anxious about falling",
+        "nervous about falling",
+        "anxious i will fall"
       ],
       "examples": [
         "I am scared I will fall",

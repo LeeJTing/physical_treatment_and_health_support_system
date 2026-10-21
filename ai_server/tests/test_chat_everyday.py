@@ -65,6 +65,17 @@ def test_random_typing_misses_of_fresh_seeds():
         assert engine.reply(PLAN, None, text)["category"] == want, text
 
 
+def test_everyday_local_words_for_aches():
+    # 3.87: Malay, Malaysian Chinese and Tamil words people mix in
+    for text, want in [("lenguh badan", ("pain_mild", "pain_or_discomfort")), ("sengal sengal", ("pain_or_discomfort",)),
+                       ("tak larat dah", ("tired",)), ("urat tegang", ("stiffness",)), ("my leg very suan",
+                       ("pain_or_discomfort", "pain_mild")), ("so sien today", ("motivation",)),
+                       ("my knee romba vali", ("pain_or_discomfort",)), ("mutti vali after exercise",
+                       ("pain_or_discomfort", "pain_mild")), ("lau sai today", ("tired",)),
+                       ("i very kan cheong about falling", ("fear_of_falling",))]:
+        assert engine.reply(PLAN, None, text)["category"] in want, text
+
+
 def test_what_a_word_means():
     # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
     for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),
