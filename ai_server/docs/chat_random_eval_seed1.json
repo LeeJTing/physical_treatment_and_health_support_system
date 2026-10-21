@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-4.01",
+ "rules_version": "chat-rules-4.02",
  "seed": 1,
  "messages": 10000,
- "passed": 9862,
- "rate": 0.9862,
+ "passed": 9865,
+ "rate": 0.9865,
  "by_kind": {
   "written": {
-   "passed": 3002,
+   "passed": 3004,
    "messages": 3055
   },
   "mistakes": {
@@ -34,15 +34,14 @@
    "messages": 706
   },
   "conditions": {
-   "passed": 532,
+   "passed": 533,
    "messages": 536
   }
  },
  "commonest_misses": [
-  "('plan_progress',) -> plan_exercises: 4",
   "('reminder_late_or_off',) -> reminders_help: 3",
   "('crisis', 'red_flag') -> None: 3",
-  "('condition_advice',) -> best_time: 2",
+  "('plan_progress',) -> plan_exercises: 3",
   "('acknowledge',) -> None: 2",
   "('difficulty',) -> plan_exercises: 2",
   "('best_time',) -> None: 2",
@@ -64,7 +63,6 @@
   "('mistake:low_knee_lift',) -> exercise:heel_raise: 1",
   "('difficulty',) -> pain_or_discomfort: 1",
   "pain_mild -> exercise:heel_raise: 1",
-  "('fear_of_falling',) -> None: 1",
   "('mistake:leaning_back',) -> mistake:leaning: 1",
   "pain_mild -> exercise:shoulder_abduction: 1",
   "('low_mood', 'motivation') -> None: 1",
@@ -78,28 +76,11 @@
   "('plan_exercises',) -> exercise:sit_to_stand: 1",
   "('greeting',) -> pardon: 1",
   "('app_help',) -> None: 1",
-  "('mistake:back_sag',) -> plan_progress: 1"
+  "('mistake:back_sag',) -> plan_progress: 1",
+  "('crisis', 'red_flag') -> pain_or_discomfort: 1",
+  "('safety',) -> None: 1"
  ],
  "misses": [
-  {
-   "text": "hpetension exercise",
-   "want": [
-    "condition_advice"
-   ],
-   "got": "best_time",
-   "seed_question": "hypertension exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION",
-     "PARKINSONS"
-    ],
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
   {
    "text": "okyayy ?",
    "want": [
@@ -252,22 +233,6 @@
    }
   },
   {
-   "text": "Is my plan heplng at all...",
-   "want": [
-    "plan_progress"
-   ],
-   "got": "plan_exercises",
-   "seed_question": "is my plan helping at all?",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "Gse up after 3 reps ?",
    "want": [
     "difficulty"
@@ -317,22 +282,6 @@
      "HYPERTENSION"
     ],
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "erm i'm afraid of flalng!!",
-   "want": [
-    "fear_of_falling"
-   ],
-   "got": null,
-   "seed_question": "i'm afraid of falling",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },

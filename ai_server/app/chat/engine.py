@@ -991,7 +991,17 @@ def _likeliest(w: str) -> str | None:
         if len(extra) == 1 or extra[1][0] > extra[0][0]:
             return extra[0][2]
     if not scored or scored[0][0] > limit:
-        return two_slips[0][2] if two_slips else None
+        if two_slips:
+            return two_slips[0][2]
+        # 4.02: two slips in any word of the rules, when it is plainly the only reading: all but one typed letter
+        # in it in order, half a slip clear of the next reading and of any common word ("my mdicie", "my acuont",
+        # "too drrak"); a real word, even a rare one, stays as typed.
+        if len(w) >= 5 and w not in rare_words() and scored and scored[0][0] <= 1.6 \
+                and _in_order(w, scored[0][2]) >= len(w) - 1 \
+                and (len(scored) == 1 or scored[1][0] >= scored[0][0] + 0.5) \
+                and (not extra or extra[0][0] >= scored[0][0] + 0.5):
+            return scored[0][2]
+        return None
     urgent = [s for s in scored if s[2] in URGENT_WORDS and s[0] <= min(limit, scored[0][0] + URGENT_MARGIN)]
     if urgent:
         return min(urgent, key=lambda s: (s[0], s[2] != "fell", -_word_use().get(s[2], 0)))[2]

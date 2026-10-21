@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.01",
+  "version": "chat-rules-4.02",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
