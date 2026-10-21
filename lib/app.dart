@@ -57,6 +57,12 @@ class MainApp extends StatelessWidget {
             tertiaryContainer: AppTokens.accentContainer,
             onTertiaryContainer: AppTokens.brandDeep,
           ),
+          // Selected ChoiceChips (the health condition Yes / No) were the default purple; the
+          // same light teal and dark green tick as the plan and chat topic chips (22 Oct).
+          chipTheme: lightTheme.chipTheme.copyWith(
+            selectedColor: AppTokens.accentContainer,
+            checkmarkColor: AppTokens.brandDeep,
+          ),
         ),
         darkTheme: darkTheme,
         // The Figma screens are light-only and hard-code light backgrounds; following
@@ -74,7 +80,8 @@ class MainApp extends StatelessWidget {
             _ReminderOpener(navigator: _navigator, child: child!),
         initialRoute: Routes.init,
         routes: {
-          Routes.init: (_) => const StartupView(), // uses the app-wide AuthViewModel
+          Routes.init: (_) =>
+              const StartupView(), // uses the app-wide AuthViewModel
           Routes.home: (_) => const MainShell(),
           Routes.loginScreen: (_) => const LoginView(),
           Routes.register: (_) => const RegisterView(),
@@ -84,14 +91,13 @@ class MainApp extends StatelessWidget {
           Routes.accountSetup: (_) => const AccountSetupView(),
           Routes.terms: (_) => const TermsView(),
           Routes.healthProfile: (_) => ChangeNotifierProvider(
-            create: (c) =>
-                ProfileViewModel(
-                  c.read(),
-                  c.read(),
-                  c.read(),
-                  c.read(),
-                  c.read(),
-                )..loadProfile(),
+            create: (c) => ProfileViewModel(
+              c.read(),
+              c.read(),
+              c.read(),
+              c.read(),
+              c.read(),
+            )..loadProfile(),
             child: const ProfileView(),
           ),
           Routes.treatmentPlanning: (_) => ChangeNotifierProvider(
@@ -106,15 +112,17 @@ class MainApp extends StatelessWidget {
           ),
           // Argument: the patient plan to move on from (complete, or too hard at the moment).
           Routes.nextPlan: (ctx) => ChangeNotifierProvider(
-            create: (c) => PlanningViewModel(
-              c.read(),
-              c.read(),
-              c.read(),
-              c.read(),
-              c.read(),
-            )..recommendNext(
-                ModalRoute.of(ctx)!.settings.arguments! as PatientTreatmentPlan,
-              ),
+            create: (c) =>
+                PlanningViewModel(
+                  c.read(),
+                  c.read(),
+                  c.read(),
+                  c.read(),
+                  c.read(),
+                )..recommendNext(
+                  ModalRoute.of(ctx)!.settings.arguments!
+                      as PatientTreatmentPlan,
+                ),
             child: const RecommendedPlansView(),
           ),
           // Argument: the patient plan to show first (a tapped reminder, "Open this plan").
@@ -129,9 +137,8 @@ class MainApp extends StatelessWidget {
             )..preferPlan(ModalRoute.of(ctx)?.settings.arguments as String?),
             child: const TreatmentView(),
           ),
-          Routes.ageLimit: (ctx) => AgeLimitView(
-            age: ModalRoute.of(ctx)?.settings.arguments as int?,
-          ),
+          Routes.ageLimit: (ctx) =>
+              AgeLimitView(age: ModalRoute.of(ctx)?.settings.arguments as int?),
           Routes.reminders: (_) => ChangeNotifierProvider(
             create: (c) => NotificationViewModel(c.read(), c.read(), c.read()),
             child: const NotificationView(),
