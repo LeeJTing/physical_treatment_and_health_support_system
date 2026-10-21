@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.83"
+VERSION = "chat-rules-3.84"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1789,7 +1789,8 @@ RISK_NOTES = {
 
 RED_FLAGS = [
     # 3.82: Malay chest tightness and breathlessness with "senak" (not a stitch)
-    "senak dada", "dada senak", "dada rasa senak", "senak di dada", "senak nafas", "nafas senak",
+    "senak dada", "dada senak", "dada rasa senak", "senak di dada", "senak nafas", "nafas senak", "dada sesak",
+    "sesak dada",
     # 3.75 (conditions test): a seizure or fit happening now ("she is having a fit" was not recognised, "my
     # father had a seizure just now" the answer for a family member). Not "seizures" alone: "my seizures are
     # controlled" is epilepsy advice; "had a seizure last year" is past (engine.HISTORY_EVENTS).
@@ -1932,6 +1933,9 @@ CRISIS = [
     "wished she was dead", "wishes to die", "wished to die", "killing himself", "killing herself",
     "harm himself", "harm herself", "hang himself", "hang herself", "end his own life", "end her own life",
     "wants to end his life", "wants to end her life",
+    # 3.84: without the small words ("want give up life" was motivation)
+    "give up life", "giving up life", "give up my life", "suicidal thoughts", "suicide thoughts",
+    "thoughts of suicide", "thinking of suicide", "thoughts of killing myself",
 ]
 # 3.73: the same help for a family member who talks of dying or self-harm ("my mother keeps saying she
 # wants to die"), worded for the person helping them.

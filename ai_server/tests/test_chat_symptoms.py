@@ -41,6 +41,12 @@ def test_malay_chest_tightness_is_urgent():
                        ("janutng ljlah...", "red_flag"), ("nak ptmah", "red_flag"), ("pitamlha!!", "red_flag"),
                        ("skt ddlsh?", "red_flag"), ("mk sneget", "red_flag"), ("suddenly xbokeh bernafas", "red_flag")]:
         assert _got(text) == want, text
+    # 3.84: two slips beside a chest word; "lah" on a slipped Malay word
+    for text, want in [("erm chest very tijt la ah", "red_flag"), ("i feel chest piian??", "red_flag"),
+                       ("ok darah banyak kelluarlah??", "red_flag"), ("hmm want give up life", "crisis")]:
+        assert _got(text) == want, text
+    for text in ["my chest stretch feels good", "head tilt", "sekolah anak saya"]:
+        assert _got(text) not in ("crisis", "red_flag"), text
     for text in ["nak mat yoga", "dr said rest", "rumah saya jauh"]:
         assert _got(text) not in ("crisis", "red_flag"), text
     # sudden weakness told in Malay word order ("my leg weak suddenly")

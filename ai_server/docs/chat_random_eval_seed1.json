@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.83",
+ "rules_version": "chat-rules-3.84",
  "seed": 1,
  "messages": 10000,
- "passed": 9848,
- "rate": 0.9848,
+ "passed": 9852,
+ "rate": 0.9852,
  "by_kind": {
   "written": {
-   "passed": 2996,
+   "passed": 2998,
    "messages": 3056
   },
   "mistakes": {
@@ -22,7 +22,7 @@
    "messages": 2577
   },
   "red_flags": {
-   "passed": 1246,
+   "passed": 1248,
    "messages": 1256
   },
   "exercises": {
@@ -40,8 +40,8 @@
  },
  "commonest_misses": [
   "('plan_progress',) -> plan_exercises: 5",
-  "('crisis', 'red_flag') -> None: 4",
   "('reminder_late_or_off',) -> reminders_help: 3",
+  "('crisis', 'red_flag') -> None: 3",
   "('condition_advice',) -> best_time: 2",
   "('acknowledge',) -> None: 2",
   "('best_time',) -> None: 2",
@@ -76,9 +76,9 @@
   "('mistake:heels_lift',) -> history_help: 1",
   "('difficulty',) -> None: 1",
   "('app_help',) -> None: 1",
-  "('red_flag',) -> None: 1",
   "('mistake:back_sag',) -> plan_progress: 1",
-  "('crisis', 'red_flag') -> pain_or_discomfort: 1"
+  "('crisis', 'red_flag') -> pain_or_discomfort: 1",
+  "('safety',) -> None: 1"
  ],
  "misses": [
   {
@@ -590,24 +590,6 @@
    }
   },
   {
-   "text": "erm chest very tijt la ah",
-   "want": [
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "chest very tight la",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "COPD"
-    ],
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "Howto fix bck sag",
    "want": [
     "mistake:back_sag"
@@ -955,23 +937,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "Low",
-    "local_time": null
-   }
-  },
-  {
-   "text": "ok darah banyak kelluarlah??",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": "acknowledge",
-   "seed_question": "darah banyak keluar lah",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "exercise:bird_dog",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -2001,23 +1966,6 @@
    }
   },
   {
-   "text": "i feel chest piian??",
-   "want": [
-    "crisis",
-    "red_flag"
-   ],
-   "got": null,
-   "seed_question": "i feel chest pain",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "acknowledge",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "how close wall stand ?",
    "want": [
     "exercise:wall_push_up"
@@ -2542,25 +2490,6 @@
      "ASTHMA"
     ],
     "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "hmm want give up life",
-   "want": [
-    "crisis"
-   ],
-   "got": "motivation",
-   "seed_question": "i want to give up on life",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "muscle_loss",
-    "restriction": null,
-    "conditions": [
-     "HYPERTENSION",
-     "DIABETES"
-    ],
-    "risk_level": "Medium",
     "local_time": null
    }
   },

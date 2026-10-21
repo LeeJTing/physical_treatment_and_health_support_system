@@ -534,6 +534,14 @@ def respell(text: str) -> str:
     near = [set(m.split()) for m in mended]
     known = vocabulary()
     for k, was in enumerate(typed):
+        before = [m for m in mended[max(0, k - 2):k]]
+        if before and (before[-1] in CHEST_WORDS or (len(before) == 2 and before[0] in CHEST_WORDS
+                                                     and before[1] in ("very", "so", "is", "rasa", "feels", "feel",
+                                                                       "really", "sangat", "macam"))):
+            chest = _chest_reading(was)
+            if chest:
+                mended[k] = chest                        # "chest very tijt": tight (3.84)
+                continue
         sign = _sign_reading(was)
         if not sign or near[k] & SIGN_WORDS:
             continue
@@ -573,6 +581,20 @@ def _sign_reading(w: str) -> str | None:
     # The same letters in another order ("pina" -> pain, 3.62).
     same = sorted(v for v in SIGN_WORDS if len(w) >= 4 and v[0] == w[0] and sorted(v) == sorted(w))
     return same[0] if same else None
+
+
+# 3.84: beside "chest", "dada" or "heart" a symptom is near certain, so a word two slips from one of these is
+# read as it ("chest very tijt" was "tilt", "chest piian" the Malay "puan").
+CHEST_WORDS = {"chest", "dada", "heart", "jantung"}
+CHEST_SIGNS = ("pain", "pains", "tight", "sakit", "ketat", "sesak", "berdebar")
+
+
+@lru_cache(maxsize=5000)
+def _chest_reading(w: str) -> str | None:
+    if len(w) < 3 or not w.isalpha() or w in dictionary() or w in CHEST_SIGNS or w in _respell_vocab():
+        return None                                      # a known word is what was typed ("dada senak")
+    scored = sorted((typo_cost(w, v), v) for v in CHEST_SIGNS if v[0] == w[0] and abs(len(v) - len(w)) <= 1)
+    return scored[0][1] if scored and scored[0][0] <= 2.0 else None
 
 
 # 3.64 (the Malay texting test, chat_malay_texting_set.py: 58 % right, warning signs 50 %): Malay is
@@ -657,9 +679,6 @@ def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
         if w == "mat" and k and bare[k - 1] in ("nk", "nak") and (as_typed != w or k == len(bare) - 1):
             out[k] = "mati"                              # "saya nk matlah" (3.83), not "nak mat yoga"
             continue
-        if w != as_typed and mended[k] == as_typed and (w in MALAY_SIGN_WORDS or w in SAFETY_WORDS):
-            out[k] = w                                   # "pitamlha": pitam (3.83)
-            continue
         if w == "x" and nxt.isalpha() and not (k and bare[k - 1].isdigit()):
             out[k] = "tak"                               # "x boleh", "x nak": tak (3.64)
             continue
@@ -680,6 +699,12 @@ def _malay_two(typed: list[str], mended: list[str]) -> list[str]:
                 out[k] = w                               # "i have ms": MS; "500 ml"
             else:
                 out[k] = MALAY_TWO[w]
+        elif w != as_typed and as_typed not in dictionary() and as_typed not in COMMON_MALAY:
+            # "lah" split off a word ("pitamlha", 3.83), also with a slip in it ("kelluarlah": keluar, 3.84)
+            known = set(COMMON_MALAY) | MALAY_SIGN_WORDS | SAFETY_WORDS | set(MALAY)
+            r = w if w in known else _likeliest(w) if len(w) >= 4 else None
+            if r in known:
+                out[k] = r
         elif w == as_typed and len(w) >= 5 and w.endswith("ah") and mended[k] == as_typed \
                 and _malay_texted(w[:-2]) in MALAY_SIGN_WORDS:
             out[k] = _malay_texted(w[:-2])               # "ptmah": pitam ah (3.83)

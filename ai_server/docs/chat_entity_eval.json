@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-3.83",
+ "rules_version": "chat-rules-3.84",
  "exercises": {
   "questions": 1876,
   "correct": 1876,
@@ -24,5 +24,5 @@
   "misses": [],
   "rate": 1.0
  },
- "seconds": 157
+ "seconds": 151
 }

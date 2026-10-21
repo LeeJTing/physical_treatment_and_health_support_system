@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.83",
+  "version": "chat-rules-3.84",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -7940,6 +7940,8 @@
     "senak di dada",
     "senak nafas",
     "nafas senak",
+    "dada sesak",
+    "sesak dada",
     "having a seizure",
     "had a seizure",
     "has a seizure",
@@ -9266,7 +9268,15 @@
     "end his own life",
     "end her own life",
     "wants to end his life",
-    "wants to end her life"
+    "wants to end her life",
+    "give up life",
+    "giving up life",
+    "give up my life",
+    "suicidal thoughts",
+    "suicide thoughts",
+    "thoughts of suicide",
+    "thinking of suicide",
+    "thoughts of killing myself"
   ],
   "crisis_answer": "I am really sorry you are feeling this way, and I am glad you said it. You are not alone.\n1) If you are in danger now or might act on these thoughts, call 999 or go to the nearest emergency department.\n2) Talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or Talian HEAL 15555 (8 am to midnight daily).\n3) Please also tell a family member or your doctor how you feel.\nI am only an exercise assistant, but these people can help you.",
   "crisis_answer_other": "I am sorry you are going through this. Talk of dying or self-harm needs help today.\n1) If they are in danger now or might act on these thoughts, call 999 or take them to the nearest emergency department. Stay with them.\n2) Talk to someone now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or Talian HEAL 15555 (8 am to midnight daily). You can call for them or with them.\n3) Keep medicines and anything they could hurt themselves with out of reach, and tell their doctor.\nI am only an exercise assistant, but these people can help.",
