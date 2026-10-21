@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.92"
+VERSION = "chat-rules-3.93"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -2418,6 +2418,39 @@ TERMS = {
     "hold": "Hold means keeping a position still for a few seconds before you move again.",
     "atrophy": ("Atrophy means a muscle getting smaller and weaker because it has not been used, for example after "
                 "weeks in bed. Regular exercise builds it back."),
+    # 3.93: the words of the newer answers (readings, situations, conditions, symptoms)
+    "spo2": ("SpO2 (oxygen saturation) is how much oxygen your blood is carrying, measured with a clip on your "
+             "finger (a pulse oximeter). 95 to 100% is normal; 92% or lower needs a doctor."),
+    "api": ("The API (Air Pollutant Index) measures air quality in Malaysia: up to 50 is good, 51 to 100 moderate, "
+            "and above 100 unhealthy. On unhealthy days, exercise indoors."),
+    "dvt": ("DVT (deep vein thrombosis) is a blood clot in a deep vein, usually in the leg. A calf that is suddenly "
+            "swollen, red, warm and painful needs a doctor the same day."),
+    "sahur": "Sahur is the meal eaten before dawn during the fasting month.",
+    "iftar": "Iftar (berbuka puasa) is the meal that breaks the fast at sunset.",
+    "sarcopenia": ("Sarcopenia is the loss of muscle size and strength with age or a long time without moving much. "
+                   "Strength exercises and enough protein help to build it back."),
+    "osteoporosis": ("Osteoporosis means the bones have become thin and weak, so they break more easily. Strength and "
+                     "standing exercises help keep bones strong."),
+    "hypertension": "Hypertension means high blood pressure: readings of 140/90 or higher, again and again.",
+    "hypo": ("A hypo (hypoglycaemia) is a low blood sugar, usually below 4.0 mmol/L. It can make you shaky, sweaty, "
+             "dizzy or confused: take something sugary at once."),
+    "pursed lip breathing": ("Pursed-lip breathing means breathing in through your nose and out slowly through lips held "
+                             "as if to whistle. It helps when you are short of breath."),
+    "reliever inhaler": ("A reliever inhaler (often blue, such as Ventolin) opens the airways quickly when asthma symptoms "
+                         "start."),
+    "cardiac rehab": ("Cardiac rehabilitation (cardiac rehab) is a supervised programme of exercise and advice after a "
+                      "heart attack or heart surgery, run by a hospital team."),
+    "doms": ("DOMS (delayed onset muscle soreness) is the muscle ache that comes a day or two after exercise. It is "
+             "normal and eases within a few days."),
+    "bpm": "BPM means beats per minute: how fast your heart beats.",
+    "resting heart rate": ("Your resting heart rate is your pulse after sitting quietly for a few minutes: 60 to 100 "
+                           "beats a minute is usual."),
+    "stitch": ("A stitch can mean two things: a sudden sharp pain under the ribs when you walk or breathe fast, or a "
+               "thread a doctor uses to close a wound."),
+    "blood thinner": ("A blood thinner (an anticoagulant, such as warfarin) makes the blood clot more slowly. People who "
+                      "take one bruise and bleed more easily, so a fall needs extra care."),
+    "cpap": ("CPAP is a machine that blows air through a mask while you sleep, to keep the airway open in sleep "
+             "apnoea."),
 }
 TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion", "rom": "range of motion",
                 "reps": "repetition", "rep": "repetition", "repetitions": "repetition", "sets": "set",
@@ -2433,7 +2466,15 @@ TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion",
                 "postur": "posture", "intensiti": "intensity", "intensiti sederhana": "moderate intensity",
                 "intensiti rendah": "low intensity", "memanaskan badan": "warm up", "menyejukkan badan": "cool down",
                 "otot teras": "core", "atrofi": "atrophy", "keradangan": "inflammation", "mobiliti": "mobility",
-                "daya tahan": "stamina", "indeks jisim badan": "bmi"}
+                "daya tahan": "stamina", "indeks jisim badan": "bmi",
+                # 3.93
+                "sp02": "spo2", "oxygen saturation": "spo2", "oximeter": "spo2", "pulse oximeter": "spo2",
+                "air pollutant index": "api", "ipu": "api", "deep vein thrombosis": "dvt", "berbuka": "iftar",
+                "buka puasa": "iftar", "hypoglycaemia": "hypo", "hypoglycemia": "hypo", "pursed lip": "pursed lip breathing",
+                "pursed lips breathing": "pursed lip breathing", "blue inhaler": "reliever inhaler",
+                "cardiac rehabilitation": "cardiac rehab", "delayed onset muscle soreness": "doms",
+                "beats per minute": "bpm", "anticoagulant": "blood thinner", "blood thinners": "blood thinner",
+                "a stitch": "stitch"}
 
 
 

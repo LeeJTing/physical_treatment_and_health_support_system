@@ -2228,13 +2228,13 @@ def _point_after_scene(plan_id: str | None, text: str, scene: dict) -> tuple[dic
 # 3.72: "what is abduction", "what does flexion mean", "range of motion means?", "apa maksud BMI".
 DEFINITION_RE = re.compile(r"^(?:what(?:'s| is| are| does| do)?|whats|define|meaning of|apa itu|apa maksud|maksud|"
                            r"what is the meaning of|what do you mean by|what does it mean by)\s+(?:a |an |the )?"
-                           r"(?P<a>[a-z' -]+?)(?:\s+(?:mean|means|meaning|stand for))?\s*\??$|"
-                           r"^(?P<b>[a-z' -]+?)\s+(?:means|meaning|mean|maksud|tu apa|itu apa|is what|means what)\s*\??$")
+                           r"(?P<a>[a-z0-9' -]+?)(?:\s+(?:mean|means|meaning|stand for))?\s*\??$|"
+                           r"^(?P<b>[a-z0-9' -]+?)\s+(?:means|meaning|mean|maksud|tu apa|itu apa|is what|means what)\s*\??$")
 
 
 def _term_asked(text: str | None) -> str | None:
     """The TERMS word a definition question asks about, if any."""
-    low = " ".join(re.sub(r"[^a-z' ?-]", " ", (text or "").lower()).split())
+    low = " ".join(re.sub(r"[^a-z0-9' ?-]", " ", (text or "").lower()).split())     # (3.93: "spo2")
     low = re.sub(r"^(?:um|uh|hi|hello|ok|okay|sorry|doc|excuse me)\s+", "", low)
     low = re.sub(r"\s+(?:lah|ah|leh|pls|please|huh)\s*\??$", "", low)
     m = DEFINITION_RE.match(low)

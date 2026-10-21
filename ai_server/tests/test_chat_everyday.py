@@ -107,3 +107,9 @@ def test_what_a_word_means():
                        ("ayah saya ada gaut boleh senam?", "condition_advice"), ("senak bila jalan", "stitch")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
     assert engine.reply(PLAN, None, "boleh senam?")["category"] != "stitch"
+    # 3.93: the newer answers' words
+    for text, word in [("what is spo2", "SpO2"), ("what does api mean", "Air Pollutant Index"), ("what is dvt", "DVT"),
+                       ("what is sahur", "Sahur"), ("what does hypo mean", "low blood sugar"), ("what is doms", "DOMS"),
+                       ("what is a stitch", "two things"), ("what is cpap", "CPAP")]:
+        x = engine.reply(PLAN, None, text)
+        assert x["category"] == "word_meaning" and word in x["answer"], text
