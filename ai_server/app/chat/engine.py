@@ -139,7 +139,7 @@ SHORT_WORDS_TYPED = {"y": "why", "alot": "a lot", "sys": "says", "pln": "plan", 
                      "ystd": "yesterday", "ytd": "yesterday", "msg": "message", "pic": "picture", "vid": "video",
                      # 3.80: "fasting mnth" was read as Malay "muntah" (vomiting)
                      "mnth": "month", "mth": "month", "mths": "months", "mnths": "months", "wk": "week",
-                     "wks": "weeks", "yr": "year", "yrs": "years", "hrs": "hours"}
+                     "wks": "weeks", "yr": "year", "yrs": "years", "hrs": "hours", "hlp": "help", "hep": "help"}
 # Malay as it is texted (3.59, the random typing test: "sya jatuh semalam", "xleh bangun", "jatuh td").
 SHORT_WORDS_TYPED.update({
     "cot": "cost",                                   # 3.75: not "clot" (a blood clot is a condition now)
@@ -238,7 +238,8 @@ def plan_intents(plan: dict) -> list[dict]:
          "keywords": ["results", "see results", "progress", "improve", "improving", "improvement", "how long until",
                       "when will", "getting better", "get better", "is it working", "is this working", "it working",
                       "plan working", "exercise working", "exercises working", "working for me", "even working",
-                      "really working", "actually working", "finish the plan",
+                      "really working", "actually working", "be stronger", "arms stronger", "legs stronger",
+                      "get stronger", "finish the plan",
                       "finished the plan", "complete the plan", "after this plan", "next plan", "recover", "recovery",
                       "is it helping", "plan helping", "helping me", "help me recover", "effective", "worth it", "making a difference", "any difference",
                       "fix", "cure", "heal", "do for me", "purpose", "aim", "goal", "benefit", "benefits",
@@ -816,6 +817,9 @@ def _likeliest(w: str) -> str | None:
     spread = 1 if len(w) < 6 else 2
     cands = {v for v in vocab if v[0] == w[0] and abs(len(v) - len(w)) <= spread and len(v) >= 4}
     words = {v for v in _dictionary_by_letter().get(w[0], ()) if abs(len(v) - len(w)) <= spread and len(v) >= 4}
+    scrambled = sorted(v for v in cands & SAFETY_WORDS if len(w) >= 4 and sorted(v) == sorted(w))
+    if scrambled and w not in rare_words():
+        return scrambled[0]                              # "skiat": sakit, not "sikat" (3.86)
     scored = sorted((typo_cost(w, v), v not in SAFETY_WORDS, v) for v in cands)
     # Two slips in a warning-sign word ("ptsm", "piam" -> pitam), when all but one of the typed letters
     # are in it in order ("psum" is not "pain"); never from a real but rarer word.
@@ -975,7 +979,9 @@ ASKING_FOR_DIAGNOSIS = ["is it a", "is it an", "is this a", "is this an", "could
                         "maybe", "how do i know", "what is wrong", "should i see"]
 DOCTOR_SAID_TO = ["rest", "not to", "no exercise", "stop", "avoid", "don't", "dont", "do not", "should not",
                   "shouldn't", "cannot", "can't", "only", "pause", "jangan", "tak boleh", "bed"]
-PREFER = [# 3.79: a tablet computer is not a pill; "contact support" is not holding on to a support.
+PREFER = [# 3.86: "fever today, exercise?" is about the fever, not today's exercise.
+          ("tired", "treatment_nav"),
+          # 3.79: a tablet computer is not a pill; "contact support" is not holding on to a support.
           ("app_facts", "medication"), ("app_facts", "safety"),
           # 3.78: the kind of symptom over the general pain answer.
           ("cramp", "pain_or_discomfort"), ("cramp", "pain_mild"), ("cramp", "tired"), ("cramp", "weakness_balance"),
@@ -2400,11 +2406,12 @@ def _match_any(plan_id: str | None, text: str) -> tuple[dict | None, str | None]
             if c is not None:
                 return c, h
     if set(plain.split()) <= fillers and len(plain.split()) > 1:
-        # Only greetings and fillers ("hi doc", "sorry hi"): the small talk in it.
-        for w in plain.split():
-            c, h = _match(plan_id, w)
-            if c is not None and c.get("small_talk"):
-                return c, h
+        # Only greetings and fillers ("hi doc", "sorry hi"): the small talk in it, "okay" and "say again?" last
+        # ("ok thanks" is thanks, "sorry ok" okay, 3.86).
+        found = [(c, h) for c, h in (_match_whole(plan_id, w) for w in plain.split())
+                 if c is not None and (c.get("small_talk") or c["key"] in NO_CONTEXT)]
+        if found:
+            return min(found, key=lambda f: {"acknowledge": 1, "pardon": 2}.get(f[0]["key"], 0))
     chosen, how = _match(plan_id, text)
     if chosen is not None and not chosen.get("small_talk") and chosen["key"] != "cannot_do" and _off_domain(text):
         return None, None                        # about another domain: no rehabilitation topic guessed (3.57)
@@ -2594,6 +2601,7 @@ def _match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
     if len(clean(text).split()) <= 3 and not exercises:
         # (3.54: not when an exercise is named: "open and close" is the exercise, not goodbye)
         small = [h for h in hits if h[2].get("small_talk")]
+        small = [h for h in small if h[2]["key"] != "pardon"] or small   # "sorry ok", "sorry hi" (3.86)
         # (3.55: not when a longer topic phrase matched too: "not helpful" is a complaint, not thanks)
         if small and not any(h[1] >= max(s[1] for s in small) for h in hits if not h[2].get("small_talk")):                                    # "good morning", "help", "ok thanks"
             return max(small, key=lambda h: (h[0], h[1]))[2], "keyword"

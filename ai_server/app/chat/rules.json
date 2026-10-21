@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-3.85",
+  "version": "chat-rules-3.86",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -7019,6 +7019,9 @@
         "raise my heels",
         "lift my heels",
         "heels up",
+        "heels go",
+        "how high heels",
+        "how high my heels",
         "up on my toes",
         "on my toes",
         "toes up and down",

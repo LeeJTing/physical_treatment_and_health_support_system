@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.85"
+VERSION = "chat-rules-3.86"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1694,7 +1694,7 @@ ALIASES = {
                      "distance from the wall"],
     "heel_raise": ["heel raise", "heel raises", "calf raise", "calf raises", "tiptoe", "tiptoes", "toe raise",
                    "rise on my toes", "stand on my toes", "my heels", "raise my heels",
-                   "lift my heels", "heels up"],
+                   "lift my heels", "heels up", "heels go", "how high heels", "how high my heels"],
     "mini_squat": ["mini squat", "mini squats", "half squat", "small squat", "partial squat", "squat", "squats"],
     "seated_marching": ["seated marching", "seated march", "sitting march", "marching while sitting",
                         "march while sitting", "march sitting down", "march", "marching"],

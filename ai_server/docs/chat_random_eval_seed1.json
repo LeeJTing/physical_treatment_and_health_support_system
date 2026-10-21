@@ -1,12 +1,12 @@
 {
- "rules_version": "chat-rules-3.85",
+ "rules_version": "chat-rules-3.86",
  "seed": 1,
  "messages": 10000,
- "passed": 9854,
- "rate": 0.9854,
+ "passed": 9858,
+ "rate": 0.9858,
  "by_kind": {
   "written": {
-   "passed": 3000,
+   "passed": 3003,
    "messages": 3056
   },
   "mistakes": {
@@ -14,15 +14,15 @@
    "messages": 421
   },
   "restricted": {
-   "passed": 617,
+   "passed": 618,
    "messages": 623
   },
   "short": {
-   "passed": 2525,
+   "passed": 2526,
    "messages": 2577
   },
   "red_flags": {
-   "passed": 1248,
+   "passed": 1247,
    "messages": 1256
   },
   "exercises": {
@@ -52,10 +52,10 @@
   "('condition_advice',) -> None: 2",
   "('exercise:march_in_place',) -> exercise:seated_marching: 2",
   "('exercise:wall_push_up',) -> equipment: 2",
-  "('greeting',) -> pardon: 2",
   "('tired',) -> None: 2",
   "('multiple_plans',) -> None: 2",
   "('video_quality',) -> recording_help: 2",
+  "('crisis', 'red_flag') -> safety: 2",
   "('family_help',) -> None: 2",
   "('getting_started', 'plan_exercises', 'treatment_nav') -> weather: 2",
   "('difficulty',) -> plan_exercises: 1",
@@ -70,7 +70,6 @@
   "pain_mild -> exercise:shoulder_abduction: 1",
   "('low_mood', 'motivation') -> None: 1",
   "('for_someone_else',) -> None: 1",
-  "('plan_progress',) -> None: 1",
   "('exercise:tandem_stance',) -> how_to: 1",
   "('exercise:glute_bridge',) -> eating_concern: 1",
   "('mistake:heels_lift',) -> history_help: 1",
@@ -78,7 +77,8 @@
   "('app_help',) -> None: 1",
   "('mistake:back_sag',) -> plan_progress: 1",
   "('crisis', 'red_flag') -> pain_or_discomfort: 1",
-  "('safety',) -> None: 1"
+  "('safety',) -> None: 1",
+  "('medication',) -> None: 1"
  ],
  "misses": [
   {
@@ -429,22 +429,6 @@
    }
   },
   {
-   "text": "WHENAEMS STRONGER ?",
-   "want": [
-    "plan_progress"
-   ],
-   "got": null,
-   "seed_question": "when will my arms be stronger",
-   "context": {
-    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
-    "previous_category": "mistake:knee_not_straight",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "CGNESE CAN!!",
    "want": [
     "language"
@@ -723,22 +707,6 @@
      8,
      15
     ]
-   }
-  },
-  {
-   "text": "can my daughter hlp me with the app",
-   "want": [
-    "age_limit"
-   ],
-   "got": "for_someone_else",
-   "seed_question": "can my daughter help me with the app",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
    }
   },
   {
@@ -1110,22 +1078,6 @@
    }
   },
   {
-   "text": "sorry hi doc?",
-   "want": [
-    "greeting"
-   ],
-   "got": "pardon",
-   "seed_question": "hi doc",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "delete_account",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
    "text": "my notificstion cae late",
    "want": [
     "reminder_late_or_off"
@@ -1280,22 +1232,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Have fever today exercise...",
-   "want": [
-    "tired"
-   ],
-   "got": "treatment_nav",
-   "seed_question": "i have fever today should i exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "High",
     "local_time": null
    }
   },
@@ -1987,25 +1923,6 @@
    }
   },
   {
-   "text": "sorry hey?",
-   "want": [
-    "greeting"
-   ],
-   "got": "pardon",
-   "seed_question": "hey",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:no_forward_lean",
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     13,
-     15
-    ]
-   }
-  },
-  {
    "text": "2 plnnas??",
    "want": [
     "multiple_plans"
@@ -2254,6 +2171,23 @@
      "PARKINSONS"
     ],
     "risk_level": null,
+    "local_time": null
+   }
+  },
+  {
+   "text": "have haed breathe?",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": "safety",
+   "seed_question": "i have hard to breathe",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "allergy",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
     "local_time": null
    }
   },

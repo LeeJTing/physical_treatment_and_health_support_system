@@ -57,6 +57,14 @@ def test_exercises_described_in_everyday_words():
         assert engine.reply(PLAN, None, text)["category"] in ("pain_or_discomfort", "pain_mild"), text
 
 
+def test_random_typing_misses_of_fresh_seeds():
+    # 3.86: the commonest misses of random typing seeds 2 and 3
+    for text, want in [("sorry ok", "acknowledge"), ("sorry?", "pardon"), ("SKIAT YA...", "pain_or_discomfort"),
+                       ("ok my son can hlp", "family_help"), ("HW HIGH HEELS GO HUH", "exercise:heel_raise"),
+                       ("Hve fever tdy exercise!!", "tired"), ("When arms strogner!", "plan_progress")]:
+        assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
 def test_what_a_word_means():
     # 3.72: "what does flexion mean" was the leaning mistake, "range of motion means?" not recognised.
     for text, word in [("what does flexion mean", "Flexion"), ("range of motion means?", "Range of motion"),

@@ -1,16 +1,16 @@
 {
- "rules_version": "chat-rules-3.85",
+ "rules_version": "chat-rules-3.86",
  "seed": 2,
  "messages": 10000,
- "passed": 9850,
- "rate": 0.985,
+ "passed": 9861,
+ "rate": 0.9861,
  "by_kind": {
   "restricted": {
-   "passed": 617,
+   "passed": 620,
    "messages": 625
   },
   "short": {
-   "passed": 2455,
+   "passed": 2459,
    "messages": 2512
   },
   "follow": {
@@ -22,7 +22,7 @@
    "messages": 871
   },
   "written": {
-   "passed": 3033,
+   "passed": 3038,
    "messages": 3092
   },
   "conditions": {
@@ -30,7 +30,7 @@
    "messages": 518
   },
   "red_flags": {
-   "passed": 1273,
+   "passed": 1272,
    "messages": 1277
   },
   "mistakes": {
@@ -41,32 +41,31 @@
  "commonest_misses": [
   "('crisis',) -> None: 3",
   "('age_limit',) -> None: 3",
-  "('tired',) -> treatment_nav: 3",
   "('exit_exercise', 'goodbye') -> None: 3",
-  "('acknowledge',) -> None: 3",
   "('bot_identity',) -> None: 3",
   "('difficulty', 'weakness_balance') -> partial_reps: 3",
-  "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 3",
   "('delete_account',) -> account_help: 2",
   "('tired',) -> acknowledge: 2",
   "('exercise:wrist_extension',) -> None: 2",
   "('fear_of_falling',) -> red_flag: 2",
   "('medication',) -> None: 2",
   "('exercise:wall_push_up',) -> how_to: 2",
+  "('red_flag',) -> weakness_balance: 2",
   "('condition_advice',) -> pain_or_discomfort: 2",
-  "('exercise:heel_raise',) -> None: 2",
   "('best_time',) -> condition_advice: 2",
   "('forgot_password',) -> None: 2",
+  "('crisis', 'red_flag') -> safety: 2",
   "('exercise:wall_push_up',) -> equipment: 2",
   "('family_help',) -> None: 2",
   "('plan_exercises',) -> how_to: 2",
   "('privacy_data',) -> recording_help: 2",
   "('multiple_plans',) -> plan_exercises: 2",
+  "('pain_mild', 'pain_or_discomfort', 'pain_sharp') -> None: 2",
   "('reminder_late_or_off',) -> reminders_help: 2",
+  "('acknowledge',) -> None: 2",
   "('safety_limits',) -> how_often: 2",
   "('bot_identity',) -> how_are_you: 2",
   "('safety_limits',) -> None: 1",
-  "('acknowledge',) -> pardon: 1",
   "('exercise:hand_open_close',) -> verification_code: 1",
   "('mistake:bent_knee',) -> plan_progress: 1",
   "('difficulty',) -> None: 1",
@@ -78,7 +77,8 @@
   "('safety',) -> period: 1",
   "None -> acknowledge: 1",
   "('age_limit', 'safety') -> how_to: 1",
-  "('family_help',) -> bot_identity: 1"
+  "('family_help',) -> bot_identity: 1",
+  "('app_facts',) -> bot_identity: 1"
  ],
  "misses": [
   {
@@ -148,22 +148,6 @@
     "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
     "previous_category": null,
     "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
-   "text": "Excuse me ok!",
-   "want": [
-    "acknowledge"
-   ],
-   "got": "pardon",
-   "seed_question": "ok",
-   "context": {
-    "plan_id": "640ef7c1-d809-5e94-997b-199f0afc96c9",
-    "previous_category": null,
-    "restriction": null,
     "conditions": null,
     "risk_level": null,
     "local_time": null
@@ -573,6 +557,22 @@
    }
   },
   {
+   "text": "i can't get up from the foor ?",
+   "want": [
+    "red_flag"
+   ],
+   "got": "weakness_balance",
+   "seed_question": "i can't get up from the floor",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": null,
+    "restriction": null,
+    "conditions": null,
+    "risk_level": "Low",
+    "local_time": null
+   }
+  },
+  {
    "text": "can wakkl??",
    "want": [
     "other_activity",
@@ -602,25 +602,6 @@
     "restriction": null,
     "conditions": null,
     "risk_level": "High",
-    "local_time": null
-   }
-  },
-  {
-   "text": "how high hees go ?",
-   "want": [
-    "exercise:heel_raise"
-   ],
-   "got": null,
-   "seed_question": "how high should my heels go",
-   "context": {
-    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
-    "previous_category": "pain_or_discomfort",
-    "restriction": null,
-    "conditions": [
-     "STROKE",
-     "ASTHMA"
-    ],
-    "risk_level": null,
     "local_time": null
    }
   },
@@ -712,25 +693,6 @@
     "local_time": [
      3,
      0
-    ]
-   }
-  },
-  {
-   "text": "HABE FEVER TDY EXERCISE ?",
-   "want": [
-    "tired"
-   ],
-   "got": "treatment_nav",
-   "seed_question": "i have fever today should i exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": [
-     23,
-     15
     ]
    }
   },
@@ -869,27 +831,6 @@
     "conditions": null,
     "risk_level": null,
     "local_time": null
-   }
-  },
-  {
-   "text": "erm okay!!",
-   "want": [
-    "acknowledge"
-   ],
-   "got": null,
-   "seed_question": "okay",
-   "context": {
-    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "DIABETES"
-    ],
-    "risk_level": "Low",
-    "local_time": [
-     14,
-     30
-    ]
    }
   },
   {
@@ -1282,23 +1223,6 @@
    }
   },
   {
-   "text": "ok what is haed titl ?",
-   "want": [
-    "mistake:head_tilt",
-    "posture_result"
-   ],
-   "got": "difficulty",
-   "seed_question": "what is head tilt",
-   "context": {
-    "plan_id": "1d7600d4-5fa4-538d-9f92-df663915233e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": null,
-    "local_time": null
-   }
-  },
-  {
    "text": "i loe this app",
    "want": [
     "None",
@@ -1316,40 +1240,6 @@
      10,
      0
     ]
-   }
-  },
-  {
-   "text": "have fever today exercise ah??",
-   "want": [
-    "tired"
-   ],
-   "got": "age_limit",
-   "seed_question": "i have fever today should i exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "Medium",
-    "local_time": null
-   }
-  },
-  {
-   "text": "how hihh heels go!!",
-   "want": [
-    "exercise:heel_raise"
-   ],
-   "got": "condition_advice",
-   "seed_question": "how high should my heels go",
-   "context": {
-    "plan_id": "c84e6e5e-b43a-59fe-96ab-65e4b585e4f1",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "PREGNANCY"
-    ],
-    "risk_level": null,
-    "local_time": null
    }
   },
   {
@@ -1635,25 +1525,6 @@
     "risk_level": null,
     "local_time": [
      21,
-     15
-    ]
-   }
-  },
-  {
-   "text": "My son can hlp!!",
-   "want": [
-    "family_help"
-   ],
-   "got": "for_someone_else",
-   "seed_question": "my son can help",
-   "context": {
-    "plan_id": "665e8567-b75b-565f-b6e3-85bdb1e6538b",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": null,
-    "local_time": [
-     23,
      15
     ]
    }
@@ -2269,27 +2140,6 @@
    }
   },
   {
-   "text": "have fever tdy exercse ya!!",
-   "want": [
-    "tired"
-   ],
-   "got": "treatment_nav",
-   "seed_question": "i have fever today should i exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": null,
-    "conditions": [
-     "COPD"
-    ],
-    "risk_level": null,
-    "local_time": [
-     2,
-     30
-    ]
-   }
-  },
-  {
    "text": "how turn notifications",
    "want": [
     "reminder_late_or_off"
@@ -2422,27 +2272,6 @@
    }
   },
   {
-   "text": "SKIAT YA...",
-   "want": [
-    "pain_mild",
-    "pain_or_discomfort",
-    "pain_sharp"
-   ],
-   "got": null,
-   "seed_question": "sakit",
-   "context": {
-    "plan_id": null,
-    "previous_category": null,
-    "restriction": null,
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     15,
-     30
-    ]
-   }
-  },
-  {
    "text": "WHAT'S YOUR NEM",
    "want": [
     "bot_identity"
@@ -2456,50 +2285,6 @@
     "conditions": null,
     "risk_level": "High",
     "local_time": null
-   }
-  },
-  {
-   "text": "when ams stronger",
-   "want": [
-    "plan_progress"
-   ],
-   "got": null,
-   "seed_question": "when will my arms be stronger",
-   "context": {
-    "plan_id": "45245b62-5696-56fe-9713-9af0b74f8768",
-    "previous_category": "reminders_help",
-    "restriction": null,
-    "conditions": [
-     "ASTHMA",
-     "PARKINSONS"
-    ],
-    "risk_level": null,
-    "local_time": [
-     20,
-     15
-    ]
-   }
-  },
-  {
-   "text": "Hve fever tdy exercise!!",
-   "want": [
-    "tired"
-   ],
-   "got": "treatment_nav",
-   "seed_question": "i have fever today should i exercise",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": "mistake:leaning",
-    "restriction": null,
-    "conditions": [
-     "STROKE",
-     "HYPERTENSION"
-    ],
-    "risk_level": "Low",
-    "local_time": [
-     17,
-     45
-    ]
    }
   },
   {
@@ -2733,25 +2518,6 @@
    }
   },
   {
-   "text": "excuse me hi",
-   "want": [
-    "greeting"
-   ],
-   "got": "pardon",
-   "seed_question": "hi",
-   "context": {
-    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
-    "previous_category": null,
-    "restriction": "AGE_65_PLUS",
-    "conditions": null,
-    "risk_level": "Low",
-    "local_time": [
-     19,
-     30
-    ]
-   }
-  },
-  {
    "text": "cama front side arm raises!!",
    "want": [
     "recording_help"
@@ -2768,6 +2534,23 @@
      20,
      15
     ]
+   }
+  },
+  {
+   "text": "HAED TO BREATEH",
+   "want": [
+    "crisis",
+    "red_flag"
+   ],
+   "got": "safety",
+   "seed_question": "hard to breathe!!",
+   "context": {
+    "plan_id": "88c1e725-4b64-5689-a70d-47d37b2fcd7e",
+    "previous_category": "condition_advice",
+    "restriction": null,
+    "conditions": null,
+    "risk_level": null,
+    "local_time": null
    }
   },
   {
