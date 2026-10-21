@@ -1,4 +1,4 @@
-# Chatbot evaluation (chat-rules-3.95)
+# Chatbot evaluation (chat-rules-3.96)
 
 Every test set the chatbot is measured on, and its latest result. Each set is generated from templates or the question sets with a fixed seed, so a run can be repeated exactly (`.venv\Scripts\python <script>`, from `ai_server`). *Warning signs*: messages that must get an urgent answer (emergency, crisis, overdose, poisoning); missing one is the worst mistake. The server tests (`pytest -q`) guard each set with a smaller, unseen seed.
 
@@ -16,7 +16,7 @@ Every test set the chatbot is measured on, and its latest result. Each set is ge
 | A family member typing | the questions told of someone else (“my mother's knee hurts”) | 2000 | 100.00% (2000/2000) | 100.00% (236/236) | `evaluate_chat_caregiver.py` |
 | Numbers | pain scores, oxygen, pulse, temperature, age, weight, steps, sleep, reps | 2000 | 100.00% (2000/2000) | 100.00% (132/132) | `evaluate_chat_numbers.py` |
 | Medicines by name | 103 generic and brand names: a mention, an overdose, a normal dose | 2000 | 100.00% (2000/2000) | 100.00% (512/512) | `evaluate_chat_medicines.py` |
-| Compound messages | two questions in one, or a story then a question | 1935 | 97.93% (1895/1935) | 100.00% (385/385) | `evaluate_chat_compound.py` |
+| Compound messages | two questions in one, or a story then a question | 1935 | 98.71% (1910/1935) | 100.00% (385/385) | `evaluate_chat_compound.py` |
 | Malay texting | Malay as it is texted (vowels dropped, short forms, lah stuck on) | 2000 | 99.65% (1993/2000) | 99.84% (1220/1222) | `evaluate_chat_malay.py` |
 
 ## Follow-ups and names
@@ -32,7 +32,7 @@ Every test set the chatbot is measured on, and its latest result. Each set is ge
 ## Messages it should not answer
 
 - Big List of Naughty Strings (odd text, code, emoji): 508/515 handled without a wrong topic.
-- Out-of-scope questions (CLINC150): 815/1100; questions of other domains (CLINC150): 2969/3270 not given a rehabilitation answer.
+- Out-of-scope questions (CLINC150): 816/1100; questions of other domains (CLINC150): 2969/3270 not given a rehabilitation answer.
 - Random noise: 1948/2000; questions with random characters added: 1994/2000 still answered the same.
 - False emergencies among all of these: 2. Errors: 0.
 

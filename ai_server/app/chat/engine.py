@@ -2205,7 +2205,9 @@ SCENES = {"hot_weather": {"safety", "best_time", "other_activity", "how_to", "ho
           "weather": {"safety", "best_time", "other_activity", "how_to", "how_often", "equipment", "difficulty",
                       "hot_weather"},
           "family_help": {"for_someone_else"}, "for_someone_else": {"family_help"},
-          "diet": {"best_time", "eating_concern", "calories"}}
+          "diet": {"best_time", "eating_concern", "calories"},
+          # 3.96: "last night", "this morning" told as the scene
+          "best_time": {"how_often", "tired", "sleep", "diet", "hot_weather", "weather", "safety"}}
 THIRD_PERSON = {"she", "he", "her", "him", "his", "they", "them", "their", "dia"}
 
 
@@ -2215,7 +2217,8 @@ def _point_after_scene(plan_id: str | None, text: str, scene: dict) -> tuple[dic
         return None
     for part in reversed(parts[1:]):
         c, h = _match_whole(plan_id, part)
-        if c is None or (c.get("small_talk") and c["key"] not in ("thanks", "goodbye")) or c["key"] == "acknowledge":
+        if c is None or (c.get("small_talk") and c["key"] not in ("thanks", "goodbye", "bot_identity")) \
+                or c["key"] == "acknowledge":
             continue
         if c["key"] == scene["key"] or c["key"] in SCENES[scene["key"]]:
             return None                                  # the later part is about the scene too
@@ -2223,6 +2226,34 @@ def _point_after_scene(plan_id: str | None, text: str, scene: dict) -> tuple[dic
             return None                                  # "...can she do this": still about her
         return c, h
     return None
+
+
+def _first_of_two_points(plan_id: str | None, text: str, chosen: dict | None) -> tuple[dict, str] | None:
+    """3.96 (compound test): two points in one message, answered by the first. Two exercises asked about in two
+    parts ("how to stand heel to toe. my hip clicks when i lift my leg sideways" was the plan's order, meant for
+    "heel raise or sit to stand?"); and a scene the other-domain gate took, with the point after it ("we went to
+    the mall on sunday. anyway open my plan" was not recognised)."""
+    parts = [q.strip() for p in STORY_BREAK.split(text.lower()) for q in TOPIC_CHANGE.split(p)
+             if len(q.split()) >= 2]
+    if len(parts) < 2:
+        return None
+    found = []
+    for part in parts:
+        c, h = _match_whole(plan_id, part)
+        if c is not None and not c.get("small_talk") and c["key"] not in ("acknowledge", "plan_exercises"):
+            found.append((c, h, part))
+    if chosen is None:
+        # The point after a scene, only when it is plainly about rehabilitation ("open my plan"), not another
+        # domain's two-part question ("what oil should i use for an oil change and how do i do it").
+        words, names = _rehab_anchors()
+        for c, h, part in reversed(found):
+            plain = clean(respell(part))
+            if h == "keyword" and (set(plain.split()) & words or any(f" {n} " in f" {plain} " for n in names)):
+                return c, h
+        return None
+    found = [(c, h) for c, h, _ in found]
+    exercises = {c["key"] for c, _ in found if c["key"].startswith("exercise:")}
+    return found[0] if len(exercises) >= 2 or (exercises and len(found) >= 2) else None
 
 
 # 3.72: "what is abduction", "what does flexion mean", "range of motion means?", "apa maksud BMI".
@@ -2326,6 +2357,10 @@ def match(plan_id: str | None, text: str) -> tuple[dict | None, str | None]:
         point = _point_after_scene(plan_id, text, chosen)
         if point is not None:
             return point                                 # the point after a scene (3.88)
+    if chosen is None or chosen["key"] == "plan_exercises":
+        first = _first_of_two_points(plan_id, text, chosen)
+        if first is not None:
+            return first                                 # (3.96)
     mine = _as_if_mine(text) if chosen is None or chosen["key"] not in KEEP_FOR_OTHERS else None
     if mine:
         c2, h2 = _match_whole(plan_id, mine)

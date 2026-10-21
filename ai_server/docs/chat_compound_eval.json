@@ -1,62 +1,47 @@
 {
- "rules_version": "chat-rules-3.95",
+ "rules_version": "chat-rules-3.96",
  "seed": 1,
  "messages": 1935,
- "passed": 1895,
- "rate": 0.9793,
+ "passed": 1910,
+ "rate": 0.9871,
  "urgent": 385,
  "urgent_passed": 385,
  "by_kind": {
   "story": {
-   "passed": 970,
+   "passed": 974,
    "messages": 989
   },
   "two_questions": {
-   "passed": 925,
+   "passed": 936,
    "messages": 946
   }
  },
  "misses": [
   "two_questions: 'my grandson set this up, i dont know how to use, also should i wear shoes' -> None (want ['app_help', 'equipment', 'getting_started'])",
-  "two_questions: 'is step up safe for my knees and how low should i go in mini squat' -> plan_exercises (want ['exercise:mini_squat', 'exercise:step_up', 'safety'])",
-  "two_questions: 'how to stand heel to toe. my hip clicks when i lift my leg sideways' -> plan_exercises (want ['exercise:hip_abduction', 'exercise:tandem_stance', 'joint_noise'])",
   "story: 'yesterday i went to the market, she fell. that was last year, now fine' -> None (want ['fear_of_falling'])",
-  "two_questions: 'push up against the wall, and marching on the spot how long' -> plan_exercises (want ['exercise:march_in_place', 'exercise:wall_push_up'])",
   "story: 'the weather is very hot today. can i go jogging' -> hot_weather (want ['difficulty', 'other_activity', 'safety'])",
   "two_questions: \"i fell last year but today i'm fine again plus will i hurt myself doing squats\" -> red_flag (want ['difficulty', 'exercise:mini_squat', 'fear_of_falling'])",
-  "two_questions: 'leg out to the side exercise lah, glute bridge on bed or floor' -> plan_exercises (want ['equipment', 'exercise:glute_bridge', 'exercise:hip_abduction'])",
-  "two_questions: 'how high should my heels go... how long do i stand heel to toe' -> plan_exercises (want ['exercise:heel_raise', 'exercise:tandem_stance'])",
   "story: 'it rained the whole morning lah, she fell. that was last year, now fine' -> how_often (want ['fear_of_falling'])",
   "story: \"the neighbours were noisy last night, so what if she falls and can't get up\" -> red_flag (want ['fear_of_falling'])",
   "two_questions: \"my kneee hurtss... i fell last month and since then i'm scared\" -> red_flag (want ['fear_of_falling', 'pain_or_discomfort'])",
-  "two_questions: 'my hip clicks when i lift my leg sideways also how to stand heel to toe' -> plan_exercises (want ['exercise:hip_abduction', 'exercise:tandem_stance', 'joint_noise'])",
   "two_questions: 'do i need special shoes, and remind me only on monday wednesday friday' -> None (want ['equipment', 'reminders_help'])",
   "story: 'my son bought me a new phone. tq so much' -> for_someone_else (want ['thanks'])",
   "story: 'it rained the whole morning... who made this app' -> how_often (want ['app_help', 'bot_identity'])",
   "story: \"i have been at home all week lah, I'm not sure if my form is good\" -> None (want ['how_to'])",
   "story: 'the neighbours were noisy last night and then is it safe for old people' -> best_time (want ['condition_advice', 'safety'])",
-  "two_questions: 'how to do bird dog. can i skip the glute bridge' -> plan_exercises (want ['difficulty', 'exercise:bird_dog', 'exercise:glute_bridge'])",
   "two_questions: 'my calves are aching since yesterday plus i fell in the bathroom last month, can i still exercise' -> red_flag (want ['fear_of_falling', 'pain_or_discomfort'])",
   "story: \"the weather is very hot today, so i fell last month and since then i'm scared\" -> red_flag (want ['fear_of_falling'])",
   "story: \"the neighbours were noisy last night, so i fell last year and now i'm scared to stand on one leg\" -> red_flag (want ['fear_of_falling'])",
   "two_questions: 'is it normal to sweat a lot and good morning doctor' -> how_often (want ['greeting', 'safety', 'tired'])",
-  "two_questions: 'how to do bird dog, also where should i put the phone for glute bridge' -> plan_exercises (want ['exercise:bird_dog', 'exercise:glute_bridge', 'recording_help'])",
-  "story: 'i had nasi lemak for breakfast... what can you do' -> diet (want ['bot_identity'])",
-  "story: 'we went to the mall on sunday. anyway open my plan' -> None (want ['plan_exercises', 'treatment_nav'])",
-  "two_questions: 'how to do arm raise to the front. another thing, bicep curl steps' -> plan_exercises (want ['exercise:elbow_flexion', 'exercise:shoulder_flexion'])",
   "story: 'i took my dog for a short walk... can i restart my plan' -> weakness_balance (want ['plan_and_reminders'])",
   "story: 'the weather is very hot today lah, my knee goes inwards when i stand up' -> hot_weather (want ['exercise:sit_to_stand', 'how_to', 'posture_result'])",
-  "story: 'the neighbours were noisy last night, so no mood to exercise today' -> best_time (want ['motivation'])",
-  "two_questions: 'is step up safe for my knees lah, mini squats - how deep should I go' -> plan_exercises (want ['exercise:mini_squat', 'exercise:step_up', 'safety'])",
   "two_questions: 'my knee hurts a bit after the seated marching is that normal also can i do the step up while sitting' -> plan_exercises (want ['difficulty', 'exercise:step_up', 'pain_mild'])",
   "two_questions: 'osteoporosis safe to do squat or not, also i have diabetes, what time is best to exercise' -> exercise:mini_squat (want ['best_time', 'condition_advice', 'safety'])",
   "story: 'it rained the whole morning, so both arms or one arm at a time' -> how_often (want ['exercise:elbow_flexion', 'exercise:shoulder_abduction', 'exercise:shoulder_flexion'])",
-  "two_questions: 'cannot balance on bird dog also where should i put the phone for glute bridge' -> plan_exercises (want ['difficulty', 'exercise:bird_dog', 'exercise:glute_bridge'])",
-  "story: 'i just finished my breakfast... what can you do' -> diet (want ['bot_identity'])",
   "two_questions: 'she fell. that was last year, now fine and i am high risk can i do more exercise' -> red_flag (want ['difficulty', 'fear_of_falling', 'profile_help'])",
   "two_questions: 'will i hurt myself doing squats plus if she falls what should i do' -> red_flag (want ['None', 'fear_of_falling', 'how_to'])",
   "story: 'we went to the mall on sunday and then boss how to start this one ah' -> None (want ['getting_started'])",
   "story: \"we went to the mall on sunday lah, I'm not sure if my form is good\" -> None (want ['how_to'])"
  ],
- "seconds": 187
+ "seconds": 190
 }

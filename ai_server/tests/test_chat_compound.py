@@ -43,5 +43,10 @@ def test_the_point_after_a_scene():
                        ("i just finished my breakfast, so thank you doctor", "thanks"),
                        ("the weather is very hot today, can i exercise outside", "hot_weather"),
                        ("my mother wants to use the app, can she do these exercises", "for_someone_else"),
-                       ("the weather is very hot today", "hot_weather")]:
+                       ("the weather is very hot today", "hot_weather"),
+                       # 3.96
+                       ("how to stand heel to toe. my hip clicks when i lift my leg sideways", "exercise:tandem_stance"),
+                       ("we went to the mall on sunday. anyway open my plan", "treatment_nav"),
+                       ("the neighbours were noisy last night, so no mood to exercise today", "motivation"),
+                       ("heel raise or sit to stand which first", "plan_exercises")]:
         assert e.reply(plan, None, text)["category"] == want, text
