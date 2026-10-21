@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.03"
+VERSION = "chat-rules-4.04"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -1951,6 +1951,26 @@ for _k, _v in {
                          "angkat tangan ke depan"],
     "shoulder_abduction": ["angkat tangan ke tepi"],
     "hand_open_close": ["squeeze my hand", "genggam tangan", "buka tutup tangan"],
+}.items():
+    ALIASES[_k] = ALIASES[_k] + [a for a in _v if a not in ALIASES[_k]]
+# 4.04: the exercises by their Malay names (ninth probe: "cara buat tekan dinding", "cara angkat kaki ke sisi",
+# "cara buat separuh cangkung", "cara buat jambatan", "cara berkawad di tempat" were not recognised)
+for _k, _v in {
+    "wall_push_up": ["tekan dinding", "tekan tubi dinding", "push up dinding"],
+    "shoulder_abduction": ["angkat tangan ke sisi", "angkat lengan ke sisi", "angkat lengan ke tepi",
+                           "depakan tangan"],
+    "shoulder_flexion": ["angkat lengan ke depan", "angkat tangan ke atas", "angkat lengan ke atas"],
+    "hip_abduction": ["angkat kaki ke sisi", "angkat kaki ke tepi", "hayun kaki ke sisi"],
+    "elbow_flexion": ["bengkokkan siku", "bengkok siku", "lentur siku", "lenturan siku"],
+    "mini_squat": ["separuh cangkung", "cangkung separuh", "squat kecil", "cangkung kecil"],
+    "glute_bridge": ["jambatan", "angkat pinggul", "jambatan punggung"],
+    "tandem_stance": ["berdiri tumit ke jari", "tumit ke jari", "berdiri satu garisan", "kaki satu garisan"],
+    "bird_dog": ["anjing burung", "merangkak angkat tangan"],
+    "march_in_place": ["berkawad di tempat", "kawad di tempat", "kawad setempat", "berkawad setempat"],
+    "seated_marching": ["kawad sambil duduk", "berkawad sambil duduk", "kawad duduk", "angkat lutut sambil duduk"],
+    "wrist_extension": ["angkat pergelangan tangan", "lentur pergelangan tangan", "pergelangan tangan ke atas"],
+    "knee_extension": ["luruskan lutut sambil duduk"],
+    "step_up": ["naik turun tangga", "naik anak tangga"],
 }.items():
     ALIASES[_k] = ALIASES[_k] + [a for a in _v if a not in ALIASES[_k]]
 

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.03",
+ "rules_version": "chat-rules-4.04",
  "exercises": {
   "questions": 1876,
   "correct": 1876,

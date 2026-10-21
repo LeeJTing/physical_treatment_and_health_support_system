@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.03",
+  "version": "chat-rules-4.04",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -7355,7 +7355,11 @@
         "raise arms side",
         "arms to the side",
         "arm side raise",
-        "angkat tangan ke tepi"
+        "angkat tangan ke tepi",
+        "angkat tangan ke sisi",
+        "angkat lengan ke sisi",
+        "angkat lengan ke tepi",
+        "depakan tangan"
       ],
       "instruction": "Stand tall with arms by your sides. Raise both arms out to the side up to shoulder height with elbows straight, hold for one second, and lower slowly. Safety: do not raise above a pain-free range.",
       "camera": "facing you, whole body in frame"
@@ -7374,7 +7378,10 @@
         "arms up in front",
         "lift my arms in front",
         "raise arms in front",
-        "angkat tangan ke depan"
+        "angkat tangan ke depan",
+        "angkat lengan ke depan",
+        "angkat tangan ke atas",
+        "angkat lengan ke atas"
       ],
       "instruction": "Stand with arms by your sides. Raise both arms forward and up to shoulder height with elbows straight and thumbs up, hold for one second, and lower slowly. Safety: do not arch the back.",
       "camera": "side view, whole body in frame"
@@ -7391,7 +7398,10 @@
         "leg sideways",
         "leg out to the side",
         "leg out side",
-        "leg to the side"
+        "leg to the side",
+        "angkat kaki ke sisi",
+        "angkat kaki ke tepi",
+        "hayun kaki ke sisi"
       ],
       "instruction": "Stand beside a chair and hold it for support. Lift one leg out to the side keeping the toes forward and the body upright, then lower it. Repeat on the other side. Safety: do not lean the trunk.",
       "camera": "facing you, whole body in frame"
@@ -7412,7 +7422,8 @@
         "straighten my leg while sitting",
         "kick out my leg",
         "leg kick sitting",
-        "luruskan kaki"
+        "luruskan kaki",
+        "luruskan lutut sambil duduk"
       ],
       "instruction": "Sit upright on a chair. Straighten one knee until the leg is level with the hip, hold for two seconds, and lower slowly. Alternate legs. Safety: keep the back against the chair.",
       "camera": "side view, whole body in frame"
@@ -7429,7 +7440,11 @@
         "curl",
         "curls",
         "elbow bend",
-        "bend my elbow"
+        "bend my elbow",
+        "bengkokkan siku",
+        "bengkok siku",
+        "lentur siku",
+        "lenturan siku"
       ],
       "instruction": "Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable. Safety: keep the weight light and stop if the elbow or shoulder hurts.",
       "camera": "side view, whole body in frame"
@@ -7452,7 +7467,10 @@
         "push the wall",
         "pushing the wall",
         "wall press",
-        "tolak dinding"
+        "tolak dinding",
+        "tekan dinding",
+        "tekan tubi dinding",
+        "push up dinding"
       ],
       "instruction": "Stand an arm's length from a wall with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. Safety: keep the body straight from head to heels.",
       "camera": "side view, whole body in frame, wall at one edge of the picture"
@@ -7501,7 +7519,11 @@
         "knee bends",
         "bend my knees a little",
         "shallow squat",
-        "cangkung sikit"
+        "cangkung sikit",
+        "separuh cangkung",
+        "cangkung separuh",
+        "squat kecil",
+        "cangkung kecil"
       ],
       "instruction": "Stand with feet shoulder-width apart holding a support. Bend the knees about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes.",
       "camera": "side view, whole body in frame"
@@ -7522,7 +7544,11 @@
         "lift my knees while sitting",
         "knee lifts sitting",
         "sitting knee lift",
-        "sitting knee lifts"
+        "sitting knee lifts",
+        "kawad sambil duduk",
+        "berkawad sambil duduk",
+        "kawad duduk",
+        "angkat lutut sambil duduk"
       ],
       "instruction": "Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace. Safety: use a sturdy chair without wheels, with your feet flat on the floor between lifts.",
       "camera": "side view, whole body in frame"
@@ -7543,7 +7569,10 @@
         "butt lift",
         "hip lift",
         "hips up lying down",
-        "angkat punggung"
+        "angkat punggung",
+        "jambatan",
+        "angkat pinggul",
+        "jambatan punggung"
       ],
       "instruction": "Lie on your back on a mat with knees bent and feet flat. Squeeze the buttocks and lift the hips until shoulders, hips and knees are in a straight line, then lower slowly. Safety: do not arch the lower back.",
       "camera": "side view, phone on the floor about 2 m away, whole body in frame"
@@ -7562,7 +7591,11 @@
         "stand heel toe",
         "feet in line",
         "feet in a line",
-        "one foot in front"
+        "one foot in front",
+        "berdiri tumit ke jari",
+        "tumit ke jari",
+        "berdiri satu garisan",
+        "kaki satu garisan"
       ],
       "instruction": "Stand next to a counter. Place one foot directly in front of the other, heel touching toe, and hold for 30 seconds. Switch feet. Safety: always keep one hand near the support.",
       "camera": "facing you, whole body in frame"
@@ -7580,7 +7613,9 @@
         "hands and knees",
         "kneel on all fours",
         "crawling position",
-        "merangkak"
+        "merangkak",
+        "anjing burung",
+        "merangkak angkat tangan"
       ],
       "instruction": "Kneel on a mat on hands and knees, hands under shoulders, knees under hips. Stretch one arm forward and the opposite leg back until both are level with your back, hold for two seconds, return, and switch sides. Safety: keep the back flat, do not twist.",
       "camera": "side view, phone on the floor about 2 m away, whole body in frame"
@@ -7602,7 +7637,9 @@
         "step onto a stair",
         "step onto the step",
         "step on and off",
-        "naik tangga"
+        "naik tangga",
+        "naik turun tangga",
+        "naik anak tangga"
       ],
       "instruction": "Stand facing a low step holding a rail. Step up with one foot, straighten that leg fully, bring the other foot up, then step down slowly. Alternate the leading leg. Safety: use a step no higher than 15 cm.",
       "camera": "side view, whole body and the step in frame"
@@ -7626,7 +7663,11 @@
         "walk on the spot",
         "walking in place",
         "walk in place",
-        "jalan setempat"
+        "jalan setempat",
+        "berkawad di tempat",
+        "kawad di tempat",
+        "kawad setempat",
+        "berkawad setempat"
       ],
       "instruction": "Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace. Safety: stay near a wall or sturdy chair you can hold, and stop if you feel dizzy or very short of breath.",
       "camera": "side view, whole body in frame"
@@ -7642,7 +7683,10 @@
         "wrist exercises",
         "bend my wrist up",
         "wrist up",
-        "lift wrist"
+        "lift wrist",
+        "angkat pergelangan tangan",
+        "lentur pergelangan tangan",
+        "pergelangan tangan ke atas"
       ],
       "instruction": "Sit at a table and rest your forearm on it with the hand over the edge, palm down. Slowly lift the hand up as far as is comfortable, keeping the forearm on the table, then lower it. Safety: stop if it hurts or tingles.",
       "camera": "at table height on the side of your arm, forearm and hand in the picture"

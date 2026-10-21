@@ -233,3 +233,14 @@ def test_long_polite_messages():
                        ("Anak saya yang pasang aplikasi ini, saya tak tahu macam mana nak guna.", "app_help"),
                        ("how to use app, i have diabetes", "app_help")]:
         assert engine.reply(PLAN, None, text)["category"] == want, text
+
+
+def test_every_exercise_by_its_malay_name():
+    # 4.04 (ninth probe): 10 of 17 were not recognised
+    for text, key in [("cara buat tekan dinding", "wall_push_up"), ("cara angkat tangan ke sisi", "shoulder_abduction"),
+                      ("cara angkat kaki ke sisi", "hip_abduction"), ("cara bengkokkan siku", "elbow_flexion"),
+                      ("cara buat separuh cangkung", "mini_squat"), ("cara buat jambatan", "glute_bridge"),
+                      ("cara berdiri tumit ke jari", "tandem_stance"), ("cara buat anjing burung", "bird_dog"),
+                      ("cara berkawad di tempat", "march_in_place"), ("cara kawad sambil duduk", "seated_marching"),
+                      ("cara angkat pergelangan tangan", "wrist_extension")]:
+        assert engine.reply(PLAN, None, text)["category"] == "exercise:" + key, text

@@ -1,5 +1,5 @@
 {
- "rules_version": "chat-rules-4.03",
+ "rules_version": "chat-rules-4.04",
  "seed": 1,
  "messages": 2000,
  "reported_ok": 20,
@@ -237,5 +237,5 @@
   "gibberish: 'okg' -> acknowledge (want ['None']; from '(random letters)')",
   "gibberish: 'ye' -> goodbye (want ['None']; from '(random letters)')"
  ],
- "seconds": 157
+ "seconds": 162
 }
