@@ -15,6 +15,8 @@ class FormValidators {
     r'@([A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$',
   );
 
+  static final RegExp _letter = RegExp(r'\p{L}', unicode: true);
+
   static String? username(String? v) {
     final s = (v ?? '').trim();
     if (s.isEmpty) return Messages.usernameBlank;
@@ -22,6 +24,8 @@ class FormValidators {
         s.length > AppConstants.usernameMax) {
       return 'Username must be 3 to 30 characters.';
     }
+    // Elwin, 23 Oct: at least one letter, in any language ("!!!" or "..." was accepted).
+    if (!_letter.hasMatch(s)) return Messages.usernameNeedsLetter;
     return null;
   }
 

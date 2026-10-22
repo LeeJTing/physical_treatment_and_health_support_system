@@ -8,6 +8,14 @@ void main() {
     expect(FormValidators.username('abc'), isNull);
     expect(FormValidators.username('a' * 31), isNotNull);
   });
+  test('username needs a letter, in any language (Elwin, 23 Oct)', () {
+    for (final bad in ['!!!', '...', '123', '_-_']) {
+      expect(FormValidators.username(bad), Messages.usernameNeedsLetter, reason: bad);
+    }
+    for (final ok in ['ab1', 'Siti', '\u674e\u660e\u534e', 'r2d2', 'Ali_99']) {
+      expect(FormValidators.username(ok), isNull, reason: ok);
+    }
+  });
   test('email format local@domain.tld (FR100_003)', () {
     expect(FormValidators.email('a@b.co'), isNull);
     expect(FormValidators.email('a@b.c'), isNotNull);

@@ -127,6 +127,10 @@ class Messages {
   static const usernameBlank =
       'Username cannot be blank. Please enter your name.';
   static const emailInvalid = 'Email address is invalid.';
+
+  /// Not a report message (Elwin, 23 Oct): Table 3.3 only says 3 to 30 characters.
+  static const usernameNeedsLetter =
+      'Username must contain at least one letter.';
   static const passwordInvalid =
       'Password must be at least 8 characters and contain at least one letter and one number.';
 
