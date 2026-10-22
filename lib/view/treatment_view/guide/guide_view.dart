@@ -97,7 +97,7 @@ class _GuideViewState extends State<GuideView> {
         'Keep your forearm and your whole hand inside the box on the screen.',
       ] else ...[
         'Prop the phone up at about waist height, on a stand or against something steady.',
-        'Stand 2.5 to 3 metres away, ${side ? 'side-on to the phone' : 'facing the phone'}.',
+        'Stand 2.5 to 3 metres away, ${side ? 'with your side towards the phone, not your back' : 'facing the phone'}.',
         'Your whole body, head to feet, must fit inside the box on the screen.',
       ],
       'Have good light in front of you, not behind you.',

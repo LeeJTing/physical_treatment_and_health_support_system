@@ -267,7 +267,7 @@ void main() {
       );
       await next(tester);
       expect(find.text('Set up your phone'), findsOneWidget);
-      expect(find.textContaining('side-on to the phone'), findsWidgets);
+      expect(find.textContaining('your side towards the phone'), findsWidgets);
       expect(find.textContaining('you have 10 seconds'), findsOneWidget);
       expect(find.text('Open the camera'), findsOneWidget);
       // Back returns a page.
