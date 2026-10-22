@@ -266,7 +266,9 @@ void main() {
       );
       await tester.pump();
       expect(find.text('Chat bot'), findsOneWidget);
-      expect(find.text('Exit chatbot'), findsOneWidget); // FR500_23
+      // FR500_23: one way out, the back arrow (Elwin, 23 Oct: no second "Exit chatbot").
+      expect(find.byTooltip('Back'), findsOneWidget);
+      expect(find.text('Exit chatbot'), findsNothing);
       expect(
         find.text('Pain or discomfort'),
         findsOneWidget,

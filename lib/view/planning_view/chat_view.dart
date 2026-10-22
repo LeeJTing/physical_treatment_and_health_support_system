@@ -141,40 +141,12 @@ class _ChatViewState extends State<ChatView> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, AppTokens.gutter, 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: PlanningHeader(
-                        title: 'Chat bot',
-                        subtitle: 'Ask about your rehabilitation',
-                        onBack: _exit,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: OutlinedButton(
-                        onPressed: _exit,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTokens.primary,
-                          side: const BorderSide(
-                            color: AppTokens.primary,
-                            width: 1.5,
-                          ),
-                          minimumSize: const Size(0, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppTokens.radiusButton,
-                            ),
-                          ),
-                        ),
-                        child: const Text(
-                          'Exit chatbot',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ],
+                // One way out (Elwin, 23 Oct): the back arrow. An "Exit chatbot" button beside it
+                // did the same thing (FR500_23, PROJECT_STATE §11).
+                child: PlanningHeader(
+                  title: 'Chat bot',
+                  subtitle: 'Ask about your rehabilitation',
+                  onBack: _exit,
                 ),
               ),
               Expanded(
