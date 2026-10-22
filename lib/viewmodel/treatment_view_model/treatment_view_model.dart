@@ -578,6 +578,17 @@ class TreatmentViewModel extends BaseViewModel {
     return n;
   }
 
+  /// Back from the analysing screen (23 Oct): the clip still being checked is dropped, nothing
+  /// is saved, and the patient is at the recorder again with the same exercise.
+  void abandonAnalysis() {
+    _attempt++;
+    _analysis = const Idle();
+    _lastResult = null;
+    _saving = const Idle();
+    _autoAdvanced = false;
+    notifyListeners();
+  }
+
   Future<void> retry() async {
     final p = activePlan;
     final s = _lastResult;

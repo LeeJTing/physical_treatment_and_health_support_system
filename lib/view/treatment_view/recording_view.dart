@@ -418,7 +418,7 @@ class _RecordingViewState extends State<RecordingView>
     final name = vm.current?.exerciseName ?? '';
     final hands = vm.current?.recordsHands ?? false;
     final c = _controller;
-    return Scaffold(
+    final page = Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
         child: Column(
@@ -725,6 +725,42 @@ class _RecordingViewState extends State<RecordingView>
           ],
         ),
       ),
+    );
+    // The phone's Back and the arrow (23 Oct): during the count-in they cancel it; while
+    // recording they ask first, as Exit does, instead of dropping the clip without a word.
+    return PopScope(
+      canPop: !_recording && _countdown == null,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (_countdown != null) {
+          _cancelCountdown();
+          return;
+        }
+        final stop = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            content: const Text(
+              'Stop recording and go back? This recording will not be saved.',
+              style: TextStyle(fontSize: 17),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(c, false),
+                child: const Text('Keep recording'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(c, true),
+                child: const Text(
+                  'Stop',
+                  style: TextStyle(color: AppTokens.cta),
+                ),
+              ),
+            ],
+          ),
+        );
+        if (stop == true && context.mounted) Navigator.of(context).pop();
+      },
+      child: page,
     );
   }
 }

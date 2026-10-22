@@ -119,6 +119,69 @@ void main() {
     await finishUpload(tester, h);
   });
 
+  // The phone's Back (23 Oct) left silently while the clip was still checked, and it was saved.
+  Future<void> back(WidgetTester tester) async {
+    await tester.binding.handlePopRoute();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+  }
+
+  testWidgets(
+    'Back while checking asks; Stop returns to the recorder, nothing saved',
+    (tester) async {
+      final h = await open(tester);
+      await back(tester);
+      expect(
+        find.text('Stop checking this video? This attempt will not be saved.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Keep checking'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Analysing your posture'), findsOneWidget);
+      await back(tester);
+      await tester.tap(find.text('Stop'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('RECORDER'), findsOneWidget);
+      expect(h.vm.current, isNotNull); // still on the same exercise
+      // The server's reply arrives after the patient left: dropped, not saved.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 300)),
+      );
+      await tester.pump();
+      expect(h.vm.analysis, isA<Idle>());
+      expect(h.treatments.sessions, isEmpty);
+    },
+  );
+
+  testWidgets('Back after an error is Record again', (tester) async {
+    final h = await open(tester, errorCode: 'no_repetitions');
+    await finishUpload(tester, h);
+    await back(tester);
+    expect(find.text('RECORDER'), findsOneWidget);
+    expect(h.vm.analysis, isA<Idle>());
+  });
+
+  testWidgets('Back on a result that did not pass is Retry exercise', (
+    tester,
+  ) async {
+    final h = await open(tester);
+    h.server.accuracy = 50;
+    await finishUpload(tester, h);
+    expect(find.text('Posture result'), findsOneWidget);
+    await back(tester);
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 100)),
+    );
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('RECORDER'), findsOneWidget);
+    expect(h.vm.analysis, isA<Idle>());
+    expect(
+      h.treatments.sessions.map((s) => s.completionStatus.db),
+      contains('RETRIED'),
+    );
+  });
+
   testWidgets('Exit after an error goes home without asking', (tester) async {
     final h = await open(tester, errorCode: 'no_repetitions');
     await finishUpload(tester, h);

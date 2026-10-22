@@ -115,7 +115,8 @@ class _GuideViewState extends State<GuideView> {
   void _openCamera() {
     final vm = context.read<TreatmentViewModel>();
     context.read<GuideViewModel>().quiet();
-    Navigator.of(context).pushReplacement(
+    // On top of the guide (23 Oct): Back from the camera returns here; Exit leaves the exercise.
+    Navigator.of(context).push(
       MaterialPageRoute<void>(
         settings: const RouteSettings(name: RecordingView.routeName),
         builder: (_) => ChangeNotifierProvider.value(

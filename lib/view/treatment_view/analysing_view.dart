@@ -79,7 +79,7 @@ class _AnalysingViewState extends State<AnalysingView> {
       UiError(:final message) => message,
       _ => null,
     };
-    return Scaffold(
+    final page = Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
         child: ListView(
@@ -190,6 +190,46 @@ class _AnalysingViewState extends State<AnalysingView> {
           ],
         ),
       ),
+    );
+    // The phone's Back (23 Oct) did what no button does: it left silently while the clip was
+    // still checked and saved. Now: while checking, ask, then back to the recorder with
+    // nothing saved; after an error, the same as Record again.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (error != null) {
+          vm.retry();
+          Navigator.of(context).pop();
+          return;
+        }
+        final stop = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            content: const Text(
+              'Stop checking this video? This attempt will not be saved.',
+              style: TextStyle(fontSize: 17),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(c, false),
+                child: const Text('Keep checking'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(c, true),
+                child: const Text(
+                  'Stop',
+                  style: TextStyle(color: AppTokens.cta),
+                ),
+              ),
+            ],
+          ),
+        );
+        if (stop != true || !context.mounted) return;
+        vm.abandonAnalysis();
+        Navigator.of(context).pop();
+      },
+      child: page,
     );
   }
 }

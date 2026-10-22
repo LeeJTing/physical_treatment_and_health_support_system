@@ -68,7 +68,7 @@ class PostureResultView extends StatelessWidget {
         : vm.retriesInARow >= 2
         ? 'You have tried this a few times. Rest now and try again tomorrow.'
         : 'Rest for a minute before you try again.';
-    return Scaffold(
+    final page = Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
         child: ListView(
@@ -312,6 +312,16 @@ class PostureResultView extends StatelessWidget {
           ],
         ),
       ),
+    );
+    // The phone's Back (23 Oct) went to the recorder without recording the try. Now it is
+    // Retry exercise, or Continue after a possible fall (no retry today).
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || saving is Loading) return;
+        fell ? _continue(context) : _retry(context);
+      },
+      child: page,
     );
   }
 }
