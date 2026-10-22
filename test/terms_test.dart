@@ -332,4 +332,55 @@ void main() {
       );
     },
   );
+
+  test(
+    'log out takes the reminders off the phone; signing in again puts them back (Elwin, 23 Oct)',
+    () async {
+      final auth = FakeAuthRepository();
+      final profiles = FakeProfileRepository();
+      final notes = FakeNotificationRepository();
+      final device = FakeScheduler();
+      final local = LocalNotificationService(
+        notes,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        now: () => DateTime(2026, 10, 12, 7),
+      );
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      final r = Reminder(
+        reminderId: 'r1',
+        accountId: id,
+        reminderType: ReminderType.healthLog,
+        title: 'Log your readings',
+        hour: 9,
+        minute: 0,
+      );
+      await notes.saveReminder(r);
+      await local.schedule(r);
+      final scheduled = device.pending.length;
+      expect(scheduled, greaterThan(0));
+
+      final profile = ProfileViewModel(
+        profiles,
+        auth,
+        RiskAssessmentService(auth, profiles),
+        local,
+      );
+      await profile.loadProfile();
+      expect(await profile.logout(), isTrue);
+      expect(
+        device.pending,
+        isEmpty,
+      ); // no reminder rings for a logged-out account
+      expect(notes.reminders, contains('r1')); // still saved
+
+      final login = AuthViewModel(auth, profiles, local);
+      expect(await login.login('demo@apths.test', 'password123'), isTrue);
+      await pumpEventQueue();
+      expect(device.pending, hasLength(scheduled));
+    },
+  );
 }

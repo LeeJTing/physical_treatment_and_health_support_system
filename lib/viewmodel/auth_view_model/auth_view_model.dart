@@ -89,8 +89,6 @@ class AuthViewModel extends BaseViewModel {
     if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
       return Routes.accountSetup;
     }
-    // Refresh the phone's reminder schedule; it must not hold up start-up.
-    _notifications?.sync(account.accountId).ignore();
     final route = await _routeAfterSignIn(account);
     // Started by tapping a reminder: its plan opens above Home (takeReminderOpen).
     final tap = await _notifications?.launchTap();
@@ -153,6 +151,10 @@ class AuthViewModel extends BaseViewModel {
   /// after the version changed or a guardian is needed; 11 Oct), then
   /// [_profileRoute].
   Future<String> _routeAfterSignIn(Account a) async {
+    // Every way in (app start, log in, code, Google, account setup) puts this account's
+    // reminders on the phone again: logging out takes them off (Elwin, 23 Oct). Not awaited,
+    // so it never holds up the next screen.
+    _notifications?.sync(a.accountId).ignore();
     termsReason = await _termsNeeded(a);
     return termsReason != null ? Routes.terms : _profileRoute(a);
   }
@@ -488,7 +490,6 @@ class AuthViewModel extends BaseViewModel {
     switch (res) {
       case Success(:final data):
         nextRoute = await _routeAfterSignIn(data);
-        _notifications?.sync(data.accountId).ignore();
         setupState = const UiSuccess(null);
       case Failure f:
         setupState = UiError(messageFor(f, registering: true));

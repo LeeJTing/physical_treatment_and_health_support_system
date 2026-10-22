@@ -341,7 +341,14 @@ class ProfileViewModel extends BaseViewModel {
     return null;
   }
 
-  Future<bool> logout() async => (await _auth.signOut()).isSuccess;
+  /// Logs out (FR100_059). The phone's reminders for this account are taken off first, so
+  /// they stop ringing and a next person on the phone does not get them (Elwin, 23 Oct); they
+  /// stay saved and come back at the next sign-in.
+  Future<bool> logout() async {
+    final id = account?.accountId;
+    if (id != null) await _notifications?.cancelAllFor(id);
+    return (await _auth.signOut()).isSuccess;
+  }
 
   UiState<void> deleteState = const Idle();
 
