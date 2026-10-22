@@ -88,6 +88,10 @@ class AppConstants {
   static const int minVideoSeconds = 10;
   static const int maxVideoSeconds = 30;
 
+  /// Saved tries below 80% after which the plan moves on anyway (Elwin, 23 Oct), so nobody is
+  /// stuck on one exercise. Below 80% the plan otherwise stays on it. Not in the report.
+  static const int triesBeforeMovingOn = 3;
+
   /// Recording bitrate (NFR_07: the upload is most of the wait). 9 Oct test on 60 own clips at 720p
   /// (training/experiment_bitrate.py): 2.5 Mbps gave the same pass / fail as 5 Mbps on 60 of 60 at half
   /// the size; 3 Mbps leaves room for a phone encoder, which does a little worse per bit.

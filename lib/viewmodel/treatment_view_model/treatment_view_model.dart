@@ -392,6 +392,11 @@ class TreatmentViewModel extends BaseViewModel {
     _testing = false;
     _current = e;
     _analysis = const Idle();
+    // The last exercise's result and its "saved" state must not carry over (audit, 23 Oct):
+    // acceptResult saw _saving as already saved and skipped saving the next attempt, e.g. a
+    // second plan's exercise started after Continue on the first.
+    _lastResult = null;
+    _saving = const Idle();
     _autoAdvanced = false;
     notifyListeners();
   }
@@ -485,6 +490,37 @@ class TreatmentViewModel extends BaseViewModel {
   /// Records the attempt and advances the pathway (FR300_11, FR300_21). Advancing only
   /// happens when the attempt is for the current stage, so repeating a finished exercise
   /// does not skip ahead.
+  /// The saved tries below 80% of this exercise in a row, counting [s] (1 after the first);
+  /// 0 when [s] passed.
+  static int triesBelowPass(
+    List<ExerciseSession> planSessions,
+    ExerciseSession s,
+  ) {
+    if (s.postureIsPassing()) return 0;
+    var n = 1;
+    for (final x in planSessions.reversed.where(
+      (x) => x.exerciseId == s.exerciseId && x.sessionId != s.sessionId,
+    )) {
+      if (x.completionStatus != CompletionStatus.completed) continue;
+      if (x.postureIsPassing()) break;
+      n++;
+    }
+    return n;
+  }
+
+  /// Whether saving [s] moves the plan on (Elwin, 23 Oct): at 80% or more, or on the
+  /// [AppConstants.triesBeforeMovingOn]th saved try below it. Before, any Continue moved on.
+  static bool movesOn(List<ExerciseSession> planSessions, ExerciseSession s) =>
+      s.postureIsPassing() ||
+      triesBelowPass(planSessions, s) >= AppConstants.triesBeforeMovingOn;
+
+  /// After Continue: whether the plan moved on, and the tries below 80% so far (for the
+  /// message on the result screen).
+  bool _lastMovedOn = false;
+  bool get lastMovedOn => _lastMovedOn;
+  int _lastTriesBelowPass = 0;
+  int get lastTriesBelowPass => _lastTriesBelowPass;
+
   Future<bool> acceptResult() async {
     if (_testing) return true; // testing mode: nothing to save
     final p = activePlan;
@@ -497,7 +533,7 @@ class TreatmentViewModel extends BaseViewModel {
     _saving = const Loading();
     notifyListeners();
     final isCurrentStage = p.currentExercise()?.exerciseId == s.exerciseId;
-    final advanced = isCurrentStage ? p.advance() : null;
+    final advanced = isCurrentStage && movesOn(_sessions, s) ? p.advance() : null;
     final res = await _repo.saveSession(s, advancedPlan: advanced);
     if (res.isSuccess) {
       _sessions = [..._sessions, s];
@@ -510,6 +546,8 @@ class TreatmentViewModel extends BaseViewModel {
       await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
       await _countForOtherPlans(p, s);
       _autoAdvanced = s.postureIsPassing();
+      _lastMovedOn = advanced != null;
+      _lastTriesBelowPass = triesBelowPass(_sessions, s);
       _saving = const UiSuccess(null);
     } else {
       _saving = const UiError(Messages.progressSaveFailed); // FR300_27
@@ -552,13 +590,14 @@ class TreatmentViewModel extends BaseViewModel {
         postureFeedback: s.postureFeedback,
         modelVersion: s.modelVersion,
       );
-      final advanced = other.advance();
+      // The same rule in every plan: below 80% it moves on only after enough tries.
+      final advanced = movesOn(theirs, copy) ? other.advance() : null;
       if ((await _repo.saveSession(copy, advancedPlan: advanced)).isSuccess) {
         _sessionsByPlan = {
           ..._sessionsByPlan,
           other.patientPlanId: [...theirs, copy],
         };
-        _replacePlan(advanced);
+        if (advanced != null) _replacePlan(advanced);
         await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
       }
     }
