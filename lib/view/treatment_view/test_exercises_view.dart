@@ -5,7 +5,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/state_builder.dart';
-import 'package:physical_treatment_and_health_support_system/view/treatment_view/recording_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/guide/guide_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// Testing mode (20 Oct): every exercise of the catalogue, each straight to the
@@ -29,17 +29,9 @@ class _TestExercisesViewState extends State<TestExercisesView> {
   }
 
   Future<void> _start(Exercise e) async {
-    final vm = context.read<TreatmentViewModel>();
-    vm.startTest(e);
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        settings: const RouteSettings(name: RecordingView.routeName),
-        builder: (_) => ChangeNotifierProvider.value(
-          value: vm,
-          child: const RecordingView(),
-        ),
-      ),
-    );
+    context.read<TreatmentViewModel>().startTest(e);
+    // The same guide as a real exercise (23 Oct), so testing mode shows it too.
+    await openExerciseGuide(context, reps: e.defaultRepetitions);
   }
 
   @override

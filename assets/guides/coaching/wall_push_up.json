@@ -1,0 +1,35 @@
+{
+  "pose_key": "wall_push_up",
+  "focus": {"joint": "elbow", "from": "shoulder", "to": "wrist"},
+  "mover": "shoulder",
+  "captions": {
+    "start": "Hands on the wall, arms straight",
+    "go": "Bend your elbows",
+    "top": "Chest close to the wall",
+    "back": "Push back to straight arms"
+  },
+  "say": {"go": "Bend", "back": "Push back"},
+  "steps": [
+    {"phase": "start", "text": "Stand an arm's length from a wall. Put your hands flat on it at shoulder height, shoulder-width apart."},
+    {"phase": "go", "text": "Keep your body straight from head to heels, then bend your elbows."},
+    {"phase": "top", "text": "Bring your chest towards the wall, only as far as is comfortable."},
+    {"phase": "back", "text": "Push back until your arms are straight again."}
+  ],
+  "safety": [
+    "Wear shoes that grip, on a floor that does not slip.",
+    "Stop if you feel pain in your shoulders, elbows or wrists."
+  ],
+  "mistakes": [
+    {
+      "label": "hips_sag",
+      "wrong": "your hips dropped towards the wall, so your body was not straight",
+      "right": "Keep your body straight; do not let your hips drop towards the wall."
+    },
+    {
+      "label": "hips_back",
+      "wrong": "your hips were pushed back, so your body bent at the hips",
+      "right": "Keep your body straight; do not push your hips back."
+    }
+  ],
+  "setup": ["Stand side-on to the phone, with the wall at one edge of the picture."]
+}

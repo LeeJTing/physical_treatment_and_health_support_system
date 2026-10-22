@@ -1,0 +1,36 @@
+{
+  "pose_key": "sit_to_stand",
+  "focus": {"joint": "knee", "from": "hip", "to": "ankle"},
+  "mover": "hip",
+  "captions": {
+    "start": "Sit near the front of the chair",
+    "go": "Lean forward, then stand up",
+    "top": "Stand up tall",
+    "back": "Sit down slowly"
+  },
+  "say": {"go": "Stand up", "back": "Sit down slowly"},
+  "steps": [
+    {"phase": "start", "text": "Sit near the front of a firm chair. Feet flat on the floor, hip-width apart, knees above your ankles."},
+    {"phase": "go", "text": "Cross your arms over your chest if you can. Lean your chest forward a little."},
+    {"phase": "top", "text": "Push through your heels and stand up tall. Straighten your hips and knees at the top."},
+    {"phase": "back", "text": "Reach back for the chair and sit down slowly, taking about two seconds."}
+  ],
+  "safety": [
+    "Put the chair against a wall so it cannot slide.",
+    "If you need your hands to stand up safely, use them.",
+    "Stop if you feel dizzy or have pain in your knees."
+  ],
+  "mistakes": [
+    {
+      "label": "uncontrolled_sit",
+      "wrong": "you sat down too quickly instead of lowering yourself slowly",
+      "right": "Sit down slowly: reach back for the chair with your hands and lower yourself gently."
+    },
+    {
+      "label": "feet_forward",
+      "wrong": "your feet were too far in front of you when you started to stand",
+      "right": "Bring your feet back so your knees are above your ankles before you stand."
+    }
+  ],
+  "setup": ["Put a firm chair side-on to the phone, with its back against a wall."]
+}

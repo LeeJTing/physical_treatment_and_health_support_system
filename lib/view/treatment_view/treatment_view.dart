@@ -9,8 +9,9 @@ import 'package:physical_treatment_and_health_support_system/model/entity/patien
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/exercise_coaching.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
-import 'package:physical_treatment_and_health_support_system/view/treatment_view/recording_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/guide/guide_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 
@@ -37,15 +38,8 @@ class _TreatmentViewState extends State<TreatmentView> {
     final vm = context.read<TreatmentViewModel>();
     await vm.startExercise(pe.exercise); // FR300_05
     if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        settings: const RouteSettings(name: RecordingView.routeName),
-        builder: (_) => ChangeNotifierProvider.value(
-          value: vm,
-          child: const RecordingView(),
-        ),
-      ),
-    );
+    // The guide first, every time (Elwin, 23 Oct); its last page opens the recorder.
+    await openExerciseGuide(context, reps: pe.prescribedRepetitions);
   }
 
   /// Recommended plans for the next step after [from] (hybrid-3.0). Back
@@ -394,25 +388,62 @@ Future<void> showExerciseDetails(
           ],
         ),
         const SizedBox(height: 16),
-        // A looping repetition from our own correct recordings (11 Oct).
-        ExerciseAnimation(poseKey: pe.exercise.poseKey, cardHeight: 230),
-        const SizedBox(height: 16),
-        const Text(
-          'How to do it',
-          style: TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.w600,
-            color: AppTokens.text,
+        // A looping repetition from our own correct recordings (11 Oct), and since 23 Oct the
+        // guide's words: the joint to watch, captions, and numbered steps instead of a paragraph.
+        FutureBuilder<ExerciseCoaching>(
+          future: ExerciseCoaching.forExercise(
+            DefaultAssetBundle.of(ctx),
+            pe.exercise,
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          pe.exercise.steps,
-          style: const TextStyle(
-            fontSize: 16,
-            height: 1.5,
-            color: AppTokens.textBody,
-          ),
+          builder: (ctx, snap) {
+            final c = snap.data;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ExerciseAnimation(
+                  poseKey: pe.exercise.poseKey,
+                  cardHeight: 270,
+                  coaching: c,
+                  showCaption: true,
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'How to do it',
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
+                    color: AppTokens.text,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                if (c == null)
+                  Text(
+                    pe.exercise.steps,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.5,
+                      color: AppTokens.textBody,
+                    ),
+                  )
+                else ...[
+                  for (var i = 0; i < c.steps.length; i++)
+                    _NumberedLine(i + 1, c.steps[i].text),
+                  if (c.safety.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    const Text(
+                      'Stay safe',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w600,
+                        color: AppTokens.text,
+                      ),
+                    ),
+                    for (final s in c.safety) _NumberedLine(null, s),
+                  ],
+                ],
+              ],
+            );
+          },
         ),
         if (pe.exercise.cameraTip case final tip?) ...[
           const SizedBox(height: 16),
@@ -433,3 +464,55 @@ Future<void> showExerciseDetails(
     ),
   ),
 );
+
+/// One step of the exercise sheet: its number in a circle, or a dot for a safety point.
+class _NumberedLine extends StatelessWidget {
+  final int? number;
+  final String text;
+  const _NumberedLine(this.number, this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 5),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: number == null
+                ? AppTokens.cautionContainer
+                : AppTokens.accentContainer,
+            shape: BoxShape.circle,
+          ),
+          child: number == null
+              ? const Icon(
+                  Icons.health_and_safety_outlined,
+                  size: 18,
+                  color: AppTokens.caution,
+                )
+              : Text(
+                  '$number',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: AppTokens.primary,
+                  ),
+                ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontSize: 16,
+              height: 1.5,
+              color: AppTokens.textBody,
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
