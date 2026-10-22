@@ -1,0 +1,1 @@
+SpeechService: spoken exercise cues (guide pages, count-in, movement calls) through the device's SpeechOutput. Returns Result, never throws.

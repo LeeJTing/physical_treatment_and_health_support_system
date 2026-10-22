@@ -24,6 +24,8 @@ dependencies:
   # Phase 4: exercise reminders scheduled on the device (Asia/Kuala_Lumpur)
   flutter_local_notifications: ^19.4.0
   timezone: ^0.10.1
+  # Spoken exercise cues in the guide and while recording (Elwin, 23 Oct)
+  flutter_tts: ^4.2.5
 
 dev_dependencies:
   flutter_test:
@@ -41,5 +43,7 @@ flutter:
     - assets/seed/catalogue.json
     # Guide animations, one per exercise (training/build_guide_animations.py)
     - assets/guides/
+    # Hand-written guide text per exercise: steps, captions, safety, mistakes (guide walkthrough)
+    - assets/guides/coaching/
     # Terms of Use and Privacy Notice, English and Malay (TermsView)
     - assets/legal/terms.json

@@ -1,0 +1,1 @@
+SpeechOutput: the phone's text-to-speech (flutter_tts), for spoken exercise cues. Used by SpeechService.
