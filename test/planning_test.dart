@@ -392,6 +392,15 @@ void main() {
       },
     );
 
+    test('Select tapped twice at once assigns the plan once (23 Oct)', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      final plan = h.vm.candidates.first;
+      final results = await Future.wait([h.vm.select(plan), h.vm.select(plan)]);
+      expect(results.where((ok) => ok), hasLength(1));
+    });
+
     test(
       'select saves the plan and a reminder for its weekly frequency (FR500_09, FR500_11)',
       () async {

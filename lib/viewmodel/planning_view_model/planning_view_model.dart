@@ -257,6 +257,8 @@ class PlanningViewModel extends BaseViewModel {
     TreatmentPlan p, {
     List<String> replacing = const [],
   }) async {
+    // Two taps before the screen disables the button would assign the plan twice (23 Oct).
+    if (_saving is Loading) return false;
     final accountId = _snapshot?.accountId;
     if (accountId == null) {
       _saving = const UiError(Messages.sessionExpired);

@@ -50,6 +50,12 @@ void main() {
     },
   );
 
+  test('Save tapped twice at once writes the profile once (23 Oct)', () async {
+    fillValid();
+    final results = await Future.wait([vm.saveProfile(), vm.saveProfile()]);
+    expect(results, [true, false]);
+  });
+
   test('weight and height in range but not together are refused (23 Oct)', () async {
     fillValid();
     vm.updateDraft(weightKg: 20, heightCm: 200); // BMI 5: a slip or the wrong unit

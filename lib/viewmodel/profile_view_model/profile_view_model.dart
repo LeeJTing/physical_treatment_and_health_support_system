@@ -240,8 +240,22 @@ class ProfileViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// True from the first line of [saveProfile] to its end: a second Save while the first is
+  /// on its way (before it shows Loading) would write the profile twice (23 Oct).
+  bool _saving = false;
+
   /// Validates, saves the profile with a regenerated safety limit (FR100_057) and reloads.
   Future<bool> saveProfile() async {
+    if (_saving) return false;
+    _saving = true;
+    try {
+      return await _save();
+    } finally {
+      _saving = false;
+    }
+  }
+
+  Future<bool> _save() async {
     final d = draft;
     if (d == null) return false;
     // Every question answered, and the "Other" condition named (11 Oct).

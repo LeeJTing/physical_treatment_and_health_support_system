@@ -464,6 +464,16 @@ void main() {
       expect(device.pending, isNotEmpty);
     });
 
+    test('two quick taps, before the first is saved, add one reminder (23 Oct)', () async {
+      await Future.wait([vm.addHealthLogReminder(), vm.addHealthLogReminder()]);
+      expect(
+        repo.reminders.values.where(
+          (r) => r.reminderType == ReminderType.healthLog,
+        ),
+        hasLength(1),
+      );
+    });
+
     test(
       'adds one health-logging reminder, every day at 8 pm (FR600_002)',
       () async {
