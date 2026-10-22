@@ -229,8 +229,8 @@ class _GuideViewState extends State<GuideView> {
                   children: [
                     if (_page > 0) ...[
                       Expanded(
-                        child: SizedBox(
-                          height: AppTokens.minTarget + 4,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(minHeight: AppTokens.minTarget + 4),
                           child: OutlinedButton(
                             onPressed: () => _go(_page - 1, pages.length),
                             child: const Text(
@@ -244,8 +244,8 @@ class _GuideViewState extends State<GuideView> {
                     ],
                     Expanded(
                       flex: 2,
-                      child: SizedBox(
-                        height: AppTokens.minTarget + 4,
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(minHeight: AppTokens.minTarget + 4),
                         child: FilledButton(
                           key: const Key('guide_next'),
                           style: FilledButton.styleFrom(

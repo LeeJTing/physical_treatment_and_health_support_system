@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/common/whole_words_text.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 
 /// Back arrow, title and teal subtitle used at the top of the planning screens.
@@ -31,7 +32,7 @@ class PlanningHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              WholeWordsText(
                 title,
                 style: const TextStyle(
                   fontSize: 24,
@@ -40,7 +41,7 @@ class PlanningHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
+              WholeWordsText(
                 subtitle,
                 style: const TextStyle(
                   fontSize: 14,
@@ -324,9 +325,11 @@ class TokenButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    height: AppTokens.minTarget,
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(
+      minWidth: double.infinity,
+      minHeight: AppTokens.minTarget,
+    ),
     child: FilledButton(
       onPressed: busy ? null : onPressed,
       style: FilledButton.styleFrom(

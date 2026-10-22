@@ -151,8 +151,8 @@ class PlanCard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: SizedBox(
-                height: AppTokens.minTarget,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                 child: OutlinedButton(
                   onPressed: onDetails,
                   style: OutlinedButton.styleFrom(
@@ -177,8 +177,8 @@ class PlanCard extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: SizedBox(
-                height: AppTokens.minTarget,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                 child: FilledButton(
                   onPressed: busy ? null : onSelect,
                   style: FilledButton.styleFrom(

@@ -320,9 +320,11 @@ class StageCard extends StatelessWidget {
               ),
               if (_isNext && onStart != null) ...[
                 const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: AppTokens.minTarget,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minWidth: double.infinity,
+                    minHeight: AppTokens.minTarget,
+                  ),
                   child: FilledButton(
                     onPressed: onStart,
                     style: FilledButton.styleFrom(

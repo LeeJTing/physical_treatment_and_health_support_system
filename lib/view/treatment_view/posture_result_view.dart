@@ -268,8 +268,8 @@ class PostureResultView extends StatelessWidget {
               children: [
                 if (!fell) ...[
                   Expanded(
-                    child: SizedBox(
-                      height: AppTokens.minTarget,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                       child: FilledButton(
                         onPressed: saving is Loading
                             ? null
@@ -294,8 +294,8 @@ class PostureResultView extends StatelessWidget {
                   const SizedBox(width: 10),
                 ],
                 Expanded(
-                  child: SizedBox(
-                    height: AppTokens.minTarget,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                     child: OutlinedButton(
                       onPressed: saving is Loading
                           ? null

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/common/whole_words_text.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
@@ -350,7 +351,7 @@ class _VitalCard extends StatelessWidget {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        WholeWordsText(
           label,
           style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
         ),
