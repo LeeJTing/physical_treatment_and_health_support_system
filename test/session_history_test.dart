@@ -100,7 +100,7 @@ void main() {
   testWidgets('the screen shows the summary, the trend and every attempt', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1080, 3000);
+    tester.view.physicalSize = const Size(1080, 3600);
     addTearDown(tester.view.reset);
     final s = _Setup();
     await tester.runAsync(

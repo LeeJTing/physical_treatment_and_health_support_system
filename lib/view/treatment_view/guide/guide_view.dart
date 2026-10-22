@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
@@ -159,24 +160,30 @@ class _GuideViewState extends State<GuideView> {
       },
       child: Scaffold(
         backgroundColor: AppTokens.background,
-        appBar: AppBar(
-          backgroundColor: AppTokens.background,
-          title: Text(e.exerciseName),
-          actions: [
-            const SpeechToggle(),
-            TextButton(
-              key: const Key('guide_skip'),
-              onPressed: _openCamera,
-              child: const Text(
-                'Skip',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ],
-        ),
         body: SafeArea(
           child: Column(
             children: [
+              HeaderBar(
+                title: 'How to do it',
+                subtitle: e.exerciseName,
+                actions: [
+                  const Padding(
+                    padding: EdgeInsets.only(top: 6),
+                    child: SpeechToggle(),
+                  ),
+                  TextButton(
+                    key: const Key('guide_skip'),
+                    onPressed: _openCamera,
+                    child: const Text(
+                      'Skip',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: Semantics(

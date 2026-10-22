@@ -56,6 +56,45 @@ class PlanningHeader extends StatelessWidget {
   );
 }
 
+/// [PlanningHeader] at the top of a page, with [actions] on the right (23 Oct), so the screens
+/// opened from the treatment and planning pages share one header instead of three kinds of
+/// AppBar. Not an app bar: it grows with large phone text. The back arrow pops by default.
+class HeaderBar extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback? onBack;
+  final List<Widget> actions;
+
+  const HeaderBar({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.onBack,
+    this.actions = const [],
+  });
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    bottom: false,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: PlanningHeader(
+              title: title,
+              subtitle: subtitle,
+              onBack: onBack ?? () => Navigator.of(context).maybePop(),
+            ),
+          ),
+          ...actions,
+        ],
+      ),
+    ),
+  );
+}
+
 /// Large tappable card with an icon, title and one-line explanation.
 /// [filled] gives the dark green primary card; otherwise white with a dark outline.
 class ActionCard extends StatelessWidget {

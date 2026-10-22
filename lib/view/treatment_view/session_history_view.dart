@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -34,25 +35,34 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
     final vm = context.watch<TreatmentViewModel>();
     return Scaffold(
       backgroundColor: AppTokens.background,
-      appBar: AppBar(
-        backgroundColor: AppTokens.primary,
-        foregroundColor: Colors.white,
-        title: const Text('Session history'),
+      body: Column(
+        children: [
+          const HeaderBar(
+            title: 'Session history',
+            subtitle: 'Your posture results over time',
+          ),
+          Expanded(
+            child: switch (vm.plan) {
+              Loading() ||
+              Idle() => const Center(child: CircularProgressIndicator()),
+              UiError(:final message) => _Message(
+                message,
+                onRetry: vm.loadPlan,
+              ),
+              UiSuccess() when vm.activePlan == null => const _Message(
+                'You have no treatment plan yet. Choose one in AI-assisted treatment planning.',
+              ),
+              UiSuccess() when vm.history.isEmpty => const _Message(
+                'No sessions recorded yet. Your results appear here after your first exercise.',
+              ),
+              UiSuccess() => RefreshIndicator(
+                onRefresh: vm.loadPlan,
+                child: _list(vm),
+              ),
+            },
+          ),
+        ],
       ),
-      body: switch (vm.plan) {
-        Loading() || Idle() => const Center(child: CircularProgressIndicator()),
-        UiError(:final message) => _Message(message, onRetry: vm.loadPlan),
-        UiSuccess() when vm.activePlan == null => const _Message(
-          'You have no treatment plan yet. Choose one in AI-assisted treatment planning.',
-        ),
-        UiSuccess() when vm.history.isEmpty => const _Message(
-          'No sessions recorded yet. Your results appear here after your first exercise.',
-        ),
-        UiSuccess() => RefreshIndicator(
-          onRefresh: vm.loadPlan,
-          child: _list(vm),
-        ),
-      },
     );
   }
 

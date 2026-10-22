@@ -204,7 +204,7 @@ void main() {
     tearDown(() => tmp.deleteSync(recursive: true));
 
     Future<(Harness, FakeSpeech)> open(WidgetTester tester, String key) async {
-      tester.view.physicalSize = const Size(1080, 4000);
+      tester.view.physicalSize = const Size(1080, 4800);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       final h = Harness();
