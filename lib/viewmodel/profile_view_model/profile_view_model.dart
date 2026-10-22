@@ -257,6 +257,14 @@ class ProfileViewModel extends BaseViewModel {
     }
     final errors = d.validate();
     ageReviewNeeded = false;
+    final bmi = d.calculateBmi();
+    if (errors.isEmpty &&
+        (bmi < AppConstants.bmiMin || bmi > AppConstants.bmiMax)) {
+      invalidFields = const ['weight', 'height'];
+      saveState = const UiError(Messages.weightHeightMismatch);
+      notifyListeners();
+      return false;
+    }
     if (errors.isEmpty) {
       final mismatch = await _ageGroupMismatch(d.age!);
       if (mismatch != null) {

@@ -75,6 +75,11 @@ class AppConstants {
   // about 635 kg. Same limits in Supabase (20261014120000_profile_limits.sql).
   static const double weightMin = 20, weightMax = 635;
   static const double heightMin = 80, heightMax = 272;
+
+  /// Weight and height together (23 Oct): each can be in range while the pair is not, e.g.
+  /// 20 kg at 200 cm (BMI 5) or 635 kg at 80 cm. Outside BMI 7 to 200, beyond anything ever
+  /// recorded (Minnoch about 185), it is a typing slip or the wrong unit. Not in Table 3.3.
+  static const double bmiMin = 7, bmiMax = 200;
   static const Duration profileStaleAfter = Duration(
     days: 182,
   ); // UC1000 C3, TO CONFIRM
@@ -176,6 +181,10 @@ class Messages {
   static const ageBelowTermsGroup =
       'In the Terms of Use you chose "18 or older". Under 18, a parent or '
       'guardian must agree to the Terms first: review the Terms.';
+  /// Not a report message (23 Oct): weight and height that cannot belong to one person.
+  static const weightHeightMismatch =
+      'Your weight and height do not fit together. Please check both: weight in kilograms, '
+      'height in centimetres.';
   static const valueOutOfRange =
       'The value entered is outside the accepted range. Please check your entry.';
   static const requiredFieldsEmpty =

@@ -50,6 +50,18 @@ void main() {
     },
   );
 
+  test('weight and height in range but not together are refused (23 Oct)', () async {
+    fillValid();
+    vm.updateDraft(weightKg: 20, heightCm: 200); // BMI 5: a slip or the wrong unit
+    expect(await vm.saveProfile(), isFalse);
+    expect((vm.saveState as UiError).message, Messages.weightHeightMismatch);
+    expect(vm.invalidFields, ['weight', 'height']);
+    vm.updateDraft(weightKg: 635, heightCm: 80); // BMI 992
+    expect(await vm.saveProfile(), isFalse);
+    vm.updateDraft(weightKg: 300, heightCm: 180); // BMI 93: rare, but real
+    expect(await vm.saveProfile(), isTrue);
+  });
+
   test('age 12 is out of range and the draft is kept (FR100_051)', () async {
     fillValid();
     vm.updateDraft(age: 12);
