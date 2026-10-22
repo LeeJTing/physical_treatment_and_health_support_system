@@ -542,8 +542,13 @@ class TreatmentViewModel extends BaseViewModel {
         _plan = UiSuccess(advanced);
         _replacePlan(advanced);
       }
-      // FR300_12, FR600_005: today's exercise reminder is no longer needed.
-      await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
+      if (advanced?.status == PlanStatus.completed) {
+        // The last exercise is done: no more "Time for ..." for this plan (audit, 23 Oct).
+        await _reminders?.removeForPlan(p.accountId, p.patientPlanId);
+      } else {
+        // FR300_12, FR600_005: today's exercise reminder is no longer needed.
+        await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
+      }
       await _countForOtherPlans(p, s);
       _autoAdvanced = s.postureIsPassing();
       _lastMovedOn = advanced != null;
@@ -598,7 +603,11 @@ class TreatmentViewModel extends BaseViewModel {
           other.patientPlanId: [...theirs, copy],
         };
         if (advanced != null) _replacePlan(advanced);
-        await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
+        if (advanced?.status == PlanStatus.completed) {
+          await _reminders?.removeForPlan(other.accountId, other.patientPlanId);
+        } else {
+          await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
+        }
       }
     }
   }
@@ -654,6 +663,9 @@ class TreatmentViewModel extends BaseViewModel {
     if (p == null) return false;
     final ok = (await _repo.endPlan(p)).isSuccess;
     if (ok) {
+      // A stopped plan's reminders went on ringing: ending only changes its status, and the
+      // database removes them only with the plan row (audit, 23 Oct).
+      await _reminders?.removeForPlan(p.accountId, p.patientPlanId);
       _plans = [
         for (final a in _plans)
           if (a.patientPlanId != p.patientPlanId) a,
