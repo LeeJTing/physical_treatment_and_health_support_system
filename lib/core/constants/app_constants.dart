@@ -45,6 +45,9 @@ class AppConstants {
   static const int usernameMin = 3;
   static const int usernameMax = 30;
   static const int passwordMin = 8;
+
+  /// Supabase Auth (bcrypt) refuses longer passwords; not in Table 3.3 (PROJECT_STATE §11).
+  static const int passwordMax = 72;
   static const int otpLength = 6;
   static const int maxLoginFailures = 5; // FR100_031
   static const int maxCodeAttempts =
@@ -121,6 +124,9 @@ class Messages {
   static const emailInvalid = 'Email address is invalid.';
   static const passwordInvalid =
       'Password must be at least 8 characters and contain at least one letter and one number.';
+
+  /// Not a report message (23 Oct): Supabase refuses passwords over 72 bytes.
+  static const passwordTooLong = 'Password must be at most 72 characters.';
   static const passwordMismatch =
       'Confirm password does not match your password. Please check both fields.';
   static const emailExists =
@@ -223,6 +229,7 @@ class Messages {
   static const planSaved = 'The Plan has been saved successfully.';
   static const confirmReject =
       "Are you sure that you don't want to select any plan?";
+
   /// Report an answer (Elwin, 11 Oct; not in the report's message list, §11).
   static const chatReportSent =
       'Thank you. Your report will help us improve the chatbot.';

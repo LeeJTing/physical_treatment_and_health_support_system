@@ -352,6 +352,14 @@ class AuthViewModel extends BaseViewModel {
     String code,
     String newPassword,
   ) async {
+    // The same rule as registration, checked here too and not only by the screen (23 Oct).
+    final invalid =
+        FormValidators.otp(code) ?? FormValidators.password(newPassword);
+    if (invalid != null) {
+      resetConfirmState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
     resetConfirmState = const Loading();
     notifyListeners();
     final res = await _auth.confirmPasswordReset(email, code, newPassword);

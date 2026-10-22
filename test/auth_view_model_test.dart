@@ -164,6 +164,32 @@ void main() {
     },
   );
 
+  test(
+    'reset: a weak new password is refused before the server (23 Oct)',
+    () async {
+      expect(
+        await vm.confirmReset(
+          'demo@apths.test',
+          FakeAuthRepository.devCode,
+          'short1',
+        ),
+        isFalse,
+      );
+      expect(
+        (vm.resetConfirmState as UiError).message,
+        Messages.passwordInvalid,
+      );
+      expect(
+        await vm.confirmReset('demo@apths.test', '12a456', 'newpass99'),
+        isFalse,
+      );
+      expect(
+        await vm.login('demo@apths.test', 'password123'),
+        isTrue,
+      ); // unchanged
+    },
+  );
+
   test('failure codes map to the report messages', () {
     expect(
       AuthViewModel.messageFor(const Failure<void>('x', code: 'locked')),
