@@ -159,6 +159,10 @@ class Messages {
       'Unable to create your account. Please try again.';
 
   // UC200 Login / reset password
+
+  /// Not a report message (Elwin, 23 Oct): the app opens signed in but cannot reach the server.
+  static const noConnectionAtStart =
+      'No connection to the server. Please check your internet connection and try again.';
   static const loginUnavailable =
       'Login service is temporarily unavailable. Please try again later.';
   static const emailEmpty = 'Please fill in your email address.';

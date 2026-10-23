@@ -82,8 +82,15 @@ class AuthViewModel extends BaseViewModel {
 
   /// First screen when the app opens (FR100_024, FR100_025, FR100_035): no stored
   /// session -> login; signed in without a complete profile -> profile; else home.
-  Future<String> decideStartRoute() async {
-    final account = (await _auth.currentAccount()).dataOrNull;
+  /// Null when the server cannot be reached to check a stored session (Elwin, 23 Oct): the
+  /// patient stays signed in and the start screen offers Try again, instead of a Login page
+  /// whose log in would fail offline too.
+  Future<String?> decideStartRoute() async {
+    final res = await _auth.currentAccount();
+    if (res case Failure(:final code) when code == 'offline' || code == 'timeout') {
+      return null;
+    }
+    final account = res.dataOrNull;
     if (account == null) return Routes.loginScreen;
     // The app was closed during Google account setup: finish it first (FR100_022).
     if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
