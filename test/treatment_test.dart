@@ -563,6 +563,25 @@ void main() {
       expect(h.vm.retriesInARow, 2);
     });
 
+    test(
+      'retries from an earlier visit do not count as in a row (audit, 23 Oct)',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 50;
+        for (var i = 0; i < 2; i++) {
+          await h.recordFirst();
+          await h.vm.retry();
+        }
+        // The next day the screen opens again and reads the stored attempts.
+        final again = TreatmentViewModel(h.treatments, h.pose, h.auth);
+        await again.loadPlan();
+        await again.startExercise(again.pathway.first.item.exercise);
+        await again.submitVideo(h.clip, clipSeconds: 15);
+        expect(again.retriesInARow, 0); // not "try again tomorrow" at once
+      },
+    );
+
     test('server errors map to the UC500 messages', () async {
       for (final (code, message) in [
         ('full_body_not_visible', Messages.fullBodyNotVisible),

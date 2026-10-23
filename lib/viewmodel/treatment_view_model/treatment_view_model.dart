@@ -634,19 +634,23 @@ class TreatmentViewModel extends BaseViewModel {
     }
   }
 
-  /// Back to the recorder (FR300_20). The attempt is kept as RETRIED.
   /// Failed tries of the current exercise in a row; after two the result screen suggests trying
-  /// again tomorrow (posture text review, 8 Oct).
+  /// again tomorrow (posture text review, 8 Oct). Only the retries saved since this screen
+  /// opened count (audit, 23 Oct): stored ones have no time, so the database lists them after
+  /// every timed attempt and "in a row" was lost; two fails yesterday made today's first fail
+  /// say "try again tomorrow".
   int get retriesInARow {
     final id = _current?.exerciseId;
     if (id == null) return 0;
     var n = 0;
     for (final s in _sessions.reversed.where((s) => s.exerciseId == id)) {
-      if (s.completionStatus != CompletionStatus.retried) break;
+      if (!_retriedHere.contains(s.sessionId)) break;
       n++;
     }
     return n;
   }
+
+  final Set<String> _retriedHere = {};
 
   /// Back from the analysing screen (23 Oct): the clip still being checked is dropped, nothing
   /// is saved, and the patient is at the recorder again with the same exercise.
@@ -659,6 +663,7 @@ class TreatmentViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// Back to the recorder (FR300_20). The attempt is kept as RETRIED.
   Future<void> retry() async {
     final p = activePlan;
     final s = _lastResult;
@@ -668,6 +673,7 @@ class TreatmentViewModel extends BaseViewModel {
         _saving is! UiSuccess) {
       final retried = s.withStatus(CompletionStatus.retried);
       if ((await _repo.saveSession(retried)).isSuccess) {
+        _retriedHere.add(retried.sessionId);
         _sessions = [..._sessions, retried];
         _sessionsByPlan = {..._sessionsByPlan, p.patientPlanId: _sessions};
       }
