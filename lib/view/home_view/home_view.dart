@@ -442,7 +442,7 @@ class _SessionCard extends StatelessWidget {
       ),
       final PatientTreatmentPlan p => (
         p.plan.planName,
-        HomeViewModel.sessionSummary(p.plan, RehabLabels.area),
+        HomeViewModel.sessionSummary(p, next, RehabLabels.area),
         'Start',
         onStart,
       ),

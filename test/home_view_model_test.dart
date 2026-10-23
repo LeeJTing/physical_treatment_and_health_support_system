@@ -114,9 +114,15 @@ void main() {
         plan.plan.orderedExercises().first.exerciseId,
       );
       expect(d.doneToday, isFalse);
-      final summary = HomeViewModel.sessionSummary(plan.plan, (a) => a);
-      expect(summary, startsWith('${plan.plan.exercises.length} exercise'));
-      expect(summary, contains('min'));
+      final summary = HomeViewModel.sessionSummary(plan, d.nextStage!, (a) => a);
+      // A day is one exercise: today's time, not every exercise added up (audit, 24 Oct).
+      final first = plan.plan.orderedExercises().first;
+      final min = (first.prescribedDurationSec / 60).ceil().clamp(1, 60);
+      expect(
+        summary,
+        'Exercise 1 of ${plan.plan.exercises.length} · about $min min · '
+        '${plan.plan.targetBodyArea}',
+      );
     },
   );
 

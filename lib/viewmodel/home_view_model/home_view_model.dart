@@ -165,14 +165,18 @@ class HomeViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// "3 exercises · 12 min · Both legs" for the Today's session card.
+  /// "Exercise 2 of 3 · about 2 min · Both legs" for the Today's session card. A day is one
+  /// exercise of the plan, so the time is today's exercise (audit, 24 Oct: it said
+  /// "3 exercises · 12 min", every exercise added up, as plan details did before 4e8e867).
   static String sessionSummary(
-    TreatmentPlan p,
+    PatientTreatmentPlan a,
+    PlanExercise today,
     String Function(String) areaLabel,
   ) {
-    final n = p.exercises.length;
-    final minutes = (p.totalDurationSec / 60).ceil();
-    return '$n exercise${n == 1 ? '' : 's'} · $minutes min · ${areaLabel(p.targetBodyArea)}';
+    final n = a.plan.exercises.length;
+    final stage = (a.completedStages + 1).clamp(1, n);
+    final minutes = (today.prescribedDurationSec / 60).ceil().clamp(1, 60);
+    return 'Exercise $stage of $n · about $minutes min · ${areaLabel(a.plan.targetBodyArea)}';
   }
 
   /// "Medium risk · limits active" (Figma), or what the patient should do first.
