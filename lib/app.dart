@@ -63,6 +63,16 @@ class MainApp extends StatelessWidget {
             selectedColor: AppTokens.accentContainer,
             checkmarkColor: AppTokens.brandDeep,
           ),
+          // Segmented choices (Terms: language, age, guardian) were the default purple too;
+          // the body map's own style for all of them (audit, 23 Oct).
+          segmentedButtonTheme: SegmentedButtonThemeData(
+            style: SegmentedButton.styleFrom(
+              selectedBackgroundColor: AppTokens.primary,
+              selectedForegroundColor: Colors.white,
+              foregroundColor: AppTokens.primary,
+              side: const BorderSide(color: AppTokens.primary),
+            ),
+          ),
         ),
         darkTheme: darkTheme,
         // The Figma screens are light-only and hard-code light backgrounds; following
