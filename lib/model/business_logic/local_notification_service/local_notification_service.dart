@@ -281,6 +281,7 @@ class LocalNotificationService {
     final active = (await _treatments.getActivePlans(accountId)).dataOrNull
         ?.map((p) => p.patientPlanId)
         .toSet();
+    final rest = await _fallToday(active ?? const {});
     var scheduled = 0;
     for (final r in reminders) {
       if (active != null &&
@@ -290,12 +291,7 @@ class LocalNotificationService {
         await cancel(r.reminderId);
         continue;
       }
-      final skip =
-          r.reminderType == ReminderType.exercise &&
-              r.patientPlanId != null &&
-              await _doneToday(r.patientPlanId!)
-          ? {_today}
-          : <DateTime>{};
+      final skip = await _quietToday(r, rest: rest) ? {_today} : <DateTime>{};
       scheduled += await schedule(r, skipDays: skip);
     }
     return scheduled;
@@ -308,18 +304,52 @@ class LocalNotificationService {
     return ExerciseSession.anyCompletedOn(sessions, _today);
   }
 
+  /// A possible fall today in any of these plans: today is a rest day for every plan
+  /// (TreatmentViewModel.restDayToday), so no exercise reminder rings today.
+  Future<bool> _fallToday(Iterable<String> patientPlanIds) async {
+    for (final id in patientPlanIds) {
+      final sessions =
+          (await _treatments.getSessions(id)).dataOrNull ?? const [];
+      if (sessions.any((s) => s.completedOn(_today) && s.hadFallAlert())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Whether an exercise reminder stays silent today: its plan's exercise is done
+  /// (FR600_005), or [rest] (a possible fall today).
+  Future<bool> _quietToday(Reminder r, {required bool rest}) async =>
+      r.reminderType == ReminderType.exercise &&
+      r.patientPlanId != null &&
+      (rest || await _doneToday(r.patientPlanId!));
+
   /// A session was completed (FR300_12, FR600_005): today's exercise reminders for the plan are
   /// cancelled and the skip is logged as SUPPRESSED. The later days are scheduled again, so they
   /// name the plan's next exercise.
-  Future<void> exerciseDone(String accountId, String patientPlanId) async {
+  Future<void> exerciseDone(String accountId, String patientPlanId) =>
+      _skipToday(
+        accountId,
+        (r) => r.patientPlanId == patientPlanId,
+        'today\'s exercise is already done',
+      );
+
+  /// A possible fall was saved: today is a rest day for every plan, so today's exercise
+  /// reminders of all plans are cancelled and logged as SUPPRESSED (audit, 24 Oct: the other
+  /// plans' reminders still rang with "Today: ..."). The later days stay.
+  Future<void> restToday(String accountId) =>
+      _skipToday(accountId, (_) => true, 'rest day after a possible fall');
+
+  Future<void> _skipToday(
+    String accountId,
+    bool Function(Reminder) which,
+    String why,
+  ) async {
     final reminders =
         (await _repo.getReminders(accountId)).dataOrNull ?? const <Reminder>[];
     final now = _now();
     for (final r in reminders.where(
-      (r) =>
-          r.patientPlanId == patientPlanId &&
-          r.reminderType == ReminderType.exercise &&
-          r.isEnabled,
+      (r) => which(r) && r.reminderType == ReminderType.exercise && r.isEnabled,
     )) {
       await schedule(r, skipDays: {_today});
       final due = DateTime(now.year, now.month, now.day, r.hour, r.minute);
@@ -331,8 +361,7 @@ class LocalNotificationService {
           accountId: accountId,
           reminderId: r.reminderId,
           notificationType: NotificationType.reminder,
-          messageBody:
-              '${r.title} (skipped: today\'s exercise is already done)',
+          messageBody: '${r.title} (skipped: $why)',
           deliveryStatus: DeliveryStatus.suppressed,
           isRead: true,
           issuedAt: now,
@@ -359,10 +388,11 @@ class LocalNotificationService {
     final saved = await _repo.saveReminder(updated);
     if (saved is Failure<void>) return saved.cast<Reminder>();
     if (updated.isEnabled) {
-      final skip =
-          updated.reminderType == ReminderType.exercise &&
-              updated.patientPlanId != null &&
-              await _doneToday(updated.patientPlanId!)
+      final plans =
+          (await _treatments.getActivePlans(updated.accountId)).dataOrNull ??
+          const [];
+      final rest = await _fallToday(plans.map((p) => p.patientPlanId));
+      final skip = await _quietToday(updated, rest: rest)
           ? {_today}
           : <DateTime>{};
       await schedule(updated, skipDays: skip);

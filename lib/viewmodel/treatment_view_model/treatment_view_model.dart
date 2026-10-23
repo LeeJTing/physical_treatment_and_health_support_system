@@ -571,11 +571,14 @@ class TreatmentViewModel extends BaseViewModel {
       if (advanced?.status == PlanStatus.completed) {
         // The last exercise is done: no more "Time for ..." for this plan (audit, 23 Oct).
         await _reminders?.removeForPlan(p.accountId, p.patientPlanId);
-      } else {
+      } else if (!s.hadFallAlert()) {
         // FR300_12, FR600_005: today's exercise reminder is no longer needed.
         await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
       }
       await _countForOtherPlans(p, s);
+      // A possible fall makes today a rest day for every plan: none of today's exercise
+      // reminders rings (audit, 24 Oct: the other plans' still said "Today: ...").
+      if (s.hadFallAlert()) await _reminders?.restToday(p.accountId);
       _autoAdvanced = s.postureIsPassing();
       _lastMovedOn = advanced != null;
       _lastTriesBelowPass = triesBelowPass(_sessions, s);
@@ -631,7 +634,7 @@ class TreatmentViewModel extends BaseViewModel {
         if (advanced != null) _replacePlan(advanced);
         if (advanced?.status == PlanStatus.completed) {
           await _reminders?.removeForPlan(other.accountId, other.patientPlanId);
-        } else {
+        } else if (!s.hadFallAlert()) {
           await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
         }
       }
