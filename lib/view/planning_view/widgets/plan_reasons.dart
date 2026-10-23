@@ -5,7 +5,8 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 
 /// The reasons for one plan ("Why this plan" / "Why not"), each with the
-/// sources behind its rule or "App safety rule" (11 Oct).
+/// sources behind its rule or "App safety rule" (11 Oct); a reason that only
+/// describes the match has no label (24 Oct).
 class ReasonList extends StatelessWidget {
   final List<PlanReason> reasons;
 
@@ -42,24 +43,26 @@ class ReasonList extends StatelessWidget {
                         color: AppTokens.textBody,
                       ),
                     ),
-                    const SizedBox(height: 2),
-                    InkWell(
-                      onTap: r.sources.isEmpty
-                          ? null
-                          : () => showSources(context, r.sources),
-                      child: Text(
-                        r.sources.isEmpty
-                            ? EvidenceSources.appRuleLabel
-                            : 'Source: ${EvidenceSources.cite(r.sources)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppTokens.textMuted,
-                          decoration: r.sources.isEmpty
-                              ? null
-                              : TextDecoration.underline,
+                    if (r.sources.isNotEmpty || !r.describesMatch) ...[
+                      const SizedBox(height: 2),
+                      InkWell(
+                        onTap: r.sources.isEmpty
+                            ? null
+                            : () => showSources(context, r.sources),
+                        child: Text(
+                          r.sources.isEmpty
+                              ? EvidenceSources.appRuleLabel
+                              : 'Source: ${EvidenceSources.cite(r.sources)}',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppTokens.textMuted,
+                            decoration: r.sources.isEmpty
+                                ? null
+                                : TextDecoration.underline,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),

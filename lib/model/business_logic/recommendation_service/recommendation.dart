@@ -40,6 +40,18 @@ class PlanReason {
 
   const PlanReason(this.code, this.text, [this.sources = const []]);
 
+  /// Reasons that only describe the match (the area, the patient's own results, a weaker match,
+  /// another area, a finished plan) are not rules, so without sources they carry no "App safety
+  /// rule" label (24 Oct: "It trains your legs." was labelled one).
+  bool get describesMatch => _describing.contains(code);
+  static const _describing = {
+    'MATCH_AREA',
+    'PERSONAL',
+    'WEAK_MATCH',
+    'NOT_AREA',
+    'DONE',
+  };
+
   factory PlanReason.fromJson(Map<String, dynamic> j) => PlanReason(
     j['code'] as String? ?? '',
     j['text'] as String? ?? '',
