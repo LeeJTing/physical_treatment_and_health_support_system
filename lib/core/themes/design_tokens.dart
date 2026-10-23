@@ -33,7 +33,9 @@ class AppTokens {
   static const textMuted = Color(0xFF6B7280);
 
   // Actions and status
-  static const action = Color(0xFFD85A30); // Select
+  // Select. Was the Figma #D85A30: white text on it is 3.9:1, below WCAG AA 4.5:1; now the
+  // darker orange of "Log In" (5.1:1), Elwin, 23 Oct.
+  static const action = Color(0xFFC34317);
   static const danger = Color(0xFFE24B4A); // Reject all plans
   static const dangerContainer = Color(
     0xFFFCE8E7,
