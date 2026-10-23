@@ -43,6 +43,9 @@ def test_real_supabase_style_token(monkeypatch):
         bad = jwt.encode({"sub": "abc", "aud": "authenticated"}, "wrong-secret-also-32-bytes-long!!!", algorithm="HS256")
         assert client.post("/recommend", json=VALID, headers={"Authorization": f"Bearer {bad}"}).status_code == 401
         assert client.post("/recommend", json=VALID, headers=DEV).status_code == 401
+        no_sub = jwt.encode({"aud": "authenticated"}, secret, algorithm="HS256")
+        r = client.post("/recommend", json=VALID, headers={"Authorization": f"Bearer {no_sub}"})
+        assert r.status_code == 401  # was a 500 (KeyError 'sub')
     finally:
         get_settings.cache_clear()
 

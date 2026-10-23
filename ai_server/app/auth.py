@@ -38,4 +38,8 @@ def current_account_id(
         claims = _decode(token, s)
     except jwt.PyJWTError as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid token: {e}") from e
-    return claims["sub"]
+    sub = claims.get("sub")
+    if not isinstance(sub, str) or not sub:
+        # A signed token without an account id: refused, not a 500 (audit, 23 Oct).
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token: no account id")
+    return sub
