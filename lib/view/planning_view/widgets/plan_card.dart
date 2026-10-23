@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_reasons.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/whole_words_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 
@@ -56,8 +57,9 @@ class PlanCard extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Never splits a word with large phone text (emulator at 2x, 24 Oct: "Preventio / n").
             Expanded(
-              child: Text(
+              child: WholeWordsText(
                 plan.planName,
                 style: const TextStyle(
                   fontSize: 18,
