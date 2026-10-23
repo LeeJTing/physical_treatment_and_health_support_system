@@ -179,8 +179,7 @@ class _EntryCard extends StatelessWidget {
   final SessionHistoryEntry entry;
   const _EntryCard(this.entry);
 
-  static String _date(DateTime? t) {
-    if (t == null) return 'Not finished';
+  static String _date(DateTime t) {
     final l = t.toLocal();
     const months = [
       'Jan',
@@ -252,7 +251,8 @@ class _EntryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             [
-              _date(s.completedAt),
+              // A retried try has no time saved; it was finished, so no "Not finished" (audit, 24 Oct).
+              if (s.completedAt case final at?) _date(at),
               status,
               if (s.repetitionsCompleted != null)
                 '${s.repetitionsCompleted} reps',

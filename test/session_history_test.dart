@@ -161,6 +161,9 @@ void main() {
         trend.properties.label,
         'Accuracy of the last 2 attempts, from 85% to 90%',
       );
+      // Its card says what happened, not "Not finished".
+      expect(find.text('Tried again'), findsOneWidget);
+      expect(find.textContaining('Not finished'), findsNothing);
     },
   );
 
