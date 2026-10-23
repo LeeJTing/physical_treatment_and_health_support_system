@@ -152,7 +152,7 @@ class PlanningView extends StatelessWidget {
                 const StepCard(
                   number: 3,
                   text:
-                      'You get the top 3 suggestions to review, customise, and choose from.',
+                      'You get the top 3 suggestions to review and choose from.',
                 ),
               ],
             ),
