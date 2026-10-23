@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -32,6 +33,9 @@ final String catalogueJson = File(
 class FakeChatServer {
   final List<Map<String, dynamic>> asked = [];
   bool categoriesFail = false;
+
+  /// While set, /chat waits for it before answering.
+  Completer<void>? hold;
   static const cats = [
     {'key': 'plan_exercises', 'title': 'What is in my plan'},
     {'key': 'pain_or_discomfort', 'title': 'Pain or discomfort'},
@@ -56,6 +60,7 @@ class FakeChatServer {
     }
     final body = jsonDecode(req.body) as Map<String, dynamic>;
     asked.add(body);
+    await hold?.future;
     final text = (body['text'] ?? '') as String;
     if (text.contains('France')) {
       return http.Response(
@@ -288,6 +293,76 @@ void main() {
       ); // condition note
     },
   );
+
+  testWidgets(
+    'the send key while an answer is coming keeps the question in the box',
+    (tester) async {
+      final h = Harness();
+      await tester.runAsync(() async {
+        await h.signInWithPlan();
+        await h.vm.loadCategories();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const ChatView(),
+          ),
+        ),
+      );
+      await tester.pump();
+      h.server.hold = Completer<void>();
+      final first = h.vm.ask('my knee hurts');
+      await tester.pump();
+      expect(h.vm.sending, isTrue);
+
+      await tester.enterText(find.byType(TextField), 'is that normal');
+      await tester.testTextInput.receiveAction(TextInputAction.send);
+      await tester.pump();
+      String box() =>
+          tester.widget<TextField>(find.byType(TextField)).controller!.text;
+      expect(box(), 'is that normal'); // before: cleared and never sent
+      expect(h.server.asked, hasLength(1));
+
+      h.server.hold!.complete();
+      await tester.runAsync(() => first);
+      await tester.pump();
+      await tester.tap(find.byTooltip('Send'));
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+      expect(box(), isEmpty);
+      expect(h.server.asked.last['text'], 'is that normal');
+    },
+  );
+
+  testWidgets('topic and follow-up chips are at least 48 px tall', (
+    tester,
+  ) async {
+    final h = Harness();
+    await tester.runAsync(() async {
+      await h.signInWithPlan();
+      await h.vm.loadCategories();
+      await h.vm.ask('my knee hurts');
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChangeNotifierProvider.value(
+          value: h.vm,
+          child: const ChatView(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    for (final chip in ['Pain or discomfort', 'Mild soreness or tiredness']) {
+      final box = find.ancestor(
+        of: find.text(chip),
+        matching: find.byType(InkWell),
+      );
+      expect(tester.getSize(box.first).height, greaterThanOrEqualTo(48));
+    }
+  });
 
   testWidgets(
     'a button opens its screen above the chat, so Back returns to the chat; '

@@ -118,10 +118,13 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Future<void> _send() async {
+    final vm = context.read<ChatViewModel>();
     final text = _input.text;
-    if (text.trim().isEmpty) return;
+    // The keyboard's send key still works while an answer is coming: the question stays in
+    // the box until it can be sent (audit, 24 Oct: it was cleared and never sent).
+    if (text.trim().isEmpty || vm.sending) return;
     _input.clear();
-    await context.read<ChatViewModel>().ask(text);
+    await vm.ask(text);
   }
 
   @override
@@ -575,16 +578,21 @@ class _Choice extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
+      // At least 48 px tall like every other button (audit, 24 Oct: 40), the text centred.
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 40),
+        constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Text(
-            category.title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTokens.accent,
+          child: Center(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Text(
+              category.title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTokens.accent,
+              ),
             ),
           ),
         ),
@@ -615,10 +623,11 @@ class _Topics extends StatelessWidget {
       color: AppTokens.background,
       padding: const EdgeInsets.only(top: 6, bottom: 6),
       // As tall as the chips' text needs: a fixed 44 cut them off with large phone text
-      // (emulator at font scale 2.0, 23 Oct). 14 sp text with 10 px padding above and below.
+      // (emulator at font scale 2.0, 23 Oct). 14 sp text with 10 px padding above and below,
+      // and never under the 48 px touch target.
       child: SizedBox(
         height: math.max(
-          44.0,
+          AppTokens.minTarget,
           24 + MediaQuery.textScalerOf(context).scale(14) * 1.35,
         ),
         child: ListView.separated(
