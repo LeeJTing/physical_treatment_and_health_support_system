@@ -11,10 +11,12 @@ import 'package:image_picker_platform_interface/image_picker_platform_interface.
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/speech_service/speech_service.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/analysing_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/recording_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 
 import 'guide_test.dart' show FakeSpeech;
 import 'treatment_test.dart' show Harness;
@@ -105,14 +107,23 @@ void main() {
   });
   tearDown(() => tmp.deleteSync(recursive: true));
 
-  Future<Harness> open(WidgetTester tester) async {
+  Future<Harness> open(WidgetTester tester, {String? poseKey}) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     final h = Harness();
     await tester.runAsync(() async {
       await h.setUp(tmp);
-      await h.vm.startExercise(h.vm.pathway.first.item.exercise);
+      if (poseKey == null) {
+        await h.vm.startExercise(h.vm.pathway.first.item.exercise);
+      } else {
+        await h.vm.loadTestExercises();
+        h.vm.startTest(
+          (h.vm.testExercises as UiSuccess<List<Exercise>>).data.firstWhere(
+            (e) => e.poseKey == poseKey,
+          ),
+        );
+      }
     });
     await tester.pumpWidget(
       MultiProvider(
@@ -132,16 +143,17 @@ void main() {
     return h;
   }
 
-  testWidgets('no camera: the camera message, and Upload still works (FR300_24)', (
-    tester,
-  ) async {
-    camera.cameras = const [];
-    await open(tester);
-    expect(find.text(Messages.cameraFailed), findsOneWidget);
-    await tester.tap(find.text('Upload video'));
-    await tester.pump();
-    expect(gallery.asked, 1);
-  });
+  testWidgets(
+    'no camera: the camera message, and Upload still works (FR300_24)',
+    (tester) async {
+      camera.cameras = const [];
+      await open(tester);
+      expect(find.text(Messages.cameraFailed), findsOneWidget);
+      await tester.tap(find.text('Upload video'));
+      await tester.pump();
+      expect(gallery.asked, 1);
+    },
+  );
 
   testWidgets('a camera under 720p says the phone cannot record (FR300_15)', (
     tester,
@@ -151,7 +163,9 @@ void main() {
     expect(find.text(Messages.deviceCompatibility), findsOneWidget);
   });
 
-  testWidgets('a camera of 720p or more shows no camera message', (tester) async {
+  testWidgets('a camera of 720p or more shows no camera message', (
+    tester,
+  ) async {
     await open(tester);
     expect(find.text(Messages.cameraFailed), findsNothing);
     expect(find.text(Messages.deviceCompatibility), findsNothing);
@@ -163,11 +177,36 @@ void main() {
     final h = await open(tester);
     await tester.tap(find.text('Upload video'));
     await tester.pump();
-    expect(find.byType(AnalysingView), findsNothing); // cancelled: still recording screen
+    expect(
+      find.byType(AnalysingView),
+      findsNothing,
+    ); // cancelled: still recording screen
     gallery.video = h.clip.path;
     await tester.tap(find.text('Upload video'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.byType(AnalysingView), findsOneWidget);
+  });
+
+  testWidgets(
+    'the help says where the phone goes as the guide does (audit, 24 Oct)',
+    (tester) async {
+      await open(tester, poseKey: 'bird_dog'); // a floor exercise
+      await tester.tap(find.byTooltip('Recording instructions'));
+      await tester.pump(
+        const Duration(milliseconds: 400),
+      ); // the guide loops: never settles
+      expect(find.textContaining('Put the phone on the floor'), findsOneWidget);
+      expect(find.textContaining('waist height'), findsNothing);
+    },
+  );
+
+  testWidgets('a standing exercise still has the phone at waist height', (
+    tester,
+  ) async {
+    await open(tester, poseKey: 'sit_to_stand');
+    await tester.tap(find.byTooltip('Recording instructions'));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.textContaining('waist height'), findsOneWidget);
   });
 }

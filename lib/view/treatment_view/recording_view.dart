@@ -381,6 +381,17 @@ class _RecordingViewState extends State<RecordingView>
     final current = context.read<TreatmentViewModel>().current;
     final tip = current?.cameraTip;
     final hands = current?.recordsHands ?? false;
+    // Where the phone goes: the guide's own rule (audit, 24 Oct: the help said waist height for
+    // every exercise while the guide puts it on the floor for bird dog and glute bridge).
+    final place = current == null
+        ? (floor: false, metres: null)
+        : GuideView.phonePlace(current);
+    final away = place.metres == null
+        ? '2.5 to 3 metres'
+        : 'about ${place.metres} metres';
+    final phone = place.floor
+        ? 'Put the phone on the floor, propped up so it looks at you, $away away.'
+        : 'Put the phone on a stand at about waist height, $away away.';
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -401,7 +412,7 @@ class _RecordingViewState extends State<RecordingView>
                   ? '• Sit at a table. Put the phone on a stand at table height, about half a metre to 1 metre away.\n'
                         '• Keep your forearm and your whole hand inside the frame.\n'
                         '• Use good light in front of you.\n'
-                  : '• Put the phone on a stand at about waist height, 2.5 to 3 metres away.\n'
+                  : '• $phone\n'
                         '• Keep your whole body, head to feet, inside the frame.\n'
                         '• Use good light in front of you.\n'
                         '• Record 10 to 30 seconds: do the repetitions slowly.\n'

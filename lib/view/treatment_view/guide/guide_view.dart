@@ -35,6 +35,16 @@ class GuideView extends StatefulWidget {
   const GuideView({super.key, required this.reps});
   static const routeName = '/treatment/guide';
 
+  /// Where the phone goes, from the exercise's own camera tip (23 Oct): floor exercises (bird
+  /// dog, glute bridge) put it on the floor about 2 m away, not at waist height.
+  static ({bool floor, String? metres}) phonePlace(Exercise e) {
+    final tip = (e.cameraTip ?? '').toLowerCase();
+    return (
+      floor: tip.contains('on the floor'),
+      metres: RegExp(r'about ([\d.]+) m').firstMatch(tip)?.group(1),
+    );
+  }
+
   @override
   State<GuideView> createState() => _GuideViewState();
 }
@@ -94,19 +104,9 @@ class _GuideViewState extends State<GuideView> {
   static const _defaultSafety =
       'Stop if you feel pain, dizziness or shortness of breath.';
 
-  /// Where the phone goes, from the exercise's own camera tip (23 Oct): floor exercises (bird
-  /// dog, glute bridge) put it on the floor about 2 m away, not at waist height.
-  static ({bool floor, String? metres}) _phonePlace(Exercise e) {
-    final tip = (e.cameraTip ?? '').toLowerCase();
-    return (
-      floor: tip.contains('on the floor'),
-      metres: RegExp(r'about ([\d.]+) m').firstMatch(tip)?.group(1),
-    );
-  }
-
   List<String> _setupLines(Exercise e, ExerciseCoaching c) {
     final side = (_data?.view ?? 'front') == 'side';
-    final place = _phonePlace(e);
+    final place = GuideView.phonePlace(e);
     final away = place.metres == null
         ? '2.5 to 3 metres'
         : 'about ${place.metres} metres';
@@ -372,10 +372,10 @@ class _GuideViewState extends State<GuideView> {
     SetupScene(
       data: _data,
       hands: e.recordsHands,
-      floor: _phonePlace(e).floor,
-      distance: _phonePlace(e).metres == null
+      floor: GuideView.phonePlace(e).floor,
+      distance: GuideView.phonePlace(e).metres == null
           ? null
-          : 'about ${_phonePlace(e).metres} m',
+          : 'about ${GuideView.phonePlace(e).metres} m',
     ),
     const SizedBox(height: 12),
     for (final l in _setupLines(e, c))
