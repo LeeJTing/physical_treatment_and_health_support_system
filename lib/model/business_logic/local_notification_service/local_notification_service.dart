@@ -275,8 +275,21 @@ class LocalNotificationService {
   Future<int> sync(String accountId) async {
     final reminders =
         (await _repo.getReminders(accountId)).dataOrNull ?? const <Reminder>[];
+    // An exercise reminder of a plan no longer followed (ended or finished before its
+    // reminders were removed with it, or on another phone) does not ring; it is not deleted.
+    // When the plans cannot be read (offline) every reminder rings as before (audit, 23 Oct).
+    final active = (await _treatments.getActivePlans(accountId)).dataOrNull
+        ?.map((p) => p.patientPlanId)
+        .toSet();
     var scheduled = 0;
     for (final r in reminders) {
+      if (active != null &&
+          r.reminderType == ReminderType.exercise &&
+          r.patientPlanId != null &&
+          !active.contains(r.patientPlanId)) {
+        await cancel(r.reminderId);
+        continue;
+      }
       final skip =
           r.reminderType == ReminderType.exercise &&
               r.patientPlanId != null &&

@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/reminder_tap.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
@@ -136,6 +137,24 @@ Reminder reminder({
   isEnabled: enabled,
 );
 
+/// The plan the exercise reminders belong to, being followed: a reminder of a plan that is not
+/// followed does not ring (audit, 23 Oct).
+PatientTreatmentPlan following(String accountId, [String id = 'pp1']) =>
+    PatientTreatmentPlan(
+      patientPlanId: id,
+      accountId: accountId,
+      plan: const TreatmentPlan(
+        planId: 'plan-1',
+        planName: 'Early Knee Recovery',
+        aim: '',
+        targetBodyArea: 'BOTH_LEGS',
+        recoveryStage: RecoveryStage.early,
+        mobilityLevel: MobilityLevel.low,
+        frequencyPerWeek: 3,
+      ),
+      selectedAt: now,
+    );
+
 void main() {
   late FakeScheduler device;
   late FakeNotificationRepository repo;
@@ -144,10 +163,11 @@ void main() {
   late LocalNotificationService local;
   late LocalNotificationService service;
 
-  setUp(() {
+  setUp(() async {
     device = FakeScheduler();
     repo = FakeNotificationRepository();
     treatments = FakeTreatmentRepository(const []);
+    await treatments.assignPlan(following('a1'));
     local = LocalNotificationService(
       repo,
       treatments,
@@ -280,6 +300,27 @@ void main() {
           isFalse,
         );
         expect(repo.log.single.deliveryStatus, DeliveryStatus.suppressed);
+      },
+    );
+
+    test(
+      'sync leaves out a reminder of a plan no longer followed, unless offline (audit, 23 Oct)',
+      () async {
+        final stale = reminder(id: 'old', plan: 'pp-ended');
+        await repo.saveReminder(stale);
+        await local.schedule(stale); // still on the phone from before
+        expect(await service.sync('a1'), 0);
+        expect(device.pending, isEmpty);
+        expect(repo.reminders, contains('old')); // kept, not deleted
+
+        // The plans cannot be read: nothing is silenced by mistake.
+        final offline = LocalNotificationService(
+          repo,
+          _NoPlans(),
+          scheduler: device,
+          now: () => now,
+        );
+        expect(await offline.sync('a1'), greaterThan(0));
       },
     );
 
@@ -425,6 +466,7 @@ void main() {
           repeatDays: '1010100',
         ),
       );
+      await treatments.assignPlan(following(id));
       vm = NotificationViewModel(repo, local, auth);
       await vm.load();
     });
@@ -536,4 +578,14 @@ void main() {
       expect(repo.reminders.containsKey(id), isFalse);
     });
   });
+}
+
+/// Reading the plans fails, as when the phone is offline.
+class _NoPlans extends FakeTreatmentRepository {
+  _NoPlans() : super(const []);
+
+  @override
+  Future<Result<List<PatientTreatmentPlan>>> getActivePlans(
+    String accountId,
+  ) async => const Failure('down', code: 'offline');
 }
