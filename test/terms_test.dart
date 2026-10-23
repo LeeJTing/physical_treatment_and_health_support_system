@@ -16,6 +16,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
+import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
@@ -338,7 +339,7 @@ void main() {
     () async {
       final auth = FakeAuthRepository();
       final profiles = FakeProfileRepository();
-      final notes = FakeNotificationRepository();
+      final notes = _OfflineReminders();
       final device = FakeScheduler();
       final local = LocalNotificationService(
         notes,
@@ -370,7 +371,9 @@ void main() {
         local,
       );
       await profile.loadProfile();
+      notes.offline = true; // the account's reminders cannot be read
       expect(await profile.logout(), isTrue);
+      notes.offline = false;
       expect(
         device.pending,
         isEmpty,
@@ -383,4 +386,14 @@ void main() {
       expect(device.pending, hasLength(scheduled));
     },
   );
+}
+
+/// The reminder list as when the phone is offline: reading it fails (PC review, 23 Oct).
+class _OfflineReminders extends FakeNotificationRepository {
+  bool offline = false;
+
+  @override
+  Future<Result<List<Reminder>>> getReminders(String accountId) async => offline
+      ? const Failure('offline', code: 'offline')
+      : super.getReminders(accountId);
 }

@@ -146,6 +146,16 @@ class LocalNotificationService {
     }
   }
 
+  /// Takes every HealthGuide notification off the phone, without reading the reminders, so it
+  /// also works offline (log out; PC review, Elwin's OK, 23 Oct). Never throws.
+  Future<void> cancelEverything() async {
+    try {
+      await _scheduler.cancelAll();
+    } catch (_) {
+      // No scheduler on this device: nothing was scheduled either.
+    }
+  }
+
   Future<void> _cancelOne(int id) async {
     try {
       await _scheduler.cancel(id);

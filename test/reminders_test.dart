@@ -57,6 +57,8 @@ class FakeScheduler implements NotificationScheduler {
 
   @override
   Future<void> cancel(int id) async => pending.remove(id);
+  @override
+  Future<void> cancelAll() async => pending.clear();
 
   final tapController = StreamController<String>.broadcast();
   String? launch;
@@ -92,6 +94,8 @@ class ThrowingScheduler implements NotificationScheduler {
   }) => Future.error(Exception('plugin failed'));
   @override
   Future<void> cancel(int id) => Future.error(Exception('plugin failed'));
+  @override
+  Future<void> cancelAll() => Future.error(Exception('plugin failed'));
   @override
   Stream<String> get taps => const Stream.empty();
   @override

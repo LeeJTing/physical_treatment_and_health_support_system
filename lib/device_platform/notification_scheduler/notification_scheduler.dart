@@ -30,6 +30,9 @@ abstract interface class NotificationScheduler {
   });
   Future<void> cancel(int id);
 
+  /// Every notification HealthGuide has scheduled on the phone (log out, 23 Oct).
+  Future<void> cancelAll();
+
   /// Payloads of notifications tapped while the app is running.
   Stream<String> get taps;
 
@@ -174,5 +177,11 @@ class PluginScheduler implements NotificationScheduler {
   Future<void> cancel(int id) async {
     await init();
     await _plugin.cancel(id);
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    await init();
+    await _plugin.cancelAll();
   }
 }

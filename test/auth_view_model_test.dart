@@ -41,6 +41,8 @@ class _TapScheduler implements NotificationScheduler {
   @override
   Future<void> cancel(int id) async {}
   @override
+  Future<void> cancelAll() async {}
+  @override
   Stream<String> get taps => tapController.stream;
   @override
   Future<String?> launchPayload() async => launch;

@@ -341,13 +341,15 @@ class ProfileViewModel extends BaseViewModel {
     return null;
   }
 
-  /// Logs out (FR100_059). The phone's reminders for this account are taken off first, so
-  /// they stop ringing and a next person on the phone does not get them (Elwin, 23 Oct); they
-  /// stay saved and come back at the next sign-in.
+  /// Logs out (FR100_059). Once signed out, every HealthGuide notification is taken off the
+  /// phone, so the reminders stop ringing and a next person on the phone does not get them
+  /// (Elwin, 23 Oct). Cancelling all of them, not reading the account's reminders first, also
+  /// works offline (PC review). They stay saved and come back at the next sign-in. A failed
+  /// sign-out leaves them as they are.
   Future<bool> logout() async {
-    final id = account?.accountId;
-    if (id != null) await _notifications?.cancelAllFor(id);
-    return (await _auth.signOut()).isSuccess;
+    final ok = (await _auth.signOut()).isSuccess;
+    if (ok) await _notifications?.cancelEverything();
+    return ok;
   }
 
   UiState<void> deleteState = const Idle();
