@@ -190,6 +190,12 @@ void main() {
     await _finish(tester);
     expect(s.byId('r1').hour, 21);
     expect(find.text('9:00 PM'), findsOneWidget);
+    // The time is tapped to change it: a full 48 px touch target (audit, 24 Oct).
+    final row = find.ancestor(
+      of: find.text('9:00 PM'),
+      matching: find.byType(InkWell),
+    );
+    expect(tester.getSize(row.first).height, greaterThanOrEqualTo(48));
   });
 
   testWidgets('the health-log reminder can be deleted after asking', (
