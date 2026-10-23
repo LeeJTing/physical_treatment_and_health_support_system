@@ -75,11 +75,7 @@ class _TreatmentViewState extends State<TreatmentView> {
       final ok = await vm.endPlan();
       if (mounted && !ok) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'The service is temporarily unavailable. Please try again later.',
-            ),
-          ),
+          const SnackBar(content: Text(Messages.dbUnavailable)),
         );
       }
     }
@@ -471,7 +467,7 @@ Future<void> showExerciseDetails(
   ),
 );
 
-/// One step of the exercise sheet: its number in a circle, or a dot for a safety point.
+/// One step of the exercise sheet: its number in a circle, or a safety icon for a safety point.
 class _NumberedLine extends StatelessWidget {
   final int? number;
   final String text;
