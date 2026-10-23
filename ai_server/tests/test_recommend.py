@@ -1013,3 +1013,16 @@ def test_conditions_without_a_position_rule_change_only_the_sources():
 def test_every_condition_source_is_a_known_key():
     keys = set(CONDS.CONDITION_SOURCES.values()) | {s for c in CONDS.AVOID_POSITIONS.values() for s in c["sources"]}
     assert keys <= X.SOURCE_KEYS
+
+
+def test_area_reason_reads_as_a_sentence():
+    # "It trains your legs, for the goal you chose." (24 Oct: "... and the goal you chose" read as if
+    # the goal were trained). Over the 720 answer sets, with and without the same goal.
+    import re
+    seen = set()
+    for req in grid():
+        for r in recommend(req).ranked:
+            text = r.why[0].text
+            assert re.fullmatch(r"It trains your [a-z ]+(, for the goal you chose)?\.", text), text
+            seen.add(text.endswith("goal you chose."))
+    assert seen == {True, False}

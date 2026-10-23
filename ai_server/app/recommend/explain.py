@@ -143,7 +143,9 @@ def why_shown(req: RecommendRequest, plan: PlanIn, step: str, personal: float | 
     area = req.rehab.affected_body_area
     share = cosine(_PARTS[area], plan_area_vec(plan))
     out.append(Reason(code="MATCH_AREA",
-                      text=f"It trains your {AREA[area]}" + (" and the goal you chose" if plan.goal == req.rehab.goal
+                      # "It trains your legs, for the goal you chose." (24 Oct: "... and the goal you chose" read
+                      # as if the goal were trained.)
+                      text=f"It trains your {AREA[area]}" + (", for the goal you chose" if plan.goal == req.rehab.goal
                                                              else "") + ".",
                       sources=[]))
     if plan.goal in ("STRENGTH", "ENDURANCE"):
