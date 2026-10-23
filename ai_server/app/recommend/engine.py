@@ -203,7 +203,7 @@ def blocked_area(limitation_code: str) -> str | None:
 
 
 def conflicts(exercise_area: str, blocked: str) -> bool:
-    """Mirror of Exercise.conflictsWith in lib/data/models/exercise.dart."""
+    """Mirror of Exercise.conflictsWith in lib/model/entity/exercise.dart."""
     if exercise_area == blocked:
         return True
     if blocked.endswith("_ARM"):
