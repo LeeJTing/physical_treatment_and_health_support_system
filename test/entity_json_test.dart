@@ -491,4 +491,17 @@ void main() {
     expect(utc(sent(s.toJson(), 'completed_at')), isTrue);
     expect(ExerciseSession.fromJson(_wire(s.toJson())).completedAt, local);
   });
+
+  // The rest day after a fall finds the server's FALL_MESSAGE in the saved feedback by this
+  // phrase; if the server's wording changed, no fall would be noticed (audit, 23 Oct).
+  test('the fall phrase is part of the server fall message', () {
+    final py = File('ai_server/app/pose/analyse.py').readAsStringSync();
+    final message = py
+        .split('FALL_MESSAGE = (')[1]
+        .split(')')[0]
+        .split(RegExp(r'"\s*"'))
+        .join()
+        .replaceAll('"', '');
+    expect(message, contains(ExerciseSession.fallPhrase));
+  });
 }
