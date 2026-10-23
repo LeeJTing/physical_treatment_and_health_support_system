@@ -1,8 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter/material.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
@@ -67,6 +69,56 @@ void main() {
     vm.updateDraft(weightKg: 300, heightCm: 180); // BMI 93: rare, but real
     expect(await vm.saveProfile(), isTrue);
   });
+
+  test(
+    'an edited field loses its mark from the last Save (audit, 23 Oct)',
+    () async {
+      vm.updateDraft(age: 62, weightKg: 70, heightCm: 170); // no gender
+      expect(await vm.saveProfile(), isFalse);
+      expect(vm.invalidFields, ['gender']);
+      vm.updateDraft(gender: Gender.female);
+      expect(vm.invalidFields, isEmpty); // "Please choose one." goes away
+
+      vm.updateDraft(weightKg: 20, heightCm: 200); // do not match
+      expect(await vm.saveProfile(), isFalse);
+      vm.updateDraft(weightKg: 60); // either one clears both
+      expect(vm.invalidFields, isEmpty);
+
+      vm.updateDraft(clearAge: true, weightKg: 800);
+      expect(await vm.saveProfile(), isFalse);
+      expect(vm.invalidFields, ['age', 'weight']);
+      vm.updateDraft(weightKg: 70); // the empty age stays marked
+      expect(vm.invalidFields, ['age']);
+    },
+  );
+
+  testWidgets(
+    'a field marked by Save is outlined although its value is in range',
+    (tester) async {
+      final c = TextEditingController(text: '70');
+      Future<Color?> borderColour({required bool forceError}) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: NumberField(
+                label: 'Weight (kg)',
+                controller: c,
+                validator: (_) => null,
+                formatters: const [],
+                onChanged: (_) {},
+                forceError: forceError,
+              ),
+            ),
+          ),
+        );
+        final field = tester.widget<TextField>(find.byType(TextField));
+        return field.decoration!.enabledBorder!.borderSide.color;
+      }
+
+      expect(await borderColour(forceError: true), AppTokens.cta);
+      expect(await borderColour(forceError: false), AppTokens.outline);
+    },
+  );
 
   test('age 12 is out of range and the draft is kept (FR100_051)', () async {
     fillValid();
@@ -137,7 +189,11 @@ void main() {
     () async {
       fillValid();
       await vm.saveProfile();
-      final failing = ProfileViewModel(_FailingSave(profiles), auth, RiskAssessmentService(auth, profiles));
+      final failing = ProfileViewModel(
+        _FailingSave(profiles),
+        auth,
+        RiskAssessmentService(auth, profiles),
+      );
       await failing.loadProfile();
       failing.startEdit();
       failing.updateDraft(weightKg: 75);

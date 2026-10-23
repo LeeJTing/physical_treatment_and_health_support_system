@@ -423,46 +423,53 @@ class NumberField extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        label,
-        style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
-      ),
-      const SizedBox(height: 6),
-      TextFormField(
-        controller: controller,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: formatters,
-        onChanged: onChanged,
-        validator: validator,
-        // After a failed Save, show the errors even on untouched fields.
-        autovalidateMode: forceError
-            ? AutovalidateMode.always
-            : AutovalidateMode.onUserInteraction,
-        style: const TextStyle(
-          color: AppTokens.ink,
-          fontSize: 20,
-          fontWeight: FontWeight.w500,
+  Widget build(BuildContext context) {
+    // Marked by Save although its own range is fine (weight and height that do not match,
+    // an age that does not fit the Terms): outlined, and the banner says why (audit, 23 Oct).
+    final marked = forceError && validator(controller.text) == null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
         ),
-        cursorColor: AppTokens.brandDeep,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: AppTokens.surface,
-          isDense: true,
-          errorMaxLines: 3,
-          errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 13),
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 14,
-            vertical: 14,
+        const SizedBox(height: 6),
+        TextFormField(
+          controller: controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: formatters,
+          onChanged: onChanged,
+          validator: validator,
+          // After a failed Save, show the errors even on untouched fields.
+          autovalidateMode: forceError
+              ? AutovalidateMode.always
+              : AutovalidateMode.onUserInteraction,
+          style: const TextStyle(
+            color: AppTokens.ink,
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
           ),
-          enabledBorder: _b(AppTokens.outline),
-          focusedBorder: _b(AppTokens.brandDeep, 2),
-          errorBorder: _b(AppTokens.cta),
-          focusedErrorBorder: _b(AppTokens.cta, 2),
+          cursorColor: AppTokens.brandDeep,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppTokens.surface,
+            isDense: true,
+            errorMaxLines: 3,
+            errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 13),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 14,
+            ),
+            enabledBorder: marked ? _b(AppTokens.cta) : _b(AppTokens.outline),
+            focusedBorder: marked
+                ? _b(AppTokens.cta, 2)
+                : _b(AppTokens.brandDeep, 2),
+            errorBorder: _b(AppTokens.cta),
+            focusedErrorBorder: _b(AppTokens.cta, 2),
+          ),
         ),
-      ),
-    ],
-  );
+      ],
+    );
+  }
 }

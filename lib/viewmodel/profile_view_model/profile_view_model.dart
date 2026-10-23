@@ -164,6 +164,23 @@ class ProfileViewModel extends BaseViewModel {
       version: d.version,
       updatedAt: d.updatedAt,
     );
+    // An edited field loses its mark from the last Save (audit, 23 Oct). Weight and height
+    // were marked together when they did not match, so editing either clears both.
+    final edited = {
+      if (age != null || clearAge) 'age',
+      if (gender != null) 'gender',
+      if (weightKg != null || clearWeight) 'weight',
+      if (heightCm != null || clearHeight) 'height',
+    };
+    if (saveState case UiError(
+      message: Messages.weightHeightMismatch,
+    ) when edited.contains('weight') || edited.contains('height')) {
+      edited.addAll(const ['weight', 'height']);
+    }
+    invalidFields = [
+      for (final f in invalidFields)
+        if (!edited.contains(f)) f,
+    ];
     notifyListeners();
   }
 
