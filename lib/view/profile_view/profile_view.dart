@@ -162,14 +162,26 @@ class _ProfileViewState extends State<ProfileView> {
     }
     final firstLoad =
         vm.loadState is Loading && vm.profile == null && vm.draft == null;
+    // Straight after sign-in nothing is beneath this screen: Back goes on to Home (the profile
+    // can be completed later; Home asks for it) instead of closing the app.
+    final firstScreen = _standalone && !Navigator.of(context).canPop();
     return PopScope(
-      canPop: !vm.hasUnsavedChanges,
+      canPop: !vm.hasUnsavedChanges && !firstScreen,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (await _ask(Messages.discardChanges, 'Discard', danger: true) &&
-            context.mounted) {
-          vm.cancelEdit();
-          Navigator.of(context).pop();
+        if (vm.hasUnsavedChanges &&
+            !await _ask(Messages.discardChanges, 'Discard', danger: true)) {
+          return;
+        }
+        if (!context.mounted) return;
+        vm.cancelEdit();
+        final nav = Navigator.of(context);
+        // Only a screen with another beneath it is closed (audit, 24 Oct: Discard closed the
+        // only screen and left the app black, after sign-in and on the shell's Profile tab).
+        if (firstScreen) {
+          nav.pushNamedAndRemoveUntil(Routes.home, (_) => false);
+        } else if (nav.canPop()) {
+          nav.pop();
         }
       },
       child: Scaffold(

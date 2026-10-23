@@ -218,6 +218,59 @@ void main() {
     expect(s.vm.profile!.age, 40);
   });
 
+  group('Back never leaves an empty screen (emulator, 24 Oct)', () {
+    testWidgets(
+      'after sign-in, an untouched new profile: Back goes on to Home, no discard question',
+      (tester) async {
+        final s = _Setup();
+        await tester.runAsync(s.prepare);
+        await s.pump(tester, route: Routes.healthProfile);
+        expect(s.vm.hasUnsavedChanges, isFalse); // before: true for the empty form
+        await tester.binding.handlePopRoute();
+        await _settle(tester);
+        expect(find.text(Messages.discardChanges), findsNothing);
+        expect(find.text('route:home'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'after sign-in, something typed: Discard goes on to Home (before: a black screen)',
+      (tester) async {
+        final s = _Setup();
+        await tester.runAsync(s.prepare);
+        await s.pump(tester, route: Routes.healthProfile);
+        await tester.enterText(find.byType(TextFormField).at(0), '45');
+        await tester.pump();
+        await tester.binding.handlePopRoute();
+        await _settle(tester);
+        expect(find.text(Messages.discardChanges), findsOneWidget);
+        await tester.tap(find.text('Discard'));
+        await _settle(tester);
+        expect(find.text('route:home'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'the Profile tab with unsaved changes: Discard cancels the edit and stays on the tab',
+      (tester) async {
+        final s = _Setup();
+        await tester.runAsync(() => s.prepare(age: 40));
+        await s.pump(tester); // the shell's tab: the only screen
+        await tester.tap(find.text('Edit'));
+        await tester.pump();
+        await tester.enterText(find.byType(TextFormField).at(0), '41');
+        await tester.pump();
+        await tester.binding.handlePopRoute();
+        await _settle(tester);
+        await tester.tap(find.text('Discard'));
+        await _settle(tester);
+        expect(find.byType(ProfileView), findsOneWidget);
+        expect(s.vm.isEditing, isFalse);
+        expect(find.text('Account settings'), findsOneWidget);
+      },
+    );
+  });
+
   testWidgets('a high-risk profile shows the advisory and the risk badge', (
     tester,
   ) async {

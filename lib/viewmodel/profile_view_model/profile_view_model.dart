@@ -60,8 +60,12 @@ class ProfileViewModel extends BaseViewModel {
   /// What the screen shows: the draft while editing, else the saved profile.
   HealthProfile? get shown => isEditing ? draft : profile;
 
+  /// A first profile counts as changed only once something is entered (audit, 24 Oct: the
+  /// empty form asked "Discard your unsaved changes?").
   bool get hasUnsavedChanges =>
-      isEditing && draft != null && !_same(draft!, profile);
+      isEditing &&
+      draft != null &&
+      !_same(draft!, profile ?? HealthProfile.empty(draft!.accountId));
 
   static bool _same(HealthProfile a, HealthProfile? b) =>
       b != null &&
