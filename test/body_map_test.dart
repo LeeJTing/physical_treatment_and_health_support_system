@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -689,5 +691,23 @@ void main() {
       expect(find.bySemanticsLabel('Target area: Left leg'), findsOneWidget);
       handle.dispose();
     });
+  });
+
+  // The parts the map sends as focus_parts must be the ones the server knows (FOCUS_PARTS in
+  // ai_server/app/recommend/engine.py); this reads that file (audit, 24 Oct).
+  test('every focus part of the map is one the server recommender knows', () {
+    final py = File('ai_server/app/recommend/engine.py').readAsStringSync();
+    final line = RegExp(
+      r'^FOCUS_PARTS = \(([^)]*)\)',
+      multiLine: true,
+    ).firstMatch(py)!;
+    final server = {
+      for (final m in RegExp(r'"(\w+)"').allMatches(line[1]!)) m[1]!,
+    };
+    final sent = BodyRegions.focusParts([
+      ...BodyRegions.front,
+      ...BodyRegions.back,
+    ]);
+    expect(sent.toSet(), server);
   });
 }
