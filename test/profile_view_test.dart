@@ -135,6 +135,31 @@ void main() {
     expect(find.text('Edit'), findsOneWidget);
   });
 
+  testWidgets(
+    'a refused Save says why just above Save, on a phone-sized screen (audit, 23 Oct)',
+    (tester) async {
+      final s = _Setup();
+      await tester.runAsync(s.prepare);
+      await s.pump(tester);
+      tester.view.physicalSize = const Size(1080, 2400); // 360 x 800, a phone
+      await tester.pump();
+      await tester.enterText(find.byType(TextFormField).at(0), '30');
+      await tester.enterText(find.byType(TextFormField).at(1), '20');
+      await tester.enterText(find.byType(TextFormField).at(2), '200');
+      await tester.tap(find.text('Male'));
+      await tester.pump();
+      await tester.tap(find.text('Save'));
+      await _settle(tester);
+      final message = find.text(Messages.weightHeightMismatch);
+      expect(message, findsOneWidget);
+      final saveTop = tester.getTopLeft(find.text('Save')).dy;
+      final messageBottom = tester.getBottomLeft(message).dy;
+      expect(messageBottom, lessThan(saveTop)); // above the button
+      expect(saveTop - messageBottom, lessThan(120)); // and next to it, not a list away
+      expect(tester.getBottomLeft(find.text('Save')).dy, lessThanOrEqualTo(800));
+    },
+  );
+
   testWidgets('saving with an empty field shows the required-fields message', (
     tester,
   ) async {

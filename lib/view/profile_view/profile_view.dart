@@ -180,6 +180,7 @@ class _ProfileViewState extends State<ProfileView> {
                 vm: vm,
                 onCancel: () => _cancel(vm),
                 onSave: () => _save(vm),
+                onReviewTerms: () => _reviewTerms(vm),
               )
             : null,
         body: switch (vm.loadState) {
@@ -320,19 +321,6 @@ class _ProfileViewState extends State<ProfileView> {
                             .highRiskAdvisory // FR100_058
                       : 'Consult a healthcare professional before starting any exercise programme.',
                 ),
-              ],
-              if (vm.saveState case UiError(:final message)) ...[
-                const SizedBox(height: 16),
-                InfoBanner(message, icon: Icons.error_outline),
-                if (vm.ageReviewNeeded)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      key: const Key('review_terms_for_age'),
-                      onPressed: () => _reviewTerms(vm),
-                      child: const Text('Review Terms'),
-                    ),
-                  ),
               ],
               if (!vm.isEditing) ...[
                 const SizedBox(height: 28),
@@ -546,14 +534,19 @@ class _ProfileViewState extends State<ProfileView> {
   }
 }
 
+/// Cancel and Save, pinned at the bottom while editing. A refused Save says why right above
+/// the buttons (audit, 23 Oct): at the end of the long list the message was out of sight of
+/// both the Save button and the fields it is about, as the sign-in screens show theirs.
 class _EditBar extends StatelessWidget {
   final ProfileViewModel vm;
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback onReviewTerms;
   const _EditBar({
     required this.vm,
     required this.onCancel,
     required this.onSave,
+    required this.onReviewTerms,
   });
 
   @override
@@ -569,62 +562,80 @@ class _EditBar extends StatelessWidget {
         color: AppTokens.surface,
         border: Border(top: BorderSide(color: AppTokens.cardBorder)),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (vm.profile != null) ...[
-            Expanded(
-              child: SizedBox(
-                height: 52,
-                child: OutlinedButton(
-                  onPressed: vm.saveState is Loading ? null : onCancel,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTokens.ink,
-                    side: const BorderSide(
-                      color: AppTokens.outline,
-                      width: 1.5,
-                    ),
-                    shape: const StadiumBorder(),
-                    textStyle: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  child: const Text('Cancel'),
+          if (vm.saveState case UiError(:final message)) ...[
+            InfoBanner(message, icon: Icons.error_outline),
+            if (vm.ageReviewNeeded)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  key: const Key('review_terms_for_age'),
+                  onPressed: onReviewTerms,
+                  child: const Text('Review Terms'),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
+            const SizedBox(height: 10),
           ],
-          Expanded(
-            child: SizedBox(
-              height: 52,
-              child: FilledButton(
-                onPressed: vm.saveState is Loading ? null : onSave,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTokens.cta,
-                  foregroundColor: Colors.white,
-                  shape: const StadiumBorder(),
-                  textStyle: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                child: vm.saveState is Loading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Save'),
-              ),
-            ),
-          ),
+          _buttons(),
         ],
       ),
     ),
+  );
+
+  Widget _buttons() => Row(
+    children: [
+      if (vm.profile != null) ...[
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: OutlinedButton(
+              onPressed: vm.saveState is Loading ? null : onCancel,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTokens.ink,
+                side: const BorderSide(color: AppTokens.outline, width: 1.5),
+                shape: const StadiumBorder(),
+                textStyle: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: const Text('Cancel'),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+      ],
+      Expanded(
+        child: SizedBox(
+          height: 52,
+          child: FilledButton(
+            onPressed: vm.saveState is Loading ? null : onSave,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTokens.cta,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              textStyle: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            child: vm.saveState is Loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Save'),
+          ),
+        ),
+      ),
+    ],
   );
 }
 
