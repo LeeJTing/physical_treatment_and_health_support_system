@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
@@ -424,5 +426,23 @@ void main() {
         isEmpty,
       );
     });
+  });
+
+  // plan_rules.dart says to keep its joint map the same as the recommender's POSE_PARTS; this
+  // reads the server file in the same repository so the two cannot drift apart (audit, 23 Oct).
+  test('the joints of each posture exercise match the server recommender', () {
+    final py = File('ai_server/app/recommend/engine.py').readAsStringSync();
+    final block = py.split('\nPOSE_PARTS = {')[1].split('\n}')[0];
+    final server = {
+      for (final m in RegExp(r'"(\w+)": \(([^)]*)\)').allMatches(block))
+        m[1]!: {
+          for (final j in RegExp(r'"(\w+)"').allMatches(m[2]!)) j[1]!: 1,
+        },
+    };
+    expect(server, hasLength(17));
+    for (final MapEntry(key: poseKey, value: joints) in server.entries) {
+      final p = posePlan(poseKey, 'BOTH_LEGS', 'STRENGTH', [poseKey]);
+      expect(PlanRules.jointCounts(p), joints, reason: poseKey);
+    }
   });
 }
