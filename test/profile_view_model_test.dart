@@ -58,6 +58,15 @@ void main() {
     expect(results, [true, false]);
   });
 
+  test('the saved values stay on screen when the reload after Save fails (audit, 23 Oct)', () async {
+    fillValid();
+    profiles.failNext = true; // the save works, reading it back does not
+    expect(await vm.saveProfile(), isTrue);
+    expect(vm.isEditing, isFalse);
+    expect(vm.shown!.weightKg, 71.2);
+    expect(vm.safetyLimit, isNotNull);
+  });
+
   test('weight and height in range but not together are refused (23 Oct)', () async {
     fillValid();
     vm.updateDraft(weightKg: 20, heightCm: 200); // BMI 5: a slip or the wrong unit

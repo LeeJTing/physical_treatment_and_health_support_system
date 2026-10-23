@@ -322,7 +322,8 @@ class ProfileViewModel extends BaseViewModel {
     invalidFields = const [];
     saveState = const Loading();
     notifyListeners();
-    final res = await _profiles.saveProfile(d, _risk.generateSafetyLimit(d));
+    final limit = _risk.generateSafetyLimit(d);
+    final res = await _profiles.saveProfile(d, limit);
     if (res is Failure) {
       saveState = const UiError(
         Messages.profileSaveFailed,
@@ -333,6 +334,10 @@ class ProfileViewModel extends BaseViewModel {
     isEditing = false;
     draft = null;
     unansweredConditions = {};
+    // What was saved is shown even if the reload below fails (connection lost right after the
+    // save); the reload then only brings the stored version number (audit, 23 Oct).
+    profile = d.copyWith(version: d.version + 1, updatedAt: DateTime.now());
+    safetyLimit = limit;
     await loadProfile();
     saveState = const UiSuccess(null);
     notifyListeners();
