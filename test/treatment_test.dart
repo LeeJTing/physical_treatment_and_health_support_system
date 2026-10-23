@@ -656,6 +656,8 @@ void main() {
       expect(find.text('0 of 3 done'), findsOneWidget);
       expect(find.text('Start exercise'), findsOneWidget);
       expect(find.text('Not started'), findsOneWidget);
+      // Each number stays with its unit with large phone text (24 Oct: "10 reps · 1 / min").
+      expect(find.textContaining('10 reps · 1.5 min'), findsWidgets);
     });
 
     testWidgets(

@@ -278,9 +278,14 @@ class StageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pe = stage.item;
-    final subtitle =
-        '${RehabLabels.area(pe.exercise.targetBodyArea)} · ${pe.prescribedRepetitions} reps · '
-        '${RehabLabels.duration(pe.prescribedDurationSec)}';
+    // Non-breaking spaces keep each number with its unit ("1 min") on one line with large phone
+    // text (emulator at 2x, 24 Oct: "10 reps · 1 / min").
+    String together(String s) => s.replaceAll(' ', '\u00A0');
+    final subtitle = [
+      together(RehabLabels.area(pe.exercise.targetBodyArea)),
+      together('${pe.prescribedRepetitions} reps'),
+      together(RehabLabels.duration(pe.prescribedDurationSec)),
+    ].join(' · ');
     return Semantics(
       button: true,
       label: '${pe.exercise.exerciseName}, $subtitle',
