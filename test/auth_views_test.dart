@@ -10,6 +10,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/account_setup_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/register_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/login_view/reset_password_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
@@ -36,6 +37,7 @@ Future<FakeAuthRepository> _open(
         navigatorKey: nav,
         routes: {
           Routes.register: (_) => const RegisterView(),
+          Routes.accountSetup: (_) => const AccountSetupView(),
           Routes.resetPassword: (_) => const ResetPasswordView(),
           Routes.verifyCode: (c) => _stub(c, 'verify'),
           Routes.loginScreen: (c) => _stub(c, 'login'),
@@ -230,4 +232,18 @@ void main() {
       await _close(tester);
     });
   });
+
+  testWidgets(
+    'Google account setup: the back arrow asks before discarding (23 Oct)',
+    (tester) async {
+      await _open(tester, Routes.accountSetup);
+      await tester.tap(find.byTooltip('Back'));
+      await _settle(tester);
+      expect(find.text(Messages.discardRegistration), findsOneWidget);
+      await tester.tap(find.text('Keep editing'));
+      await _settle(tester);
+      expect(find.text('Complete account setup'), findsOneWidget);
+      await _close(tester);
+    },
+  );
 }
