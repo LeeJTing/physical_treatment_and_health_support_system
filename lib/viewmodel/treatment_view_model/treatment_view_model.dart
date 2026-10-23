@@ -31,7 +31,6 @@ class PathwayStage {
   const PathwayStage(this.item, this.status, this.bestAccuracy);
 }
 
-/// Pathway progress, video capture and the posture result (Table 4.52).
 /// One row of the session history: the attempt and the name of its exercise.
 class SessionHistoryEntry {
   final ExerciseSession session;
@@ -39,6 +38,7 @@ class SessionHistoryEntry {
   const SessionHistoryEntry(this.session, this.exerciseName);
 }
 
+/// Pathway progress, video capture and the posture result (Table 4.52).
 class TreatmentViewModel extends BaseViewModel {
   final ITreatmentRepository _repo;
   final PoseEstimationService _pose;
