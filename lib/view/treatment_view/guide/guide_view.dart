@@ -83,11 +83,16 @@ class _GuideViewState extends State<GuideView> {
       'Step ${i + 1}. ${c.steps[i].text}',
     [
       'Stay safe.',
-      ...c.safety,
+      ...(c.safety.isEmpty ? const [_defaultSafety] : c.safety),
       for (final m in c.mistakes) 'Do this: ${m.right}',
     ].join(' '),
     [..._setupLines(e, c)].join(' '),
   ];
+
+  /// Said and shown when an exercise has no safety points of its own (the voice used to skip it,
+  /// audit 24 Oct).
+  static const _defaultSafety =
+      'Stop if you feel pain, dizziness or shortness of breath.';
 
   /// Where the phone goes, from the exercise's own camera tip (23 Oct): floor exercises (bird
   /// dog, glute bridge) put it on the floor about 2 m away, not at waist height.
@@ -352,10 +357,7 @@ class _GuideViewState extends State<GuideView> {
     for (final s in c.safety)
       _Line(icon: Icons.health_and_safety_outlined, text: s),
     if (c.safety.isEmpty)
-      const _Line(
-        icon: Icons.health_and_safety_outlined,
-        text: 'Stop if you feel pain, dizziness or shortness of breath.',
-      ),
+      const _Line(icon: Icons.health_and_safety_outlined, text: _defaultSafety),
     if (c.mistakes.isNotEmpty) ...[
       const SizedBox(height: 18),
       const Text('Common mistakes', style: _title),

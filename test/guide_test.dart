@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/speech/speech_output.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/speech_service/speech_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/exercise_coaching.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/guide/guide_view.dart';
@@ -296,6 +297,54 @@ void main() {
       expect(find.text('Step 1 of 4'), findsOneWidget);
       expect(speech.said.length, before); // nothing more said
     });
+
+    testWidgets(
+      'no safety points of its own: the default one is shown and said (audit, 24 Oct)',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 4800);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final h = Harness();
+        final speech = FakeSpeech();
+        await tester.runAsync(() async {
+          await h.setUp(tmp);
+          h.vm.startTest(
+            const Exercise(
+              exerciseId: 'x',
+              exerciseName: 'Arm Raise',
+              instructionText: 'Stand tall. Lift both arms.',
+              targetBodyArea: 'BOTH_ARMS',
+              intensityLevel: ExerciseIntensity.low,
+              defaultRepetitions: 10,
+              defaultDurationSec: 60,
+            ),
+          );
+        });
+        await tester.pumpWidget(
+          MultiProvider(
+            providers: [
+              ChangeNotifierProvider.value(value: h.vm),
+              ChangeNotifierProvider(
+                create: (_) => GuideViewModel(SpeechService(speech)),
+              ),
+            ],
+            child: const MaterialApp(home: GuideView(reps: 10)),
+          ),
+        );
+        for (var i = 0; i < 4; i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 20)),
+          );
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+        for (var i = 0; i < 3; i++) {
+          await next(tester); // two steps, then Stay safe
+        }
+        const line = 'Stop if you feel pain, dizziness or shortness of breath.';
+        expect(find.text(line), findsOneWidget);
+        expect(speech.said.last, contains(line));
+      },
+    );
 
     testWidgets('an exercise without a written guide still gets one', (
       tester,
