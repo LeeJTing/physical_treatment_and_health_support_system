@@ -224,9 +224,13 @@ class TreatmentViewModel extends BaseViewModel {
         final reminders =
             (await _notifications.getReminders(account.accountId)).dataOrNull ??
             const <Reminder>[];
+        // Today's reminder is cancelled once today's exercise is done (FR600_005), so the card
+        // shows the next one from tomorrow instead of a time that will not ring (audit, 23 Oct).
+        final t = clock();
+        final from = doneToday ? DateTime(t.year, t.month, t.day, 23, 59, 59) : t;
         final times = [
           for (final r in reminders)
-            if (r.patientPlanId == data.patientPlanId) r.nextOccurrence(),
+            if (r.patientPlanId == data.patientPlanId) r.nextOccurrence(from),
         ].whereType<DateTime>().toList()..sort();
         _nextReminderAt = times.isEmpty ? null : times.first;
       }

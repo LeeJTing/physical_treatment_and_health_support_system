@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
@@ -71,4 +72,42 @@ void main() {
     expect(device.pending, isEmpty);
     expect(notes.reminders, isEmpty);
   });
+
+  test(
+    "once today's exercise is done, the next reminder shown is tomorrow's (audit, 23 Oct)",
+    () async {
+      final (h, _, notes, _) = await setUpWithReminder();
+      final morning = DateTime(2026, 10, 23, 10);
+      final plan = h.vm.activePlan!;
+      await notes.saveReminder(
+        Reminder(
+          reminderId: 'r1',
+          accountId: plan.accountId,
+          patientPlanId: plan.patientPlanId,
+          reminderType: ReminderType.exercise,
+          title: 'Time for ${plan.plan.planName}',
+          hour: 20,
+          minute: 0,
+        ),
+      );
+      final vm = TreatmentViewModel(h.treatments, h.pose, h.auth, notes)
+        ..clock = () => morning;
+      await vm.loadPlan();
+      expect(vm.nextReminderAt, DateTime(2026, 10, 23, 20)); // still to do today
+
+      await h.treatments.saveSession(
+        ExerciseSession(
+          sessionId: 'done',
+          accountId: plan.accountId,
+          patientPlanId: plan.patientPlanId,
+          exerciseId: plan.currentExercise()!.exerciseId,
+          completedAt: morning,
+          completionStatus: CompletionStatus.completed,
+          postureAccuracy: 85,
+        ),
+      );
+      await vm.loadPlan();
+      expect(vm.nextReminderAt, DateTime(2026, 10, 24, 20));
+    },
+  );
 }
