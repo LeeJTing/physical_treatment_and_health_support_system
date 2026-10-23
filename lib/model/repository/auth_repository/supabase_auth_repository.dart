@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/login_attempts.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/session_policy.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
@@ -20,7 +21,8 @@ class SupabaseAuthRepository implements IAuthRepository {
 
   /// Failed logins per email, for the lockout (FR100_031). Kept in memory:
   /// Supabase also rate-limits sign-ins on the server.
-  final Map<String, List<DateTime>> _failures = {};
+  /// FR100_031, kept between app starts (audit, 23 Oct).
+  late final LoginAttempts _attempts = LoginAttempts(now: _now);
 
   /// Wrong verification codes per email since the code was issued (FR100_016). After
   /// AppConstants.maxCodeAttempts the app stops sending that code; "Resend code" issues a new
@@ -161,19 +163,10 @@ class SupabaseAuthRepository implements IAuthRepository {
     return res;
   }
 
-  bool _locked(String email) {
-    final cutoff = _now().subtract(AppConstants.loginLockout);
-    final recent = (_failures[email] ?? const <DateTime>[])
-        .where((t) => t.isAfter(cutoff))
-        .toList();
-    _failures[email] = recent;
-    return recent.length >= AppConstants.maxLoginFailures;
-  }
-
   @override
   Future<Result<Account>> login(String email, String password) async {
     final e = email.trim().toLowerCase();
-    if (_locked(e)) {
+    if (await _attempts.locked(e)) {
       return const Failure(Messages.accountLocked, code: 'locked');
     }
     final res = await supabaseGuard(
@@ -181,8 +174,7 @@ class SupabaseAuthRepository implements IAuthRepository {
       failMessage: Messages.loginUnavailable,
     );
     if (res case Failure(:final code) when code == 'invalid_credentials') {
-      (_failures[e] ??= []).add(_now());
-      return _locked(e)
+      return await _attempts.recordFailure(e)
           ? const Failure(Messages.accountLocked, code: 'locked')
           : const Failure(
               Messages.incorrectCredentials,
@@ -196,7 +188,7 @@ class SupabaseAuthRepository implements IAuthRepository {
       );
     }
     if (res case Failure f) return f.cast<Account>();
-    _failures.remove(e);
+    await _attempts.clear(e);
     await _renew();
     final uid = res.dataOrNull?.user?.id;
     if (uid == null) {
