@@ -121,6 +121,49 @@ void main() {
     expect(find.textContaining('Tried again'), findsOneWidget);
   });
 
+  testWidgets(
+    'the trend is in time order; a retry without a time is not drawn first (audit, 24 Oct)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 3600);
+      addTearDown(tester.view.reset);
+      final s = _Setup();
+      await tester.runAsync(() async {
+        await s.withPlan(attempts: [(0, 85, 3), (1, 90, 1)]);
+        await s.treatments.saveSession(
+          ExerciseSession(
+            sessionId: newId(),
+            accountId: s.plan.accountId,
+            patientPlanId: s.plan.patientPlanId,
+            exerciseId: s.plan.plan.orderedExercises()[1].exerciseId,
+            completionStatus: CompletionStatus.retried, // no time, as stored
+            postureAccuracy: 40,
+          ),
+        );
+        await s.vm.loadPlan();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: s.vm,
+            child: const SessionHistoryView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final trend = tester.widget<Semantics>(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Semantics &&
+              (w.properties.label ?? '').startsWith('Accuracy of the last'),
+        ),
+      );
+      expect(
+        trend.properties.label,
+        'Accuracy of the last 2 attempts, from 85% to 90%',
+      );
+    },
+  );
+
   // Audit D2 (23 Oct): large phone text on a 360 dp phone.
   for (final scale in [1.5, 2.0]) {
     testWidgets(

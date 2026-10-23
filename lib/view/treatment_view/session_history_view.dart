@@ -68,9 +68,12 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
 
   Widget _list(TreatmentViewModel vm) {
     final entries = vm.history;
+    // Oldest first, only attempts with a time (audit, 24 Oct): a retried try has none and the
+    // history lists it last, so the reversed list drew every retry at the start of the line.
     final scored = [
       for (final e in entries.reversed)
-        if (e.session.postureAccuracy != null) e.session.postureAccuracy!,
+        if (e.session.postureAccuracy != null && e.session.completedAt != null)
+          e.session.postureAccuracy!,
     ];
     return ListView(
       padding: const EdgeInsets.all(AppTokens.gutter),
