@@ -121,6 +121,45 @@ void main() {
     expect(find.textContaining('Tried again'), findsOneWidget);
   });
 
+  // Audit D2 (23 Oct): large phone text on a 360 dp phone.
+  for (final scale in [1.5, 2.0]) {
+    testWidgets(
+      'at ${scale}x text on 360 dp: no overflow, every attempt shown',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 7200);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final s = _Setup();
+        await tester.runAsync(
+          () => s.withPlan(attempts: [(0, 60, 3), (0, 85, 2), (1, 90, 0)]),
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: TextScaler.linear(scale)),
+              child: child!,
+            ),
+            home: ChangeNotifierProvider.value(
+              value: s.vm,
+              child: const SessionHistoryView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.text('Posture accuracy over time'), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.textContaining('Tried again'),
+          300,
+        );
+        expect(find.textContaining('Tried again'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets(
     'without sessions the screen explains where results will appear',
     (tester) async {
