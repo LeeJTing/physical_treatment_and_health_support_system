@@ -161,8 +161,11 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
                   ),
                   const SizedBox(height: AppTokens.gap),
                 ],
+                // The highlighted card is the next thing to do (Elwin, 23 Oct): the plan once
+                // there is one, before that getting one.
                 _NavCard(
-                  dark: true,
+                  key: const Key('my_plan_card'),
+                  dark: plan != null,
                   icon: Icons.monitor_heart_outlined,
                   title: 'My treatment plan',
                   subtitle: plan == null
@@ -172,6 +175,8 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
                 ),
                 const SizedBox(height: AppTokens.gap),
                 _NavCard(
+                  key: const Key('planning_card'),
+                  dark: plan == null,
                   icon: Icons.auto_awesome_outlined,
                   title: 'AI-assisted treatment planning',
                   subtitle: 'Get a new plan, ask the chat bot',

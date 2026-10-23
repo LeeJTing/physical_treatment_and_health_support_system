@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
@@ -93,6 +94,9 @@ void main() {
   ) async {
     await open(tester, noPlan: true);
     expect(find.text('No plan yet: get one below'), findsOneWidget);
+    // The highlighted card is the next thing to do (Elwin, 23 Oct): getting a plan.
+    expect(_cardColour(tester, 'planning_card'), AppTokens.primary);
+    expect(_cardColour(tester, 'my_plan_card'), AppTokens.surface);
     expect(find.text('Session history'), findsNothing);
     expect(find.text('Progress overview'), findsNothing);
     expect(find.byKey(const Key('test_mode_card')), findsNothing);
@@ -108,6 +112,8 @@ void main() {
     tester,
   ) async {
     final (_, vm, _) = await open(tester, reminderHour: 23);
+    expect(_cardColour(tester, 'my_plan_card'), AppTokens.primary);
+    expect(_cardColour(tester, 'planning_card'), AppTokens.surface);
     expect(
       find.text('View pathway, do exercises, check posture'),
       findsOneWidget,
@@ -167,3 +173,12 @@ void main() {
     expect(find.byKey(const Key('test_mode_card')), findsOneWidget);
   });
 }
+
+/// The fill of a card on the tab: the highlighted one is dark green.
+Color? _cardColour(WidgetTester tester, String key) => tester
+    .widget<Material>(
+      find
+          .descendant(of: find.byKey(Key(key)), matching: find.byType(Material))
+          .first,
+    )
+    .color;
