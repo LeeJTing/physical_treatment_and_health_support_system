@@ -116,17 +116,27 @@ class _HomeViewState extends State<HomeView> {
                           child: InkWell(
                             customBorder: const StadiumBorder(),
                             onTap: () => _open(Routes.healthProfile),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 8,
+                            // It opens the profile: a 48 px touch target (audit, 24 Oct: 35).
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: AppTokens.minTarget,
                               ),
-                              child: Text(
-                                HomeViewModel.riskPill(d),
-                                style: const TextStyle(
-                                  color: AppTokens.brandDeep,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 8,
+                                ),
+                                child: Center(
+                                  widthFactor: 1,
+                                  heightFactor: 1,
+                                  child: Text(
+                                    HomeViewModel.riskPill(d),
+                                    style: const TextStyle(
+                                      color: AppTokens.brandDeep,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),

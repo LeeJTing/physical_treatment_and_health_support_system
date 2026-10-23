@@ -337,6 +337,12 @@ void main() {
         expect(pill.bottom, lessThanOrEqualTo(card.top), reason: 'scale $scale');
         // Never higher than the Figma's top + 176 (the header's minimum height).
         expect(card.top, greaterThanOrEqualTo(176));
+        // The pill opens the profile: a 48 px touch target.
+        final tap = find.ancestor(
+          of: find.text('Complete your profile'),
+          matching: find.byType(InkWell),
+        );
+        expect(tester.getSize(tap.first).height, greaterThanOrEqualTo(48));
         expect(tester.takeException(), isNull, reason: 'scale $scale');
       }
     },
