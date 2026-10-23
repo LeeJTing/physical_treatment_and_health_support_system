@@ -72,7 +72,7 @@ def why_excluded(req: RecommendRequest, plan: PlanIn, reasons: list[str]) -> lis
                               sources=intensity_sources(req.conditions)))
         elif r.startswith("session "):
             out.append(Reason(code="TOO_LONG",
-                              text=f"A session would take longer than your limit of "
+                              text=f"One of its exercises takes longer than your daily limit of "
                                    f"{req.safety_limit.max_session_duration_min} minutes.",
                               sources=["otago2003", "martinez_velilla2019"]))
         elif r.startswith("conflicts with "):
@@ -157,11 +157,12 @@ def why_shown(req: RecommendRequest, plan: PlanIn, step: str, personal: float | 
     else:
         out.append(Reason(code="DOSE_MOBILITY", text="Gentle movement on most days helps recover range of motion.",
                           sources=["acsm2009", "mehta2024"]))
-    minutes = max(1, round(sum(pe.prescribed_duration_sec for pe in plan.plan_exercise) / 60))
+    # One exercise of the plan a day: the day's session is at most its longest exercise.
+    minutes = max(1, round(max((pe.prescribed_duration_sec for pe in plan.plan_exercise), default=0) / 60))
     out.append(Reason(code="SAFE",
                       text=f"Every exercise stays within your effort limit "
-                           f"({EFFORT[req.safety_limit.max_exercise_intensity]}), and a session takes about {minutes} "
-                           f"minutes (your limit: {req.safety_limit.max_session_duration_min}).",
+                           f"({EFFORT[req.safety_limit.max_exercise_intensity]}), and each day's exercise takes up to about "
+                           f"{minutes} minutes (your limit: {req.safety_limit.max_session_duration_min}).",
                       sources=intensity_sources(req.conditions) + ["otago2003"]))
     for code in req.limitations:
         b = blocked_area(code)

@@ -90,8 +90,14 @@ def test_low_intensity_cap_drops_moderate_exercises():
 
 
 def test_session_duration_cap():
+    # One exercise of a plan a day (as PlanRules in the app, Elwin 23 Oct): the day's time is the
+    # longest exercise. Active Recovery Circuit: 2 + 2 + 1.5 + 1.5 min, so 7 min in all, 2 min a day.
     res = post(area="FULL_BODY", stage="ADVANCED", mobility="HIGH", goal="ENDURANCE", minutes=5)
-    assert "Active Recovery Circuit" not in names(res)  # 7 min of exercises
+    assert "Active Recovery Circuit" in names(res)  # within 5 min a day, though 7 min in all
+    res = post(area="FULL_BODY", stage="ADVANCED", mobility="HIGH", goal="ENDURANCE", minutes=1)
+    assert "Active Recovery Circuit" not in names(res)
+    reasons = {NAME[e["plan_id"]]: e["reasons"] for e in res["excluded"]}
+    assert any(r.startswith("session 2 min exceeds 1 min") for r in reasons["Active Recovery Circuit"])
 
 
 def test_leg_limitation_blocks_leg_plans():
@@ -123,10 +129,14 @@ def test_plans_for_other_body_areas_are_dropped():
 # ---- FR500_14 / FR500_15 ---------------------------------------------------
 
 def test_none_suitable():
+    # The plans with an exercise over a 1-minute day (the 1-minute-exercise plans fit one since
+    # the day counts one exercise, 23 Oct).
+    longer = [p for p in CATALOGUE["plans"]
+              if max(pe["prescribed_duration_sec"] for pe in p["plan_exercise"]) > 60]
     res = post(area="LEFT_ARM", stage="EARLY", mobility="LOW", limitations=["LEFT_ARM_MOBILITY"],
-               intensity="LOW", minutes=1)
+               intensity="LOW", minutes=1, plans=longer)
     assert res["status"] == "NONE" and res["ranked"] == [] and res["suitable_count"] == 0
-    assert len(res["excluded"]) == len(CATALOGUE["plans"])
+    assert len(res["excluded"]) == len(longer)
 
 
 def test_only_one_suitable():
