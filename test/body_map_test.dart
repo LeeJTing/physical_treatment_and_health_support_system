@@ -5,6 +5,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/utils/body_regions.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/choice_card.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/rehab_questionnaire_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
@@ -639,6 +640,41 @@ void main() {
       expect(t.takeException(), isNull);
     });
   });
+
+  testWidgets(
+    'a sheet closed by mistake opens again with the answers given (emulator, 24 Oct)',
+    (t) async {
+      final draft = RehabDraft();
+      await t.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showRehabQuestionnaire(context, draft: draft),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+      await reveal(t, find.text('Early'));
+      await t.tap(find.text('Early'));
+      await t.pump();
+      await t.tapAt(const Offset(10, 10)); // outside the sheet: it closes
+      await t.pumpAndSettle();
+      expect(find.text('Early'), findsNothing);
+
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+      await reveal(t, find.text('Early'));
+      final early = t.widget<ChoiceCard>(
+        find.ancestor(of: find.text('Early'), matching: find.byType(ChoiceCard)),
+      );
+      expect(early.selected, isTrue); // before: a new, empty questionnaire
+    },
+  );
 
   group('plan card thumbnail', () {
     const expected = {
