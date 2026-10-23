@@ -71,7 +71,7 @@ class FakeAuthRepository implements IAuthRepository {
     _accounts[e] = Account(
       accountId: newId(),
       email: e,
-      username: username,
+      username: username.trim(), // as the Supabase repository sends it
       createdAt: DateTime.now(),
     );
     _passwords[e] = password;
