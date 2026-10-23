@@ -185,6 +185,19 @@ void main() {
     expect([for (final i in vm.data!.planIssues) i.code], contains('over_cap'));
   });
 
+  test(
+    'a condition waiting for a doctor OK is the first plan notice (23 Oct)',
+    () async {
+      final heart = LookupSeed.conditions
+          .firstWhere((c) => c.needsClearance)
+          .withStatus(controlled: false);
+      await saveProfile(conditions: [heart]);
+      await assignPlan();
+      await vm.load();
+      expect(vm.data!.planIssues.first.code, 'clearance_now');
+    },
+  );
+
   test('the bell shows the unread notification count', () async {
     await notifications.logNotification(
       NotificationLog(

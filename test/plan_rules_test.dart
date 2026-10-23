@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/plan_rules/plan_rules.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
@@ -24,15 +25,17 @@ Exercise ex(
 );
 
 /// A plan built from posture exercises, named by pose key (as in the catalogue).
-TreatmentPlan posePlan(String id, String area, String goal, List<String> keys) =>
-    plan(
-      id,
-      area: area,
-      goal: goal,
-      exercises: [
-        for (final k in keys) (ex(k, area: area, poseKey: k), 60),
-      ],
-    );
+TreatmentPlan posePlan(
+  String id,
+  String area,
+  String goal,
+  List<String> keys,
+) => plan(
+  id,
+  area: area,
+  goal: goal,
+  exercises: [for (final k in keys) (ex(k, area: area, poseKey: k), 60)],
+);
 
 TreatmentPlan plan(
   String id, {
@@ -353,6 +356,62 @@ void main() {
         );
         expect(issues.single.code, 'intensity_now');
         expect(issues.single.level, PlanIssueLevel.warning);
+      },
+    );
+    test(
+      'a condition now waiting for a doctor\'s OK is flagged first (23 Oct)',
+      () {
+        final heart = LookupSeed.conditions
+            .firstWhere((c) => c.needsClearance)
+            .withStatus(controlled: false);
+        final p = plan(
+          'a',
+          exercises: [(ex('step', intensity: ExerciseIntensity.moderate), 60)],
+        );
+        final issues = PlanRules.checkActive(
+          active: [following(p)],
+          risk: RiskLevel.high,
+          limit: limit(max: ExerciseIntensity.low),
+          conditions: [heart],
+        );
+        expect(codes(issues).first, 'clearance_now');
+        expect(issues.first.message, contains(heart.conditionName));
+        // Answered "yes, under control": no warning.
+        expect(
+          codes(
+            PlanRules.checkActive(
+              active: [following(p)],
+              risk: RiskLevel.high,
+              limit: limit(),
+              conditions: [heart.withStatus(controlled: true)],
+            ),
+          ),
+          isNot(contains('clearance_now')),
+        );
+      },
+    );
+    test(
+      'an exercise for a part of the body now limited is flagged (23 Oct)',
+      () {
+        final left = LookupSeed.limitations.firstWhere(
+          (l) => l.limitationCode == 'LEFT_LEG_MOBILITY',
+        );
+        final p = plan(
+          'legs',
+          exercises: [
+            (ex('squat', area: 'BOTH_LEGS'), 60),
+            (ex('arm raise', area: 'BOTH_ARMS'), 60),
+          ],
+        );
+        final issues = PlanRules.checkActive(
+          active: [following(p)],
+          risk: RiskLevel.medium,
+          limit: limit(),
+          limitations: [left],
+        );
+        expect(issues.single.code, 'area_now');
+        expect(issues.single.message, contains('squat'));
+        expect(issues.single.message, isNot(contains('arm raise')));
       },
     );
     test('within limits: nothing', () {

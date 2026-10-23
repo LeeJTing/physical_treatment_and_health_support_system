@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
@@ -343,12 +344,33 @@ class PlanRules {
   /// changed: more plans than the risk level allows, an exercise above the
   /// current intensity limit, or a daily time above the current limit. Nothing
   /// is stopped here; the patient chooses what to keep.
+  ///
+  /// Also (audit, 23 Oct): a condition now waiting for a doctor's OK (new plans are held back,
+  /// the plans already followed went on without a word), and an exercise for a part of the
+  /// body the profile now lists as limited. The doctor's OK comes first: Home shows the first.
   static List<PlanIssue> checkActive({
     required List<PatientTreatmentPlan> active,
     required RiskLevel risk,
     required SafetyLimit limit,
+    List<HealthCondition> conditions = const [],
+    List<PhysicalLimitation> limitations = const [],
   }) {
     final issues = <PlanIssue>[];
+    final waiting = [
+      for (final c in conditions)
+        if (c.blocksPlans) c.conditionName,
+    ];
+    if (active.isNotEmpty && waiting.isNotEmpty) {
+      issues.add(
+        PlanIssue(
+          PlanIssueLevel.warning,
+          'clearance_now',
+          'Check with your doctor before you go on with your exercise plan '
+              '(${waiting.join(', ')}). When they agree, change your answer in '
+              'your health profile.',
+        ),
+      );
+    }
     final cap = maxActivePlans(risk);
     if (active.length > cap) {
       issues.add(
@@ -365,6 +387,22 @@ class PlanRules {
         for (final pe in a.plan.exercises)
           if (!limit.permits(pe.exercise)) pe.exercise.exerciseName,
       ];
+      final limited = {
+        for (final pe in a.plan.exercises)
+          if (limitations.any(pe.exercise.conflictsWith)) pe.exercise.exerciseName,
+      };
+      if (limited.isNotEmpty) {
+        issues.add(
+          PlanIssue(
+            PlanIssueLevel.warning,
+            'area_now',
+            '${a.plan.planName} has exercises for a part of your body your health '
+                'profile now lists as limited (${limited.join(', ')}). Talk to your '
+                'doctor or physiotherapist, or choose a new plan.',
+            patientPlanId: a.patientPlanId,
+          ),
+        );
+      }
       if (tooHard.isNotEmpty) {
         issues.add(
           PlanIssue(

@@ -146,6 +146,8 @@ class HomeViewModel extends BaseViewModel {
       active: plans,
       risk: profile.riskLevel,
       limit: profile.safetyLimit,
+      conditions: profile.profile?.conditions ?? const [],
+      limitations: profile.profile?.limitations ?? const [],
     );
     final unread =
         (await _notifications?.unreadCount(account.accountId))?.dataOrNull ?? 0;
