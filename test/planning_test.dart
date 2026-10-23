@@ -28,6 +28,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/tr
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/i_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/recommended_plans_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_card.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/planning_view_model/planning_view_model.dart';
 
 final String catalogueJson = File(
@@ -871,6 +872,35 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  testWidgets(
+    'plan details give a day as one exercise, not the whole plan (audit, 24 Oct)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 4800);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final plan = TreatmentPlan.fromJson(
+        ((jsonDecode(catalogueJson) as Map<String, dynamic>)['plans'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((p) => p['plan_name'] == 'Early Knee Recovery'),
+      );
+      expect(plan.longestDurationSec, 90); // 90 + 90 + 60 s in all
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (c) => TextButton(
+              onPressed: () => showPlanDetails(c, plan),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text('One exercise a day, up to 1.5 min'), findsOneWidget);
+      expect(find.textContaining('a session'), findsNothing);
+    },
+  );
 }
 
 /// Saving a reminder fails, as when the connection drops right after the plan was saved.

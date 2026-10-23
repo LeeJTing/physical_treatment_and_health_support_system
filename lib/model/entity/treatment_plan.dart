@@ -75,6 +75,12 @@ class TreatmentPlan {
   int get totalDurationSec =>
       exercises.fold(0, (s, e) => s + e.prescribedDurationSec);
 
+  /// One exercise of a plan is done a day, so a day takes at most its longest exercise.
+  int get longestDurationSec => exercises.fold(
+    0,
+    (m, e) => e.prescribedDurationSec > m ? e.prescribedDurationSec : m,
+  );
+
   TreatmentPlan withScore(double score) => TreatmentPlan(
     planId: planId,
     planName: planName,

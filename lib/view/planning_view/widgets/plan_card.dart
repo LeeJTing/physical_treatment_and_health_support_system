@@ -268,8 +268,10 @@ Future<void> showPlanDetails(
           children: [
             InfoChip(RehabLabels.area(plan.targetBodyArea)),
             InfoChip('${plan.frequencyPerWeek}x a week'),
+            // One exercise of a plan a day (as PlanRules and the recommender count it): the day is
+            // its longest exercise, not all of them added up (audit, 24 Oct).
             InfoChip(
-              'About ${RehabLabels.duration(plan.totalDurationSec)} a session',
+              'One exercise a day, up to ${RehabLabels.duration(plan.longestDurationSec)}',
             ),
           ],
         ),
