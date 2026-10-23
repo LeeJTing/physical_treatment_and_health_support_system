@@ -652,3 +652,14 @@ def test_a_front_view_exercise_filmed_from_the_side_gets_a_tip():
         side_on.append(q)
     res = analyse("shoulder_abduction", sequence(side_on), use_model=False)
     assert res["camera_not_in_front"] < 0.5 and any("face the phone" in tip for tip in res["quality_tips"])
+
+
+def test_latest_weights_skips_names_that_are_not_versions(tmp_path):
+    # A copy such as sit_to_stand_v4_backup.pt matched the pattern and its int() failed every
+    # /pose request for the exercise (audit, 24 Oct).
+    from app.pose import classifier
+    for name in ("sit_to_stand_v3.pt", "sit_to_stand_v12.pt", "sit_to_stand_v4_backup.pt",
+                 "sit_to_stand_vx.pt", "shoulder_flexion_v9.pt"):
+        (tmp_path / name).write_bytes(b"")
+    assert classifier.latest_weights("sit_to_stand", tmp_path).name == "sit_to_stand_v12.pt"
+    assert classifier.latest_weights("knee_extension", tmp_path) is None

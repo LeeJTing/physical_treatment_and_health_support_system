@@ -84,9 +84,16 @@ def build_model(n_features: int, n_mistakes: int, hidden: int = 64):
     return PostureGRU()
 
 
-def latest_weights(pose_key: str) -> Path | None:
-    files = sorted(WEIGHTS_DIR.glob(f"{pose_key}_v*.pt"), key=lambda p: int(p.stem.rsplit("_v", 1)[1]))
-    return files[-1] if files else None
+def latest_weights(pose_key: str, folder: Path = WEIGHTS_DIR) -> Path | None:
+    """The highest <pose_key>_v<N>.pt. Other names that match the pattern (a copy such as
+    <pose_key>_v4_backup.pt) are skipped: their int() made every /pose request for the exercise fail
+    (audit, 24 Oct)."""
+    found = []
+    for p in folder.glob(f"{pose_key}_v*.pt"):
+        version = p.stem.rsplit("_v", 1)[1]
+        if version.isdigit():
+            found.append((int(version), p))
+    return max(found)[1] if found else None
 
 
 @lru_cache(maxsize=16)
