@@ -74,6 +74,15 @@ class MainApp extends StatelessWidget {
               side: const BorderSide(color: AppTokens.primary),
             ),
           ),
+          // Outlined buttons without a style of their own (Reminders: "Remind me to log my
+          // health readings", age limit: Sources, Home: Try again) had a black border; the
+          // plan card's and the chat's green instead (audit, 23 Oct).
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppTokens.primary,
+              side: const BorderSide(color: AppTokens.primary),
+            ),
+          ),
         ),
         darkTheme: darkTheme,
         // The Figma screens are light-only and hard-code light backgrounds; following
