@@ -335,6 +335,46 @@ void main() {
   );
 
   test(
+    'a failed delete leaves the reminders on the phone (audit, 23 Oct)',
+    () async {
+      final auth = FakeAuthRepository();
+      final profiles = FakeProfileRepository();
+      final notes = FakeNotificationRepository();
+      final device = FakeScheduler();
+      final local = LocalNotificationService(
+        notes,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        now: () => DateTime(2026, 10, 12, 7),
+      );
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      final r = Reminder(
+        reminderId: 'r1',
+        accountId: id,
+        reminderType: ReminderType.healthLog,
+        title: 'Log your readings',
+        hour: 9,
+        minute: 0,
+      );
+      await notes.saveReminder(r);
+      await local.schedule(r);
+      final vm = ProfileViewModel(
+        profiles,
+        auth,
+        RiskAssessmentService(auth, profiles),
+        local,
+      );
+      await vm.loadProfile();
+      await auth.signOut(); // the delete now fails (no session)
+      expect(await vm.deleteAccount(), isFalse);
+      expect(device.pending, isNotEmpty);
+    },
+  );
+
+  test(
     'log out takes the reminders off the phone; signing in again puts them back (Elwin, 23 Oct)',
     () async {
       final auth = FakeAuthRepository();

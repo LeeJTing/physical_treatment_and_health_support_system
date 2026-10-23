@@ -371,14 +371,14 @@ class ProfileViewModel extends BaseViewModel {
 
   UiState<void> deleteState = const Idle();
 
-  /// "Delete my account" (Privacy Notice section 5): the phone's reminders are
-  /// cancelled, then the account and all its data are deleted.
+  /// "Delete my account" (Privacy Notice section 5): the account and all its data are
+  /// deleted, then every reminder is taken off the phone. Only after a successful delete,
+  /// as with log out, so a failed delete leaves the reminders ringing (audit, 23 Oct).
   Future<bool> deleteAccount() async {
     deleteState = const Loading();
     notifyListeners();
-    final id = account?.accountId;
-    if (id != null) await _notifications?.cancelAllFor(id);
     final res = await _auth.deleteAccount();
+    if (res.isSuccess) await _notifications?.cancelEverything();
     deleteState = res.isSuccess
         ? const UiSuccess(null)
         : const UiError(Messages.accountDeleteFailed);
