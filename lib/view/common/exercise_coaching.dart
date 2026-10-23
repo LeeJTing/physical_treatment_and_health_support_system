@@ -13,7 +13,7 @@ class CoachStep {
 }
 
 /// A mistake the posture check looks for: [wrong] is what it means, [right] the server's own
-/// "do this" sentence for it (test/guide_coaching_test.dart keeps them equal).
+/// "do this" sentence for it (test/guide_test.dart keeps them equal).
 class CoachMistake {
   final String label;
   final String wrong;
