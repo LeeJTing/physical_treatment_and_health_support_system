@@ -422,6 +422,13 @@ void main() {
         await h.vm.ask('and the reps');
         await h.vm.report(h.vm.messages.last, expected: 'x' * 900);
         expect(h.treatments.chatReports.last.expectedText!.length, 500);
+        // An emoji across the cut stays whole (audit, 23 Oct): 500 characters as the database
+        // counts them, and no half character it would refuse.
+        await h.vm.ask('and how often');
+        await h.vm.report(h.vm.messages.last, expected: 'x' * 499 + '😀' * 3);
+        final cut = h.treatments.chatReports.last.expectedText!;
+        expect(cut.runes.length, 500);
+        expect(cut.endsWith('😀'), isTrue);
       },
     );
 
