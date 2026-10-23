@@ -285,7 +285,7 @@ class RecommendedPlansView extends StatelessWidget {
                     actionLabel: 'Try again',
                     onAction: vm.retry,
                   ),
-                  // 65 and over (Terms of Use, section 2): the reasons page instead.
+                  // A condition waiting for a doctor's OK (11 Oct).
                   UiSuccess(:final data)
                       when data.restriction ==
                           PlanRestriction.clearanceNeeded =>
@@ -300,6 +300,7 @@ class RecommendedPlansView extends StatelessWidget {
                         context,
                       ).pushNamed(Routes.healthProfile),
                     ),
+                  // 65 and over (Terms of Use, section 2): the reasons page instead.
                   UiSuccess(:final data) when data.restriction != null =>
                     _Problem(
                       message:
@@ -413,7 +414,9 @@ class _PlanList extends StatelessWidget {
           TextButton(
             onPressed: () => showWhyNot(context, recommendation.excluded),
             child: Text(
-              'Why not the other ${recommendation.excluded.length} plans?',
+              recommendation.excluded.length == 1
+                  ? 'Why not the other plan?'
+                  : 'Why not the other ${recommendation.excluded.length} plans?',
             ),
           ),
           const SizedBox(height: 4),
