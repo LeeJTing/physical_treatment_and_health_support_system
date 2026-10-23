@@ -487,9 +487,6 @@ class TreatmentViewModel extends BaseViewModel {
   UiState<void> _saving = const Idle();
   UiState<void> get saving => _saving;
 
-  /// Records the attempt and advances the pathway (FR300_11, FR300_21). Advancing only
-  /// happens when the attempt is for the current stage, so repeating a finished exercise
-  /// does not skip ahead.
   /// The saved tries below 80% of this exercise in a row, counting [s] (1 after the first);
   /// 0 when [s] passed.
   static int triesBelowPass(
@@ -521,6 +518,9 @@ class TreatmentViewModel extends BaseViewModel {
   int _lastTriesBelowPass = 0;
   int get lastTriesBelowPass => _lastTriesBelowPass;
 
+  /// Records the attempt and advances the pathway (FR300_11, FR300_21). Advancing only
+  /// happens when the attempt is for the current stage, so repeating a finished exercise
+  /// does not skip ahead.
   Future<bool> acceptResult() async {
     if (_testing) return true; // testing mode: nothing to save
     final p = activePlan;

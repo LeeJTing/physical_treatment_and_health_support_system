@@ -130,11 +130,11 @@ class NotificationViewModel extends BaseViewModel {
     _ => false,
   };
 
-  /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
   /// True while a health-log reminder is being added: a second tap before the first is saved
   /// made two of them (audit, 23 Oct).
   bool _adding = false;
 
+  /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
   Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
     final id = _accountId;
     if (id == null || hasHealthLogReminder || _adding) return;

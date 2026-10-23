@@ -110,10 +110,10 @@ class _MainShellState extends State<MainShell> {
             ),
           ),
         ),
-        // Labels at most 1.3x the normal size: with large phone text "Treatment" was split
+        // Labels at most 1.15x the normal size: with large phone text "Treatment" was split
         // into "Treatme / nt" (audit, 23 Oct). The icons stay the same size.
         child: MediaQuery.withClampedTextScaling(
-          maxScaleFactor: 1.3,
+          maxScaleFactor: 1.15,
           child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => _select(context, i),
