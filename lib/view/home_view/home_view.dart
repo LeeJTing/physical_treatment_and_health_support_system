@@ -76,20 +76,15 @@ class _HomeViewState extends State<HomeView> {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        // Header band with the greeting, the bell and the risk pill.
-        Stack(
-          children: [
-            Container(
-              height: top + 230,
-              decoration: const BoxDecoration(
-                color: AppTokens.brandDeep,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(32),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, top + 24, 12, 0),
+        // Header band with the greeting, the bell and the risk pill, as tall as their text needs
+        // (audit, 24 Oct: fixed offsets put the pill under the Health Score card with large phone
+        // text). At normal text size the card starts at top + 176 as in the Figma.
+        ColoredBox(
+          color: AppTokens.brandDeep,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24, top + 24, 12, 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 136),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -144,14 +139,28 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppTokens.gutter,
-                top + 176,
-                AppTokens.gutter,
-                0,
+          ),
+        ),
+        // The band's rounded last 54 px run behind the top of the card.
+        Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 54,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppTokens.brandDeep,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(32),
+                  ),
+                ),
               ),
-              child: const _HealthScoreCard(),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: AppTokens.gutter),
+              child: _HealthScoreCard(),
             ),
           ],
         ),
@@ -183,7 +192,9 @@ class _HomeViewState extends State<HomeView> {
                   Expanded(child: _VitalCard('Body\nweight', 'kg')),
                 ],
               ),
-              // Followed plans that no longer fit the profile (PlanRules.checkActive).
+              const SizedBox(height: AppTokens.gap),
+              // Followed plans that no longer fit the profile (PlanRules.checkActive); a gap on
+              // both sides (audit, 24 Oct: it touched the vitals row).
               if (d.planIssues.isNotEmpty) ...[
                 _Notice(
                   d.planIssues.first.message,
@@ -191,7 +202,6 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 const SizedBox(height: AppTokens.gap),
               ],
-              const SizedBox(height: AppTokens.gap),
               _SessionCard(
                 data: d,
                 onStart: () => _open(Routes.physicalTreatment),
@@ -597,9 +607,17 @@ class _LimitsCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                '0 / ${_n(calories)} kcal',
-                style: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
+              const SizedBox(width: 8),
+              // Wraps with large phone text instead of running off the card (audit, 24 Oct).
+              Flexible(
+                child: Text(
+                  '0 / ${_n(calories)} kcal',
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    color: AppTokens.inkMuted,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),

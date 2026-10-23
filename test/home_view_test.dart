@@ -302,6 +302,46 @@ void main() {
     expect(find.text(Messages.sessionExpired), findsNothing);
   });
 
+  testWidgets(
+    'the header never runs into the Health Score card, with phone text at 1x and 2x (audit, 24 Oct)',
+    (tester) async {
+      for (final scale in [1.0, 1.5, 2.0]) {
+        final s = _Setup();
+        await tester.runAsync(s.signIn);
+        tester.view.physicalSize = const Size(1080, 2400);
+        tester.view.devicePixelRatio = 3; // 360 x 800
+        addTearDown(tester.view.reset);
+        await tester.pumpWidget(
+          ChangeNotifierProvider.value(
+            value: s.vm,
+            child: MaterialApp(
+              builder: (c, child) => MediaQuery(
+                data: MediaQuery.of(c).copyWith(
+                  textScaler: TextScaler.linear(scale),
+                ),
+                child: child!,
+              ),
+              home: const Scaffold(body: HomeView()),
+            ),
+          ),
+        );
+        await tester.runAsync(s.vm.load);
+        await tester.pump();
+        final pill = tester.getRect(find.text('Complete your profile'));
+        final card = tester.getRect(
+          find.ancestor(
+            of: find.text('Health Score'),
+            matching: find.byType(Container),
+          ).first,
+        );
+        expect(pill.bottom, lessThanOrEqualTo(card.top), reason: 'scale $scale');
+        // Never higher than the Figma's top + 176 (the header's minimum height).
+        expect(card.top, greaterThanOrEqualTo(176));
+        expect(tester.takeException(), isNull, reason: 'scale $scale');
+      }
+    },
+  );
+
   testWidgets('ComingSoonView names the tab', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: ComingSoonView('Diet')));
     expect(find.text('Diet'), findsOneWidget);
