@@ -37,6 +37,7 @@ class WholeWordsText extends StatelessWidget {
             textScaler: scaler,
           )..layout();
           longest = math.max(longest, tp.width);
+          tp.dispose(); // only measured, never painted
         }
         if (longest > width) {
           final size = style.fontSize ?? 14;
