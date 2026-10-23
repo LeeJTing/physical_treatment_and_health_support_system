@@ -19,9 +19,8 @@ class SupabaseAuthRepository implements IAuthRepository {
 
   final SupabaseProvider _sb;
 
-  /// Failed logins per email, for the lockout (FR100_031). Kept in memory:
-  /// Supabase also rate-limits sign-ins on the server.
-  /// FR100_031, kept between app starts (audit, 23 Oct).
+  /// Failed logins per email, for the lockout (FR100_031), kept between app starts (audit,
+  /// 23 Oct). Supabase also rate-limits sign-ins on the server.
   late final LoginAttempts _attempts = LoginAttempts(now: _now);
 
   /// Wrong verification codes per email since the code was issued (FR100_016). After
