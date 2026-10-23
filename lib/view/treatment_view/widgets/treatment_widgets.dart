@@ -195,9 +195,14 @@ class StagePill extends StatelessWidget {
       Color bg,
       Color fg,
     ) = switch (stage.status) {
+      // Done below 80% (moved on after 3 tries): not shown as a pass (audit, 24 Oct).
       StageStatus.done => (
         Icons.check,
-        best == null ? 'Done' : '${best.round()}% posture',
+        best == null
+            ? 'Done'
+            : best >= ExerciseSession.passMark
+            ? '${best.round()}% posture'
+            : 'Done, best ${best.round()}%',
         AppTokens.goodContainer,
         AppTokens.good,
       ),

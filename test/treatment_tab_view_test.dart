@@ -10,6 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_tab_view.dart';
@@ -172,6 +175,45 @@ void main() {
     expect(vm.testing, isFalse);
     expect(find.byKey(const Key('test_mode_card')), findsOneWidget);
   });
+
+  testWidgets(
+    'a stage done below 80% says so, a passed one shows its score (audit, 24 Oct)',
+    (tester) async {
+      Future<String> pill(StageStatus status, double best) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: StagePill(
+                PathwayStage(
+                  const PlanExercise(
+                    planId: 'p',
+                    exercise: Exercise(
+                      exerciseId: 'e',
+                      exerciseName: 'Heel Raise',
+                      instructionText: '',
+                      targetBodyArea: 'BOTH_LEGS',
+                      intensityLevel: ExerciseIntensity.low,
+                      defaultRepetitions: 10,
+                      defaultDurationSec: 60,
+                    ),
+                    sequenceOrder: 1,
+                    prescribedRepetitions: 10,
+                    prescribedDurationSec: 60,
+                  ),
+                  status,
+                  best,
+                ),
+              ),
+            ),
+          ),
+        );
+        return tester.widget<Text>(find.byType(Text)).data!;
+      }
+
+      expect(await pill(StageStatus.done, 61), 'Done, best 61%');
+      expect(await pill(StageStatus.done, 94), '94% posture');
+    },
+  );
 }
 
 /// The fill of a card on the tab: the highlighted one is dark green.
