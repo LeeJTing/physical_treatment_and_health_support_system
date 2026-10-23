@@ -426,6 +426,47 @@ void main() {
       expect(device.pending, hasLength(scheduled));
     },
   );
+
+  test(
+    'declining the terms takes off the reminders signing in put back (audit, 23 Oct)',
+    () async {
+      final auth = FakeAuthRepository();
+      final notes = FakeNotificationRepository();
+      final device = FakeScheduler();
+      final local = LocalNotificationService(
+        notes,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        now: () => DateTime(2026, 10, 12, 7),
+      );
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      await auth.signOut();
+      await notes.saveReminder(
+        Reminder(
+          reminderId: 'r1',
+          accountId: id,
+          reminderType: ReminderType.healthLog,
+          title: 'Log your readings',
+          hour: 9,
+          minute: 0,
+        ),
+      );
+      final vm = AuthViewModel(
+        auth,
+        FakeProfileRepository(),
+        local,
+        FakeTermsRepository(),
+      );
+      expect(await vm.login('demo@apths.test', 'password123'), isTrue);
+      expect(vm.nextRoute, Routes.terms); // never accepted
+      await vm.declineTerms(); // also while the sync is still running
+      await pumpEventQueue(); // a sync still running would schedule them now
+      expect(device.pending, isEmpty);
+    },
+  );
 }
 
 /// The reminder list as when the phone is offline: reading it fails (PC review, 23 Oct).

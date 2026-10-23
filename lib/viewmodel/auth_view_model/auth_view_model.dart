@@ -154,10 +154,13 @@ class AuthViewModel extends BaseViewModel {
     // Every way in (app start, log in, code, Google, account setup) puts this account's
     // reminders on the phone again: logging out takes them off (Elwin, 23 Oct). Not awaited,
     // so it never holds up the next screen.
-    _notifications?.sync(a.accountId).ignore();
+    _syncing = _notifications?.sync(a.accountId).then((_) {}, onError: (_) {});
     termsReason = await _termsNeeded(a);
     return termsReason != null ? Routes.terms : _profileRoute(a);
   }
+
+  /// The reminder sync started at the last sign-in, so declining the terms can wait for it.
+  Future<void>? _syncing;
 
   /// Null when the current terms are accepted. When the acceptances cannot be
   /// read (offline, or the table not created yet) the patient is not locked
@@ -170,7 +173,8 @@ class AuthViewModel extends BaseViewModel {
     final last = res.data;
     termsProfileAge = (await _profiles.getProfile(a.accountId)).dataOrNull?.age;
     if (last == null) return TermsReason.firstTime;
-    if (last.termsVersion != AppConstants.termsVersion) return TermsReason.updated;
+    if (last.termsVersion != AppConstants.termsVersion)
+      return TermsReason.updated;
     final age = termsProfileAge;
     if (last.ageGroup == TermsAgeGroup.adult &&
         age != null &&
@@ -234,9 +238,12 @@ class AuthViewModel extends BaseViewModel {
     return res.isSuccess;
   }
 
-  /// The terms were declined: the app cannot be used, so sign out.
+  /// The terms were declined: the app cannot be used, so sign out. Signing in put the
+  /// account's reminders on the phone; they come off again, as at log out (audit, 23 Oct).
   Future<void> declineTerms() async {
     await _auth.signOut();
+    await _syncing;
+    await _notifications?.cancelEverything();
     termsReason = null;
     termsState = const Idle();
     nextRoute = Routes.loginScreen;
@@ -257,8 +264,18 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> login(String email, String password) async {
-    loginState = const Loading();
     lastErrorCode = null;
+    // Checked here too, not only by the screen, as at registration and reset (audit, 23 Oct).
+    // Only that a password was typed: the strength rule is for new passwords.
+    final invalid =
+        FormValidators.email(email) ??
+        (password.isEmpty ? Messages.passwordEmpty : null);
+    if (invalid != null) {
+      loginState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
+    loginState = const Loading();
     notifyListeners();
     final res = await _auth.login(email, password);
     switch (res) {
@@ -274,6 +291,16 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> register(String username, String email, String password) async {
+    // The same rules as the screen, checked here too (audit, 23 Oct).
+    final invalid =
+        FormValidators.username(username) ??
+        FormValidators.email(email) ??
+        FormValidators.password(password);
+    if (invalid != null) {
+      registerState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
     registerState = const Loading();
     notifyListeners();
     final res = await _auth.register(email, password, username);
@@ -287,6 +314,14 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> verify(String email, String code) async {
+    final invalid = FormValidators.otp(
+      code.trim(),
+    ); // checked here too (audit, 23 Oct)
+    if (invalid != null) {
+      verifyState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
     verifyState = const Loading();
     notifyListeners();
     final res = await _auth.verify(email, code);
