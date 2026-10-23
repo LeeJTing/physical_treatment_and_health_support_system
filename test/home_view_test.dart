@@ -343,10 +343,51 @@ void main() {
           matching: find.byType(InkWell),
         );
         expect(tester.getSize(tap.first).height, greaterThanOrEqualTo(48));
+        // The kcal figure ends at the card's right edge (it wraps only when it must).
+        await tester.scrollUntilVisible(
+          find.textContaining('kcal'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        final kcal = tester.getRect(find.textContaining('kcal'));
+        final limits = tester.getRect(
+          find
+              .ancestor(
+                of: find.text('Energy today'),
+                matching: find.byType(Container),
+              )
+              .first,
+        );
+        expect(limits.right - kcal.right, closeTo(20, 1), reason: 'scale $scale');
         expect(tester.takeException(), isNull, reason: 'scale $scale');
       }
     },
   );
+
+  testWidgets("the kcal figure stays at the card's right edge when it fits", (
+    tester,
+  ) async {
+    final s = _Setup();
+    await tester.runAsync(s.signIn);
+    tester.view.physicalSize = const Size(1080, 3000);
+    tester.view.devicePixelRatio = 1.5; // 720 wide: the figure fits in its half
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: s.vm,
+        child: const MaterialApp(home: Scaffold(body: HomeView())),
+      ),
+    );
+    await tester.runAsync(s.vm.load);
+    await tester.pump();
+    final kcal = tester.getRect(find.textContaining('kcal'));
+    final card = tester.getRect(
+      find
+          .ancestor(of: find.text('Energy today'), matching: find.byType(Container))
+          .first,
+    );
+    expect(card.right - kcal.right, closeTo(20, 1)); // before: a gap of about a quarter of the card
+  });
 
   testWidgets('ComingSoonView names the tab', (tester) async {
     await tester.pumpWidget(const MaterialApp(home: ComingSoonView('Diet')));

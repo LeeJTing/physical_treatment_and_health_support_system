@@ -606,6 +606,8 @@ class _LimitsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            // The kcal figure stays at the right edge when it fits (it may wrap, so it is Flexible).
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Expanded(
                 child: Text(
