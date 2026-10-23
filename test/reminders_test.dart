@@ -17,6 +17,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/notification_view_model/notification_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 
 /// Records what would be scheduled on the phone.
 class FakeScheduler implements NotificationScheduler {
@@ -597,6 +598,28 @@ void main() {
       await vm.toggleDay('plan-r', DateTime.friday); // would leave no day
       expect(repo.reminders['plan-r']!.repeatDays, '0000100');
       expect(vm.errorMessage, Messages.reminderNeedsADay);
+    });
+
+    test('two quick day taps both count (audit, 24 Oct)', () async {
+      // Not awaited one by one: the second tap comes while the first is being saved.
+      await Future.wait([
+        vm.toggleDay('plan-r', DateTime.monday),
+        vm.toggleDay('plan-r', DateTime.wednesday),
+      ]);
+      expect(repo.reminders['plan-r']!.repeatDays, '0000100'); // before: '1000100'
+      final shown = (vm.reminders as UiSuccess<List<Reminder>>).data;
+      expect(shown.single.repeatDays, '0000100');
+    });
+
+    test('a changed time moves the card into time order at once', () async {
+      await vm.addHealthLogReminder(); // 8 pm, after the 9 am plan reminder
+      List<String> order() => [
+        for (final r in (vm.reminders as UiSuccess<List<Reminder>>).data)
+          r.reminderId,
+      ];
+      expect(order().first, 'plan-r');
+      await vm.changeTime('plan-r', 21, 0);
+      expect(order().last, 'plan-r');
     });
 
     test('the last-day notice goes once anything else succeeds', () async {
