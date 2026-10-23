@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/plan_rules/plan_rules.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
@@ -54,6 +55,18 @@ class TreatmentViewModel extends BaseViewModel {
     this._reminders,
     this._risk,
   ]);
+
+  List<PlanIssue> _planIssues = const [];
+
+  /// The followed plans that no longer fit the profile (PlanRules.checkActive): those about
+  /// the plan on screen, and those about all plans. Warnings only; nothing is stopped.
+  List<PlanIssue> get planIssues {
+    final id = activePlan?.patientPlanId;
+    return [
+      for (final i in _planIssues)
+        if (i.patientPlanId == null || i.patientPlanId == id) i,
+    ];
+  }
 
   /// Risk level and age from the health profile, so the server can lower the range-of-motion
   /// targets for older or high-risk patients. Nulls (full targets) when there is no profile.
@@ -165,13 +178,22 @@ class TreatmentViewModel extends BaseViewModel {
       return;
     }
     final risk = _risk;
-    _age = risk == null
-        ? null
-        : (await risk.retrieve()).dataOrNull?.profile?.age;
+    final snapshot = risk == null ? null : (await risk.retrieve()).dataOrNull;
+    _age = snapshot?.profile?.age;
     _restriction = PlanRestriction.forAge(_age);
     final res = await _repo.getActivePlans(account.accountId);
     if (res case Success(data: final all)) {
       _plans = all;
+      // The same re-check as Home, shown where the exercises are started (audit, 23 Oct).
+      _planIssues = snapshot == null
+          ? const []
+          : PlanRules.checkActive(
+              active: all,
+              risk: snapshot.riskLevel,
+              limit: snapshot.safetyLimit,
+              conditions: snapshot.profile?.conditions ?? const [],
+              limitations: snapshot.profile?.limitations ?? const [],
+            );
       _lastCompleted =
           ((await _repo.getPlanHistory(account.accountId)).dataOrNull ??
                   const <PatientTreatmentPlan>[])

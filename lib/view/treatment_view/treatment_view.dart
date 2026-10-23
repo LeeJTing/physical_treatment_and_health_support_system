@@ -191,6 +191,12 @@ class _TreatmentViewState extends State<TreatmentView> {
                         ),
                       ),
                     ],
+                    // The plan no longer fits the profile (audit, 23 Oct): said here too, not
+                    // only on Home, as this is where the exercises are started.
+                    for (final issue in vm.planIssues) ...[
+                      NoticeBanner(issue.message, warning: true),
+                      const SizedBox(height: AppTokens.gap),
+                    ],
                     ProgressBlock(
                       label: 'Overall progress',
                       done: plan.completedStages,
