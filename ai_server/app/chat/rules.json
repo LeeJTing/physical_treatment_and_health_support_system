@@ -1,5 +1,5 @@
 {
-  "version": "chat-rules-4.08",
+  "version": "chat-rules-4.09",
   "not_recognised": "Question not recognised. Please choose a topic below, or ask it another way.",
   "intents": [
     {
@@ -51,7 +51,7 @@
         "I am new, how do I use this app",
         "how do I get started with my exercises"
       ],
-      "answer": "Here is how to start:\n1) Make sure your health profile is complete (Profile tab), so your safety limits are set.\n2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get plans that suit you, then select one.\n3) Open My treatment plan from the Treatment tab and start the first exercise: read its steps, then record yourself doing it.\n4) The app checks your posture; reach 80% to move on to the next exercise.\nYour reminders follow the plan's weekly schedule.",
+      "answer": "Here is how to start:\n1) Make sure your health profile is complete (Profile tab), so your safety limits are set.\n2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get plans that suit you, then select one.\n3) Open My treatment plan from the Treatment tab and start the first exercise: read its steps, then record yourself doing it.\n4) The app checks your posture; you move on to the next exercise at 80% or more, or after 3 tries below 80%.\nYour reminders follow the plan's weekly schedule.",
       "follow_ups": [],
       "tailor": true,
       "negatable": false,
@@ -1248,7 +1248,7 @@
         "what do I do if I fail the posture check",
         "should I retry the exercise"
       ],
-      "answer": "The posture score shows how closely your movement matched the correct form, as a percentage, with tips on what to change.\n1) At 80% or more your progress is updated automatically.\n2) Below that you can read the tips and retry, or continue; every attempt is saved so you can see your improvement.\n3) If it counted fewer repetitions than you did, make each one a full, clear movement with a short pause back at the start, and keep your whole body in the picture.",
+      "answer": "The posture score shows how closely your movement matched the correct form, as a percentage, with tips on what to change.\n1) At 80% or more your progress is updated automatically.\n2) Below that you can read the tips and retry, or tap Continue to save this try.\n3) Your plan moves on when you score 80% or more, or after 3 tries below 80%.\n4) Every attempt is saved so you can see your improvement.\n5) If it counted fewer repetitions than you did, make each one a full, clear movement with a short pause back at the start, and keep your whole body in the picture.",
       "follow_ups": [],
       "tailor": false,
       "negatable": false,
@@ -1552,7 +1552,7 @@
         "where are my exercises",
         "take me to my treatment plan"
       ],
-      "answer": "Your treatment plan shows your exercises in order. Open the next one, read its steps, then record yourself doing it; the app checks your posture and moves you on when you reach 80%.",
+      "answer": "Your treatment plan shows your exercises in order. Open the next one, read its steps, then record yourself doing it; the app checks your posture and moves you on when you reach 80%, or after 3 tries below 80%.",
       "follow_ups": [],
       "tailor": true,
       "negatable": false,

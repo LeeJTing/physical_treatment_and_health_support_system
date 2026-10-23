@@ -26,7 +26,7 @@ from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-4.08"
+VERSION = "chat-rules-4.09"
 
 # FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
 # question."). A short message is echoed back in it (engine._not_recognised).
@@ -61,8 +61,9 @@ INTENTS = [
            "Here is how to start: 1) Make sure your health profile is complete (Profile tab), so your safety "
            "limits are set. 2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get "
            "plans that suit you, then select one. 3) Open My treatment plan from the Treatment tab and start the "
-           "first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; reach "
-           "80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
+           "first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; you "
+           "move on to the next exercise at 80% or more, or after 3 tries below 80%. Your reminders follow the "
+           "plan's weekly schedule.",
            action={"key": "open_planning", "label": "Open treatment planning"},
            more_actions=[{"key": "open_profile", "label": "Open Profile"}]),
     intent("how_to", "How to do the exercises", 4,
@@ -246,7 +247,8 @@ INTENTS = [
             "should I retry the exercise"],
            "The posture score shows how closely your movement matched the correct form, as a percentage, with "
            "tips on what to change. At 80% or more your progress is updated automatically. Below that you can "
-           "read the tips and retry, or continue; every attempt is saved so you can see your improvement. "
+           "read the tips and retry, or tap Continue to save this try. Your plan moves on when you score 80% or "
+           "more, or after 3 tries below 80%. Every attempt is saved so you can see your improvement. "
            "If it counted fewer repetitions than you did, make each one a full, clear movement with a short "
            "pause back at the start, and keep your whole body in the picture."),
     intent("best_time", "When to exercise", 5,
@@ -303,7 +305,8 @@ INTENTS = [
             "where are my exercises", "take me to my exercises", "my pathway", "next stage"],
            ["open my exercises", "where are my exercises", "take me to my treatment plan"],
            "Your treatment plan shows your exercises in order. Open the next one, read its steps, then record "
-           "yourself doing it; the app checks your posture and moves you on when you reach 80%.",
+           "yourself doing it; the app checks your posture and moves you on when you reach 80%, or after 3 "
+           "tries below 80%.",
            show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
     intent("profile_help", "Your health profile", 6,
            ["medium risk", "low risk", "high risk", "risk mean", "risk calculated", "my risk level", "risk level mean",

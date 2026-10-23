@@ -305,8 +305,9 @@ def plan_intents(plan: dict) -> list[dict]:
          "examples": ["when will I see results", "how do I know I am improving", "is the plan working",
                       "what happens when I finish this plan"],
          "answer": f"This plan aims to help you {plan['goal_text']}. Most people notice a difference after two to "
-                   f"four weeks of regular sessions. Your progress bar moves forward each time you complete an "
-                   f"exercise with good posture; when the plan is complete, request a new recommendation to move on.",
+                   f"four weeks of regular sessions. Your progress bar moves forward each time you score 80% or "
+                   f"more on an exercise, or after 3 tries below 80%; when the plan is complete, request a new "
+                   f"recommendation to move on.",
          "follow_ups": [], "tailor": False,
          "action": {"key": "open_history", "label": "See my results"}},
     ]
