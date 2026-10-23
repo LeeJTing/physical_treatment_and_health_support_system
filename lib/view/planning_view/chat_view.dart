@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -612,8 +614,13 @@ class _Topics extends StatelessWidget {
     return Container(
       color: AppTokens.background,
       padding: const EdgeInsets.only(top: 6, bottom: 6),
+      // As tall as the chips' text needs: a fixed 44 cut them off with large phone text
+      // (emulator at font scale 2.0, 23 Oct). 14 sp text with 10 px padding above and below.
       child: SizedBox(
-        height: 44,
+        height: math.max(
+          44.0,
+          24 + MediaQuery.textScalerOf(context).scale(14) * 1.35,
+        ),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: AppTokens.gutter),
