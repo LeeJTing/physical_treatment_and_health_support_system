@@ -1,0 +1,56 @@
+{
+  "pose_key": "seated_marching",
+  "focus": {
+    "joint": "hip",
+    "from": "shoulder",
+    "to": "knee"
+  },
+  "mover": "knee",
+  "captions": {
+    "start": "Sit upright",
+    "go": "Lift one knee",
+    "top": "Knee up towards your chest",
+    "back": "Lower, then the other knee"
+  },
+  "say": {
+    "go": "Lift",
+    "back": "Down"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Sit upright on a chair without leaning back."
+    },
+    {
+      "phase": "go",
+      "text": "Lift one knee towards your chest."
+    },
+    {
+      "phase": "top",
+      "text": "Lift it as high as is comfortable, without using your hands."
+    },
+    {
+      "phase": "back",
+      "text": "Lower it, then lift the other knee, at a steady pace."
+    }
+  ],
+  "safety": [
+    "Use a sturdy chair without wheels.",
+    "Keep your feet flat on the floor between lifts."
+  ],
+  "mistakes": [
+    {
+      "label": "low_knee_lift",
+      "wrong": "your knees did not lift high enough",
+      "right": "Lift your knees a little higher, only as far as is comfortable."
+    },
+    {
+      "label": "using_hands",
+      "wrong": "your hands pulled your leg up",
+      "right": "Lift your legs without pulling them up with your hands."
+    }
+  ],
+  "setup": [
+    "Sit side-on to the phone."
+  ]
+}

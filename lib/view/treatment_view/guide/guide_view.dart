@@ -89,16 +89,32 @@ class _GuideViewState extends State<GuideView> {
     [..._setupLines(e, c)].join(' '),
   ];
 
+  /// Where the phone goes, from the exercise's own camera tip (23 Oct): floor exercises (bird
+  /// dog, glute bridge) put it on the floor about 2 m away, not at waist height.
+  static ({bool floor, String? metres}) _phonePlace(Exercise e) {
+    final tip = (e.cameraTip ?? '').toLowerCase();
+    return (
+      floor: tip.contains('on the floor'),
+      metres: RegExp(r'about ([\d.]+) m').firstMatch(tip)?.group(1),
+    );
+  }
+
   List<String> _setupLines(Exercise e, ExerciseCoaching c) {
     final side = (_data?.view ?? 'front') == 'side';
+    final place = _phonePlace(e);
+    final away = place.metres == null
+        ? '2.5 to 3 metres'
+        : 'about ${place.metres} metres';
     return [
       ...c.setup,
       if (e.recordsHands) ...[
         'Sit at a table. Prop the phone up at table height, half a metre to one metre away.',
         'Keep your forearm and your whole hand inside the box on the screen.',
       ] else ...[
-        'Prop the phone up at about waist height, on a stand or against something steady.',
-        'Stand 2.5 to 3 metres away, ${side ? 'with your side towards the phone, not your back' : 'facing the phone'}.',
+        place.floor
+            ? 'Put the phone on the floor, propped up so it looks at you.'
+            : 'Prop the phone up at about waist height, on a stand or against something steady.',
+        '${place.floor ? 'Be' : 'Stand'} $away away, ${side ? 'with your side towards the phone, not your back' : 'facing the phone'}.',
         'Your whole body, head to feet, must fit inside the box on the screen.',
       ],
       'Have good light in front of you, not behind you.',
@@ -351,7 +367,14 @@ class _GuideViewState extends State<GuideView> {
   Widget _setupPage(Exercise e, ExerciseCoaching c) => _pageOf([
     const Text('Set up your phone', style: _title),
     const SizedBox(height: 12),
-    SetupScene(data: _data, hands: e.recordsHands),
+    SetupScene(
+      data: _data,
+      hands: e.recordsHands,
+      floor: _phonePlace(e).floor,
+      distance: _phonePlace(e).metres == null
+          ? null
+          : 'about ${_phonePlace(e).metres} m',
+    ),
     const SizedBox(height: 12),
     for (final l in _setupLines(e, c))
       _Line(icon: Icons.check_circle_outline, text: l),

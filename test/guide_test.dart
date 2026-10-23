@@ -63,6 +63,13 @@ void main() {
             f.uri.pathSegments.last.replaceAll('.json', ''),
         };
         expect(keys, containsAll(['sit_to_stand', 'wall_push_up']));
+      // Since 23 Oct (Elwin): every exercise with an animation has one.
+      final animated = {
+        for (final f in Directory('assets/guides').listSync().whereType<File>())
+          if (f.path.endsWith('.json'))
+            f.uri.pathSegments.last.replaceAll('.json', ''),
+      };
+      expect(keys, containsAll(animated));
       });
 
       test(
@@ -113,7 +120,8 @@ void main() {
             );
             final c = ExerciseCoaching.fromJson(j);
             for (final n in [c.focusJoint, c.focusFrom, c.focusTo, c.mover]) {
-              expect(d.index(n), isNotNull, reason: '$key $n');
+              // A hold (tandem stance) has a ring but no arc or arrow: only the names given.
+              if (n != null) expect(d.index(n), isNotNull, reason: '$key $n');
             }
             const parts = {'start', 'go', 'top', 'back'};
             expect(parts.containsAll(c.captions.keys), isTrue, reason: key);

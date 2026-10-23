@@ -1,0 +1,40 @@
+{
+  "pose_key": "tandem_stance",
+  "focus": {
+    "joint": "ankle"
+  },
+  "captions": {
+    "start": "Heel to toe: hold for 30 seconds"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand next to a counter with one hand near it."
+    },
+    {
+      "text": "Put one foot directly in front of the other, heel touching toe."
+    },
+    {
+      "text": "Hold for 30 seconds, then switch feet."
+    }
+  ],
+  "safety": [
+    "Always keep one hand near the counter.",
+    "If you wobble, step out or hold the counter: that is the safe thing to do."
+  ],
+  "mistakes": [
+    {
+      "label": "feet_not_in_line",
+      "wrong": "your feet were side by side or apart instead of one in front of the other",
+      "right": "Place one foot directly in front of the other, heel touching toe."
+    },
+    {
+      "label": "leaning",
+      "wrong": "you leaned on the counter or to the side",
+      "right": "Stand upright with a light touch on the counter, rather than leaning your weight on it or to the side."
+    }
+  ],
+  "setup": [
+    "Stand next to a counter, facing the phone."
+  ]
+}

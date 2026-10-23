@@ -1,0 +1,54 @@
+{
+  "pose_key": "elbow_flexion",
+  "focus": {
+    "joint": "elbow",
+    "from": "shoulder",
+    "to": "wrist"
+  },
+  "mover": "wrist",
+  "captions": {
+    "start": "Arms by your sides, palms forward",
+    "go": "Bend your elbows",
+    "top": "Hands up towards your shoulders",
+    "back": "Lower slowly"
+  },
+  "say": {
+    "go": "Bend",
+    "back": "Lower"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand or sit tall with your arms by your sides, palms facing forward."
+    },
+    {
+      "phase": "go",
+      "text": "Bend your elbows to bring your hands up. Keep your upper arms still against your body."
+    },
+    {
+      "phase": "top",
+      "text": "Bring your hands towards your shoulders, as far as is comfortable."
+    },
+    {
+      "phase": "back",
+      "text": "Lower your hands slowly."
+    }
+  ],
+  "safety": [
+    "You can hold a light bottle of water if it feels easy.",
+    "Stop if your elbow or shoulder hurts."
+  ],
+  "mistakes": [
+    {
+      "label": "upper_arm_moves",
+      "wrong": "your upper arm moved away from your side",
+      "right": "Keep your upper arms still against your body."
+    },
+    {
+      "label": "body_swing",
+      "wrong": "you rocked your body back to help lift",
+      "right": "Keep your body still; do not rock back to lift."
+    }
+  ],
+  "setup": []
+}

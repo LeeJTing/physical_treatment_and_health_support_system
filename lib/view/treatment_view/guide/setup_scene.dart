@@ -14,12 +14,24 @@ import 'package:physical_treatment_and_health_support_system/view/common/exercis
 class SetupScene extends StatelessWidget {
   final GuideAnimationData? data;
   final bool hands;
-  const SetupScene({super.key, required this.data, required this.hands});
+  /// The phone goes on the floor (floor exercises), not at waist height.
+  final bool floor;
+
+  /// How far away, from the exercise's camera tip; null: 2.5 to 3 m.
+  final String? distance;
+
+  const SetupScene({
+    super.key,
+    required this.data,
+    required this.hands,
+    this.floor = false,
+    this.distance,
+  });
 
   @override
   Widget build(BuildContext context) {
     final side = !hands && data?.view == 'side';
-    final distance = hands ? '0.5 to 1 m' : '2.5 to 3 m';
+    final distance = hands ? '0.5 to 1 m' : this.distance ?? '2.5 to 3 m';
     final above = hands
         ? 'Seen from above: the phone on the table, facing your hand.'
         : side
@@ -42,7 +54,7 @@ class SetupScene extends StatelessWidget {
                 image: true,
                 label:
                     '$above The phone is $distance away'
-                    '${hands ? '' : ', at waist height'}.',
+                    '${hands ? '' : floor ? ', on the floor' : ', at waist height'}.',
                 child: AspectRatio(
                   aspectRatio: 0.8,
                   child: CustomPaint(

@@ -1,0 +1,56 @@
+{
+  "pose_key": "knee_extension",
+  "focus": {
+    "joint": "knee",
+    "from": "hip",
+    "to": "ankle"
+  },
+  "mover": "ankle",
+  "captions": {
+    "start": "Sit tall, back against the chair",
+    "go": "Straighten your knee",
+    "top": "Hold for 2 seconds",
+    "back": "Lower slowly"
+  },
+  "say": {
+    "go": "Straighten",
+    "back": "Lower"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Sit upright on a chair with your back against it."
+    },
+    {
+      "phase": "go",
+      "text": "Straighten one knee until your leg is level with your hip."
+    },
+    {
+      "phase": "top",
+      "text": "Hold it straight for two seconds."
+    },
+    {
+      "phase": "back",
+      "text": "Lower it slowly. Change legs each time."
+    }
+  ],
+  "safety": [
+    "Keep your back against the chair.",
+    "Use a chair that will not slide."
+  ],
+  "mistakes": [
+    {
+      "label": "no_hold",
+      "wrong": "you did not hold the top position",
+      "right": "Hold the straight leg for 2 seconds before lowering it."
+    },
+    {
+      "label": "thigh_lift",
+      "wrong": "your whole thigh lifted off the seat",
+      "right": "Keep your thigh resting on the seat; only the lower leg moves."
+    }
+  ],
+  "setup": [
+    "Sit side-on to the phone."
+  ]
+}
