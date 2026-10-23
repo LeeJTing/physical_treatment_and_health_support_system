@@ -57,6 +57,6 @@ class ChatReport {
     'expected_text': expectedText,
     'wanted_category': wantedCategory,
     'status': 'NEW',
-    'created_at': createdAt.toIso8601String(),
+    'created_at': createdAt.toUtc().toIso8601String(),
   };
 }

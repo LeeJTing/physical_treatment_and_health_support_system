@@ -81,7 +81,7 @@ class ExerciseSession {
     'account_id': accountId,
     'patient_plan_id': patientPlanId,
     'exercise_id': exerciseId,
-    'completed_at': completedAt?.toIso8601String(),
+    'completed_at': completedAt?.toUtc().toIso8601String(),
     'duration_sec': durationSec,
     'repetitions_completed': repetitionsCompleted,
     'completion_status': completionStatus.db,
@@ -97,7 +97,7 @@ class ExerciseSession {
     exerciseId: j['exercise_id'] as String,
     completedAt: j['completed_at'] == null
         ? null
-        : DateTime.parse(j['completed_at'] as String),
+        : DateTime.parse(j['completed_at'] as String).toLocal(),
     durationSec: (j['duration_sec'] as num?)?.toInt(),
     repetitionsCompleted: (j['repetitions_completed'] as num?)?.toInt(),
     completionStatus: CompletionStatus.fromDb(

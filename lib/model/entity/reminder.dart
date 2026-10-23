@@ -141,7 +141,7 @@ class NotificationLog {
     'message_body': messageBody,
     'delivery_status': deliveryStatus.db,
     'is_read': isRead,
-    'issued_at': issuedAt.toIso8601String(),
+    'issued_at': issuedAt.toUtc().toIso8601String(),
   };
 
   factory NotificationLog.fromJson(Map<String, dynamic> j) => NotificationLog(
@@ -154,6 +154,6 @@ class NotificationLog {
     messageBody: j['message_body'] as String,
     deliveryStatus: DeliveryStatus.fromDb(j['delivery_status'] as String?),
     isRead: (j['is_read'] ?? false) as bool,
-    issuedAt: DateTime.parse(j['issued_at'] as String),
+    issuedAt: DateTime.parse(j['issued_at'] as String).toLocal(),
   );
 }

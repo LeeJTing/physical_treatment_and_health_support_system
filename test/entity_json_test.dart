@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/chat_message.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/chat_report.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
@@ -439,5 +440,55 @@ void main() {
     expect(u.toString(), isNotEmpty);
     final m = ProfileModel(userName: 'pat', age: 30, email: 'p@x.test');
     expect(m.age, 30);
+  });
+
+  // The columns are timestamptz: a time without an offset is read as UTC by Supabase, so a
+  // local time must be sent as UTC, and comes back as the same moment in local time (audit,
+  // 23 Oct; before, a phone at UTC+8 stored them 8 hours late).
+  test('times are written as UTC and read back as the same local moment', () {
+    final local = DateTime(2026, 10, 23, 22, 15); // late evening on the phone
+    String sent(Map<String, dynamic> row, String column) => row[column] as String;
+    bool utc(String s) => s.endsWith('Z');
+
+    final m = ChatMessage(
+      messageId: 'm',
+      accountId: 'a',
+      sender: MessageSender.patient,
+      messageText: 'hi',
+      createdAt: local,
+    );
+    expect(utc(sent(m.toJson(), 'created_at')), isTrue);
+    expect(ChatMessage.fromJson(_wire(m.toJson())).createdAt, local);
+
+    final r = ChatReport(
+      reportId: 'r',
+      accountId: 'a',
+      questionText: 'q',
+      answerText: 'a',
+      createdAt: local,
+    );
+    expect(utc(sent(r.toJson(), 'created_at')), isTrue);
+
+    final n = NotificationLog(
+      notificationId: 'n',
+      accountId: 'a',
+      notificationType: NotificationType.reminder,
+      messageBody: 'Time for your exercise',
+      deliveryStatus: DeliveryStatus.delivered,
+      issuedAt: local,
+    );
+    expect(utc(sent(n.toJson(), 'issued_at')), isTrue);
+    final back = NotificationLog.fromJson(_wire(n.toJson())).issuedAt;
+    expect([back, back.hour], [local, 22]); // shown at 22:15, not 14:15
+
+    final s = ExerciseSession(
+      sessionId: 's',
+      accountId: 'a',
+      exerciseId: 'e',
+      completionStatus: CompletionStatus.completed,
+      completedAt: local,
+    );
+    expect(utc(sent(s.toJson(), 'completed_at')), isTrue);
+    expect(ExerciseSession.fromJson(_wire(s.toJson())).completedAt, local);
   });
 }
