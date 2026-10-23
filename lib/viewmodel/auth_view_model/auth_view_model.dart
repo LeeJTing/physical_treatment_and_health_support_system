@@ -173,8 +173,7 @@ class AuthViewModel extends BaseViewModel {
     final last = res.data;
     termsProfileAge = (await _profiles.getProfile(a.accountId)).dataOrNull?.age;
     if (last == null) return TermsReason.firstTime;
-    if (last.termsVersion != AppConstants.termsVersion)
-      return TermsReason.updated;
+    if (last.termsVersion != AppConstants.termsVersion) return TermsReason.updated;
     final age = termsProfileAge;
     if (last.ageGroup == TermsAgeGroup.adult &&
         age != null &&
@@ -314,9 +313,8 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> verify(String email, String code) async {
-    final invalid = FormValidators.otp(
-      code.trim(),
-    ); // checked here too (audit, 23 Oct)
+    // Checked here too, not only by the screen (audit, 23 Oct).
+    final invalid = FormValidators.otp(code.trim());
     if (invalid != null) {
       verifyState = UiError(invalid);
       notifyListeners();
