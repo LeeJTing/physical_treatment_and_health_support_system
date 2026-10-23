@@ -292,33 +292,36 @@ class PlanningViewModel extends BaseViewModel {
     );
 
     final saved = await _repo.assignPlan(assignment, replacing: replacing);
-    final scheduled = saved.isSuccess
-        ? await _notifications.saveReminder(reminder)
-        : null;
-    final ok = saved.isSuccess && (scheduled?.isSuccess ?? false);
+    if (saved is Failure<void>) {
+      _saving = UiError(
+        saved.code == '23505' ? multiPlanNotEnabled : Messages.dbUnavailable,
+      );
+      notifyListeners();
+      return false;
+    }
+    // The plan is assigned (and the replaced ones ended) from here on, even if its reminder
+    // fails: reporting a failure made the patient select it again and follow it twice
+    // (audit, 23 Oct).
+    _activePlans = [
+      for (final a in _activePlans)
+        if (!replacing.contains(a.patientPlanId)) a,
+      assignment,
+    ];
     // FR500_11, M600.1: the new plan's reminder goes on the device; only the
     // replaced plans' reminders are removed.
-    if (ok) {
-      for (final id in replacing) {
-        await _reminders?.removeForPlan(accountId, id);
-      }
-      await _reminders?.planSelected(reminder);
-      _activePlans = [
-        for (final a in _activePlans)
-          if (!replacing.contains(a.patientPlanId)) a,
-        assignment,
-      ];
+    for (final id in replacing) {
+      await _reminders?.removeForPlan(accountId, id);
     }
-    _saving = ok
-        ? UiSuccess(p)
-        : UiError(
-            saved is Failure<void> && saved.code == '23505'
-                ? multiPlanNotEnabled
-                : Messages.dbUnavailable,
-          );
+    final scheduled = await _notifications.saveReminder(reminder);
+    if (scheduled.isSuccess) await _reminders?.planSelected(reminder);
+    reminderNotSet = !scheduled.isSuccess;
+    _saving = UiSuccess(p);
     notifyListeners();
-    return ok;
+    return true;
   }
+
+  /// The last selected plan was saved but its reminder was not.
+  bool reminderNotSet = false;
 
   /// Clears the recommendation after the patient confirms rejecting all
   /// plans (FR500_12, FR500_13) or exits (FR500_16). Nothing is saved.

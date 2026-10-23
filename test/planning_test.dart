@@ -19,6 +19,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/exerci
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
@@ -388,6 +389,33 @@ void main() {
         expect(
           (h.vm.recommendation as UiSuccess<Recommendation>).data.status,
           RecommendationStatus.onlyOne,
+        );
+      },
+    );
+
+    test(
+      'a plan saved without its reminder still counts as selected (audit, 23 Oct)',
+      () async {
+        final h = Harness();
+        final accountId = await h.signIn();
+        final vm = PlanningViewModel(
+          h.treatments,
+          h.recommender,
+          RiskAssessmentService(h.auth, h.profiles),
+          _NoReminders(),
+        );
+        await vm.recommend(rehab);
+        final plan = vm.candidates.first;
+        expect(await vm.select(plan), isTrue);
+        expect(vm.reminderNotSet, isTrue);
+        // Selecting it again is refused instead of assigning it twice.
+        expect(
+          vm.issuesFor(plan).map((i) => i.code),
+          contains('already_following'),
+        );
+        expect(
+          (await h.treatments.getActivePlans(accountId)).dataOrNull,
+          hasLength(1),
         );
       },
     );
@@ -843,4 +871,11 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+}
+
+/// Saving a reminder fails, as when the connection drops right after the plan was saved.
+class _NoReminders extends FakeNotificationRepository {
+  @override
+  Future<Result<void>> saveReminder(Reminder r) async =>
+      const Failure('down', code: 'offline');
 }

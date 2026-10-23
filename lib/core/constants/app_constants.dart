@@ -244,6 +244,11 @@ class Messages {
   static const dbUnavailable =
       'The service is temporarily unavailable. Please try again later.';
   static const planSaved = 'The Plan has been saved successfully.';
+
+  /// Not a report message (audit, 23 Oct): the plan was saved but its reminder was not.
+  static const planSavedNoReminder =
+      'The Plan has been saved, but its daily reminder could not be set. Please check your '
+      'connection.';
   static const confirmReject =
       "Are you sure that you don't want to select any plan?";
 

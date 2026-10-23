@@ -72,7 +72,13 @@ class RecommendedPlansView extends StatelessWidget {
     }
     if (await vm.select(plan, replacing: replacing)) {
       messenger.showSnackBar(
-        const SnackBar(content: Text(Messages.planSaved)),
+        SnackBar(
+          content: Text(
+            vm.reminderNotSet
+                ? Messages.planSavedNoReminder
+                : Messages.planSaved,
+          ),
+        ),
       ); // FR500_10
       if (context.mounted) _goHome(context);
     } else if (vm.saving case UiError(:final message)) {
