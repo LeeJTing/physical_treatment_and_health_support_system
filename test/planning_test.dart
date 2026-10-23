@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -418,6 +419,33 @@ void main() {
           (await h.treatments.getActivePlans(accountId)).dataOrNull,
           hasLength(1),
         );
+      },
+    );
+
+    test(
+      'while the reminder is being set, the card does not yet read "already following" (emulator, 24 Oct)',
+      () async {
+        final h = Harness();
+        await h.signIn();
+        final slow = _SlowReminders();
+        final vm = PlanningViewModel(
+          h.treatments,
+          h.recommender,
+          RiskAssessmentService(h.auth, h.profiles),
+          slow,
+        );
+        await vm.recommend(rehab);
+        final plan = vm.candidates.first;
+        final done = vm.select(plan);
+        await slow.reached.future; // the plan is saved, its reminder not yet
+        expect(vm.activePlans, isEmpty);
+        expect(
+          vm.issuesFor(plan).map((i) => i.code),
+          isNot(contains('already_following')),
+        );
+        slow.release.complete();
+        expect(await done, isTrue);
+        expect(vm.activePlans, hasLength(1));
       },
     );
 
@@ -908,4 +936,17 @@ class _NoReminders extends FakeNotificationRepository {
   @override
   Future<Result<void>> saveReminder(Reminder r) async =>
       const Failure('down', code: 'offline');
+}
+
+/// Holds the reminder save until released, as a slow phone does.
+class _SlowReminders extends FakeNotificationRepository {
+  final reached = Completer<void>();
+  final release = Completer<void>();
+
+  @override
+  Future<Result<void>> saveReminder(Reminder r) async {
+    reached.complete();
+    await release.future;
+    return super.saveReminder(r);
+  }
 }

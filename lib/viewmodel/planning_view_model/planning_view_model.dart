@@ -300,11 +300,6 @@ class PlanningViewModel extends BaseViewModel {
     // The plan is assigned (and the replaced ones ended) from here on, even if its reminder
     // fails: reporting a failure made the patient select it again and follow it twice
     // (audit, 23 Oct).
-    _activePlans = [
-      for (final a in _activePlans)
-        if (!replacing.contains(a.patientPlanId)) a,
-      assignment,
-    ];
     // FR500_11, M600.1: the new plan's reminder goes on the device; only the
     // replaced plans' reminders are removed.
     for (final id in replacing) {
@@ -313,6 +308,14 @@ class PlanningViewModel extends BaseViewModel {
     final scheduled = await _notifications.saveReminder(reminder);
     if (scheduled.isSuccess) await _reminders?.planSelected(reminder);
     reminderNotSet = !scheduled.isSuccess;
+    // The followed plans change only now, with the success: while the reminder was being set
+    // (seconds on the emulator) a redraw showed the selected card as "You are already following
+    // this plan" (emulator, 24 Oct).
+    _activePlans = [
+      for (final a in _activePlans)
+        if (!replacing.contains(a.patientPlanId)) a,
+      assignment,
+    ];
     _saving = UiSuccess(p);
     notifyListeners();
     return true;
