@@ -138,6 +138,30 @@ void main() {
     expect(find.text(Messages.passwordEmpty), findsOneWidget);
   });
 
+  testWidgets(
+    'Login: a wrong password shows one way to reset it, not two (audit, 23 Oct)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _app(
+          FakeAuthRepository(),
+          FakeProfileRepository(),
+          initial: Routes.loginScreen,
+        ),
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(0),
+        'demo@apths.test',
+      );
+      await tester.enterText(find.byType(TextFormField).at(1), 'wrongpass1');
+      await tester.tap(find.text('Log In'));
+      await tester.pumpAndSettle();
+      expect(find.text(Messages.incorrectCredentials), findsOneWidget);
+      expect(find.textContaining('Forgot password'), findsOneWidget);
+    },
+  );
+
   testWidgets('Login: a wrong password shows the report message', (
     tester,
   ) async {
