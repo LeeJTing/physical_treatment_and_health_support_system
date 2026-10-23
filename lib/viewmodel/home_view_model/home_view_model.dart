@@ -126,11 +126,7 @@ class HomeViewModel extends BaseViewModel {
       done[a.patientPlanId] = ExerciseSession.anyCompletedOn(sessions, today);
       restDay =
           restDay ||
-          sessions.any(
-            (s) =>
-                s.completedOn(today) &&
-                (s.postureFeedback ?? '').contains(_fallPhrase),
-          );
+          sessions.any((s) => s.completedOn(today) && s.hadFallAlert());
     }
     // The card shows the first plan that still has an exercise today.
     final plan =
@@ -168,10 +164,6 @@ class HomeViewModel extends BaseViewModel {
     );
     notifyListeners();
   }
-
-  /// Phrase of the server's possible-fall message, found in saved feedback
-  /// (the same check as TreatmentViewModel.restDayToday).
-  static const _fallPhrase = 'lost your balance or fallen';
 
   /// "3 exercises · 12 min · Both legs" for the Today's session card.
   static String sessionSummary(
