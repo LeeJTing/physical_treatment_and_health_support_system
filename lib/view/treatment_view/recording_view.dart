@@ -67,9 +67,13 @@ class _RecordingViewState extends State<RecordingView>
     _initCamera();
   }
 
+  /// Kept from didChangeDependencies: dispose must not look up the tree.
+  GuideViewModel? _voice;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _voice = context.read<GuideViewModel>();
     if (_coaching == null) _loadGuide();
   }
 
@@ -100,13 +104,15 @@ class _RecordingViewState extends State<RecordingView>
     return fit.clamp(1, widget.reps);
   }
 
-  void _say(String text) => context.read<GuideViewModel>().say(text);
+  void _say(String text) => _voice?.say(text);
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _countTimer?.cancel();
+    // A count-in or cue still being spoken stops when the patient leaves (audit, 23 Oct).
+    _voice?.quiet();
     _release(_controller, wasRecording: _recording);
     super.dispose();
   }
@@ -138,6 +144,7 @@ class _RecordingViewState extends State<RecordingView>
       if (c == null || !c.value.isInitialized) return;
       _stopTimer();
       _cancelCountdown();
+      _voice?.quiet();
       _release(c, wasRecording: _recording);
       setState(() {
         _recording = false;
