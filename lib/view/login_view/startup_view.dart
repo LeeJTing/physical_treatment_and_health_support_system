@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
 
 /// Splash shown while the stored session is checked; then replaced by the first
 /// real screen so Back does not return here.
@@ -30,6 +31,7 @@ class _StartupViewState extends State<StartupView> {
 
   @override
   Widget build(BuildContext context) => const Scaffold(
+    appBar: StatusBarStrip(), // light icons on the green splash
     backgroundColor: AppTokens.brandDeep,
     body: Center(
       child: Column(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
@@ -86,8 +87,13 @@ class MainApp extends StatelessWidget {
         ],
         navigatorKey: _navigator,
         // A reminder tapped while the app runs opens its plan (AuthViewModel.takeReminderOpen).
-        builder: (context, child) =>
-            _ReminderOpener(navigator: _navigator, child: child!),
+        // Dark clock and battery icons by default, for the light screens; the screens with a
+        // green band set light icons with StatusBarStrip, which wins over this (audit, 23 Oct:
+        // the light icons of the last green screen stayed, so the clock vanished on cream).
+        builder: (context, child) => AnnotatedRegion<SystemUiOverlayStyle>(
+          value: SystemUiOverlayStyle.dark,
+          child: _ReminderOpener(navigator: _navigator, child: child!),
+        ),
         initialRoute: Routes.init,
         routes: {
           Routes.init: (_) =>
