@@ -112,6 +112,13 @@ class ApiClient {
         code: 'offline',
         cause: e,
       );
+    } on http.ClientException catch (e) {
+      // A connection that dropped or could not be made, as supabaseGuard treats it (audit, 24 Oct).
+      return Failure(
+        'No connection to the server. Please check your internet connection.',
+        code: 'offline',
+        cause: e,
+      );
     } catch (e) {
       return Failure(
         'The service is temporarily unavailable. Please try again later.',
