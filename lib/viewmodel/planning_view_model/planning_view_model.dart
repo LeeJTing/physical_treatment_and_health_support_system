@@ -248,11 +248,9 @@ class PlanningViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// Saves the plan with the patient and selection date, then the exercise
-  /// reminder built from its weekly frequency (FR500_09, FR500_11).
-  /// Saves [p] (FR500_09) and its reminder (FR500_11). [replacing] are the
-  /// patientPlanIds the patient chose to stop for it (a clash or the risk
-  /// cap); every other active plan keeps running.
+  /// Saves [p] with the patient and selection date (FR500_09), then the exercise reminder built
+  /// from its weekly frequency (FR500_11). [replacing] are the patientPlanIds the patient chose
+  /// to stop for it (a clash or the risk cap); every other active plan keeps running.
   Future<bool> select(
     TreatmentPlan p, {
     List<String> replacing = const [],
