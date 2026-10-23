@@ -65,7 +65,7 @@ class _TreatmentViewState extends State<TreatmentView> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppTokens.danger),
+            style: TextButton.styleFrom(foregroundColor: AppTokens.cta),
             child: const Text('Stop plan'),
           ),
         ],

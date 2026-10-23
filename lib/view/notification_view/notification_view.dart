@@ -408,7 +408,7 @@ class _NotificationViewState extends State<NotificationView>
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppTokens.danger),
+            style: TextButton.styleFrom(foregroundColor: AppTokens.cta),
             child: const Text('Delete'),
           ),
         ],
