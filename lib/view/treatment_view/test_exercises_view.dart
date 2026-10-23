@@ -73,8 +73,17 @@ class _TestExercisesViewState extends State<TestExercisesView> {
                   ),
                   const SizedBox(height: AppTokens.gap),
                   for (final e in exercises)
+                    // White with an outline like the app's other cards, not Material's grey
+                    // (audit, 23 Oct).
                     Card(
                       margin: const EdgeInsets.only(bottom: 10),
+                      color: AppTokens.surface,
+                      surfaceTintColor: Colors.transparent,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+                        side: const BorderSide(color: AppTokens.border),
+                      ),
                       child: ListTile(
                         key: Key('test_exercise_${e.poseKey}'),
                         title: Text(
