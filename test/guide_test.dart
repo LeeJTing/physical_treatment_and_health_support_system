@@ -212,8 +212,13 @@ void main() {
     setUp(() => tmp = Directory.systemTemp.createTempSync('apths'));
     tearDown(() => tmp.deleteSync(recursive: true));
 
-    Future<(Harness, FakeSpeech)> open(WidgetTester tester, String key) async {
-      tester.view.physicalSize = const Size(1080, 4800);
+    Future<(Harness, FakeSpeech)> open(
+      WidgetTester tester,
+      String key, {
+      double textScale = 1,
+      Size size = const Size(1080, 4800),
+    }) async {
+      tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
       final h = Harness();
@@ -235,7 +240,15 @@ void main() {
               create: (_) => GuideViewModel(SpeechService(speech)),
             ),
           ],
-          child: const MaterialApp(home: GuideView(reps: 10)),
+          child: MaterialApp(
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: TextScaler.linear(textScale)),
+              child: child!,
+            ),
+            home: const GuideView(reps: 10),
+          ),
         ),
       );
       for (var i = 0; i < 4; i++) {
@@ -286,6 +299,28 @@ void main() {
       }
       expect(find.text('Stay safe'), findsOneWidget);
     });
+
+    testWidgets(
+      'with 2x phone text "Open the camera" stays inside its button (emulator, 24 Oct)',
+      (tester) async {
+        await open(
+          tester,
+          'knee_extension',
+          textScale: 2,
+          size: const Size(1080, 2400), // 360 x 800
+        );
+        for (var i = 0; i < 6; i++) {
+          await next(tester);
+        }
+        final label = tester.getRect(find.text('Open the camera'));
+        final button = tester.getRect(find.byKey(const Key('guide_next')));
+        expect(button.top <= label.top && label.bottom <= button.bottom, isTrue,
+            reason: 'label $label, button $button');
+        // One line (17 px at 2x is 34 px): two lines spilled out of the button on the emulator.
+        expect(label.height, lessThan(17 * 2 * 1.6));
+        expect(tester.takeException(), isNull);
+      },
+    );
 
     testWidgets('the speaker button turns spoken cues off', (tester) async {
       final (_, speech) = await open(tester, 'wall_push_up');

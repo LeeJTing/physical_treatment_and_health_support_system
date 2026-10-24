@@ -273,11 +273,17 @@ class _GuideViewState extends State<GuideView> {
                             backgroundColor: AppTokens.action,
                           ),
                           onPressed: () => _go(_page + 1, pages.length),
-                          child: Text(
-                            last ? 'Open the camera' : 'Next',
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.w600,
+                          // One line that shrinks to fit: with large phone text "Open the camera"
+                          // wrapped and spilled out of the button (emulator at 2x, 24 Oct).
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              last ? 'Open the camera' : 'Next',
+                              maxLines: 1,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
