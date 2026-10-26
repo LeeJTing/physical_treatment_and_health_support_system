@@ -2,8 +2,8 @@
   "limits": {
     "hip_abduction.trunk_lean": 16,
     "shoulder_abduction.low_range": 92.441,
-    "shoulder_abduction.bent_elbow": 158,
-    "shoulder_flexion.bent_elbow": 157,
+    "shoulder_abduction.bent_elbow": 152,
+    "shoulder_flexion.bent_elbow": 152,
     "sit_to_stand.incomplete_stand": 170,
     "sit_to_stand.no_forward_lean": 23.452,
     "sit_to_stand.feet_forward": -14.745,
@@ -31,8 +31,8 @@
   "sources": {
     "hip_abduction.trunk_lean": "own clips; reviewed: flags 4% of Elwin's correct reps and 27% of REHAB24's approved ones (13.5: 11% and 46%); catches 81% of REHAB24's incorrect reps and half of Elwin's mild leans; the trained model also judges lean",
     "shoulder_abduction.low_range": "own clips",
-    "shoulder_abduction.bent_elbow": "own clips; reviewed: 158 catches 62% of Elwin's bent-elbow reps (165: 69%) and flags 23% of REHAB24's approved reps (165: 60%); no correct rep of Elwin or p02; the trained model handles subtler bends",
-    "shoulder_flexion.bent_elbow": "own clips; reviewed: two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; 157 still catches 84% of bent-elbow reps (160: 88%)",
+    "shoulder_abduction.bent_elbow": "own clips + outside tests; reviewed: 152 (was 158): strangers' good raises sit at 154 deg (p10, REHAB24-6 approved and MobiPhysio); still catches every bent-elbow clip of Elwin; no correct rep of Elwin or p02 below 167",
+    "shoulder_flexion.bent_elbow": "own clips + outside tests; reviewed: 152 (was 157): p02's correct reps 160-164 deg sat close to 157; IntelliRehabDS correct reach 156 (p10); still catches every bent-elbow clip",
     "sit_to_stand.incomplete_stand": "own clips; reviewed: 98% vs 100% at 174, which is 2 deg below Elwin's own correct reps",
     "sit_to_stand.no_forward_lean": "own clips",
     "sit_to_stand.feet_forward": "own clips",

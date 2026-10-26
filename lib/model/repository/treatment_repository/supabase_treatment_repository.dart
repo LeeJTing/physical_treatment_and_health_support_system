@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/chat_message.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/chat_report.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
@@ -18,15 +19,47 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
   SupabaseTreatmentRepository(this._sb);
 
   @override
+  Future<Result<List<PatientTreatmentPlan>>> getActivePlans(String accountId) =>
+      supabaseGuard(
+        () async =>
+            (await _sb
+                    .from('patient_plan')
+                    .select('*, treatment_plan($_planWithExercises)')
+                    .eq('account_id', accountId)
+                    .eq('status', PlanStatus.active.db)
+                    .order('selected_at'))
+                .map(PatientTreatmentPlan.fromJson)
+                .toList(),
+        failMessage: Messages.planRetrieveFailed,
+      );
+
+  @override
+  Future<Result<List<PatientTreatmentPlan>>> getPlanHistory(String accountId) =>
+      supabaseGuard(
+        () async =>
+            (await _sb
+                    .from('patient_plan')
+                    .select('*, treatment_plan($_planWithExercises)')
+                    .eq('account_id', accountId)
+                    .order('selected_at'))
+                .map(PatientTreatmentPlan.fromJson)
+                .toList(),
+        failMessage: Messages.planRetrieveFailed,
+      );
+
+  /// The newest ACTIVE plan. Not maybeSingle(): with several active plans
+  /// that would throw.
+  @override
   Future<Result<PatientTreatmentPlan?>> getActivePlan(String accountId) =>
       supabaseGuard(() async {
-        final row = await _sb
+        final rows = await _sb
             .from('patient_plan')
             .select('*, treatment_plan($_planWithExercises)')
             .eq('account_id', accountId)
             .eq('status', PlanStatus.active.db)
-            .maybeSingle();
-        return row == null ? null : PatientTreatmentPlan.fromJson(row);
+            .order('selected_at', ascending: false)
+            .limit(1);
+        return rows.isEmpty ? null : PatientTreatmentPlan.fromJson(rows.first);
       }, failMessage: Messages.planRetrieveFailed);
 
   @override
@@ -40,18 +73,45 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
             .toList(),
   );
 
-  /// Only one ACTIVE plan per patient (unique partial index), so the old one is
-  /// abandoned before the new one is inserted (FR500_09).
+  /// Anonymised outcomes from the `plan_outcome_stats()` RPC (cells of 5+
+  /// patients, no account ids). Until the RPC is applied (supabase/proposed/)
+  /// the call fails and the recommender runs as a cold start.
   @override
-  Future<Result<void>> assignPlan(PatientTreatmentPlan p) =>
+  Future<Result<List<PlanOutcome>>> getPlanOutcomes() =>
       supabaseGuard(() async {
-        await _sb
-            .from('patient_plan')
-            .update({'status': PlanStatus.abandoned.db})
-            .eq('account_id', p.accountId)
-            .eq('status', PlanStatus.active.db);
-        await _sb.from('patient_plan').insert(p.toJson());
+        final rows = await _sb.client.rpc('plan_outcome_stats') as List;
+        return [
+          for (final r in rows.cast<Map<String, dynamic>>())
+            (
+              planId: r['plan_id'] as String,
+              riskLevel: r['risk_level'] as String,
+              ageBand: r['age_band'] as String,
+              patients: (r['patients'] as num).toInt(),
+              completionRate: (r['completion_rate'] as num).toDouble(),
+              meanAccuracy: (r['mean_accuracy'] as num?)?.toDouble(),
+              meanProgress: (r['mean_progress'] as num?)?.toDouble(),
+            ),
+        ];
       });
+
+  /// Abandons only the plans being replaced, then inserts the new one
+  /// (FR500_09). Until supabase/proposed/..._multiple_active_plans.sql is
+  /// applied, the unique index 'one ACTIVE plan per patient' rejects a second
+  /// ACTIVE plan with Postgres code 23505.
+  @override
+  Future<Result<void>> assignPlan(
+    PatientTreatmentPlan p, {
+    List<String> replacing = const [],
+  }) => supabaseGuard(() async {
+    if (replacing.isNotEmpty) {
+      await _sb
+          .from('patient_plan')
+          .update({'status': PlanStatus.abandoned.db})
+          .eq('account_id', p.accountId)
+          .inFilter('patient_plan_id', replacing);
+    }
+    await _sb.from('patient_plan').insert(p.toJson());
+  });
 
   /// One RPC, so the attempt and the plan's new progress are written in one
   /// transaction (ASR_04).
@@ -107,4 +167,9 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
       supabaseGuard(() async {
         await _sb.from('chat_message').insert(m.toJson());
       });
+
+  @override
+  Future<Result<void>> saveChatReport(ChatReport r) => supabaseGuard(() async {
+    await _sb.from('chat_report').insert(r.toJson());
+  });
 }

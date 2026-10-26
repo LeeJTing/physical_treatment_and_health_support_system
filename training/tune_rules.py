@@ -39,9 +39,12 @@ MIN_GAIN = 0.05
 REVIEWED = {
     # 8 Oct, other people: REHAB24-6's physiotherapist-approved arm raises keep the elbow at 154-163 deg
     # (p10/p50; measured overhead, so only partly comparable); 165 flagged 60 % of them.
-    "shoulder_abduction.bent_elbow": (158, "158 catches 62% of Elwin's bent-elbow reps (165: 69%) and flags 23% of "
-                                           "REHAB24's approved reps (165: 60%); no correct rep of Elwin or p02; "
-                                           "the trained model handles subtler bends"),
+    # 8 Oct (outside tests): MobiPhysio's 51 people keep the elbow at 154 deg (p10) and IntelliRehabDS
+    # patients' correct one-arm raises at 138-160 (p10/p50, Kinect); 158 flagged about 1 in 5 of them.
+    "shoulder_abduction.bent_elbow": (152, "152 (was 158): strangers' good raises sit at 154 deg (p10, REHAB24-6 "
+                                           "approved and MobiPhysio) and older people often cannot fully straighten; "
+                                           "still catches every bent-elbow clip of Elwin (reps median 147); no "
+                                           "correct rep of Elwin or p02 below 167"),
     # 8 Oct, other people: REHAB24-6's approved leg abductions lean 12.3 deg (median), p90 19.3; 13.5
     # flagged 46 % of them. Elwin's 'trunk lean' reps are mild (median 15.9).
     # 8 Oct: REHAB24-6's approved push-ups (on a table, 10 people) sit at -0.18 (median), p10 -0.29;
@@ -56,8 +59,9 @@ REVIEWED = {
                                      "Elwin's mild leans; the trained model also judges lean"),
     # 8 Oct, second person (p02) blind test: her correct flexion keeps the elbow at 160-164 deg and
     # her shoulders at 0.84-0.86; both fired at 160 / 0.85. Elwin's correct reps stay >= 163 / >= 0.86.
-    "shoulder_flexion.bent_elbow": (157, "two people: Elwin's correct reps >= 163 deg, p02's 160-164 deg; "
-                                         "157 still catches 84% of bent-elbow reps (160: 88%)"),
+    "shoulder_flexion.bent_elbow": (152, "152 (was 157): p02's correct reps sat at 160-164 deg, close to 157, and "
+                                         "IntelliRehabDS correct both-arm raises reach 156 (p10, Kinect); still "
+                                         "catches every bent-elbow clip (about 75% of the reps)"),
     "shoulder_flexion.shoulder_shrug": (0.82, "two people: p02's correct reps 0.84-0.86 fired at 0.85; 0.82 "
                                               "catches the same 93% of Elwin's shrug reps with no false flags"),
     "sit_to_stand.incomplete_stand": (170, "98% vs 100% at 174, which is 2 deg below Elwin's own correct reps"),

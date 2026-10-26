@@ -23,6 +23,12 @@ class FakeNotificationRepository implements INotificationRepository {
   }
 
   @override
+  Future<Result<void>> deleteReminder(String reminderId) async {
+    reminders.remove(reminderId);
+    return const Success(null);
+  }
+
+  @override
   Future<Result<void>> logNotification(NotificationLog n) async {
     log.add(n);
     return const Success(null);

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_reasons.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 
 /// One recommended plan: name, match score, aim, chips, and the two actions.
@@ -14,6 +17,16 @@ class PlanCard extends StatelessWidget {
   final VoidCallback onDetails;
   final VoidCallback onSelect;
 
+  /// How this plan fits the plans already followed, e.g. 'Clashes with ...'
+  /// (multiple active plans); null when there is nothing to say.
+  final String? note;
+
+  /// The note is good news ("Can be followed together"): green with a tick, not amber.
+  final bool noteOk;
+
+  /// "Why this plan", from the recommender, with sources (11 Oct).
+  final List<PlanReason> why;
+
   const PlanCard({
     super.key,
     required this.plan,
@@ -21,6 +34,9 @@ class PlanCard extends StatelessWidget {
     required this.onSelect,
     this.best = false,
     this.busy = false,
+    this.note,
+    this.noteOk = false,
+    this.why = const [],
   });
 
   @override
@@ -64,17 +80,74 @@ class PlanCard extends StatelessWidget {
             color: AppTokens.textBody,
           ),
         ),
+        if (note != null) ...[
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                noteOk ? Icons.check_circle_outline : Icons.info_outline,
+                size: 18,
+                color: noteOk ? AppTokens.good : AppTokens.onWarn,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  note!,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: noteOk ? AppTokens.good : AppTokens.onWarn,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            InfoChip(RehabLabels.area(plan.targetBodyArea)),
-            InfoChip('${plan.exercises.length} exercises'),
-            InfoChip('${plan.frequencyPerWeek}x a week'),
+            BodyMapThumbnail(area: plan.targetBodyArea),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  InfoChip(RehabLabels.area(plan.targetBodyArea)),
+                  InfoChip('${plan.exercises.length} exercises'),
+                  InfoChip('${plan.frequencyPerWeek}x a week'),
+                ],
+              ),
+            ),
           ],
         ),
-        const SizedBox(height: 14),
+        if (why.isNotEmpty)
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            // The card's coloured box would hide the tile's ink: give the
+            // ListTile inside ExpansionTile its own (transparent) Material.
+            child: Material(
+              type: MaterialType.transparency,
+              child: ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                childrenPadding: const EdgeInsets.only(bottom: 4),
+                expandedCrossAxisAlignment: CrossAxisAlignment.start,
+                title: const Text(
+                  'Why this plan',
+                  style: TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: AppTokens.primary,
+                  ),
+                ),
+                children: [ReasonList(why)],
+              ),
+            ),
+          )
+        else
+          const SizedBox(height: 14),
         Row(
           children: [
             Expanded(

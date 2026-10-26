@@ -138,6 +138,53 @@ void main() {
     expect(vm.data!.doneToday, isTrue);
   });
 
+  Future<PatientTreatmentPlan> assignNamed(String name) async {
+    final plan = PatientTreatmentPlan(
+      patientPlanId: newId(),
+      accountId: accountId,
+      plan: (await treatments.getCatalogue()).dataOrNull!.firstWhere(
+        (p) => p.planName == name,
+      ),
+      selectedAt: DateTime.now(),
+    );
+    await treatments.assignPlan(plan);
+    return plan;
+  }
+
+  test('two plans: the card shows the one still open today', () async {
+    await saveProfile();
+    final knee = await assignNamed('Early Knee Recovery');
+    final core = await assignNamed('Core and Back Care');
+    await treatments.saveSession(
+      ExerciseSession(
+        sessionId: newId(),
+        accountId: accountId,
+        patientPlanId: knee.patientPlanId,
+        exerciseId: knee.plan.orderedExercises().first.exerciseId,
+        completedAt: DateTime(2026, 10, 7, 8, 0),
+        completionStatus: CompletionStatus.completed,
+        postureAccuracy: 90,
+      ),
+    );
+    await vm.load();
+    final d = vm.data!;
+    expect(d.planCount, 2);
+    expect(d.plansDoneToday, 1);
+    expect(d.plan!.patientPlanId, core.patientPlanId);
+    expect(d.doneToday, isFalse);
+    expect(d.planIssues, isEmpty);
+  });
+
+  test('more plans than a new High risk level allows is flagged', () async {
+    await saveProfile(
+      conditions: [LookupSeed.conditions[0]],
+    ); // hypertension -> High: one plan at a time
+    await assignNamed('Early Knee Recovery');
+    await assignNamed('Core and Back Care');
+    await vm.load();
+    expect([for (final i in vm.data!.planIssues) i.code], contains('over_cap'));
+  });
+
   test('the bell shows the unread notification count', () async {
     await notifications.logNotification(
       NotificationLog(

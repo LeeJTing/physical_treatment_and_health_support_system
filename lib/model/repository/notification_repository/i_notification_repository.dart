@@ -6,6 +6,9 @@ abstract interface class INotificationRepository {
   Future<Result<void>> saveReminder(Reminder r);
   Future<Result<List<Reminder>>> getReminders(String accountId);
   Future<Result<void>> deleteRemindersForPlan(String patientPlanId);
+
+  /// Deletes one reminder, e.g. a health-logging reminder the patient no longer wants.
+  Future<Result<void>> deleteReminder(String reminderId);
   Future<Result<void>> logNotification(NotificationLog n);
   Future<Result<int>> unreadCount(String accountId);
 

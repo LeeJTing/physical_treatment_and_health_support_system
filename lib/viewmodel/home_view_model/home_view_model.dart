@@ -1,7 +1,9 @@
+import 'package:physical_treatment_and_health_support_system/model/business_logic/plan_rules/plan_rules.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/base_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
@@ -21,6 +23,20 @@ class HomeData {
   final bool doneToday;
   final int unread;
 
+  /// Plans being followed and how many have had their exercise today.
+  final int planCount;
+  final int plansDoneToday;
+
+  /// A possible fall today in any plan: rest day for every plan.
+  final bool restDay;
+
+  /// The followed plans no longer fit the current health profile
+  /// (PlanRules.checkActive): the patient reviews them, nothing is stopped.
+  final List<PlanIssue> planIssues;
+
+  /// Plans are paused from 65 (Terms of Use, section 2).
+  bool get plansPaused => PlanRestriction.forAge(profile.profile?.age) != null;
+
   const HomeData({
     required this.username,
     required this.profile,
@@ -28,6 +44,10 @@ class HomeData {
     this.nextStage,
     this.doneToday = false,
     this.unread = 0,
+    this.planCount = 0,
+    this.plansDoneToday = 0,
+    this.restDay = false,
+    this.planIssues = const [],
   });
 
   RiskLevel get risk => profile.riskLevel;
@@ -93,24 +113,40 @@ class HomeViewModel extends BaseViewModel {
     final profile = snapshot.dataOrNull!;
 
     // A missing plan or an unreachable database still shows the rest of the dashboard.
-    final plan = (await _treatments.getActivePlan(
-      account.accountId,
-    )).dataOrNull;
-    var doneToday = false;
-    if (plan != null) {
+    final plans =
+        (await _treatments.getActivePlans(account.accountId)).dataOrNull ??
+        const <PatientTreatmentPlan>[];
+    final today = _now();
+    final done = <String, bool>{};
+    var restDay = false;
+    for (final a in plans) {
       final sessions =
-          (await _treatments.getSessions(plan.patientPlanId)).dataOrNull ??
+          (await _treatments.getSessions(a.patientPlanId)).dataOrNull ??
           const <ExerciseSession>[];
-      final now = _now();
-      doneToday = sessions.any(
-        (s) =>
-            s.isCompleted() &&
-            s.completedAt != null &&
-            s.completedAt!.toLocal().year == now.year &&
-            s.completedAt!.toLocal().month == now.month &&
-            s.completedAt!.toLocal().day == now.day,
-      );
+      done[a.patientPlanId] = ExerciseSession.anyCompletedOn(sessions, today);
+      restDay =
+          restDay ||
+          sessions.any(
+            (s) =>
+                s.completedOn(today) &&
+                (s.postureFeedback ?? '').contains(_fallPhrase),
+          );
     }
+    // The card shows the first plan that still has an exercise today.
+    final plan =
+        plans
+            .where(
+              (a) => done[a.patientPlanId] != true && a.currentStage() != null,
+            )
+            .firstOrNull ??
+        plans.firstOrNull;
+    final doneToday =
+        restDay || (plan != null && (done[plan.patientPlanId] ?? false));
+    final planIssues = PlanRules.checkActive(
+      active: plans,
+      risk: profile.riskLevel,
+      limit: profile.safetyLimit,
+    );
     final unread =
         (await _notifications?.unreadCount(account.accountId))?.dataOrNull ?? 0;
 
@@ -122,10 +158,18 @@ class HomeViewModel extends BaseViewModel {
         nextStage: plan?.currentStage(),
         doneToday: doneToday,
         unread: unread,
+        planCount: plans.length,
+        plansDoneToday: done.values.where((d) => d).length,
+        restDay: restDay,
+        planIssues: planIssues,
       ),
     );
     notifyListeners();
   }
+
+  /// Phrase of the server's possible-fall message, found in saved feedback
+  /// (the same check as TreatmentViewModel.restDayToday).
+  static const _fallPhrase = 'lost your balance or fallen';
 
   /// "3 exercises · 12 min · Both legs" for the Today's session card.
   static String sessionSummary(

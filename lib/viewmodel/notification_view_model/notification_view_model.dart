@@ -3,6 +3,8 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/i_notification_repository.dart';
@@ -38,6 +40,12 @@ class NotificationViewModel extends BaseViewModel {
       notifyListeners();
       return;
     }
+    // Turned on in Settings since the refusal: put the reminders on the phone again.
+    final wasDenied = _scheduler.permissionDenied;
+    if (await _scheduler.checkPermission() && wasDenied) {
+      await _scheduler.sync(id);
+    }
+    _onTime = await _scheduler.canRingOnTime();
     final res = await _repo.getReminders(id);
     _reminders = switch (res) {
       Success(:final data) => UiSuccess(
@@ -49,6 +57,40 @@ class NotificationViewModel extends BaseViewModel {
     };
     final now = DateTime.now();
     await loadLog(now.subtract(const Duration(days: 14)), now);
+  }
+
+  /// Notifications are refused for the app: reminders are saved but cannot ring (FR600_008).
+  bool get notificationsBlocked => _scheduler.permissionDenied;
+
+  /// "Turn on notifications": opens HealthGuide's notification settings. Asking again would often
+  /// do nothing: after two refusals Android no longer shows its dialog.
+  Future<void> openNotificationSettings() async {
+    await _scheduler.openNotificationSettings();
+  }
+
+  bool _onTime = true;
+
+  /// False when this phone may deliver reminders up to an hour late (Android 14+ without
+  /// "Alarms & reminders"); the screen offers to turn it on.
+  bool get remindersOnTime => _onTime;
+
+  /// "Turn on Alarms & reminders".
+  Future<void> openOnTimeSettings() => _scheduler.openOnTimeSettings();
+
+  /// Back in the app (e.g. from Settings): reads the settings again. Notifications now allowed, or
+  /// on-time alarms newly allowed: the reminders are put on the phone again (exact this time).
+  Future<void> recheckPermission() async {
+    final id = _accountId;
+    if (id == null) return;
+    var resync = false;
+    if (_scheduler.permissionDenied && await _scheduler.checkPermission()) {
+      resync = true;
+    }
+    final onTime = await _scheduler.canRingOnTime();
+    if (onTime && !_onTime) resync = true;
+    _onTime = onTime;
+    if (resync) await _scheduler.sync(id);
+    notifyListeners();
   }
 
   /// Saves and schedules a reminder (FR600_001 to FR600_003).
@@ -65,6 +107,64 @@ class NotificationViewModel extends BaseViewModel {
   Future<void> changeTime(String id, int hour, int minute) =>
       _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute));
 
+  /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
+  /// off: switch the reminder off instead.
+  Future<void> toggleDay(String id, int weekday) async {
+    final r = _find(id);
+    if (r == null) return;
+    final days = r.repeatDays.split('');
+    days[weekday - 1] = days[weekday - 1] == '1' ? '0' : '1';
+    if (!days.contains('1')) {
+      setError(Messages.reminderNeedsADay);
+      return;
+    }
+    setError(null);
+    await _change(id, (r) => _scheduler.update(r, repeatDays: days.join()));
+  }
+
+  /// Whether the patient already has a health-logging reminder (FR600_002).
+  bool get hasHealthLogReminder => switch (_reminders) {
+    UiSuccess(:final data) => data.any(
+      (r) => r.reminderType == ReminderType.healthLog,
+    ),
+    _ => false,
+  };
+
+  /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
+  Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
+    final id = _accountId;
+    if (id == null || hasHealthLogReminder) return;
+    final res = await _scheduler.update(
+      Reminder(
+        reminderId: newId(),
+        accountId: id,
+        reminderType: ReminderType.healthLog,
+        title: 'Log your health readings',
+        hour: hour,
+        minute: minute,
+      ),
+    );
+    // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
+    setError(res is Failure ? Messages.dbUnavailable : null);
+    await load();
+  }
+
+  /// Deletes a reminder the patient added. A treatment plan's exercise reminders stay with the
+  /// plan (switch them off instead); they go when the plan is stopped or replaced.
+  Future<void> deleteReminder(String id) async {
+    final r = _find(id);
+    if (r == null || r.patientPlanId != null) return;
+    final res = await _scheduler.remove(r);
+    // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
+    setError(res is Failure ? Messages.dbUnavailable : null);
+    await load();
+  }
+
+  Reminder? _find(String id) => switch (_reminders) {
+    UiSuccess(:final data) => data.where((r) => r.reminderId == id).firstOrNull,
+    _ => null,
+  };
+
   Future<void> _change(
     String id,
     Future<Result<Reminder>> Function(Reminder) op,
@@ -78,6 +178,7 @@ class NotificationViewModel extends BaseViewModel {
     final res = await op(list[i]);
     if (res case Success(:final data)) {
       _reminders = UiSuccess([...list]..[i] = data);
+      setError(null);
     } else {
       setError(Messages.dbUnavailable);
     }

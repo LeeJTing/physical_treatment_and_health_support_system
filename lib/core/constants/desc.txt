@@ -1,0 +1,1 @@
+Cross-cutting constants: AppConstants (limits, timeouts, server paths) and Messages (every user-facing message, numbered by the report's use cases where the report gives them). Not a layer of the architecture diagram; any layer may read these.

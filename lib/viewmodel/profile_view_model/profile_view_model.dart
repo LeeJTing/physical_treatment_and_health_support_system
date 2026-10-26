@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -19,7 +20,15 @@ class ProfileViewModel extends BaseViewModel {
   final IAuthRepository _auth;
   final RiskAssessmentService _risk;
 
-  ProfileViewModel(this._profiles, this._auth, this._risk);
+  /// Cancels this phone's reminders when the account is deleted.
+  final LocalNotificationService? _notifications;
+
+  ProfileViewModel(
+    this._profiles,
+    this._auth,
+    this._risk, [
+    this._notifications,
+  ]);
 
   Account? account;
   HealthProfile? profile; // last saved
@@ -35,6 +44,9 @@ class ProfileViewModel extends BaseViewModel {
   /// Field that failed validation last time Save was pressed ('age', 'weight', ...).
   List<String> invalidFields = const [];
 
+  /// Conditions picked in this edit whose question is not answered yet.
+  Set<int> unansweredConditions = {};
+
   /// What the screen shows: the draft while editing, else the saved profile.
   HealthProfile? get shown => isEditing ? draft : profile;
 
@@ -49,6 +61,15 @@ class ProfileViewModel extends BaseViewModel {
       a.heightCm == b.heightCm &&
       a.conditions.toSet().containsAll(b.conditions) &&
       b.conditions.toSet().containsAll(a.conditions) &&
+      // The answers too (equality is by condition id only).
+      a.conditions.every(
+        (c) => b.conditions.any(
+          (o) =>
+              o.conditionId == c.conditionId &&
+              o.controlled == c.controlled &&
+              o.note == c.note,
+        ),
+      ) &&
       a.limitations.toSet().containsAll(b.limitations) &&
       b.limitations.toSet().containsAll(a.limitations);
 
@@ -98,6 +119,7 @@ class ProfileViewModel extends BaseViewModel {
   }
 
   void startEdit() {
+    unansweredConditions = {};
     final p = profile;
     if (p == null && account == null) return;
     draft = p ?? HealthProfile.empty(account!.accountId);
@@ -140,8 +162,42 @@ class ProfileViewModel extends BaseViewModel {
     if (d == null || !isEditing) return;
     final c = conditions.firstWhere((c) => c.conditionId == id);
     final list = [...d.conditions];
-    list.contains(c) ? list.remove(c) : list.add(c);
+    if (list.contains(c)) {
+      list.remove(c);
+      unansweredConditions.remove(id);
+    } else {
+      list.add(c);
+      // A condition with a question waits for the answer (no default).
+      if (c.statusQuestion != null) unansweredConditions.add(id);
+    }
     draft = d.copyWith(conditions: list);
+    notifyListeners();
+  }
+
+  /// The answer to a condition's status question (11 Oct).
+  void setConditionControlled(int id, bool controlled) => _updateCondition(
+    id,
+    (c) => c.withStatus(controlled: controlled),
+    answered: true,
+  );
+
+  /// What the "Other" condition is.
+  void setConditionNote(int id, String note) =>
+      _updateCondition(id, (c) => c.withStatus(note: note.trim()));
+
+  void _updateCondition(
+    int id,
+    HealthCondition Function(HealthCondition) change, {
+    bool answered = false,
+  }) {
+    final d = draft;
+    if (d == null || !isEditing) return;
+    draft = d.copyWith(
+      conditions: [
+        for (final c in d.conditions) c.conditionId == id ? change(c) : c,
+      ],
+    );
+    if (answered) unansweredConditions.remove(id);
     notifyListeners();
   }
 
@@ -166,6 +222,7 @@ class ProfileViewModel extends BaseViewModel {
   /// Discards the draft (FR100_052). A patient without any saved profile stays in edit mode.
   void cancelEdit() {
     if (profile == null) return;
+    unansweredConditions = {};
     draft = null;
     isEditing = false;
     invalidFields = const [];
@@ -177,6 +234,17 @@ class ProfileViewModel extends BaseViewModel {
   Future<bool> saveProfile() async {
     final d = draft;
     if (d == null) return false;
+    // Every question answered, and the "Other" condition named (11 Oct).
+    final conditionProblem = unansweredConditions.isNotEmpty
+        ? Messages.conditionQuestionUnanswered
+        : d.conditions.any((c) => c.isOther && (c.note ?? '').isEmpty)
+        ? Messages.otherConditionNote
+        : null;
+    if (conditionProblem != null) {
+      saveState = UiError(conditionProblem);
+      notifyListeners();
+      return false;
+    }
     final errors = d.validate();
     if (errors.isNotEmpty) {
       invalidFields = errors;
@@ -204,6 +272,7 @@ class ProfileViewModel extends BaseViewModel {
     }
     isEditing = false;
     draft = null;
+    unansweredConditions = {};
     await loadProfile();
     saveState = const UiSuccess(null);
     notifyListeners();
@@ -211,4 +280,21 @@ class ProfileViewModel extends BaseViewModel {
   }
 
   Future<bool> logout() async => (await _auth.signOut()).isSuccess;
+
+  UiState<void> deleteState = const Idle();
+
+  /// "Delete my account" (Privacy Notice section 5): the phone's reminders are
+  /// cancelled, then the account and all its data are deleted.
+  Future<bool> deleteAccount() async {
+    deleteState = const Loading();
+    notifyListeners();
+    final id = account?.accountId;
+    if (id != null) await _notifications?.cancelAllFor(id);
+    final res = await _auth.deleteAccount();
+    deleteState = res.isSuccess
+        ? const UiSuccess(null)
+        : const UiError(Messages.accountDeleteFailed);
+    notifyListeners();
+    return res.isSuccess;
+  }
 }

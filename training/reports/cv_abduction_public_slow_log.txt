@@ -1,0 +1,2 @@
+shoulder_abduction: 348 original reps (+2775 augmented), 10 people, 63 clips, 178 correct / 170 incorrect; leave-one-person-out
+  GRU                  accuracy 73%  precision 0.70  recall 0.83  F1 0.76  confusion [[107, 63], [30, 148]]

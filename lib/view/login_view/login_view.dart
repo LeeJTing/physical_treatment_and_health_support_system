@@ -57,9 +57,27 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
     ),
   );
 
-  void _goNext(AuthViewModel vm) => Navigator.of(
-    context,
-  ).pushNamedAndRemoveUntil(vm.nextRoute ?? Routes.home, (_) => false);
+  void _goNext(AuthViewModel vm) {
+    // UC100 M12 (Google linked to the existing account) shows on the next screen.
+    final notice = vm.notice;
+    if (notice != null) {
+      vm.notice = null;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(notice)));
+    }
+    Navigator.of(
+      context,
+    ).pushNamedAndRemoveUntil(vm.nextRoute ?? Routes.home, (_) => false);
+  }
+
+  /// Opens Google; continues at once when the session is already here (offline demo),
+  /// otherwise when the app comes back from the browser ([didChangeAppLifecycleState]).
+  Future<void> _google() async {
+    final vm = context.read<AuthViewModel>();
+    await vm.signInWithGoogle();
+    if (mounted && vm.googleState is UiSuccess) _goNext(vm);
+  }
 
   Future<void> _login() async {
     FocusScope.of(context).unfocus();
@@ -207,7 +225,7 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                         label: 'Continue with Google',
                         icon: const GoogleMark(),
                         busy: vm.googleState is Loading,
-                        onPressed: busy ? null : vm.signInWithGoogle,
+                        onPressed: busy ? null : _google,
                       ),
                       const SizedBox(height: 16),
                       // Wrap, not Row: with large text the link drops to its own line.

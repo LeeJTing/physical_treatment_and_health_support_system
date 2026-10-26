@@ -1,0 +1,1 @@
+Theme and design tokens from the Figma screens: design_tokens (AppTokens), app_colors, app_text_style, theme_constants. Used by the View layer.

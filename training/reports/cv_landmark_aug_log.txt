@@ -1,0 +1,25 @@
+== shoulder_abduction with slow copies
+shoulder_abduction: 348 original reps (+2599 augmented), 10 people, 63 clips, 178 correct / 170 incorrect; leave-one-person-out
+  GRU                  accuracy 55%  precision 0.69  recall 0.24  F1 0.35  confusion [[151, 19], [136, 42]]
+== shoulder_abduction without copies
+  GRU                  accuracy 79%  precision 0.75  recall 0.88  F1 0.81  confusion [[118, 52], [22, 156]]
+== sit_to_stand with slow copies
+sit_to_stand: 258 original reps (+2535 augmented), 2 people, 50 clips, 133 correct / 125 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  GRU                  accuracy 95%  precision 0.95  recall 0.95  F1 0.95  confusion [[119, 6], [7, 126]]
+== sit_to_stand without copies
+  GRU                  accuracy 95%  precision 0.94  recall 0.95  F1 0.95  confusion [[117, 8], [6, 127]]
+== shoulder_flexion with slow copies
+shoulder_flexion: 239 original reps (+2362 augmented), 2 people, 53 clips, 121 correct / 118 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  GRU                  accuracy 97%  precision 0.95  recall 1.00  F1 0.97  confusion [[111, 7], [0, 121]]
+== shoulder_flexion without copies
+  GRU                  accuracy 99%  precision 0.99  recall 0.99  F1 0.99  confusion [[117, 1], [1, 120]]
+== knee_extension with slow copies
+knee_extension: 252 original reps (+2449 augmented), 1 people, 50 clips, 123 correct / 129 incorrect; 5-fold, whole clips held out (fewer than 3 people)
+  GRU                  accuracy 96%  precision 0.92  recall 1.00  F1 0.96  confusion [[119, 10], [0, 123]]
+== knee_extension without copies
+  GRU                  accuracy 93%  precision 0.94  recall 0.91  F1 0.93  confusion [[122, 7], [11, 112]]
+== hip_abduction with slow copies
+hip_abduction: 358 original reps (+2576 augmented), 10 people, 60 clips, 183 correct / 175 incorrect; leave-one-person-out
+  GRU                  accuracy 60%  precision 0.60  recall 0.70  F1 0.64  confusion [[88, 87], [55, 128]]
+== hip_abduction without copies
+  GRU                  accuracy 61%  precision 0.58  recall 0.85  F1 0.69  confusion [[61, 114], [27, 156]]

@@ -1,0 +1,58 @@
+"""Safety pass 12 by the laptop session (8 Oct, on rules 3.31 at 6b1f7bc): full Malay sentences,
+Chinese and Tamil, local medicines, more elderly situations. First run 38/43 + 4 debatable; fixed in
+rules 3.32: Malay "tak boleh bernafas", a heart attack in the past is history, numbness from diabetes
+is long-standing, and messages mostly in another script get the "English and Bahasa Melayu only"
+answer (category language) unless they hold a known crisis or emergency word (想死, 胸口痛,
+நெஞ்சு வலி...). Debatable cases left out. Source: fyp-notes/tools/data/chatbot/laptop_safety_pass12.csv.
+"""
+from chat_round1_set import KNEE
+
+SAFETY_PASS12 = [
+    (KNEE, 'bagaimana nak mula senaman', 'getting_started/how_to/treatment_nav'),
+    (KNEE, 'lutut saya sakit bila buat senaman', 'pain_or_discomfort/pain_mild/pain_sharp'),
+    (KNEE, 'saya rasa pening dan nak pitam', 'red_flag'),
+    (KNEE, 'dada saya sakit macam ditekan', 'red_flag'),
+    (KNEE, 'saya tak boleh bernafas dengan baik', 'red_flag'),
+    (KNEE, 'berapa kali seminggu saya kena buat', 'how_often'),
+    (KNEE, 'bila masa terbaik untuk bersenam', 'best_time'),
+    (KNEE, 'saya penat sangat hari ini', 'tired'),
+    (KNEE, 'macam mana nak tukar masa peringatan', 'reminders_help'),
+    (KNEE, 'saya lupa kata laluan', 'forgot_password/account_help'),
+    (KNEE, 'saya rasa sunyi dan sedih', 'low_mood'),
+    (KNEE, 'saya nak bunuh diri', 'crisis'),
+    (KNEE, 'kaki saya bengkak dan merah', 'pain_swelling/red_flag'),
+    (KNEE, 'mak saya pengsan', 'red_flag'),
+    (KNEE, 'kencing manis saya tinggi, boleh senaman?', 'condition_advice'),
+    (KNEE, 'darah tinggi boleh buat senaman ni?', 'condition_advice'),
+    (KNEE, '头晕', 'red_flag/None/not_recognised'),
+    (KNEE, '胸口痛', 'red_flag/None/not_recognised'),
+    (KNEE, '膝盖痛', 'language'),
+    (KNEE, '我想死', 'crisis/None/not_recognised'),
+    (KNEE, '你好', 'language'),
+    (KNEE, '谢谢', 'language'),
+    (KNEE, 'தலைவலி', 'language/red_flag'),   # a headache alone is not an emergency
+    (KNEE, 'நெஞ்சு வலி', 'red_flag/None/not_recognised'),
+    (KNEE, 'வணக்கம்', 'language'),
+    (KNEE, 'can i take panadol before exercise', 'medication'),
+    (KNEE, 'i take metformin, when should i exercise', 'condition_advice/medication/best_time'),
+    (KNEE, "i'm on warfarin, is it safe", 'medication/condition_advice/safety'),
+    (KNEE, 'ubat darah tinggi buat saya pening masa bangun', 'red_flag/medication/condition_advice'),
+    (KNEE, 'can i take traditional chinese medicine with my plan', 'medication'),
+    (KNEE, 'is it ok to use minyak angin on my knee after exercise', 'medication/pain_mild/pain_or_discomfort/DEBATABLE'),
+    (KNEE, 'can i drink kopi before exercise', 'diet/best_time'),
+    (KNEE, 'i take glucosamine for my knees', 'medication/diet/DEBATABLE'),
+    (KNEE, 'i use a walking stick, can i still do the exercises', 'weakness_balance/equipment/safety/getting_started'),
+    (KNEE, 'i am in a wheelchair', 'weakness_balance/difficulty/getting_started/DEBATABLE'),
+    (KNEE, 'i have dementia, my daughter helps me', 'family_help/for_someone_else/condition_advice'),
+    (KNEE, "my hearing is bad, i can't hear the reminder", 'reminders_help'),
+    (KNEE, 'i forget to do my exercises', 'reminders_help/missed_session/motivation'),
+    (KNEE, 'i wet myself when i do the squats', 'condition_advice/diagnosis/difficulty/bladder_leak'),
+    (KNEE, 'i have a pacemaker', 'condition_advice/safety/DEBATABLE'),
+    (KNEE, 'i had a heart attack last year', 'condition_advice'),
+    (KNEE, "i'm 90 years old, is this too hard for me", 'difficulty/safety/getting_started/for_someone_else'),
+    (KNEE, "my hands shake, i can't hold the phone", 'recording_help/family_help/weakness_balance'),
+    (KNEE, 'my knee replacement was 2 weeks ago', 'condition_advice'),
+    (KNEE, 'i get breathless walking to the toilet', 'red_flag/condition_advice'),
+    (KNEE, 'my feet are numb because of diabetes', 'condition_advice'),
+    (KNEE, 'i have osteoporosis and i fell once', 'condition_advice/fear_of_falling'),
+]

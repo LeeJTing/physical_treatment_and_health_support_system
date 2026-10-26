@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
+import 'package:physical_treatment_and_health_support_system/view/login_view/terms_view.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -117,6 +118,26 @@ class _ProfileViewState extends State<ProfileView> {
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(Routes.loginScreen, (_) => false); // FR100_059
+    }
+  }
+
+  /// Privacy Notice section 5: the patient can delete the account and all its
+  /// data. Asked twice: the first answer explains, the second confirms.
+  Future<void> _deleteAccount(ProfileViewModel vm) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final nav = Navigator.of(context);
+    if (!await _ask(Messages.confirmDeleteAccount, 'Delete', danger: true)) {
+      return;
+    }
+    if (await vm.deleteAccount()) {
+      nav.pushNamedAndRemoveUntil(Routes.loginScreen, (_) => false);
+      messenger.showSnackBar(
+        const SnackBar(content: Text(Messages.accountDeleted)),
+      );
+    } else {
+      messenger.showSnackBar(
+        const SnackBar(content: Text(Messages.accountDeleteFailed)),
+      );
     }
   }
 
@@ -256,6 +277,7 @@ class _ProfileViewState extends State<ProfileView> {
                     ),
                 ],
               ),
+              _ConditionAnswers(vm: vm, profile: p),
               const SizedBox(height: 24),
               const SectionTitle('Physical limitations'),
               const SizedBox(height: 12),
@@ -298,10 +320,8 @@ class _ProfileViewState extends State<ProfileView> {
                 SettingsCard(
                   title: 'Change password',
                   subtitle: 'Update your password',
-                  onTap: () => Navigator.of(context).pushNamed(
-                    Routes.resetPassword,
-                    arguments: vm.account?.email,
-                  ),
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.changePassword),
                 ),
                 const SizedBox(height: 10),
                 SettingsCard(
@@ -327,6 +347,23 @@ class _ProfileViewState extends State<ProfileView> {
                   subtitle: 'End this session',
                   danger: true,
                   onTap: () => _logout(vm),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'Terms of Use and Privacy Notice',
+                  subtitle: 'Read what you agreed to',
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const TermsView(readOnly: true),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'Delete my account',
+                  subtitle: 'Delete your account and all your data',
+                  danger: true,
+                  onTap: () => _deleteAccount(vm),
                 ),
               ],
             ],
@@ -590,3 +627,114 @@ String conditionLabel(HealthCondition c) =>
 
 String limitationLabel(PhysicalLimitation l) =>
     l.limitationName.replaceAll(' Limitation', '');
+
+/// The question under each selected condition, and what "Other" is (11 Oct).
+/// A condition that needs a doctor's OK and is answered "No" holds back new
+/// exercise plans.
+class _ConditionAnswers extends StatelessWidget {
+  final ProfileViewModel vm;
+  final HealthProfile? profile;
+  const _ConditionAnswers({required this.vm, required this.profile});
+
+  @override
+  Widget build(BuildContext context) {
+    final asked = [
+      for (final c in profile?.conditions ?? const <HealthCondition>[])
+        if (c.statusQuestion != null || c.isOther) c,
+    ];
+    if (asked.isEmpty) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [for (final c in asked) _answer(c)],
+      ),
+    );
+  }
+
+  Widget _answer(HealthCondition c) {
+    final unanswered =
+        vm.isEditing && vm.unansweredConditions.contains(c.conditionId);
+    return Container(
+      key: ValueKey('condition-answer-${c.conditionId}'),
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppTokens.surface,
+        borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+        border: Border.all(
+          color: unanswered ? AppTokens.cta : AppTokens.cardBorder,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            conditionLabel(c),
+            style: const TextStyle(
+              fontWeight: FontWeight.w700,
+              color: AppTokens.ink,
+            ),
+          ),
+          if (c.isOther) ...[
+            const SizedBox(height: 6),
+            if (vm.isEditing)
+              TextFormField(
+                key: ValueKey('condition-note-${c.conditionId}'),
+                initialValue: c.note,
+                maxLength: 100,
+                decoration: const InputDecoration(
+                  hintText: 'What is the condition?',
+                ),
+                onChanged: (v) => vm.setConditionNote(c.conditionId, v),
+              )
+            else
+              Text(
+                c.note ?? '',
+                style: const TextStyle(color: AppTokens.inkMuted),
+              ),
+          ],
+          if (c.statusQuestion case final question?) ...[
+            const SizedBox(height: 6),
+            Text(question, style: const TextStyle(color: AppTokens.ink)),
+            const SizedBox(height: 6),
+            if (vm.isEditing)
+              Wrap(
+                spacing: 8,
+                children: [
+                  ChoiceChip(
+                    label: const Text('Yes'),
+                    selected: !unanswered && c.controlled,
+                    onSelected: (_) =>
+                        vm.setConditionControlled(c.conditionId, true),
+                  ),
+                  ChoiceChip(
+                    label: const Text('No'),
+                    selected: !unanswered && !c.controlled,
+                    onSelected: (_) =>
+                        vm.setConditionControlled(c.conditionId, false),
+                  ),
+                ],
+              )
+            else
+              Text(
+                c.controlled ? 'Yes' : 'No',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppTokens.ink,
+                ),
+              ),
+            if (!unanswered && c.blocksPlans)
+              const Padding(
+                padding: EdgeInsets.only(top: 6),
+                child: Text(
+                  'New exercise plans wait until your doctor agrees.',
+                  style: TextStyle(color: AppTokens.onWarn),
+                ),
+              ),
+          ],
+        ],
+      ),
+    );
+  }
+}

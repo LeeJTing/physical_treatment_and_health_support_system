@@ -162,8 +162,13 @@ def train(key: str, X, y, ym, groups, mistakes, epochs: int, seed: int = 7, out_
     n = 1 + max([int(p.stem.rsplit("_v", 1)[1]) for p in WEIGHTS_DIR.glob(f"{key}_v*.pt")] or [0])
     name = out_name or f"{key}_v{n}"
     res["inputs"] = inputs
+    # How long the training repetitions lasted (the last column is duration / 10 s): the server judges
+    # reps far outside this with the rules only (9 Oct condition audit: slow reps of older patients).
+    dur = X[tr_mask][:, 0, -1] * 10.0
+    res["duration_range_sec"] = [round(float(np.percentile(dur, 1)), 2), round(float(np.percentile(dur, 99)), 2)]
     ckpt = {"state": best_state, "mistakes": list(mistakes), "features": inputs, "seq_len": SEQ_LEN,
-            "metrics": res, "trained_at": datetime.now().isoformat(timespec="seconds")}
+            "metrics": res, "duration_range": res["duration_range_sec"],
+            "trained_at": datetime.now().isoformat(timespec="seconds")}
     torch.save(ckpt, WEIGHTS_DIR / f"{name}.pt")
     rep_dir = REPORTS / name
     rep_dir.mkdir(parents=True, exist_ok=True)

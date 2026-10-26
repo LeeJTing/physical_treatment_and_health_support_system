@@ -22,6 +22,9 @@ import 'package:physical_treatment_and_health_support_system/model/repository/au
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/supabase_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/supabase_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/supabase_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/fake_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/supabase_terms_repository.dart';
 
 /// Composition root. This is the ONLY file that names a concrete repository
 /// class (ASR_02); everything else depends on the interfaces.
@@ -32,6 +35,7 @@ Future<void> main() async {
   final IProfileRepository profileRepo;
   final ITreatmentRepository treatmentRepo;
   final INotificationRepository notificationRepo;
+  final ITermsRepository termsRepo;
   final String? Function() tokenProvider;
 
   if (AppConstants.useFakes) {
@@ -40,6 +44,7 @@ Future<void> main() async {
     profileRepo = FakeProfileRepository();
     treatmentRepo = FakeTreatmentRepository.fromJson(catalogue);
     notificationRepo = FakeNotificationRepository();
+    termsRepo = FakeTermsRepository();
     tokenProvider = () => 'dev-token';
   } else {
     if (AppConstants.supabaseUrl.isEmpty ||
@@ -55,6 +60,7 @@ Future<void> main() async {
     profileRepo = SupabaseProfileRepository(provider);
     treatmentRepo = SupabaseTreatmentRepository(provider);
     notificationRepo = SupabaseNotificationRepository(provider);
+    termsRepo = SupabaseTermsRepository(provider);
     // The AI server checks this Supabase token (JWKS) on every call.
     tokenProvider = () => provider.accessToken;
   }
@@ -64,6 +70,7 @@ Future<void> main() async {
     tokenProvider: tokenProvider,
   );
 
+  final risk = RiskAssessmentService(authRepo, profileRepo);
   runApp(
     MultiProvider(
       providers: [
@@ -71,11 +78,10 @@ Future<void> main() async {
         Provider<IProfileRepository>.value(value: profileRepo),
         Provider<ITreatmentRepository>.value(value: treatmentRepo),
         Provider<INotificationRepository>.value(value: notificationRepo),
+        Provider<ITermsRepository>.value(value: termsRepo),
         Provider<ApiClient>.value(value: api),
         // Services are added here module by module; ViewModels are created per route in app.dart.
-        Provider<RiskAssessmentService>.value(
-          value: RiskAssessmentService(authRepo, profileRepo),
-        ),
+        Provider<RiskAssessmentService>.value(value: risk),
         Provider<RecommendationService>.value(
           value: RecommendationService(api),
         ),
@@ -84,7 +90,13 @@ Future<void> main() async {
           value: PoseEstimationService(api),
         ),
         Provider<LocalNotificationService>.value(
-          value: LocalNotificationService(notificationRepo, treatmentRepo),
+          value: LocalNotificationService(
+            notificationRepo,
+            treatmentRepo,
+            // Exercise reminders stop from 65, when plans are paused.
+            profileAge: () async =>
+                (await risk.retrieve()).dataOrNull?.profile?.age,
+          ),
         ),
       ],
       child: const MainApp(),

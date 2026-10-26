@@ -4,11 +4,21 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/reminder_tap.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+
+/// Why the terms screen is shown (11 Oct): never accepted, a new version, or
+/// the profile says the patient is under 18 but no guardian agreed.
+enum TermsReason { firstTime, updated, guardianNeeded }
 
 /// Register, verify, log in and reset the password (UC100, UC200; Table 4.50).
 /// One [UiState] per operation so each screen shows only its own spinner and error.
@@ -19,16 +29,67 @@ class AuthViewModel extends BaseViewModel {
   final IProfileRepository _profiles;
   final LocalNotificationService? _notifications;
 
-  AuthViewModel(this._auth, this._profiles, [this._notifications]);
+  /// Terms of Use acceptances; null = no terms step (tests of other screens).
+  final ITermsRepository? _terms;
+
+  AuthViewModel(
+    this._auth,
+    this._profiles, [
+    this._notifications,
+    this._terms,
+  ]) {
+    _tapSub = _notifications?.taps().listen(_onReminderTap);
+  }
+
+  StreamSubscription<ReminderTap>? _tapSub;
+  ({String route, Object? argument})? _reminderOpen;
+
+  /// A tapped reminder while the app runs: the app root opens what it is about.
+  Future<void> _onReminderTap(ReminderTap tap) async {
+    final open = await _destinationFor(tap);
+    if (open == null || isDisposed) return;
+    _reminderOpen = open;
+    notifyListeners();
+  }
+
+  /// An exercise reminder opens its plan; other reminders just open the app. Nothing is opened
+  /// for a signed-out patient or an unfinished Google account (they see login or setup first).
+  Future<({String route, Object? argument})?> _destinationFor(
+    ReminderTap tap,
+  ) async {
+    if (tap.type != ReminderType.exercise || tap.patientPlanId == null) {
+      return null;
+    }
+    if ((await _auth.currentAccount()).dataOrNull == null) return null;
+    if ((await _auth.needsAccountSetup()).dataOrNull ?? false) return null;
+    return (route: Routes.physicalTreatment, argument: tap.patientPlanId);
+  }
+
+  /// The screen a tapped reminder asked for, once (then null).
+  ({String route, Object? argument})? takeReminderOpen() {
+    final open = _reminderOpen;
+    _reminderOpen = null;
+    return open;
+  }
 
   /// First screen when the app opens (FR100_024, FR100_025, FR100_035): no stored
   /// session -> login; signed in without a complete profile -> profile; else home.
   Future<String> decideStartRoute() async {
     final account = (await _auth.currentAccount()).dataOrNull;
     if (account == null) return Routes.loginScreen;
+    // The app was closed during Google account setup: finish it first (FR100_022).
+    if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
+      return Routes.accountSetup;
+    }
     // Refresh the phone's reminder schedule; it must not hold up start-up.
     _notifications?.sync(account.accountId).ignore();
-    return _routeAfterSignIn(account);
+    final route = await _routeAfterSignIn(account);
+    // Started by tapping a reminder: its plan opens above Home (takeReminderOpen).
+    final tap = await _notifications?.launchTap();
+    if (tap != null && route == Routes.home) {
+      _reminderOpen = await _destinationFor(tap);
+    }
+    return route;
   }
 
   UiState<void> loginState = const Idle();
@@ -37,7 +98,20 @@ class AuthViewModel extends BaseViewModel {
   UiState<void> resendState = const Idle();
   UiState<void> resetRequestState = const Idle();
   UiState<void> resetConfirmState = const Idle();
+  UiState<void> changePasswordState = const Idle();
   UiState<void> googleState = const Idle();
+  UiState<void> setupState = const Idle();
+  UiState<void> termsState = const Idle();
+
+  /// Set when sign-in leads to the terms screen.
+  TermsReason? termsReason;
+
+  /// The profile age, when known, so a user under 18 cannot choose "18 or older".
+  int? termsProfileAge;
+
+  /// One-time message for the next screen, e.g. UC100 M12 after Google was linked to the
+  /// existing account. The screen that shows it sets it back to null.
+  String? notice;
 
   /// Where to go after a successful login or verification (FR100_035).
   String? nextRoute;
@@ -59,6 +133,7 @@ class AuthViewModel extends BaseViewModel {
         'email_taken' => Messages.emailExists,
         'use_google' => Messages.useGoogle,
         'otp_invalid' || 'invalid_code' => Messages.codeIncorrect,
+        'code_attempts' => Messages.codeExpired,
         'offline' || 'timeout' || 'unknown' =>
           registering
               ? Messages.registrationUnavailable
@@ -66,10 +141,90 @@ class AuthViewModel extends BaseViewModel {
         _ => f.message,
       };
 
+  /// The terms first when they are needed (at registration, and at any sign-in
+  /// after the version changed or a guardian is needed; 11 Oct), then
+  /// [_profileRoute].
+  Future<String> _routeAfterSignIn(Account a) async {
+    termsReason = await _termsNeeded(a);
+    return termsReason != null ? Routes.terms : _profileRoute(a);
+  }
+
+  /// Null when the current terms are accepted. When the acceptances cannot be
+  /// read (offline, or the table not created yet) the patient is not locked
+  /// out, as with the profile.
+  Future<TermsReason?> _termsNeeded(Account a) async {
+    final terms = _terms;
+    if (terms == null) return null;
+    final res = await terms.latestAcceptance(a.accountId);
+    if (res is! Success<TermsAcceptance?>) return null;
+    final last = res.data;
+    termsProfileAge = (await _profiles.getProfile(a.accountId)).dataOrNull?.age;
+    if (last == null) return TermsReason.firstTime;
+    if (last.termsVersion != AppConstants.termsVersion) return TermsReason.updated;
+    final age = termsProfileAge;
+    if (last.ageGroup == TermsAgeGroup.adult &&
+        age != null &&
+        age < AppConstants.adultAge) {
+      return TermsReason.guardianNeeded;
+    }
+    return null;
+  }
+
+  /// Records the acceptance of the current terms, with the explicit consent
+  /// for health data and, for a user aged 13 to 17, the parent or guardian
+  /// who agreed; then sets [nextRoute].
+  Future<bool> acceptTerms({
+    required String language,
+    required bool minor,
+    String? guardianName,
+    String? guardianRelationship,
+  }) async {
+    final terms = _terms;
+    final account = (await _auth.currentAccount()).dataOrNull;
+    if (terms == null || account == null) {
+      termsState = const UiError(Messages.sessionExpired);
+      notifyListeners();
+      return false;
+    }
+    termsState = const Loading();
+    notifyListeners();
+    final res = await terms.saveAcceptance(
+      TermsAcceptance(
+        acceptanceId: newId(),
+        accountId: account.accountId,
+        termsVersion: AppConstants.termsVersion,
+        acceptedAt: DateTime.now(),
+        language: language,
+        healthDataConsent: true,
+        ageGroup: minor ? TermsAgeGroup.minor : TermsAgeGroup.adult,
+        guardianName: minor ? guardianName?.trim() : null,
+        guardianRelationship: minor ? guardianRelationship : null,
+      ),
+    );
+    if (res.isSuccess) {
+      termsReason = null;
+      nextRoute = await _profileRoute(account);
+      termsState = const UiSuccess(null);
+    } else {
+      termsState = const UiError(Messages.termsSaveFailed);
+    }
+    notifyListeners();
+    return res.isSuccess;
+  }
+
+  /// The terms were declined: the app cannot be used, so sign out.
+  Future<void> declineTerms() async {
+    await _auth.signOut();
+    termsReason = null;
+    termsState = const Idle();
+    nextRoute = Routes.loginScreen;
+    notifyListeners();
+  }
+
   /// Complete profile -> home; none or incomplete -> profile screen (FR100_035).
   /// If the profile cannot be read, go home: RiskAssessmentService then applies the
   /// conservative default limits (UC1000 C5).
-  Future<String> _routeAfterSignIn(Account a) async {
+  Future<String> _profileRoute(Account a) async {
     final res = await _profiles.getProfile(a.accountId);
     if (res case Success(:final data)) {
       return data != null && data.isComplete
@@ -137,7 +292,11 @@ class AuthViewModel extends BaseViewModel {
             : f.message,
       ),
     };
-    if (res.isSuccess) _startCooldown();
+    if (res.isSuccess) {
+      // The old "incorrect" or "expired" message is about the previous code.
+      verifyState = const Idle();
+      _startCooldown();
+    }
     notifyListeners();
   }
 
@@ -184,23 +343,56 @@ class AuthViewModel extends BaseViewModel {
     return res.isSuccess;
   }
 
+  /// Changes the password from Profile (FR100_061): the current password is re-entered and the
+  /// new one follows the same rule as registration.
+  Future<bool> changePassword(
+    String current,
+    String newPassword,
+    String confirm,
+  ) async {
+    final invalid = current.isEmpty
+        ? Messages.passwordEmpty
+        : FormValidators.password(newPassword) ??
+              FormValidators.confirmPassword(newPassword, confirm) ??
+              (newPassword == current ? Messages.passwordSameAsCurrent : null);
+    if (invalid != null) {
+      changePasswordState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
+    changePasswordState = const Loading();
+    notifyListeners();
+    final res = await _auth.changePassword(current, newPassword);
+    changePasswordState = switch (res) {
+      Success() => const UiSuccess(null),
+      Failure f => UiError(messageFor(f)),
+    };
+    notifyListeners();
+    return res.isSuccess;
+  }
+
   /// Opens the Google page in the browser (FR100_018). The session arrives when the
   /// browser returns to the app; the login screen then calls [checkSignedIn].
+  /// The repository says when Google is not set up yet ('unsupported').
   Future<void> signInWithGoogle() async {
-    if (!AppConstants.googleSignInEnabled) {
-      googleState = const UiError(Messages.googleNotAvailable);
-      notifyListeners();
-      return;
-    }
     googleState = const Loading();
     notifyListeners();
     final res = await _auth.signInWithGoogle();
+    if (res case Failure f) {
+      googleState = UiError(
+        f.code == 'unsupported' ? f.message : messageFor(f),
+      );
+      notifyListeners();
+      return;
+    }
     // On success the browser is open; the spinner stays until the patient comes back.
-    _awaitingGoogle = res.isSuccess;
-    googleState = switch (res) {
-      Success() => const Loading(),
-      Failure f => UiError(f.code == 'unsupported' ? f.message : messageFor(f)),
-    };
+    // (Without a browser, as in the offline demo, the session is already here.)
+    _awaitingGoogle = true;
+    if (await checkSignedIn()) {
+      _awaitingGoogle = false;
+      return;
+    }
+    googleState = const Loading();
     notifyListeners();
   }
 
@@ -233,10 +425,60 @@ class AuthViewModel extends BaseViewModel {
   Future<bool> checkSignedIn() async {
     final account = (await _auth.currentAccount()).dataOrNull;
     if (account == null) return false;
-    nextRoute = await _routeAfterSignIn(account);
+    if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
+      nextRoute = Routes.accountSetup; // FR100_022
+    } else {
+      if ((await _auth.googleJustLinked()).dataOrNull ?? false) {
+        notice = Messages.googleLinked; // FR100_021, UC100 M12
+      }
+      nextRoute = await _routeAfterSignIn(account);
+    }
     googleState = const UiSuccess(null);
     notifyListeners();
     return true;
+  }
+
+  /// Complete Account Setup (FR100_022): the same username and password rules as manual
+  /// registration (UC100 A1.1 to A1.3).
+  Future<bool> completeAccountSetup(
+    String username,
+    String password,
+    String confirm,
+  ) async {
+    final invalid =
+        FormValidators.username(username) ??
+        FormValidators.password(password) ??
+        FormValidators.confirmPassword(password, confirm);
+    if (invalid != null) {
+      setupState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
+    setupState = const Loading();
+    notifyListeners();
+    final res = await _auth.completeAccountSetup(username.trim(), password);
+    switch (res) {
+      case Success(:final data):
+        nextRoute = await _routeAfterSignIn(data);
+        _notifications?.sync(data.accountId).ignore();
+        setupState = const UiSuccess(null);
+      case Failure f:
+        setupState = UiError(messageFor(f, registering: true));
+    }
+    notifyListeners();
+    return res.isSuccess;
+  }
+
+  /// UC100 A1.4 (FR100_023): signs out, removes the unfinished account and goes back to
+  /// the login screen, where Google sign-in started.
+  Future<void> cancelAccountSetup() async {
+    setupState = const Loading();
+    notifyListeners();
+    await _auth.discardIncompleteAccount();
+    nextRoute = Routes.loginScreen;
+    setupState = const Idle();
+    googleState = const Idle();
+    notifyListeners();
   }
 
   void clearErrors() {
@@ -244,7 +486,10 @@ class AuthViewModel extends BaseViewModel {
     if (registerState is UiError) registerState = const Idle();
     if (verifyState is UiError) verifyState = const Idle();
     if (resetConfirmState is UiError) resetConfirmState = const Idle();
+    if (changePasswordState is UiError) changePasswordState = const Idle();
     if (googleState is UiError) googleState = const Idle();
+    if (setupState is UiError) setupState = const Idle();
+    if (termsState is UiError) termsState = const Idle();
     lastErrorCode = null;
     notifyListeners();
   }
@@ -252,6 +497,7 @@ class AuthViewModel extends BaseViewModel {
   @override
   void dispose() {
     _timer?.cancel();
+    _tapSub?.cancel();
     super.dispose();
   }
 }

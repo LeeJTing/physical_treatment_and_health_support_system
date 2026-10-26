@@ -27,7 +27,7 @@ ROUND9 = [
     (KNEE, "how many sets per day", "how_often"),
     (KNEE, "the exercise too easy already", "difficulty"),
     (KNEE, "can i add weights", ("difficulty", "equipment")),
-    (KNEE, "change my password", ("account_help", "forgot_password")),
+    (KNEE, "change my password", ("account_help", "forgot_password", "change_password")),
     (KNEE, "how to delete my account", "account_help"),
     (KNEE, "i got no internet can still use", "app_help"),
     (KNEE, "what does my score mean", "posture_result"),

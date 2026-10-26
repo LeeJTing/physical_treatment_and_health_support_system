@@ -34,6 +34,30 @@ class ExerciseSession {
 
   bool isCompleted() => completionStatus == CompletionStatus.completed;
   bool postureIsPassing() => (postureAccuracy ?? 0) >= passMark;
+
+  /// Phrase of the server's possible-fall message (FALL_MESSAGE in
+  /// ai_server/app/pose/analyse.py), found in a saved attempt's feedback.
+  static const fallPhrase = 'lost your balance or fallen';
+
+  /// Whether the posture result of this attempt warned of a possible fall.
+  bool hadFallAlert() => (postureFeedback ?? '').contains(fallPhrase);
+
+  /// Whether this attempt was COMPLETED on [day]'s local calendar date.
+  bool completedOn(DateTime day) {
+    final at = completedAt?.toLocal();
+    return isCompleted() &&
+        at != null &&
+        at.year == day.year &&
+        at.month == day.month &&
+        at.day == day.day;
+  }
+
+  /// The one "today's exercise is done" rule (one exercise per day), shared by
+  /// Home, Treatment and the exercise reminder (FR600_005).
+  static bool anyCompletedOn(
+    Iterable<ExerciseSession> sessions,
+    DateTime day,
+  ) => sessions.any((s) => s.completedOn(day));
   double durationMinutes() => (durationSec ?? 0) / 60;
 
   ExerciseSession withStatus(CompletionStatus s) => ExerciseSession(

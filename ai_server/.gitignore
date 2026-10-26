@@ -5,3 +5,8 @@ __pycache__/
 models/weights/*
 !models/weights/.gitkeep
 .pytest_cache/
+# development viewer runs (videos of whoever tested)
+dev_runs/
+
+# Exported unrecognised chat questions (patients' words): never committed (chat_backlog.py)
+backlog*.csv

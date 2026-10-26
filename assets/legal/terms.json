@@ -1,0 +1,142 @@
+{
+  "version": "1.0",
+  "effective": {"en": "11 October 2026", "ms": "11 Oktober 2026"},
+  "contact": "elwinksy-wm23@student.tarc.edu.my",
+  "note": "Terms of Use and Privacy Notice shown by the app (TermsView) and built into fyp-notes/Terms_of_Use_v1.pdf. When the text changes, raise 'version' here and AppConstants.termsVersion together: every user then accepts the new version at the next login. The Malay text is a draft translation to be checked by a Malay speaker.",
+  "en": {
+    "language": "English",
+    "title": "Terms of Use and Privacy Notice",
+    "version_line": "Version {version}, effective {date}",
+    "sections": [
+      {"heading": "1. What HealthGuide is", "paragraphs": [
+        "HealthGuide (the AI-Assisted Physical Treatment and Health Support System) helps people aged 13 and over to rebuild strength after a period of inactivity, for example after bed rest, a cast or an illness. It suggests exercise plans, checks your exercise posture from a short video, answers common questions, reminds you to exercise, and lets you log health readings and meals.",
+        "HealthGuide is not a doctor or a physiotherapist. It does not diagnose, treat or prescribe, and it does not replace professional care. In Malaysia, physiotherapy is provided by physiotherapists registered under the Allied Health Professions Act 2016.",
+        "This version is a university final-year project prototype for evaluation. It has not been registered with or reviewed by the Medical Device Authority (Medical Device Act 2012)."
+      ]},
+      {"heading": "2. Who can use HealthGuide", "paragraphs": [
+        "You must be 13 or older. If you are under 18, a parent or legal guardian must read these terms and agree to them, and to the use of your health information, before you use the app. Their agreement is recorded.",
+        "Exercise plans are only for users under 65. From 65, the app does not create exercise plans, and a plan you already have is paused (nothing is deleted). This is because the home exercise programmes proven for people aged 65 and over were set up and followed by health professionals, and HealthGuide has none. Everything else in the app stays available.",
+        "Before you start, check with a doctor if you have a heart condition, high blood pressure that is not controlled, diabetes with low blood sugar episodes, a fracture or surgery in the last month, or symptoms such as chest pain or dizziness."
+      ]},
+      {"heading": "3. Your safety", "paragraphs": [
+        "Exercise only where you have space and something stable to hold. Stop straight away if you feel chest pain, dizziness, shortness of breath, or pain that does not settle. In an emergency, call 999.",
+        "The posture check can be wrong, especially if the phone is tilted, too close or too far away. Use its feedback as guidance, not as a medical assessment."
+      ]},
+      {"heading": "4. How plans are chosen", "paragraphs": [
+        "Plans are chosen by a recommender. It first removes the plans outside the safety limits worked out from your health profile, then ranks the rest. Each plan shows why it was chosen and why other plans were not, with the guidelines behind those rules. The recommender can make mistakes: if a plan does not feel right, stop and ask a health professional."
+      ]},
+      {"heading": "5. Your personal data (Privacy Notice)", "paragraphs": [
+        "What we collect: your account details (username and email); your health profile (age, gender, weight, height, health conditions and physical limitations), which is sensitive personal data under the Personal Data Protection Act 2010; your plans, exercise results and posture feedback; your chat messages; your reminders; and the health readings, meals and meal photos you choose to log.",
+        "Exercise videos: each video is sent to our analysis server, checked, and deleted straight after the check. Only the result (score, repetitions and feedback) is kept.",
+        "Why we use it: to give you exercise plans, posture feedback, answers and reminders, and to improve the app using data that cannot identify you.",
+        "Your consent: we ask for your explicit consent before we process your health information. You can withdraw it at any time by deleting your account; the app then stops processing your data.",
+        "Where it is kept: on our database provider's servers (Supabase) in Singapore, which is outside Malaysia. Data is sent there only as the Personal Data Protection Act 2010 allows.",
+        "Who can see it: only you. Each account can read only its own records. We do not sell your data or share it with anyone else.",
+        "How long we keep it: while you use the app. When you delete your account, your data is deleted with it. An account that has not been used for 2 years is deleted together with its data.",
+        "Your rights: you can see and correct your data in the app, ask us for a copy, and delete your account (Profile, Delete my account) or ask us to delete it.",
+        "If something goes wrong: if a data breach is likely to cause you significant harm, we will tell the Personal Data Protection Commissioner within 72 hours and tell you within 7 days, as the law requires.",
+        "Contact: {contact} (data protection contact)."
+      ]},
+      {"heading": "6. Using the app fairly", "paragraphs": [
+        "Give accurate health information, keep your password private, and use the app only for your own exercise. Do not try to access other people's data or disrupt the service."
+      ]},
+      {"heading": "7. Changes to these terms", "paragraphs": [
+        "If these terms change, the app shows the new version the next time you log in, and you need to accept it to keep using the app. The version and date are shown at the top."
+      ]},
+      {"heading": "8. The law that applies", "paragraphs": [
+        "These terms are governed by the laws of Malaysia. Nothing in them limits your rights under the Consumer Protection Act 1999 or the Personal Data Protection Act 2010."
+      ]}
+    ],
+    "ui": {
+      "first_time": "Before you start, please read these terms. You need to accept them to use HealthGuide.",
+      "updated": "The terms have changed. Please read and accept the new version to continue.",
+      "guardian_needed": "Your profile says you are under 18, so a parent or guardian needs to agree.",
+      "age_question": "How old are you?",
+      "age_adult": "18 or older",
+      "age_minor": "13 to 17",
+      "age_note": "HealthGuide is for people aged 13 and over.",
+      "guardian_heading": "Parent or guardian",
+      "guardian_name": "Parent or guardian's full name",
+      "guardian_relationship": "Relationship",
+      "relationship_parent": "Parent",
+      "relationship_guardian": "Legal guardian",
+      "guardian_declaration": "I am this user's parent or legal guardian. I have read these terms and agree to them, and to the use of their health information.",
+      "agree_terms": "I have read and agree to the Terms of Use and the Privacy Notice.",
+      "consent_health": "I give my explicit consent for HealthGuide to process my health information (health profile, exercise videos and results, health readings and chat messages) to give me exercise guidance, as described in section 5.",
+      "accept": "Agree and continue",
+      "decline": "Decline",
+      "decline_message": "You need to accept the terms to use HealthGuide. If you decline, you will be logged out.",
+      "decline_back": "Go back",
+      "decline_confirm": "Log out",
+      "close": "Close"
+    }
+  },
+  "ms": {
+    "language": "Bahasa Melayu",
+    "title": "Terma Penggunaan dan Notis Privasi",
+    "version_line": "Versi {version}, berkuat kuasa {date}",
+    "sections": [
+      {"heading": "1. Apakah HealthGuide", "paragraphs": [
+        "HealthGuide (Sistem Rawatan Fizikal dan Sokongan Kesihatan Berbantukan AI) membantu orang yang berumur 13 tahun ke atas membina semula kekuatan selepas tempoh tidak aktif, contohnya selepas berehat di katil, memakai simen atau sakit. Aplikasi ini mencadangkan pelan senaman, memeriksa postur senaman anda daripada video pendek, menjawab soalan lazim, mengingatkan anda untuk bersenam, dan membolehkan anda merekod bacaan kesihatan dan makanan.",
+        "HealthGuide bukan doktor atau ahli fisioterapi. Aplikasi ini tidak mendiagnosis, merawat atau menetapkan rawatan, dan tidak menggantikan penjagaan profesional. Di Malaysia, fisioterapi diberikan oleh ahli fisioterapi yang berdaftar di bawah Akta Profesion Kesihatan Bersekutu 2016.",
+        "Versi ini ialah prototaip projek tahun akhir universiti untuk penilaian. Ia belum didaftarkan dengan atau disemak oleh Pihak Berkuasa Peranti Perubatan (Akta Peranti Perubatan 2012)."
+      ]},
+      {"heading": "2. Siapa yang boleh menggunakan HealthGuide", "paragraphs": [
+        "Anda mesti berumur 13 tahun ke atas. Jika anda berumur bawah 18 tahun, ibu bapa atau penjaga sah anda mesti membaca terma ini dan bersetuju dengannya, serta dengan penggunaan maklumat kesihatan anda, sebelum anda menggunakan aplikasi ini. Persetujuan mereka direkodkan.",
+        "Pelan senaman hanya untuk pengguna yang berumur bawah 65 tahun. Mulai umur 65 tahun, aplikasi tidak membuat pelan senaman, dan pelan sedia ada akan dijeda (tiada apa-apa yang dipadam). Ini kerana program senaman di rumah yang terbukti berkesan untuk orang berumur 65 tahun ke atas dirancang dan dipantau oleh profesional kesihatan, dan HealthGuide tidak mempunyai profesional kesihatan. Semua fungsi lain dalam aplikasi masih boleh digunakan.",
+        "Sebelum bermula, berjumpa doktor jika anda mempunyai penyakit jantung, tekanan darah tinggi yang tidak terkawal, diabetes dengan kejadian gula darah rendah, patah tulang atau pembedahan dalam sebulan yang lalu, atau gejala seperti sakit dada atau pening."
+      ]},
+      {"heading": "3. Keselamatan anda", "paragraphs": [
+        "Bersenam hanya di tempat yang lapang dan ada sesuatu yang stabil untuk dipegang. Berhenti serta-merta jika anda mengalami sakit dada, pening, sesak nafas, atau sakit yang tidak reda. Dalam kecemasan, hubungi 999.",
+        "Pemeriksaan postur mungkin salah, terutamanya jika telefon senget, terlalu dekat atau terlalu jauh. Gunakan maklum balasnya sebagai panduan, bukan sebagai penilaian perubatan."
+      ]},
+      {"heading": "4. Bagaimana pelan dipilih", "paragraphs": [
+        "Pelan dipilih oleh sistem pengesyor. Sistem ini terlebih dahulu membuang pelan yang melebihi had keselamatan yang dikira daripada profil kesihatan anda, kemudian menyusun pelan selebihnya. Setiap pelan menunjukkan sebab ia dipilih dan sebab pelan lain tidak dipilih, beserta garis panduan di sebalik peraturan tersebut. Sistem pengesyor boleh membuat kesilapan: jika sesuatu pelan terasa tidak sesuai, berhenti dan tanya profesional kesihatan."
+      ]},
+      {"heading": "5. Data peribadi anda (Notis Privasi)", "paragraphs": [
+        "Apa yang kami kumpul: butiran akaun anda (nama pengguna dan e-mel); profil kesihatan anda (umur, jantina, berat, tinggi, keadaan kesihatan dan had fizikal), iaitu data peribadi sensitif di bawah Akta Perlindungan Data Peribadi 2010; pelan, keputusan senaman dan maklum balas postur anda; mesej sembang anda; peringatan anda; serta bacaan kesihatan, makanan dan gambar makanan yang anda pilih untuk direkodkan.",
+        "Video senaman: setiap video dihantar ke pelayan analisis kami, diperiksa, dan dipadam sejurus selepas pemeriksaan. Hanya keputusannya (skor, ulangan dan maklum balas) disimpan.",
+        "Mengapa kami menggunakannya: untuk memberi anda pelan senaman, maklum balas postur, jawapan dan peringatan, dan untuk menambah baik aplikasi menggunakan data yang tidak boleh mengenal pasti anda.",
+        "Persetujuan anda: kami meminta persetujuan nyata anda sebelum memproses maklumat kesihatan anda. Anda boleh menarik balik persetujuan pada bila-bila masa dengan memadam akaun anda; aplikasi kemudian berhenti memproses data anda.",
+        "Tempat data disimpan: di pelayan penyedia pangkalan data kami (Supabase) di Singapura, iaitu di luar Malaysia. Data dihantar ke sana hanya seperti yang dibenarkan oleh Akta Perlindungan Data Peribadi 2010.",
+        "Siapa yang boleh melihatnya: hanya anda. Setiap akaun hanya boleh membaca rekodnya sendiri. Kami tidak menjual data anda atau berkongsinya dengan sesiapa.",
+        "Tempoh penyimpanan: selagi anda menggunakan aplikasi. Apabila anda memadam akaun, data anda dipadam bersama-samanya. Akaun yang tidak digunakan selama 2 tahun akan dipadam bersama datanya.",
+        "Hak anda: anda boleh melihat dan membetulkan data anda dalam aplikasi, meminta salinannya daripada kami, dan memadam akaun anda (Profil, Padam akaun saya) atau meminta kami memadamnya.",
+        "Jika berlaku masalah: jika pelanggaran data mungkin menyebabkan kemudaratan yang ketara kepada anda, kami akan memaklumkan Pesuruhjaya Perlindungan Data Peribadi dalam masa 72 jam dan memaklumkan anda dalam masa 7 hari, seperti yang dikehendaki oleh undang-undang.",
+        "Hubungi: {contact} (pegawai hubungan perlindungan data)."
+      ]},
+      {"heading": "6. Menggunakan aplikasi dengan wajar", "paragraphs": [
+        "Berikan maklumat kesihatan yang tepat, rahsiakan kata laluan anda, dan gunakan aplikasi ini hanya untuk senaman anda sendiri. Jangan cuba mengakses data orang lain atau mengganggu perkhidmatan."
+      ]},
+      {"heading": "7. Perubahan kepada terma ini", "paragraphs": [
+        "Jika terma ini berubah, aplikasi akan menunjukkan versi baharu apabila anda log masuk seterusnya, dan anda perlu menerimanya untuk terus menggunakan aplikasi. Versi dan tarikh ditunjukkan di bahagian atas."
+      ]},
+      {"heading": "8. Undang-undang yang terpakai", "paragraphs": [
+        "Terma ini ditadbir oleh undang-undang Malaysia. Tiada apa-apa dalam terma ini yang mengehadkan hak anda di bawah Akta Perlindungan Pengguna 1999 atau Akta Perlindungan Data Peribadi 2010."
+      ]}
+    ],
+    "ui": {
+      "first_time": "Sebelum bermula, sila baca terma ini. Anda perlu menerimanya untuk menggunakan HealthGuide.",
+      "updated": "Terma telah berubah. Sila baca dan terima versi baharu untuk meneruskan.",
+      "guardian_needed": "Profil anda menunjukkan anda berumur bawah 18 tahun, jadi ibu bapa atau penjaga perlu bersetuju.",
+      "age_question": "Berapakah umur anda?",
+      "age_adult": "18 tahun ke atas",
+      "age_minor": "13 hingga 17 tahun",
+      "age_note": "HealthGuide untuk orang yang berumur 13 tahun ke atas.",
+      "guardian_heading": "Ibu bapa atau penjaga",
+      "guardian_name": "Nama penuh ibu bapa atau penjaga",
+      "guardian_relationship": "Hubungan",
+      "relationship_parent": "Ibu bapa",
+      "relationship_guardian": "Penjaga sah",
+      "guardian_declaration": "Saya ibu bapa atau penjaga sah pengguna ini. Saya telah membaca terma ini dan bersetuju dengannya, serta dengan penggunaan maklumat kesihatan pengguna ini.",
+      "agree_terms": "Saya telah membaca dan bersetuju dengan Terma Penggunaan dan Notis Privasi.",
+      "consent_health": "Saya memberi persetujuan nyata kepada HealthGuide untuk memproses maklumat kesihatan saya (profil kesihatan, video dan keputusan senaman, bacaan kesihatan dan mesej sembang) bagi memberi saya panduan senaman, seperti yang diterangkan dalam bahagian 5.",
+      "accept": "Setuju dan teruskan",
+      "decline": "Tolak",
+      "decline_message": "Anda perlu menerima terma untuk menggunakan HealthGuide. Jika anda menolak, anda akan dilog keluar.",
+      "decline_back": "Kembali",
+      "decline_confirm": "Log keluar",
+      "close": "Tutup"
+    }
+  }
+}

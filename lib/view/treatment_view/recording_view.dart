@@ -8,8 +8,10 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/analysing_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// "Record exercise" (UI Design, Recording Screen; FR300_05, FR300_06, FR300_15, FR300_18, FR300_24):
@@ -43,30 +45,64 @@ class _RecordingViewState extends State<RecordingView>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
-    _controller?.dispose();
+    _release(_controller, wasRecording: _recording);
     super.dispose();
   }
+
+  /// Stops a clip still being recorded (and deletes it) before closing the
+  /// camera. Closing it mid-recording left CameraX's recorder broken, so the
+  /// next recording never stopped (Android 15 emulator, 10 Oct).
+  static void _release(CameraController? c, {required bool wasRecording}) {
+    if (c == null) return;
+    if (!wasRecording) {
+      c.dispose();
+      return;
+    }
+    c
+        .stopVideoRecording()
+        .timeout(_stopTimeout)
+        .then((f) => File(f.path).delete())
+        .then<void>((_) {}, onError: (Object _) {})
+        .whenComplete(c.dispose);
+  }
+
+  /// How long stopping a clip may take before it counts as failed.
+  static const _stopTimeout = Duration(seconds: 5);
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     final c = _controller;
-    if (c == null || !c.value.isInitialized) return;
     if (state == AppLifecycleState.inactive) {
+      if (c == null || !c.value.isInitialized) return;
       _stopTimer();
-      _recording = false;
-      c.dispose();
-      _controller = null;
-    } else if (state == AppLifecycleState.resumed) {
+      _release(c, wasRecording: _recording);
+      setState(() {
+        _recording = false;
+        _controller = null;
+      });
+    } else if (state == AppLifecycleState.resumed && c == null) {
+      // The camera was released when the app left the screen (photo picker,
+      // notification shade, Home): open it again. Before, this returned early
+      // because the controller was already null, so Record did nothing after
+      // "Upload video" or a trip to Home (Android 15 emulator, 10 Oct).
       _initCamera();
     }
   }
 
+  /// True while a camera is being opened: the permission dialog sends the app
+  /// through inactive / resumed, which must not open a second one.
+  bool _opening = false;
+
   Future<void> _initCamera() async {
+    if (_opening) return;
+    _opening = true;
     try {
+      final firstTime = _cameras.isEmpty;
       _cameras = await availableCameras();
       if (_cameras.isEmpty) throw CameraException('none', 'No camera');
       // Start on the back camera; the switch button flips to the front one.
-      if (_controller == null) {
+      // Only the first time: a re-open keeps the camera the patient chose.
+      if (firstTime) {
         final back = _cameras.indexWhere(
           (c) => c.lensDirection == CameraLensDirection.back,
         );
@@ -76,6 +112,8 @@ class _RecordingViewState extends State<RecordingView>
         _cameras[_cameraIndex],
         ResolutionPreset.high,
         enableAudio: false,
+        videoBitrate:
+            AppConstants.recordingBitrate, // smaller upload, same result
       );
       await c.initialize();
       // FR300_15: at least 720p.
@@ -97,6 +135,8 @@ class _RecordingViewState extends State<RecordingView>
       if (mounted) {
         setState(() => _cameraError = Messages.cameraFailed); // FR300_24
       }
+    } finally {
+      _opening = false;
     }
   }
 
@@ -120,7 +160,13 @@ class _RecordingViewState extends State<RecordingView>
     final c = _controller;
     if (c == null || !c.value.isInitialized) return;
     if (!_recording) {
-      await c.startVideoRecording();
+      try {
+        await c.startVideoRecording();
+      } on CameraException {
+        _showProblem(Messages.recordingFailed);
+        return;
+      }
+      if (!mounted) return;
       setState(() {
         _recording = true;
         _seconds = 0;
@@ -134,9 +180,30 @@ class _RecordingViewState extends State<RecordingView>
       return;
     }
     _stopTimer();
-    final file = await c.stopVideoRecording();
+    final XFile file;
+    try {
+      // Never wait for ever: a stop that does not finish leaves the screen
+      // stuck on "Stop" with the timer frozen.
+      file = await c.stopVideoRecording().timeout(_stopTimeout);
+    } on Object {
+      if (!mounted) return;
+      setState(() {
+        _recording = false;
+        _controller = null;
+      });
+      _showProblem(Messages.recordingFailed);
+      // A fresh camera, so the next try starts clean.
+      _release(c, wasRecording: false);
+      await _initCamera();
+      return;
+    }
     final seconds = _seconds;
-    setState(() => _recording = false);
+    if (!mounted) return;
+    // Back at 00:00 for "Record again", not the last clip's length.
+    setState(() {
+      _recording = false;
+      _seconds = 0;
+    });
     if (seconds < AppConstants.minVideoSeconds) {
       _showProblem(Messages.videoInvalid); // FR300_16, before any upload
       return;
@@ -173,7 +240,9 @@ class _RecordingViewState extends State<RecordingView>
       );
 
   void _help() {
-    final tip = context.read<TreatmentViewModel>().current?.cameraTip;
+    final current = context.read<TreatmentViewModel>().current;
+    final tip = current?.cameraTip;
+    final hands = current?.recordsHands ?? false;
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -189,12 +258,16 @@ class _RecordingViewState extends State<RecordingView>
               ),
               const SizedBox(height: 8),
             ],
-            const Text(
-              '• Put the phone on a stand at about waist height, 2.5 to 3 metres away.\n'
-              '• Keep your whole body, head to feet, inside the frame.\n'
-              '• Use good light in front of you.\n'
-              '• Record 10 to 30 seconds: do the repetitions slowly.\n'
-              '• If the upload fails, check the video is MP4 or MOV, 10 to 30 seconds and under 100 MB.',
+            Text(
+              hands
+                  ? '• Sit at a table. Put the phone on a stand at table height, about half a metre to 1 metre away.\n'
+                        '• Keep your forearm and your whole hand inside the frame.\n'
+                        '• Use good light in front of you.\n'
+                  : '• Put the phone on a stand at about waist height, 2.5 to 3 metres away.\n'
+                        '• Keep your whole body, head to feet, inside the frame.\n'
+                        '• Use good light in front of you.\n'
+                        '• Record 10 to 30 seconds: do the repetitions slowly.\n'
+                        '• If the upload fails, check the video is MP4 or MOV, 10 to 30 seconds and under 100 MB.',
             ),
           ],
         ),
@@ -212,6 +285,7 @@ class _RecordingViewState extends State<RecordingView>
   Widget build(BuildContext context) {
     final vm = context.watch<TreatmentViewModel>();
     final name = vm.current?.exerciseName ?? '';
+    final hands = vm.current?.recordsHands ?? false;
     final c = _controller;
     return Scaffold(
       backgroundColor: AppTokens.background,
@@ -229,6 +303,11 @@ class _RecordingViewState extends State<RecordingView>
                       subtitle: name,
                       onBack: () => Navigator.of(context).maybePop(),
                     ),
+                  ),
+                  ExitExerciseButton(
+                    confirm: _recording
+                        ? 'Stop recording and leave this exercise? This recording will not be saved.'
+                        : null,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
@@ -275,7 +354,25 @@ class _RecordingViewState extends State<RecordingView>
                               color: AppTokens.onPrimaryMuted,
                             ),
                           ),
+                        // Only the dashed frame: the animation below shows the person.
                         const _FrameGuide(),
+                        // The exercise moving inside the frame (11 Oct): where to stand
+                        // and what to do; fainter while recording.
+                        IgnorePointer(
+                          child: Align(
+                            child: FractionallySizedBox(
+                              widthFactor: 0.6,
+                              heightFactor: 0.86,
+                              child: ExerciseAnimation(
+                                poseKey: vm.current?.poseKey,
+                                color: Colors.white.withValues(
+                                  alpha: _recording ? 0.35 : 0.8,
+                                ),
+                                strokeShare: 0.03,
+                              ),
+                            ),
+                          ),
+                        ),
                         Positioned(
                           left: 12,
                           top: 12,
@@ -328,7 +425,11 @@ class _RecordingViewState extends State<RecordingView>
                             ),
                             child: Text(
                               _cameraError ??
-                                  'Step back until your whole body, head to feet, fits inside the frame.',
+                                  // The set-up of this exercise (side view, on the floor, ...).
+                                  vm.current?.cameraTip ??
+                                  (hands
+                                      ? 'Keep your forearm and your whole hand inside the frame.'
+                                      : 'Step back until your whole body, head to feet, fits inside the frame.'),
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,
@@ -466,7 +567,8 @@ class _BigAction extends StatelessWidget {
   );
 }
 
-/// Dashed full-body frame with a faint stick figure, as in the design.
+/// Dashed frame, as in the design. The exercise's own animation is drawn
+/// inside it (ExerciseAnimation, 11 Oct), so the fixed stick figure is gone.
 class _FrameGuide extends StatelessWidget {
   const _FrameGuide();
 
@@ -495,32 +597,8 @@ class _GuidePainter extends CustomPainter {
         canvas.drawPath(metric.extractPath(d, d + 8), dash);
       }
     }
-    final body = Paint()
-      ..color = AppTokens.highlight.withValues(alpha: 0.6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 2;
-    final cx = frame.center.dx;
-    final top = frame.top + frame.height * 0.08;
-    final h = frame.height * 0.82;
-    final head = h * 0.07;
-    canvas.drawCircle(Offset(cx, top + head), head, body);
-    final neck = Offset(cx, top + head * 2);
-    final hip = Offset(cx, top + h * 0.5);
-    canvas.drawLine(neck, hip, body);
-    canvas.drawLine(
-      Offset(cx, top + h * 0.2),
-      Offset(cx - h * 0.14, top + h * 0.38),
-      body,
-    );
-    canvas.drawLine(
-      Offset(cx, top + h * 0.2),
-      Offset(cx + h * 0.14, top + h * 0.38),
-      body,
-    );
-    canvas.drawLine(hip, Offset(cx - h * 0.1, top + h), body);
-    canvas.drawLine(hip, Offset(cx + h * 0.1, top + h), body);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_GuidePainter old) => false;
 }

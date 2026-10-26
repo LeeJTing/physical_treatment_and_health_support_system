@@ -1,0 +1,3304 @@
+{
+ "conditions": {
+  "original": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.988,
+   "fail_on_incorrect": 0.976,
+   "reps_within_1_of_original": 1.0,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "mirrored": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.969,
+   "fail_on_incorrect": 0.976,
+   "reps_within_1_of_original": 1.0,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "tilted_5": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.944,
+   "pass_on_correct": 0.919,
+   "fail_on_incorrect": 0.97,
+   "reps_within_1_of_original": 0.898,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 8,
+    "wrong_exercise": 8,
+    "full_body_not_visible": 1
+   }
+  },
+  "tilted_10": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.894,
+   "pass_on_correct": 0.677,
+   "fail_on_incorrect": 0.97,
+   "reps_within_1_of_original": 0.842,
+   "partial_flag": 7,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 20,
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "far_away": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.988,
+   "fail_on_incorrect": 0.976,
+   "reps_within_1_of_original": 1.0,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "fps_5": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.969,
+   "pass_on_correct": 0.963,
+   "fail_on_incorrect": 0.988,
+   "reps_within_1_of_original": 0.975,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "wrong_exercise": 6,
+    "full_body_not_visible": 1,
+    "no_repetitions": 2
+   }
+  },
+  "shaky_landmarks": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.969,
+   "pass_on_correct": 0.969,
+   "fail_on_incorrect": 0.994,
+   "reps_within_1_of_original": 0.96,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "wrong_exercise": 9,
+    "full_body_not_visible": 1
+   }
+  },
+  "frames_lost_15pct": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.969,
+   "pass_on_correct": 0.963,
+   "fail_on_incorrect": 0.982,
+   "reps_within_1_of_original": 0.981,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 6,
+    "wrong_exercise": 5
+   }
+  },
+  "camera_turned_30": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.839,
+   "pass_on_correct": 0.503,
+   "fail_on_incorrect": 0.856,
+   "reps_within_1_of_original": 0.683,
+   "partial_flag": 3,
+   "fall_alerts": 0,
+   "errors": {
+    "wrong_exercise": 18,
+    "no_repetitions": 32,
+    "full_body_not_visible": 2
+   }
+  },
+  "feet_out_of_picture": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.373,
+   "pass_on_correct": 0.373,
+   "fail_on_incorrect": 0.988,
+   "reps_within_1_of_original": 0.385,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 199,
+    "wrong_exercise": 5
+   }
+  },
+  "slow_1.5x": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.963,
+   "fail_on_incorrect": 0.976,
+   "reps_within_1_of_original": 0.988,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "slow_2x": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.988,
+   "fail_on_incorrect": 0.958,
+   "reps_within_1_of_original": 0.988,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "fast_0.6x": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.851,
+   "fail_on_incorrect": 0.988,
+   "reps_within_1_of_original": 0.988,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5,
+    "no_repetitions": 2
+   }
+  },
+  "started_mid_rep": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.969,
+   "pass_on_correct": 0.981,
+   "fail_on_incorrect": 0.976,
+   "reps_within_1_of_original": 0.997,
+   "partial_flag": 1,
+   "fall_alerts": 0,
+   "errors": {
+    "wrong_exercise": 6,
+    "full_body_not_visible": 1
+   }
+  },
+  "first_45pct_only": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.981,
+   "fail_on_incorrect": 0.988,
+   "reps_within_1_of_original": 0.062,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "wrong_exercise": 6,
+    "no_repetitions": 3,
+    "full_body_not_visible": 2
+   }
+  },
+  "weak_60pct": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.925,
+   "pass_on_correct": 0.217,
+   "fail_on_incorrect": 0.922,
+   "reps_within_1_of_original": 0.789,
+   "partial_flag": 31,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 28,
+    "wrong_exercise": 5,
+    "full_body_not_visible": 1
+   }
+  },
+  "weak_35pct": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.379,
+   "pass_on_correct": 0.031,
+   "fail_on_incorrect": 0.94,
+   "reps_within_1_of_original": 0.286,
+   "partial_flag": 34,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 139,
+    "wrong_exercise": 68,
+    "full_body_not_visible": 1
+   }
+  },
+  "no_movement": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.0,
+   "pass_on_correct": 0.012,
+   "fail_on_incorrect": 0.994,
+   "reps_within_1_of_original": 0.019,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 321,
+    "full_body_not_visible": 1
+   }
+  },
+  "rom_0.85 (65+ / moderate) original": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.988,
+   "fail_on_incorrect": 0.85,
+   "reps_within_1_of_original": 1.0,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "rom_0.85 (65+ / moderate) weak_60pct": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.925,
+   "pass_on_correct": 0.453,
+   "fail_on_incorrect": 0.892,
+   "reps_within_1_of_original": 0.789,
+   "partial_flag": 31,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 28,
+    "wrong_exercise": 5,
+    "full_body_not_visible": 1
+   }
+  },
+  "rom_0.7 (75+ / high) original": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.975,
+   "pass_on_correct": 0.988,
+   "fail_on_incorrect": 0.76,
+   "reps_within_1_of_original": 1.0,
+   "partial_flag": 0,
+   "fall_alerts": 0,
+   "errors": {
+    "full_body_not_visible": 1,
+    "wrong_exercise": 5
+   }
+  },
+  "rom_0.7 (75+ / high) weak_60pct": {
+   "correct_clips": 161,
+   "evidence_on_correct": 0.925,
+   "pass_on_correct": 0.87,
+   "fail_on_incorrect": 0.802,
+   "reps_within_1_of_original": 0.789,
+   "partial_flag": 31,
+   "fall_alerts": 0,
+   "errors": {
+    "no_repetitions": 28,
+    "wrong_exercise": 5,
+    "full_body_not_visible": 1
+   }
+  }
+ },
+ "per_exercise": {
+  "bird_dog": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.5,
+    "partial_flag": 2,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   }
+  },
+  "elbow_flexion": {
+   "original": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.5,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_1.5x": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.091,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 5,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.909,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_35pct": {
+    "correct_clips": 5,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 8,
+     "wrong_exercise": 3
+    }
+   },
+   "no_movement": {
+    "correct_clips": 5,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 11
+    }
+   }
+  },
+  "glute_bridge": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 6
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   }
+  },
+  "heel_raise": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.333,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 6
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.333,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.5,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   }
+  },
+  "hip_abduction": {
+   "original": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.88,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.88,
+    "pass_on_correct": 0.76,
+    "fail_on_incorrect": 0.962,
+    "reps_within_1_of_original": 0.471,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 8,
+     "wrong_exercise": 1
+    }
+   },
+   "tilted_10": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.48,
+    "pass_on_correct": 0.04,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.098,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 20
+    }
+   },
+   "far_away": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.961,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.961,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.6,
+    "pass_on_correct": 0.08,
+    "fail_on_incorrect": 0.962,
+    "reps_within_1_of_original": 0.176,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 22
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 51
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.98,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.962,
+    "reps_within_1_of_original": 0.059,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1
+    }
+   },
+   "weak_60pct": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.96,
+    "pass_on_correct": 0.4,
+    "fail_on_incorrect": 0.731,
+    "reps_within_1_of_original": 0.804,
+    "partial_flag": 3,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 4
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.6,
+    "pass_on_correct": 0.08,
+    "fail_on_incorrect": 0.769,
+    "reps_within_1_of_original": 0.471,
+    "partial_flag": 5,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 8,
+     "no_repetitions": 9
+    }
+   },
+   "no_movement": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 51
+    }
+   }
+  },
+  "knee_extension": {
+   "original": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.84,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.96,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.96,
+    "pass_on_correct": 0.44,
+    "fail_on_incorrect": 0.92,
+    "reps_within_1_of_original": 0.74,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1,
+     "no_repetitions": 3
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 50
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.96,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.36,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.96,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.02,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 25,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.36,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.72,
+    "partial_flag": 17,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 4
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.12,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.12,
+    "partial_flag": 5,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 41,
+     "wrong_exercise": 3
+    }
+   },
+   "no_movement": {
+    "correct_clips": 25,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 50
+    }
+   }
+  },
+  "march_in_place": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 6
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.167,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.667,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 2
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   }
+  },
+  "mini_squat": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.333,
+    "pass_on_correct": 0.333,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.667,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 2
+    }
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.333,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 6
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.167,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 0.333,
+    "reps_within_1_of_original": 0.833,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 0.0,
+    "reps_within_1_of_original": 0.5,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 3
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   }
+  },
+  "seated_marching": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.75,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.75,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.75,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 5
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.333,
+    "fail_on_incorrect": 0.5,
+    "reps_within_1_of_original": 0.75,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.667,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.5,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1,
+     "no_repetitions": 1
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 4,
+     "full_body_not_visible": 1
+    }
+   }
+  },
+  "shoulder_abduction": {
+   "original": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.692,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.077,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 0.981,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_1.5x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.885,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.893,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 0.964,
+    "reps_within_1_of_original": 0.074,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.923,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.852,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 4
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.577,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.333,
+    "partial_flag": 17,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 23,
+     "wrong_exercise": 8
+    }
+   },
+   "no_movement": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 54
+    }
+   }
+  },
+  "shoulder_flexion": {
+   "original": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "mirrored": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "tilted_5": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "tilted_10": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.769,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "far_away": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "fps_5": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.906,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5,
+     "no_repetitions": 2
+    }
+   },
+   "shaky_landmarks": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 0.981,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.981,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "camera_turned_30": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.615,
+    "pass_on_correct": 0.577,
+    "fail_on_incorrect": 0.938,
+    "reps_within_1_of_original": 0.396,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6,
+     "wrong_exercise": 14
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 0.943,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "slow_2x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.938,
+    "reps_within_1_of_original": 0.925,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "fast_0.6x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.885,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.925,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5,
+     "no_repetitions": 2
+    }
+   },
+   "started_mid_rep": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.969,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "first_45pct_only": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.057,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 5
+    }
+   },
+   "weak_60pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.885,
+    "pass_on_correct": 0.154,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.698,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 12
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.538,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.34,
+    "partial_flag": 2,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 30,
+     "wrong_exercise": 5
+    }
+   },
+   "no_movement": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 58
+    }
+   }
+  },
+  "sit_to_stand": {
+   "original": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.923,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.962,
+    "pass_on_correct": 0.962,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.92,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 4
+    }
+   },
+   "camera_turned_30": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.542,
+    "reps_within_1_of_original": 0.94,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 50
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.923,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 1,
+     "no_repetitions": 1
+    }
+   },
+   "weak_60pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.88,
+    "partial_flag": 1,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 1,
+     "no_repetitions": 1
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.038,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.02,
+    "partial_flag": 5,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 35,
+     "no_repetitions": 9
+    }
+   },
+   "no_movement": {
+    "correct_clips": 26,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 50
+    }
+   }
+  },
+  "step_up": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.5,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 0.5,
+    "partial_flag": 6,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 6
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.333,
+    "reps_within_1_of_original": 0.667,
+    "partial_flag": 6,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 6
+    }
+   }
+  },
+  "tandem_stance": {
+   "original": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.333,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 6
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_60pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "weak_35pct": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 1.0,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "no_movement": {
+    "correct_clips": 3,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.667,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   }
+  },
+  "wall_push_up": {
+   "original": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "mirrored": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_5": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "tilted_10": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "far_away": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fps_5": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "shaky_landmarks": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.571,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 2
+    }
+   },
+   "frames_lost_15pct": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "camera_turned_30": {
+    "correct_clips": 4,
+    "evidence_on_correct": 0.75,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 0.429,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1,
+     "wrong_exercise": 1
+    }
+   },
+   "feet_out_of_picture": {
+    "correct_clips": 4,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "full_body_not_visible": 7
+    }
+   },
+   "slow_1.5x": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "slow_2x": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "fast_0.6x": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "started_mid_rep": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 0.667,
+    "reps_within_1_of_original": 1.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {}
+   },
+   "first_45pct_only": {
+    "correct_clips": 4,
+    "evidence_on_correct": 1.0,
+    "pass_on_correct": 0.75,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1
+    }
+   },
+   "weak_60pct": {
+    "correct_clips": 4,
+    "evidence_on_correct": 0.75,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.429,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 1,
+     "wrong_exercise": 2
+    }
+   },
+   "weak_35pct": {
+    "correct_clips": 4,
+    "evidence_on_correct": 0.5,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.286,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "wrong_exercise": 2,
+     "no_repetitions": 3
+    }
+   },
+   "no_movement": {
+    "correct_clips": 4,
+    "evidence_on_correct": 0.0,
+    "pass_on_correct": 0.0,
+    "fail_on_incorrect": 1.0,
+    "reps_within_1_of_original": 0.0,
+    "partial_flag": 0,
+    "fall_alerts": 0,
+    "errors": {
+     "no_repetitions": 7
+    }
+   }
+  }
+ },
+ "incorrect_clips_passing_only_with_frail_targets": {
+  "bird_dog.arm_leg_low": "1/1",
+  "bird_dog.back_sag": "0/1",
+  "bird_dog.no_hold": "0/1",
+  "elbow_flexion.body_swing": "0/1",
+  "elbow_flexion.low_range": "3/3",
+  "elbow_flexion.upper_arm_moves": "0/2",
+  "glute_bridge.feet_far": "0/1",
+  "glute_bridge.low_hips": "0/1",
+  "glute_bridge.over_arch": "0/1",
+  "heel_raise.knees_bend": "0/1",
+  "heel_raise.leaning_forward": "0/1",
+  "heel_raise.low_raise": "1/1",
+  "hip_abduction.bent_knee": "0/5",
+  "hip_abduction.leg_forward": "1/5",
+  "hip_abduction.low_range": "3/5",
+  "hip_abduction.toes_up": "0/6",
+  "hip_abduction.trunk_lean": "0/5",
+  "knee_extension.incomplete_extension": "5/5",
+  "knee_extension.leaning_forward": "0/5",
+  "knee_extension.no_hold": "0/5",
+  "knee_extension.slouching": "0/5",
+  "knee_extension.thigh_lift": "0/5",
+  "march_in_place.leaning_back": "0/1",
+  "march_in_place.low_knee_lift": "0/1",
+  "march_in_place.no_arm_swing": "0/1",
+  "mini_squat.heels_lift": "0/1",
+  "mini_squat.too_deep": "0/1",
+  "mini_squat.trunk_forward": "0/1",
+  "seated_marching.leaning_back": "0/1",
+  "seated_marching.low_knee_lift": "0/1",
+  "shoulder_abduction.bent_elbow": "0/5",
+  "shoulder_abduction.low_range": "6/6",
+  "shoulder_abduction.shoulder_shrug": "0/5",
+  "shoulder_abduction.trunk_lean": "0/6",
+  "shoulder_abduction.uneven_arms": "0/6",
+  "shoulder_flexion.back_arch": "0/5",
+  "shoulder_flexion.bent_elbow": "0/6",
+  "shoulder_flexion.low_range": "6/6",
+  "shoulder_flexion.swinging": "1/5",
+  "shoulder_flexion.trunk_forward": "0/5",
+  "sit_to_stand.feet_forward": "0/4",
+  "sit_to_stand.hands_used": "5/5",
+  "sit_to_stand.incomplete_stand": "4/6",
+  "sit_to_stand.no_forward_lean": "0/5",
+  "sit_to_stand.uncontrolled_sit": "0/4",
+  "step_up.drop_down": "0/1",
+  "step_up.knee_not_straight": "0/1",
+  "step_up.trunk_forward": "0/1",
+  "tandem_stance.feet_not_in_line": "0/1",
+  "tandem_stance.leaning": "0/1",
+  "tandem_stance.stepping_out": "0/1",
+  "wall_push_up.hips_back": "0/1",
+  "wall_push_up.hips_sag": "0/1",
+  "wall_push_up.low_range": "1/1"
+ }
+}
