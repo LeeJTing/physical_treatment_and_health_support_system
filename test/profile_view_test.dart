@@ -1,6 +1,7 @@
 // ProfileView (UC300) on the fakes: the edit form, saving, the account settings and their
 // confirmations. NFR_17 coverage (22 Oct); the rules themselves are in profile_view_model_test.
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
@@ -100,6 +101,28 @@ HealthCondition _condition(String code) =>
     LookupSeed.conditions.firstWhere((c) => c.conditionCode == code);
 
 void main() {
+  testWidgets(
+    'an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)',
+    (tester) async {
+      final s = _Setup();
+      await tester.runAsync(s.prepare);
+      await s.pump(tester);
+      // 600 wide: the test font's square letters make the message about twice as long as on a
+      // phone, so this width gives the line count a 360-wide phone needs (more than three).
+      tester.view.physicalSize = const Size(1800, 7200);
+      tester.view.devicePixelRatio = 3;
+      await tester.pump();
+      await tester.enterText(find.byType(TextFormField).at(0), '5862158');
+      await tester.pump();
+      final error = find.text(Messages.valueOutOfRange);
+      expect(error, findsOneWidget);
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.descendant(of: error, matching: find.byType(RichText)),
+      );
+      expect(paragraph.didExceedMaxLines, isFalse); // before: cut after three lines
+    },
+  );
+
   testWidgets('a new patient fills the form and saves the profile', (
     tester,
   ) async {

@@ -455,7 +455,9 @@ class NumberField extends StatelessWidget {
             filled: true,
             fillColor: AppTokens.surface,
             isDense: true,
-            errorMaxLines: 3,
+            // The whole message, even in the narrow age box (29 Oct, emulator: "...outside the ac..."
+            // was cut at three lines).
+            errorMaxLines: 8,
             errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 13),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 14,
