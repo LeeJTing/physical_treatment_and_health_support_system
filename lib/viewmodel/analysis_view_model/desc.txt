@@ -1,1 +1,1 @@
-AnalysisViewModel (M400, Jun Ting). Not built yet.
+AnalysisViewModel (M400, Jun Ting; Table 4.65): forecasts, Health Score, risks and anomalies; forwards new anomalies to M600.

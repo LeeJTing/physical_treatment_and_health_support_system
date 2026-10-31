@@ -1,1 +1,1 @@
-DietPlannerService (M700, Jun Ting). Not built yet.
+DietPlannerService (M700, Jun Ting): daily and weekly plans from /plan, checked again on the phone by the safety gate (validate), replacement alternatives, and the manual plan when the planner is down.

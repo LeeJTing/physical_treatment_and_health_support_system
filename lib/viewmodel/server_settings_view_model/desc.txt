@@ -1,0 +1,1 @@
+ServerSettingsViewModel: Profile > AI server. The typed address, Test connection, Save, Use default.

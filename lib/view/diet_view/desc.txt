@@ -1,1 +1,1 @@
-DietView (M700 Diet Support, Jun Ting). Not built yet.
+DietView (M700 Diet Support, Jun Ting; Table 4.57): the Diet tab (Log Meal, allowance, today's meals with verdicts, recommendations). meal_result_view.dart = recognition result to review and save (UC800); food_search_sheet.dart = manual food search; diet_plan_view.dart = daily and weekly plan (UC900 A5, A6); meal_history_view.dart = dietary history (UC800 A5); widgets/ = verdict chip, allowance card, meal card.

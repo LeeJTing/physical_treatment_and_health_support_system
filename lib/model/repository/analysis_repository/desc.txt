@@ -1,1 +1,3 @@
-IAnalysisRepository (M400, Jun Ting). Not built yet.
+IAnalysisRepository (M400 Predictive Health Analysis, Jun Ting): forecasts, the anomaly history and
+the daily Health Score with the per-condition risks. i_analysis_repository.dart (Table 4.75),
+supabase_analysis_repository.dart (Table 4.83), fake_analysis_repository.dart.

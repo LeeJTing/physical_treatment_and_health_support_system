@@ -1,1 +1,1 @@
-FoodRecognitionService (M700, Jun Ting). Not built yet.
+FoodRecognitionService (M700, Jun Ting): checks and reduces the meal photo (UC800 C3, C4), calls /recognise and maps the foods onto the catalogue. recognition_result.dart = its result.

@@ -1,1 +1,2 @@
-SuitabilityService (M700, Jun Ting). Not built yet.
+SuitabilityService (M700, Jun Ting): the deterministic suitability rules (UC900 C2, C3, C6, C8) and
+DietContext, what the rules need from the profile (UC1000). Same rules as ai_server/app/food/suitability.py.

@@ -1,1 +1,2 @@
 ProfileView (health profile, risk level, account settings). widgets/ = profile-only widgets.
+server_settings_view.dart: Profile > AI server (address of the AI server on the laptop, Test connection, Save).

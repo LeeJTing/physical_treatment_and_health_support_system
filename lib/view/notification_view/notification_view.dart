@@ -223,9 +223,20 @@ class _NotificationViewState extends State<NotificationView>
                     ],
                   ),
                   const SizedBox(height: 8),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton.icon(
+                      onPressed: () => _pickRange(vm),
+                      icon: const Icon(Icons.date_range),
+                      label: Text(
+                        '${vm.logFrom.day}/${vm.logFrom.month}/${vm.logFrom.year} - '
+                        '${vm.logTo.day}/${vm.logTo.month}/${vm.logTo.year}',
+                      ),
+                    ),
+                  ),
                   if (vm.log.isEmpty)
                     const Text(
-                      'Nothing in the last two weeks.',
+                      'Nothing in the selected period.',
                       style: TextStyle(
                         fontSize: 15,
                         color: AppTokens.textMuted,
@@ -421,17 +432,32 @@ class _NotificationViewState extends State<NotificationView>
     final when = n.issuedAt;
     final label = '${when.day}/${when.month} ${_time(when.hour, when.minute)}';
     final suppressed = n.deliveryStatus == DeliveryStatus.suppressed;
+    // Severity indicator of an alert (UC600 C8, FR600_011): yellow, orange or red.
+    final (Color? badge, String? word) = switch (n.severity) {
+      Severity.low => (const Color(0xFFF2C94C), 'Low'),
+      Severity.medium => (const Color(0xFFF2994A), 'Medium'),
+      Severity.high => (AppTokens.danger, 'High'),
+      null => (null, null),
+    };
     return ListTile(
       contentPadding: EdgeInsets.zero,
-      onTap: n.isRead ? null : () => vm.markRead(n.notificationId),
-      leading: Icon(
-        suppressed
-            ? Icons.notifications_off_outlined
-            : Icons.notifications_outlined,
-        color: n.isRead ? AppTokens.textMuted : AppTokens.action,
-      ),
+      onTap: () => _open(n, vm),
+      leading: n.isAlert
+          ? CircleAvatar(
+              radius: 18,
+              backgroundColor: badge,
+              child: const Icon(Icons.priority_high, color: Colors.white, size: 20),
+            )
+          : Icon(
+              suppressed
+                  ? Icons.notifications_off_outlined
+                  : Icons.notifications_outlined,
+              color: n.isRead ? AppTokens.textMuted : AppTokens.action,
+            ),
       title: Text(
         n.messageBody,
+        maxLines: 3,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           fontSize: 15,
           color: AppTokens.text,
@@ -439,9 +465,61 @@ class _NotificationViewState extends State<NotificationView>
         ),
       ),
       subtitle: Text(
-        label,
+        word == null ? label : '$word severity alert · $label',
         style: const TextStyle(fontSize: 13, color: AppTokens.textMuted),
       ),
+    );
+  }
+
+  /// Opens one entry: an alert shows its full explanation (C9) and, at High, the advice to consult
+  /// a healthcare professional (FR600_012); then it is marked read (FR600_016).
+  Future<void> _open(NotificationLog n, NotificationViewModel vm) async {
+    if (n.isAlert) {
+      await showDialog<void>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(n.severity == Severity.high ? 'Health alert' : 'Health note'),
+          content: SingleChildScrollView(
+            child: Text(
+              n.severity == Severity.high &&
+                      !n.messageBody.contains(Messages.consultProfessional)
+                  ? '${n.messageBody}\n\n${Messages.consultProfessional}'
+                  : n.messageBody,
+              style: const TextStyle(fontSize: 16, height: 1.4),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(ctx).pop();
+                Navigator.of(context).pushNamed(Routes.healthReport);
+              },
+              child: const Text('Open Health Report'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+    }
+    if (!n.isRead) await vm.markRead(n.notificationId);
+  }
+
+  /// Filters the log by a date range (FR600_015, UC600 A4).
+  Future<void> _pickRange(NotificationViewModel vm) async {
+    final now = DateTime.now();
+    final r = await showDateRangePicker(
+      context: context,
+      firstDate: DateTime(now.year - 2),
+      lastDate: now,
+      initialDateRange: DateTimeRange(start: vm.logFrom, end: vm.logTo),
+    );
+    if (r == null) return;
+    await vm.loadLog(
+      r.start,
+      DateTime(r.end.year, r.end.month, r.end.day, 23, 59, 59),
     );
   }
 }

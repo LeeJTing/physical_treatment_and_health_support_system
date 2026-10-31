@@ -182,6 +182,46 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
+  /// Device connection (FR100_062 to FR100_065): connect to Health Connect, or revoke it.
+  Future<void> _healthSource(ProfileViewModel vm) async {
+    final last = vm.healthLastSync;
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Health Connect'),
+        content: Text(
+          vm.healthConnected
+              ? 'Connected. ${last == null ? 'No import yet.' : 'Last import ${last.day}/${last.month} '
+                    '${last.hour.toString().padLeft(2, '0')}:${last.minute.toString().padLeft(2, '0')}.'}\n\n'
+                    'Disconnect to stop importing blood pressure, glucose and weight readings.'
+              : 'Allow HealthGuide to read your blood pressure, blood glucose and weight readings '
+                    'from Health Connect. Nothing is written to Health Connect.',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(vm.healthConnected ? 'Disconnect' : 'Connect'),
+          ),
+        ],
+      ),
+    );
+    if (yes != true) return;
+    vm.healthConnected ? await vm.disconnectHealthSource() : await vm.connectHealthSource();
+    final m = vm.healthMessage;
+    if (m != null && mounted) {
+      final fix = !vm.healthConnected && vm.healthFix != null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(m),
+          duration: Duration(seconds: fix ? 10 : 4),
+          action: fix ? SnackBarAction(label: 'Fix', onPressed: vm.fixHealthSource) : null,
+        ),
+      );
+    }
+  }
+
   Widget _body(ProfileViewModel vm) {
     final p = vm.shown;
     final risk = p?.assignRiskLevel();
@@ -300,6 +340,25 @@ class _ProfileViewState extends State<ProfileView> {
                   ),
                 ],
               ),
+              const SizedBox(height: 24),
+              // "Cannot eat" (UI Design, Profile Screen): allergies, intolerances, diets and
+              // religious rules, used by the diet suitability rules and plans (M700).
+              const SectionTitle('Foods I cannot eat'),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  for (final r in vm.restrictions)
+                    ProfileChip(
+                      label: r.restrictionName,
+                      selected: p?.restrictions.contains(r) ?? false,
+                      onTap: vm.isEditing
+                          ? () => vm.toggleRestriction(r.restrictionId)
+                          : null,
+                    ),
+                ],
+              ),
               if (risk == RiskLevel.medium || risk == RiskLevel.high) ...[
                 const SizedBox(height: 20),
                 InfoBanner(
@@ -328,18 +387,17 @@ class _ProfileViewState extends State<ProfileView> {
                   title: 'Device connection',
                   subtitle: 'Health Connect',
                   trailing: StatusPill(
-                    vm.account?.healthSourceConnected == true
-                        ? 'Connected'
-                        : 'Not connected',
-                    good: vm.account?.healthSourceConnected == true,
+                    vm.healthConnected ? 'Connected' : 'Not connected',
+                    good: vm.healthConnected,
                   ),
-                  onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Connecting Health Connect is part of the Health Monitoring module.',
-                      ),
-                    ),
-                  ),
+                  onTap: () => _healthSource(vm),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'AI server',
+                  subtitle: 'Address of the server on the laptop',
+                  onTap: () =>
+                      Navigator.of(context).pushNamed(Routes.serverSettings),
                 ),
                 const SizedBox(height: 10),
                 SettingsCard(

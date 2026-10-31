@@ -24,6 +24,10 @@ dependencies:
   # Phase 4: exercise reminders scheduled on the device (Asia/Kuala_Lumpur)
   flutter_local_notifications: ^19.4.0
   timezone: ^0.10.1
+  # M200: blood pressure, glucose and weight from Health Connect (Jun Ting)
+  health: ^13.1.0
+  # M700: check and reduce the meal photo before upload (UC800 C3, C4), pure Dart
+  image: ^4.3.0
 
 dev_dependencies:
   flutter_test:
@@ -39,6 +43,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/seed/catalogue.json
+    # Food catalogue of M700 (same file as the AI server's app/food/food_catalogue.json)
+    - assets/seed/food_catalogue.json
     # Guide animations, one per exercise (training/build_guide_animations.py)
     - assets/guides/
     # Terms of Use and Privacy Notice, English and Malay (TermsView)

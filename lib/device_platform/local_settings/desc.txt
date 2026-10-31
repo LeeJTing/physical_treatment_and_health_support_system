@@ -1,0 +1,2 @@
+Local settings kept on this phone only (SharedPreferences): the AI server address chosen in Profile > AI server.
+local_settings.dart: LocalSettings (interface) and MemoryLocalSettings (tests, desktop); shared_prefs_local_settings.dart: SharedPrefsLocalSettings (Android).

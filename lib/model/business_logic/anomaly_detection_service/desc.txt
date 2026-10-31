@@ -1,1 +1,1 @@
-AnomalyDetectionService (M400, Jun Ting). Not built yet.
+AnomalyDetectionService (M400, Jun Ting): calls /analyse (anomalies, Health Score, per-condition risk). AnalysisOutcome = its result.
