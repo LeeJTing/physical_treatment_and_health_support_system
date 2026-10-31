@@ -46,5 +46,5 @@ class FakeProfileRepository implements IProfileRepository {
 
   @override
   Future<Result<List<DietaryRestriction>>> getRestrictions() async =>
-      const Success(<DietaryRestriction>[]);
+      const Success(LookupSeed.restrictions);
 }

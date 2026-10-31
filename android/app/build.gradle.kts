@@ -21,7 +21,8 @@ android {
         applicationId = "com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // Health Connect (the health plugin, M200) needs Android 8.0 (API 26).
+        minSdk = maxOf(26, flutter.minSdkVersion)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

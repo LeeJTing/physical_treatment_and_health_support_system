@@ -1,0 +1,3 @@
+ServerConnectionService: which AI server (FastAPI on the team laptop) the app talks to. Normalises the typed address,
+checks it with GET /health (reachable, version, which AI modules are ready), remembers it on the phone (LocalSettings)
+and points the shared ApiClient at it. server_status.dart = the /health result.

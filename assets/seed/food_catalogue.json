@@ -1,0 +1,4935 @@
+{
+ "version": "food-catalogue-1.0",
+ "count": 209,
+ "foods": [
+  {
+   "food_key": "nasi_lemak",
+   "food_name": "Nasi lemak",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 8.0,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "PEANUT",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "coconut milk rice with sambal, fried anchovies, roasted peanuts, cucumber and a boiled egg, often on a banana leaf",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_lemak_ayam",
+   "food_name": "Nasi lemak with fried chicken",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 210.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 9.5,
+   "fat_g_per_100g": 10.5,
+   "sodium_mg_per_100g": 340.0,
+   "sugar_g_per_100g": 1.2,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "GLUTEN",
+    "PEANUT",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "nasi lemak coconut rice with a piece of fried chicken, sambal, anchovies, peanuts and egg",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_goreng",
+   "food_name": "Nasi goreng (fried rice)",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 25.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 6.0,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fried rice with chicken, egg and vegetables",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_goreng_kampung",
+   "food_name": "Nasi goreng kampung",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 5.8,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "village-style fried rice with anchovies, kangkung, chilli and belacan shrimp paste",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_goreng_pattaya",
+   "food_name": "Nasi goreng pattaya",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 430.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "EGG",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fried rice wrapped in a thin omelette, topped with tomato sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_putih",
+   "food_name": "Plain white rice",
+   "food_category": "Rice",
+   "cuisine": "General",
+   "base_serving_g": 160.0,
+   "energy_kcal_per_100g": 130.0,
+   "carb_g_per_100g": 28.6,
+   "protein_g_per_100g": 2.4,
+   "fat_g_per_100g": 0.3,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "a bowl of plain steamed white rice",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_beras_perang",
+   "food_name": "Brown rice",
+   "food_category": "Rice",
+   "cuisine": "General",
+   "base_serving_g": 160.0,
+   "energy_kcal_per_100g": 112.0,
+   "carb_g_per_100g": 23.5,
+   "protein_g_per_100g": 2.3,
+   "fat_g_per_100g": 0.8,
+   "sodium_mg_per_100g": 5.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "a bowl of cooked brown rice",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_ayam",
+   "food_name": "Chicken rice",
+   "food_category": "Rice",
+   "cuisine": "Chinese",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 8.5,
+   "fat_g_per_100g": 6.3,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 0.8,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "Hainanese chicken rice: fragrant rice with steamed or roasted chicken slices, cucumber and chilli sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_kerabu",
+   "food_name": "Nasi kerabu",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 145.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 3.8,
+   "sodium_mg_per_100g": 260.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "blue rice with fresh herbs, bean sprouts, fish crackers and grated coconut",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_dagang",
+   "food_name": "Nasi dagang",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 23.0,
+   "protein_g_per_100g": 6.5,
+   "fat_g_per_100g": 5.8,
+   "sodium_mg_per_100g": 280.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "rice steamed in coconut milk served with tuna fish curry",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_kandar",
+   "food_name": "Nasi kandar",
+   "food_category": "Rice",
+   "cuisine": "Indian",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 8.8,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "rice flooded with mixed curries, fried chicken and egg",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_briyani",
+   "food_name": "Nasi briyani with chicken",
+   "food_category": "Rice",
+   "cuisine": "Indian",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 23.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 320.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "spiced long-grain basmati rice with chicken curry",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_tomato",
+   "food_name": "Nasi tomato",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 165.0,
+   "carb_g_per_100g": 26.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 260.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "red tomato rice cooked with ghee and spices",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_minyak",
+   "food_name": "Nasi minyak",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 26.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 6.5,
+   "sodium_mg_per_100g": 240.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "ghee rice with spices and raisins, served at weddings",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_campur",
+   "food_name": "Nasi campur (mixed rice)",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 155.0,
+   "carb_g_per_100g": 19.0,
+   "protein_g_per_100g": 7.5,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "economy mixed rice with a meat dish and vegetable dishes on one plate",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_kukus",
+   "food_name": "Nasi kukus ayam goreng",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 185.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 7.6,
+   "sodium_mg_per_100g": 320.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "steamed rice with spicy fried chicken and curry gravy",
+   "recognisable": true
+  },
+  {
+   "food_key": "nasi_ulam",
+   "food_name": "Nasi ulam",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 4.5,
+   "fat_g_per_100g": 4.0,
+   "sodium_mg_per_100g": 220.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "rice tossed with finely sliced fresh herbs and toasted coconut",
+   "recognisable": true
+  },
+  {
+   "food_key": "bubur_ayam",
+   "food_name": "Chicken rice porridge (bubur ayam)",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 60.0,
+   "carb_g_per_100g": 9.5,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 1.0,
+   "sodium_mg_per_100g": 230.0,
+   "sugar_g_per_100g": 0.1,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "DINNER"
+   ],
+   "description": "rice porridge congee with shredded chicken, fried shallots and spring onion",
+   "recognisable": true
+  },
+  {
+   "food_key": "bubur_ikan",
+   "food_name": "Fish porridge",
+   "food_category": "Rice",
+   "cuisine": "Chinese",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 55.0,
+   "carb_g_per_100g": 8.5,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 0.8,
+   "sodium_mg_per_100g": 220.0,
+   "sugar_g_per_100g": 0.1,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "DINNER"
+   ],
+   "description": "plain rice congee with sliced fish, ginger and spring onion",
+   "recognisable": true
+  },
+  {
+   "food_key": "lemang",
+   "food_name": "Lemang",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 230.0,
+   "carb_g_per_100g": 32.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 10.0,
+   "sodium_mg_per_100g": 120.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "glutinous rice cooked with coconut milk inside bamboo tubes",
+   "recognisable": true
+  },
+  {
+   "food_key": "ketupat",
+   "food_name": "Ketupat",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 115.0,
+   "carb_g_per_100g": 25.5,
+   "protein_g_per_100g": 2.0,
+   "fat_g_per_100g": 0.3,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "compressed rice cakes cooked in woven palm leaf pouches",
+   "recognisable": true
+  },
+  {
+   "food_key": "lontong",
+   "food_name": "Lontong",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 2.8,
+   "fat_g_per_100g": 4.0,
+   "sodium_mg_per_100g": 260.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "compressed rice cubes in vegetable coconut milk gravy (sayur lodeh) with egg and sambal",
+   "recognisable": true
+  },
+  {
+   "food_key": "claypot_chicken_rice",
+   "food_name": "Claypot chicken rice",
+   "food_category": "Rice",
+   "cuisine": "Chinese",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 165.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 7.5,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "rice cooked in a clay pot with chicken, Chinese sausage and dark soy sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "char_siew_rice",
+   "food_name": "Char siew rice",
+   "food_category": "Rice",
+   "cuisine": "Chinese",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 23.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 6.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "rice with sliced red barbecued pork char siu and sweet sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "roast_duck_rice",
+   "food_name": "Roast duck rice",
+   "food_category": "Rice",
+   "cuisine": "Chinese",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 8.5,
+   "fat_g_per_100g": 8.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "rice with sliced roast duck, cucumber and gravy",
+   "recognisable": true
+  },
+  {
+   "food_key": "pulut_kuning",
+   "food_name": "Pulut kuning",
+   "food_category": "Rice",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 210.0,
+   "carb_g_per_100g": 34.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 150.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "yellow turmeric glutinous rice",
+   "recognisable": true
+  },
+  {
+   "food_key": "banana_leaf_rice",
+   "food_name": "Banana leaf rice (vegetarian set)",
+   "food_category": "Rice",
+   "cuisine": "Indian",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 5.0,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "rice on a banana leaf with vegetable curries, dhal, papadom and pickles",
+   "recognisable": true
+  },
+  {
+   "food_key": "lo_mai_kai",
+   "food_name": "Lo mai kai",
+   "food_category": "Rice",
+   "cuisine": "Chinese",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 200.0,
+   "carb_g_per_100g": 28.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 6.5,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "steamed glutinous rice with chicken and mushroom in a small bowl, dim sum",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_penyet",
+   "food_name": "Ayam penyet",
+   "food_category": "Rice",
+   "cuisine": "Indonesian",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 200.0,
+   "carb_g_per_100g": 16.0,
+   "protein_g_per_100g": 14.0,
+   "fat_g_per_100g": 9.5,
+   "sodium_mg_per_100g": 480.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "smashed fried chicken with rice, sambal terasi, tempeh, tofu and raw vegetables",
+   "recognisable": true
+  },
+  {
+   "food_key": "mee_goreng_mamak",
+   "food_name": "Mee goreng mamak",
+   "food_category": "Noodles",
+   "cuisine": "Indian",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 23.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 6.8,
+   "sodium_mg_per_100g": 560.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "spicy fried yellow noodles with tofu, potato, egg and squid, mamak style",
+   "recognisable": true
+  },
+  {
+   "food_key": "mee_goreng",
+   "food_name": "Mee goreng (fried yellow noodles)",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 6.0,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 2.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fried yellow noodles with chicken, egg, cabbage and chilli",
+   "recognisable": true
+  },
+  {
+   "food_key": "char_kway_teow",
+   "food_name": "Char kway teow",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 8.5,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "HALAL",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "flat rice noodles stir-fried over high heat with prawns, cockles, bean sprouts, egg and chives",
+   "recognisable": true
+  },
+  {
+   "food_key": "asam_laksa",
+   "food_name": "Asam laksa (Penang laksa)",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 75.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 3.8,
+   "fat_g_per_100g": 1.2,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "FISH",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "thick rice noodles in sour tamarind mackerel fish broth with cucumber, mint, pineapple and prawn paste",
+   "recognisable": true
+  },
+  {
+   "food_key": "curry_laksa",
+   "food_name": "Curry laksa (curry mee)",
+   "food_category": "Noodles",
+   "cuisine": "Nyonya",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 125.0,
+   "carb_g_per_100g": 11.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "noodles in rich spicy coconut curry soup with tofu puffs, chicken, prawns and bean sprouts",
+   "recognisable": true
+  },
+  {
+   "food_key": "laksa_sarawak",
+   "food_name": "Sarawak laksa",
+   "food_category": "Noodles",
+   "cuisine": "Sarawak",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 11.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 3.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 0.8,
+   "restrictions": [
+    "EGG",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "rice vermicelli in sambal coconut broth with prawns, shredded chicken and omelette strips",
+   "recognisable": true
+  },
+  {
+   "food_key": "mee_rebus",
+   "food_name": "Mee rebus",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 16.0,
+   "protein_g_per_100g": 4.0,
+   "fat_g_per_100g": 3.2,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 3.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "yellow noodles in thick sweet potato gravy with boiled egg, tofu and lime",
+   "recognisable": true
+  },
+  {
+   "food_key": "mee_soto",
+   "food_name": "Mee soto",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 75.0,
+   "carb_g_per_100g": 9.5,
+   "protein_g_per_100g": 4.5,
+   "fat_g_per_100g": 2.0,
+   "sodium_mg_per_100g": 360.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "yellow noodles in spiced chicken soup with shredded chicken and begedil",
+   "recognisable": true
+  },
+  {
+   "food_key": "soto_ayam",
+   "food_name": "Soto ayam",
+   "food_category": "Soup",
+   "cuisine": "Malay",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 70.0,
+   "carb_g_per_100g": 8.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 2.0,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "spiced chicken soup with nasi impit rice cubes, shredded chicken and bean sprouts",
+   "recognisable": true
+  },
+  {
+   "food_key": "mee_bandung",
+   "food_name": "Mee bandung Muar",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 105.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 3.8,
+   "sodium_mg_per_100g": 410.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "BEEF",
+    "EGG",
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "yellow noodles in thick prawn and beef chilli gravy with an egg",
+   "recognisable": true
+  },
+  {
+   "food_key": "wantan_mee",
+   "food_name": "Wantan mee",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 4.5,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "HALAL",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "thin egg noodles with char siu, wonton dumplings and choy sum in dark sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "hokkien_mee",
+   "food_name": "Hokkien mee (KL style)",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 6.5,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "HALAL",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "thick yellow noodles braised in dark soy sauce with pork, prawns and cabbage",
+   "recognisable": true
+  },
+  {
+   "food_key": "prawn_mee",
+   "food_name": "Prawn mee (hae mee)",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 80.0,
+   "carb_g_per_100g": 10.0,
+   "protein_g_per_100g": 4.5,
+   "fat_g_per_100g": 2.5,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 0.8,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "HALAL",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "noodles in prawn and pork bone broth with prawns, egg and kangkung",
+   "recognisable": true
+  },
+  {
+   "food_key": "pan_mee",
+   "food_name": "Pan mee (soup)",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 85.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 4.0,
+   "fat_g_per_100g": 2.2,
+   "sodium_mg_per_100g": 360.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "hand-torn flat flour noodles in anchovy soup with minced meat and sweet potato leaves",
+   "recognisable": true
+  },
+  {
+   "food_key": "chilli_pan_mee",
+   "food_name": "Chilli pan mee",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 7.5,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 480.0,
+   "sugar_g_per_100g": 0.8,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "dry noodles with minced meat, fried anchovies, poached egg and dried chilli flakes",
+   "recognisable": true
+  },
+  {
+   "food_key": "kuey_teow_soup",
+   "food_name": "Kuey teow soup with fish balls",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 60.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 1.0,
+   "sodium_mg_per_100g": 320.0,
+   "sugar_g_per_100g": 0.2,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "flat rice noodles in clear soup with fish balls and fish cake",
+   "recognisable": true
+  },
+  {
+   "food_key": "bihun_goreng",
+   "food_name": "Bihun goreng (fried rice vermicelli)",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 165.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "fried thin rice vermicelli with egg, chicken and vegetables",
+   "recognisable": true
+  },
+  {
+   "food_key": "bihun_sup",
+   "food_name": "Bihun sup",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 55.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 0.9,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "DINNER"
+   ],
+   "description": "rice vermicelli in clear chicken soup with vegetables",
+   "recognisable": true
+  },
+  {
+   "food_key": "maggi_goreng",
+   "food_name": "Maggi goreng",
+   "food_category": "Noodles",
+   "cuisine": "Indian",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 9.0,
+   "sodium_mg_per_100g": 700.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "fried instant noodles with egg, vegetables and chilli, mamak style",
+   "recognisable": true
+  },
+  {
+   "food_key": "instant_noodles",
+   "food_name": "Instant noodles (soup)",
+   "food_category": "Noodles",
+   "cuisine": "General",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 12.5,
+   "protein_g_per_100g": 2.0,
+   "fat_g_per_100g": 4.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "a bowl of instant ramen noodles in soup",
+   "recognisable": true
+  },
+  {
+   "food_key": "lor_mee",
+   "food_name": "Lor mee",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 450.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 13.0,
+   "protein_g_per_100g": 4.2,
+   "fat_g_per_100g": 2.8,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "yellow noodles in thick dark starchy gravy with braised pork and egg",
+   "recognisable": true
+  },
+  {
+   "food_key": "kolo_mee",
+   "food_name": "Kolo mee",
+   "food_category": "Noodles",
+   "cuisine": "Sarawak",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 25.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 4.8,
+   "sodium_mg_per_100g": 480.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "Sarawak dry springy noodles with char siu and minced pork",
+   "recognisable": true
+  },
+  {
+   "food_key": "tuaran_mee",
+   "food_name": "Tuaran mee",
+   "food_category": "Noodles",
+   "cuisine": "Sabah",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "Sabah fried egg noodles with char siu and green vegetables",
+   "recognisable": true
+  },
+  {
+   "food_key": "yong_tau_foo",
+   "food_name": "Yong tau foo (soup)",
+   "food_category": "Soup",
+   "cuisine": "Chinese",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 70.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 2.8,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "tofu, vegetables and fish paste stuffed items in clear soup",
+   "recognisable": true
+  },
+  {
+   "food_key": "mee_siam",
+   "food_name": "Mee siam",
+   "food_category": "Noodles",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 4.8,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 4.5,
+   "restrictions": [
+    "EGG",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "fried rice vermicelli in sweet sour spicy sauce with egg and dried shrimp",
+   "recognisable": true
+  },
+  {
+   "food_key": "wat_tan_hor",
+   "food_name": "Wat tan hor (kung fu kway teow)",
+   "food_category": "Noodles",
+   "cuisine": "Chinese",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 130.0,
+   "carb_g_per_100g": 17.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 4.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "flat rice noodles in smooth egg gravy with prawns and sliced chicken",
+   "recognisable": true
+  },
+  {
+   "food_key": "spaghetti_bolognese",
+   "food_name": "Spaghetti bolognese",
+   "food_category": "Noodles",
+   "cuisine": "Western",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 130.0,
+   "carb_g_per_100g": 17.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 4.0,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "BEEF",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "spaghetti pasta with minced beef tomato sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "roti_canai",
+   "food_name": "Roti canai",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 95.0,
+   "energy_kcal_per_100g": 300.0,
+   "carb_g_per_100g": 40.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 12.5,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 2.5,
+   "restrictions": [
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "flaky flatbread served with dhal or curry",
+   "recognisable": true
+  },
+  {
+   "food_key": "roti_telur",
+   "food_name": "Roti telur",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 140.0,
+   "energy_kcal_per_100g": 280.0,
+   "carb_g_per_100g": 30.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 13.5,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "roti canai folded with egg inside",
+   "recognisable": true
+  },
+  {
+   "food_key": "roti_tisu",
+   "food_name": "Roti tisu",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 90.0,
+   "energy_kcal_per_100g": 380.0,
+   "carb_g_per_100g": 52.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 16.0,
+   "sodium_mg_per_100g": 320.0,
+   "sugar_g_per_100g": 18.0,
+   "restrictions": [
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "very thin crispy cone-shaped roti with sugar and condensed milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "thosai",
+   "food_name": "Thosai",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 29.0,
+   "protein_g_per_100g": 4.0,
+   "fat_g_per_100g": 3.7,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST",
+    "DINNER"
+   ],
+   "description": "thin fermented rice and lentil crepe with chutney and sambar",
+   "recognisable": true
+  },
+  {
+   "food_key": "idli",
+   "food_name": "Idli",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 130.0,
+   "carb_g_per_100g": 27.0,
+   "protein_g_per_100g": 4.0,
+   "fat_g_per_100g": 0.6,
+   "sodium_mg_per_100g": 250.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "soft steamed rice and lentil cakes with chutney",
+   "recognisable": true
+  },
+  {
+   "food_key": "chapati",
+   "food_name": "Chapati",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 70.0,
+   "energy_kcal_per_100g": 270.0,
+   "carb_g_per_100g": 45.0,
+   "protein_g_per_100g": 8.5,
+   "fat_g_per_100g": 6.5,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST",
+    "DINNER"
+   ],
+   "description": "whole wheat unleavened flatbread",
+   "recognisable": true
+  },
+  {
+   "food_key": "naan",
+   "food_name": "Naan",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 90.0,
+   "energy_kcal_per_100g": 290.0,
+   "carb_g_per_100g": 50.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 3.5,
+   "restrictions": [
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "staple",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "leavened oven-baked flatbread from the tandoor",
+   "recognisable": true
+  },
+  {
+   "food_key": "murtabak",
+   "food_name": "Murtabak",
+   "food_category": "Bread",
+   "cuisine": "Indian",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 240.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 10.0,
+   "fat_g_per_100g": 12.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "pan-fried stuffed bread with minced meat, egg and onion",
+   "recognisable": true
+  },
+  {
+   "food_key": "white_bread",
+   "food_name": "White bread",
+   "food_category": "Bread",
+   "cuisine": "General",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 265.0,
+   "carb_g_per_100g": 49.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 3.3,
+   "sodium_mg_per_100g": 490.0,
+   "sugar_g_per_100g": 5.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "two slices of white sandwich bread",
+   "recognisable": true
+  },
+  {
+   "food_key": "wholemeal_bread",
+   "food_name": "Wholemeal bread",
+   "food_category": "Bread",
+   "cuisine": "General",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 247.0,
+   "carb_g_per_100g": 41.0,
+   "protein_g_per_100g": 13.0,
+   "fat_g_per_100g": 3.4,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "two slices of wholemeal brown bread",
+   "recognisable": true
+  },
+  {
+   "food_key": "roti_bakar_kaya",
+   "food_name": "Roti bakar kaya butter",
+   "food_category": "Bread",
+   "cuisine": "Malay",
+   "base_serving_g": 70.0,
+   "energy_kcal_per_100g": 330.0,
+   "carb_g_per_100g": 45.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 14.0,
+   "sodium_mg_per_100g": 360.0,
+   "sugar_g_per_100g": 18.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "toasted bread with kaya coconut jam and butter",
+   "recognisable": true
+  },
+  {
+   "food_key": "roti_john",
+   "food_name": "Roti john",
+   "food_category": "Bread",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 250.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 10.0,
+   "fat_g_per_100g": 13.0,
+   "sodium_mg_per_100g": 500.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "long bread fried with minced meat omelette, mayonnaise and chilli sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "pau_ayam",
+   "food_name": "Chicken pau (steamed bun)",
+   "food_category": "Bread",
+   "cuisine": "Chinese",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 230.0,
+   "carb_g_per_100g": 36.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 7.0,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "fluffy white steamed bun filled with chicken",
+   "recognisable": true
+  },
+  {
+   "food_key": "roti_jala",
+   "food_name": "Roti jala",
+   "food_category": "Bread",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 200.0,
+   "carb_g_per_100g": 28.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 150.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN"
+   ],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "lacy net-like crepes served with chicken curry",
+   "recognisable": true
+  },
+  {
+   "food_key": "burger_ramly",
+   "food_name": "Ramly burger",
+   "food_category": "Bread",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 260.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 13.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "BEEF",
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "street burger with beef patty wrapped in egg, mayonnaise and chilli sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "curry_puff",
+   "food_name": "Curry puff (karipap)",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 330.0,
+   "carb_g_per_100g": 33.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 19.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "deep-fried crescent pastry with curried potato and chicken filling",
+   "recognisable": true
+  },
+  {
+   "food_key": "kuih_lapis",
+   "food_name": "Kuih lapis",
+   "food_category": "Kuih",
+   "cuisine": "Nyonya",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 230.0,
+   "carb_g_per_100g": 40.0,
+   "protein_g_per_100g": 0.8,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 40.0,
+   "sugar_g_per_100g": 18.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "colourful layered steamed rice flour cake",
+   "recognisable": true
+  },
+  {
+   "food_key": "onde_onde",
+   "food_name": "Onde-onde (buah melaka)",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 210.0,
+   "carb_g_per_100g": 38.0,
+   "protein_g_per_100g": 2.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 30.0,
+   "sugar_g_per_100g": 15.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "green pandan glutinous rice balls filled with palm sugar, rolled in grated coconut",
+   "recognisable": true
+  },
+  {
+   "food_key": "kuih_seri_muka",
+   "food_name": "Kuih seri muka",
+   "food_category": "Kuih",
+   "cuisine": "Nyonya",
+   "base_serving_g": 70.0,
+   "energy_kcal_per_100g": 220.0,
+   "carb_g_per_100g": 34.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 8.0,
+   "sodium_mg_per_100g": 60.0,
+   "sugar_g_per_100g": 14.0,
+   "restrictions": [
+    "EGG",
+    "VEGAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "two-layer kuih: glutinous rice base with green pandan custard top",
+   "recognisable": true
+  },
+  {
+   "food_key": "kuih_talam",
+   "food_name": "Kuih talam",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 31.0,
+   "protein_g_per_100g": 1.5,
+   "fat_g_per_100g": 6.5,
+   "sodium_mg_per_100g": 45.0,
+   "sugar_g_per_100g": 14.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "two-layer steamed kuih with green pandan bottom and white coconut top",
+   "recognisable": true
+  },
+  {
+   "food_key": "pisang_goreng",
+   "food_name": "Pisang goreng (banana fritters)",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 80.0,
+   "energy_kcal_per_100g": 260.0,
+   "carb_g_per_100g": 34.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 13.0,
+   "sodium_mg_per_100g": 120.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "deep-fried battered banana fritters",
+   "recognisable": true
+  },
+  {
+   "food_key": "keropok_lekor",
+   "food_name": "Keropok lekor",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 250.0,
+   "carb_g_per_100g": 30.0,
+   "protein_g_per_100g": 9.5,
+   "fat_g_per_100g": 10.0,
+   "sodium_mg_per_100g": 650.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "deep-fried chewy fish sausage sticks from Terengganu with chilli dip",
+   "recognisable": true
+  },
+  {
+   "food_key": "popiah",
+   "food_name": "Popiah (fresh spring roll)",
+   "food_category": "Kuih",
+   "cuisine": "Nyonya",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 15.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 4.0,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "fresh spring roll with braised turnip, egg and sweet sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "popiah_goreng",
+   "food_name": "Popiah goreng (fried spring roll)",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 280.0,
+   "carb_g_per_100g": 28.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 16.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "small deep-fried spring rolls with vegetable filling",
+   "recognisable": true
+  },
+  {
+   "food_key": "cucur_udang",
+   "food_name": "Cucur udang (prawn fritters)",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 80.0,
+   "energy_kcal_per_100g": 280.0,
+   "carb_g_per_100g": 30.0,
+   "protein_g_per_100g": 6.5,
+   "fat_g_per_100g": 15.0,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "deep-fried flour fritters with small prawns and chives",
+   "recognisable": true
+  },
+  {
+   "food_key": "dodol",
+   "food_name": "Dodol",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 40.0,
+   "energy_kcal_per_100g": 330.0,
+   "carb_g_per_100g": 60.0,
+   "protein_g_per_100g": 1.0,
+   "fat_g_per_100g": 10.0,
+   "sodium_mg_per_100g": 30.0,
+   "sugar_g_per_100g": 40.0,
+   "restrictions": [],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "sticky dark brown toffee-like sweet of palm sugar and coconut milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "kuih_bahulu",
+   "food_name": "Kuih bahulu",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 370.0,
+   "carb_g_per_100g": 66.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 60.0,
+   "sugar_g_per_100g": 35.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "small golden flower-shaped sponge cakes",
+   "recognisable": true
+  },
+  {
+   "food_key": "kek_lapis_sarawak",
+   "food_name": "Kek lapis Sarawak",
+   "food_category": "Kuih",
+   "cuisine": "Sarawak",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 420.0,
+   "carb_g_per_100g": 50.0,
+   "protein_g_per_100g": 5.5,
+   "fat_g_per_100g": 22.0,
+   "sodium_mg_per_100g": 150.0,
+   "sugar_g_per_100g": 35.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "colourful patterned Sarawak layer cake",
+   "recognisable": true
+  },
+  {
+   "food_key": "lepat_pisang",
+   "food_name": "Lepat pisang",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 37.0,
+   "protein_g_per_100g": 1.5,
+   "fat_g_per_100g": 3.0,
+   "sodium_mg_per_100g": 40.0,
+   "sugar_g_per_100g": 10.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "steamed banana and flour cake wrapped in banana leaf",
+   "recognisable": true
+  },
+  {
+   "food_key": "putu_piring",
+   "food_name": "Putu piring",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 230.0,
+   "carb_g_per_100g": 45.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 4.5,
+   "sodium_mg_per_100g": 40.0,
+   "sugar_g_per_100g": 15.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "steamed round rice flour cakes with palm sugar filling and grated coconut",
+   "recognisable": true
+  },
+  {
+   "food_key": "putu_mayam",
+   "food_name": "Putu mayam (string hoppers)",
+   "food_category": "Kuih",
+   "cuisine": "Indian",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 200.0,
+   "carb_g_per_100g": 40.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 3.5,
+   "sodium_mg_per_100g": 60.0,
+   "sugar_g_per_100g": 12.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "steamed rice noodle nests with grated coconut and brown sugar",
+   "recognisable": true
+  },
+  {
+   "food_key": "kuih_keria",
+   "food_name": "Kuih keria",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 330.0,
+   "carb_g_per_100g": 50.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 13.0,
+   "sodium_mg_per_100g": 50.0,
+   "sugar_g_per_100g": 20.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "sweet potato doughnuts coated in sugar glaze",
+   "recognisable": true
+  },
+  {
+   "food_key": "apam_balik",
+   "food_name": "Apam balik",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 330.0,
+   "carb_g_per_100g": 45.0,
+   "protein_g_per_100g": 7.5,
+   "fat_g_per_100g": 13.0,
+   "sodium_mg_per_100g": 250.0,
+   "sugar_g_per_100g": 18.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "MILK",
+    "PEANUT",
+    "VEGAN"
+   ],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "folded turnover pancake with crushed peanuts, sugar and sweet corn",
+   "recognisable": true
+  },
+  {
+   "food_key": "youtiao",
+   "food_name": "Youtiao (cakoi)",
+   "food_category": "Kuih",
+   "cuisine": "Chinese",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 390.0,
+   "carb_g_per_100g": 45.0,
+   "protein_g_per_100g": 8.0,
+   "fat_g_per_100g": 20.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "long golden deep-fried dough sticks",
+   "recognisable": true
+  },
+  {
+   "food_key": "samosa",
+   "food_name": "Samosa",
+   "food_category": "Kuih",
+   "cuisine": "Indian",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 290.0,
+   "carb_g_per_100g": 30.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 17.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "triangular fried pastry with spiced potato filling",
+   "recognisable": true
+  },
+  {
+   "food_key": "vadai",
+   "food_name": "Vadai (dhal fritters)",
+   "food_category": "Kuih",
+   "cuisine": "Indian",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 290.0,
+   "carb_g_per_100g": 25.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 17.0,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "deep-fried lentil doughnut fritters",
+   "recognisable": true
+  },
+  {
+   "food_key": "muruku",
+   "food_name": "Muruku",
+   "food_category": "Kuih",
+   "cuisine": "Indian",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 520.0,
+   "carb_g_per_100g": 55.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 29.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "crunchy spiral-shaped fried rice flour snack",
+   "recognisable": true
+  },
+  {
+   "food_key": "otak_otak",
+   "food_name": "Otak-otak",
+   "food_category": "Seafood",
+   "cuisine": "Nyonya",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "spicy fish paste grilled in banana leaf parcels",
+   "recognisable": true
+  },
+  {
+   "food_key": "siu_mai",
+   "food_name": "Siu mai (dim sum)",
+   "food_category": "Kuih",
+   "cuisine": "Chinese",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 230.0,
+   "carb_g_per_100g": 15.0,
+   "protein_g_per_100g": 11.0,
+   "fat_g_per_100g": 13.5,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "GLUTEN",
+    "HALAL",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "open-topped steamed pork and prawn dumplings",
+   "recognisable": true
+  },
+  {
+   "food_key": "har_gow",
+   "food_name": "Har gow (prawn dumplings)",
+   "food_category": "Kuih",
+   "cuisine": "Chinese",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 6.0,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "translucent steamed shrimp dumplings",
+   "recognisable": true
+  },
+  {
+   "food_key": "chee_cheong_fun",
+   "food_name": "Chee cheong fun",
+   "food_category": "Kuih",
+   "cuisine": "Chinese",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 125.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 3.0,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "steamed rice noodle rolls with sweet sauce and sesame seeds",
+   "recognisable": true
+  },
+  {
+   "food_key": "potato_chips",
+   "food_name": "Potato chips",
+   "food_category": "Kuih",
+   "cuisine": "General",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 540.0,
+   "carb_g_per_100g": 52.0,
+   "protein_g_per_100g": 6.5,
+   "fat_g_per_100g": 34.0,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "packet of crisps",
+   "recognisable": true
+  },
+  {
+   "food_key": "rojak_buah",
+   "food_name": "Rojak buah (fruit rojak)",
+   "food_category": "Kuih",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 140.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 4.5,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 9.0,
+   "restrictions": [
+    "PEANUT",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "fruit and vegetable salad with dark prawn paste sauce and peanuts",
+   "recognisable": true
+  },
+  {
+   "food_key": "pasembur",
+   "food_name": "Pasembur (Indian rojak)",
+   "food_category": "Kuih",
+   "cuisine": "Indian",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 9.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 5.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "PEANUT",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "shredded cucumber, fritters, tofu and egg with sweet peanut sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_goreng",
+   "food_name": "Ayam goreng (fried chicken)",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 260.0,
+   "carb_g_per_100g": 8.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 15.5,
+   "sodium_mg_per_100g": 480.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "spiced deep-fried chicken pieces",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_masak_merah",
+   "food_name": "Ayam masak merah",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 7.0,
+   "protein_g_per_100g": 15.0,
+   "fat_g_per_100g": 9.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 4.5,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "chicken in spicy sweet red tomato chilli sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "kari_ayam",
+   "food_name": "Kari ayam (chicken curry)",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 4.5,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 9.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "chicken and potato curry with coconut milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "rendang_ayam",
+   "food_name": "Rendang ayam",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 185.0,
+   "carb_g_per_100g": 5.5,
+   "protein_g_per_100g": 16.0,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 2.5,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "dry chicken rendang slow-cooked in spiced coconut",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_percik",
+   "food_name": "Ayam percik",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 18.5,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "grilled chicken basted with spicy coconut sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_panggang",
+   "food_name": "Ayam panggang (grilled chicken)",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 2.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 9.5,
+   "sodium_mg_per_100g": 360.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "charcoal grilled marinated chicken",
+   "recognisable": true
+  },
+  {
+   "food_key": "grilled_chicken_breast",
+   "food_name": "Grilled chicken breast (skinless)",
+   "food_category": "Poultry",
+   "cuisine": "General",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 165.0,
+   "carb_g_per_100g": 0.0,
+   "protein_g_per_100g": 31.0,
+   "fat_g_per_100g": 3.6,
+   "sodium_mg_per_100g": 75.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "plain grilled skinless chicken breast",
+   "recognisable": true
+  },
+  {
+   "food_key": "steamed_chicken",
+   "food_name": "Steamed chicken (skinless)",
+   "food_category": "Poultry",
+   "cuisine": "Chinese",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 0.5,
+   "protein_g_per_100g": 25.0,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "steamed Hainanese-style chicken slices",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_masak_kicap",
+   "food_name": "Ayam masak kicap",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 175.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 16.0,
+   "fat_g_per_100g": 9.5,
+   "sodium_mg_per_100g": 620.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "chicken braised in sweet soy sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "kurma_ayam",
+   "food_name": "Kurma ayam",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 165.0,
+   "carb_g_per_100g": 5.0,
+   "protein_g_per_100g": 13.0,
+   "fat_g_per_100g": 10.5,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "MILK",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "mild creamy chicken korma",
+   "recognisable": true
+  },
+  {
+   "food_key": "tandoori_chicken",
+   "food_name": "Tandoori chicken",
+   "food_category": "Poultry",
+   "cuisine": "Indian",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 3.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "red spiced yogurt-marinated chicken roasted in a tandoor",
+   "recognisable": true
+  },
+  {
+   "food_key": "satay_ayam",
+   "food_name": "Satay ayam (chicken satay)",
+   "food_category": "Poultry",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 220.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 18.0,
+   "fat_g_per_100g": 12.5,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 6.0,
+   "restrictions": [
+    "PEANUT",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "grilled chicken skewers with peanut sauce, cucumber and onion",
+   "recognisable": true
+  },
+  {
+   "food_key": "manok_pansoh",
+   "food_name": "Manok pansoh",
+   "food_category": "Poultry",
+   "cuisine": "Sarawak",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 90.0,
+   "carb_g_per_100g": 2.0,
+   "protein_g_per_100g": 13.0,
+   "fat_g_per_100g": 3.5,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "Iban chicken cooked with lemongrass and tapioca leaves inside bamboo",
+   "recognisable": true
+  },
+  {
+   "food_key": "ayam_pongteh",
+   "food_name": "Ayam pongteh",
+   "food_category": "Poultry",
+   "cuisine": "Nyonya",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 130.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 11.0,
+   "fat_g_per_100g": 7.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "Nyonya chicken and potato stew with fermented soybean paste",
+   "recognisable": true
+  },
+  {
+   "food_key": "rendang_daging",
+   "food_name": "Rendang daging (beef rendang)",
+   "food_category": "Meat",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 195.0,
+   "carb_g_per_100g": 5.0,
+   "protein_g_per_100g": 18.0,
+   "fat_g_per_100g": 11.5,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "BEEF",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "dark dry beef rendang slow-cooked in spices and coconut",
+   "recognisable": true
+  },
+  {
+   "food_key": "satay_daging",
+   "food_name": "Satay daging (beef satay)",
+   "food_category": "Meat",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 225.0,
+   "carb_g_per_100g": 8.0,
+   "protein_g_per_100g": 19.0,
+   "fat_g_per_100g": 13.0,
+   "sodium_mg_per_100g": 430.0,
+   "sugar_g_per_100g": 6.0,
+   "restrictions": [
+    "BEEF",
+    "PEANUT",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "grilled beef skewers with peanut sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "kari_kambing",
+   "food_name": "Kari kambing (mutton curry)",
+   "food_category": "Meat",
+   "cuisine": "Indian",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 190.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 17.0,
+   "fat_g_per_100g": 12.0,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "mutton curry",
+   "recognisable": true
+  },
+  {
+   "food_key": "char_siew",
+   "food_name": "Char siew (barbecued pork)",
+   "food_category": "Meat",
+   "cuisine": "Chinese",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 270.0,
+   "carb_g_per_100g": 13.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 14.0,
+   "sodium_mg_per_100g": 700.0,
+   "sugar_g_per_100g": 11.0,
+   "restrictions": [
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "red glazed barbecued pork slices",
+   "recognisable": true
+  },
+  {
+   "food_key": "siu_yuk",
+   "food_name": "Siu yuk (roast pork)",
+   "food_category": "Meat",
+   "cuisine": "Chinese",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 380.0,
+   "carb_g_per_100g": 0.0,
+   "protein_g_per_100g": 20.0,
+   "fat_g_per_100g": 33.0,
+   "sodium_mg_per_100g": 800.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "crispy skin roast pork belly",
+   "recognisable": true
+  },
+  {
+   "food_key": "bak_kut_teh",
+   "food_name": "Bak kut teh",
+   "food_category": "Soup",
+   "cuisine": "Chinese",
+   "base_serving_g": 400.0,
+   "energy_kcal_per_100g": 80.0,
+   "carb_g_per_100g": 2.0,
+   "protein_g_per_100g": 7.5,
+   "fat_g_per_100g": 4.7,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "GLUTEN",
+    "HALAL",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "DINNER"
+   ],
+   "description": "pork rib herbal soup with mushrooms and tofu puffs",
+   "recognisable": true
+  },
+  {
+   "food_key": "beef_steak",
+   "food_name": "Beef steak",
+   "food_category": "Meat",
+   "cuisine": "Western",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 220.0,
+   "carb_g_per_100g": 0.0,
+   "protein_g_per_100g": 27.0,
+   "fat_g_per_100g": 12.0,
+   "sodium_mg_per_100g": 60.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "BEEF",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "grilled beef steak",
+   "recognisable": true
+  },
+  {
+   "food_key": "ikan_bakar",
+   "food_name": "Ikan bakar (grilled fish)",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 3.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 5.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "whole fish grilled in banana leaf with sambal",
+   "recognisable": true
+  },
+  {
+   "food_key": "ikan_goreng",
+   "food_name": "Ikan goreng (fried fish)",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 230.0,
+   "carb_g_per_100g": 3.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 14.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "turmeric fried mackerel ikan kembung",
+   "recognisable": true
+  },
+  {
+   "food_key": "asam_pedas",
+   "food_name": "Ikan asam pedas",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 4.5,
+   "protein_g_per_100g": 11.0,
+   "fat_g_per_100g": 3.8,
+   "sodium_mg_per_100g": 420.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fish in sour spicy tamarind gravy with okra",
+   "recognisable": true
+  },
+  {
+   "food_key": "kari_kepala_ikan",
+   "food_name": "Fish head curry",
+   "food_category": "Seafood",
+   "cuisine": "Indian",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 6.5,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fish head curry with okra and brinjal",
+   "recognisable": true
+  },
+  {
+   "food_key": "steamed_fish",
+   "food_name": "Steamed fish",
+   "food_category": "Seafood",
+   "cuisine": "Chinese",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 1.0,
+   "protein_g_per_100g": 20.0,
+   "fat_g_per_100g": 3.0,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "FISH",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "whole steamed fish with ginger, spring onion and light soy sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "grilled_salmon",
+   "food_name": "Grilled salmon",
+   "food_category": "Seafood",
+   "cuisine": "Western",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 206.0,
+   "carb_g_per_100g": 0.0,
+   "protein_g_per_100g": 22.0,
+   "fat_g_per_100g": 12.4,
+   "sodium_mg_per_100g": 60.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "grilled salmon fillet",
+   "recognisable": true
+  },
+  {
+   "food_key": "sardine",
+   "food_name": "Sardines in tomato sauce",
+   "food_category": "Seafood",
+   "cuisine": "General",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 160.0,
+   "carb_g_per_100g": 2.5,
+   "protein_g_per_100g": 17.0,
+   "fat_g_per_100g": 9.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "canned sardines in tomato sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "sambal_udang",
+   "food_name": "Sambal udang",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 15.0,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "prawns in sambal chilli paste",
+   "recognisable": true
+  },
+  {
+   "food_key": "sotong_goreng",
+   "food_name": "Sotong goreng tepung (fried squid)",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 250.0,
+   "carb_g_per_100g": 18.0,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 14.0,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "GLUTEN",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "battered deep-fried squid rings",
+   "recognisable": true
+  },
+  {
+   "food_key": "sambal_ikan_bilis",
+   "food_name": "Sambal ikan bilis",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 320.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 35.0,
+   "fat_g_per_100g": 15.0,
+   "sodium_mg_per_100g": 2200.0,
+   "sugar_g_per_100g": 6.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "fried anchovies in sambal",
+   "recognisable": true
+  },
+  {
+   "food_key": "ikan_masin",
+   "food_name": "Ikan masin (salted fish)",
+   "food_category": "Seafood",
+   "cuisine": "Malay",
+   "base_serving_g": 20.0,
+   "energy_kcal_per_100g": 290.0,
+   "carb_g_per_100g": 0.0,
+   "protein_g_per_100g": 60.0,
+   "fat_g_per_100g": 5.0,
+   "sodium_mg_per_100g": 6000.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fried salted dried fish",
+   "recognisable": true
+  },
+  {
+   "food_key": "chilli_crab",
+   "food_name": "Chilli crab",
+   "food_category": "Seafood",
+   "cuisine": "Chinese",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 6.5,
+   "protein_g_per_100g": 10.0,
+   "fat_g_per_100g": 5.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 4.5,
+   "restrictions": [
+    "EGG",
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "crab in thick sweet spicy tomato chilli egg sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "hinava",
+   "food_name": "Hinava",
+   "food_category": "Seafood",
+   "cuisine": "Sabah",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 16.0,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "FISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "Kadazan raw fish salad cured in lime with ginger, chilli and shallots",
+   "recognisable": true
+  },
+  {
+   "food_key": "telur_rebus",
+   "food_name": "Boiled egg",
+   "food_category": "Egg & Soy",
+   "cuisine": "General",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 155.0,
+   "carb_g_per_100g": 1.1,
+   "protein_g_per_100g": 12.6,
+   "fat_g_per_100g": 10.6,
+   "sodium_mg_per_100g": 125.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "EGG",
+    "VEGAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "hard boiled egg",
+   "recognisable": true
+  },
+  {
+   "food_key": "telur_separuh_masak",
+   "food_name": "Half-boiled eggs",
+   "food_category": "Egg & Soy",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 150.0,
+   "carb_g_per_100g": 1.0,
+   "protein_g_per_100g": 12.5,
+   "fat_g_per_100g": 10.0,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "two soft half-boiled eggs with soy sauce and pepper",
+   "recognisable": true
+  },
+  {
+   "food_key": "telur_goreng",
+   "food_name": "Fried egg",
+   "food_category": "Egg & Soy",
+   "cuisine": "General",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 196.0,
+   "carb_g_per_100g": 0.8,
+   "protein_g_per_100g": 13.6,
+   "fat_g_per_100g": 15.0,
+   "sodium_mg_per_100g": 207.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "EGG",
+    "VEGAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "sunny side up fried egg",
+   "recognisable": true
+  },
+  {
+   "food_key": "telur_dadar",
+   "food_name": "Telur dadar (omelette)",
+   "food_category": "Egg & Soy",
+   "cuisine": "Malay",
+   "base_serving_g": 80.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 1.5,
+   "protein_g_per_100g": 11.0,
+   "fat_g_per_100g": 14.0,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "EGG",
+    "VEGAN"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "omelette with onion and chilli",
+   "recognisable": true
+  },
+  {
+   "food_key": "tauhu_goreng",
+   "food_name": "Tauhu goreng (fried tofu)",
+   "food_category": "Egg & Soy",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 270.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 17.0,
+   "fat_g_per_100g": 20.0,
+   "sodium_mg_per_100g": 20.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "deep-fried golden tofu cubes",
+   "recognisable": true
+  },
+  {
+   "food_key": "tauhu_sumbat",
+   "food_name": "Tauhu sumbat (stuffed tofu)",
+   "food_category": "Egg & Soy",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 180.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 9.0,
+   "fat_g_per_100g": 12.5,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "PEANUT"
+   ],
+   "plan_role": "protein",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "fried tofu stuffed with cucumber and bean sprouts, with peanut sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "tempeh_goreng",
+   "food_name": "Tempeh goreng",
+   "food_category": "Egg & Soy",
+   "cuisine": "Malay",
+   "base_serving_g": 80.0,
+   "energy_kcal_per_100g": 280.0,
+   "carb_g_per_100g": 10.0,
+   "protein_g_per_100g": 19.0,
+   "fat_g_per_100g": 18.0,
+   "sodium_mg_per_100g": 15.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fried fermented soybean cake slices",
+   "recognisable": true
+  },
+  {
+   "food_key": "silken_tofu",
+   "food_name": "Steamed tofu",
+   "food_category": "Egg & Soy",
+   "cuisine": "Chinese",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 62.0,
+   "carb_g_per_100g": 2.0,
+   "protein_g_per_100g": 6.5,
+   "fat_g_per_100g": 3.5,
+   "sodium_mg_per_100g": 8.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "protein",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "soft steamed silken tofu",
+   "recognisable": true
+  },
+  {
+   "food_key": "dhal_curry",
+   "food_name": "Dhal curry",
+   "food_category": "Egg & Soy",
+   "cuisine": "Indian",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 14.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 3.5,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [],
+   "plan_role": "protein",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "yellow lentil dhal curry",
+   "recognisable": true
+  },
+  {
+   "food_key": "sayur_campur",
+   "food_name": "Stir-fried mixed vegetables",
+   "food_category": "Vegetables",
+   "cuisine": "Chinese",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 65.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 3.8,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "stir-fried mixed vegetables with carrot, cabbage and cauliflower in oyster sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "sayur_tumis_bawang_putih",
+   "food_name": "Stir-fried greens with garlic",
+   "food_category": "Vegetables",
+   "cuisine": "Chinese",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 45.0,
+   "carb_g_per_100g": 3.5,
+   "protein_g_per_100g": 2.0,
+   "fat_g_per_100g": 2.8,
+   "sodium_mg_per_100g": 220.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "stir-fried choy sum or sawi with garlic",
+   "recognisable": true
+  },
+  {
+   "food_key": "kangkung_belacan",
+   "food_name": "Kangkung belacan",
+   "food_category": "Vegetables",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 75.0,
+   "carb_g_per_100g": 5.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 5.0,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "water spinach stir-fried with shrimp paste and chilli",
+   "recognisable": true
+  },
+  {
+   "food_key": "sayur_lodeh",
+   "food_name": "Sayur lodeh",
+   "food_category": "Vegetables",
+   "cuisine": "Malay",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 85.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 6.0,
+   "sodium_mg_per_100g": 280.0,
+   "sugar_g_per_100g": 1.5,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "mixed vegetables in turmeric coconut milk soup",
+   "recognisable": true
+  },
+  {
+   "food_key": "boiled_vegetables",
+   "food_name": "Steamed vegetables",
+   "food_category": "Vegetables",
+   "cuisine": "General",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 30.0,
+   "carb_g_per_100g": 5.0,
+   "protein_g_per_100g": 2.0,
+   "fat_g_per_100g": 0.3,
+   "sodium_mg_per_100g": 30.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "plain steamed broccoli, carrot and long beans",
+   "recognisable": true
+  },
+  {
+   "food_key": "ulam",
+   "food_name": "Ulam with sambal belacan",
+   "food_category": "Vegetables",
+   "cuisine": "Malay",
+   "base_serving_g": 80.0,
+   "energy_kcal_per_100g": 45.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 1.0,
+   "sodium_mg_per_100g": 250.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "raw local herbs and leaves such as pegaga and petai with sambal belacan",
+   "recognisable": true
+  },
+  {
+   "food_key": "gado_gado",
+   "food_name": "Gado-gado (pecal)",
+   "food_category": "Vegetables",
+   "cuisine": "Indonesian",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 140.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 6.5,
+   "fat_g_per_100g": 9.0,
+   "sodium_mg_per_100g": 280.0,
+   "sugar_g_per_100g": 4.0,
+   "restrictions": [
+    "EGG",
+    "PEANUT",
+    "VEGAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "blanched vegetables, tofu, tempeh and egg with peanut sauce",
+   "recognisable": true
+  },
+  {
+   "food_key": "garden_salad",
+   "food_name": "Garden salad (no dressing)",
+   "food_category": "Vegetables",
+   "cuisine": "Western",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 20.0,
+   "carb_g_per_100g": 3.5,
+   "protein_g_per_100g": 1.2,
+   "fat_g_per_100g": 0.2,
+   "sodium_mg_per_100g": 25.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "green salad with lettuce, tomato and cucumber",
+   "recognisable": true
+  },
+  {
+   "food_key": "taugeh_goreng",
+   "food_name": "Stir-fried bean sprouts",
+   "food_category": "Vegetables",
+   "cuisine": "Chinese",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 50.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 2.5,
+   "sodium_mg_per_100g": 250.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "stir-fried bean sprouts with chives",
+   "recognisable": true
+  },
+  {
+   "food_key": "terung_sambal",
+   "food_name": "Terung sambal (brinjal)",
+   "food_category": "Vegetables",
+   "cuisine": "Malay",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 8.0,
+   "protein_g_per_100g": 1.5,
+   "fat_g_per_100g": 8.0,
+   "sodium_mg_per_100g": 380.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "SHELLFISH",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "fried brinjal eggplant topped with sambal",
+   "recognisable": true
+  },
+  {
+   "food_key": "acar",
+   "food_name": "Acar (pickled vegetables)",
+   "food_category": "Vegetables",
+   "cuisine": "Nyonya",
+   "base_serving_g": 50.0,
+   "energy_kcal_per_100g": 110.0,
+   "carb_g_per_100g": 14.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 5.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 9.0,
+   "restrictions": [
+    "PEANUT"
+   ],
+   "plan_role": "veg",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "Nyonya spicy pickled cucumber, carrot and pineapple with peanuts",
+   "recognisable": true
+  },
+  {
+   "food_key": "sup_sayur",
+   "food_name": "Vegetable soup",
+   "food_category": "Soup",
+   "cuisine": "General",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 25.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 1.0,
+   "fat_g_per_100g": 0.5,
+   "sodium_mg_per_100g": 250.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "soup",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "clear vegetable soup",
+   "recognisable": true
+  },
+  {
+   "food_key": "salad_ayam",
+   "food_name": "Salad with grilled chicken",
+   "food_category": "Vegetables",
+   "cuisine": "Western",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 90.0,
+   "carb_g_per_100g": 4.0,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 3.0,
+   "sodium_mg_per_100g": 200.0,
+   "sugar_g_per_100g": 1.0,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "green salad topped with grilled chicken slices",
+   "recognisable": true
+  },
+  {
+   "food_key": "ambuyat",
+   "food_name": "Ambuyat",
+   "food_category": "Rice",
+   "cuisine": "Sabah",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 70.0,
+   "carb_g_per_100g": 17.0,
+   "protein_g_per_100g": 0.1,
+   "fat_g_per_100g": 0.1,
+   "sodium_mg_per_100g": 5.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "LUNCH"
+   ],
+   "description": "sticky sago starch eaten with a bamboo fork and sour dip",
+   "recognisable": true
+  },
+  {
+   "food_key": "sup_ayam",
+   "food_name": "Sup ayam (chicken soup)",
+   "food_category": "Soup",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 45.0,
+   "carb_g_per_100g": 3.5,
+   "protein_g_per_100g": 4.0,
+   "fat_g_per_100g": 1.8,
+   "sodium_mg_per_100g": 300.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "soup",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "clear spiced chicken soup with potato and carrot",
+   "recognisable": true
+  },
+  {
+   "food_key": "sup_kambing",
+   "food_name": "Sup kambing (mutton soup)",
+   "food_category": "Soup",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 70.0,
+   "carb_g_per_100g": 3.0,
+   "protein_g_per_100g": 6.0,
+   "fat_g_per_100g": 3.8,
+   "sodium_mg_per_100g": 320.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "soup",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "mamak style mutton bone soup",
+   "recognisable": true
+  },
+  {
+   "food_key": "sup_ekor",
+   "food_name": "Sup ekor (oxtail soup)",
+   "food_category": "Soup",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 85.0,
+   "carb_g_per_100g": 3.0,
+   "protein_g_per_100g": 7.0,
+   "fat_g_per_100g": 5.0,
+   "sodium_mg_per_100g": 330.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [
+    "BEEF",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "soup",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "oxtail soup with spices",
+   "recognisable": true
+  },
+  {
+   "food_key": "pisang",
+   "food_name": "Banana",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 89.0,
+   "carb_g_per_100g": 23.0,
+   "protein_g_per_100g": 1.1,
+   "fat_g_per_100g": 0.3,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "ripe banana",
+   "recognisable": true
+  },
+  {
+   "food_key": "betik",
+   "food_name": "Papaya",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 43.0,
+   "carb_g_per_100g": 11.0,
+   "protein_g_per_100g": 0.5,
+   "fat_g_per_100g": 0.3,
+   "sodium_mg_per_100g": 8.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "sliced orange papaya",
+   "recognisable": true
+  },
+  {
+   "food_key": "tembikai",
+   "food_name": "Watermelon",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 30.0,
+   "carb_g_per_100g": 7.6,
+   "protein_g_per_100g": 0.6,
+   "fat_g_per_100g": 0.2,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "slices of red watermelon",
+   "recognisable": true
+  },
+  {
+   "food_key": "epal",
+   "food_name": "Apple",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 52.0,
+   "carb_g_per_100g": 14.0,
+   "protein_g_per_100g": 0.3,
+   "fat_g_per_100g": 0.2,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "a whole apple",
+   "recognisable": true
+  },
+  {
+   "food_key": "oren",
+   "food_name": "Orange",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 47.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 0.9,
+   "fat_g_per_100g": 0.1,
+   "sodium_mg_per_100g": 0.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "an orange",
+   "recognisable": true
+  },
+  {
+   "food_key": "durian",
+   "food_name": "Durian",
+   "food_category": "Fruit",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 147.0,
+   "carb_g_per_100g": 27.0,
+   "protein_g_per_100g": 1.5,
+   "fat_g_per_100g": 5.3,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "creamy yellow durian flesh in its spiky husk",
+   "recognisable": true
+  },
+  {
+   "food_key": "mangga",
+   "food_name": "Mango",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 60.0,
+   "carb_g_per_100g": 15.0,
+   "protein_g_per_100g": 0.8,
+   "fat_g_per_100g": 0.4,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "sliced ripe mango",
+   "recognisable": true
+  },
+  {
+   "food_key": "rambutan",
+   "food_name": "Rambutan",
+   "food_category": "Fruit",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 82.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 0.7,
+   "fat_g_per_100g": 0.2,
+   "sodium_mg_per_100g": 11.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "hairy red rambutan fruits",
+   "recognisable": true
+  },
+  {
+   "food_key": "jambu_batu",
+   "food_name": "Guava",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 68.0,
+   "carb_g_per_100g": 14.0,
+   "protein_g_per_100g": 2.6,
+   "fat_g_per_100g": 1.0,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "sliced green guava",
+   "recognisable": true
+  },
+  {
+   "food_key": "nanas",
+   "food_name": "Pineapple",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 50.0,
+   "carb_g_per_100g": 13.0,
+   "protein_g_per_100g": 0.5,
+   "fat_g_per_100g": 0.1,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "pineapple slices",
+   "recognisable": true
+  },
+  {
+   "food_key": "buah_naga",
+   "food_name": "Dragon fruit",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 60.0,
+   "carb_g_per_100g": 13.0,
+   "protein_g_per_100g": 1.2,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 0.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "dragon fruit pitaya with pink skin and speckled flesh",
+   "recognisable": true
+  },
+  {
+   "food_key": "nangka",
+   "food_name": "Jackfruit",
+   "food_category": "Fruit",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 95.0,
+   "carb_g_per_100g": 23.0,
+   "protein_g_per_100g": 1.7,
+   "fat_g_per_100g": 0.6,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "yellow jackfruit pods",
+   "recognisable": true
+  },
+  {
+   "food_key": "manggis",
+   "food_name": "Mangosteen",
+   "food_category": "Fruit",
+   "cuisine": "Malay",
+   "base_serving_g": 100.0,
+   "energy_kcal_per_100g": 73.0,
+   "carb_g_per_100g": 18.0,
+   "protein_g_per_100g": 0.4,
+   "fat_g_per_100g": 0.6,
+   "sodium_mg_per_100g": 7.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "purple mangosteen with white segments",
+   "recognisable": true
+  },
+  {
+   "food_key": "kurma",
+   "food_name": "Dates (kurma)",
+   "food_category": "Fruit",
+   "cuisine": "General",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 280.0,
+   "carb_g_per_100g": 75.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 0.4,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "fruit",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "dried dates",
+   "recognisable": true
+  },
+  {
+   "food_key": "teh_tarik",
+   "food_name": "Teh tarik",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 60.0,
+   "carb_g_per_100g": 9.5,
+   "protein_g_per_100g": 1.5,
+   "fat_g_per_100g": 1.8,
+   "sodium_mg_per_100g": 25.0,
+   "sugar_g_per_100g": 9.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "frothy pulled milk tea with condensed milk in a glass",
+   "recognisable": true
+  },
+  {
+   "food_key": "kopi_o",
+   "food_name": "Kopi O (black coffee with sugar)",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 25.0,
+   "carb_g_per_100g": 6.0,
+   "protein_g_per_100g": 0.2,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 6.0,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "black kopitiam coffee with sugar",
+   "recognisable": true
+  },
+  {
+   "food_key": "kopi_susu",
+   "food_name": "Kopi susu (white coffee)",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 55.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 1.2,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 20.0,
+   "sugar_g_per_100g": 8.5,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "kopitiam coffee with condensed milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "teh_o_ais_limau",
+   "food_name": "Teh O ais limau",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 30.0,
+   "carb_g_per_100g": 7.5,
+   "protein_g_per_100g": 0.0,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 7.5,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "LUNCH",
+    "SNACK"
+   ],
+   "description": "iced lime tea",
+   "recognisable": true
+  },
+  {
+   "food_key": "milo_ais",
+   "food_name": "Milo ais",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 65.0,
+   "carb_g_per_100g": 11.0,
+   "protein_g_per_100g": 2.0,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 40.0,
+   "sugar_g_per_100g": 9.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "iced chocolate malt drink",
+   "recognisable": true
+  },
+  {
+   "food_key": "sirap_bandung",
+   "food_name": "Sirap bandung",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 70.0,
+   "carb_g_per_100g": 13.0,
+   "protein_g_per_100g": 1.2,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 20.0,
+   "sugar_g_per_100g": 12.5,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "drink",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "pink rose syrup drink with evaporated milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "air_sirap",
+   "food_name": "Air sirap (rose syrup)",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 40.0,
+   "carb_g_per_100g": 10.0,
+   "protein_g_per_100g": 0.0,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 3.0,
+   "sugar_g_per_100g": 10.0,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "red rose syrup cordial drink with ice",
+   "recognisable": true
+  },
+  {
+   "food_key": "plain_water",
+   "food_name": "Plain water",
+   "food_category": "Beverage",
+   "cuisine": "General",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 0.0,
+   "carb_g_per_100g": 0.0,
+   "protein_g_per_100g": 0.0,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 0.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH",
+    "DINNER",
+    "SNACK"
+   ],
+   "description": "a glass of plain water",
+   "recognisable": false
+  },
+  {
+   "food_key": "teh_kosong",
+   "food_name": "Plain tea or coffee (no sugar)",
+   "food_category": "Beverage",
+   "cuisine": "General",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 2.0,
+   "carb_g_per_100g": 0.3,
+   "protein_g_per_100g": 0.1,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 2.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "unsweetened tea or black coffee",
+   "recognisable": false
+  },
+  {
+   "food_key": "soya_bean",
+   "food_name": "Soya bean drink",
+   "food_category": "Beverage",
+   "cuisine": "Chinese",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 45.0,
+   "carb_g_per_100g": 5.5,
+   "protein_g_per_100g": 3.0,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 15.0,
+   "sugar_g_per_100g": 4.5,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "sweetened soy milk drink",
+   "recognisable": true
+  },
+  {
+   "food_key": "air_kelapa",
+   "food_name": "Coconut water",
+   "food_category": "Beverage",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 19.0,
+   "carb_g_per_100g": 3.7,
+   "protein_g_per_100g": 0.7,
+   "fat_g_per_100g": 0.2,
+   "sodium_mg_per_100g": 105.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "fresh young coconut water",
+   "recognisable": true
+  },
+  {
+   "food_key": "orange_juice",
+   "food_name": "Orange juice",
+   "food_category": "Beverage",
+   "cuisine": "General",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 45.0,
+   "carb_g_per_100g": 10.4,
+   "protein_g_per_100g": 0.7,
+   "fat_g_per_100g": 0.2,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 8.4,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "glass of orange juice",
+   "recognisable": true
+  },
+  {
+   "food_key": "soft_drink",
+   "food_name": "Carbonated soft drink",
+   "food_category": "Beverage",
+   "cuisine": "General",
+   "base_serving_g": 330.0,
+   "energy_kcal_per_100g": 42.0,
+   "carb_g_per_100g": 10.6,
+   "protein_g_per_100g": 0.0,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 10.0,
+   "sugar_g_per_100g": 10.6,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "can of fizzy soda",
+   "recognisable": true
+  },
+  {
+   "food_key": "air_barli",
+   "food_name": "Barley drink",
+   "food_category": "Beverage",
+   "cuisine": "Chinese",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 35.0,
+   "carb_g_per_100g": 8.5,
+   "protein_g_per_100g": 0.3,
+   "fat_g_per_100g": 0.0,
+   "sodium_mg_per_100g": 3.0,
+   "sugar_g_per_100g": 7.0,
+   "restrictions": [],
+   "plan_role": "drink",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "sweet barley water",
+   "recognisable": true
+  },
+  {
+   "food_key": "low_fat_milk",
+   "food_name": "Low-fat milk",
+   "food_category": "Dairy",
+   "cuisine": "General",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 42.0,
+   "carb_g_per_100g": 5.0,
+   "protein_g_per_100g": 3.4,
+   "fat_g_per_100g": 1.0,
+   "sodium_mg_per_100g": 44.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "drink",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "glass of low-fat milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "plain_yogurt",
+   "food_name": "Plain yogurt (unsweetened)",
+   "food_category": "Dairy",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 59.0,
+   "carb_g_per_100g": 3.6,
+   "protein_g_per_100g": 10.0,
+   "fat_g_per_100g": 0.4,
+   "sodium_mg_per_100g": 36.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "bowl of plain Greek yogurt",
+   "recognisable": true
+  },
+  {
+   "food_key": "cendol",
+   "food_name": "Cendol",
+   "food_category": "Dessert",
+   "cuisine": "Malay",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 130.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 1.2,
+   "fat_g_per_100g": 4.5,
+   "sodium_mg_per_100g": 30.0,
+   "sugar_g_per_100g": 17.0,
+   "restrictions": [],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "shaved ice with green rice flour jelly, coconut milk and gula melaka palm sugar",
+   "recognisable": true
+  },
+  {
+   "food_key": "ais_kacang",
+   "food_name": "Ais kacang (ABC)",
+   "food_category": "Dessert",
+   "cuisine": "Malay",
+   "base_serving_g": 350.0,
+   "energy_kcal_per_100g": 100.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 1.5,
+   "fat_g_per_100g": 1.0,
+   "sodium_mg_per_100g": 25.0,
+   "sugar_g_per_100g": 18.0,
+   "restrictions": [
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "shaved ice mound with red beans, corn, jelly, syrup and evaporated milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "bubur_kacang_hijau",
+   "food_name": "Bubur kacang hijau",
+   "food_category": "Dessert",
+   "cuisine": "Malay",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 115.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 2.5,
+   "sodium_mg_per_100g": 20.0,
+   "sugar_g_per_100g": 9.0,
+   "restrictions": [],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "mung bean porridge with coconut milk and sago",
+   "recognisable": true
+  },
+  {
+   "food_key": "sago_gula_melaka",
+   "food_name": "Sago gula melaka",
+   "food_category": "Dessert",
+   "cuisine": "Malay",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 170.0,
+   "carb_g_per_100g": 32.0,
+   "protein_g_per_100g": 0.5,
+   "fat_g_per_100g": 4.5,
+   "sodium_mg_per_100g": 20.0,
+   "sugar_g_per_100g": 18.0,
+   "restrictions": [],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "chilled sago pearls with palm sugar syrup and coconut milk",
+   "recognisable": true
+  },
+  {
+   "food_key": "tau_fu_fa",
+   "food_name": "Tau fu fa (soybean pudding)",
+   "food_category": "Dessert",
+   "cuisine": "Chinese",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 60.0,
+   "carb_g_per_100g": 9.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 10.0,
+   "sugar_g_per_100g": 7.0,
+   "restrictions": [],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "silky soybean pudding with sugar syrup",
+   "recognisable": true
+  },
+  {
+   "food_key": "ice_cream",
+   "food_name": "Ice cream",
+   "food_category": "Dessert",
+   "cuisine": "Western",
+   "base_serving_g": 70.0,
+   "energy_kcal_per_100g": 207.0,
+   "carb_g_per_100g": 24.0,
+   "protein_g_per_100g": 3.5,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 80.0,
+   "sugar_g_per_100g": 21.0,
+   "restrictions": [
+    "EGG",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "scoops of ice cream",
+   "recognisable": true
+  },
+  {
+   "food_key": "donut",
+   "food_name": "Doughnut",
+   "food_category": "Dessert",
+   "cuisine": "Western",
+   "base_serving_g": 60.0,
+   "energy_kcal_per_100g": 420.0,
+   "carb_g_per_100g": 50.0,
+   "protein_g_per_100g": 5.0,
+   "fat_g_per_100g": 22.0,
+   "sodium_mg_per_100g": 350.0,
+   "sugar_g_per_100g": 22.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "MILK",
+    "VEGAN"
+   ],
+   "plan_role": "dessert",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "glazed ring doughnut",
+   "recognisable": true
+  },
+  {
+   "food_key": "oats",
+   "food_name": "Oat porridge (plain)",
+   "food_category": "Cereal",
+   "cuisine": "General",
+   "base_serving_g": 250.0,
+   "energy_kcal_per_100g": 71.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 2.5,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 4.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST"
+   ],
+   "description": "bowl of plain cooked oatmeal porridge",
+   "recognisable": true
+  },
+  {
+   "food_key": "ubi_keledek",
+   "food_name": "Sweet potato (boiled)",
+   "food_category": "Cereal",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 86.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 1.6,
+   "fat_g_per_100g": 0.1,
+   "sodium_mg_per_100g": 27.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "staple",
+   "meal_slots": [
+    "BREAKFAST",
+    "SNACK"
+   ],
+   "description": "boiled sweet potato",
+   "recognisable": true
+  },
+  {
+   "food_key": "jagung",
+   "food_name": "Sweet corn (boiled)",
+   "food_category": "Cereal",
+   "cuisine": "General",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 96.0,
+   "carb_g_per_100g": 21.0,
+   "protein_g_per_100g": 3.4,
+   "fat_g_per_100g": 1.5,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "boiled sweet corn on the cob",
+   "recognisable": true
+  },
+  {
+   "food_key": "cream_crackers",
+   "food_name": "Cream crackers",
+   "food_category": "Cereal",
+   "cuisine": "General",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 440.0,
+   "carb_g_per_100g": 68.0,
+   "protein_g_per_100g": 9.5,
+   "fat_g_per_100g": 14.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 2.0,
+   "restrictions": [
+    "GLUTEN"
+   ],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "plain cream cracker biscuits",
+   "recognisable": true
+  },
+  {
+   "food_key": "almonds",
+   "food_name": "Almonds (unsalted)",
+   "food_category": "Cereal",
+   "cuisine": "General",
+   "base_serving_g": 30.0,
+   "energy_kcal_per_100g": 579.0,
+   "carb_g_per_100g": 22.0,
+   "protein_g_per_100g": 21.0,
+   "fat_g_per_100g": 50.0,
+   "sodium_mg_per_100g": 1.0,
+   "sugar_g_per_100g": 0.0,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "a handful of unsalted almonds",
+   "recognisable": true
+  },
+  {
+   "food_key": "beef_burger",
+   "food_name": "Beef burger",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 220.0,
+   "energy_kcal_per_100g": 250.0,
+   "carb_g_per_100g": 25.0,
+   "protein_g_per_100g": 13.0,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 480.0,
+   "sugar_g_per_100g": 5.0,
+   "restrictions": [
+    "BEEF",
+    "GLUTEN",
+    "MILK",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "beef burger with cheese, lettuce and tomato in a bun",
+   "recognisable": true
+  },
+  {
+   "food_key": "chicken_burger",
+   "food_name": "Chicken burger",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 245.0,
+   "carb_g_per_100g": 26.0,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 10.5,
+   "sodium_mg_per_100g": 520.0,
+   "sugar_g_per_100g": 4.5,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "crispy fried chicken burger with mayonnaise",
+   "recognisable": true
+  },
+  {
+   "food_key": "pizza",
+   "food_name": "Pizza",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 200.0,
+   "energy_kcal_per_100g": 266.0,
+   "carb_g_per_100g": 33.0,
+   "protein_g_per_100g": 11.0,
+   "fat_g_per_100g": 10.0,
+   "sodium_mg_per_100g": 600.0,
+   "sugar_g_per_100g": 3.5,
+   "restrictions": [
+    "GLUTEN",
+    "MILK",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "slices of cheese pizza with toppings",
+   "recognisable": true
+  },
+  {
+   "food_key": "french_fries",
+   "food_name": "French fries",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 120.0,
+   "energy_kcal_per_100g": 312.0,
+   "carb_g_per_100g": 41.0,
+   "protein_g_per_100g": 3.4,
+   "fat_g_per_100g": 15.0,
+   "sodium_mg_per_100g": 210.0,
+   "sugar_g_per_100g": 0.3,
+   "restrictions": [],
+   "plan_role": "snack",
+   "meal_slots": [
+    "SNACK"
+   ],
+   "description": "golden french fries",
+   "recognisable": true
+  },
+  {
+   "food_key": "chicken_chop",
+   "food_name": "Chicken chop",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 210.0,
+   "carb_g_per_100g": 12.0,
+   "protein_g_per_100g": 15.0,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "MILK",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "DINNER"
+   ],
+   "description": "breaded fried chicken chop with black pepper sauce, fries and coleslaw",
+   "recognisable": true
+  },
+  {
+   "food_key": "fish_and_chips",
+   "food_name": "Fish and chips",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 300.0,
+   "energy_kcal_per_100g": 220.0,
+   "carb_g_per_100g": 20.0,
+   "protein_g_per_100g": 10.0,
+   "fat_g_per_100g": 11.0,
+   "sodium_mg_per_100g": 400.0,
+   "sugar_g_per_100g": 0.5,
+   "restrictions": [
+    "EGG",
+    "FISH",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "LUNCH",
+    "DINNER"
+   ],
+   "description": "battered fried fish fillet with chips",
+   "recognisable": true
+  },
+  {
+   "food_key": "chicken_sandwich",
+   "food_name": "Chicken sandwich (wholemeal)",
+   "food_category": "Western",
+   "cuisine": "Western",
+   "base_serving_g": 150.0,
+   "energy_kcal_per_100g": 220.0,
+   "carb_g_per_100g": 25.0,
+   "protein_g_per_100g": 12.0,
+   "fat_g_per_100g": 7.5,
+   "sodium_mg_per_100g": 450.0,
+   "sugar_g_per_100g": 3.0,
+   "restrictions": [
+    "EGG",
+    "GLUTEN",
+    "VEGAN",
+    "VEGETARIAN"
+   ],
+   "plan_role": "meal",
+   "meal_slots": [
+    "BREAKFAST",
+    "LUNCH"
+   ],
+   "description": "wholemeal sandwich with chicken, lettuce and tomato",
+   "recognisable": true
+  }
+ ]
+}

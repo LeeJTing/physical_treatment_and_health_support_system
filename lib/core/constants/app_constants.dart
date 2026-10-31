@@ -1,31 +1,44 @@
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+
 /// App-wide constants. Values marked TO CONFIRM are not fixed by the report.
 class AppConstants {
   AppConstants._();
 
   // ---- AI server (FastAPI) --------------------------------------------------
-  /// Overridden at build time: flutter run --dart-define=AI_BASE_URL=https://xxx.trycloudflare.com
+  /// The AI server on the laptop (Cloudflare tunnel). The tunnel address changes each time it
+  /// starts: set the new one in the app (Profile > AI server), or build with
+  /// --dart-define=AI_BASE_URL=... The emulator reaches a server on the same PC at http://10.0.2.2:8000.
   static const String aiBaseUrl = String.fromEnvironment(
     'AI_BASE_URL',
-    defaultValue: 'http://10.0.2.2:8000',
+    defaultValue: 'https://billion-rehab-marker-uploaded.trycloudflare.com',
   );
 
-  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+  // ---- Supabase ---------------------------------------------------------------
+  /// The team's Supabase project. The publishable key is meant to ship inside the app (RLS
+  /// protects the data); the secret / service-role key never goes here. Override with
+  /// --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=... for another project.
+  static const String supabaseUrl = String.fromEnvironment(
+    'SUPABASE_URL',
+    defaultValue: 'https://whiyswvipvjajxkgppfj.supabase.co',
+  );
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
+    defaultValue: 'sb_publishable_rDnBbYMBaPgqTSvtBDdiBQ_QcMhEtpe',
   );
 
-  /// Runs the app on in-memory fakes instead of Supabase (dev before Supabase is ready).
+  /// In-memory fakes instead of Supabase: only on request (--dart-define=USE_FAKES=true), e.g. a
+  /// demo without internet. Every normal run uses the real Supabase project above.
   static const bool useFakes = bool.fromEnvironment(
     'USE_FAKES',
-    defaultValue: true,
+    defaultValue: false,
   );
 
-  /// Google sign-in needs a Google OAuth client and the provider switched on in Supabase
-  /// (NEXT_STEPS Step 0 item 4). Until then the button explains instead of opening a
-  /// browser page that cannot work. Build with --dart-define=GOOGLE_SIGN_IN=true once set up.
+  /// Continue with Google (FR100_018) is on. The app asks the Supabase project whether the
+  /// Google provider is switched on before opening the browser, and explains when it is not.
+  /// --dart-define=GOOGLE_SIGN_IN=false hides it on purpose (e.g. a demo without internet).
   static const bool googleSignInEnabled = bool.fromEnvironment(
     'GOOGLE_SIGN_IN',
-    defaultValue: false,
+    defaultValue: true,
   );
 
   // Endpoint paths (Table 4.2.4) used by Elwin's modules.
@@ -87,6 +100,64 @@ class AppConstants {
 
   // ---- Recommendation -------------------------------------------------------
   static const int topPlanCount = 3; // FR500_07
+
+  // ---- Jun Ting's modules: M200, M400, M700 (AI server endpoints, Table 4.2.4) ----
+  static const String forecastPath = '/forecast';
+  static const String analysePath = '/analyse';
+  static const String recognisePath = '/recognise';
+  static const String planPath = '/plan';
+  static const String alternativesPath = '/plan/alternatives';
+
+  static const Duration recogniseTimeout = Duration(seconds: 15); // FR700_048
+  static const Duration planTimeout = Duration(seconds: 20); // FR700_049
+  static const Duration analysisTimeout = Duration(seconds: 30); // FR400_038
+
+  // ---- M200 Health Monitoring (UC700) -----------------------------------------
+  /// Plausible data-entry bounds (UC700 C7, FR200_004). Not clinical thresholds.
+  static const double systolicMin = 70, systolicMax = 250;
+  static const double diastolicMin = 40, diastolicMax = 150;
+  static const double glucoseMin = 2.0, glucoseMax = 30.0;
+  static const double bodyWeightMin = 20, bodyWeightMax = 300;
+
+  static (double, double) plausibleRange(MetricType m) => switch (m) {
+    MetricType.bloodPressure => (systolicMin, systolicMax),
+    MetricType.bloodGlucose => (glucoseMin, glucoseMax),
+    MetricType.bodyWeight => (bodyWeightMin, bodyWeightMax),
+  };
+
+  /// An imported reading within 5 minutes of a stored one is a duplicate (UC700 C11).
+  static const Duration duplicateWindow = Duration(minutes: 5);
+
+  /// No successful import for this long: the patient is told (UC700 C12, FR200_013).
+  static const Duration importOverdueAfter = Duration(hours: 24);
+
+  /// Background import interval (UC700 C10).
+  static const Duration importInterval = Duration(hours: 6);
+
+  /// While the app is open, Health Connect is checked this often for new readings, and again each
+  /// time the app comes back to the front, so the patient never has to press Import readings.
+  static const Duration autoSyncEvery = Duration(minutes: 1);
+
+  /// Default and selectable trend ranges (UC700 C1, C13).
+  static const int defaultRangeDays = 30;
+  static const List<int> rangeChoices = [7, 30, 90];
+
+  // ---- M400 Predictive Health Analysis (UC600) -----------------------------------
+  static const int forecastMinReadings = 14; // C1
+  static const int analysisPeriodDays = 7;
+
+  // ---- M700 Diet Support (UC800, UC900) ------------------------------------------
+  static const double recognitionConfidenceFloor = 0.60; // C6, FR700_005
+  static const int maxImageBytes = 10 * 1024 * 1024; // C3
+  static const int minImageSidePx = 224; // C3
+  static const int uploadLongEdgePx = 384; // C4
+  static const int uploadJpegQuality = 80; // C4
+
+  /// WHO daily limits (UC900 C2, C6, C10) and the one-item share (C2).
+  static const double whoSodiumMg = 2000;
+  static const double whoSugarG = 25;
+  static const double itemShare = 0.30;
+  static const double cautionFrom = 0.80; // C8
 
   // ---- Reminders --------------------------------------------------------------
   static const String timezone = 'Asia/Kuala_Lumpur';
@@ -155,6 +226,11 @@ class Messages {
       'Too many failed attempts. Your account is locked for 15 minutes.';
   static const googleNotAvailable =
       'Google sign-in is not available yet. Please log in with your email and password.'; // not a report message
+  static const googleDemoMode =
+      'Demo mode (USE_FAKES): signed in with a test Google account, so no Google page was shown. '
+      'Run with --dart-define-from-file=config/dev.json to use real Google sign-in.'; // not a report message
+  static const googleNoBrowser =
+      'Could not open the Google sign-in page. Please check that a web browser is installed.'; // not a report message
   static const googleNotFinished =
       'Google sign-in did not finish. Please try again, or log in with your email and password.'; // not a report message
 
@@ -247,6 +323,93 @@ class Messages {
   static const fullBodyNotVisible =
       'Unable to detect full body in the frame. Please position yourself so that your entire body '
       '(head to feet) is clearly visible within the camera frame.';
+
+  // UC600 View Health Report (Table 3.6 MESSAGE), word for word
+  static const analysisDisclaimer =
+      'This forecast, score and risk indication are generated for information only. They are not a '
+      'medical diagnosis and do not replace advice from a qualified healthcare professional.';
+  static const insufficientData =
+      'At least 14 readings are needed before a forecast can be generated for this metric.';
+  static const consultProfessional =
+      'This reading is significantly outside your usual range. Please consult a healthcare professional.';
+  static const healthRetrievalFailed =
+      'Unable to load your health records. Please try again.';
+  static const analysisUnavailable =
+      'Your analysis could not be updated. Showing your last available forecast and score.';
+  static const withinRange = 'Your recent readings are within your usual range.';
+  static const notificationPermissionRequired =
+      'Allow notifications so that reminders and health alerts can reach you. Alerts will still be '
+      'recorded in your notification history.';
+  static const coverageBelowMinimum =
+      'Your Health Score needs at least 7 readings and 3 days of activity or meals. Keep recording '
+      'and it will appear here.';
+  static String riskInputAbsent(String condition, String metric) =>
+      'A risk indication for $condition needs $metric readings. Record one to see it here.';
+
+  // UC700 Track Health (Table 3.7 MESSAGE)
+  static const healthPermissionRequired =
+      'Permission to read your health data is required before readings can be imported.';
+  static const importOverdue =
+      'No readings have been imported for more than 24 hours.';
+  static const emptyField = 'Please enter a value for every required field.';
+  static const readingSaved = 'Your reading has been recorded.';
+  static const implausibleValue =
+      'The value entered is outside the accepted range. Please check your reading.';
+  static const noData = 'No records were found for the selected period.';
+  static const invalidDateRange =
+      'The start date cannot be later than the end date.';
+  static const confirmDeleteEntry =
+      'Delete this entry? This action cannot be undone.';
+  static const historyRetrievalFailed =
+      'Unable to load your history. Please try again.';
+  static const readingSaveFailed =
+      'Unable to save your reading. Please try again.';
+  static const importFailed =
+      'Unable to import readings. The application will retry automatically.';
+  static const deletionFailed =
+      'Unable to delete the entry. Please try again.';
+  // Not report messages (Health Connect missing; systolic rule; future time).
+  static const healthConnectInstall =
+      'Health Connect needs to be installed or updated on this phone. Tap Fix to open the Play Store, '
+      'then connect again.'; // not a report message
+  static const healthPermissionSteps =
+      'HealthGuide was not allowed to read your health data. Tap Fix, then allow Blood pressure, '
+      'Blood glucose and Weight for HealthGuide, and connect again.'; // not a report message
+  static const healthConnectMissing =
+      'Health Connect is not available on this phone. Install it from the Play Store to import readings.';
+  static const systolicNotAboveDiastolic =
+      'The systolic (top) value must be higher than the diastolic (bottom) value.';
+  static const futureReading = 'The reading time cannot be later than now.';
+
+  // UC800 View Food Information (Table 3.8 MESSAGE)
+  static const invalidImage =
+      'The selected image could not be read. Please choose a clear photograph of your meal.';
+  static const lowConfidence =
+      'We could not identify this meal confidently. Please select or enter the food item.';
+  static const portionUpdated =
+      'Nutrition values have been updated for the selected portion size.';
+  static const cameraPermissionRequired =
+      'Camera and photo access are required to log a meal.';
+  static const mealLogged = 'Your meal has been recorded.';
+  static const confirmDeleteMeal =
+      'Delete this meal entry? This action cannot be undone.';
+  static const recognitionUnavailable =
+      'Food recognition is temporarily unavailable. You may enter your meal manually.';
+  static const mealSaveFailed = 'Unable to save your meal. Please try again.';
+
+  // UC900 View Food Recommendation (Table 3.9 MESSAGE)
+  static String itemFlagged(String nutrient, String condition, String verdict, String amount) =>
+      'This item is high in $nutrient. You have declared $condition, so it is $verdict. '
+      'It exceeds your limit by $amount.';
+  static const dietDisclaimer =
+      'Dietary recommendations and plans are general guidance only and are not medical advice. Please '
+      'consult a healthcare professional before making significant dietary changes.';
+  static const allItemsSuitable =
+      "None of today's logged meals exceed your recommended limits.";
+  static const dietProfileUnavailable =
+      'Unable to load your health profile. Conservative dietary limits have been applied.';
+  static const plannerUnavailable =
+      'The planner is temporarily unavailable. You can still build a plan by choosing meals yourself.';
 
   // UC1000
   static const profileNotConfigured =

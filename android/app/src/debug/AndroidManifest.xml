@@ -4,4 +4,8 @@
          to allow setting breakpoints, to provide hot reload, etc.
     -->
     <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Debug builds only: plain http:// to the AI server on the laptop over the same Wi-Fi
+         (http://192.168.x.x:8000) or to the emulator's host (http://10.0.2.2:8000). Release builds
+         keep Android's default, HTTPS only, and reach the laptop through the Cloudflare tunnel. -->
+    <application android:networkSecurityConfig="@xml/network_security_config" />
 </manifest>

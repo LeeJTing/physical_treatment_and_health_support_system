@@ -10,6 +10,14 @@ import 'package:physical_treatment_and_health_support_system/view/planning_view/
 import 'package:physical_treatment_and_health_support_system/viewmodel/chat_view_model/chat_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/home_view_model/home_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/home_view/main_shell.dart';
+import 'package:physical_treatment_and_health_support_system/view/monitoring_view/add_reading_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
 
 /// Home dashboard (Figma "Home"). The Home tab of the app shell.
 class HomeView extends StatefulWidget {
@@ -23,9 +31,12 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => context.read<HomeViewModel>().load(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<HomeViewModel>().load();
+      // Score, vitals and today's intake (M400, M200, M700).
+      context.read<MealLogViewModel>().load();
+      context.read<AnalysisViewModel>().loadAnalysis();
+    });
   }
 
   /// Opens a screen and refreshes the dashboard when the patient comes back.
@@ -43,10 +54,21 @@ class _HomeViewState extends State<HomeView> {
     ),
   );
 
-  void _notYet(String what) => ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text(
-        '$what is part of the Health Monitoring and Diet modules (coming soon).',
+  /// Quick action "Add Reading" (UC700 BF-6), straight from Home.
+  Future<void> _addReading() async {
+    final mvm = context.read<MonitoringViewModel>();
+    final analysis = context.read<AnalysisViewModel>();
+    if (mvm.accountId == null) await mvm.load();
+    if (!mounted) return;
+    final saved = await AddReadingSheet.show(context, mvm);
+    if (saved == true) await analysis.loadAnalysis(); // FR400_030
+  }
+
+  void _openReport() => Navigator.of(context).push(
+    MaterialPageRoute<void>(
+      builder: (_) => ChangeNotifierProvider.value(
+        value: context.read<AnalysisViewModel>(),
+        child: const HealthReportView(),
       ),
     ),
   );
@@ -150,7 +172,7 @@ class _HomeViewState extends State<HomeView> {
                 AppTokens.gutter,
                 0,
               ),
-              child: const _HealthScoreCard(),
+              child: _HealthScoreCard(onTap: _openReport),
             ),
           ],
         ),
@@ -173,15 +195,22 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 const SizedBox(height: AppTokens.gap),
               ],
-              const Row(
+              Row(
                 children: [
-                  Expanded(child: _VitalCard('Blood\npressure', 'mmHg')),
-                  SizedBox(width: 10),
-                  Expanded(child: _VitalCard('Blood\nglucose', 'mmol/L')),
-                  SizedBox(width: 10),
-                  Expanded(child: _VitalCard('Body\nweight', 'kg')),
+                  Expanded(
+                    child: _VitalCard('Blood\npressure', 'mmHg', MetricType.bloodPressure, _openReport),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _VitalCard('Blood\nglucose', 'mmol/L', MetricType.bloodGlucose, _openReport),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _VitalCard('Body\nweight', 'kg', MetricType.bodyWeight, _openReport),
+                  ),
                 ],
               ),
+              const SizedBox(height: AppTokens.gap),
               // Followed plans that no longer fit the profile (PlanRules.checkActive).
               if (d.planIssues.isNotEmpty) ...[
                 _Notice(
@@ -203,8 +232,9 @@ class _HomeViewState extends State<HomeView> {
               const SizedBox(height: AppTokens.gap),
               _LimitsCard(
                 calories: limit.dailyCalorieTarget,
-                sodiumMg: limit.dailySodiumLimitMg,
-                sugarG: limit.dailySugarLimitG,
+                sodiumMg: limit.dailySodiumLimitMg.clamp(0, AppConstants.whoSodiumMg).toInt(),
+                sugarG: limit.dailySugarLimitG.clamp(0, AppConstants.whoSugarG).toDouble(),
+                consumed: context.watch<MealLogViewModel>().dailyTotals,
               ),
               const SizedBox(height: 24),
               const Text(
@@ -221,15 +251,12 @@ class _HomeViewState extends State<HomeView> {
                   Expanded(
                     child: _QuickAction(
                       'Log Meal',
-                      () => _notYet('Logging a meal'),
+                      () => MainShell.of(context)?.selectTab(MainShell.dietTab),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: _QuickAction(
-                      'Add Reading',
-                      () => _notYet('Adding a reading'),
-                    ),
+                    child: _QuickAction('Add Reading', _addReading),
                   ),
                   const SizedBox(width: 10),
                   Expanded(child: _QuickAction('Ask AI', _openChat)),
@@ -280,96 +307,124 @@ class _Card extends StatelessWidget {
   );
 }
 
-/// M400 (Predictive Health Analysis) computes the score; until it does, the card says so.
+/// The Health Score from M400 (FR400_020, FR400_023): the most important number on the screen,
+/// with the non-medical disclaimer inside the card (UI Design, Home Screen).
 class _HealthScoreCard extends StatelessWidget {
-  const _HealthScoreCard();
+  final VoidCallback onTap;
+  const _HealthScoreCard({required this.onTap});
 
   @override
-  Widget build(BuildContext context) => _Card(
-    child: Row(
-      children: [
-        const Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Health Score',
-                style: TextStyle(
-                  color: AppTokens.ink,
-                  fontSize: 22,
-                  fontWeight: FontWeight.w700,
+  Widget build(BuildContext context) {
+    final a = context.watch<AnalysisViewModel>().analysis;
+    final score = a?.healthScore;
+    final band = a?.scoreBand;
+    final color = switch (band) {
+      ScoreBand.good => AppTokens.good,
+      ScoreBand.fair => AppTokens.brandDeepAccent,
+      ScoreBand.needsAttention => AppTokens.caution,
+      ScoreBand.atRisk => AppTokens.danger,
+      null => AppTokens.inkMuted,
+    };
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: _Card(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Health Score',
+                        style: TextStyle(color: AppTokens.ink, fontSize: 22, fontWeight: FontWeight.w700),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        score == null
+                            ? 'Needs 7 readings and 3 days of activity or meals.'
+                            : '${band?.label ?? ''} · tap for your Health Report',
+                        style: TextStyle(color: score == null ? AppTokens.inkMuted : color, fontSize: 15),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              SizedBox(height: 6),
-              Text(
-                'Appears once your health readings are synced.',
-                style: TextStyle(color: AppTokens.inkMuted, fontSize: 15),
-              ),
-            ],
-          ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 84,
+                  height: 84,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      SizedBox.expand(
+                        child: CircularProgressIndicator(
+                          value: (score ?? 0) / 100,
+                          strokeWidth: 12,
+                          color: color,
+                          backgroundColor: AppTokens.tint,
+                        ),
+                      ),
+                      Text(
+                        score?.toString() ?? '--',
+                        style: TextStyle(
+                          color: AppTokens.ink.withValues(alpha: score == null ? 0.5 : 1),
+                          fontSize: 26,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              Messages.analysisDisclaimer,
+              style: TextStyle(color: AppTokens.inkMuted, fontSize: 12),
+            ),
+          ],
         ),
-        const SizedBox(width: 12),
-        SizedBox(
-          width: 84,
-          height: 84,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              const SizedBox.expand(
-                child: CircularProgressIndicator(
-                  value: 0,
-                  strokeWidth: 12,
-                  backgroundColor: AppTokens.tint,
-                ),
-              ),
-              Text(
-                '--',
-                style: TextStyle(
-                  color: AppTokens.ink.withValues(alpha: 0.5),
-                  fontSize: 26,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
-/// Blood pressure, glucose and weight come from M200 (Health Monitoring); empty until then.
+/// The newest blood pressure, glucose and weight reading (M200).
 class _VitalCard extends StatelessWidget {
   final String label;
   final String unit;
-  const _VitalCard(this.label, this.unit);
+  final MetricType metric;
+  final VoidCallback onTap;
+  const _VitalCard(this.label, this.unit, this.metric, this.onTap);
 
   @override
-  Widget build(BuildContext context) => _Card(
-    padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
+  Widget build(BuildContext context) {
+    final r = context.watch<AnalysisViewModel>().latest(metric);
+    return InkWell(
+      borderRadius: BorderRadius.circular(22),
+      onTap: onTap,
+      child: _Card(
+        padding: const EdgeInsets.fromLTRB(16, 16, 12, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15)),
+            const SizedBox(height: 10),
+            FittedBox(
+              child: Text(
+                r?.valueText() ?? '--',
+                style: const TextStyle(color: AppTokens.ink, fontSize: 26, fontWeight: FontWeight.w600),
+              ),
+            ),
+            Text(unit, style: const TextStyle(color: AppTokens.inkMuted, fontSize: 14)),
+          ],
         ),
-        const SizedBox(height: 10),
-        const Text(
-          '--',
-          style: TextStyle(
-            color: AppTokens.ink,
-            fontSize: 26,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          unit,
-          style: const TextStyle(color: AppTokens.inkMuted, fontSize: 14),
-        ),
-      ],
-    ),
-  );
+      ),
+    );
+  }
 }
 
 /// "TODAY'S SESSION": the next exercise of the active plan, or a way to get a plan.
@@ -540,10 +595,14 @@ class _LimitsCard extends StatelessWidget {
   final int calories;
   final int sodiumMg;
   final double sugarG;
+
+  /// Logged today (M700, FR700_013).
+  final Nutrients consumed;
   const _LimitsCard({
     required this.calories,
     required this.sodiumMg,
     required this.sugarG,
+    this.consumed = Nutrients.zero,
   });
 
   static String _n(num v) {
@@ -553,15 +612,16 @@ class _LimitsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget bar() => ClipRRect(
+    Widget bar(double used, num limit) => ClipRRect(
       borderRadius: BorderRadius.circular(6),
-      child: const LinearProgressIndicator(
-        value: 0,
+      child: LinearProgressIndicator(
+        value: limit <= 0 ? 1 : (used / limit).clamp(0.0, 1.0),
         minHeight: 10,
+        color: used > limit ? AppTokens.danger : AppTokens.brandDeepAccent,
         backgroundColor: AppTokens.tint,
       ),
     );
-    Widget limit(String label, String value) => Column(
+    Widget limit(String label, String value, double used, num max) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -577,7 +637,7 @@ class _LimitsCard extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        bar(),
+        bar(used, max),
       ],
     );
     return _Card(
@@ -597,24 +657,28 @@ class _LimitsCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '0 / ${_n(calories)} kcal',
+                '${_n(consumed.energyKcal)} / ${_n(calories)} kcal',
                 style: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          bar(),
+          bar(consumed.energyKcal, calories),
           const SizedBox(height: 16),
           Row(
             children: [
-              Expanded(child: limit('Sodium', '0 / ${_n(sodiumMg)} mg')),
+              Expanded(
+                child: limit('Sodium', '${_n(consumed.sodiumMg)} / ${_n(sodiumMg)} mg', consumed.sodiumMg, sodiumMg),
+              ),
               const SizedBox(width: 24),
-              Expanded(child: limit('Free sugars', '0 / ${_n(sugarG)} g')),
+              Expanded(
+                child: limit('Free sugars', '${_n(consumed.sugarG)} / ${_n(sugarG)} g', consumed.sugarG, sugarG),
+              ),
             ],
           ),
           const SizedBox(height: 10),
           const Text(
-            'Your daily limits. Logged meals will count towards them.',
+            'Your daily limits and what your logged meals used today.',
             style: TextStyle(color: AppTokens.inkMuted, fontSize: 13),
           ),
         ],

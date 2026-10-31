@@ -1,1 +1,1 @@
-ForecastService (M400, Jun Ting). Not built yet.
+ForecastService (M400, Jun Ting): calls /forecast for one metric and decodes the 7-day projection.

@@ -1,1 +1,1 @@
-MonitoringViewModel (M200, Jun Ting). Not built yet.
+MonitoringViewModel (M200, Jun Ting; Table 4.70): reading entry and validation, Health Connect import, trends and summary.

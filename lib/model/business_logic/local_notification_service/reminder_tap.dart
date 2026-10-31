@@ -6,7 +6,13 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 class ReminderTap {
   final ReminderType type;
   final String? patientPlanId;
-  const ReminderTap(this.type, [this.patientPlanId]);
+
+  /// A health alert (M400 anomaly, FR600_010): opens the Health Report.
+  final bool alert;
+  const ReminderTap(this.type, [this.patientPlanId, this.alert = false]);
+
+  /// Payload of a health alert notification.
+  static String alertPayload(String anomalyId) => 'ALERT|$anomalyId';
 
   /// `EXERCISE|<patientPlanId>` or `HEALTH_LOG|`.
   String toPayload() => '${type.db}|${patientPlanId ?? ''}';
@@ -16,6 +22,7 @@ class ReminderTap {
     if (payload == null) return null;
     final parts = payload.split('|');
     if (parts.length != 2) return null;
+    if (parts[0] == 'ALERT') return const ReminderTap(ReminderType.healthLog, null, true);
     final type = ReminderType.values.where((t) => t.db == parts[0]).firstOrNull;
     if (type == null) return null;
     return ReminderTap(type, parts[1].isEmpty ? null : parts[1]);
