@@ -244,6 +244,11 @@ class _HealthReportViewState extends State<HealthReportView> {
                 ],
               ],
             ),
+            if (vm.forecastSummary(m) case final summary?)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(summary, style: const TextStyle(fontSize: 15, color: AppTokens.ink)),
+              ),
             if (f.forecast != null)
               Padding(
                 padding: const EdgeInsets.only(top: 6),

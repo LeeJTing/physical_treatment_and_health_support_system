@@ -52,8 +52,8 @@ class AuthViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// An exercise reminder opens its plan, a health-logging reminder the Tracking screen and a
-  /// health alert the Health Report. Nothing is opened
+  /// An exercise reminder opens its plan, a health-logging reminder the Tracking screen, a meal
+  /// reminder the Diet tab and a health alert the Health Report. Nothing is opened
   /// for a signed-out patient or an unfinished Google account (they see login or setup first).
   Future<({String route, Object? argument})?> _destinationFor(
     ReminderTap tap,
@@ -63,6 +63,8 @@ class AuthViewModel extends BaseViewModel {
       route = Routes.healthReport; // a health alert (FR600_010)
     } else if (tap.type == ReminderType.healthLog) {
       route = Routes.monitoring; // record a reading (FR600_002)
+    } else if (tap.type == ReminderType.meal) {
+      route = Routes.homeDiet; // log the meal, see the plan (M700)
     } else if (tap.type == ReminderType.exercise && tap.patientPlanId != null) {
       route = Routes.physicalTreatment;
     } else {

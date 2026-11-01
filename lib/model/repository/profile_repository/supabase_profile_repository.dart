@@ -183,7 +183,7 @@ class SupabaseProfileRepository implements IProfileRepository {
   @override
   Future<Result<List<DietaryRestriction>>> getRestrictions() => supabaseGuard(
     () async =>
-        (await _sb.from('dietary_restriction').select().order('restriction_id'))
+        (await _sb.from('dietary_restriction').select().eq('is_active', true).order('food_group').order('restriction_id'))
             .map(DietaryRestriction.fromJson)
             .toList(),
   );

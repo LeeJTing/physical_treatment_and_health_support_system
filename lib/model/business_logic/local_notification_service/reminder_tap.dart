@@ -1,8 +1,8 @@
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 
 /// Where a tapped reminder should take the patient: an exercise reminder opens its plan, a
-/// health-logging reminder opens the app. Carried in the notification's payload, written by
-/// LocalNotificationService.schedule().
+/// health-logging reminder the Tracking screen, a meal reminder the Diet tab. Carried in the
+/// notification's payload, written by LocalNotificationService.schedule().
 class ReminderTap {
   final ReminderType type;
   final String? patientPlanId;
@@ -14,7 +14,7 @@ class ReminderTap {
   /// Payload of a health alert notification.
   static String alertPayload(String anomalyId) => 'ALERT|$anomalyId';
 
-  /// `EXERCISE|<patientPlanId>` or `HEALTH_LOG|`.
+  /// `EXERCISE|<patientPlanId>`, `HEALTH_LOG|` or `MEAL|`.
   String toPayload() => '${type.db}|${patientPlanId ?? ''}';
 
   /// Null for anything that is not a payload written by [toPayload].

@@ -85,8 +85,11 @@ void main() {
   });
 
   group('suitability (UC900 C2, C6, C8; same cases as the server tests)', () {
+    // Grams of nasi lemak that hold a given amount of sodium (its value comes from laboratory data).
+    double gramsFor(double sodiumMg) => sodiumMg / food('nasi_lemak').sodiumMgPer100g * 100;
+
     test('hypertension: one item over 600 mg sodium is Not Suitable, with the excess', () {
-      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: 250), ctx(conds: ['HYPERTENSION']));
+      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: gramsFor(750)), ctx(conds: ['HYPERTENSION']));
       final v = vs.firstWhere((v) => v.nutrient == 'sodium_mg');
       expect(v.verdict, Verdict.notSuitable);
       expect(v.limit, 600);
@@ -96,7 +99,7 @@ void main() {
     });
 
     test('80-100 % of the limit is Caution', () {
-      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: 170), ctx(conds: ['HYPERTENSION']));
+      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: gramsFor(510)), ctx(conds: ['HYPERTENSION']));
       expect(vs.firstWhere((v) => v.nutrient == 'sodium_mg').verdict, Verdict.caution);
     });
 
@@ -155,13 +158,31 @@ void main() {
       final planner = DietPlannerService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods);
       final ok = plan([
         PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250),
-        PlannedMeal.of(food('steamed_fish'), day, MealSlot.dinner, 150),
+        PlannedMeal.of(food('grilled_chicken_breast'), day, MealSlot.dinner, 100),
       ]);
       expect(planner.validate(ok, ctx(conds: ['HYPERTENSION'])), isEmpty);
       final salty = plan([PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 40)]);
       expect(planner.validate(salty, ctx()), isNotEmpty);
       final peanut = plan([PlannedMeal.of(food('satay_ayam'), day, MealSlot.dinner, 100)]);
       expect(planner.validate(peanut, ctx(rs: ['PEANUT'])), isNotEmpty);
+    });
+
+    test('a fail-safe plan is stored without a safety limit link (UC900 E1)', () {
+      final failSafe = DietPlan(
+        dietPlanId: 'p',
+        accountId: 'a',
+        safetyLimitId: SafetyLimit.mostRestrictive().safetyLimitId,
+        planType: PlanType.daily,
+        startDate: day,
+        endDate: day,
+        modelVersion: 'test',
+        generatedAt: day,
+        meals: const [],
+      );
+      final row = failSafe.toJson();
+      expect(row['safety_limit_id'], isNull);
+      expect(DietPlan.fromJson(row, const <PlannedMeal>[]).safetyLimitId, SafetyLimit.failSafeId);
+      expect(plan(const []).toJson()['safety_limit_id'], 'sl');
     });
 
     test('adherence counts slots that were logged (FR700_037, FR700_038)', () {
@@ -221,7 +242,7 @@ void main() {
                   'plan_date': today,
                   'meals': [
                     {'meal_slot': 'BREAKFAST', 'items': [{'food_key': 'oats', 'portion_g': 250}]},
-                    {'meal_slot': 'LUNCH', 'items': [{'food_key': 'nasi_putih', 'portion_g': 160}, {'food_key': 'steamed_fish', 'portion_g': 150}]},
+                    {'meal_slot': 'LUNCH', 'items': [{'food_key': 'nasi_putih', 'portion_g': 160}, {'food_key': 'telur_rebus', 'portion_g': 50}]},
                     {'meal_slot': 'DINNER', 'items': [{'food_key': 'nasi_beras_perang', 'portion_g': 160}, {'food_key': 'grilled_chicken_breast', 'portion_g': 100}]},
                     {'meal_slot': 'SNACK', 'items': [{'food_key': 'epal', 'portion_g': 150}]},
                   ],

@@ -248,6 +248,54 @@ class AnalysisViewModel extends BaseViewModel {
   }
 
   /// Baseline range text from the server ("128-140 mmHg") or null.
+  /// The forecast in words (FR400_004): where the metric is expected to be over the next 7 days,
+  /// the likely range, whether it is heading up or down against the last 7 days, and whether the
+  /// top of the range reaches a high reading (140 mmHg systolic, 10 mmol/L glucose). Null when
+  /// there is no forecast.
+  String? forecastSummary(MetricType m) {
+    final mf = forecasts[m];
+    final pts = mf?.forecast?.points() ?? const <ForecastPoint>[];
+    if (pts.isEmpty) return null;
+    final dp = m == MetricType.bloodPressure ? 0 : 1;
+    String v(double x) => x.toStringAsFixed(dp);
+    final end = pts.last;
+    final lo = pts.map((p) => p.lower).reduce((a, b) => a < b ? a : b);
+    final hi = pts.map((p) => p.upper).reduce((a, b) => a > b ? a : b);
+    final mean = pts.map((p) => p.value).reduce((a, b) => a + b) / pts.length;
+    final hist = mf!.history;
+    final cut = _now().subtract(const Duration(days: 7));
+    final week = hist.where((r) => r.recordedAt.isAfter(cut)).map((r) => r.primaryValue).toList();
+    final step = switch (m) {
+      MetricType.bloodPressure => 3.0,
+      MetricType.bloodGlucose => 0.5,
+      MetricType.bodyWeight => 0.5,
+    };
+    var trend = '';
+    if (week.isNotEmpty) {
+      final now = week.reduce((a, b) => a + b) / week.length;
+      final d = end.value - now;
+      trend = d > step
+          ? ' It is heading up from about ${v(now)} this week.'
+          : d < -step
+          ? ' It is heading down from about ${v(now)} this week.'
+          : ' It is expected to stay about where it is this week.';
+    }
+    final label = m == MetricType.bloodPressure ? 'systolic blood pressure' : m.label.toLowerCase();
+    final bp = m == MetricType.bloodPressure && end.secondaryValue != null
+        ? ' (diastolic about ${v(end.secondaryValue!)})'
+        : '';
+    final high = switch (m) {
+      MetricType.bloodPressure => 140.0,
+      MetricType.bloodGlucose => 10.0,
+      MetricType.bodyWeight => double.infinity,
+    };
+    final warn = hi >= high
+        ? ' On some days it may reach ${v(high)} ${m.unit} or more: keep taking your readings and follow your care plan.'
+        : '';
+    return 'Next 7 days: your $label is expected to be about ${v(mean)} ${m.unit}$bp, most likely between '
+        '${v(lo)} and ${v(hi)}.$trend$warn';
+  }
+
   String? usualRange(MetricType m) {
     final b = baselines[m.db];
     if (b is! Map) return null;

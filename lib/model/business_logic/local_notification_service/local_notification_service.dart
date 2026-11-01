@@ -163,6 +163,10 @@ class LocalNotificationService {
     if (r.reminderType == ReminderType.healthLog) {
       return 'Tap to open HealthGuide and record today\'s health readings.';
     }
+    if (r.reminderType == ReminderType.meal) {
+      final slot = r.title.split(' ').first.toLowerCase();
+      return 'Tap to see the $slot in today\'s diet plan and log what you eat.';
+    }
     final stage = await _currentStage(r);
     if (stage == null) return 'Tap to open your plan and do today\'s exercise.';
     final min = (stage.prescribedDurationSec / 60).ceil().clamp(1, 60);

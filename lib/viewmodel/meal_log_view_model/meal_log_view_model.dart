@@ -150,7 +150,12 @@ class MealLogViewModel extends BaseViewModel {
     }
     final img = prepared.dataOrNull!;
     draftImage = img.upload;
-    final res = await _recogniser.recognise(img, ctx.conditionCodes);
+    final res = await _recogniser.recognise(
+      img,
+      ctx.conditionCodes,
+      restrictionCodes: ctx.restrictionCodes,
+      limitationCodes: ctx.limitationCodes,
+    );
     final now = _now();
     if (res case Failure(:final message)) {
       // E1: recognition unavailable, manual entry instead (FR700_050).

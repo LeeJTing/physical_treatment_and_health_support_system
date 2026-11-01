@@ -1,5 +1,6 @@
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/diet_targets.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
@@ -67,7 +68,8 @@ class HealthProfile {
 
   /// Produces the safety values from the risk level (FR100_055).
   /// Intensity and duration caps per level are TO CONFIRM with the supervisor;
-  /// the calorie target uses Mifflin-St Jeor x 1.2 (sedentary).
+  /// the calorie target is Mifflin-St Jeor x the activity level the physical limitations allow,
+  /// adjusted for pregnancy and a high BMI ([DietTargets.energyTarget], same as the AI server).
   SafetyLimit generateSafetyLimit() {
     final risk = assignRiskLevel();
     final (ExerciseIntensity intensity, int minutes) = switch (risk) {
@@ -90,14 +92,16 @@ class HealthProfile {
     );
   }
 
-  int _calorieTarget() {
-    final w = weightKg, h = heightCm, a = age, g = gender;
-    if (w == null || h == null || a == null || g == null) {
-      return SafetyLimit.mostRestrictive().dailyCalorieTarget;
-    }
-    final bmr = 10 * w + 6.25 * h - 5 * a + (g == Gender.male ? 5 : -161);
-    return (bmr * 1.2).round();
-  }
+  int _calorieTarget() =>
+      DietTargets.energyTarget(
+        age: age,
+        male: gender == null ? null : gender == Gender.male,
+        weightKg: weightKg,
+        heightCm: heightCm,
+        limitations: limitations.map((l) => l.limitationCode),
+        conditions: conditions.map((c) => c.conditionCode),
+      ) ??
+      SafetyLimit.mostRestrictive().dailyCalorieTarget;
 
   bool hasCondition(String code) =>
       conditions.any((c) => c.conditionCode == code);

@@ -119,6 +119,30 @@ class _DietPlanViewState extends State<DietPlanView> {
                   sodiumLimit: vm.ctx.dailySodiumMg,
                   sugarLimit: vm.ctx.dailySugarG,
                 ),
+                if (vm.profileRules.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                    decoration: BoxDecoration(
+                      color: AppTokens.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTokens.cardBorder),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Planned for your profile',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                        const SizedBox(height: 6),
+                        for (final r in vm.profileRules)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text('• $r', style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 if (vm.plannerDown) ...[
                   Container(
@@ -256,6 +280,11 @@ class _DietPlanViewState extends State<DietPlanView> {
           style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
         ),
       ),
+      if (vm.unmetNeeds(day) case final unmet when unmet.isNotEmpty)
+        Text(
+          'Low in ${unmet.join(' and ')} today: add a fruit, vegetables, milk or tofu if you can.',
+          style: const TextStyle(fontSize: 14, color: AppTokens.onWarn),
+        ),
     ];
   }
 }

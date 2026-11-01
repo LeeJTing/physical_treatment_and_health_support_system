@@ -174,6 +174,18 @@ class _NotificationViewState extends State<NotificationView>
                     const SizedBox(height: 8),
                     NoticeBanner(e, warning: true),
                   ],
+                  if (vm.reminders is UiSuccess && !vm.hasMealReminders) ...[
+                    const SizedBox(height: 4),
+                    OutlinedButton.icon(
+                      onPressed: vm.addMealReminders,
+                      icon: const Icon(Icons.restaurant_outlined),
+                      label: const Text('Remind me at breakfast, lunch and dinner'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTokens.accent,
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                    ),
+                  ],
                   if (vm.reminders is UiSuccess && !vm.hasHealthLogReminder) ...[
                     const SizedBox(height: 4),
                     OutlinedButton.icon(

@@ -150,6 +150,47 @@ class NotificationViewModel extends BaseViewModel {
     await load();
   }
 
+  /// Usual Malaysian meal times for the meal reminders (the patient can change each one).
+  static const mealTimes = <MealSlot, (int, int)>{
+    MealSlot.breakfast: (7, 30),
+    MealSlot.lunch: (12, 30),
+    MealSlot.dinner: (19, 0),
+  };
+
+  bool get hasMealReminders => switch (_reminders) {
+    UiSuccess(:final data) => data.any((r) => r.reminderType == ReminderType.meal),
+    _ => false,
+  };
+
+  /// Adds a daily meal reminder for breakfast, lunch and dinner (M700 with M600): tapping one
+  /// opens the Diet tab to log the meal or see the plan. Slots that already have one are kept.
+  Future<void> addMealReminders({Map<MealSlot, (int, int)> times = mealTimes}) async {
+    final id = _accountId;
+    if (id == null) return;
+    final have = switch (_reminders) {
+      UiSuccess(:final data) =>
+        data.where((r) => r.reminderType == ReminderType.meal).map((r) => r.title.split(' ').first).toSet(),
+      _ => <String>{},
+    };
+    var failed = false;
+    for (final e in times.entries) {
+      if (have.contains(e.key.label)) continue;
+      final res = await _scheduler.update(
+        Reminder(
+          reminderId: newId(),
+          accountId: id,
+          reminderType: ReminderType.meal,
+          title: '${e.key.label} reminder',
+          hour: e.value.$1,
+          minute: e.value.$2,
+        ),
+      );
+      failed = failed || res is Failure;
+    }
+    setError(failed ? Messages.dbUnavailable : null);
+    await load();
+  }
+
   /// Deletes a reminder the patient added. A treatment plan's exercise reminders stay with the
   /// plan (switch them off instead); they go when the plan is stopped or replaced.
   Future<void> deleteReminder(String id) async {

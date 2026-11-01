@@ -264,6 +264,12 @@ void main() {
       await vm.loadAnalysis();
 
       expect(vm.forecasts[MetricType.bloodPressure]!.forecast!.points(), hasLength(7)); // FR400_004
+      // The prediction in words: the expected level, its likely range and the direction.
+      final summary = vm.forecastSummary(MetricType.bloodPressure)!;
+      expect(summary, contains('Next 7 days'));
+      expect(summary, contains('between 124 and 134'));
+      expect(summary, contains('stay about where it is'));
+      expect(vm.forecastSummary(MetricType.bloodGlucose), isNull);
       expect(vm.forecasts[MetricType.bloodGlucose]!.insufficient, isTrue); // A1
       expect(analysisRepo.forecasts.single.modelVersion, 'forecast-gbdt-1.0'); // FR400_007
       final HealthAnalysis a = vm.analysis!;

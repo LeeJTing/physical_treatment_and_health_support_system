@@ -479,7 +479,8 @@ void main() {
 
       device.tapController.add('HEALTH_LOG|');
       await pumpEventQueue();
-      expect(m.takeReminderOpen(), isNull); // just the app
+      // A health-logging reminder opens the Tracking screen (M600, FR600_002).
+      expect(m.takeReminderOpen()?.route, Routes.monitoring);
 
       await auth.signOut();
       device.tapController.add('EXERCISE|pp9');

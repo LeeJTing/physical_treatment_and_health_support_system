@@ -480,6 +480,21 @@ void main() {
       },
     );
 
+    test('meal reminders: breakfast, lunch and dinner every day, once; tapping opens the Diet tab', () async {
+      expect(vm.hasMealReminders, isFalse);
+      await vm.addMealReminders();
+      await vm.addMealReminders(); // a second tap adds nothing
+      final meals = repo.reminders.values.where((r) => r.reminderType == ReminderType.meal).toList()
+        ..sort((a, b) => a.hour.compareTo(b.hour));
+      expect(meals.map((r) => r.title), ['Breakfast reminder', 'Lunch reminder', 'Dinner reminder']);
+      expect(meals.map((r) => (r.hour, r.minute)), [(7, 30), (12, 30), (19, 0)]);
+      expect(meals.every((r) => r.repeatDays == '1111111' && r.isEnabled), isTrue);
+      expect(vm.hasMealReminders, isTrue);
+      expect(device.bodies.values, contains("Tap to see the lunch in today's diet plan and log what you eat."));
+      final tap = ReminderTap.fromPayload(const ReminderTap(ReminderType.meal).toPayload())!;
+      expect(tap.type, ReminderType.meal);
+    });
+
     test('a day can be turned off, but not the last one (FR600_003)', () async {
       await vm.toggleDay('plan-r', DateTime.monday);
       expect(repo.reminders['plan-r']!.repeatDays, '0010100');
