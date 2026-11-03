@@ -89,4 +89,34 @@ void main() {
       'timeout',
     );
   });
+
+  test('an upload gets time for its size (bug list #5)', () {
+    expect(ApiClient.uploadTimeout(0), const Duration(seconds: 60));
+    // A 50 MB gallery clip: 60 s for the analysis + 200 s at 2 Mbit/s.
+    expect(ApiClient.uploadTimeout(50000000), const Duration(seconds: 260));
+  });
+
+  test(
+    'a reply that stalls after its headers is a timeout (bug list #6)',
+    () async {
+      final f = File('${Directory.systemTemp.createTempSync('up').path}/c.mp4')
+        ..writeAsBytesSync([0, 1, 2]);
+      final c = ApiClient(
+        baseUrl: 'http://ai',
+        tokenProvider: () => 't',
+        httpClient: MockClient.streaming(
+          (_, _) async => http.StreamedResponse(
+            StreamController<List<int>>().stream, // headers, then nothing
+            200,
+          ),
+        ),
+      );
+      expect(
+        await _code(
+          c.postFile('/pose', f, timeout: const Duration(milliseconds: 50)),
+        ),
+        'timeout',
+      );
+    },
+  );
 }

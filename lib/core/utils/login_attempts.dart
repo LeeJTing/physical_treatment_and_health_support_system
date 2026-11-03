@@ -17,12 +17,11 @@ class LoginAttempts {
   Future<Map<String, List<DateTime>>> _read() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final raw = jsonDecode(prefs.getString(_key) ?? '{}') as Map<String, dynamic>;
+      final raw =
+          jsonDecode(prefs.getString(_key) ?? '{}') as Map<String, dynamic>;
       return {
         for (final e in raw.entries)
-          e.key: [
-            for (final t in e.value as List) DateTime.parse(t as String),
-          ],
+          e.key: [for (final t in e.value as List) DateTime.parse(t as String)],
       };
     } catch (_) {
       return {}; // preferences unavailable or unreadable: nothing counted
@@ -59,12 +58,50 @@ class LoginAttempts {
     return recent;
   }
 
+  // When each lock ends. The lock runs for 15 minutes from the failure that set it (bug list #1,
+  // 1 Nov): it used to end once the OLDEST of the five failures was 15 minutes old, so five
+  // failures 3 minutes apart locked the account for only 3 minutes.
+  static const _locksKey = 'apths.login.locks';
+
+  Future<Map<String, DateTime>> _readLocks() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw =
+          jsonDecode(prefs.getString(_locksKey) ?? '{}')
+              as Map<String, dynamic>;
+      return {
+        for (final e in raw.entries) e.key: DateTime.parse(e.value as String),
+      };
+    } catch (_) {
+      return {};
+    }
+  }
+
+  Future<void> _writeLocks(Map<String, DateTime> locks) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        _locksKey,
+        jsonEncode({
+          for (final e in locks.entries) e.key: e.value.toIso8601String(),
+        }),
+      );
+    } catch (_) {
+      // Preferences unavailable: the lock lasts only while the app runs.
+    }
+  }
+
   /// True while [email] is locked out on this phone.
   Future<bool> locked(String email) async {
-    final all = await _read();
-    final recent = await _recent(all, email);
-    await _write(all);
-    return recent.length >= AppConstants.maxLoginFailures;
+    final locks = await _readLocks();
+    final until = locks[email];
+    if (until == null) return false;
+    if (_now().isBefore(until)) return true;
+    // The lock is over: counting starts again.
+    locks.remove(email);
+    await _writeLocks(locks);
+    await clear(email);
+    return false;
   }
 
   /// Counts a wrong password; true when this one locks the account.
@@ -74,7 +111,11 @@ class LoginAttempts {
       ..add(_now());
     all[email] = recent;
     await _write(all);
-    return recent.length >= AppConstants.maxLoginFailures;
+    if (recent.length < AppConstants.maxLoginFailures) return false;
+    final locks = await _readLocks();
+    locks[email] = _now().add(AppConstants.loginLockout);
+    await _writeLocks(locks);
+    return true;
   }
 
   /// A successful log-in clears the count.
@@ -82,5 +123,7 @@ class LoginAttempts {
     final all = await _read()
       ..remove(email);
     await _write(all);
+    final locks = await _readLocks();
+    if (locks.remove(email) != null) await _writeLocks(locks);
   }
 }

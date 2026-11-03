@@ -131,12 +131,36 @@ class TreatmentViewModel extends BaseViewModel {
     return p == null ? 0 : RecommendationService.failsAtCurrent(p, _sessions);
   }
 
-  /// The current exercise did not pass several times: offer plans that may
-  /// suit better (the server's EASE step).
+  /// The exercise the plan just moved on from without passing it (bug list #9), if any.
+  (String, int)? get movedOnWithoutPass {
+    final p = activePlan;
+    return p == null
+        ? null
+        : RecommendationService.movedOnWithoutPass(p, _sessions);
+  }
+
+  /// The current exercise did not pass several times, or the plan moved on from one that never
+  /// passed (bug list #9): offer plans that may suit better (the server's EASE step).
   bool get suggestEasier =>
       _restriction == null &&
       !planComplete &&
+      (stuckAtCurrent || movedOnWithoutPass != null);
+
+  /// The current exercise itself did not pass enough times (the Retry path).
+  bool get stuckAtCurrent =>
       failsAtCurrent >= RecommendationService.easeAfterFails;
+
+  /// The name of the exercise [movedOnWithoutPass] is about.
+  String? get movedOnFromName {
+    final id = movedOnWithoutPass?.$1;
+    return id == null
+        ? null
+        : activePlan?.plan.exercises
+              .where((pe) => pe.exerciseId == id)
+              .firstOrNull
+              ?.exercise
+              .exerciseName;
+  }
 
   /// Sessions of every active plan (for the shared-exercise and rest-day rules).
   Map<String, List<ExerciseSession>> _sessionsByPlan = const {};
@@ -227,7 +251,9 @@ class TreatmentViewModel extends BaseViewModel {
         // Today's reminder is cancelled once today's exercise is done (FR600_005), so the card
         // shows the next one from tomorrow instead of a time that will not ring (audit, 23 Oct).
         final t = clock();
-        final from = doneToday ? DateTime(t.year, t.month, t.day, 23, 59, 59) : t;
+        final from = doneToday
+            ? DateTime(t.year, t.month, t.day, 23, 59, 59)
+            : t;
         final times = [
           for (final r in reminders)
             if (r.patientPlanId == data.patientPlanId) r.nextOccurrence(from),
@@ -268,9 +294,7 @@ class TreatmentViewModel extends BaseViewModel {
       return true;
     }
     return _sessionsByPlan.values.any(
-      (list) => list.any(
-        (s) => s.completedOn(today) && s.hadFallAlert(),
-      ),
+      (list) => list.any((s) => s.completedOn(today) && s.hadFallAlert()),
     );
   }
 
@@ -466,7 +490,9 @@ class TreatmentViewModel extends BaseViewModel {
     // Testing mode checks against the full targets (no lowering for age or risk).
     final (riskLevel, age) = _testing ? (null, null) : await _patientContext();
     final res = await _pose.analyse(v, e, riskLevel: riskLevel, age: age);
-    if (attempt != _attempt) return null; // exited while analysing: nothing is saved
+    if (attempt != _attempt) {
+      return null; // exited while analysing: nothing is saved
+    }
     switch (res) {
       case Failure(:final message):
         _analysis = UiError(message);
@@ -559,7 +585,9 @@ class TreatmentViewModel extends BaseViewModel {
     _saving = const Loading();
     notifyListeners();
     final isCurrentStage = p.currentExercise()?.exerciseId == s.exerciseId;
-    final advanced = isCurrentStage && movesOn(_sessions, s) ? p.advance() : null;
+    final advanced = isCurrentStage && movesOn(_sessions, s)
+        ? p.advance()
+        : null;
     final res = await _repo.saveSession(s, advancedPlan: advanced);
     if (res.isSuccess) {
       _sessions = [..._sessions, s];

@@ -74,9 +74,9 @@ class _TreatmentViewState extends State<TreatmentView> {
     if (yes == true && mounted) {
       final ok = await vm.endPlan();
       if (mounted && !ok) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Messages.dbUnavailable)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text(Messages.dbUnavailable)));
       }
     }
   }
@@ -179,10 +179,9 @@ class _TreatmentViewState extends State<TreatmentView> {
                       Align(
                         alignment: Alignment.centerLeft,
                         child: TextButton(
-                          onPressed: () => Navigator.of(context).pushNamed(
-                            Routes.ageLimit,
-                            arguments: vm.age,
-                          ),
+                          onPressed: () => Navigator.of(
+                            context,
+                          ).pushNamed(Routes.ageLimit, arguments: vm.age),
                           child: const Text('Why plans are paused'),
                         ),
                       ),
@@ -212,9 +211,14 @@ class _TreatmentViewState extends State<TreatmentView> {
                     ] else if (vm.suggestEasier && !vm.restDayToday) ...[
                       const SizedBox(height: AppTokens.gap),
                       NoticeBanner(
-                        '${plan.currentExercise()?.exerciseName ?? 'This exercise'} '
-                        'has not passed ${vm.failsAtCurrent} times. You can keep '
-                        'trying, or see plans that may suit you better for now.',
+                        vm.stuckAtCurrent
+                            ? '${plan.currentExercise()?.exerciseName ?? 'This exercise'} '
+                                  'has not passed ${vm.failsAtCurrent} times. You can keep '
+                                  'trying, or see plans that may suit you better for now.'
+                            : '${vm.movedOnFromName ?? 'The last exercise'} did not pass '
+                                  'in ${vm.movedOnWithoutPass?.$2} tries, so your plan moved '
+                                  'on. You can keep going, or see plans that may suit you '
+                                  'better for now.',
                         warning: true,
                       ),
                       const SizedBox(height: AppTokens.gap),

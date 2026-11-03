@@ -175,22 +175,28 @@ void main() {
         isFalse,
       );
     });
-    test(
-      'daily worst case: longest exercise per plan, a shared exercise once',
-      () {
-        final shared = ex('squat');
-        final a = plan('a', exercises: [(shared, 120), (ex('x'), 60)]);
-        final b = plan('b', exercises: [(shared, 90), (ex('y'), 60)]);
-        expect(PlanRules.dailyWorstCaseSec([a, b]), 120);
-        expect(
-          PlanRules.dailyWorstCaseSec([
-            a,
-            plan('c', exercises: [(ex('z'), 300)]),
-          ]),
-          420,
-        );
-      },
-    );
+    test('daily worst case: one exercise per plan, a shared exercise once', () {
+      final shared = ex('squat');
+      final a = plan('a', exercises: [(shared, 120), (ex('x'), 60)]);
+      final b = plan('b', exercises: [(shared, 90), (ex('y'), 60)]);
+      // Bug list #11: a on the squat (120) while b is on y (60). Was 120.
+      expect(PlanRules.dailyWorstCaseSec([a, b]), 180);
+      // Both plans on the shared exercise only: done once, its longer time.
+      expect(
+        PlanRules.dailyWorstCaseSec([
+          plan('d', exercises: [(shared, 120)]),
+          plan('e', exercises: [(shared, 90)]),
+        ]),
+        120,
+      );
+      expect(
+        PlanRules.dailyWorstCaseSec([
+          a,
+          plan('c', exercises: [(ex('z'), 300)]),
+        ]),
+        420,
+      );
+    });
     test('rest day across plans', () {
       expect(PlanRules.noRestDay([plan('a', perWeek: 5)]), isFalse); // M-F
       expect(
@@ -435,9 +441,7 @@ void main() {
     final block = py.split('\nPOSE_PARTS = {')[1].split('\n}')[0];
     final server = {
       for (final m in RegExp(r'"(\w+)": \(([^)]*)\)').allMatches(block))
-        m[1]!: {
-          for (final j in RegExp(r'"(\w+)"').allMatches(m[2]!)) j[1]!: 1,
-        },
+        m[1]!: {for (final j in RegExp(r'"(\w+)"').allMatches(m[2]!)) j[1]!: 1},
     };
     expect(server, hasLength(17));
     for (final MapEntry(key: poseKey, value: joints) in server.entries) {

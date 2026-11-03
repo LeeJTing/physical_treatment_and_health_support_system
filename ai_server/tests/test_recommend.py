@@ -527,6 +527,19 @@ def test_completed_plan_moves_up_one_stage():
     assert left.reasons[0] == "already completed"
 
 
+def test_plan_completed_with_an_exercise_that_never_passed_eases_instead():
+    """Bug list #9: the app moves a plan on at the third try below 80 %, so 'completed' alone is no
+    reason to step up."""
+    moved_on = [result("Seated Knee Extension", 3, 0, 55), result("Seated Marching", 2, 2, 90),
+                result("Heel Raise", 2, 1, 82)]
+    res = recommend(from_plan("Early Knee Recovery", plans=[history("Early Knee Recovery", "COMPLETED", 100)],
+                              exercises=moved_on))
+    assert res.next_step == "EASE"
+    assert "did not pass" in res.next_step_reason and "Early Knee Recovery" in res.next_step_reason
+    assert (res.effective_stage, res.effective_mobility) == ("EARLY", "LOW")   # never above the plan
+    assert "Early Knee Recovery" not in names(res.model_dump())
+
+
 def test_progress_is_learnt_from_similar_exercises():
     # Knee extension and marching went well, so the strength plan (sit-to-stand, mini squat, step-up:
     # knee and hip) is predicted to suit better than Hip Stability, whose content score is close.

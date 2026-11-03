@@ -100,7 +100,8 @@ class _RecordingViewState extends State<RecordingView>
     if (g == null || g.hold) return widget.reps;
     final loop =
         (g.durationSec + 0.6) * RecordingView.pace; // one paced repetition
-    final fit = ((AppConstants.maxVideoSeconds - 1) / loop).floor();
+    final fit = (AppConstants.autoStopSeconds / loop)
+        .floor(); // as many as before (29 s)
     return fit.clamp(1, widget.reps);
   }
 
@@ -308,9 +309,9 @@ class _RecordingViewState extends State<RecordingView>
       _say(hold ? 'Start. Hold the position.' : 'Start.');
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         setState(() => _seconds++);
-        if (_seconds >= AppConstants.maxVideoSeconds ||
+        if (_seconds >= AppConstants.autoStopSeconds ||
             (_repsDone && _seconds >= AppConstants.minVideoSeconds)) {
-          _toggleRecording(); // done, or auto-stop at 30 s
+          _toggleRecording(); // done, or auto-stop just before 30 s
         }
       });
       return;

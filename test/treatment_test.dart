@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
@@ -791,6 +792,43 @@ void main() {
   });
 
   group('next plan (hybrid-3.0)', () {
+    test(
+      'moved on after three tries below 80%: gentler plans are offered (bug list #9)',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 50;
+        for (var t = 1; t <= 3; t++) {
+          await h.vm.startExercise(h.vm.activePlan!.currentExercise()!);
+          await h.vm.submitVideo(h.clip, clipSeconds: 15);
+          await h.vm.acceptResult();
+        }
+        expect(h.vm.lastMovedOn, isTrue);
+        expect(
+          h.vm.activePlan!.currentExercise()!.exerciseName,
+          'Seated Marching',
+        );
+        expect(h.vm.failsAtCurrent, 0);
+        expect(
+          h.vm.suggestEasier,
+          isTrue,
+        ); // was false: never offered on this path
+        expect(h.vm.movedOnFromName, 'Seated Knee Extension');
+        // The server is told which exercise failed, so it can ease and leave it out.
+        final plan = h.vm.activePlan!;
+        final json = RecommendationService.progressJson((
+          plans: [plan],
+          sessions: {plan.patientPlanId: h.vm.sessions},
+        ));
+        final sent = (json['plans'] as List).single as Map;
+        expect(sent['consecutive_fails'], 3);
+        expect(
+          sent['current_exercise_id'],
+          plan.plan.orderedExercises().first.exerciseId,
+        );
+      },
+    );
+
     test('three tries that did not pass suggest gentler plans', () async {
       final h = Harness();
       await h.setUp(tmp);

@@ -38,4 +38,24 @@ void main() {
     await a.clear('a@x.com');
     expect(await a.recordFailure('a@x.com'), isFalse); // counting starts again
   });
+
+  test(
+    'the lock lasts 15 minutes from the fifth failure, however spread out (bug list #1)',
+    () async {
+      var now = DateTime(2026, 11, 1, 9);
+      final a = LoginAttempts(now: () => now);
+      for (var i = 0; i < AppConstants.maxLoginFailures; i++) {
+        if (i > 0) now = now.add(const Duration(minutes: 3));
+        await a.recordFailure('a@x.com');
+      }
+      final lockedAt = now; // 9:12
+      now = lockedAt.add(const Duration(minutes: 14, seconds: 59));
+      expect(await a.locked('a@x.com'), isTrue); // was unlocked at 9:15 before
+      expect(await LoginAttempts(now: () => now).locked('a@x.com'), isTrue);
+      now = lockedAt.add(AppConstants.loginLockout);
+      expect(await a.locked('a@x.com'), isFalse);
+      // After the lock, one more wrong password does not lock again at once.
+      expect(await a.recordFailure('a@x.com'), isFalse);
+    },
+  );
 }

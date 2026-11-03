@@ -343,6 +343,11 @@ class ProfileViewModel extends BaseViewModel {
     profile = d.copyWith(version: d.version + 1, updatedAt: DateTime.now());
     safetyLimit = limit;
     await loadProfile();
+    // The reminders on the phone follow the new profile (bug list #18, 1 Nov): from 65 the exercise
+    // reminders stop, but those already scheduled for the next 14 days went on ringing until the
+    // Treatment or Reminders screen was opened.
+    final id = (await _auth.currentAccount()).dataOrNull?.accountId;
+    if (id != null) await _notifications?.sync(id);
     saveState = const UiSuccess(null);
     notifyListeners();
     return true;

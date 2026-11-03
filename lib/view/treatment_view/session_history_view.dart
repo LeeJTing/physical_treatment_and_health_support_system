@@ -144,7 +144,8 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
     );
   }
 
-  static String _pct(double? v) => v == null ? '-' : '${v.round()}%';
+  static String _pct(double? v) =>
+      v == null ? '-' : '${ExerciseSession.shownPercent(v)}%';
 }
 
 class _Stat extends StatelessWidget {
@@ -238,7 +239,7 @@ class _EntryCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${acc.round()}%',
+                    '${ExerciseSession.shownPercent(acc)}%',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,

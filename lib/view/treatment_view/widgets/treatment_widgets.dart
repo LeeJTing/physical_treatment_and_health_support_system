@@ -202,7 +202,7 @@ class StagePill extends StatelessWidget {
             ? 'Done'
             : best >= ExerciseSession.passMark
             ? '${best.round()}% posture'
-            : 'Done, best ${best.round()}%',
+            : 'Done, best ${ExerciseSession.shownPercent(best)}%',
         AppTokens.goodContainer,
         AppTokens.good,
       ),
@@ -383,7 +383,7 @@ class ScoreRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Posture accuracy ${percent.round()} percent',
+    label: 'Posture accuracy ${ExerciseSession.shownPercent(percent)} percent',
     child: SizedBox(
       width: size,
       height: size,
@@ -391,7 +391,7 @@ class ScoreRing extends StatelessWidget {
         painter: _RingPainter(percent / 100, color, track),
         child: Center(
           child: Text(
-            '${percent.round()}%',
+            '${ExerciseSession.shownPercent(percent)}%',
             style: const TextStyle(
               fontSize: 34,
               fontWeight: FontWeight.w600,

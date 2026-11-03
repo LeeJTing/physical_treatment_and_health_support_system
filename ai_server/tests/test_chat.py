@@ -179,7 +179,9 @@ def test_response_fields():
 
 
 def test_unknown_plan_falls_back_to_general_rules():
-    assert ask(text="what exercises are in my plan", plan_id="not-a-plan")["category"] != "plan_exercises"
+    # No plan contents are made up for a plan the rules do not know: the no-plan answer (bug list #2).
+    res = ask(text="what exercises are in my plan", plan_id="not-a-plan")
+    assert res["answer"].startswith("You do not have a treatment plan yet")
 
 
 def test_deterministic():
@@ -627,3 +629,21 @@ def test_every_new_profile_condition_adds_a_safety_note(code):
 @pytest.mark.parametrize("question", ["do I have cancer", "could this lump be cancer", "what are the signs of cancer"])
 def test_cancer_diagnosis_questions_stay_diagnosis(question):
     assert ask(question)["category"] == "diagnosis"
+
+
+@pytest.mark.parametrize("question", ["what is my plan", "what exercise today", "how many exercises in my plan",
+                                      "show my plan"])
+def test_plan_questions_without_a_plan_point_to_planning(question):
+    """Bug list #2: with no plan these were 'Why plans stop at 65', the posture score or how-to."""
+    res = engine.reply(None, None, question)
+    assert res["category"] == "plan_exercises", res["category"]
+    assert res["answer"].startswith("You do not have a treatment plan yet")
+    assert res["action"]["key"] == "open_planning"
+    # Users from 65 still hear why plans stop, and a patient with a plan still gets the plan.
+    assert engine.reply(None, None, question, restriction="AGE_65_PLUS")["category"] == "age_limit"
+    assert "Your plan, " in engine.reply(KNEE, None, question)["answer"]
+
+
+def test_general_questions_without_a_plan_keep_their_answers():
+    assert engine.reply(None, None, "how do i start")["category"] == "getting_started"
+    assert not any(c["key"] == "plan_exercises" for c in engine.categories_for(None))  # not listed

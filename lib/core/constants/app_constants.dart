@@ -41,6 +41,11 @@ class AppConstants {
   static const Duration recommendTimeout = Duration(seconds: 30); // NFR_08
   static const Duration poseTimeout = Duration(seconds: 60);
 
+  /// The slowest upload a clip is given time for (2 Mbit/s), added to [poseTimeout] per byte (bug
+  /// list #5, 1 Nov): the 60 s used to cover the whole upload, so a 50 MB gallery clip on mobile
+  /// data timed out as "temporarily unavailable" before the server saw it.
+  static const int slowestUploadBytesPerSecond = 250000;
+
   // ---- Account (Table 3.3) -------------------------------------------------
   static const int usernameMin = 3;
   static const int usernameMax = 30;
@@ -87,6 +92,11 @@ class AppConstants {
   // ---- Exercise video (UC500 C4, C5) ---------------------------------------
   static const int minVideoSeconds = 10;
   static const int maxVideoSeconds = 30;
+
+  /// The recorder stops itself here, one second short of [maxVideoSeconds] (bug list #10, 1 Nov):
+  /// the once-a-second timer is never early and stopping the camera takes a moment more, so a clip
+  /// stopped at 30 could run past 30.5 s and be refused as too long by the app and the server.
+  static const int autoStopSeconds = maxVideoSeconds - 1;
 
   /// Saved tries below 80% after which the plan moves on anyway (Elwin, 23 Oct), so nobody is
   /// stuck on one exercise. Below 80% the plan otherwise stays on it. Not in the report.
@@ -193,6 +203,7 @@ class Messages {
   static const ageBelowTermsGroup =
       'In the Terms of Use you chose "18 or older". Under 18, a parent or '
       'guardian must agree to the Terms first: review the Terms.';
+
   /// Not a report message (23 Oct): weight and height that cannot belong to one person.
   static const weightHeightMismatch =
       'Your weight and height do not fit together. Please check both: weight in kilograms, '
@@ -228,7 +239,8 @@ class Messages {
   static const confirmDeleteAccount =
       'Delete your account and all your data? Your health profile, plans, exercise results, '
       'reminders and chat messages are deleted for good. This cannot be undone.';
-  static const accountDeleted = 'Your account and all your data have been deleted.';
+  static const accountDeleted =
+      'Your account and all your data have been deleted.';
   static const accountDeleteFailed =
       'Your account could not be deleted. Please check your connection and try again, or '
       'email elwinksy-wm23@student.tarc.edu.my.';

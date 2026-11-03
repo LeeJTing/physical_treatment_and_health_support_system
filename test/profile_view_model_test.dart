@@ -12,6 +12,12 @@ import 'package:physical_treatment_and_health_support_system/model/repository/pr
 import 'package:physical_treatment_and_health_support_system/view/profile_view/profile_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+
+import 'reminders_test.dart' show FakeScheduler;
 
 void main() {
   late FakeAuthRepository auth;
@@ -22,7 +28,11 @@ void main() {
     auth = FakeAuthRepository();
     profiles = FakeProfileRepository();
     await auth.login('demo@apths.test', 'password123');
-    vm = ProfileViewModel(profiles, auth, RiskAssessmentService(auth, profiles));
+    vm = ProfileViewModel(
+      profiles,
+      auth,
+      RiskAssessmentService(auth, profiles),
+    );
     await vm.loadProfile();
   });
 
@@ -58,26 +68,35 @@ void main() {
     expect(results, [true, false]);
   });
 
-  test('the saved values stay on screen when the reload after Save fails (audit, 23 Oct)', () async {
-    fillValid();
-    profiles.failNext = true; // the save works, reading it back does not
-    expect(await vm.saveProfile(), isTrue);
-    expect(vm.isEditing, isFalse);
-    expect(vm.shown!.weightKg, 71.2);
-    expect(vm.safetyLimit, isNotNull);
-  });
+  test(
+    'the saved values stay on screen when the reload after Save fails (audit, 23 Oct)',
+    () async {
+      fillValid();
+      profiles.failNext = true; // the save works, reading it back does not
+      expect(await vm.saveProfile(), isTrue);
+      expect(vm.isEditing, isFalse);
+      expect(vm.shown!.weightKg, 71.2);
+      expect(vm.safetyLimit, isNotNull);
+    },
+  );
 
-  test('weight and height in range but not together are refused (23 Oct)', () async {
-    fillValid();
-    vm.updateDraft(weightKg: 20, heightCm: 200); // BMI 5: a slip or the wrong unit
-    expect(await vm.saveProfile(), isFalse);
-    expect((vm.saveState as UiError).message, Messages.weightHeightMismatch);
-    expect(vm.invalidFields, ['weight', 'height']);
-    vm.updateDraft(weightKg: 635, heightCm: 80); // BMI 992
-    expect(await vm.saveProfile(), isFalse);
-    vm.updateDraft(weightKg: 300, heightCm: 180); // BMI 93: rare, but real
-    expect(await vm.saveProfile(), isTrue);
-  });
+  test(
+    'weight and height in range but not together are refused (23 Oct)',
+    () async {
+      fillValid();
+      vm.updateDraft(
+        weightKg: 20,
+        heightCm: 200,
+      ); // BMI 5: a slip or the wrong unit
+      expect(await vm.saveProfile(), isFalse);
+      expect((vm.saveState as UiError).message, Messages.weightHeightMismatch);
+      expect(vm.invalidFields, ['weight', 'height']);
+      vm.updateDraft(weightKg: 635, heightCm: 80); // BMI 992
+      expect(await vm.saveProfile(), isFalse);
+      vm.updateDraft(weightKg: 300, heightCm: 180); // BMI 93: rare, but real
+      expect(await vm.saveProfile(), isTrue);
+    },
+  );
 
   test(
     'an edited field loses its mark from the last Save (audit, 23 Oct)',
@@ -236,6 +255,50 @@ void main() {
     expect(BmiRow.category(17), 'Underweight');
     expect(BmiRow.category(31), 'Obese');
   });
+
+  test(
+    'saving the profile at 65 takes the exercise reminders off the phone (bug list #18)',
+    () async {
+      final device = FakeScheduler();
+      final reminders = FakeNotificationRepository();
+      final risk = RiskAssessmentService(auth, profiles);
+      final local = LocalNotificationService(
+        reminders,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        profileAge: () async =>
+            (await risk.retrieve()).dataOrNull?.profile?.age,
+      );
+      final withReminders = ProfileViewModel(profiles, auth, risk, local);
+      await withReminders.loadProfile();
+      withReminders.updateDraft(
+        age: 62,
+        gender: Gender.male,
+        weightKg: 71.2,
+        heightCm: 168,
+      );
+      expect(await withReminders.saveProfile(), isTrue);
+      final id = (await auth.currentAccount()).dataOrNull!.accountId;
+      final r = Reminder(
+        reminderId: 'r1',
+        accountId: id,
+        reminderType: ReminderType.exercise,
+        title: 'Time for your exercise',
+        hour: 23,
+        minute: 59,
+      );
+      await reminders.saveReminder(r);
+      expect(await local.schedule(r), greaterThan(0));
+
+      withReminders.startEdit();
+      withReminders.updateDraft(age: 66);
+      expect(await withReminders.saveProfile(), isTrue);
+      expect(
+        device.pending,
+        isEmpty,
+      ); // was still ringing until another screen synced
+    },
+  );
 }
 
 /// Delegates to the fake but fails every save.

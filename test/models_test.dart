@@ -42,6 +42,17 @@ Exercise ex({
 );
 
 void main() {
+  test('a failing score is never shown as the pass mark (bug list #19)', () {
+    expect(
+      ExerciseSession.shownPercent(79.6),
+      79,
+    ); // was "80%" next to "did not pass"
+    expect(ExerciseSession.shownPercent(79.4), 79);
+    expect(ExerciseSession.shownPercent(80), 80);
+    expect(ExerciseSession.shownPercent(45.5), 46);
+    expect(ExerciseSession.shownPercent(99.6), 100);
+  });
+
   group('Risk rule set (FR100_054)', () {
     test('no condition and no limitation is Low', () {
       expect(profile().assignRiskLevel(), RiskLevel.low);

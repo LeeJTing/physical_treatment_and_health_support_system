@@ -67,7 +67,8 @@ failed attempts in a row at the current exercise, fall alerts) and their results
               that did not pass: the stage and mobility the rules allow go one level below that
               plan's (never above the patient's answers), and that plan is left out.
     PROGRESS  that plan was completed: the rules allow one level above it (never below the patient's
-              answers), and completed plans that train the requested area are left out.
+              answers), and completed plans that train the requested area are left out. A plan
+              completed with an exercise that never passed (moved on after 3 tries) is EASE instead.
   After failed attempts, plans that contain the exercise that did not pass at the same or a higher
   dose (repetitions, time) are left out too (hybrid-3.1), unless that would leave nothing to offer;
   at an easier dose it stays (e.g. Elbow Flexion 12 repetitions in Upper Limb Strength, 10 in the
@@ -488,6 +489,19 @@ def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str], set[
                  if h.status == "COMPLETED" and h.plan_id in by_id and same_area(h.plan_id)]
     if any(h.status == "COMPLETED" for h in mine):
         top = by_id[p.from_plan_id]
+        # Bug list #9 (1 Nov): below 80 % the app moves a plan on at the third try, so a plan can be
+        # "completed" with exercises that never passed. That is not a reason to step up: ease instead.
+        results = {e.exercise_id: e for e in p.exercises}
+        unpassed = {pe.exercise.exercise_id for pe in top.plan_exercise
+                    if (r := results.get(pe.exercise.exercise_id)) is not None and r.attempts > 0
+                    and r.passes == 0}
+        if unpassed:
+            s = max(0, min(stage, STAGES.index(top.recovery_stage) - 1))
+            m = max(0, min(mob, MOBILITY.index(top.mobility_level) - 1))
+            n = len(unpassed)
+            why = (f"{n} exercise{'s' if n > 1 else ''} in {top.plan_name} did not pass before the plan "
+                   f"moved on, so plans that should suit you better are shown.")
+            return "EASE", why, s, m, {x.plan_id for x in completed} | {top.plan_id}, unpassed
         s = max(stage, min(len(STAGES) - 1, STAGES.index(top.recovery_stage) + 1))
         m = max(mob, min(len(MOBILITY) - 1, MOBILITY.index(top.mobility_level) + 1))
         why = (f"You completed {top.plan_name}, so plans for the next stage are included."

@@ -123,9 +123,7 @@ class RecommendationService {
               if (byId[e['plan_id']] case final p?)
                 ExcludedPlan(p, PlanReason.listFrom(e['why'])),
           ],
-          restriction: PlanRestriction.fromWire(
-            body['restriction'] as String?,
-          ),
+          restriction: PlanRestriction.fromWire(body['restriction'] as String?),
         );
       },
       message: Messages.recommendFailed,
@@ -136,6 +134,29 @@ class RecommendationService {
   /// Attempts at a plan's current exercise that did not pass before easier
   /// plans are offered (EASE_FAILS on the server).
   static const easeAfterFails = 3;
+
+  /// The exercise the plan moved on from without it ever passing, and its scored tries (bug list #9,
+  /// 1 Nov). Below 80% the plan moves on at the third saved try (Elwin, 23 Oct), so [failsAtCurrent]
+  /// never reached 3 on that path and gentler plans were never offered. Only the stage just left
+  /// counts: once the next one is passed, the offer goes.
+  static (String exerciseId, int fails)? movedOnWithoutPass(
+    PatientTreatmentPlan p,
+    List<ExerciseSession> sessions,
+  ) {
+    final ordered = p.plan.orderedExercises();
+    final i = p.completedStages - 1;
+    if (i < 0 || i >= ordered.length) return null;
+    final id = ordered[i].exerciseId;
+    final scored = [
+      for (final s in sessions)
+        if (s.exerciseId == id && s.postureAccuracy != null) s,
+    ];
+    if (scored.length < easeAfterFails ||
+        scored.any((s) => s.postureIsPassing())) {
+      return null;
+    }
+    return (id, scored.length);
+  }
 
   /// How long a possible fall keeps suggesting gentler plans.
   static const fallWindow = Duration(days: 7);
@@ -191,12 +212,7 @@ class RecommendationService {
             'plan_id': p.plan.planId,
             'status': p.status.db,
             'progress_percentage': p.progressPercentage,
-            'consecutive_fails': failsAtCurrent(
-              p,
-              progress.sessions[p.patientPlanId] ?? const [],
-            ),
-            // Left out of the gentler plans after repeated failed attempts (hybrid-3.1).
-            'current_exercise_id': p.currentExercise()?.exerciseId,
+            ..._struggle(p, progress.sessions[p.patientPlanId] ?? const []),
             'fall_alerts': [
               for (final s
                   in progress.sessions[p.patientPlanId] ??
@@ -221,6 +237,23 @@ class RecommendationService {
             ),
           },
       ],
+    };
+  }
+
+  /// The failed tries the server eases on, and the exercise it then leaves out of the gentler plans
+  /// (hybrid-3.1): the current exercise, or the one the plan just moved on from without a pass (#9).
+  static Map<String, dynamic> _struggle(
+    PatientTreatmentPlan p,
+    List<ExerciseSession> sessions,
+  ) {
+    final atCurrent = failsAtCurrent(p, sessions);
+    final left = movedOnWithoutPass(p, sessions);
+    if (left != null && atCurrent < easeAfterFails) {
+      return {'consecutive_fails': left.$2, 'current_exercise_id': left.$1};
+    }
+    return {
+      'consecutive_fails': atCurrent,
+      'current_exercise_id': p.currentExercise()?.exerciseId,
     };
   }
 

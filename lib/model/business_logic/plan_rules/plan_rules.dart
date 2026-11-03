@@ -142,23 +142,45 @@ class PlanRules {
     return overlap == null || overlap >= sameJoints;
   }
 
-  /// Worst-case minutes a day with one exercise per plan per day; an exercise
+  /// Worst-case seconds a day with one exercise per plan per day; an exercise
   /// shared by several plans is done once, so it counts once (its longest
-  /// prescribed time).
+  /// prescribed time). Every combination of one exercise per plan is tried (bug
+  /// list #11, 1 Nov): taking each plan's longest exercise and counting a shared
+  /// one once missed the day when one plan is on the shared exercise and the
+  /// other on its next-longest.
   static int dailyWorstCaseSec(Iterable<TreatmentPlan> plans) {
-    final longestByExercise = <String, int>{};
-    for (final p in plans) {
-      if (p.exercises.isEmpty) continue;
-      final longest = p.exercises.reduce(
-        (a, b) => a.prescribedDurationSec >= b.prescribedDurationSec ? a : b,
+    final lists = [
+      for (final p in plans)
+        if (p.exercises.isNotEmpty) p.exercises,
+    ];
+    final combos = lists.fold<int>(1, (n, l) => n * l.length);
+    if (combos > 5000) {
+      // Far beyond 3 plans of today's size: each plan's longest, never fewer.
+      return lists.fold(
+        0,
+        (s, l) => s + l.map((e) => e.prescribedDurationSec).reduce(math.max),
       );
-      final id = longest.exerciseId;
-      final prev = longestByExercise[id] ?? 0;
-      if (longest.prescribedDurationSec > prev) {
-        longestByExercise[id] = longest.prescribedDurationSec;
+    }
+    var worst = 0;
+    void pick(int i, Map<String, int> chosen) {
+      if (i == lists.length) {
+        worst = math.max(worst, chosen.values.fold(0, (a, b) => a + b));
+        return;
+      }
+      for (final pe in lists[i]) {
+        final before = chosen[pe.exerciseId];
+        chosen[pe.exerciseId] = math.max(before ?? 0, pe.prescribedDurationSec);
+        pick(i + 1, chosen);
+        if (before == null) {
+          chosen.remove(pe.exerciseId);
+        } else {
+          chosen[pe.exerciseId] = before;
+        }
       }
     }
-    return longestByExercise.values.fold(0, (a, b) => a + b);
+
+    pick(0, {});
+    return worst;
   }
 
   /// Names of exercises that appear in both plans.
@@ -389,7 +411,8 @@ class PlanRules {
       ];
       final limited = {
         for (final pe in a.plan.exercises)
-          if (limitations.any(pe.exercise.conflictsWith)) pe.exercise.exerciseName,
+          if (limitations.any(pe.exercise.conflictsWith))
+            pe.exercise.exerciseName,
       };
       if (limited.isNotEmpty) {
         issues.add(

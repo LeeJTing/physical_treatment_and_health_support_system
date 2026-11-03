@@ -313,11 +313,34 @@ def plan_intents(plan: dict) -> list[dict]:
     ]
 
 
+# Bug list #2 (1 Nov): with no plan, "what is my plan" was answered "Why plans stop at 65" and "what
+# exercise today" with the posture score, as nothing else knew the words. Only the words about the
+# patient's own plan or today's exercise, so general questions ("how many reps", "will I recover")
+# keep their own answers. Same key as the plan topic, so the matcher treats it alike; not listed.
+NO_PLAN_INTENT = {
+    "key": "plan_exercises", "title": "No plan yet", "show": False, "priority": 3,
+    "keywords": ["my plan", "in my plan", "exercises in my plan", "my exercises", "my exercise list",
+                 "my treatment plan", "my rehab plan", "my rehabilitation plan", "exercises today",
+                 "today's exercises", "exercise today", "what exercise today", "which exercise today",
+                 "what today", "what to do today", "what do today", "do what today", "plan saya",
+                 "buat apa hari ni", "apa hari ni"],
+    "examples": ["what is my plan", "what exercises are in my plan", "what exercise today",
+                 "how many exercises in my plan"],
+    "answer": "You do not have a treatment plan yet. Open AI-assisted planning: mark the area that needs "
+              "rehabilitation on the body map, answer a few questions, and choose one of the plans "
+              "recommended for you. Your exercises for each day then appear in your plan.",
+    "follow_ups": [], "tailor": False,
+    "action": {"key": "open_planning", "label": "Open treatment planning"},
+}
+
+
 @lru_cache(maxsize=64)
 def _intents_for(plan_id: str | None) -> tuple:
     r = rules()
     plan = r["plans"].get(plan_id or "")
     items = [{**i, "answer": layout(i["answer"])} for i in plan_intents(plan)] if plan else []   # 3.68
+    if not plan:
+        items.append(NO_PLAN_INTENT)
     items += [exercise_intent(k, ex, plan) for k, ex in r["exercises"].items()]
     items += r["intents"]
     return tuple(items)
