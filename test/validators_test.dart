@@ -1,8 +1,23 @@
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 
 void main() {
+  test('age boundaries of the profile (Table 3.3): 13 to 120 accepted', () {
+    String? age(String v) => FormValidators.intInRange(
+      v,
+      AppConstants.ageMin,
+      AppConstants.ageMax,
+      'Age',
+    );
+    expect(age('12'), Messages.valueOutOfRange);
+    expect(age('13'), isNull);
+    expect(age('120'), isNull);
+    expect(age('121'), Messages.valueOutOfRange);
+    expect(age(''), 'Age is required.');
+  });
+
   test('username 3-30 chars (FR100_002)', () {
     expect(FormValidators.username('ab'), isNotNull);
     expect(FormValidators.username('abc'), isNull);
@@ -10,7 +25,11 @@ void main() {
   });
   test('username needs a letter, in any language (Elwin, 23 Oct)', () {
     for (final bad in ['!!!', '...', '123', '_-_']) {
-      expect(FormValidators.username(bad), Messages.usernameNeedsLetter, reason: bad);
+      expect(
+        FormValidators.username(bad),
+        Messages.usernameNeedsLetter,
+        reason: bad,
+      );
     }
     for (final ok in ['ab1', 'Siti', '\u674e\u660e\u534e', 'r2d2', 'Ali_99']) {
       expect(FormValidators.username(ok), isNull, reason: ok);
