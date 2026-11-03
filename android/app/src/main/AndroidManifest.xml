@@ -1,4 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Supabase and the AI server (bug list #20, 3 Nov): only the debug and profile manifests had it,
+         so a release APK, the one installed on patients' phones, could not reach either. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Phase 6: record the exercise clip (FR300_05). Audio is not recorded. -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-feature android:name="android.hardware.camera" android:required="false"/>
