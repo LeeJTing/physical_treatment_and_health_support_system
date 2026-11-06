@@ -111,12 +111,18 @@ class Reminder {
   }
 }
 
-/// Every notification issued, delivered or not (Table 4.23).
+/// Every notification issued, delivered or not (Table 4.45; FR600_013 to FR600_017).
 class NotificationLog {
   final String notificationId;
   final String accountId;
   final String? reminderId;
+
+  /// The anomaly an alert was raised for (FR600_009).
+  final String? anomalyId;
   final NotificationType notificationType;
+
+  /// Carried over from the anomaly; High selects the full-screen warning (FR600_010).
+  final Severity? severity;
   final String messageBody;
   final DeliveryStatus deliveryStatus;
   final bool isRead;
@@ -126,18 +132,50 @@ class NotificationLog {
     required this.notificationId,
     required this.accountId,
     this.reminderId,
+    this.anomalyId,
     required this.notificationType,
+    this.severity,
     required this.messageBody,
     required this.deliveryStatus,
     this.isRead = false,
     required this.issuedAt,
   });
 
+  bool get isAlert => notificationType == NotificationType.alert;
+
+  /// The entry once the patient has opened it (FR600_016).
+  NotificationLog markRead() => copyWith(isRead: true);
+
+  /// Visual indicator defined for the severity (UC600 C8, FR600_011): Low yellow badge,
+  /// Medium orange badge, High red full-screen warning.
+  String indicator() => switch (severity) {
+    Severity.high => 'RED_FULL_SCREEN',
+    Severity.medium => 'ORANGE_BADGE',
+    Severity.low => 'YELLOW_BADGE',
+    null => 'NONE',
+  };
+
+  NotificationLog copyWith({bool? isRead, DeliveryStatus? deliveryStatus}) =>
+      NotificationLog(
+        notificationId: notificationId,
+        accountId: accountId,
+        reminderId: reminderId,
+        anomalyId: anomalyId,
+        notificationType: notificationType,
+        severity: severity,
+        messageBody: messageBody,
+        deliveryStatus: deliveryStatus ?? this.deliveryStatus,
+        isRead: isRead ?? this.isRead,
+        issuedAt: issuedAt,
+      );
+
   Map<String, dynamic> toJson() => {
     'notification_id': notificationId,
     'account_id': accountId,
     'reminder_id': reminderId,
+    'anomaly_id': anomalyId,
     'notification_type': notificationType.db,
+    'severity': severity?.db,
     'message_body': messageBody,
     'delivery_status': deliveryStatus.db,
     'is_read': isRead,
@@ -148,9 +186,11 @@ class NotificationLog {
     notificationId: j['notification_id'] as String,
     accountId: j['account_id'] as String,
     reminderId: j['reminder_id'] as String?,
+    anomalyId: j['anomaly_id'] as String?,
     notificationType: NotificationType.fromDb(
       j['notification_type'] as String?,
     ),
+    severity: Severity.tryDb(j['severity'] as String?),
     messageBody: j['message_body'] as String,
     deliveryStatus: DeliveryStatus.fromDb(j['delivery_status'] as String?),
     isRead: (j['is_read'] ?? false) as bool,

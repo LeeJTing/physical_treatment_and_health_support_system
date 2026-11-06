@@ -9,7 +9,9 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/health_connect_service/health_connect_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/biometric_repository/i_biometric_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
@@ -28,13 +30,30 @@ class ProfileViewModel extends BaseViewModel {
   /// The age group accepted in the Terms, which the age must agree with.
   final ITermsRepository? _terms;
 
+  /// The health data source connection (FR100_062 to FR100_065; Table 4.73).
+  final HealthConnectService? _healthSource;
+  final IBiometricRepository? _biometrics;
+
   ProfileViewModel(
     this._profiles,
     this._auth,
     this._risk, [
     this._notifications,
     this._terms,
-  ]);
+  ]) : _healthSource = null,
+       _biometrics = null;
+
+  /// With the health data source connection (the app shell and the profile route).
+  ProfileViewModel.withHealthSource(
+    this._profiles,
+    this._auth,
+    this._risk,
+    this._notifications,
+    HealthConnectService healthSource,
+    IBiometricRepository biometrics, [
+    this._terms,
+  ]) : _healthSource = healthSource,
+       _biometrics = biometrics;
 
   /// Save stopped because the age does not match the age group accepted in
   /// the Terms (14 Oct): the screen offers "Review Terms".
@@ -46,6 +65,13 @@ class ProfileViewModel extends BaseViewModel {
   SafetyLimit? safetyLimit;
   List<HealthCondition> conditions = const [];
   List<PhysicalLimitation> limitations = const [];
+
+  /// The dietary restriction list (M700): allergies, intolerances, diets, religious rules.
+  List<DietaryRestriction> restrictions = const [];
+
+  /// Health Connect state (FR100_064).
+  bool healthConnected = false;
+  DateTime? healthLastSync;
 
   UiState<void> loadState = const Idle();
   UiState<void> saveState = const Idle();
@@ -85,7 +111,9 @@ class ProfileViewModel extends BaseViewModel {
         ),
       ) &&
       a.limitations.toSet().containsAll(b.limitations) &&
-      b.limitations.toSet().containsAll(a.limitations);
+      b.limitations.toSet().containsAll(a.limitations) &&
+      a.restrictions.toSet().containsAll(b.restrictions) &&
+      b.restrictions.toSet().containsAll(a.restrictions);
 
   Future<void> loadProfile() async {
     loadState = const Loading();
@@ -102,6 +130,7 @@ class ProfileViewModel extends BaseViewModel {
       _profiles.getProfile(account!.accountId),
       _profiles.getConditions(),
       _profiles.getLimitations(),
+      _profiles.getRestrictions(),
     ]);
     final p = results[0] as Result<HealthProfile?>;
     if (p is Failure) {
@@ -116,6 +145,11 @@ class ProfileViewModel extends BaseViewModel {
     limitations =
         (results[2] as Result<List<PhysicalLimitation>>).dataOrNull ??
         LookupSeed.limitations;
+    final r = (results[3] as Result<List<DietaryRestriction>>).dataOrNull;
+    restrictions = r == null || r.isEmpty ? LookupSeed.restrictions : r;
+    final src = await _biometrics?.healthSourceState(account!.accountId);
+    healthConnected = src?.dataOrNull?.connected ?? account!.healthSourceConnected;
+    healthLastSync = src?.dataOrNull?.lastSync ?? account!.healthSourceLastSync;
     safetyLimit = profile == null
         ? null
         : (await _profiles.getCurrentSafetyLimit(
@@ -241,6 +275,61 @@ class ProfileViewModel extends BaseViewModel {
     draft = d.copyWith(limitations: list);
     notifyListeners();
   }
+
+  /// Adds or removes an allergy, diet or religious restriction (M700; Table 4.73).
+  void toggleRestriction(int id) {
+    final d = draft;
+    if (d == null || !isEditing) return;
+    final r = restrictions.firstWhere((r) => r.restrictionId == id);
+    final list = [...d.restrictions];
+    list.contains(r) ? list.remove(r) : list.add(r);
+    draft = d.copyWith(restrictions: list);
+    notifyListeners();
+  }
+
+  /// Message after a connection attempt, for a SnackBar.
+  String? healthMessage;
+
+  /// What the SnackBar's Fix button does after a failed connection (null: no button).
+  HealthFix? healthFix;
+
+  /// Requests read permission and records the connection (FR100_062 to FR100_064).
+  Future<bool> connectHealthSource() async {
+    final hs = _healthSource, id = account?.accountId;
+    if (hs == null || id == null) return false;
+    final attempt = await hs.connect();
+    healthFix = attempt.fix;
+    if (!attempt.connected) {
+      healthMessage = attempt.message; // FR100_063
+      notifyListeners();
+      return false;
+    }
+    await _biometrics?.setHealthSourceConnected(id, true);
+    healthConnected = true;
+    healthMessage = 'Health Connect is connected. Your readings will be imported on the Tracking tab.';
+    notifyListeners();
+    return true;
+  }
+
+  /// The Fix button: Play Store or Health Connect's permission page.
+  Future<void> fixHealthSource() async {
+    final f = healthFix, hs = _healthSource;
+    if (f != null && hs != null) await hs.applyFix(f);
+  }
+
+  /// Revokes access and stops imports (FR100_065).
+  Future<void> disconnectHealthSource() async {
+    final hs = _healthSource, id = account?.accountId;
+    if (id == null) return;
+    await hs?.revoke();
+    await _biometrics?.setHealthSourceConnected(id, false);
+    healthConnected = false;
+    healthLastSync = null;
+    healthMessage = 'Health Connect is disconnected. No more readings will be imported.';
+    notifyListeners();
+  }
+
+  bool get canConnectHealthSource => _healthSource != null;
 
   /// The "None" chip.
   void clearLimitations() {

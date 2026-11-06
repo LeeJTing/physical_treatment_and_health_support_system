@@ -21,7 +21,7 @@ Every folder has a `desc.txt` saying what belongs there; boxes not built yet (mo
 | (cross-cutting) | `lib/core/{constants,routes,themes,utils}/` | report messages (`app_constants.dart`), routes, themes and `design_tokens.dart`, `FormValidators`, `newId()` |
 | AI server (stateless; never touches Supabase) | `ai_server/` | |
 | Posture model training (runs on the RTX 3050 PC) | `training/` | |
-| Catalogue seed for Supabase (`python supabase/seed/build_seed.py`) | `supabase/` | |
+| Catalogue seed for Supabase (`python supabase/seed/build_seed.py`; food catalogue `python supabase/seed/build_food_seed.py` after copying `food_catalogue.json` from fyp-fastapi to `assets/seed/`) | `supabase/` | set-up steps in `supabase/HANDOFF.md` |
 
 ## Rules
 
@@ -30,9 +30,10 @@ Every folder has a `desc.txt` saying what belongs there; boxes not built yet (mo
 - Repository and service methods return `Future<Result<T>>` and never throw.
 - State management is `provider` + `ChangeNotifier` (no Riverpod, no Bloc). Plain Dart models, no code generation.
 - Class names must match the report's Chapter 4 class diagram.
-- Run with fakes until Supabase is ready: `flutter run --dart-define=USE_FAKES=true`.
+- `flutter run` uses the real Supabase project (URL and publishable key are the defaults in `app_constants.dart`). In-memory fakes only on request: `flutter run --dart-define=USE_FAKES=true`.
 
 ## Commands
 
 - App: `flutter pub get`, `flutter analyze`, `flutter test`
 - AI server: `cd ai_server`, `pip install -r requirements.txt`, `pytest -q`, `uvicorn app.main:app --reload --port 8000`
+- Phone ↔ AI server on the laptop: the address is set in the app (Profile > AI server, saved on the phone; `AI_BASE_URL` is only the default). Check a server from here with `dart run tool/check_ai_server.dart <address>`; server side see fyp-fastapi README "Phone and laptop".

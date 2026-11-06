@@ -58,19 +58,7 @@ class FakeNotificationRepository implements INotificationRepository {
   @override
   Future<Result<void>> markRead(String notificationId) async {
     final i = log.indexWhere((n) => n.notificationId == notificationId);
-    if (i >= 0) {
-      final n = log[i];
-      log[i] = NotificationLog(
-        notificationId: n.notificationId,
-        accountId: n.accountId,
-        reminderId: n.reminderId,
-        notificationType: n.notificationType,
-        messageBody: n.messageBody,
-        deliveryStatus: n.deliveryStatus,
-        isRead: true,
-        issuedAt: n.issuedAt,
-      );
-    }
+    if (i >= 0) log[i] = log[i].markRead();
     return const Success(null);
   }
 }

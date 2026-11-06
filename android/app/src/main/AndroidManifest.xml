@@ -11,6 +11,14 @@
     <!-- Reminders on time where the phone allows exact alarms (Android 12-13 by default, 14+ only if
          "Alarms & reminders" is on); otherwise they may come up to an hour late. Not USE_EXACT_ALARM. -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- M200: read blood pressure, blood glucose and weight from Health Connect (FR100_062,
+         UC700 C9: read permission only). -->
+    <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE"/>
+    <uses-permission android:name="android.permission.health.READ_BLOOD_GLUCOSE"/>
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+    <!-- Readings older than 30 days before the first grant (Android 14+); optional, asked after the
+         three above. -->
+    <uses-permission android:name="android.permission.health.READ_HEALTH_DATA_HISTORY"/>
     <application
         android:label="HealthGuide"
         android:name="${applicationName}"
@@ -39,6 +47,10 @@
             <!-- Supabase (app_links) handles the Google sign-in return link itself; Flutter's
                  own deep linking would push it to the Navigator as an unknown route. -->
             <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
+            <!-- Health Connect shows why the app asks for the readings (M200). -->
+            <intent-filter>
+                <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
+            </intent-filter>
             <!-- Google sign-in returns here (SupabaseAuthRepository.oauthRedirect). -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -47,6 +59,17 @@
                 <data android:scheme="my.edu.tarumt.apths" android:host="login-callback"/>
             </intent-filter>
         </activity>
+        <!-- Android 14+: Health Connect links to the app's privacy notice from its permission screen. -->
+        <activity-alias
+            android:name="ViewPermissionUsageActivity"
+            android:exported="true"
+            android:targetActivity=".MainActivity"
+            android:permission="android.permission.START_VIEW_PERMISSION_USAGE">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/>
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
+            </intent-filter>
+        </activity-alias>
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
         <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
             <intent-filter>
@@ -75,6 +98,11 @@
         <!-- Spoken exercise cues (flutter_tts): Android 11+ must be allowed to find the TTS engine. -->
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE"/>
+        </intent>
+        <!-- Health Connect (M200) -->
+        <package android:name="com.google.android.apps.healthdata"/>
+        <intent>
+            <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE"/>
         </intent>
     </queries>
 </manifest>

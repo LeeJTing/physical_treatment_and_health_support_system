@@ -1,1 +1,1 @@
-Health Connect (M200, Jun Ting). Not built yet.
+HealthDataSource: the phone health data store (Health Connect through the health plugin; FakeHealthDataSource for fakes and tests). Used only by HealthConnectService (M200, Jun Ting).

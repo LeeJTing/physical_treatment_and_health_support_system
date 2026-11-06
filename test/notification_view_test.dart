@@ -117,7 +117,7 @@ void main() {
     await tester.runAsync(s.signIn);
     await s.pump(tester);
     expect(find.textContaining('No reminders yet'), findsOneWidget);
-    expect(find.text('Nothing in the last two weeks.'), findsOneWidget);
+    expect(find.text('Nothing in the selected period.'), findsOneWidget);
     await tester.tap(find.text('Remind me to log my health readings'));
     await _finish(tester);
     expect(find.text('Log your health readings'), findsOneWidget);

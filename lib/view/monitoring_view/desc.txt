@@ -1,1 +1,1 @@
-MonitoringView (M200 Health Monitoring and Tracking, Jun Ting). Not built yet.
+MonitoringView (M200 Health Monitoring and Tracking, Jun Ting; Table 4.60): the Tracking tab (Health Connect state, trends over a date range, period summary, recent readings, Add Reading). add_reading_sheet.dart = the entry form (UC700 BF-6 to BF-20).

@@ -28,6 +28,12 @@ import 'package:physical_treatment_and_health_support_system/view/treatment_view
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/session_history_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/l10n/l10n.dart';
+import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/monitoring_view/monitoring_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/view/profile_view/server_settings_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/server_settings_view_model/server_settings_view_model.dart';
 
 /// Root widget: theme, locales and routes. Each module registers its View
 /// here as it is built.
@@ -116,13 +122,17 @@ class MainApp extends StatelessWidget {
           Routes.accountSetup: (_) => const AccountSetupView(),
           Routes.terms: (_) => const TermsView(),
           Routes.healthProfile: (_) => ChangeNotifierProvider(
-            create: (c) => ProfileViewModel(
-              c.read(),
-              c.read(),
-              c.read(),
-              c.read(),
-              c.read(),
-            )..loadProfile(),
+            create: (c) =>
+                ProfileViewModel.withHealthSource(
+                c.read(),
+                c.read(),
+                c.read(),
+                c.read(),
+                c.read(),
+                c.read(),
+                c.read(),
+              )
+                  ..loadProfile(),
             child: const ProfileView(),
           ),
           Routes.treatmentPlanning: (_) => ChangeNotifierProvider(
@@ -168,6 +178,24 @@ class MainApp extends StatelessWidget {
             create: (c) => NotificationViewModel(c.read(), c.read(), c.read()),
             child: const NotificationView(),
           ),
+          // Jun Ting's modules, opened from a notification (the tabs live in MainShell).
+          Routes.healthReport: (_) => ChangeNotifierProvider(
+            create: _analysis,
+            child: const HealthReportView(),
+          ),
+          Routes.monitoring: (_) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: _analysis),
+              ChangeNotifierProvider(
+                create: (c) => MonitoringViewModel(c.read(), c.read(), c.read(), c.read(), c.read()),
+              ),
+            ],
+            child: const MonitoringView(standalone: true),
+          ),
+          Routes.serverSettings: (_) => ChangeNotifierProvider(
+            create: (c) => ServerSettingsViewModel(c.read()),
+            child: const ServerSettingsView(),
+          ),
           Routes.sessionHistory: (_) => ChangeNotifierProvider(
             create: (c) => TreatmentViewModel(
               c.read(),
@@ -184,6 +212,18 @@ class MainApp extends StatelessWidget {
     );
   }
 }
+
+AnalysisViewModel _analysis(BuildContext c) => AnalysisViewModel(
+  c.read(),
+  c.read(),
+  c.read(),
+  c.read(),
+  c.read(),
+  c.read(),
+  c.read(),
+  c.read(),
+  c.read(),
+);
 
 /// Opens what a tapped reminder is about when the app is already running; at start-up the
 /// StartupView does it.

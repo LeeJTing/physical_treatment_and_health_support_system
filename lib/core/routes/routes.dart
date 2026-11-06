@@ -28,4 +28,20 @@ class Routes {
   /// Why there is no plan from 65 (Terms of Use, section 2). Argument: the
   /// profile age (int), optional.
   static const String ageLimit = '/age-limit';
+
+  // Jun Ting's modules (M200, M400, M700)
+  /// Health Tracking (UC700) on its own, e.g. from a health-logging reminder.
+  static const String monitoring = '/monitoring';
+
+  /// Health Report (UC600): forecast, Health Score, risks and anomalies.
+  static const String healthReport = '/health-report';
+
+  /// Dietary history (UC800 A5).
+  static const String mealHistory = '/meal-history';
+
+  /// Address of the AI server on the laptop, with Test connection (Profile > AI server).
+  static const String serverSettings = '/server-settings';
+
+  /// Today's and the weekly diet plan (UC900 A5, A6). Argument: PlanType.weekly for the week.
+  static const String dietPlan = '/diet-plan';
 }

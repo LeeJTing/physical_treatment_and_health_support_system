@@ -26,6 +26,10 @@ dependencies:
   timezone: ^0.10.1
   # Spoken exercise cues in the guide and while recording (Elwin, 23 Oct)
   flutter_tts: ^4.2.5
+  # M200: blood pressure, glucose and weight from Health Connect (Jun Ting)
+  health: ^13.1.0
+  # M700: check and reduce the meal photo before upload (UC800 C3, C4), pure Dart
+  image: ^4.3.0
 
 dev_dependencies:
   flutter_test:
@@ -45,6 +49,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/seed/catalogue.json
+    # Food catalogue of M700 (same file as the AI server's app/food/food_catalogue.json)
+    - assets/seed/food_catalogue.json
     # Guide animations, one per exercise (training/build_guide_animations.py)
     - assets/guides/
     # Hand-written guide text per exercise: steps, captions, safety, mistakes (guide walkthrough)

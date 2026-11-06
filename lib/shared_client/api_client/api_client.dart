@@ -11,7 +11,10 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 /// the Supabase access token as a bearer token, applies the per-call
 /// timeout, and converts transport errors into a [Failure].
 class ApiClient {
-  final String baseUrl;
+  /// Address of the AI server, e.g. https://xxxx.trycloudflare.com or http://192.168.1.20:8000
+  /// (the laptop). Starts as the build-time AI_BASE_URL; ServerConnectionService changes it when
+  /// the patient saves another address in Profile > AI server.
+  String baseUrl;
   final String? Function() _token;
   final http.Client _http;
 
@@ -21,6 +24,13 @@ class ApiClient {
     http.Client? httpClient,
   }) : _token = tokenProvider,
        _http = httpClient ?? http.Client();
+
+  /// GET [url]/health without the login token (the endpoint is public). Used to test an address
+  /// before it is saved, so it takes the full address instead of [baseUrl].
+  Future<Result<Map<String, dynamic>>> health(
+    String url, {
+    Duration timeout = const Duration(seconds: 8),
+  }) => _send(() => _http.get(Uri.parse('$url/health')).timeout(timeout));
 
   Map<String, String> _headers({bool json = true}) => {
     if (json) 'Content-Type': 'application/json',
@@ -78,6 +88,23 @@ class ApiClient {
       Duration(
         milliseconds: bytes * 1000 ~/ AppConstants.slowestUploadBytesPerSecond,
       );
+
+  /// Multipart upload of bytes already in memory, e.g. a meal photo reduced on the phone
+  /// (UC800 C4), as the form field "file".
+  Future<Result<Map<String, dynamic>>> postBytes(
+    String path,
+    List<int> bytes, {
+    String filename = 'upload.jpg',
+    Map<String, String> fields = const {},
+    Duration timeout = AppConstants.defaultTimeout,
+  }) => _send(() async {
+    final req = http.MultipartRequest('POST', Uri.parse('$baseUrl$path'))
+      ..headers.addAll(_headers(json: false))
+      ..fields.addAll(fields)
+      ..files.add(http.MultipartFile.fromBytes('file', bytes, filename: filename));
+    final streamed = await _http.send(req).timeout(timeout);
+    return http.Response.fromStream(streamed).timeout(timeout);
+  });
 
   Future<Result<Map<String, dynamic>>> _send(
     Future<http.Response> Function() call,

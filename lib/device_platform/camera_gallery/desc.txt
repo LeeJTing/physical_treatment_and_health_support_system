@@ -1,1 +1,1 @@
-Camera / Gallery. The recording screen uses the camera plugin directly today.
+Camera / Gallery. MealImageSource (meal_image_picker.dart): the meal photo from the camera or the gallery (M700, Jun Ting). The exercise recording screen uses the camera plugin directly.

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Debug builds only (see src/debug/AndroidManifest.xml). Allows http:// so the phone can reach the
+     AI server on the laptop over the local Wi-Fi without a tunnel. User-installed certificates are
+     not trusted; the system ones are. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

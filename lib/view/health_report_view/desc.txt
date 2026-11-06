@@ -1,1 +1,1 @@
-HealthReportView (M400 Predictive Health Analysis, Jun Ting). Not built yet.
+HealthReportView (M400 Predictive Health Analysis, Jun Ting; Table 4.58): forecast charts, Health Score with its factors, condition risks, anomalies and the disclaimer (UC600). high_alert_view.dart = the full-screen warning for a High severity alert (FR600_010).

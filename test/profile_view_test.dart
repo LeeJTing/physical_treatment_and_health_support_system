@@ -316,7 +316,9 @@ void main() {
     await s.pump(tester);
     await _tap(tester, find.text('Device connection'));
     await tester.pump();
-    expect(find.textContaining('Health Monitoring module'), findsOneWidget);
+    expect(find.textContaining('from Health Connect'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await _settle(tester);
     expect(find.text('Not connected'), findsOneWidget);
     expect(s.testMode.enabled, isFalse);
     await _tap(tester, find.byType(Switch));

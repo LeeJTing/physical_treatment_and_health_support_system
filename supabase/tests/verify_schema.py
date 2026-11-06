@@ -35,7 +35,7 @@ grant execute on function auth.uid() to anon, authenticated;
 
 for f in sorted((REPO / "supabase" / "migrations").glob("*.sql")):
     x(f.read_text(encoding="utf-8")); print("applied", f.name)
-for f in ["seed_lookups.sql", "seed_catalogue.sql"]:
+for f in ["seed_lookups.sql", "seed_catalogue.sql", "seed_food.sql"]:
     x((REPO / "supabase" / "seed" / f).read_text(encoding="utf-8")); print("seeded", f)
 
 ok = 0
@@ -145,6 +145,38 @@ check("a profile's condition is controlled unless the patient says no",
       x("select column_default from information_schema.columns where table_name='profile_condition' and column_name='is_controlled'").fetchone()[0] == "true")
 expect_error("an unknown body position is refused",
              "update public.exercise set body_position = 'HANDSTAND' where pose_key = 'bird_dog'")
+
+# --- 26 Oct: M200 / M400 / M700 (Jun Ting) ------------------------------------
+check("209 foods with a key, a plan role and meal slots",
+      x("select count(*), count(food_key), count(*) filter (where cardinality(meal_slots) > 0) from public.food_item where food_key is not null").fetchone() == (209, 209, 209))
+check("10 dietary restrictions", x("select count(*) from public.dietary_restriction").fetchone()[0] == 10)
+check("nasi lemak breaches peanut", x("select count(*) from public.food_restriction fr join public.food_item f using (food_id) join public.dietary_restriction d using (restriction_id) where f.food_key='nasi_lemak' and d.restriction_code='PEANUT'").fetchone()[0] == 1)
+sl = x("select safety_limit_id from public.safety_limit sl join public.health_profile hp using (profile_id) where hp.account_id=%s limit 1", (a,)).fetchone()
+nasi = x("select food_id from public.food_item where food_key='nasi_lemak'").fetchone()[0]
+as_user(a)
+x("insert into public.biometric_reading (account_id, metric_type, primary_value, secondary_value, source, recorded_at) values (%s,'BLOOD_PRESSURE',128,82,'MANUAL',now() - interval '1 hour')", (a,))
+expect_error("a duplicate reading (same metric and time) is refused",
+             "insert into public.biometric_reading (account_id, metric_type, primary_value, secondary_value, source, recorded_at) select account_id, metric_type, 120, 80, 'IMPORT', recorded_at from public.biometric_reading limit 1")
+x("insert into public.forecast (account_id, metric_type, predicted_values, input_reading_count, model_version) values (%s,'BLOOD_PRESSURE','{\"points\":[]}',14,'forecast-gbdt-1.0')", (a,))
+x("insert into public.health_analysis (account_id, analysis_date, health_score, score_band, model_version) values (%s, current_date, 72, 'FAIR', 'analysis-1.0+health-score-1.0+risk-gbdt-nhanes-1.0')", (a,))
+expect_error("an old score band is refused", "insert into public.health_analysis (account_id, analysis_date, score_band, model_version) values (%s, current_date - 1, 'EXCELLENT', 'v')", (a,))
+mid = uuid.uuid4(); iid = uuid.uuid4()
+x("insert into public.meal_log (meal_id, account_id, meal_type, entry_method, recognition_confidence, model_version, total_energy_kcal, total_sodium_mg, total_sugar_g, consumed_at) values (%s,%s,'BREAKFAST','RECOGNITION',0.82,'food-clip-vitb16-head-1',450,750,3.8,now())", (mid, a))
+x("insert into public.meal_item (meal_item_id, meal_id, food_id, portion_size_g, energy_kcal, carb_g, protein_g, fat_g, sodium_mg, sugar_g) values (%s,%s,%s,250,450,55,13.8,20,750,3.8)", (iid, mid, nasi))
+x("insert into public.suitability_verdict (meal_item_id, condition_id, verdict, reason_text) values (%s,1,'NOT_SUITABLE','high in sodium')", (iid,))
+if sl:
+    did = uuid.uuid4()
+    x("insert into public.diet_plan (diet_plan_id, account_id, safety_limit_id, plan_type, start_date, end_date, model_version) values (%s,%s,%s,'DAILY',current_date,current_date,'diet-planner-1.0+pref-logreg-1')", (did, a, sl[0]))
+    x("insert into public.planned_meal (diet_plan_id, food_id, plan_date, meal_slot, portion_size_g, energy_kcal, sodium_mg, sugar_g) values (%s,%s,current_date,'LUNCH',250,450,750,3.8)", (did, nasi))
+    check("A's plan stored with its planned meal", x("select count(*) from public.planned_meal").fetchone()[0] == 1)
+check("A sees the meal with its item and verdict",
+      x("select count(*) from public.meal_log m join public.meal_item i using (meal_id) join public.suitability_verdict v using (meal_item_id)").fetchone()[0] == 1)
+as_user(b)
+check("B sees none of A's readings, meals, verdicts, plans or analyses",
+      x("select (select count(*) from public.biometric_reading) + (select count(*) from public.meal_log) + (select count(*) from public.meal_item) + (select count(*) from public.suitability_verdict) + (select count(*) from public.diet_plan) + (select count(*) from public.health_analysis) + (select count(*) from public.forecast)").fetchone()[0] == 0)
+expect_error("B cannot add an item to A's meal", "insert into public.meal_item (meal_id, food_id, portion_size_g, energy_kcal, carb_g, protein_g, fat_g, sodium_mg, sugar_g) values (%s,%s,100,1,1,1,1,1,1)", (mid, nasi))
+check("B reads the food catalogue", x("select count(*) from public.food_item").fetchone()[0] >= 209)
+as_admin()
 
 # --- deleting the auth user cascades -----------------------------------------
 x("delete from auth.users where id = %s", (a,))

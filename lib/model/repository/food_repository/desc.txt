@@ -1,1 +1,3 @@
-IFoodRepository (M700, Jun Ting). Not built yet.
+IFoodRepository (M700 Diet Support, Jun Ting): the nutrition catalogue of Malaysian and healthcare
+foods with its restriction tags. i_food_repository.dart (Table 4.78), supabase_food_repository.dart
+(Table 4.86), fake_food_repository.dart (reads assets/seed/food_catalogue.json).

@@ -1,9 +1,12 @@
 // HomeView (Figma "Home") on the fakes: the session card in each state, the notices, the bell
 // and the quick actions. NFR_17 coverage (22 Oct); the data rules are in home_view_model_test.
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
@@ -20,10 +23,28 @@ import 'package:physical_treatment_and_health_support_system/model/repository/au
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/anomaly_detection_service/anomaly_detection_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/forecast_service/forecast_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/analysis_repository/fake_analysis_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/biometric_repository/fake_biometric_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/fake_food_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/meal_repository/fake_meal_repository.dart';
+import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/home_view/home_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/home_view_model/home_view_model.dart';
 
 final String _catalogue = File('assets/seed/catalogue.json').readAsStringSync();
+
+class _NoCamera implements MealImageSource {
+  @override
+  Future<Uint8List?> capture() async => null;
+  @override
+  Future<Uint8List?> pickFromGallery() async => null;
+}
 
 Widget _stub(String name) =>
     Scaffold(appBar: AppBar(), body: Text('route:$name'));
@@ -40,7 +61,43 @@ class _Setup {
     notifications,
     () => DateTime(2026, 10, 7, 9, 30),
   );
+  // The AI server is off: Home shows no score and no vitals, only its own cards.
+  final _api = ApiClient(
+    baseUrl: 'http://ai',
+    tokenProvider: () => 't',
+    httpClient: MockClient((_) async => http.Response('{}', 503)),
+  );
+  final _foods = FakeFoodRepository(const []);
+  final _analysisRepo = FakeAnalysisRepository();
+  late final meals = MealLogViewModel(
+    FakeMealRepository(),
+    FoodRecognitionService(_api, _foods),
+    _foods,
+    RiskAssessmentService(auth, profiles),
+    auth,
+    _NoCamera(),
+  );
+  late final analysis = AnalysisViewModel(
+    _analysisRepo,
+    ForecastService(_api),
+    AnomalyDetectionService(_api, _analysisRepo),
+    RiskAssessmentService(auth, profiles),
+    FakeBiometricRepository(),
+    FakeMealRepository(),
+    treatments,
+    auth,
+  );
   late String accountId;
+
+  /// Home reads the meal log and the analysis as well (Jun Ting's M700 and M400).
+  Widget scope(Widget child) => MultiProvider(
+    providers: [
+      ChangeNotifierProvider.value(value: vm),
+      ChangeNotifierProvider.value(value: meals),
+      ChangeNotifierProvider.value(value: analysis),
+    ],
+    child: child,
+  );
 
   Future<void> signIn() async {
     accountId = (await auth.login(
@@ -97,9 +154,8 @@ class _Setup {
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: vm,
-        child: MaterialApp(
+      scope(
+        MaterialApp(
           routes: {
             Routes.healthProfile: (_) => _stub('profile'),
             Routes.reminders: (_) => _stub('reminders'),
@@ -265,26 +321,16 @@ void main() {
     );
   });
 
-  testWidgets('Log Meal and Add Reading say their module is coming', (
-    tester,
-  ) async {
+  testWidgets('the quick actions are shown', (tester) async {
     final s = _Setup();
     await tester.runAsync(() async {
       await s.signIn();
       await s.profile();
     });
     await s.pump(tester);
-    await tester.ensureVisible(find.text('Log Meal'));
-    await tester.tap(find.text('Log Meal'));
-    await tester.pump();
-    expect(find.textContaining('Logging a meal is part of'), findsOneWidget);
-    tester
-        .state<ScaffoldMessengerState>(find.byType(ScaffoldMessenger))
-        .removeCurrentSnackBar();
-    await tester.pump();
-    await tester.tap(find.text('Add Reading'));
-    await tester.pump();
-    expect(find.textContaining('Adding a reading is part of'), findsWidgets);
+    expect(find.text('Log Meal'), findsOneWidget);
+    expect(find.text('Add Reading'), findsOneWidget);
+    expect(find.text('Ask AI'), findsOneWidget);
   });
 
   testWidgets('signed out: the session-expired message and Try again', (
@@ -312,9 +358,8 @@ void main() {
         tester.view.devicePixelRatio = 3; // 360 x 800
         addTearDown(tester.view.reset);
         await tester.pumpWidget(
-          ChangeNotifierProvider.value(
-            value: s.vm,
-            child: MaterialApp(
+          s.scope(
+            MaterialApp(
               builder: (c, child) => MediaQuery(
                 data: MediaQuery.of(c).copyWith(
                   textScaler: TextScaler.linear(scale),
@@ -373,10 +418,7 @@ void main() {
     tester.view.devicePixelRatio = 1.5; // 720 wide: the figure fits in its half
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: s.vm,
-        child: const MaterialApp(home: Scaffold(body: HomeView())),
-      ),
+      s.scope(const MaterialApp(home: Scaffold(body: HomeView()))),
     );
     await tester.runAsync(s.vm.load);
     await tester.pump();

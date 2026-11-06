@@ -1,1 +1,3 @@
-IMealRepository (M700, Jun Ting). Not built yet.
+IMealRepository (M700 Diet Support, Jun Ting): logged meals with their items and suitability
+verdicts, the confirmed meal photos (storage bucket meal-images) and the daily and weekly diet plans.
+i_meal_repository.dart (Table 4.79), supabase_meal_repository.dart (Table 4.87), fake_meal_repository.dart.

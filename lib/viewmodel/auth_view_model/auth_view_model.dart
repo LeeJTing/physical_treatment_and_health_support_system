@@ -60,17 +60,28 @@ class AuthViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// An exercise reminder opens its plan; other reminders just open the app. Nothing is opened
+  /// An exercise reminder opens its plan, a health-logging reminder the Tracking screen and a
+  /// health alert the Health Report. Nothing is opened
   /// for a signed-out patient or an unfinished Google account (they see login or setup first).
   Future<({String route, Object? argument})?> _destinationFor(
     ReminderTap tap,
   ) async {
-    if (tap.type != ReminderType.exercise || tap.patientPlanId == null) {
+    final String route;
+    if (tap.alert) {
+      route = Routes.healthReport; // a health alert (FR600_010)
+    } else if (tap.type == ReminderType.healthLog) {
+      route = Routes.monitoring; // record a reading (FR600_002)
+    } else if (tap.type == ReminderType.exercise && tap.patientPlanId != null) {
+      route = Routes.physicalTreatment;
+    } else {
       return null;
     }
     if ((await _auth.currentAccount()).dataOrNull == null) return null;
     if ((await _auth.needsAccountSetup()).dataOrNull ?? false) return null;
-    return (route: Routes.physicalTreatment, argument: tap.patientPlanId);
+    return (
+      route: route,
+      argument: route == Routes.physicalTreatment ? tap.patientPlanId : null,
+    );
   }
 
   /// The screen a tapped reminder asked for, once (then null).
@@ -460,6 +471,9 @@ class AuthViewModel extends BaseViewModel {
     _awaitingGoogle = true;
     if (await checkSignedIn()) {
       _awaitingGoogle = false;
+      // USE_FAKES build: the fake repository signs in a test Google account at once, so say why
+      // no Google page appeared (real Google needs the Supabase build, supabase/HANDOFF.md 2a).
+      if (AppConstants.useFakes) notice ??= Messages.googleDemoMode;
       return;
     }
     googleState = const Loading();

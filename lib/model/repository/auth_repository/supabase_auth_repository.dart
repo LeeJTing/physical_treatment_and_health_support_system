@@ -204,20 +204,44 @@ class SupabaseAuthRepository implements IAuthRepository {
     );
   }
 
-  /// Needs a Google OAuth client and the provider switched on in Supabase; until then the
-  /// app explains instead of opening a browser page that cannot work (GOOGLE_SIGN_IN).
+  /// Continue with Google (FR100_018): opens Google's page in the browser through Supabase
+  /// (PKCE). Google returns to Supabase, Supabase to [oauthRedirect], and supabase_flutter
+  /// picks the session out of that link; the login screen then continues (checkSignedIn).
+  ///
+  /// First asks the project whether Google is switched on (Authentication > Sign In /
+  /// Providers), so a project without it explains here instead of opening a browser page
+  /// that says "provider is not enabled". GOOGLE_SIGN_IN=false hides it on purpose.
   @override
   Future<Result<void>> signInWithGoogle() async {
     if (!AppConstants.googleSignInEnabled) {
       return const Failure(Messages.googleNotAvailable, code: 'unsupported');
     }
-    return supabaseGuard(
+    final providers = await supabaseGuard(
+      _sb.enabledProviders,
+      failMessage: Messages.loginUnavailable,
+    );
+    switch (providers) {
+      case Failure f:
+        return f.cast<void>();
+      case Success(:final data) when data['google'] != true:
+        return const Failure(Messages.googleNotAvailable, code: 'unsupported');
+      case Success():
+        break;
+    }
+    final opened = await supabaseGuard(
       () => _auth.signInWithOAuth(
         OAuthProvider.google,
         redirectTo: oauthRedirect,
+        // Google asks which account to use, also when the phone has only one.
+        queryParams: const {'prompt': 'select_account'},
       ),
       failMessage: Messages.loginUnavailable,
     );
+    return switch (opened) {
+      Success(data: true) => const Success(null),
+      Success() => const Failure(Messages.googleNoBrowser, code: 'no_browser'),
+      Failure f => f.cast<void>(),
+    };
   }
 
   /// Created by Google (first provider) and no username chosen by the patient: manual

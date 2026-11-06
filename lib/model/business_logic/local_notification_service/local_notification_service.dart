@@ -2,6 +2,8 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/anomaly_event.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
@@ -407,4 +409,87 @@ class LocalNotificationService {
     await cancel(r.reminderId);
     return _repo.deleteReminder(r.reminderId);
   }
+
+  // ---------------------------------------------------------------- M600.2 alerts (Jun Ting)
+
+  /// Accepts an anomaly from the Predictive Health Analysis Module (FR600_009): records it in the
+  /// notification log (FR600_013), even when it cannot be shown on the phone (FR600_014), and shows
+  /// it as a notification. A High severity alert also gets the full-screen warning in the app
+  /// (FR600_010; HealthReportView) and the consult-a-professional advice (FR600_012).
+  Future<NotificationLog> receiveAnomaly(AnomalyEvent a) async {
+    var status = DeliveryStatus.delivered;
+    final body = a.isHighSeverity()
+        ? '${a.explanationText} ${Messages.consultProfessional}'
+        : a.explanationText;
+    try {
+      if (await _scheduler.isPermitted()) {
+        await showAlert(a, body: body);
+      } else {
+        status = DeliveryStatus.failed;
+      }
+    } catch (_) {
+      status = DeliveryStatus.failed;
+    }
+    final entry = NotificationLog(
+      notificationId: newId(),
+      accountId: a.accountId,
+      anomalyId: a.anomalyId,
+      notificationType: NotificationType.alert,
+      severity: a.severity,
+      messageBody: body,
+      deliveryStatus: status,
+      issuedAt: _now(),
+    );
+    await _repo.logNotification(entry);
+    return entry;
+  }
+
+  /// Shows the alert on the phone now (a one-off notification two seconds ahead; tapping it opens
+  /// the Health Report).
+  Future<void> showAlert(AnomalyEvent a, {String? body}) async {
+    final title = switch (a.severity) {
+      Severity.high => 'Health alert: please check this reading',
+      Severity.medium => 'Health alert',
+      Severity.low => 'Health note',
+    };
+    await _scheduler.scheduleOnce(
+      _alertId(a.anomalyId),
+      title,
+      body ?? a.explanationText,
+      _now().add(const Duration(seconds: 2)),
+      payload: ReminderTap.alertPayload(a.anomalyId),
+    );
+  }
+
+  /// No successful import for 24 hours (FR200_013, UC700 A1.2): logged and shown once.
+  Future<void> importOverdue(String accountId) async {
+    var status = DeliveryStatus.delivered;
+    try {
+      if (await _scheduler.isPermitted()) {
+        await _scheduler.scheduleOnce(
+          900000001,
+          'Health readings',
+          Messages.importOverdue,
+          _now().add(const Duration(seconds: 2)),
+          payload: const ReminderTap(ReminderType.healthLog).toPayload(),
+        );
+      } else {
+        status = DeliveryStatus.failed;
+      }
+    } catch (_) {
+      status = DeliveryStatus.failed;
+    }
+    await _repo.logNotification(
+      NotificationLog(
+        notificationId: newId(),
+        accountId: accountId,
+        notificationType: NotificationType.reminder,
+        messageBody: Messages.importOverdue,
+        deliveryStatus: status,
+        issuedAt: _now(),
+      ),
+    );
+  }
+
+  static int _alertId(String anomalyId) => 800000000 + (anomalyId.hashCode & 0x0fffffff) % 99999999;
 }

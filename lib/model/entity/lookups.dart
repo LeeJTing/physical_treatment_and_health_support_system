@@ -275,6 +275,22 @@ class LookupSeed {
     ),
   ];
 
+  /// Dietary restrictions (M700): what the patient cannot eat. Same rows as
+  /// supabase/seed/seed_lookups.sql and the migration 20261026120000_diet_and_analysis.sql; the
+  /// codes are the restriction tags of the food catalogue.
+  static const restrictions = <DietaryRestriction>[
+    DietaryRestriction(1, 'PEANUT', 'Peanut allergy', RestrictionType.allergy),
+    DietaryRestriction(2, 'SHELLFISH', 'Shellfish allergy', RestrictionType.allergy),
+    DietaryRestriction(3, 'VEGAN', 'Vegan', RestrictionType.diet),
+    DietaryRestriction(4, 'VEGETARIAN', 'Vegetarian', RestrictionType.diet),
+    DietaryRestriction(5, 'HALAL', 'Halal', RestrictionType.religious),
+    DietaryRestriction(6, 'FISH', 'Fish allergy', RestrictionType.allergy),
+    DietaryRestriction(7, 'EGG', 'Egg allergy', RestrictionType.allergy),
+    DietaryRestriction(8, 'MILK', 'Milk or lactose intolerance', RestrictionType.intolerance),
+    DietaryRestriction(9, 'GLUTEN', 'Gluten (wheat) intolerance', RestrictionType.intolerance),
+    DietaryRestriction(10, 'BEEF', 'No beef', RestrictionType.religious),
+  ];
+
   static const limitations = <PhysicalLimitation>[
     PhysicalLimitation(
       1,

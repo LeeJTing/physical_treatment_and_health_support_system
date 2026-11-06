@@ -1,3 +1,6 @@
+import 'dart:io' show Platform;
+
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
@@ -28,6 +31,29 @@ import 'package:physical_treatment_and_health_support_system/model/repository/tr
 import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/fake_terms_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/supabase_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/health_connect/health_data_source.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/anomaly_detection_service/anomaly_detection_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/forecast_service/forecast_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/health_connect_service/health_connect_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/analysis_repository/fake_analysis_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/analysis_repository/i_analysis_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/analysis_repository/supabase_analysis_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/biometric_repository/fake_biometric_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/biometric_repository/i_biometric_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/biometric_repository/supabase_biometric_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/fake_food_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/i_food_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/supabase_food_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/meal_repository/fake_meal_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/meal_repository/i_meal_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/meal_repository/supabase_meal_repository.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/local_settings/local_settings.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/local_settings/shared_prefs_local_settings.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/server_connection_service/server_connection_service.dart';
 
 /// Composition root. This is the ONLY file that names a concrete repository
 /// class (ASR_02); everything else depends on the interfaces.
@@ -39,6 +65,11 @@ Future<void> main() async {
   final ITreatmentRepository treatmentRepo;
   final INotificationRepository notificationRepo;
   final ITermsRepository termsRepo;
+  // Jun Ting's modules: M200, M400, M700
+  final IBiometricRepository biometricRepo;
+  final IAnalysisRepository analysisRepo;
+  final IFoodRepository foodRepo;
+  final IMealRepository mealRepo;
   final String? Function() tokenProvider;
 
   if (AppConstants.useFakes) {
@@ -48,6 +79,12 @@ Future<void> main() async {
     treatmentRepo = FakeTreatmentRepository.fromJson(catalogue);
     notificationRepo = FakeNotificationRepository();
     termsRepo = FakeTermsRepository();
+    biometricRepo = FakeBiometricRepository();
+    analysisRepo = FakeAnalysisRepository();
+    foodRepo = FakeFoodRepository.fromJson(
+      await rootBundle.loadString('assets/seed/food_catalogue.json'),
+    );
+    mealRepo = FakeMealRepository();
     tokenProvider = () => 'dev-token';
   } else {
     if (AppConstants.supabaseUrl.isEmpty ||
@@ -64,6 +101,10 @@ Future<void> main() async {
     treatmentRepo = SupabaseTreatmentRepository(provider);
     notificationRepo = SupabaseNotificationRepository(provider);
     termsRepo = SupabaseTermsRepository(provider);
+    biometricRepo = SupabaseBiometricRepository(provider);
+    analysisRepo = SupabaseAnalysisRepository(provider);
+    foodRepo = SupabaseFoodRepository(provider);
+    mealRepo = SupabaseMealRepository(provider);
     // The AI server checks this Supabase token (JWKS) on every call.
     tokenProvider = () => provider.accessToken;
   }
@@ -72,8 +113,20 @@ Future<void> main() async {
     baseUrl: AppConstants.aiBaseUrl,
     tokenProvider: tokenProvider,
   );
+  // The AI server runs on the laptop; an address saved in Profile > AI server replaces the
+  // build-time AI_BASE_URL, so a new Wi-Fi or tunnel address needs no new build.
+  final serverConnection = ServerConnectionService(
+    api,
+    !kIsWeb && Platform.isAndroid ? SharedPrefsLocalSettings() : MemoryLocalSettings(),
+    defaultAddress: AppConstants.aiBaseUrl,
+  );
+  await serverConnection.restore();
 
   final risk = RiskAssessmentService(authRepo, profileRepo);
+  // Health Connect exists only on Android; elsewhere (desktop runs on fakes) a stand-in.
+  final HealthDataSource healthSource = !kIsWeb && Platform.isAndroid
+      ? PluginHealthDataSource()
+      : FakeHealthDataSource(available: false);
   runApp(
     MultiProvider(
       providers: [
@@ -82,6 +135,10 @@ Future<void> main() async {
         Provider<ITreatmentRepository>.value(value: treatmentRepo),
         Provider<INotificationRepository>.value(value: notificationRepo),
         Provider<ITermsRepository>.value(value: termsRepo),
+        Provider<IBiometricRepository>.value(value: biometricRepo),
+        Provider<IAnalysisRepository>.value(value: analysisRepo),
+        Provider<IFoodRepository>.value(value: foodRepo),
+        Provider<IMealRepository>.value(value: mealRepo),
         Provider<ApiClient>.value(value: api),
         // Testing mode (Profile, debug builds only): any exercise, nothing saved.
         ChangeNotifierProvider<TestModeViewModel>(create: (_) => TestModeViewModel()),
@@ -89,6 +146,7 @@ Future<void> main() async {
         ChangeNotifierProvider<GuideViewModel>(
           create: (_) => GuideViewModel(SpeechService()),
         ),
+        Provider<ServerConnectionService>.value(value: serverConnection),
         // Services are added here module by module; ViewModels are created per route in app.dart.
         Provider<RiskAssessmentService>.value(value: risk),
         Provider<RecommendationService>.value(
@@ -98,6 +156,18 @@ Future<void> main() async {
         Provider<PoseEstimationService>.value(
           value: PoseEstimationService(api),
         ),
+        // M200, M400, M700 services (Jun Ting)
+        Provider<HealthConnectService>.value(value: HealthConnectService(healthSource)),
+        Provider<ForecastService>.value(value: ForecastService(api)),
+        Provider<AnomalyDetectionService>.value(
+          value: AnomalyDetectionService(api, analysisRepo),
+        ),
+        Provider<FoodRecognitionService>.value(
+          value: FoodRecognitionService(api, foodRepo),
+        ),
+        Provider<SuitabilityService>.value(value: const SuitabilityService()),
+        Provider<DietPlannerService>.value(value: DietPlannerService(api, foodRepo)),
+        Provider<MealImageSource>.value(value: PluginMealImageSource()),
         Provider<LocalNotificationService>.value(
           value: LocalNotificationService(
             notificationRepo,

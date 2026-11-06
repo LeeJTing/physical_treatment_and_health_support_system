@@ -1,1 +1,1 @@
-MealLogViewModel (M700, Jun Ting). Not built yet.
+MealLogViewModel (M700, Jun Ting; Table 4.69): meal photo, recognition, correction, portion, save and delete, running daily totals.

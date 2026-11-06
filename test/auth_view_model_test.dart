@@ -538,7 +538,7 @@ void main() {
 
       device.tapController.add('HEALTH_LOG|');
       await pumpEventQueue();
-      expect(m.takeReminderOpen(), isNull); // just the app
+      expect(m.takeReminderOpen()?.route, Routes.monitoring);
 
       await auth.signOut();
       device.tapController.add('EXERCISE|pp9');

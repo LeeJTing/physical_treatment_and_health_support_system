@@ -4,13 +4,14 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/anomaly_event.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/i_notification_repository.dart';
 
-/// Reminder management and the notification log (Table 4.49). receiveAnomaly (FR600_009/010)
-/// belongs to the M400 health-monitoring alerts and is added with that module.
+/// Reminder management and the notification log (Table 4.71). Alerts from M400 arrive through
+/// [receiveAnomaly] (FR600_009, FR600_010).
 class NotificationViewModel extends BaseViewModel {
   final INotificationRepository _repo;
   final LocalNotificationService _scheduler;
@@ -216,10 +217,22 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// The log's date range (FR600_015): the last two weeks until the patient picks another.
+  DateTime logFrom = DateTime.now().subtract(const Duration(days: 14));
+  DateTime logTo = DateTime.now();
+
+  /// Turns an anomaly into an alert (FR600_009, FR600_010): logged, shown on the phone, counted.
+  Future<void> receiveAnomaly(AnomalyEvent a) async {
+    await _scheduler.receiveAnomaly(a);
+    await loadLog(logFrom, DateTime.now());
+  }
+
   /// Filters the log by date (FR600_015).
   Future<void> loadLog(DateTime from, DateTime to) async {
     final id = _accountId;
     if (id == null) return;
+    logFrom = from;
+    logTo = to;
     _log = (await _repo.getLog(id, from, to)).dataOrNull ?? const [];
     _unreadCount = (await _repo.unreadCount(id)).dataOrNull ?? 0;
     notifyListeners();
@@ -228,7 +241,6 @@ class NotificationViewModel extends BaseViewModel {
   /// Clears one entry from the unread count (FR600_016).
   Future<void> markRead(String id) async {
     await _repo.markRead(id);
-    final now = DateTime.now();
-    await loadLog(now.subtract(const Duration(days: 14)), now);
+    await loadLog(logFrom, logTo.isBefore(DateTime.now()) ? logTo : DateTime.now());
   }
 }

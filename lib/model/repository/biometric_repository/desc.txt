@@ -1,1 +1,3 @@
-IBiometricRepository (M200, Jun Ting). Not built yet.
+IBiometricRepository (M200 Health Monitoring and Tracking, Jun Ting): biometric readings and the
+Health Connect connection state. i_biometric_repository.dart (interface, Table 4.77),
+supabase_biometric_repository.dart (Table 4.85), fake_biometric_repository.dart (USE_FAKES, tests).

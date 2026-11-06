@@ -1,1 +1,1 @@
-HealthConnectService (M200, Jun Ting). Not built yet.
+HealthConnectService (M200, Jun Ting): permission, availability and import of blood pressure, glucose and weight from Health Connect (device_platform/health_connect).
