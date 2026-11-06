@@ -1,7 +1,6 @@
 import 'package:physical_treatment_and_health_support_system/core/utils/form_validators.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
-import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 
 void main() {
   test('age boundaries of the profile (Table 3.3): 13 to 120 accepted', () {
