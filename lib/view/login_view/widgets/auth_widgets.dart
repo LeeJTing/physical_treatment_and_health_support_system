@@ -331,8 +331,14 @@ class OutlinedPillButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (icon != null) ...[icon!, const SizedBox(width: 12)],
-                // Flexible so large text scaling ellipsises instead of overflowing.
-                Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+                // With large phone text the label shrinks to fit on one line (24 Oct: an ellipsis
+                // left "Continue with G..." at 2x).
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(label, maxLines: 1),
+                  ),
+                ),
               ],
             ),
     ),

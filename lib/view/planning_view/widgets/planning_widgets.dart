@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/common/whole_words_text.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 
 /// Back arrow, title and teal subtitle used at the top of the planning screens.
@@ -31,7 +32,7 @@ class PlanningHeader extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              WholeWordsText(
                 title,
                 style: const TextStyle(
                   fontSize: 24,
@@ -40,7 +41,7 @@ class PlanningHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
+              WholeWordsText(
                 subtitle,
                 style: const TextStyle(
                   fontSize: 14,
@@ -53,6 +54,45 @@ class PlanningHeader extends StatelessWidget {
         ),
       ),
     ],
+  );
+}
+
+/// [PlanningHeader] at the top of a page, with [actions] on the right (23 Oct), so the screens
+/// opened from the treatment and planning pages share one header instead of three kinds of
+/// AppBar. Not an app bar: it grows with large phone text. The back arrow pops by default.
+class HeaderBar extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  final VoidCallback? onBack;
+  final List<Widget> actions;
+
+  const HeaderBar({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.onBack,
+    this.actions = const [],
+  });
+
+  @override
+  Widget build(BuildContext context) => SafeArea(
+    bottom: false,
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: PlanningHeader(
+              title: title,
+              subtitle: subtitle,
+              onBack: onBack ?? () => Navigator.of(context).maybePop(),
+            ),
+          ),
+          ...actions,
+        ],
+      ),
+    ),
   );
 }
 
@@ -285,9 +325,11 @@ class TokenButton extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: double.infinity,
-    height: AppTokens.minTarget,
+  Widget build(BuildContext context) => ConstrainedBox(
+    constraints: const BoxConstraints(
+      minWidth: double.infinity,
+      minHeight: AppTokens.minTarget,
+    ),
     child: FilledButton(
       onPressed: busy ? null : onPressed,
       style: FilledButton.styleFrom(

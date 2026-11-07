@@ -98,20 +98,43 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
   /// (FR500_09). Until supabase/proposed/..._multiple_active_plans.sql is
   /// applied, the unique index 'one ACTIVE plan per patient' rejects a second
   /// ACTIVE plan with Postgres code 23505.
+  ///
+  /// Two statements, not one transaction: when the insert fails the replaced
+  /// plans are made ACTIVE again, so a failed save never leaves the patient
+  /// with no plan (audit, 24 Oct).
   @override
   Future<Result<void>> assignPlan(
     PatientTreatmentPlan p, {
     List<String> replacing = const [],
   }) => supabaseGuard(() async {
     if (replacing.isNotEmpty) {
-      await _sb
-          .from('patient_plan')
-          .update({'status': PlanStatus.abandoned.db})
-          .eq('account_id', p.accountId)
-          .inFilter('patient_plan_id', replacing);
+      await _setStatus(p.accountId, replacing, PlanStatus.abandoned);
     }
-    await _sb.from('patient_plan').insert(p.toJson());
+    try {
+      await _sb.from('patient_plan').insert(p.toJson());
+    } catch (_) {
+      if (replacing.isNotEmpty) {
+        try {
+          await _setStatus(p.accountId, replacing, PlanStatus.active);
+        } catch (_) {
+          // Offline as well: nothing more can be done; the insert's error is reported.
+        }
+      }
+      rethrow;
+    }
   });
+
+  Future<void> _setStatus(
+    String accountId,
+    List<String> patientPlanIds,
+    PlanStatus status,
+  ) async {
+    await _sb
+        .from('patient_plan')
+        .update({'status': status.db})
+        .eq('account_id', accountId)
+        .inFilter('patient_plan_id', patientPlanIds);
+  }
 
   /// One RPC, so the attempt and the plan's new progress are written in one
   /// transaction (ASR_04).

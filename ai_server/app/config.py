@@ -8,7 +8,9 @@ class Settings(BaseSettings):
 
     supabase_jwt_secret: str = ""
     supabase_jwks_url: str = ""
-    dev_auth_bypass: bool = True
+    # Off unless asked for (bug list #17, 1 Nov): it was on by default, so a .env without the line
+    # let anyone with the tunnel address in with the public test token. run_server.ps1 -Dev turns it on.
+    dev_auth_bypass: bool = False
     model_dir: str = "models/weights"
     # Where new models run (app/device.py): "auto" = the GPU when torch sees one (Elwin's PC: RTX 3050),
     # else the CPU; "cpu" or "cuda" to force it.

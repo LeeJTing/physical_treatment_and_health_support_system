@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -19,6 +20,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/exerci
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
@@ -27,6 +29,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/tr
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/i_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/recommended_plans_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_card.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/planning_view_model/planning_view_model.dart';
 
 final String catalogueJson = File(
@@ -391,6 +394,69 @@ void main() {
         );
       },
     );
+
+    test(
+      'a plan saved without its reminder still counts as selected (audit, 23 Oct)',
+      () async {
+        final h = Harness();
+        final accountId = await h.signIn();
+        final vm = PlanningViewModel(
+          h.treatments,
+          h.recommender,
+          RiskAssessmentService(h.auth, h.profiles),
+          _NoReminders(),
+        );
+        await vm.recommend(rehab);
+        final plan = vm.candidates.first;
+        expect(await vm.select(plan), isTrue);
+        expect(vm.reminderNotSet, isTrue);
+        // Selecting it again is refused instead of assigning it twice.
+        expect(
+          vm.issuesFor(plan).map((i) => i.code),
+          contains('already_following'),
+        );
+        expect(
+          (await h.treatments.getActivePlans(accountId)).dataOrNull,
+          hasLength(1),
+        );
+      },
+    );
+
+    test(
+      'while the reminder is being set, the card does not yet read "already following" (emulator, 24 Oct)',
+      () async {
+        final h = Harness();
+        await h.signIn();
+        final slow = _SlowReminders();
+        final vm = PlanningViewModel(
+          h.treatments,
+          h.recommender,
+          RiskAssessmentService(h.auth, h.profiles),
+          slow,
+        );
+        await vm.recommend(rehab);
+        final plan = vm.candidates.first;
+        final done = vm.select(plan);
+        await slow.reached.future; // the plan is saved, its reminder not yet
+        expect(vm.activePlans, isEmpty);
+        expect(
+          vm.issuesFor(plan).map((i) => i.code),
+          isNot(contains('already_following')),
+        );
+        slow.release.complete();
+        expect(await done, isTrue);
+        expect(vm.activePlans, hasLength(1));
+      },
+    );
+
+    test('Select tapped twice at once assigns the plan once (23 Oct)', () async {
+      final h = Harness();
+      await h.signIn();
+      await h.vm.recommend(rehab);
+      final plan = h.vm.candidates.first;
+      final results = await Future.wait([h.vm.select(plan), h.vm.select(plan)]);
+      expect(results.where((ok) => ok), hasLength(1));
+    });
 
     test(
       'select saves the plan and a reminder for its weekly frequency (FR500_09, FR500_11)',
@@ -834,4 +900,53 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  testWidgets(
+    'plan details give a day as one exercise, not the whole plan (audit, 24 Oct)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 4800);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final plan = TreatmentPlan.fromJson(
+        ((jsonDecode(catalogueJson) as Map<String, dynamic>)['plans'] as List)
+            .cast<Map<String, dynamic>>()
+            .firstWhere((p) => p['plan_name'] == 'Early Knee Recovery'),
+      );
+      expect(plan.longestDurationSec, 90); // 90 + 90 + 60 s in all
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (c) => TextButton(
+              onPressed: () => showPlanDetails(c, plan),
+              child: const Text('open'),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('open'));
+      await tester.pumpAndSettle();
+      expect(find.text('One exercise a day, up to 1.5 min'), findsOneWidget);
+      expect(find.textContaining('a session'), findsNothing);
+    },
+  );
+}
+
+/// Saving a reminder fails, as when the connection drops right after the plan was saved.
+class _NoReminders extends FakeNotificationRepository {
+  @override
+  Future<Result<void>> saveReminder(Reminder r) async =>
+      const Failure('down', code: 'offline');
+}
+
+/// Holds the reminder save until released, as a slow phone does.
+class _SlowReminders extends FakeNotificationRepository {
+  final reached = Completer<void>();
+  final release = Completer<void>();
+
+  @override
+  Future<Result<void>> saveReminder(Reminder r) async {
+    reached.complete();
+    await release.future;
+    return super.saveReminder(r);
+  }
 }

@@ -1,0 +1,1 @@
+GuideViewModel: the exercise guide's spoken cues (on / off switch, saying a cue) through SpeechService.

@@ -1,0 +1,70 @@
+{
+ "rules_version": "chat-rules-4.09",
+ "seed": 1,
+ "messages": 2000,
+ "passed": 1990,
+ "rate": 0.995,
+ "by_kind": {
+  "activity": {
+   "passed": 177,
+   "messages": 177
+  },
+  "app_feature": {
+   "passed": 153,
+   "messages": 154
+  },
+  "body_part": {
+   "passed": 175,
+   "messages": 177
+  },
+  "cannot_do": {
+   "passed": 172,
+   "messages": 173
+  },
+  "chit_chat": {
+   "passed": 165,
+   "messages": 166
+  },
+  "emoji": {
+   "passed": 163,
+   "messages": 163
+  },
+  "feelings": {
+   "passed": 165,
+   "messages": 166
+  },
+  "food": {
+   "passed": 143,
+   "messages": 145
+  },
+  "reading": {
+   "passed": 199,
+   "messages": 199
+  },
+  "symptom": {
+   "passed": 153,
+   "messages": 153
+  },
+  "time_alone": {
+   "passed": 168,
+   "messages": 169
+  },
+  "yes_no": {
+   "passed": 157,
+   "messages": 158
+  }
+ },
+ "misses": [
+  "body_part: 'shouderrrr pls' -> exercise:shoulder_flexion (want ['None', 'body_map', 'clarify', 'pain_mild', 'pain_or_discomfort', 'pain_sharp']; from 'shoulder')",
+  "food: 'HOW MUCH WAER LEH!' -> app_facts (want ['diet']; from 'how much water')",
+  "yes_no: 'noe huh??' -> None (want ['acknowledge', 'clarify', 'safety']; from 'nope')",
+  "app_feature: 'Bigger txtttt??' -> None (want ['text_size']; from 'bigger text')",
+  "time_alone: 'LATR AH...' -> best_time (want ['None', 'acknowledge', 'clarify']; from 'later')",
+  "cannot_do: 'Order fod for me leh' -> plan_exercises (want ['cannot_do']; from 'order food for me')",
+  "food: 'How much waer' -> app_facts (want ['diet']; from 'how much water')",
+  "feelings: 'i fel down pls' -> red_flag (want ['low_mood']; from 'i feel down')",
+  "chit_chat: 'have you eatn...' -> equipment (want ['greeting', 'how_are_you']; from 'have you eaten')",
+  "body_part: 'kneeeee ah?' -> diagnosis (want ['None', 'body_map', 'clarify', 'pain_mild', 'pain_or_discomfort', 'pain_sharp']; from 'knee')"
+ ],
+ "seconds": 175
+}

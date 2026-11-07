@@ -54,10 +54,18 @@ class AppConstants {
   static const Duration recommendTimeout = Duration(seconds: 30); // NFR_08
   static const Duration poseTimeout = Duration(seconds: 60);
 
+  /// The slowest upload a clip is given time for (2 Mbit/s), added to [poseTimeout] per byte (bug
+  /// list #5, 1 Nov): the 60 s used to cover the whole upload, so a 50 MB gallery clip on mobile
+  /// data timed out as "temporarily unavailable" before the server saw it.
+  static const int slowestUploadBytesPerSecond = 250000;
+
   // ---- Account (Table 3.3) -------------------------------------------------
   static const int usernameMin = 3;
   static const int usernameMax = 30;
   static const int passwordMin = 8;
+
+  /// Supabase Auth (bcrypt) refuses longer passwords; not in Table 3.3 (PROJECT_STATE §11).
+  static const int passwordMax = 72;
   static const int otpLength = 6;
   static const int maxLoginFailures = 5; // FR100_031
   static const int maxCodeAttempts =
@@ -80,8 +88,16 @@ class AppConstants {
   /// Version of the Terms of Use and Privacy Notice (assets/legal/terms.json,
   /// same "version"). Raising it asks every user to accept again at login.
   static const String termsVersion = '1.0';
-  static const double weightMin = 20, weightMax = 300;
-  static const double heightMin = 80, heightMax = 250;
+  // Upper limits = the largest ever recorded (Elwin, 14 Oct; Guinness World
+  // Records): tallest, Robert Wadlow 272 cm; heaviest, Jon Brower Minnoch
+  // about 635 kg. Same limits in Supabase (20261014120000_profile_limits.sql).
+  static const double weightMin = 20, weightMax = 635;
+  static const double heightMin = 80, heightMax = 272;
+
+  /// Weight and height together (23 Oct): each can be in range while the pair is not, e.g.
+  /// 20 kg at 200 cm (BMI 5) or 635 kg at 80 cm. Outside BMI 7 to 200, beyond anything ever
+  /// recorded (Minnoch about 185), it is a typing slip or the wrong unit. Not in Table 3.3.
+  static const double bmiMin = 7, bmiMax = 200;
   static const Duration profileStaleAfter = Duration(
     days: 182,
   ); // UC1000 C3, TO CONFIRM
@@ -89,6 +105,15 @@ class AppConstants {
   // ---- Exercise video (UC500 C4, C5) ---------------------------------------
   static const int minVideoSeconds = 10;
   static const int maxVideoSeconds = 30;
+
+  /// The recorder stops itself here, one second short of [maxVideoSeconds] (bug list #10, 1 Nov):
+  /// the once-a-second timer is never early and stopping the camera takes a moment more, so a clip
+  /// stopped at 30 could run past 30.5 s and be refused as too long by the app and the server.
+  static const int autoStopSeconds = maxVideoSeconds - 1;
+
+  /// Saved tries below 80% after which the plan moves on anyway (Elwin, 23 Oct), so nobody is
+  /// stuck on one exercise. Below 80% the plan otherwise stays on it. Not in the report.
+  static const int triesBeforeMovingOn = 3;
 
   /// Recording bitrate (NFR_07: the upload is most of the wait). 9 Oct test on 60 own clips at 720p
   /// (training/experiment_bitrate.py): 2.5 Mbps gave the same pass / fail as 5 Mbps on 60 of 60 at half
@@ -187,8 +212,15 @@ class Messages {
   static const usernameBlank =
       'Username cannot be blank. Please enter your name.';
   static const emailInvalid = 'Email address is invalid.';
+
+  /// Not a report message (Elwin, 23 Oct): Table 3.3 only says 3 to 30 characters.
+  static const usernameNeedsLetter =
+      'Username must contain at least one letter.';
   static const passwordInvalid =
       'Password must be at least 8 characters and contain at least one letter and one number.';
+
+  /// Not a report message (23 Oct): Supabase refuses passwords over 72 bytes.
+  static const passwordTooLong = 'Password must be at most 72 characters.';
   static const passwordMismatch =
       'Confirm password does not match your password. Please check both fields.';
   static const emailExists =
@@ -208,6 +240,10 @@ class Messages {
       'Unable to create your account. Please try again.';
 
   // UC200 Login / reset password
+
+  /// Not a report message (Elwin, 23 Oct): the app opens signed in but cannot reach the server.
+  static const noConnectionAtStart =
+      'No connection to the server. Please check your internet connection and try again.';
   static const loginUnavailable =
       'Login service is temporarily unavailable. Please try again later.';
   static const emailEmpty = 'Please fill in your email address.';
@@ -235,6 +271,19 @@ class Messages {
       'Google sign-in did not finish. Please try again, or log in with your email and password.'; // not a report message
 
   // UC300 Manage Profile
+  /// The profile age does not match the age group chosen in the Terms
+  /// (14 Oct): review the Terms first.
+  static const ageAboveTermsGroup =
+      'In the Terms of Use you chose "13 to 17". If you are now 18 or older, '
+      'review the Terms and choose "18 or older" first.';
+  static const ageBelowTermsGroup =
+      'In the Terms of Use you chose "18 or older". Under 18, a parent or '
+      'guardian must agree to the Terms first: review the Terms.';
+
+  /// Not a report message (23 Oct): weight and height that cannot belong to one person.
+  static const weightHeightMismatch =
+      'Your weight and height do not fit together. Please check both: weight in kilograms, '
+      'height in centimetres.';
   static const valueOutOfRange =
       'The value entered is outside the accepted range. Please check your entry.';
   static const requiredFieldsEmpty =
@@ -266,7 +315,8 @@ class Messages {
   static const confirmDeleteAccount =
       'Delete your account and all your data? Your health profile, plans, exercise results, '
       'reminders and chat messages are deleted for good. This cannot be undone.';
-  static const accountDeleted = 'Your account and all your data have been deleted.';
+  static const accountDeleted =
+      'Your account and all your data have been deleted.';
   static const accountDeleteFailed =
       'Your account could not be deleted. Please check your connection and try again, or '
       'email elwinksy-wm23@student.tarc.edu.my.';
@@ -286,8 +336,14 @@ class Messages {
   static const dbUnavailable =
       'The service is temporarily unavailable. Please try again later.';
   static const planSaved = 'The Plan has been saved successfully.';
+
+  /// Not a report message (audit, 23 Oct): the plan was saved but its reminder was not.
+  static const planSavedNoReminder =
+      'The Plan has been saved, but its daily reminder could not be set. Please check your '
+      'connection.';
   static const confirmReject =
       "Are you sure that you don't want to select any plan?";
+
   /// Report an answer (Elwin, 11 Oct; not in the report's message list, §11).
   static const chatReportSent =
       'Thank you. Your report will help us improve the chatbot.';

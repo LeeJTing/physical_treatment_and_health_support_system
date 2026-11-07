@@ -294,11 +294,12 @@ class _NotificationViewState extends State<NotificationView>
             ],
           ),
           const SizedBox(height: 4),
+          // At least 48 px tall, like every other control (audit, 24 Oct: about 41).
           InkWell(
             onTap: () => _pickTime(r),
             borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
               child: Row(
                 children: [
                   const Icon(Icons.schedule, size: 20, color: AppTokens.accent),
@@ -419,7 +420,7 @@ class _NotificationViewState extends State<NotificationView>
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: TextButton.styleFrom(foregroundColor: AppTokens.danger),
+            style: TextButton.styleFrom(foregroundColor: AppTokens.cta),
             child: const Text('Delete'),
           ),
         ],

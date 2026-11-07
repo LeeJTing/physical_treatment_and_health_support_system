@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/recording_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 
@@ -21,11 +23,23 @@ class PostureResultView extends StatelessWidget {
 
   Future<void> _continue(BuildContext context) async {
     final vm = context.read<TreatmentViewModel>();
+    if (vm.testing) {
+      _backTo(context, TestExercisesView.routeName); // testing mode: nothing to save
+      return;
+    }
     final ok = await vm.acceptResult(); // FR300_21
     if (!context.mounted) return;
     if (ok) {
+      final tries = vm.lastTriesBelowPass;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Your progress has been updated.')),
+        SnackBar(
+          content: Text(
+            vm.lastMovedOn
+                ? 'Your progress has been updated.'
+                : 'Saved. You will do this exercise again next time '
+                      '(try $tries of ${AppConstants.triesBeforeMovingOn} below 80%).',
+          ),
+        ),
       );
       _backTo(context, TreatmentView.routeName);
     }
@@ -63,7 +77,7 @@ class PostureResultView extends StatelessWidget {
         : vm.retriesInARow >= 2
         ? 'You have tried this a few times. Rest now and try again tomorrow.'
         : 'Rest for a minute before you try again.';
-    return Scaffold(
+    final page = Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
         child: ListView(
@@ -93,6 +107,14 @@ class PostureResultView extends StatelessWidget {
                 color: AppTokens.accent,
               ),
             ),
+            // Testing mode: said at the top, before the score (laptop emulator test, 20 Oct).
+            if (vm.testing) ...[
+              const SizedBox(height: AppTokens.gap),
+              const NoticeBanner(
+                'Testing mode: this result is not saved and no plan changes.',
+                key: Key('test_mode_result'),
+              ),
+            ],
             if (r.safetyAlert != null) ...[
               const SizedBox(height: 12),
               _SafetyBanner(message: r.safetyAlert!),
@@ -224,6 +246,16 @@ class PostureResultView extends StatelessWidget {
               const SizedBox(height: AppTokens.gap),
               NoticeBanner(message, warning: true), // FR300_27
             ],
+            // Below 80% (Elwin, 23 Oct): say what Continue does before it is tapped.
+            if (!passing && !vm.testing) ...[
+              const SizedBox(height: 12),
+              Text(
+                'Continue saves this try. Your plan moves on when you score 80% or '
+                'more, or after ${AppConstants.triesBeforeMovingOn} tries below 80%.',
+                key: const Key('below_pass_rule'),
+                style: const TextStyle(fontSize: 15, color: AppTokens.textBody),
+              ),
+            ],
             if (restHint != null) ...[
               const SizedBox(height: 16),
               Text(
@@ -236,8 +268,8 @@ class PostureResultView extends StatelessWidget {
               children: [
                 if (!fell) ...[
                   Expanded(
-                    child: SizedBox(
-                      height: AppTokens.minTarget,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                       child: FilledButton(
                         onPressed: saving is Loading
                             ? null
@@ -262,8 +294,8 @@ class PostureResultView extends StatelessWidget {
                   const SizedBox(width: 10),
                 ],
                 Expanded(
-                  child: SizedBox(
-                    height: AppTokens.minTarget,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                     child: OutlinedButton(
                       onPressed: saving is Loading
                           ? null
@@ -299,6 +331,16 @@ class PostureResultView extends StatelessWidget {
           ],
         ),
       ),
+    );
+    // The phone's Back (23 Oct) went to the recorder without recording the try. Now it is
+    // Retry exercise, or Continue after a possible fall (no retry today).
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop || saving is Loading) return;
+        fell ? _continue(context) : _retry(context);
+      },
+      child: page,
     );
   }
 }

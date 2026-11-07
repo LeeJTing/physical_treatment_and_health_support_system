@@ -1,0 +1,56 @@
+{
+  "pose_key": "hip_abduction",
+  "focus": {
+    "joint": "r_hip",
+    "from": "r_shoulder",
+    "to": "r_ankle"
+  },
+  "mover": "r_ankle",
+  "captions": {
+    "start": "Hold the chair, stand tall",
+    "go": "Lift your leg out to the side",
+    "top": "Toes forward, body upright",
+    "back": "Lower it slowly"
+  },
+  "say": {
+    "go": "Out",
+    "back": "In"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand beside a chair and hold it."
+    },
+    {
+      "phase": "go",
+      "text": "Lift one leg out to the side, with the knee straight and the toes pointing forward."
+    },
+    {
+      "phase": "top",
+      "text": "Keep your body upright: do not lean away from the leg."
+    },
+    {
+      "phase": "back",
+      "text": "Lower it slowly. Then do the same with the other leg."
+    }
+  ],
+  "safety": [
+    "Hold the chair the whole time.",
+    "Do not lean your body to the side."
+  ],
+  "mistakes": [
+    {
+      "label": "trunk_lean",
+      "wrong": "your body leaned to the side",
+      "right": "Keep your body upright; do not lean away from the lifting leg."
+    },
+    {
+      "label": "leg_forward",
+      "wrong": "your leg went forwards instead of straight out to the side",
+      "right": "Lift the leg straight out to the side, not forwards."
+    }
+  ],
+  "setup": [
+    "Face the phone, with the chair beside you."
+  ]
+}

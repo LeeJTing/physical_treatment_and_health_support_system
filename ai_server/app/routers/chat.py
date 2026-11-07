@@ -1,8 +1,9 @@
 """/chat - Rule-Based Chatbot Engine (M500.2). Rules in app/chat/rules.json, matching in app/chat/engine.py."""
+import unicodedata
 from typing import Literal
 
 from fastapi import APIRouter, Depends
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from ..auth import current_account_id
 from ..chat import engine
@@ -21,10 +22,31 @@ class CategoriesResponse(BaseModel):
     rules_version: str
 
 
+MAX_TEXT = 500                    # characters as the app's text box counts them (chat_view.dart)
+
+
+def visible_length(text: str) -> int:
+    """Characters as a person sees them: "👍🏽", "❤️", "1️⃣" and "👨‍👩‍👧‍👦" are one each, though Python counts
+    2-11 code points (skin tones, joiners, variation selectors, a flag's two letters)."""
+    n, joined = 0.0, False
+    for ch in text:
+        if joined:
+            joined = False                             # joined to the one before by a zero-width joiner
+            continue
+        if ch == "‍":
+            joined = True
+            continue
+        if unicodedata.category(ch) in ("Mn", "Me", "Cf") or 0x1F3FB <= ord(ch) <= 0x1F3FF:
+            continue                                   # joins or changes the character before it
+        n += 0.5 if 0x1F1E6 <= ord(ch) <= 0x1F1FF else 1   # a flag is two regional letters
+    return int(n + 0.5)
+
+
 class ChatRequest(BaseModel):
     plan_id: str | None = None
     category: str | None = None
-    text: str | None = Field(default=None, max_length=500)
+    # 500 visible characters (an emoji is one, as in the app); at most 6 000 code points in all.
+    text: str | None = Field(default=None, max_length=6000)
     # From the patient's profile, so the reply can be filtered by health condition (Table 4.2.2).
     conditions: list[str] = Field(default_factory=list)        # e.g. ["HYPERTENSION", "DIABETES"]
     limitations: list[str] = Field(default_factory=list)       # e.g. ["BALANCE_IMPAIRMENT"]
@@ -38,6 +60,13 @@ class ChatRequest(BaseModel):
     previous_category: str | None = Field(default=None, max_length=80)
     # From the recommender's response (3.49): AGE_65_PLUS = plans are paused (Terms of Use, section 2).
     restriction: Literal["AGE_65_PLUS"] | None = None
+
+    @field_validator("text")
+    @classmethod
+    def at_most_500_characters(cls, v: str | None) -> str | None:
+        if v is not None and visible_length(v) > MAX_TEXT:
+            raise ValueError(f"A question can be at most {MAX_TEXT} characters.")
+        return v
 
     @model_validator(mode="after")
     def needs_input(self):

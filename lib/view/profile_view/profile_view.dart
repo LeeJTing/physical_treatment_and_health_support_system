@@ -11,7 +11,9 @@ import 'package:physical_treatment_and_health_support_system/core/utils/form_val
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
 
@@ -74,6 +76,16 @@ class _ProfileViewState extends State<ProfileView> {
         ).pushNamedAndRemoveUntil(Routes.home, (_) => false);
       }
     }
+  }
+
+  /// The age does not match the age group accepted in the Terms (14 Oct):
+  /// accept them again for the new age, then save.
+  Future<void> _reviewTerms(ProfileViewModel vm) async {
+    final age = vm.draft?.age;
+    if (age == null) return;
+    context.read<AuthViewModel>().startAgeReview(age);
+    final accepted = await Navigator.of(context).pushNamed<bool>(Routes.terms);
+    if (accepted == true && mounted) await _save(vm);
   }
 
   Future<bool> _ask(String message, String yes, {bool danger = false}) async =>
@@ -150,14 +162,26 @@ class _ProfileViewState extends State<ProfileView> {
     }
     final firstLoad =
         vm.loadState is Loading && vm.profile == null && vm.draft == null;
+    // Straight after sign-in nothing is beneath this screen: Back goes on to Home (the profile
+    // can be completed later; Home asks for it) instead of closing the app.
+    final firstScreen = _standalone && !Navigator.of(context).canPop();
     return PopScope(
-      canPop: !vm.hasUnsavedChanges,
+      canPop: !vm.hasUnsavedChanges && !firstScreen,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
-        if (await _ask(Messages.discardChanges, 'Discard', danger: true) &&
-            context.mounted) {
-          vm.cancelEdit();
-          Navigator.of(context).pop();
+        if (vm.hasUnsavedChanges &&
+            !await _ask(Messages.discardChanges, 'Discard', danger: true)) {
+          return;
+        }
+        if (!context.mounted) return;
+        vm.cancelEdit();
+        final nav = Navigator.of(context);
+        // Only a screen with another beneath it is closed (audit, 24 Oct: Discard closed the
+        // only screen and left the app black, after sign-in and on the shell's Profile tab).
+        if (firstScreen) {
+          nav.pushNamedAndRemoveUntil(Routes.home, (_) => false);
+        } else if (nav.canPop()) {
+          nav.pop();
         }
       },
       child: Scaffold(
@@ -168,6 +192,7 @@ class _ProfileViewState extends State<ProfileView> {
                 vm: vm,
                 onCancel: () => _cancel(vm),
                 onSave: () => _save(vm),
+                onReviewTerms: () => _reviewTerms(vm),
               )
             : null,
         body: switch (vm.loadState) {
@@ -368,10 +393,6 @@ class _ProfileViewState extends State<ProfileView> {
                       : 'Consult a healthcare professional before starting any exercise programme.',
                 ),
               ],
-              if (vm.saveState case UiError(:final message)) ...[
-                const SizedBox(height: 16),
-                InfoBanner(message, icon: Icons.error_outline),
-              ],
               if (!vm.isEditing) ...[
                 const SizedBox(height: 28),
                 const SectionTitle('Account settings'),
@@ -407,6 +428,24 @@ class _ProfileViewState extends State<ProfileView> {
                   onTap: () => _logout(vm),
                 ),
                 const SizedBox(height: 10),
+                if (TestModeViewModel.available) ...[
+                  Builder(
+                    builder: (context) {
+                      final tm = context.watch<TestModeViewModel>();
+                      return SettingsCard(
+                        key: const Key('test_mode_switch'),
+                        title: 'Testing mode',
+                        subtitle: 'Try any exercise now; nothing is saved',
+                        trailing: Switch(
+                          value: tm.enabled,
+                          onChanged: tm.setEnabled,
+                        ),
+                        onTap: () => tm.setEnabled(!tm.enabled),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 SettingsCard(
                   title: 'Terms of Use and Privacy Notice',
                   subtitle: 'Read what you agreed to',
@@ -565,14 +604,19 @@ class _ProfileViewState extends State<ProfileView> {
   }
 }
 
+/// Cancel and Save, pinned at the bottom while editing. A refused Save says why right above
+/// the buttons (audit, 23 Oct): at the end of the long list the message was out of sight of
+/// both the Save button and the fields it is about, as the sign-in screens show theirs.
 class _EditBar extends StatelessWidget {
   final ProfileViewModel vm;
   final VoidCallback onCancel;
   final VoidCallback onSave;
+  final VoidCallback onReviewTerms;
   const _EditBar({
     required this.vm,
     required this.onCancel,
     required this.onSave,
+    required this.onReviewTerms,
   });
 
   @override
@@ -588,62 +632,80 @@ class _EditBar extends StatelessWidget {
         color: AppTokens.surface,
         border: Border(top: BorderSide(color: AppTokens.cardBorder)),
       ),
-      child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (vm.profile != null) ...[
-            Expanded(
-              child: SizedBox(
-                height: 52,
-                child: OutlinedButton(
-                  onPressed: vm.saveState is Loading ? null : onCancel,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppTokens.ink,
-                    side: const BorderSide(
-                      color: AppTokens.outline,
-                      width: 1.5,
-                    ),
-                    shape: const StadiumBorder(),
-                    textStyle: const TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  child: const Text('Cancel'),
+          if (vm.saveState case UiError(:final message)) ...[
+            InfoBanner(message, icon: Icons.error_outline),
+            if (vm.ageReviewNeeded)
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  key: const Key('review_terms_for_age'),
+                  onPressed: onReviewTerms,
+                  child: const Text('Review Terms'),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
+            const SizedBox(height: 10),
           ],
-          Expanded(
-            child: SizedBox(
-              height: 52,
-              child: FilledButton(
-                onPressed: vm.saveState is Loading ? null : onSave,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppTokens.cta,
-                  foregroundColor: Colors.white,
-                  shape: const StadiumBorder(),
-                  textStyle: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                child: vm.saveState is Loading
-                    ? const SizedBox(
-                        width: 22,
-                        height: 22,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.5,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Text('Save'),
-              ),
-            ),
-          ),
+          _buttons(),
         ],
       ),
     ),
+  );
+
+  Widget _buttons() => Row(
+    children: [
+      if (vm.profile != null) ...[
+        Expanded(
+          child: SizedBox(
+            height: 52,
+            child: OutlinedButton(
+              onPressed: vm.saveState is Loading ? null : onCancel,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTokens.ink,
+                side: const BorderSide(color: AppTokens.outline, width: 1.5),
+                shape: const StadiumBorder(),
+                textStyle: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              child: const Text('Cancel'),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+      ],
+      Expanded(
+        child: SizedBox(
+          height: 52,
+          child: FilledButton(
+            onPressed: vm.saveState is Loading ? null : onSave,
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTokens.cta,
+              foregroundColor: Colors.white,
+              shape: const StadiumBorder(),
+              textStyle: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            child: vm.saveState is Loading
+                ? const SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Text('Save'),
+          ),
+        ),
+      ),
+    ],
   );
 }
 

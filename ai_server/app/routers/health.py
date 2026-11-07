@@ -8,7 +8,9 @@ router = APIRouter(tags=["health"])
 @router.get("/health")
 def health():
     """Unauthenticated liveness check, used before a demo to wake the server."""
-    return {"status": "ok", "version": get_settings().api_version}
+    s = get_settings()
+    # Read by run_tunnel.ps1, which refuses to open a public address while the test token works.
+    return {"status": "ok", "version": s.api_version, "dev_token_accepted": s.dev_auth_bypass}
 
 
 @router.get("/")

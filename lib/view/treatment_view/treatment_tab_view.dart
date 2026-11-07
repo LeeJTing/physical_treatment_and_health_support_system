@@ -5,6 +5,8 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/session_history_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 
@@ -38,6 +40,23 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
       ),
     );
     if (mounted) await vm.loadPlan();
+  }
+
+  /// Testing mode: every exercise, straight to the posture check.
+  Future<void> _openTests() async {
+    final vm = context.read<TreatmentViewModel>();
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        settings: const RouteSettings(name: TestExercisesView.routeName),
+        builder: (_) => ChangeNotifierProvider.value(
+          value: vm,
+          child: const TestExercisesView(),
+        ),
+      ),
+    );
+    if (!mounted) return;
+    vm.cancelExercise();
+    await vm.loadPlan();
   }
 
   Future<void> _openHistory() async {
@@ -85,6 +104,7 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<TreatmentViewModel>();
+    final testMode = context.watch<TestModeViewModel>().enabled;
     final plan = vm.activePlan;
     final next = plan?.currentExercise();
     final days = plan == null
@@ -131,8 +151,21 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (testMode) ...[
+                  _NavCard(
+                    key: const Key('test_mode_card'),
+                    icon: Icons.science_outlined,
+                    title: 'Testing mode: try any exercise',
+                    subtitle: 'Record any exercise and check your posture now. Nothing is saved.',
+                    onTap: _openTests,
+                  ),
+                  const SizedBox(height: AppTokens.gap),
+                ],
+                // The highlighted card is the next thing to do (Elwin, 23 Oct): the plan once
+                // there is one, before that getting one.
                 _NavCard(
-                  dark: true,
+                  key: const Key('my_plan_card'),
+                  dark: plan != null,
                   icon: Icons.monitor_heart_outlined,
                   title: 'My treatment plan',
                   subtitle: plan == null
@@ -142,6 +175,8 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
                 ),
                 const SizedBox(height: AppTokens.gap),
                 _NavCard(
+                  key: const Key('planning_card'),
+                  dark: plan == null,
                   icon: Icons.auto_awesome_outlined,
                   title: 'AI-assisted treatment planning',
                   subtitle: 'Get a new plan, ask the chat bot',
@@ -233,6 +268,7 @@ class _NavCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const _NavCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,

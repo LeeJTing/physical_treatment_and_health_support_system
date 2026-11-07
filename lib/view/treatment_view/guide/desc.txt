@@ -1,0 +1,1 @@
+Exercise guide (23 Oct): GuideView walks the patient through an exercise before every recording (watch it, the steps, staying safe and common mistakes, where to put the phone), SetupScene draws the phone placement, SpeechToggle turns spoken cues on and off.

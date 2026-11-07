@@ -1,0 +1,53 @@
+{
+  "pose_key": "shoulder_flexion",
+  "focus": {
+    "joint": "shoulder",
+    "from": "hip",
+    "to": "wrist"
+  },
+  "mover": "wrist",
+  "captions": {
+    "start": "Arms by your sides",
+    "go": "Raise your arms forward",
+    "top": "Shoulder height, thumbs up",
+    "back": "Lower slowly"
+  },
+  "say": {
+    "go": "Raise",
+    "back": "Lower"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand with your arms by your sides."
+    },
+    {
+      "phase": "go",
+      "text": "Raise both arms forward with your elbows straight and your thumbs up."
+    },
+    {
+      "phase": "top",
+      "text": "Stop at shoulder height and hold for one second."
+    },
+    {
+      "phase": "back",
+      "text": "Lower your arms slowly."
+    }
+  ],
+  "safety": [
+    "Do not arch your back."
+  ],
+  "mistakes": [
+    {
+      "label": "back_arch",
+      "wrong": "your lower back bent backwards as your arms went up",
+      "right": "Keep your back still; do not lean backwards as your arms go up."
+    },
+    {
+      "label": "swinging",
+      "wrong": "you swung your arms up quickly instead of lifting slowly",
+      "right": "Lift slowly and pause at the top instead of swinging."
+    }
+  ],
+  "setup": []
+}

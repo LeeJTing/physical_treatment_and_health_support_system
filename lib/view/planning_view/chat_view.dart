@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -116,10 +118,13 @@ class _ChatViewState extends State<ChatView> {
   }
 
   Future<void> _send() async {
+    final vm = context.read<ChatViewModel>();
     final text = _input.text;
-    if (text.trim().isEmpty) return;
+    // The keyboard's send key still works while an answer is coming: the question stays in
+    // the box until it can be sent (audit, 24 Oct: it was cleared and never sent).
+    if (text.trim().isEmpty || vm.sending) return;
     _input.clear();
-    await context.read<ChatViewModel>().ask(text);
+    await vm.ask(text);
   }
 
   @override
@@ -141,40 +146,12 @@ class _ChatViewState extends State<ChatView> {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(8, 8, AppTokens.gutter, 4),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: PlanningHeader(
-                        title: 'Chat bot',
-                        subtitle: 'Ask about your rehabilitation',
-                        onBack: _exit,
-                      ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: OutlinedButton(
-                        onPressed: _exit,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppTokens.primary,
-                          side: const BorderSide(
-                            color: AppTokens.primary,
-                            width: 1.5,
-                          ),
-                          minimumSize: const Size(0, 40),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppTokens.radiusButton,
-                            ),
-                          ),
-                        ),
-                        child: const Text(
-                          'Exit chatbot',
-                          style: TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                      ),
-                    ),
-                  ],
+                // One way out (Elwin, 23 Oct): the back arrow. An "Exit chatbot" button beside it
+                // did the same thing (FR500_23, PROJECT_STATE §11).
+                child: PlanningHeader(
+                  title: 'Chat bot',
+                  subtitle: 'Ask about your rehabilitation',
+                  onBack: _exit,
                 ),
               ),
               Expanded(
@@ -342,7 +319,13 @@ class _MessageTile extends StatelessWidget {
               constraints: BoxConstraints(
                 maxWidth: MediaQuery.sizeOf(context).width * 0.8,
               ),
-              child: NoticeBanner(reply.notes.join(' '), warning: true),
+              // One note per line, so several are not run together into one paragraph.
+              child: NoticeBanner(
+                reply.notes.length == 1
+                    ? reply.notes.single
+                    : reply.notes.map((n) => '• $n').join('\n'),
+                warning: true,
+              ),
             ),
           ],
           // Buttons to the screens the answer names: the first filled, a second outlined. An
@@ -595,16 +578,21 @@ class _Choice extends StatelessWidget {
     child: InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(20),
+      // At least 48 px tall like every other button (audit, 24 Oct: 40), the text centred.
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 40),
+        constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          child: Text(
-            category.title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppTokens.accent,
+          child: Center(
+            widthFactor: 1,
+            heightFactor: 1,
+            child: Text(
+              category.title,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTokens.accent,
+              ),
             ),
           ),
         ),
@@ -634,8 +622,14 @@ class _Topics extends StatelessWidget {
     return Container(
       color: AppTokens.background,
       padding: const EdgeInsets.only(top: 6, bottom: 6),
+      // As tall as the chips' text needs: a fixed 44 cut them off with large phone text
+      // (emulator at font scale 2.0, 23 Oct). 14 sp text with 10 px padding above and below,
+      // and never under the 48 px touch target.
       child: SizedBox(
-        height: 44,
+        height: math.max(
+          AppTokens.minTarget,
+          24 + MediaQuery.textScalerOf(context).scale(14) * 1.35,
+        ),
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: AppTokens.gutter),

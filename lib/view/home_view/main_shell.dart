@@ -196,7 +196,11 @@ class MainShellState extends State<MainShell> with WidgetsBindingObserver {
             ),
           ),
         ),
-        child: NavigationBar(
+        // Labels at most 1.15x the normal size: with large phone text "Treatment" was split
+        // into "Treatme / nt" (audit, 23 Oct). The icons stay the same size.
+        child: MediaQuery.withClampedTextScaling(
+          maxScaleFactor: 1.15,
+          child: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => _select(context, i),
           destinations: const [
@@ -218,6 +222,7 @@ class MainShellState extends State<MainShell> with WidgetsBindingObserver {
               label: 'Profile',
             ),
           ],
+        ),
         ),
       ),
     );

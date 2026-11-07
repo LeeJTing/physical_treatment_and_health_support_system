@@ -45,6 +45,8 @@ class _Scheduler implements NotificationScheduler {
   @override
   Future<bool> openSettings() async => true;
   @override
+  Future<void> cancelAll() async {}
+  @override
   Future<void> scheduleOnce(int id, String title, String body, DateTime at, {String? payload}) async =>
       shown.add('$title|$payload');
   @override

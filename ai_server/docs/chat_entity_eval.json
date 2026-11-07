@@ -1,0 +1,28 @@
+{
+ "rules_version": "chat-rules-4.09",
+ "exercises": {
+  "questions": 1876,
+  "correct": 1876,
+  "misses": [],
+  "rate": 1.0
+ },
+ "conditions": {
+  "questions": 490,
+  "correct": 490,
+  "misses": [],
+  "rate": 1.0
+ },
+ "mistakes": {
+  "questions": 582,
+  "correct": 582,
+  "misses": [],
+  "rate": 1.0
+ },
+ "red_flags": {
+  "questions": 660,
+  "correct": 660,
+  "misses": [],
+  "rate": 1.0
+ },
+ "seconds": 216
+}

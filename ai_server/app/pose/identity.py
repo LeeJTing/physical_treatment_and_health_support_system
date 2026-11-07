@@ -129,9 +129,14 @@ RULES: dict[str, list[tuple[str, str, float, str]]] = {
     "elbow_flexion": [("elbow_bend", ">=", 45.0, "no elbow bending was seen"), LEGS_STILL, UPRIGHT],
     # Hand exercises (wrist_extension, hand_open_close): no rules here. The body is half hidden by the
     # table, so the body signature is unreliable; a repetition found on the hand points is the evidence.
+    # Body angle (20 Oct, laptop emulator test: a floor push-up filmed diagonally passed at 40 degrees):
+    # Elwin's wall push-ups lean 65.7-81 degrees from horizontal; the 144 fitness7 floor push-ups (25
+    # people, front/side/diagonal) are at most 40.3 from the diagonal and 23.4 from the side, and 2 of
+    # them passed "upright" (35). 55 refuses all 144 and keeps all 7 (check_wall_pushup_identity.py).
     "wall_push_up": [("elbow_bend", ">=", 25.0, "no elbow bending was seen"),
                      ("arm_raise", ">=", 20.0, "your arms were not up at the wall"),
-                     ("heels_together", ">=", 0.4, "your feet moved"), LEGS_STILL, UPRIGHT],
+                     ("heels_together", ">=", 0.4, "your feet moved"), LEGS_STILL,
+                     ("trunk_upright", ">=", 55.0, "your body was low to the floor, like a floor push-up")],
 }
 
 

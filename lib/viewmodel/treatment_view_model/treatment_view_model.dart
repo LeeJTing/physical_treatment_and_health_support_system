@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/plan_rules/plan_rules.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
@@ -30,7 +31,6 @@ class PathwayStage {
   const PathwayStage(this.item, this.status, this.bestAccuracy);
 }
 
-/// Pathway progress, video capture and the posture result (Table 4.52).
 /// One row of the session history: the attempt and the name of its exercise.
 class SessionHistoryEntry {
   final ExerciseSession session;
@@ -38,6 +38,7 @@ class SessionHistoryEntry {
   const SessionHistoryEntry(this.session, this.exerciseName);
 }
 
+/// Pathway progress, video capture and the posture result (Table 4.52).
 class TreatmentViewModel extends BaseViewModel {
   final ITreatmentRepository _repo;
   final PoseEstimationService _pose;
@@ -54,6 +55,18 @@ class TreatmentViewModel extends BaseViewModel {
     this._reminders,
     this._risk,
   ]);
+
+  List<PlanIssue> _planIssues = const [];
+
+  /// The followed plans that no longer fit the profile (PlanRules.checkActive): those about
+  /// the plan on screen, and those about all plans. Warnings only; nothing is stopped.
+  List<PlanIssue> get planIssues {
+    final id = activePlan?.patientPlanId;
+    return [
+      for (final i in _planIssues)
+        if (i.patientPlanId == null || i.patientPlanId == id) i,
+    ];
+  }
 
   /// Risk level and age from the health profile, so the server can lower the range-of-motion
   /// targets for older or high-risk patients. Nulls (full targets) when there is no profile.
@@ -118,12 +131,36 @@ class TreatmentViewModel extends BaseViewModel {
     return p == null ? 0 : RecommendationService.failsAtCurrent(p, _sessions);
   }
 
-  /// The current exercise did not pass several times: offer plans that may
-  /// suit better (the server's EASE step).
+  /// The exercise the plan just moved on from without passing it (bug list #9), if any.
+  (String, int)? get movedOnWithoutPass {
+    final p = activePlan;
+    return p == null
+        ? null
+        : RecommendationService.movedOnWithoutPass(p, _sessions);
+  }
+
+  /// The current exercise did not pass several times, or the plan moved on from one that never
+  /// passed (bug list #9): offer plans that may suit better (the server's EASE step).
   bool get suggestEasier =>
       _restriction == null &&
       !planComplete &&
+      (stuckAtCurrent || movedOnWithoutPass != null);
+
+  /// The current exercise itself did not pass enough times (the Retry path).
+  bool get stuckAtCurrent =>
       failsAtCurrent >= RecommendationService.easeAfterFails;
+
+  /// The name of the exercise [movedOnWithoutPass] is about.
+  String? get movedOnFromName {
+    final id = movedOnWithoutPass?.$1;
+    return id == null
+        ? null
+        : activePlan?.plan.exercises
+              .where((pe) => pe.exerciseId == id)
+              .firstOrNull
+              ?.exercise
+              .exerciseName;
+  }
 
   /// Sessions of every active plan (for the shared-exercise and rest-day rules).
   Map<String, List<ExerciseSession>> _sessionsByPlan = const {};
@@ -165,13 +202,22 @@ class TreatmentViewModel extends BaseViewModel {
       return;
     }
     final risk = _risk;
-    _age = risk == null
-        ? null
-        : (await risk.retrieve()).dataOrNull?.profile?.age;
+    final snapshot = risk == null ? null : (await risk.retrieve()).dataOrNull;
+    _age = snapshot?.profile?.age;
     _restriction = PlanRestriction.forAge(_age);
     final res = await _repo.getActivePlans(account.accountId);
     if (res case Success(data: final all)) {
       _plans = all;
+      // The same re-check as Home, shown where the exercises are started (audit, 23 Oct).
+      _planIssues = snapshot == null
+          ? const []
+          : PlanRules.checkActive(
+              active: all,
+              risk: snapshot.riskLevel,
+              limit: snapshot.safetyLimit,
+              conditions: snapshot.profile?.conditions ?? const [],
+              limitations: snapshot.profile?.limitations ?? const [],
+            );
       _lastCompleted =
           ((await _repo.getPlanHistory(account.accountId)).dataOrNull ??
                   const <PatientTreatmentPlan>[])
@@ -202,9 +248,15 @@ class TreatmentViewModel extends BaseViewModel {
         final reminders =
             (await _notifications.getReminders(account.accountId)).dataOrNull ??
             const <Reminder>[];
+        // Today's reminder is cancelled once today's exercise is done (FR600_005), so the card
+        // shows the next one from tomorrow instead of a time that will not ring (audit, 23 Oct).
+        final t = clock();
+        final from = doneToday
+            ? DateTime(t.year, t.month, t.day, 23, 59, 59)
+            : t;
         final times = [
           for (final r in reminders)
-            if (r.patientPlanId == data.patientPlanId) r.nextOccurrence(),
+            if (r.patientPlanId == data.patientPlanId) r.nextOccurrence(from),
         ].whereType<DateTime>().toList()..sort();
         _nextReminderAt = times.isEmpty ? null : times.first;
       }
@@ -242,9 +294,7 @@ class TreatmentViewModel extends BaseViewModel {
       return true;
     }
     return _sessionsByPlan.values.any(
-      (list) => list.any(
-        (s) => s.completedOn(today) && s.hadFallAlert(),
-      ),
+      (list) => list.any((s) => s.completedOn(today) && s.hadFallAlert()),
     );
   }
 
@@ -346,11 +396,57 @@ class TreatmentViewModel extends BaseViewModel {
   int get completedSessionCount =>
       _sessions.where((s) => s.isCompleted()).length;
 
+  /// Testing mode (20 Oct): the exercise being tested has no plan, no
+  /// one-exercise-per-day rule or rest day, full movement targets, and nothing
+  /// is saved (TestModeViewModel turns the mode on).
+  bool _testing = false;
+  bool get testing => _testing;
+
+  /// Every exercise of the catalogue, for testing mode.
+  UiState<List<Exercise>> _testExercises = const Idle();
+  UiState<List<Exercise>> get testExercises => _testExercises;
+
+  Future<void> loadTestExercises() async {
+    _testExercises = const Loading();
+    notifyListeners();
+    final res = await _repo.getCatalogue();
+    if (res case Success(data: final plans)) {
+      final seen = <String>{};
+      final all = [
+        for (final p in plans)
+          for (final pe in p.orderedExercises())
+            if (seen.add(pe.exercise.exerciseId)) pe.exercise,
+      ]..sort((a, b) => a.exerciseName.compareTo(b.exerciseName));
+      _testExercises = UiSuccess(all);
+    } else {
+      _testExercises = const UiError(Messages.exerciseRetrieveFailed);
+    }
+    notifyListeners();
+  }
+
+  /// Opens the recorder for [e] in testing mode.
+  void startTest(Exercise e) {
+    _attempt++;
+    _testing = true;
+    _current = e;
+    _analysis = const Idle();
+    _lastResult = null;
+    _saving = const Idle();
+    _autoAdvanced = false;
+    notifyListeners();
+  }
+
   /// Opens the recorder with the recording instructions (FR300_05).
   Future<void> startExercise(Exercise e) async {
     _attempt++;
+    _testing = false;
     _current = e;
     _analysis = const Idle();
+    // The last exercise's result and its "saved" state must not carry over (audit, 23 Oct):
+    // acceptResult saw _saving as already saved and skipped saving the next attempt, e.g. a
+    // second plan's exercise started after Continue on the first.
+    _lastResult = null;
+    _saving = const Idle();
     _autoAdvanced = false;
     notifyListeners();
   }
@@ -363,6 +459,7 @@ class TreatmentViewModel extends BaseViewModel {
   /// not saved; an attempt already saved (a passing result) stays saved.
   void cancelExercise() {
     _attempt++;
+    _testing = false;
     _current = null;
     _analysis = const Idle();
     _lastResult = null;
@@ -376,7 +473,7 @@ class TreatmentViewModel extends BaseViewModel {
   Future<ExerciseSession?> submitVideo(File v, {int? clipSeconds}) async {
     final e = _current;
     final p = activePlan;
-    if (e == null || p == null) return null;
+    if (e == null || (p == null && !_testing)) return null;
     final attempt = _attempt;
     _recordedAt = DateTime.now();
     _clipSeconds = clipSeconds;
@@ -390,15 +487,23 @@ class TreatmentViewModel extends BaseViewModel {
       notifyListeners();
       return null;
     }
-    final (riskLevel, age) = await _patientContext();
+    // Testing mode checks against the full targets (no lowering for age or risk).
+    final (riskLevel, age) = _testing ? (null, null) : await _patientContext();
     final res = await _pose.analyse(v, e, riskLevel: riskLevel, age: age);
-    if (attempt != _attempt) return null; // exited while analysing: nothing is saved
+    if (attempt != _attempt) {
+      return null; // exited while analysing: nothing is saved
+    }
     switch (res) {
       case Failure(:final message):
         _analysis = UiError(message);
         notifyListeners();
         return null;
       case Success(:final data):
+        if (_testing || p == null) {
+          _analysis = UiSuccess(data); // testing mode: shown, never saved
+          notifyListeners();
+          return null;
+        }
         if (data.safetyAlert != null) _fallSeenOn = clock();
         _analysis = UiSuccess(data);
         _lastResult = _session(p, e, data, CompletionStatus.completed);
@@ -434,10 +539,42 @@ class TreatmentViewModel extends BaseViewModel {
   UiState<void> _saving = const Idle();
   UiState<void> get saving => _saving;
 
+  /// The saved tries below 80% of this exercise in a row, counting [s] (1 after the first);
+  /// 0 when [s] passed.
+  static int triesBelowPass(
+    List<ExerciseSession> planSessions,
+    ExerciseSession s,
+  ) {
+    if (s.postureIsPassing()) return 0;
+    var n = 1;
+    for (final x in planSessions.reversed.where(
+      (x) => x.exerciseId == s.exerciseId && x.sessionId != s.sessionId,
+    )) {
+      if (x.completionStatus != CompletionStatus.completed) continue;
+      if (x.postureIsPassing()) break;
+      n++;
+    }
+    return n;
+  }
+
+  /// Whether saving [s] moves the plan on (Elwin, 23 Oct): at 80% or more, or on the
+  /// [AppConstants.triesBeforeMovingOn]th saved try below it. Before, any Continue moved on.
+  static bool movesOn(List<ExerciseSession> planSessions, ExerciseSession s) =>
+      s.postureIsPassing() ||
+      triesBelowPass(planSessions, s) >= AppConstants.triesBeforeMovingOn;
+
+  /// After Continue: whether the plan moved on, and the tries below 80% so far (for the
+  /// message on the result screen).
+  bool _lastMovedOn = false;
+  bool get lastMovedOn => _lastMovedOn;
+  int _lastTriesBelowPass = 0;
+  int get lastTriesBelowPass => _lastTriesBelowPass;
+
   /// Records the attempt and advances the pathway (FR300_11, FR300_21). Advancing only
   /// happens when the attempt is for the current stage, so repeating a finished exercise
   /// does not skip ahead.
   Future<bool> acceptResult() async {
+    if (_testing) return true; // testing mode: nothing to save
     final p = activePlan;
     final s = _lastResult;
     if (p == null || s == null) return false;
@@ -448,7 +585,9 @@ class TreatmentViewModel extends BaseViewModel {
     _saving = const Loading();
     notifyListeners();
     final isCurrentStage = p.currentExercise()?.exerciseId == s.exerciseId;
-    final advanced = isCurrentStage ? p.advance() : null;
+    final advanced = isCurrentStage && movesOn(_sessions, s)
+        ? p.advance()
+        : null;
     final res = await _repo.saveSession(s, advancedPlan: advanced);
     if (res.isSuccess) {
       _sessions = [..._sessions, s];
@@ -457,10 +596,20 @@ class TreatmentViewModel extends BaseViewModel {
         _plan = UiSuccess(advanced);
         _replacePlan(advanced);
       }
-      // FR300_12, FR600_005: today's exercise reminder is no longer needed.
-      await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
+      if (advanced?.status == PlanStatus.completed) {
+        // The last exercise is done: no more "Time for ..." for this plan (audit, 23 Oct).
+        await _reminders?.removeForPlan(p.accountId, p.patientPlanId);
+      } else if (!s.hadFallAlert()) {
+        // FR300_12, FR600_005: today's exercise reminder is no longer needed.
+        await _reminders?.exerciseDone(p.accountId, p.patientPlanId);
+      }
       await _countForOtherPlans(p, s);
+      // A possible fall makes today a rest day for every plan: none of today's exercise
+      // reminders rings (audit, 24 Oct: the other plans' still said "Today: ...").
+      if (s.hadFallAlert()) await _reminders?.restToday(p.accountId);
       _autoAdvanced = s.postureIsPassing();
+      _lastMovedOn = advanced != null;
+      _lastTriesBelowPass = triesBelowPass(_sessions, s);
       _saving = const UiSuccess(null);
     } else {
       _saving = const UiError(Messages.progressSaveFailed); // FR300_27
@@ -503,32 +652,53 @@ class TreatmentViewModel extends BaseViewModel {
         postureFeedback: s.postureFeedback,
         modelVersion: s.modelVersion,
       );
-      final advanced = other.advance();
+      // The same rule in every plan: below 80% it moves on only after enough tries.
+      final advanced = movesOn(theirs, copy) ? other.advance() : null;
       if ((await _repo.saveSession(copy, advancedPlan: advanced)).isSuccess) {
         _sessionsByPlan = {
           ..._sessionsByPlan,
           other.patientPlanId: [...theirs, copy],
         };
-        _replacePlan(advanced);
-        await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
+        if (advanced != null) _replacePlan(advanced);
+        if (advanced?.status == PlanStatus.completed) {
+          await _reminders?.removeForPlan(other.accountId, other.patientPlanId);
+        } else if (!s.hadFallAlert()) {
+          await _reminders?.exerciseDone(other.accountId, other.patientPlanId);
+        }
       }
     }
   }
 
-  /// Back to the recorder (FR300_20). The attempt is kept as RETRIED.
   /// Failed tries of the current exercise in a row; after two the result screen suggests trying
-  /// again tomorrow (posture text review, 8 Oct).
+  /// again tomorrow (posture text review, 8 Oct). Only the retries saved since this screen
+  /// opened count (audit, 23 Oct): stored ones have no time, so the database lists them after
+  /// every timed attempt and "in a row" was lost; two fails yesterday made today's first fail
+  /// say "try again tomorrow".
   int get retriesInARow {
     final id = _current?.exerciseId;
     if (id == null) return 0;
     var n = 0;
     for (final s in _sessions.reversed.where((s) => s.exerciseId == id)) {
-      if (s.completionStatus != CompletionStatus.retried) break;
+      if (!_retriedHere.contains(s.sessionId)) break;
       n++;
     }
     return n;
   }
 
+  final Set<String> _retriedHere = {};
+
+  /// Back from the analysing screen (23 Oct): the clip still being checked is dropped, nothing
+  /// is saved, and the patient is at the recorder again with the same exercise.
+  void abandonAnalysis() {
+    _attempt++;
+    _analysis = const Idle();
+    _lastResult = null;
+    _saving = const Idle();
+    _autoAdvanced = false;
+    notifyListeners();
+  }
+
+  /// Back to the recorder (FR300_20). The attempt is kept as RETRIED.
   Future<void> retry() async {
     final p = activePlan;
     final s = _lastResult;
@@ -538,6 +708,7 @@ class TreatmentViewModel extends BaseViewModel {
         _saving is! UiSuccess) {
       final retried = s.withStatus(CompletionStatus.retried);
       if ((await _repo.saveSession(retried)).isSuccess) {
+        _retriedHere.add(retried.sessionId);
         _sessions = [..._sessions, retried];
         _sessionsByPlan = {..._sessionsByPlan, p.patientPlanId: _sessions};
       }
@@ -555,6 +726,9 @@ class TreatmentViewModel extends BaseViewModel {
     if (p == null) return false;
     final ok = (await _repo.endPlan(p)).isSuccess;
     if (ok) {
+      // A stopped plan's reminders went on ringing: ending only changes its status, and the
+      // database removes them only with the plan row (audit, 23 Oct).
+      await _reminders?.removeForPlan(p.accountId, p.patientPlanId);
       _plans = [
         for (final a in _plans)
           if (a.patientPlanId != p.patientPlanId) a,

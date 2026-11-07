@@ -114,9 +114,15 @@ void main() {
         plan.plan.orderedExercises().first.exerciseId,
       );
       expect(d.doneToday, isFalse);
-      final summary = HomeViewModel.sessionSummary(plan.plan, (a) => a);
-      expect(summary, startsWith('${plan.plan.exercises.length} exercise'));
-      expect(summary, contains('min'));
+      final summary = HomeViewModel.sessionSummary(plan, d.nextStage!, (a) => a);
+      // A day is one exercise: today's time, not every exercise added up (audit, 24 Oct).
+      final first = plan.plan.orderedExercises().first;
+      final min = (first.prescribedDurationSec / 60).ceil().clamp(1, 60);
+      expect(
+        summary,
+        'Exercise 1 of ${plan.plan.exercises.length} · about $min min · '
+        '${plan.plan.targetBodyArea}',
+      );
     },
   );
 
@@ -184,6 +190,19 @@ void main() {
     await vm.load();
     expect([for (final i in vm.data!.planIssues) i.code], contains('over_cap'));
   });
+
+  test(
+    'a condition waiting for a doctor OK is the first plan notice (23 Oct)',
+    () async {
+      final heart = LookupSeed.conditions
+          .firstWhere((c) => c.needsClearance)
+          .withStatus(controlled: false);
+      await saveProfile(conditions: [heart]);
+      await assignPlan();
+      await vm.load();
+      expect(vm.data!.planIssues.first.code, 'clearance_now');
+    },
+  );
 
   test('the bell shows the unread notification count', () async {
     await notifications.logNotification(

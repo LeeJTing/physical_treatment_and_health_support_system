@@ -173,15 +173,10 @@ class _LoginViewState extends State<LoginView> with WidgetsBindingObserver {
                                 context,
                               ).pushNamed(Routes.verifyCode, arguments: email);
                             }),
-                            // A wrong password or a lockout: offer the reset page directly
-                            // (FR100_037), with the email already filled in.
-                            'invalid_credentials' || 'locked' => _bannerLink(
-                              'Forgot password? Reset it',
-                              () => Navigator.of(context).pushNamed(
-                                Routes.resetPassword,
-                                arguments: _email.text.trim(),
-                              ),
-                            ),
+                            // A wrong password or a lockout: no link of its own, the reset is
+                            // "Forgot password?" just above, which also fills in the email
+                            // (FR100_037). Two links to the same page sat one above the other
+                            // (audit, 23 Oct).
                             _ => null,
                           },
                         ),

@@ -17,7 +17,7 @@ ROUND1 = [
     (KNEE, "where to edit my weight", "profile_help"),
     (KNEE, "i gained weight, where to update", "profile_help"),
     (KNEE, "how to add diabetes to my profile", ("profile_help", "condition_advice")),
-    (KNEE, "my risk say high why", "profile_help"),
+    (KNEE, "my risk say high why", "risk_level"),  # 3.52: its own topic (profile_help did not explain the levels)
     (KNEE, "take me to profile", "profile_help"),
     # navigation: treatment / recording / history / reminders
     (KNEE, "open my exercise", ("how_to", "plan_exercises", "treatment_nav")),

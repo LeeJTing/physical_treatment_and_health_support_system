@@ -16,6 +16,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
+import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
@@ -332,4 +333,148 @@ void main() {
       );
     },
   );
+
+  test(
+    'a failed delete leaves the reminders on the phone (audit, 23 Oct)',
+    () async {
+      final auth = FakeAuthRepository();
+      final profiles = FakeProfileRepository();
+      final notes = FakeNotificationRepository();
+      final device = FakeScheduler();
+      final local = LocalNotificationService(
+        notes,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        now: () => DateTime(2026, 10, 12, 7),
+      );
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      final r = Reminder(
+        reminderId: 'r1',
+        accountId: id,
+        reminderType: ReminderType.healthLog,
+        title: 'Log your readings',
+        hour: 9,
+        minute: 0,
+      );
+      await notes.saveReminder(r);
+      await local.schedule(r);
+      final vm = ProfileViewModel(
+        profiles,
+        auth,
+        RiskAssessmentService(auth, profiles),
+        local,
+      );
+      await vm.loadProfile();
+      await auth.signOut(); // the delete now fails (no session)
+      expect(await vm.deleteAccount(), isFalse);
+      expect(device.pending, isNotEmpty);
+    },
+  );
+
+  test(
+    'log out takes the reminders off the phone; signing in again puts them back (Elwin, 23 Oct)',
+    () async {
+      final auth = FakeAuthRepository();
+      final profiles = FakeProfileRepository();
+      final notes = _OfflineReminders();
+      final device = FakeScheduler();
+      final local = LocalNotificationService(
+        notes,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        now: () => DateTime(2026, 10, 12, 7),
+      );
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      final r = Reminder(
+        reminderId: 'r1',
+        accountId: id,
+        reminderType: ReminderType.healthLog,
+        title: 'Log your readings',
+        hour: 9,
+        minute: 0,
+      );
+      await notes.saveReminder(r);
+      await local.schedule(r);
+      final scheduled = device.pending.length;
+      expect(scheduled, greaterThan(0));
+
+      final profile = ProfileViewModel(
+        profiles,
+        auth,
+        RiskAssessmentService(auth, profiles),
+        local,
+      );
+      await profile.loadProfile();
+      notes.offline = true; // the account's reminders cannot be read
+      expect(await profile.logout(), isTrue);
+      notes.offline = false;
+      expect(
+        device.pending,
+        isEmpty,
+      ); // no reminder rings for a logged-out account
+      expect(notes.reminders, contains('r1')); // still saved
+
+      final login = AuthViewModel(auth, profiles, local);
+      expect(await login.login('demo@apths.test', 'password123'), isTrue);
+      await pumpEventQueue();
+      expect(device.pending, hasLength(scheduled));
+    },
+  );
+
+  test(
+    'declining the terms takes off the reminders signing in put back (audit, 23 Oct)',
+    () async {
+      final auth = FakeAuthRepository();
+      final notes = FakeNotificationRepository();
+      final device = FakeScheduler();
+      final local = LocalNotificationService(
+        notes,
+        FakeTreatmentRepository(const []),
+        scheduler: device,
+        now: () => DateTime(2026, 10, 12, 7),
+      );
+      final id = (await auth.login(
+        'demo@apths.test',
+        'password123',
+      )).dataOrNull!.accountId;
+      await auth.signOut();
+      await notes.saveReminder(
+        Reminder(
+          reminderId: 'r1',
+          accountId: id,
+          reminderType: ReminderType.healthLog,
+          title: 'Log your readings',
+          hour: 9,
+          minute: 0,
+        ),
+      );
+      final vm = AuthViewModel(
+        auth,
+        FakeProfileRepository(),
+        local,
+        FakeTermsRepository(),
+      );
+      expect(await vm.login('demo@apths.test', 'password123'), isTrue);
+      expect(vm.nextRoute, Routes.terms); // never accepted
+      await vm.declineTerms(); // also while the sync is still running
+      await pumpEventQueue(); // a sync still running would schedule them now
+      expect(device.pending, isEmpty);
+    },
+  );
+}
+
+/// The reminder list as when the phone is offline: reading it fails (PC review, 23 Oct).
+class _OfflineReminders extends FakeNotificationRepository {
+  bool offline = false;
+
+  @override
+  Future<Result<List<Reminder>>> getReminders(String accountId) async => offline
+      ? const Failure('offline', code: 'offline')
+      : super.getReminders(accountId);
 }

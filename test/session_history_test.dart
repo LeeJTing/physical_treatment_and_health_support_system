@@ -100,7 +100,7 @@ void main() {
   testWidgets('the screen shows the summary, the trend and every attempt', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1080, 3000);
+    tester.view.physicalSize = const Size(1080, 3600);
     addTearDown(tester.view.reset);
     final s = _Setup();
     await tester.runAsync(
@@ -120,6 +120,91 @@ void main() {
     expect(find.text('Raise your arms higher.'), findsOneWidget);
     expect(find.textContaining('Tried again'), findsOneWidget);
   });
+
+  testWidgets(
+    'the trend is in time order; a retry without a time is not drawn first (audit, 24 Oct)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 3600);
+      addTearDown(tester.view.reset);
+      final s = _Setup();
+      await tester.runAsync(() async {
+        await s.withPlan(attempts: [(0, 85, 3), (1, 90, 1)]);
+        await s.treatments.saveSession(
+          ExerciseSession(
+            sessionId: newId(),
+            accountId: s.plan.accountId,
+            patientPlanId: s.plan.patientPlanId,
+            exerciseId: s.plan.plan.orderedExercises()[1].exerciseId,
+            completionStatus: CompletionStatus.retried, // no time, as stored
+            postureAccuracy: 40,
+          ),
+        );
+        await s.vm.loadPlan();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: s.vm,
+            child: const SessionHistoryView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final trend = tester.widget<Semantics>(
+        find.byWidgetPredicate(
+          (w) =>
+              w is Semantics &&
+              (w.properties.label ?? '').startsWith('Accuracy of the last'),
+        ),
+      );
+      expect(
+        trend.properties.label,
+        'Accuracy of the last 2 attempts, from 85% to 90%',
+      );
+      // Its card says what happened, not "Not finished".
+      expect(find.text('Tried again'), findsOneWidget);
+      expect(find.textContaining('Not finished'), findsNothing);
+    },
+  );
+
+  // Audit D2 (23 Oct): large phone text on a 360 dp phone.
+  for (final scale in [1.5, 2.0]) {
+    testWidgets(
+      'at ${scale}x text on 360 dp: no overflow, every attempt shown',
+      (tester) async {
+        tester.view.physicalSize = const Size(1080, 7200);
+        tester.view.devicePixelRatio = 3;
+        addTearDown(tester.view.reset);
+        final s = _Setup();
+        await tester.runAsync(
+          () => s.withPlan(attempts: [(0, 60, 3), (0, 85, 2), (1, 90, 0)]),
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            builder: (c, child) => MediaQuery(
+              data: MediaQuery.of(
+                c,
+              ).copyWith(textScaler: TextScaler.linear(scale)),
+              child: child!,
+            ),
+            home: ChangeNotifierProvider.value(
+              value: s.vm,
+              child: const SessionHistoryView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.text('Posture accuracy over time'), findsOneWidget);
+        await tester.scrollUntilVisible(
+          find.textContaining('Tried again'),
+          300,
+        );
+        expect(find.textContaining('Tried again'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
 
   testWidgets(
     'without sessions the screen explains where results will appear',

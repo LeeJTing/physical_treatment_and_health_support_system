@@ -58,7 +58,7 @@
     {
       "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
       "exercise_name": "Elbow Flexion",
-      "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
+      "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable. Safety: keep the weight light and stop if the elbow or shoulder hurts.",
       "target_body_area": "BOTH_ARMS",
       "intensity_level": "LOW",
       "default_repetitions": 12,
@@ -102,7 +102,7 @@
     {
       "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
       "exercise_name": "Seated Marching",
-      "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+      "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace. Safety: use a sturdy chair without wheels, with your feet flat on the floor between lifts.",
       "target_body_area": "BOTH_LEGS",
       "intensity_level": "LOW",
       "default_repetitions": 20,
@@ -157,7 +157,7 @@
     {
       "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
       "exercise_name": "March in Place",
-      "instruction_text": "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
+      "instruction_text": "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace. Safety: stay near a wall or sturdy chair you can hold, and stop if you feel dizzy or very short of breath.",
       "target_body_area": "FULL_BODY",
       "intensity_level": "MODERATE",
       "default_repetitions": 30,
@@ -226,7 +226,7 @@
           "exercise": {
             "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
             "exercise_name": "Seated Marching",
-            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace. Safety: use a sturdy chair without wheels, with your feet flat on the floor between lifts.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 20,
@@ -376,7 +376,7 @@
           "exercise": {
             "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
             "exercise_name": "Elbow Flexion",
-            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable. Safety: keep the weight light and stop if the elbow or shoulder hurts.",
             "target_body_area": "BOTH_ARMS",
             "intensity_level": "LOW",
             "default_repetitions": 12,
@@ -406,7 +406,7 @@
           "exercise": {
             "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
             "exercise_name": "Elbow Flexion",
-            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable. Safety: keep the weight light and stop if the elbow or shoulder hurts.",
             "target_body_area": "BOTH_ARMS",
             "intensity_level": "LOW",
             "default_repetitions": 12,
@@ -670,7 +670,7 @@
           "exercise": {
             "exercise_id": "d72fb12f-7ec9-54df-8ae3-c812f6af59cb",
             "exercise_name": "Seated Marching",
-            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace.",
+            "instruction_text": "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the chest, lower it, and alternate legs at a steady pace. Safety: use a sturdy chair without wheels, with your feet flat on the floor between lifts.",
             "target_body_area": "BOTH_LEGS",
             "intensity_level": "LOW",
             "default_repetitions": 20,
@@ -736,7 +736,7 @@
           "exercise": {
             "exercise_id": "568364bd-7b20-58d0-af1e-ccd3fdb47165",
             "exercise_name": "March in Place",
-            "instruction_text": "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if comfortable and swinging the arms, at a steady pace. Safety: stay near a wall or sturdy chair you can hold, and stop if you feel dizzy or very short of breath.",
             "target_body_area": "FULL_BODY",
             "intensity_level": "MODERATE",
             "default_repetitions": 30,
@@ -922,7 +922,7 @@
           "exercise": {
             "exercise_id": "3e402332-78f9-5011-a38e-0d193ed56b15",
             "exercise_name": "Elbow Flexion",
-            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable.",
+            "instruction_text": "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. Use a light bottle of water if comfortable. Safety: keep the weight light and stop if the elbow or shoulder hurts.",
             "target_body_area": "BOTH_ARMS",
             "intensity_level": "LOW",
             "default_repetitions": 12,

@@ -15,6 +15,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_reasons.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -356,7 +357,8 @@ void main() {
       await tester.tap(find.text('Why this plan').first);
       await tester.pumpAndSettle();
       expect(find.text('It trains your legs.'), findsOneWidget);
-      expect(find.text(EvidenceSources.appRuleLabel), findsOneWidget);
+      // A description of the match, not a rule: no "App safety rule" under it (24 Oct).
+      expect(find.text(EvidenceSources.appRuleLabel), findsNothing);
       expect(find.text('Source: Campbell & Robertson (2003)'), findsOneWidget);
       await tester.ensureVisible(find.textContaining('Why not the other'));
       await tester.pumpAndSettle();
@@ -397,4 +399,24 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  testWidgets(
+    'only a reason that is a rule says "App safety rule"; a description of the match says nothing',
+    (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: ReasonList([
+              PlanReason('MATCH_AREA', 'It trains your legs.'),
+              PlanReason('LIMB_OTHER', 'Arm Raise uses your left arm, which your profile lists as limited.'),
+            ]),
+          ),
+        ),
+      );
+      expect(find.text(EvidenceSources.appRuleLabel), findsOneWidget);
+      final label = tester.getTopLeft(find.text(EvidenceSources.appRuleLabel));
+      final limb = tester.getTopLeft(find.textContaining('left arm'));
+      expect(label.dy, greaterThan(limb.dy)); // under the limb reason, not the area one
+    },
+  );
 }

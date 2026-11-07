@@ -10,13 +10,13 @@ shows the same at `/docs`.
 | Endpoint | Module | Component | Status |
 |---|---|---|---|
 | `POST /recommend` | M500.1 (Elwin) | Hybrid Plan Recommender | built (hybrid-3.1) |
-| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.50) |
+| `GET /chat/categories`, `POST /chat` | M500.2 (Elwin) | Rule-Based Chatbot Engine | built (chat-rules-3.55) |
 | `GET /pose/exercises`, `POST /pose` | M300.1 (Elwin) | Pose Estimation Model | built |
 | `POST /forecast` | M400 (Jun Ting) | Time-Series Forecaster | **to build** |
 | `POST /analyse` | M400 (Jun Ting) | Anomaly Detector and Health Scorer | **to build** |
 | `POST /recognise` | M700 (Jun Ting) | Food Recognition Model (CV) | **to build** |
 | `POST /plan` | M700 (Jun Ting) | Condition-Aware Diet Planner | **to build** |
-| `GET /health` | - | up check, no token needed | built |
+| `GET /health` | - | up check, no token needed; `dev_token_accepted` tells whether `dev-token` works | built |
 
 How to add one: [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
 
@@ -25,8 +25,8 @@ How to add one: [`../CONTRIBUTING.md`](../CONTRIBUTING.md).
 - **Token:** `Authorization: Bearer <Supabase access token>` (the signed-in patient's session token;
   `app/auth.py` checks it against the project's signing keys, `SUPABASE_JWKS_URL`). The account id
   is the token's `sub`; the server never sees an email or password. With `DEV_AUTH_BYPASS=true` the
-  token `dev-token` is also accepted (fakes, tests, development only).
-- **Errors:** missing or invalid token: `401`. A request that does not match the contract: `422`
+  token `dev-token` is also accepted (fakes, tests, development only; off by default, `run_server.ps1 -Dev`).
+- **Errors:** missing or invalid token: `401`. Supabase's signing keys cannot be fetched (project paused, no network): `503` `service_unavailable`. A request that does not match the contract: `422`
   with FastAPI's `detail` list. `/pose` reports a video it cannot score as `422`
   `{"error": {"code": "...", "message": "..."}}` (codes below); the app maps each code to the
   report's message.

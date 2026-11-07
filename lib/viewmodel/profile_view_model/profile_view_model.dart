@@ -13,6 +13,8 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/biometric_repository/i_biometric_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/i_profile_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
 
 /// View and edit the health profile (UC300 Manage Profile; Table 4.51).
 /// The saved profile and the editable draft are kept apart so Cancel restores
@@ -25,6 +27,9 @@ class ProfileViewModel extends BaseViewModel {
   /// Cancels this phone's reminders when the account is deleted.
   final LocalNotificationService? _notifications;
 
+  /// The age group accepted in the Terms, which the age must agree with.
+  final ITermsRepository? _terms;
+
   /// The health data source connection (FR100_062 to FR100_065; Table 4.73).
   final HealthConnectService? _healthSource;
   final IBiometricRepository? _biometrics;
@@ -34,6 +39,7 @@ class ProfileViewModel extends BaseViewModel {
     this._auth,
     this._risk, [
     this._notifications,
+    this._terms,
   ]) : _healthSource = null,
        _biometrics = null;
 
@@ -44,9 +50,14 @@ class ProfileViewModel extends BaseViewModel {
     this._risk,
     this._notifications,
     HealthConnectService healthSource,
-    IBiometricRepository biometrics,
-  ) : _healthSource = healthSource,
-      _biometrics = biometrics;
+    IBiometricRepository biometrics, [
+    this._terms,
+  ]) : _healthSource = healthSource,
+       _biometrics = biometrics;
+
+  /// Save stopped because the age does not match the age group accepted in
+  /// the Terms (14 Oct): the screen offers "Review Terms".
+  bool ageReviewNeeded = false;
 
   Account? account;
   HealthProfile? profile; // last saved
@@ -75,8 +86,12 @@ class ProfileViewModel extends BaseViewModel {
   /// What the screen shows: the draft while editing, else the saved profile.
   HealthProfile? get shown => isEditing ? draft : profile;
 
+  /// A first profile counts as changed only once something is entered (audit, 24 Oct: the
+  /// empty form asked "Discard your unsaved changes?").
   bool get hasUnsavedChanges =>
-      isEditing && draft != null && !_same(draft!, profile);
+      isEditing &&
+      draft != null &&
+      !_same(draft!, profile ?? HealthProfile.empty(draft!.accountId));
 
   static bool _same(HealthProfile a, HealthProfile? b) =>
       b != null &&
@@ -187,6 +202,23 @@ class ProfileViewModel extends BaseViewModel {
       version: d.version,
       updatedAt: d.updatedAt,
     );
+    // An edited field loses its mark from the last Save (audit, 23 Oct). Weight and height
+    // were marked together when they did not match, so editing either clears both.
+    final edited = {
+      if (age != null || clearAge) 'age',
+      if (gender != null) 'gender',
+      if (weightKg != null || clearWeight) 'weight',
+      if (heightCm != null || clearHeight) 'height',
+    };
+    if (saveState case UiError(
+      message: Messages.weightHeightMismatch,
+    ) when edited.contains('weight') || edited.contains('height')) {
+      edited.addAll(const ['weight', 'height']);
+    }
+    invalidFields = [
+      for (final f in invalidFields)
+        if (!edited.contains(f)) f,
+    ];
     notifyListeners();
   }
 
@@ -318,8 +350,22 @@ class ProfileViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// True from the first line of [saveProfile] to its end: a second Save while the first is
+  /// on its way (before it shows Loading) would write the profile twice (23 Oct).
+  bool _saving = false;
+
   /// Validates, saves the profile with a regenerated safety limit (FR100_057) and reloads.
   Future<bool> saveProfile() async {
+    if (_saving) return false;
+    _saving = true;
+    try {
+      return await _save();
+    } finally {
+      _saving = false;
+    }
+  }
+
+  Future<bool> _save() async {
     final d = draft;
     if (d == null) return false;
     // Every question answered, and the "Other" condition named (11 Oct).
@@ -334,6 +380,25 @@ class ProfileViewModel extends BaseViewModel {
       return false;
     }
     final errors = d.validate();
+    ageReviewNeeded = false;
+    final bmi = d.calculateBmi();
+    if (errors.isEmpty &&
+        (bmi < AppConstants.bmiMin || bmi > AppConstants.bmiMax)) {
+      invalidFields = const ['weight', 'height'];
+      saveState = const UiError(Messages.weightHeightMismatch);
+      notifyListeners();
+      return false;
+    }
+    if (errors.isEmpty) {
+      final mismatch = await _ageGroupMismatch(d.age!);
+      if (mismatch != null) {
+        invalidFields = const ['age'];
+        ageReviewNeeded = true;
+        saveState = UiError(mismatch);
+        notifyListeners();
+        return false;
+      }
+    }
     if (errors.isNotEmpty) {
       invalidFields = errors;
       final missing =
@@ -350,7 +415,8 @@ class ProfileViewModel extends BaseViewModel {
     invalidFields = const [];
     saveState = const Loading();
     notifyListeners();
-    final res = await _profiles.saveProfile(d, _risk.generateSafetyLimit(d));
+    final limit = _risk.generateSafetyLimit(d);
+    final res = await _profiles.saveProfile(d, limit);
     if (res is Failure) {
       saveState = const UiError(
         Messages.profileSaveFailed,
@@ -361,24 +427,61 @@ class ProfileViewModel extends BaseViewModel {
     isEditing = false;
     draft = null;
     unansweredConditions = {};
+    // What was saved is shown even if the reload below fails (connection lost right after the
+    // save); the reload then only brings the stored version number (audit, 23 Oct).
+    profile = d.copyWith(version: d.version + 1, updatedAt: DateTime.now());
+    safetyLimit = limit;
     await loadProfile();
+    // The reminders on the phone follow the new profile (bug list #18, 1 Nov): from 65 the exercise
+    // reminders stop, but those already scheduled for the next 14 days went on ringing until the
+    // Treatment or Reminders screen was opened.
+    final id = (await _auth.currentAccount()).dataOrNull?.accountId;
+    if (id != null) await _notifications?.sync(id);
     saveState = const UiSuccess(null);
     notifyListeners();
     return true;
   }
 
-  Future<bool> logout() async => (await _auth.signOut()).isSuccess;
+  /// The message when [age] does not agree with the age group of the last
+  /// accepted Terms, else null. Not checked when the Terms cannot be read
+  /// (offline, or no acceptance yet), as with the sign-in gate.
+  Future<String?> _ageGroupMismatch(int age) async {
+    final terms = _terms;
+    final id = (await _auth.currentAccount()).dataOrNull?.accountId;
+    if (terms == null || id == null) return null;
+    final last = (await terms.latestAcceptance(id)).dataOrNull;
+    if (last == null) return null;
+    final adult = age >= AppConstants.adultAge;
+    if (last.ageGroup == TermsAgeGroup.minor && adult) {
+      return Messages.ageAboveTermsGroup;
+    }
+    if (last.ageGroup == TermsAgeGroup.adult && !adult) {
+      return Messages.ageBelowTermsGroup;
+    }
+    return null;
+  }
+
+  /// Logs out (FR100_059). Once signed out, every HealthGuide notification is taken off the
+  /// phone, so the reminders stop ringing and a next person on the phone does not get them
+  /// (Elwin, 23 Oct). Cancelling all of them, not reading the account's reminders first, also
+  /// works offline (PC review). They stay saved and come back at the next sign-in. A failed
+  /// sign-out leaves them as they are.
+  Future<bool> logout() async {
+    final ok = (await _auth.signOut()).isSuccess;
+    if (ok) await _notifications?.cancelEverything();
+    return ok;
+  }
 
   UiState<void> deleteState = const Idle();
 
-  /// "Delete my account" (Privacy Notice section 5): the phone's reminders are
-  /// cancelled, then the account and all its data are deleted.
+  /// "Delete my account" (Privacy Notice section 5): the account and all its data are
+  /// deleted, then every reminder is taken off the phone. Only after a successful delete,
+  /// as with log out, so a failed delete leaves the reminders ringing (audit, 23 Oct).
   Future<bool> deleteAccount() async {
     deleteState = const Loading();
     notifyListeners();
-    final id = account?.accountId;
-    if (id != null) await _notifications?.cancelAllFor(id);
     final res = await _auth.deleteAccount();
+    if (res.isSuccess) await _notifications?.cancelEverything();
     deleteState = res.isSuccess
         ? const UiSuccess(null)
         : const UiError(Messages.accountDeleteFailed);

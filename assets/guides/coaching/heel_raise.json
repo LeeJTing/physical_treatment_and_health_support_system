@@ -1,0 +1,55 @@
+{
+  "pose_key": "heel_raise",
+  "focus": {
+    "joint": "ankle",
+    "from": "knee",
+    "to": "toe"
+  },
+  "mover": "heel",
+  "captions": {
+    "start": "Hold the chair, stand tall",
+    "go": "Rise onto your toes",
+    "top": "Hold for 1 second",
+    "back": "Lower slowly"
+  },
+  "say": {
+    "go": "Up",
+    "back": "Down"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand behind a chair and hold the back of it."
+    },
+    {
+      "phase": "go",
+      "text": "Rise onto your toes, keeping your knees straight."
+    },
+    {
+      "phase": "top",
+      "text": "Hold for one second."
+    },
+    {
+      "phase": "back",
+      "text": "Lower your heels slowly to the floor."
+    }
+  ],
+  "safety": [
+    "Keep holding the chair the whole time."
+  ],
+  "mistakes": [
+    {
+      "label": "low_raise",
+      "wrong": "your heels did not rise high enough",
+      "right": "Rise a little higher onto your toes, holding the chair, only as far as feels steady."
+    },
+    {
+      "label": "leaning_forward",
+      "wrong": "you leaned your upper body forwards",
+      "right": "Rise straight up, keeping a light hold on the chair rather than leaning on it."
+    }
+  ],
+  "setup": [
+    "Stand behind a chair, side-on to the phone."
+  ]
+}

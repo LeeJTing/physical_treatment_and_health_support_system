@@ -9,16 +9,30 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/exercise_animation.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/exercise_coaching.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/guide/guide_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/analysing_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// "Record exercise" (UI Design, Recording Screen; FR300_05, FR300_06, FR300_15, FR300_18, FR300_24):
 /// camera preview with a full-body frame, record (auto-stops at 30 s) or upload a video.
+///
+/// Guided recording (Elwin, 23 Oct): Record first counts the patient in (time to walk to their
+/// place), then the guide animation sets the pace, with the repetition count and what to do
+/// now on screen and, when spoken cues are on, aloud. Recording stops by itself when the
+/// paced repetitions are done (never before 10 s; 30 s at the latest). The cues are guidance
+/// only: the server still counts and scores the repetitions in the clip.
 class RecordingView extends StatefulWidget {
-  const RecordingView({super.key});
+  /// How many times the patient is asked to do the exercise.
+  final int reps;
+  const RecordingView({super.key, this.reps = 10});
   static const routeName = '/treatment/recording';
+
+  /// The guide plays this much slower while recording: an easy pace to follow.
+  static const pace = 1.4;
 
   @override
   State<RecordingView> createState() => _RecordingViewState();
@@ -34,6 +48,18 @@ class _RecordingViewState extends State<RecordingView>
   int _seconds = 0;
   Timer? _timer;
 
+  /// Seconds left before recording starts, while the patient gets into place; null otherwise.
+  int? _countdown;
+  Timer? _countTimer;
+  ExerciseCoaching? _coaching;
+  GuideAnimationData? _guide;
+
+  /// The repetition the guide is on, and what to do now, while recording.
+  int _rep = 0;
+  String? _cue;
+  bool _repsDone = false;
+  int _take = 0; // restarts the guide when a recording starts
+
   @override
   void initState() {
     super.initState();
@@ -41,10 +67,53 @@ class _RecordingViewState extends State<RecordingView>
     _initCamera();
   }
 
+  /// Kept from didChangeDependencies: dispose must not look up the tree.
+  GuideViewModel? _voice;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _voice = context.read<GuideViewModel>();
+    if (_coaching == null) _loadGuide();
+  }
+
+  Future<void> _loadGuide() async {
+    final e = context.read<TreatmentViewModel>().current;
+    if (e == null) return;
+    final bundle = DefaultAssetBundle.of(context);
+    final coaching = await ExerciseCoaching.forExercise(bundle, e);
+    final key = e.poseKey;
+    final guide = key == null
+        ? null
+        : await GuideAnimationData.load(bundle, key);
+    if (mounted) {
+      setState(() {
+        _coaching = coaching;
+        _guide = guide;
+      });
+    }
+  }
+
+  /// The repetitions that fit in one clip at the guide's pace, at most [RecordingView.reps].
+  int get _targetReps {
+    final g = _guide;
+    if (g == null || g.hold) return widget.reps;
+    final loop =
+        (g.durationSec + 0.6) * RecordingView.pace; // one paced repetition
+    final fit = (AppConstants.autoStopSeconds / loop)
+        .floor(); // as many as before (29 s)
+    return fit.clamp(1, widget.reps);
+  }
+
+  void _say(String text) => _voice?.say(text);
+
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
+    _countTimer?.cancel();
+    // A count-in or cue still being spoken stops when the patient leaves (audit, 23 Oct).
+    _voice?.quiet();
     _release(_controller, wasRecording: _recording);
     super.dispose();
   }
@@ -75,6 +144,8 @@ class _RecordingViewState extends State<RecordingView>
     if (state == AppLifecycleState.inactive) {
       if (c == null || !c.value.isInitialized) return;
       _stopTimer();
+      _cancelCountdown();
+      _voice?.quiet();
       _release(c, wasRecording: _recording);
       setState(() {
         _recording = false;
@@ -156,6 +227,65 @@ class _RecordingViewState extends State<RecordingView>
     _timer = null;
   }
 
+  /// Record: count the patient in first, so they can walk to their place (10 s; 5 s at a
+  /// table). Tapping again during the count cancels it.
+  void _startCountdown() {
+    if (_countdown != null) {
+      _cancelCountdown();
+      _say('Cancelled.');
+      return;
+    }
+    final hands =
+        context.read<TreatmentViewModel>().current?.recordsHands ?? false;
+    final start = hands ? 5 : 10;
+    setState(() => _countdown = start);
+    _say('Get into position. Recording starts in $start seconds.');
+    _countTimer = Timer.periodic(const Duration(seconds: 1), (t) {
+      final left = (_countdown ?? 1) - 1;
+      if (left <= 0) {
+        _cancelCountdown();
+        _toggleRecording();
+        return;
+      }
+      setState(() => _countdown = left);
+      if (left <= 3) _say('$left');
+    });
+  }
+
+  void _cancelCountdown() {
+    _countTimer?.cancel();
+    _countTimer = null;
+    if (mounted && _countdown != null) setState(() => _countdown = null);
+  }
+
+  /// The guide moved to another part of the repetition while recording: show it, say it, and
+  /// stop once the paced repetitions are done.
+  void _onPhase(String phase, int rep) {
+    if (!_recording) return;
+    if (rep > _targetReps) {
+      if (!_repsDone) {
+        setState(() {
+          _repsDone = true;
+          _cue = 'Well done. Stay still for a moment.';
+        });
+        _say('Well done.');
+        if (_seconds >= AppConstants.minVideoSeconds) _toggleRecording();
+      }
+      return;
+    }
+    final c = _coaching;
+    setState(() {
+      _rep = rep;
+      _cue = c?.captions[phase] ?? _cue;
+    });
+    final go = c?.say['go'], back = c?.say['back'];
+    if (phase == 'go') {
+      _say(go == null ? '$rep.' : '$rep. $go.');
+    } else if (phase == 'back' && back != null) {
+      _say('$back.');
+    }
+  }
+
   Future<void> _toggleRecording() async {
     final c = _controller;
     if (c == null || !c.value.isInitialized) return;
@@ -167,14 +297,21 @@ class _RecordingViewState extends State<RecordingView>
         return;
       }
       if (!mounted) return;
+      final hold = _guide?.hold ?? false;
       setState(() {
         _recording = true;
         _seconds = 0;
+        _rep = 1;
+        _repsDone = false;
+        _take++;
+        _cue = hold ? 'Hold the position' : _coaching?.captions['start'];
       });
+      _say(hold ? 'Start. Hold the position.' : 'Start.');
       _timer = Timer.periodic(const Duration(seconds: 1), (_) {
         setState(() => _seconds++);
-        if (_seconds >= AppConstants.maxVideoSeconds) {
-          _toggleRecording(); // auto-stop at 30 s
+        if (_seconds >= AppConstants.autoStopSeconds ||
+            (_repsDone && _seconds >= AppConstants.minVideoSeconds)) {
+          _toggleRecording(); // done, or auto-stop just before 30 s
         }
       });
       return;
@@ -203,7 +340,9 @@ class _RecordingViewState extends State<RecordingView>
     setState(() {
       _recording = false;
       _seconds = 0;
+      _cue = null;
     });
+    _say('Recording stopped.');
     if (seconds < AppConstants.minVideoSeconds) {
       _showProblem(Messages.videoInvalid); // FR300_16, before any upload
       return;
@@ -243,6 +382,17 @@ class _RecordingViewState extends State<RecordingView>
     final current = context.read<TreatmentViewModel>().current;
     final tip = current?.cameraTip;
     final hands = current?.recordsHands ?? false;
+    // Where the phone goes: the guide's own rule (audit, 24 Oct: the help said waist height for
+    // every exercise while the guide puts it on the floor for bird dog and glute bridge).
+    final place = current == null
+        ? (floor: false, metres: null)
+        : GuideView.phonePlace(current);
+    final away = place.metres == null
+        ? '2.5 to 3 metres'
+        : 'about ${place.metres} metres';
+    final phone = place.floor
+        ? 'Put the phone on the floor, propped up so it looks at you, $away away.'
+        : 'Put the phone on a stand at about waist height, $away away.';
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -263,7 +413,7 @@ class _RecordingViewState extends State<RecordingView>
                   ? '• Sit at a table. Put the phone on a stand at table height, about half a metre to 1 metre away.\n'
                         '• Keep your forearm and your whole hand inside the frame.\n'
                         '• Use good light in front of you.\n'
-                  : '• Put the phone on a stand at about waist height, 2.5 to 3 metres away.\n'
+                  : '• $phone\n'
                         '• Keep your whole body, head to feet, inside the frame.\n'
                         '• Use good light in front of you.\n'
                         '• Record 10 to 30 seconds: do the repetitions slowly.\n'
@@ -287,7 +437,7 @@ class _RecordingViewState extends State<RecordingView>
     final name = vm.current?.exerciseName ?? '';
     final hands = vm.current?.recordsHands ?? false;
     final c = _controller;
-    return Scaffold(
+    final page = Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
         child: Column(
@@ -303,6 +453,10 @@ class _RecordingViewState extends State<RecordingView>
                       subtitle: name,
                       onBack: () => Navigator.of(context).maybePop(),
                     ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(top: 6),
+                    child: SpeechToggle(),
                   ),
                   ExitExerciseButton(
                     confirm: _recording
@@ -366,9 +520,13 @@ class _RecordingViewState extends State<RecordingView>
                               child: ExerciseAnimation(
                                 poseKey: vm.current?.poseKey,
                                 color: Colors.white.withValues(
-                                  alpha: _recording ? 0.35 : 0.8,
+                                  alpha: _recording ? 0.5 : 0.8,
                                 ),
                                 strokeShare: 0.03,
+                                coaching: _coaching,
+                                pace: _recording ? RecordingView.pace : 1,
+                                restartToken: _take,
+                                onPhase: _onPhase,
                               ),
                             ),
                           ),
@@ -397,6 +555,56 @@ class _RecordingViewState extends State<RecordingView>
                             ),
                           ),
                         ),
+                        if (_recording && !(_guide?.hold ?? true))
+                          Positioned(
+                            top: 12,
+                            left: 0,
+                            right: 0,
+                            child: Center(
+                              child: _Pill(
+                                key: const Key('rep_counter'),
+                                text:
+                                    'Rep ${_rep.clamp(1, _targetReps)} of $_targetReps',
+                              ),
+                            ),
+                          ),
+                        if (_countdown case final left?)
+                          Positioned.fill(
+                            child: Container(
+                              key: const Key('countdown'),
+                              color: Colors.black54,
+                              alignment: Alignment.center,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text(
+                                    'Get into position',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$left',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 96,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                  const Text(
+                                    'Recording starts when the count ends',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         if (_cameras.length > 1)
                           Positioned(
                             right: 8,
@@ -425,6 +633,11 @@ class _RecordingViewState extends State<RecordingView>
                             ),
                             child: Text(
                               _cameraError ??
+                                  (_recording ? _cue : null) ??
+                                  (_countdown == null && !_recording
+                                      ? 'Tap Record, then go to your place: you have '
+                                            '${hands ? 5 : 10} seconds.'
+                                      : null) ??
                                   // The set-up of this exercise (side view, on the floor, ...).
                                   vm.current?.cameraTip ??
                                   (hands
@@ -458,9 +671,15 @@ class _RecordingViewState extends State<RecordingView>
                     children: [
                       Expanded(
                         child: _BigAction(
-                          label: _recording ? 'Stop' : 'Record',
+                          label: _recording
+                              ? 'Stop'
+                              : _countdown != null
+                              ? 'Cancel'
+                              : 'Record',
                           onTap: (c != null && _cameraError == null)
-                              ? _toggleRecording
+                              ? (_recording
+                                    ? _toggleRecording
+                                    : _startCountdown)
                               : null,
                           child: Container(
                             width: 64,
@@ -500,7 +719,9 @@ class _RecordingViewState extends State<RecordingView>
                       Expanded(
                         child: _BigAction(
                           label: 'Upload video',
-                          onTap: _recording ? null : _upload,
+                          onTap: _recording || _countdown != null
+                              ? null
+                              : _upload,
                           child: Container(
                             width: 52,
                             height: 52,
@@ -523,6 +744,42 @@ class _RecordingViewState extends State<RecordingView>
           ],
         ),
       ),
+    );
+    // The phone's Back and the arrow (23 Oct): during the count-in they cancel it; while
+    // recording they ask first, as Exit does, instead of dropping the clip without a word.
+    return PopScope(
+      canPop: !_recording && _countdown == null,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        if (_countdown != null) {
+          _cancelCountdown();
+          return;
+        }
+        final stop = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            content: const Text(
+              'Stop recording and go back? This recording will not be saved.',
+              style: TextStyle(fontSize: 17),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(c, false),
+                child: const Text('Keep recording'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(c, true),
+                child: const Text(
+                  'Stop',
+                  style: TextStyle(color: AppTokens.cta),
+                ),
+              ),
+            ],
+          ),
+        );
+        if (stop == true && context.mounted) Navigator.of(context).pop();
+      },
+      child: page,
     );
   }
 }
@@ -601,4 +858,27 @@ class _GuidePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_GuidePainter old) => false;
+}
+
+/// A rounded label on the camera picture (the repetition count).
+class _Pill extends StatelessWidget {
+  final String text;
+  const _Pill({super.key, required this.text});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    decoration: BoxDecoration(
+      color: Colors.black54,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      text,
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: 22,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+  );
 }

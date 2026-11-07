@@ -22,7 +22,7 @@ CONDITION_SOURCES: dict[str, str] = {
     "ASTHMA": "gina2024", "ARTHRITIS": "eular2018", "RHEUMATOID_ARTHRITIS": "eular2018", "COPD": "spruit2013",
     "CANCER": "campbell2019", "KIDNEY_DISEASE": "kdigo2024", "PARKINSONS": "osborne2022",
     "MULTIPLE_SCLEROSIS": "kalb2020", "PREGNANCY": "acog2020", "JOINT_REPLACEMENT": "nice2020",
-    "FOOT_ULCER": "colberg2016",
+    "FOOT_ULCER": "colberg2016", "OSTEOPOROSIS": "brookewavell2022",
 }
 
 

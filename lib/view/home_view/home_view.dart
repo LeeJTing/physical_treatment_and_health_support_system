@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/common/whole_words_text.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
@@ -97,20 +98,15 @@ class _HomeViewState extends State<HomeView> {
     return ListView(
       padding: EdgeInsets.zero,
       children: [
-        // Header band with the greeting, the bell and the risk pill.
-        Stack(
-          children: [
-            Container(
-              height: top + 230,
-              decoration: const BoxDecoration(
-                color: AppTokens.brandDeep,
-                borderRadius: BorderRadius.vertical(
-                  bottom: Radius.circular(32),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(24, top + 24, 12, 0),
+        // Header band with the greeting, the bell and the risk pill, as tall as their text needs
+        // (audit, 24 Oct: fixed offsets put the pill under the Health Score card with large phone
+        // text). At normal text size the card starts at top + 176 as in the Figma.
+        ColoredBox(
+          color: AppTokens.brandDeep,
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(24, top + 24, 12, 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 136),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -142,17 +138,27 @@ class _HomeViewState extends State<HomeView> {
                           child: InkWell(
                             customBorder: const StadiumBorder(),
                             onTap: () => _open(Routes.healthProfile),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 18,
-                                vertical: 8,
+                            // It opens the profile: a 48 px touch target (audit, 24 Oct: 35).
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(
+                                minHeight: AppTokens.minTarget,
                               ),
-                              child: Text(
-                                HomeViewModel.riskPill(d),
-                                style: const TextStyle(
-                                  color: AppTokens.brandDeep,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 8,
+                                ),
+                                child: Center(
+                                  widthFactor: 1,
+                                  heightFactor: 1,
+                                  child: Text(
+                                    HomeViewModel.riskPill(d),
+                                    style: const TextStyle(
+                                      color: AppTokens.brandDeep,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
@@ -165,13 +171,27 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
             ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                AppTokens.gutter,
-                top + 176,
-                AppTokens.gutter,
-                0,
+          ),
+        ),
+        // The band's rounded last 54 px run behind the top of the card.
+        Stack(
+          children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 54,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: AppTokens.brandDeep,
+                  borderRadius: BorderRadius.vertical(
+                    bottom: Radius.circular(32),
+                  ),
+                ),
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppTokens.gutter),
               child: _HealthScoreCard(onTap: _openReport),
             ),
           ],
@@ -211,7 +231,8 @@ class _HomeViewState extends State<HomeView> {
                 ],
               ),
               const SizedBox(height: AppTokens.gap),
-              // Followed plans that no longer fit the profile (PlanRules.checkActive).
+              // Followed plans that no longer fit the profile (PlanRules.checkActive); a gap on
+              // both sides (audit, 24 Oct: it touched the vitals row).
               if (d.planIssues.isNotEmpty) ...[
                 _Notice(
                   d.planIssues.first.message,
@@ -219,7 +240,6 @@ class _HomeViewState extends State<HomeView> {
                 ),
                 const SizedBox(height: AppTokens.gap),
               ],
-              const SizedBox(height: AppTokens.gap),
               _SessionCard(
                 data: d,
                 onStart: () => _open(Routes.physicalTreatment),
@@ -411,7 +431,10 @@ class _VitalCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(label, style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15)),
+            WholeWordsText(
+              label,
+              style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
+            ),
             const SizedBox(height: 10),
             FittedBox(
               child: Text(
@@ -496,7 +519,7 @@ class _SessionCard extends StatelessWidget {
       ),
       final PatientTreatmentPlan p => (
         p.plan.planName,
-        HomeViewModel.sessionSummary(p.plan, RehabLabels.area),
+        HomeViewModel.sessionSummary(p, next, RehabLabels.area),
         'Start',
         onStart,
       ),
@@ -645,6 +668,8 @@ class _LimitsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            // The kcal figure stays at the right edge when it fits (it may wrap, so it is Flexible).
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Expanded(
                 child: Text(
@@ -656,9 +681,17 @@ class _LimitsCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Text(
-                '${_n(consumed.energyKcal)} / ${_n(calories)} kcal',
-                style: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
+              const SizedBox(width: 8),
+              // Wraps with large phone text instead of running off the card (audit, 24 Oct).
+              Flexible(
+                child: Text(
+                  '${_n(consumed.energyKcal)} / ${_n(calories)} kcal',
+                  textAlign: TextAlign.end,
+                  style: const TextStyle(
+                    color: AppTokens.inkMuted,
+                    fontSize: 16,
+                  ),
+                ),
               ),
             ],
           ),

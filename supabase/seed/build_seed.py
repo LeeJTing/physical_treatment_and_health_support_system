@@ -39,7 +39,8 @@ EXERCISES = [
     ("Elbow Flexion", "BOTH_ARMS", "LOW", 12, 60, "elbow_flexion",
      "Camera: side view, whole body in frame. Stand or sit with arms by your sides, palms forward. Bend the elbows "
      "to bring the hands toward the shoulders, keeping the upper arms still against your body, then lower slowly. "
-     "Use a light bottle of water if comfortable."),
+     "Use a light bottle of water if comfortable. Safety: keep the weight light and stop if the elbow or shoulder "
+     "hurts."),
     ("Wall Push-Up", "BOTH_ARMS", "MODERATE", 10, 90, "wall_push_up",
      "Camera: side view, whole body in frame, wall at one edge of the picture. Stand an arm's length from a wall "
      "with palms on the wall at shoulder height. Bend the elbows to bring the chest toward the wall, then push back. "
@@ -52,7 +53,8 @@ EXERCISES = [
      "about 30 degrees keeping the heels down and the chest up, then stand up. Safety: knees must not pass the toes."),
     ("Seated Marching", "BOTH_LEGS", "LOW", 20, 90, "seated_marching",
      "Camera: side view, whole body in frame. Sit upright on a chair without leaning back. Lift one knee toward the "
-     "chest, lower it, and alternate legs at a steady pace."),
+     "chest, lower it, and alternate legs at a steady pace. Safety: use a sturdy chair without wheels, with your "
+     "feet flat on the floor between lifts."),
     ("Glute Bridge", "CORE", "MODERATE", 10, 90, "glute_bridge",
      "Camera: side view, phone on the floor about 2 m away, whole body in frame. Lie on your back on a mat with knees "
      "bent and feet flat. Squeeze the buttocks and lift the hips until shoulders, hips and knees are in a straight "
@@ -70,7 +72,8 @@ EXERCISES = [
      "Safety: use a step no higher than 15 cm."),
     ("March in Place", "FULL_BODY", "MODERATE", 30, 120, "march_in_place",
      "Camera: side view, whole body in frame. Stand tall and march on the spot, lifting the knees to hip height if "
-     "comfortable and swinging the arms, at a steady pace."),
+     "comfortable and swinging the arms, at a steady pace. Safety: stay near a wall or sturdy chair you can hold, "
+     "and stop if you feel dizzy or very short of breath."),
     # 9 Oct: wrist and hand (posture checks on the hand model; Elwin chose to add them).
     ("Wrist Extension", "BOTH_ARMS", "LOW", 10, 60, "wrist_extension",
      "Camera: at table height on the side of your arm, forearm and hand in the picture. Sit at a table and rest "

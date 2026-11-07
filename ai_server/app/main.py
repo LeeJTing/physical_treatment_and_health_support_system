@@ -22,7 +22,7 @@ app.include_router(pose.router)
 # Error contract read by ApiClient: {"error": {"code": ..., "message": ...}}
 @app.exception_handler(HTTPException)
 async def http_error(_: Request, exc: HTTPException):
-    code = {401: "unauthorised", 404: "not_found", 422: "invalid_request"}.get(exc.status_code, "error")
+    code = {401: "unauthorised", 404: "not_found", 422: "invalid_request", 503: "service_unavailable"}.get(exc.status_code, "error")
     return JSONResponse(status_code=exc.status_code, content={"error": {"code": code, "message": str(exc.detail)}})
 
 

@@ -1,0 +1,53 @@
+{
+  "pose_key": "hand_open_close",
+  "focus": {
+    "joint": "middle_mcp",
+    "from": "wrist",
+    "to": "middle_tip"
+  },
+  "mover": "middle_tip",
+  "captions": {
+    "start": "A gentle fist",
+    "go": "Open your hand",
+    "top": "Fingers spread wide",
+    "back": "Close it slowly"
+  },
+  "say": {
+    "go": "Open",
+    "back": "Close"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Sit at a table with your forearm resting on it and make a gentle fist."
+    },
+    {
+      "phase": "go",
+      "text": "Open your hand slowly."
+    },
+    {
+      "phase": "top",
+      "text": "Spread your fingers as wide as is comfortable."
+    },
+    {
+      "phase": "back",
+      "text": "Close your hand slowly into a gentle fist again."
+    }
+  ],
+  "safety": [
+    "Stop if it hurts or tingles."
+  ],
+  "mistakes": [
+    {
+      "label": "not_closed",
+      "wrong": "your hand did not close into a fist between openings",
+      "right": "Between openings, close your hand into a gentle fist."
+    },
+    {
+      "label": "fingers_not_spread",
+      "wrong": "your fingers stayed close together when your hand opened",
+      "right": "Spread your fingers wide as you open your hand, only as far as is comfortable."
+    }
+  ],
+  "setup": []
+}

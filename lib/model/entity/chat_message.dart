@@ -32,7 +32,7 @@ class ChatMessage {
     'question_category': questionCategory,
     'message_text': messageText,
     'is_matched': isMatched,
-    'created_at': createdAt.toIso8601String(),
+    'created_at': createdAt.toUtc().toIso8601String(),
   };
 
   factory ChatMessage.fromJson(Map<String, dynamic> j) => ChatMessage(
@@ -43,6 +43,6 @@ class ChatMessage {
     questionCategory: j['question_category'] as String?,
     messageText: j['message_text'] as String,
     isMatched: (j['is_matched'] ?? true) as bool,
-    createdAt: DateTime.parse(j['created_at'] as String),
+    createdAt: DateTime.parse(j['created_at'] as String).toLocal(),
   );
 }
