@@ -104,15 +104,18 @@ void main() {
     expect(h.vm.analysis, isA<Idle>());
   });
 
-  testWidgets('Exit while checking asks first; Keep going stays', (
-    tester,
-  ) async {
+  // The back arrow replaced Exit (Elwin, 9 Nov) and does what the phone's Back does.
+  testWidgets('the back arrow asks first; Keep checking stays', (tester) async {
     final h = await open(tester);
-    await tester.tap(find.text('Exit'));
+    expect(find.text('Exit'), findsNothing);
+    await tester.tap(find.byTooltip('Back'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
-    expect(find.textContaining('Leave this exercise?'), findsOneWidget);
-    await tester.tap(find.text('Keep going'));
+    expect(
+      find.text('Stop checking this video? This attempt will not be saved.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Keep checking'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Analysing your posture'), findsOneWidget);
@@ -182,14 +185,16 @@ void main() {
     );
   });
 
-  testWidgets('Exit after an error goes home without asking', (tester) async {
+  testWidgets('the back arrow after an error goes back to the recorder', (
+    tester,
+  ) async {
     final h = await open(tester, errorCode: 'no_repetitions');
     await finishUpload(tester, h);
-    await tester.tap(find.text('Exit'));
+    await tester.tap(find.byTooltip('Back'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
-    expect(find.text('HOME'), findsOneWidget);
-    expect(h.vm.current, isNull);
+    expect(find.text('RECORDER'), findsOneWidget);
+    expect(h.vm.current, isNotNull); // still on the same exercise
   });
 
   // The step labels overflowed with large phone text (laptop test, 22 Oct): they now wrap.

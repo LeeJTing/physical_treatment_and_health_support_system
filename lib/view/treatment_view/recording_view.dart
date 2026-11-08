@@ -13,7 +13,6 @@ import 'package:physical_treatment_and_health_support_system/view/common/exercis
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/guide/guide_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/analysing_view.dart';
-import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
@@ -60,11 +59,31 @@ class _RecordingViewState extends State<RecordingView>
   bool _repsDone = false;
   int _take = 0; // restarts the guide when a recording starts
 
+  /// The guide animation over the camera fades out after a few seconds and when Record is
+  /// tapped, so the patient can see themselves (Elwin, 9 Nov); "?" brings it back. It keeps
+  /// running while hidden: it paces the repetitions and the spoken cues.
+  bool _guideVisible = true;
+  Timer? _guideTimer;
+  static const guideShownFor = Duration(seconds: 5);
+
+  void _showGuideBriefly() {
+    _guideTimer?.cancel();
+    if (mounted) setState(() => _guideVisible = true);
+    _guideTimer = Timer(guideShownFor, _hideGuide);
+  }
+
+  void _hideGuide() {
+    _guideTimer?.cancel();
+    _guideTimer = null;
+    if (mounted && _guideVisible) setState(() => _guideVisible = false);
+  }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initCamera();
+    _showGuideBriefly();
   }
 
   /// Kept from didChangeDependencies: dispose must not look up the tree.
@@ -112,6 +131,7 @@ class _RecordingViewState extends State<RecordingView>
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _countTimer?.cancel();
+    _guideTimer?.cancel();
     // A count-in or cue still being spoken stops when the patient leaves (audit, 23 Oct).
     _voice?.quiet();
     _release(_controller, wasRecording: _recording);
@@ -239,6 +259,7 @@ class _RecordingViewState extends State<RecordingView>
         context.read<TreatmentViewModel>().current?.recordsHands ?? false;
     final start = hands ? 5 : 10;
     setState(() => _countdown = start);
+    _hideGuide();
     _say('Get into position. Recording starts in $start seconds.');
     _countTimer = Timer.periodic(const Duration(seconds: 1), (t) {
       final left = (_countdown ?? 1) - 1;
@@ -428,7 +449,10 @@ class _RecordingViewState extends State<RecordingView>
           ),
         ],
       ),
-    );
+    ).then((_) {
+      // "?" also brings back the guide animation for a few seconds (not while recording).
+      if (mounted && !_recording && _countdown == null) _showGuideBriefly();
+    });
   }
 
   @override
@@ -457,11 +481,6 @@ class _RecordingViewState extends State<RecordingView>
                   const Padding(
                     padding: EdgeInsets.only(top: 6),
                     child: SpeechToggle(),
-                  ),
-                  ExitExerciseButton(
-                    confirm: _recording
-                        ? 'Stop recording and leave this exercise? This recording will not be saved.'
-                        : null,
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 6),
@@ -513,20 +532,25 @@ class _RecordingViewState extends State<RecordingView>
                         // The exercise moving inside the frame (11 Oct): where to stand
                         // and what to do; fainter while recording.
                         IgnorePointer(
-                          child: Align(
-                            child: FractionallySizedBox(
-                              widthFactor: 0.6,
-                              heightFactor: 0.86,
-                              child: ExerciseAnimation(
-                                poseKey: vm.current?.poseKey,
-                                color: Colors.white.withValues(
-                                  alpha: _recording ? 0.5 : 0.8,
+                          child: AnimatedOpacity(
+                            key: const Key('recorder_guide'),
+                            opacity: _guideVisible ? 1 : 0,
+                            duration: const Duration(milliseconds: 600),
+                            child: Align(
+                              child: FractionallySizedBox(
+                                widthFactor: 0.6,
+                                heightFactor: 0.86,
+                                child: ExerciseAnimation(
+                                  poseKey: vm.current?.poseKey,
+                                  color: Colors.white.withValues(
+                                    alpha: _recording ? 0.5 : 0.8,
+                                  ),
+                                  strokeShare: 0.03,
+                                  coaching: _coaching,
+                                  pace: _recording ? RecordingView.pace : 1,
+                                  restartToken: _take,
+                                  onPhase: _onPhase,
                                 ),
-                                strokeShare: 0.03,
-                                coaching: _coaching,
-                                pace: _recording ? RecordingView.pace : 1,
-                                restartToken: _take,
-                                onPhase: _onPhase,
                               ),
                             ),
                           ),

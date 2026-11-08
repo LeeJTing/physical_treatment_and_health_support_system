@@ -209,4 +209,27 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
     expect(find.textContaining('waist height'), findsOneWidget);
   });
+
+  testWidgets(
+    'one way out, and the guide fades so the patient sees themselves (Elwin, 9 Nov)',
+    (tester) async {
+      await open(tester, poseKey: 'sit_to_stand');
+      // The back arrow is the only way out; there is no Exit beside it any more.
+      expect(find.text('Exit'), findsNothing);
+      double guide() => tester
+          .widget<AnimatedOpacity>(find.byKey(const Key('recorder_guide')))
+          .opacity;
+      expect(guide(), 1);
+      await tester.pump(const Duration(seconds: 6));
+      expect(guide(), 0); // faded after a few seconds
+      // "?" brings it back once its instructions are closed.
+      await tester.tap(find.byTooltip('Recording instructions'));
+      await tester.pump(const Duration(milliseconds: 400));
+      await tester.tap(find.text('Got it'));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(guide(), 1);
+      await tester.pump(const Duration(seconds: 6));
+      expect(guide(), 0);
+    },
+  );
 }

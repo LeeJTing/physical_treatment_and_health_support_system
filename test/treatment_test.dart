@@ -435,33 +435,39 @@ void main() {
       },
     );
 
-    testWidgets('Exit on the result screen goes back to the home page', (
-      tester,
-    ) async {
-      final h = Harness();
-      h.server.accuracy = 70;
-      await tester.runAsync(() async {
-        await h.setUp(tmp);
-        await h.recordFirst();
-      });
-      await tester.pumpWidget(
-        MaterialApp(
-          routes: {Routes.home: (_) => const Text('HOME PAGE')},
-          home: ChangeNotifierProvider.value(
-            value: h.vm,
-            child: const PostureResultView(),
+    // The back arrow replaced Exit (Elwin, 9 Nov): back to the recorder, the try kept as
+    // RETRIED, the same as the phone's Back and Retry exercise.
+    testWidgets(
+      'the back arrow on the result screen goes back to the recorder',
+      (tester) async {
+        final h = Harness();
+        h.server.accuracy = 70;
+        await tester.runAsync(() async {
+          await h.setUp(tmp);
+          await h.recordFirst();
+        });
+        await tester.pumpWidget(
+          MaterialApp(
+            routes: {Routes.home: (_) => const Text('HOME PAGE')},
+            home: ChangeNotifierProvider.value(
+              value: h.vm,
+              child: const PostureResultView(),
+            ),
           ),
-        ),
-      );
-      await tester.pump();
-      await tester.tap(find.text('Exit'));
-      await tester.pumpAndSettle();
-      expect(find.text('HOME PAGE'), findsOneWidget);
-      expect(
-        h.treatments.sessions,
-        isEmpty,
-      ); // the failing attempt was not kept
-    });
+        );
+        await tester.pump();
+        expect(find.text('Exit'), findsNothing);
+        await tester.tap(find.byTooltip('Back'));
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 100)),
+        );
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(h.vm.analysis, isA<Idle<PostureResult>>());
+        expect(h.treatments.sessions.map((s) => s.completionStatus), [
+          CompletionStatus.retried,
+        ]); // kept as a try, not as a completed session
+      },
+    );
   });
 
   group('posture result (FR300_09 to FR300_21)', () {
