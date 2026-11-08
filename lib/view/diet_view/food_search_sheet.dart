@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 
 /// Search the food catalogue by name, in Malay or English, and pick one (UC800 A2 step 2, A3;
 /// FR700_006, FR700_050). [suggested] are shown first (the recogniser's other likely foods);
@@ -80,7 +81,7 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(widget.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+        OneLineText(widget.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink)),
         const SizedBox(height: 12),
         TextField(
           autofocus: widget.suggested.isEmpty && widget.suggestedLater == null,
@@ -104,7 +105,7 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
               if (_term.isEmpty && _suggested.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 6),
-                  child: Text('Did you mean', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
+                  child: OneLineText('Did you mean', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
                 ),
                 for (final f in _suggested) FoodTile(food: f, onTap: () => Navigator.pop(context, f)),
                 const Divider(),
@@ -113,7 +114,7 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
               if (_results.isEmpty && !_searching)
                 const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Text('No food found. Try another name.', style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
+                  child: Text('No food found. Try another\u00A0name.', style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
                 ),
             ],
           ),

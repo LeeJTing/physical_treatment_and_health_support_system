@@ -383,7 +383,8 @@ void main() {
       expect(d.restrictionType, t);
       expect(d, DietaryRestriction(t.index + 1, 'other', 'other', t));
       expect(d.hashCode, (t.index + 1).hashCode);
-      expect(d.isHardBlock(), t.db == 'ALLERGY' || t.db == 'INTOLERANCE');
+      // A food name the patient cannot eat is always ruled out too (food-name restrictions, 1 Nov).
+      expect(d.isHardBlock(), t.db == 'ALLERGY' || t.db == 'INTOLERANCE' || t.db == 'FOOD');
     }
   });
 

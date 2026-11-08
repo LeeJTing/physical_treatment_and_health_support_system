@@ -7,14 +7,23 @@ import 'package:physical_treatment_and_health_support_system/model/entity/diet_p
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/food_picture.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 
-/// Today's plan (UC900 A5) or the weekly plan (A6): each slot's foods with their portions, Lock and
-/// Replace for each planned food (A5.1, A5.2), Regenerate (A6.1), the remaining allowance, the
-/// adherence rate for the week (FR700_038) and the disclaimer (FR700_045). When the planner is
+enum _FoodAction { portion, swap, lock, remove }
+
+/// Today's plan (UC900 A5) or the weekly plan (A6). Each day shows its planned energy, sodium and
+/// free sugars against the limits and "Why this plan?" (how it was made, with the healthy plate);
+/// each slot shows its foods with a picture of their place on the plate. Tapping a food says why it
+/// was chosen and lets the patient change its portion, swap it (A5.1), lock it (A5.2) or remove it;
+/// "Add food" adds any suitable food to a slot. Every change is shown with its effect on the day
+/// and confirmed first, and one that would break a limit cannot be made (FR700_042). Regenerate
+/// (A6.1) and "plan the rest of today" (FR700_034) are confirmed too. When the planner is
 /// unavailable the patient builds the day's plan by choosing foods (E2, FR700_044).
 class DietPlanView extends StatefulWidget {
   final PlanType type;
@@ -38,23 +47,234 @@ class _DietPlanViewState extends State<DietPlanView> {
 
   void _snack(String m) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
+  // ------------------------------------------------------------------ actions (each confirmed)
+
+  Future<void> _regenerate(DietPlanViewModel vm) async {
+    final ok = await confirmEffects(
+      context,
+      title: 'Make a new plan?',
+      icon: Icons.refresh,
+      effects: vm.regenerateEffects,
+      confirmLabel: 'Make new plan',
+    );
+    if (ok) await vm.regenerate();
+  }
+
+  Future<void> _regenerateRemaining(DietPlanViewModel vm) async {
+    final ok = await confirmEffects(
+      context,
+      title: 'Plan the rest of today?',
+      icon: Icons.update,
+      effects: vm.regenerateRemainingEffects,
+      confirmLabel: 'Plan the rest',
+    );
+    if (ok) await vm.regenerateRemaining();
+  }
+
+  Future<void> _add(DietPlanViewModel vm, DateTime day, MealSlot slot) async {
+    final f = await FoodSearchSheet.show(
+      context,
+      search: vm.searchCatalogue,
+      suggestedLater: vm.suggestionsFor(day, slot),
+      title: 'Add to your ${slot.label.toLowerCase()}',
+    );
+    if (f == null || !mounted) return;
+    final c = vm.previewAdd(day, slot, f);
+    if (c == null) return;
+    final ok = await PlanChangeDialog.show(
+      context,
+      change: c,
+      rebuild: (g) => vm.previewAdd(day, slot, f, grams: g),
+      servingG: f.baseServingG,
+      startG: f.baseServingG.roundToDouble(),
+      confirmLabel: 'Add',
+      icon: Icons.add_circle,
+      role: f.planRole,
+    );
+    if (ok != null) await vm.applyChange(ok);
+  }
+
+  Future<void> _remove(DietPlanViewModel vm, PlannedMeal m) async {
+    final c = vm.previewRemove(m);
+    if (c == null) return;
+    final ok = await PlanChangeDialog.show(
+      context,
+      change: c,
+      confirmLabel: 'Remove',
+      icon: Icons.remove_circle,
+      destructive: true,
+    );
+    if (ok != null) await vm.applyChange(ok);
+  }
+
+  Future<void> _portion(DietPlanViewModel vm, PlannedMeal m) async {
+    final c = vm.previewPortion(m, m.portionSizeG);
+    if (c == null) return;
+    final ok = await PlanChangeDialog.show(
+      context,
+      change: c,
+      rebuild: (g) => vm.previewPortion(m, g),
+      servingG: m.food.baseServingG,
+      startG: m.portionSizeG,
+      confirmLabel: 'Change',
+      icon: Icons.tune,
+      role: m.food.planRole,
+      needsNewPortion: true,
+    );
+    if (ok != null) await vm.applyChange(ok);
+  }
+
   /// The sheet opens at once and fills when the alternatives have been found.
-  Future<void> _replace(DietPlanViewModel vm, PlannedMeal m) async {
+  Future<void> _swap(DietPlanViewModel vm, PlannedMeal m) async {
     final f = await showFutureSheet<List<FoodItem>, FoodItem>(
       context: context,
       future: vm.alternativesFor(m),
-      title: 'Replace ${m.food.foodName}',
-      subtitle: 'These keep the day within your limits.',
+      title: 'Swap ${m.food.foodName}',
+      subtitle: 'Foods of the same kind that keep the day within your limits.',
       loadingText: 'Finding foods that fit...',
       builder: (ctx, alts) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (alts.isEmpty) const Text('No other food fits the same limits.'),
+          if (alts.isEmpty) const Text('No other food fits the same\u00A0limits.'),
           for (final a in alts) FoodTile(food: a, onTap: () => Navigator.pop(ctx, a)),
         ],
       ),
     );
-    if (f != null) await vm.replaceMeal(m.plannedMealId, f);
+    if (f == null || !mounted) return;
+    final c = vm.previewReplace(m, f);
+    if (c == null) return;
+    final ok = await PlanChangeDialog.show(context, change: c, confirmLabel: 'Swap', icon: Icons.swap_horiz, role: f.planRole);
+    if (ok != null) await vm.applyChange(ok);
+  }
+
+  /// A planned food: why it was chosen, its nutrients, and what can be done with it.
+  Future<void> _openFood(DietPlanViewModel vm, PlannedMeal m) async {
+    final look = FoodLook.of(m.food.planRole);
+    final reasons = vm.reasonsFor(m);
+    final action = await showModalBottomSheet<_FoodAction>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: AppTokens.surface,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (ctx) => DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.75,
+        maxChildSize: 0.95,
+        builder: (ctx, scroll) => ListView(
+          controller: scroll,
+          padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(color: AppTokens.cardBorder, borderRadius: BorderRadius.circular(2)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                FoodRoleAvatar(m.food.planRole, size: 64),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tidy(m.food.foodName),
+                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                      OneLineText(
+                        '${look.label} · ${m.mealSlot.label} · ${m.portionSizeG.round()} g',
+                        style: const TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+                      ),
+                      if (m.isLocked)
+                        const Padding(
+                          padding: EdgeInsets.only(top: 4),
+                          child: Row(
+                            children: [
+                              Icon(Icons.lock, size: 16, color: AppTokens.brandDeep),
+                              SizedBox(width: 4),
+                              Text('Locked', style: TextStyle(color: AppTokens.brandDeep, fontWeight: FontWeight.w600)),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            NutrientTable(m.nutrients),
+            const SizedBox(height: 16),
+            const Text('Why this food', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+            const Text(
+              'Anything that is too much, too little or not good for your body is shown in\u00A0red.',
+              style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+            ),
+            const SizedBox(height: 6),
+            EffectList(reasons, bullet: Icons.check_circle),
+            const SizedBox(height: 12),
+            if (m.isLocked)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 8),
+                child: Text('Unlock it to change the portion or swap\u00A0it.',
+                    style: TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+              ),
+            Row(
+              children: [
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.tune,
+                    label: 'Portion',
+                    onTap: m.isLocked ? null : () => Navigator.pop(ctx, _FoodAction.portion),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.swap_horiz,
+                    label: 'Swap',
+                    onTap: m.isLocked ? null : () => Navigator.pop(ctx, _FoodAction.swap),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _ActionButton(
+                    icon: m.isLocked ? Icons.lock_open : Icons.lock,
+                    label: m.isLocked ? 'Unlock' : 'Lock',
+                    onTap: () => Navigator.pop(ctx, _FoodAction.lock),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.delete_outline,
+                    label: 'Remove',
+                    danger: true,
+                    onTap: () => Navigator.pop(ctx, _FoodAction.remove),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case _FoodAction.portion:
+        await _portion(vm, m);
+      case _FoodAction.swap:
+        await _swap(vm, m);
+      case _FoodAction.lock:
+        await vm.toggleLock(m);
+      case _FoodAction.remove:
+        await _remove(vm, m);
+    }
   }
 
   Future<void> _manual(DietPlanViewModel vm) async {
@@ -76,6 +296,8 @@ class _DietPlanViewState extends State<DietPlanView> {
     }
   }
 
+  // ------------------------------------------------------------------ screen
+
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<DietPlanViewModel>();
@@ -96,8 +318,8 @@ class _DietPlanViewState extends State<DietPlanView> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            tooltip: 'Regenerate',
-            onPressed: vm.isLoading ? null : vm.regenerate,
+            tooltip: 'Make a new plan',
+            onPressed: vm.isLoading ? null : () => _regenerate(vm),
             icon: const Icon(Icons.refresh),
           ),
           const HelpButton(guide: Guides.dietPlan),
@@ -117,18 +339,18 @@ class _DietPlanViewState extends State<DietPlanView> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    GuideIllustration(Icons.restaurant_menu, badge: Icons.check_circle, size: 120),
+                    HealthyPlatePicture(size: 132),
                     SizedBox(height: 20),
                     CircularProgressIndicator(color: AppTokens.brandDeepAccent),
                     SizedBox(height: 14),
                     Text(
-                      'Making a plan that fits your limits...',
+                      'Making a plan that fits your\u00A0limits...',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
                     ),
                     SizedBox(height: 6),
                     Text(
-                      'This can take up to 20 seconds.',
+                      'This can take up to 20\u00A0seconds.',
                       style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
                     ),
                   ],
@@ -148,50 +370,45 @@ class _DietPlanViewState extends State<DietPlanView> {
                   sodiumLimit: vm.ctx.dailySodiumMg,
                   sugarLimit: vm.ctx.dailySugarG,
                 ),
-                if (vm.profileRules.isNotEmpty) ...[
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
-                    decoration: BoxDecoration(
-                      color: AppTokens.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppTokens.cardBorder),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Planned for your profile',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
-                        const SizedBox(height: 6),
-                        for (final r in vm.profileRules)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 4),
-                            child: Text('• $r', style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
                 const SizedBox(height: 12),
+                // Not following the plan: what was missed or eaten differently, in red.
+                if (vm.followWarnings case final w when w.isNotEmpty) ...[
+                  WatchOutBox(
+                    w,
+                    title: 'Please follow your diet plan',
+                    action: widget.type == PlanType.daily
+                        ? Align(
+                            alignment: Alignment.centerLeft,
+                            child: TextButton.icon(
+                              style: TextButton.styleFrom(foregroundColor: AppTokens.onDanger),
+                              onPressed: vm.isLoading ? null : () => _regenerateRemaining(vm),
+                              icon: const Icon(Icons.update),
+                              label: const OneLineText('Plan the rest of today'),
+                            ),
+                          )
+                        : null,
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 if (vm.plannerDown) ...[
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(color: AppTokens.warnContainer, borderRadius: BorderRadius.circular(16)),
-                    child: const Text(Messages.plannerUnavailable, style: TextStyle(color: AppTokens.onWarn, fontSize: 15)),
+                    child: Text(tidy(Messages.plannerUnavailable), style: const TextStyle(color: AppTokens.onWarn, fontSize: 15)),
                   ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52), shape: const StadiumBorder()),
                     onPressed: () => _manual(vm),
                     icon: const Icon(Icons.edit_note),
-                    label: const Text('Build my plan myself'),
+                    label: const OneLineText('Build my plan myself'),
                   ),
                   const SizedBox(height: 12),
                 ],
                 if (p != null) ...[
                   if (widget.type == PlanType.weekly) ...[
                     Text(
-                      'This week you followed ${(vm.adherence() * 100).round()}% of your planned meals.',
+                      tidy('This week you followed ${(vm.adherence() * 100).round()}% of your planned meals.'),
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
                     ),
                     const SizedBox(height: 8),
@@ -213,12 +430,16 @@ class _DietPlanViewState extends State<DietPlanView> {
                     ),
                     const SizedBox(height: 8),
                   ],
-                  if (days.isNotEmpty) ..._dayMeals(vm, p, days[_day]),
+                  if (days.isNotEmpty) ...[
+                    _overview(vm, days[_day]),
+                    const SizedBox(height: 12),
+                    for (final slot in MealSlot.values) _slotCard(vm, p, days[_day], slot),
+                  ],
                   if (widget.type == PlanType.daily)
                     TextButton.icon(
-                      onPressed: vm.regenerateRemaining,
+                      onPressed: vm.isLoading ? null : () => _regenerateRemaining(vm),
                       icon: const Icon(Icons.update),
-                      label: const Text("Plan the rest of today from what I've eaten"),
+                      label: const Text("Plan the rest of today from what I've\u00A0eaten"),
                     ),
                   Text('Planned by ${p.modelVersion}', style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted)),
                 ],
@@ -233,87 +454,286 @@ class _DietPlanViewState extends State<DietPlanView> {
     return '${w[d.weekday - 1]} ${d.day}/${d.month}';
   }
 
-  List<Widget> _dayMeals(DietPlanViewModel vm, DietPlan p, DateTime day) {
-    final meals = p.mealsFor(day);
-    final t = p.totalsFor(day);
-    return [
-      for (final slot in MealSlot.values)
-        if (meals.any((m) => m.mealSlot == slot))
-          Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.fromLTRB(14, 12, 6, 8),
-            decoration: BoxDecoration(
-              color: AppTokens.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: AppTokens.cardBorder),
+  /// The day at a glance: planned energy, sodium and free sugars against the limits, and the
+  /// explanation of how the plan was made.
+  Widget _overview(DietPlanViewModel vm, DateTime day) {
+    final t = vm.plannedTotals(day);
+    final now = DateTime.now();
+    final isToday = day.year == now.year && day.month == now.month && day.day == now.day;
+    return Container(
+      decoration: BoxDecoration(
+        color: AppTokens.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTokens.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                OneLineText(
+                  isToday ? 'Your plan for today' : 'Your plan for ${_dayLabel(day)}',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                ),
+                PlanBar(label: 'Energy', value: t.energyKcal, limit: vm.ctx.dailyEnergyKcal, unit: 'kcal', isTarget: true),
+                PlanBar(label: 'Sodium', value: t.sodiumMg, limit: vm.ctx.dailySodiumMg, unit: 'mg'),
+                PlanBar(label: 'Free sugars', value: t.sugarG, limit: vm.ctx.dailySugarG, unit: 'g', decimals: 1),
+                if (vm.unmetNeeds(day) case final unmet when unmet.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      tidy('Too little ${unmet.join(' and ')} today: add vegetables, fruit, milk or tofu if you can.'),
+                      style: const TextStyle(fontSize: 14, color: AppTokens.onDanger, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                const SizedBox(height: 6),
+                const Text(
+                  'Tap a food to see why it was chosen, or to change, swap, lock or remove\u00A0it.',
+                  style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+                ),
+              ],
             ),
+          ),
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+              leading: const Icon(Icons.lightbulb_outline, color: AppTokens.brandDeep),
+              title: const OneLineText('Why this plan?',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep)),
+              subtitle: const Text('How it was made and how it fits your\u00A0limits',
+                  style: TextStyle(fontSize: 13, color: AppTokens.inkMuted)),
+              children: [
+                const Row(
+                  children: [
+                    HealthyPlatePicture(size: 112),
+                    SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _PlateKey(FoodLook.plateVeg, 'Half: vegetables and fruit'),
+                          _PlateKey(FoodLook.plateStarch, 'A quarter: rice, bread or noodles'),
+                          _PlateKey(FoodLook.plateProtein, 'A quarter: fish, chicken, egg or tofu'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                for (final r in vm.summaryFor(day)) PlanReasonTile(r),
+                if (vm.profileRules.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  const Text('Rules from your profile',
+                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                  for (final r in vm.profileRules)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(tidy('• $r'), style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                    ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// One meal slot: its picture, energy against its usual share, its foods and "Add food".
+  Widget _slotCard(DietPlanViewModel vm, DietPlan p, DateTime day, MealSlot slot) {
+    final items = p.mealsFor(day).where((m) => m.mealSlot == slot).toList();
+    final kcal = items.fold(0.0, (a, m) => a + m.energyKcal);
+    final usual = vm.usualKcal(slot);
+    final look = SlotLook.of(slot);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: AppTokens.surface,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: AppTokens.cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [look.back, AppTokens.surface]),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Row(
+              children: [
+                SlotPicture(slot),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      OneLineText(slot.label, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                      OneLineText(
+                        '${look.time} · ${fmtNum(kcal)} kcal of about ${fmtNum(usual)}',
+                        style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
+                      ),
+                      const SizedBox(height: 6),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: usual <= 0 ? 0 : (kcal / usual).clamp(0.0, 1.0),
+                          minHeight: 6,
+                          color: kcal > usual * 1.3 ? AppTokens.caution : look.fore,
+                          backgroundColor: AppTokens.surface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (items.any((m) => m.isLogged))
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Column(
+                      children: [
+                        Icon(Icons.check_circle, color: AppTokens.good, size: 22),
+                        Text('Logged', style: TextStyle(color: AppTokens.good, fontWeight: FontWeight.w600, fontSize: 12)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          if (items.isEmpty)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+              child: Text(
+                tidy('Nothing planned for your ${slot.label.toLowerCase()} yet.'),
+                style: const TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+              ),
+            ),
+          for (final m in items) _foodRow(vm, m),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton.icon(
+                style: TextButton.styleFrom(minimumSize: const Size(0, AppTokens.minTarget)),
+                onPressed: vm.isLoading ? null : () => _add(vm, day, slot),
+                icon: const Icon(Icons.add_circle_outline),
+                label: OneLineText('Add food to ${slot.label.toLowerCase()}'),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _foodRow(DietPlanViewModel vm, PlannedMeal m) => InkWell(
+    onTap: () => _openFood(vm, m),
+    child: Padding(
+      padding: const EdgeInsets.fromLTRB(14, 10, 4, 4),
+      child: Row(
+        children: [
+          FoodRoleAvatar(m.food.planRole, size: 46),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Text(slot.label,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                    Flexible(
+                      child: Text(tidy(m.food.foodName),
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
                     ),
-                    if (meals.where((m) => m.mealSlot == slot).any((m) => m.isLogged))
+                    if (m.isLocked)
                       const Padding(
-                        padding: EdgeInsets.only(right: 8),
-                        child: Row(
-                          children: [
-                            Icon(Icons.check_circle, color: AppTokens.good, size: 20),
-                            SizedBox(width: 4),
-                            Text('Logged', style: TextStyle(color: AppTokens.good, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
+                        padding: EdgeInsets.only(left: 6),
+                        child: Icon(Icons.lock, size: 16, color: AppTokens.brandDeep, semanticLabel: 'Locked'),
                       ),
                   ],
                 ),
-                for (final m in meals.where((m) => m.mealSlot == slot))
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(m.food.foodName, style: const TextStyle(fontSize: 16, color: AppTokens.ink)),
-                            Text(
-                              '${m.portionSizeG.round()} g · ${fmtNum(m.energyKcal)} kcal · ${fmtNum(m.sodiumMg)} mg sodium · '
-                              '${m.sugarG.toStringAsFixed(1)} g sugars',
-                              style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                            ),
-                          ],
+                if (vm.reasonsFor(m).where((r) => r.warn).firstOrNull case final w?)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(top: 1, right: 4),
+                          child: Icon(Icons.warning_amber_rounded, size: 16, color: AppTokens.danger),
                         ),
-                      ),
-                      IconButton(
-                        tooltip: m.isLocked ? 'Unlock' : 'Lock',
-                        onPressed: () => vm.lockMeal(m.plannedMealId, on: !m.isLocked),
-                        icon: Icon(m.isLocked ? Icons.lock : Icons.lock_open, color: m.isLocked ? AppTokens.brandDeep : null),
-                      ),
-                      IconButton(
-                        tooltip: 'Replace',
-                        onPressed: m.isLocked ? null : () => _replace(vm, m),
-                        icon: const Icon(Icons.swap_horiz),
-                      ),
-                    ],
+                        Expanded(
+                          child: Text(
+                            tidy(w.text.split(':').first),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 13, color: AppTokens.onDanger, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                OneLineText(
+                  '${FoodLook.of(m.food.planRole).label} · ${m.portionSizeG.round()} g · ${fmtNum(m.energyKcal)} kcal',
+                  style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+                ),
+                OneLineText(
+                  '${fmtNum(m.sodiumMg)} mg sodium · ${m.sugarG.toStringAsFixed(1)} g sugars',
+                  style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+                ),
               ],
             ),
           ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Text(
-          'Planned for the day: ${fmtNum(t.energyKcal)} of ${fmtNum(vm.ctx.dailyEnergyKcal)} kcal, '
-          '${fmtNum(t.sodiumMg)} of ${fmtNum(vm.ctx.dailySodiumMg)} mg sodium, '
-          '${t.sugarG.toStringAsFixed(1)} of ${vm.ctx.dailySugarG.toStringAsFixed(0)} g free sugars.',
-          style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
-        ),
+          IconButton(
+            tooltip: 'Remove ${m.food.foodName}',
+            onPressed: vm.isLoading ? null : () => _remove(vm, m),
+            icon: const Icon(Icons.close, color: AppTokens.inkMuted),
+          ),
+        ],
       ),
-      if (vm.unmetNeeds(day) case final unmet when unmet.isNotEmpty)
-        Text(
-          'Low in ${unmet.join(' and ')} today: add a fruit, vegetables, milk or tofu if you can.',
-          style: const TextStyle(fontSize: 14, color: AppTokens.onWarn),
-        ),
-    ];
-  }
+    ),
+  );
+}
+
+class _PlateKey extends StatelessWidget {
+  final Color colour;
+  final String text;
+  const _PlateKey(this.colour, this.text);
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 3),
+    child: Row(
+      children: [
+        Container(width: 12, height: 12, decoration: BoxDecoration(color: colour, shape: BoxShape.circle)),
+        const SizedBox(width: 8),
+        Expanded(child: Text(tidy(text), style: const TextStyle(fontSize: 13, color: AppTokens.ink))),
+      ],
+    ),
+  );
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback? onTap;
+  final bool danger;
+  const _ActionButton({required this.icon, required this.label, this.onTap, this.danger = false});
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    style: OutlinedButton.styleFrom(
+      minimumSize: const Size.fromHeight(52),
+      foregroundColor: danger ? AppTokens.onDanger : AppTokens.brandDeep,
+      side: BorderSide(color: danger ? AppTokens.danger : AppTokens.cardBorder),
+      shape: const StadiumBorder(),
+    ),
+    onPressed: onTap,
+    icon: Icon(icon),
+    label: OneLineText(label, style: const TextStyle(fontSize: 16)),
+  );
 }

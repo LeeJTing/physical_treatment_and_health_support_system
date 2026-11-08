@@ -5,7 +5,10 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/recognition_result.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
@@ -34,6 +37,10 @@ class MealLogViewModel extends BaseViewModel {
   final MealImageSource _camera;
   final DateTime Function() _now;
 
+  /// For the "follow your diet plan" alerts: the plan check and the phone's notifications.
+  final DietPlannerService? _planner;
+  final LocalNotificationService? _alerts;
+
   MealLogViewModel(
     this._mealRepo,
     this._recogniser,
@@ -43,7 +50,17 @@ class MealLogViewModel extends BaseViewModel {
     this._camera, [
     this._suitability = const SuitabilityService(),
     DateTime Function()? now,
+    this._planner,
+    this._alerts,
   ]) : _now = now ?? DateTime.now;
+
+  /// The last meal logged was not the planned one (shown on the Diet tab until dismissed).
+  PlanAlert? planAlert;
+
+  void dismissPlanAlert() {
+    planAlert = null;
+    notifyListeners();
+  }
 
   String? _accountId;
 
@@ -106,6 +123,37 @@ class MealLogViewModel extends BaseViewModel {
       profileStatus = ProfileStatus.error;
     }
     await _loadToday();
+    await _checkPlan();
+  }
+
+  /// Checks today against the diet plan in force: a meal just logged that is not the planned one
+  /// raises an alert (in the app, on the phone and in the notification history), and the planned
+  /// meals not logged yet get their "follow your diet plan" alert at their time. Without a plan,
+  /// nothing happens; a failure never stops the meal from being logged.
+  Future<void> _checkPlan([MealLog? justLogged]) async {
+    final planner = _planner;
+    final id = _accountId;
+    if (planner == null || id == null) return;
+    try {
+      final n = _now();
+      final day = DateTime(n.year, n.month, n.day);
+      final plan =
+          (await _mealRepo.planFor(id, PlanType.daily, day)).dataOrNull ??
+          (await _mealRepo.planFor(id, PlanType.weekly, day)).dataOrNull;
+      if (plan == null) return;
+      final todays = today.where((m) => m.consumedAt.year == n.year && m.consumedAt.month == n.month && m.consumedAt.day == n.day).toList();
+      if (justLogged != null) {
+        final a = planner.offPlanAlertFor(justLogged, plan, ctx, todays, n);
+        if (a != null) {
+          planAlert = a;
+          notifyListeners();
+          await _alerts?.planAlert(id, a);
+        }
+      }
+      await _alerts?.schedulePlanAlerts(planner.missedMealAlerts(plan, todays, n));
+    } catch (_) {
+      // The plan check is a help, not part of logging the meal.
+    }
   }
 
   Future<void> _loadToday() async {
@@ -368,6 +416,7 @@ class MealLogViewModel extends BaseViewModel {
     step = MealStep.idle;
     _message = Messages.mealLogged; // M5
     await _loadToday();
+    await _checkPlan(meal);
     return true;
   }
 
