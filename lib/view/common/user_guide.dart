@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
-import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/user_guide_view_model/user_guide_view_model.dart';
 
 /// One page of a picture guide: a drawn picture, a short title and one or two plain sentences.
 class GuideStep {
@@ -359,9 +359,9 @@ class _UserGuideSheetState extends State<UserGuideSheet> {
   }
 }
 
-GuideViewModel? _guideViewModel(BuildContext context) {
+UserGuideViewModel? _guideViewModel(BuildContext context) {
   try {
-    return context.read<GuideViewModel>();
+    return context.read<UserGuideViewModel>();
   } on ProviderNotFoundException {
     return null; // tests and screens outside the app shell: no first-visit guides
   }

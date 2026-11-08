@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/user_guide_view_model/user_guide_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/speech_service/speech_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chatbot_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
@@ -55,7 +56,6 @@ import 'package:physical_treatment_and_health_support_system/device_platform/loc
 import 'package:physical_treatment_and_health_support_system/device_platform/local_settings/shared_prefs_local_settings.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/server_connection_service/server_connection_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/user_guide_service/user_guide_service.dart';
-import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
 
 /// Composition root. This is the ONLY file that names a concrete repository
 /// class (ASR_02); everything else depends on the interfaces.
@@ -173,8 +173,8 @@ Future<void> main() async {
         Provider<DietPlannerService>.value(value: DietPlannerService(api, foodRepo)),
         Provider<MealImageSource>.value(value: PluginMealImageSource()),
         // First-visit picture guides (usability): remembered on this phone only.
-        ChangeNotifierProvider<GuideViewModel>(
-          create: (_) => GuideViewModel(UserGuideService(localSettings)),
+        ChangeNotifierProvider<UserGuideViewModel>(
+          create: (_) => UserGuideViewModel(UserGuideService(localSettings)),
         ),
         Provider<LocalNotificationService>.value(
           value: LocalNotificationService(
