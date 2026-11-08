@@ -54,6 +54,8 @@ import 'package:physical_treatment_and_health_support_system/model/repository/me
 import 'package:physical_treatment_and_health_support_system/device_platform/local_settings/local_settings.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/local_settings/shared_prefs_local_settings.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/server_connection_service/server_connection_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/user_guide_service/user_guide_service.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
 
 /// Composition root. This is the ONLY file that names a concrete repository
 /// class (ASR_02); everything else depends on the interfaces.
@@ -115,9 +117,11 @@ Future<void> main() async {
   );
   // The AI server runs on the laptop; an address saved in Profile > AI server replaces the
   // build-time AI_BASE_URL, so a new Wi-Fi or tunnel address needs no new build.
+  final LocalSettings localSettings =
+      !kIsWeb && Platform.isAndroid ? SharedPrefsLocalSettings() : MemoryLocalSettings();
   final serverConnection = ServerConnectionService(
     api,
-    !kIsWeb && Platform.isAndroid ? SharedPrefsLocalSettings() : MemoryLocalSettings(),
+    localSettings,
     defaultAddress: AppConstants.aiBaseUrl,
   );
   await serverConnection.restore();
@@ -168,6 +172,10 @@ Future<void> main() async {
         Provider<SuitabilityService>.value(value: const SuitabilityService()),
         Provider<DietPlannerService>.value(value: DietPlannerService(api, foodRepo)),
         Provider<MealImageSource>.value(value: PluginMealImageSource()),
+        // First-visit picture guides (usability): remembered on this phone only.
+        ChangeNotifierProvider<GuideViewModel>(
+          create: (_) => GuideViewModel(UserGuideService(localSettings)),
+        ),
         Provider<LocalNotificationService>.value(
           value: LocalNotificationService(
             notificationRepo,

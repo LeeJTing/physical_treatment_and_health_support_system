@@ -591,6 +591,21 @@ void main() {
       },
     );
 
+    test('meal reminders: breakfast, lunch and dinner every day, once; tapping opens the Diet tab', () async {
+      expect(vm.hasMealReminders, isFalse);
+      await vm.addMealReminders();
+      await vm.addMealReminders(); // a second tap adds nothing
+      final meals = repo.reminders.values.where((r) => r.reminderType == ReminderType.meal).toList()
+        ..sort((a, b) => a.hour.compareTo(b.hour));
+      expect(meals.map((r) => r.title), ['Breakfast reminder', 'Lunch reminder', 'Dinner reminder']);
+      expect(meals.map((r) => (r.hour, r.minute)), [(7, 30), (12, 30), (19, 0)]);
+      expect(meals.every((r) => r.repeatDays == '1111111' && r.isEnabled), isTrue);
+      expect(vm.hasMealReminders, isTrue);
+      expect(device.bodies.values, contains("Tap to see the lunch in today's diet plan and log what you eat."));
+      final tap = ReminderTap.fromPayload(const ReminderTap(ReminderType.meal).toPayload())!;
+      expect(tap.type, ReminderType.meal);
+    });
+
     test('a day can be turned off, but not the last one (FR600_003)', () async {
       await vm.toggleDay('plan-r', DateTime.monday);
       expect(repo.reminders['plan-r']!.repeatDays, '0010100');
@@ -653,6 +668,38 @@ void main() {
           .reminderId;
       await vm.deleteReminder(id);
       expect(repo.reminders.containsKey(id), isFalse);
+    });
+
+    List<Reminder> shown() => (vm.reminders as UiSuccess<List<Reminder>>).data;
+
+    test('UI first: a switch changes at once and goes back if it could not be saved', () async {
+      expect(shown().single.isEnabled, isTrue);
+      repo.failNext = true;
+      final change = vm.toggleReminder('plan-r', false);
+      expect(shown().single.isEnabled, isFalse); // at once
+      await change;
+      expect(shown().single.isEnabled, isTrue); // put back
+      expect(vm.errorMessage, Messages.dbUnavailable);
+      await vm.toggleReminder('plan-r', false);
+      expect(shown().single.isEnabled, isFalse);
+      expect(repo.reminders['plan-r']!.isEnabled, isFalse);
+      expect(vm.errorMessage, isNull);
+    });
+
+    test('UI first: a new time shows at once; a deleted reminder leaves at once and comes back on a failure', () async {
+      final change = vm.changeTime('plan-r', 18, 30);
+      expect((shown().single.hour, shown().single.minute), (18, 30));
+      await change;
+      expect(repo.reminders['plan-r']!.hour, 18);
+
+      await vm.addHealthLogReminder();
+      final id = repo.reminders.values.firstWhere((r) => r.reminderType == ReminderType.healthLog).reminderId;
+      repo.failNext = true;
+      final deleting = vm.deleteReminder(id);
+      expect(shown().any((r) => r.reminderId == id), isFalse); // at once
+      await deleting;
+      expect(shown().any((r) => r.reminderId == id), isTrue); // put back
+      expect(vm.errorMessage, Messages.dbUnavailable);
     });
   });
 }

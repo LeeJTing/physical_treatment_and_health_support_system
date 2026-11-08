@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/i_food_repository.dart';
 
 /// The catalogue from assets/seed/food_catalogue.json, the same file the AI server uses and the
@@ -51,7 +52,7 @@ class FakeFoodRepository implements IFoodRepository {
           (g) =>
               g.foodId != f.foodId &&
               g.foodCategory == f.foodCategory &&
-              !g.restrictionCodes.any(avoidCodes.contains),
+              !g.restrictionCodes.any(DietaryRestriction.expandCodes(avoidCodes).contains),
         )
         .toList(),
   );

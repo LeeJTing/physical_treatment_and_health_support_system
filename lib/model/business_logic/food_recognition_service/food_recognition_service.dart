@@ -68,15 +68,23 @@ class FoodRecognitionService {
   }
 
   /// Identifies the foods present (FR700_003, FR700_004).
+  /// Only the photo and the profile codes are sent (FR700_046); the verdicts shown are worked out
+  /// again on the phone from the same rules.
   Future<Result<RecognitionResult>> recognise(
     PreparedImage image,
-    List<String> conditionCodes,
-  ) async {
+    List<String> conditionCodes, {
+    List<String> restrictionCodes = const [],
+    List<String> limitationCodes = const [],
+  }) async {
     final res = await _api.postBytes(
       AppConstants.recognisePath,
       image.upload,
       filename: 'meal.jpg',
-      fields: {'conditions': conditionCodes.join(',')},
+      fields: {
+        'conditions': conditionCodes.join(','),
+        'restrictions': restrictionCodes.join(','),
+        'limitations': limitationCodes.join(','),
+      },
       timeout: AppConstants.recogniseTimeout,
     );
     if (res case Failure(:final code, :final cause)) {

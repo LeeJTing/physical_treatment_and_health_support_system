@@ -21,6 +21,10 @@ class SupabaseMealRepository implements IMealRepository {
       'food_item(*, food_restriction(dietary_restriction(restriction_code)))';
   final SupabaseProvider _sb;
 
+  /// Photos already downloaded or uploaded in this session, by storage path, so the history does
+  /// not download the same photo again.
+  final Map<String, Uint8List> _photos = {};
+
   SupabaseMealRepository(this._sb);
 
   static FoodItem _food(Map row) {
@@ -42,6 +46,7 @@ class SupabaseMealRepository implements IMealRepository {
       await _sb.client.storage
           .from(bucket)
           .uploadBinary(path, image, fileOptions: const FileOptions(contentType: 'image/jpeg', upsert: true));
+      _photos[path] = image;
     }
     final saved = m.copyWith(
       imageUri: path,
@@ -60,7 +65,10 @@ class SupabaseMealRepository implements IMealRepository {
       if (verdicts.isNotEmpty) await _sb.from('suitability_verdict').insert(verdicts);
     } catch (_) {
       await _sb.from('meal_log').delete().eq('meal_id', m.mealId);
-      if (path != null) await _sb.client.storage.from(bucket).remove([path]);
+      if (path != null) {
+        _photos.remove(path);
+        await _sb.client.storage.from(bucket).remove([path]);
+      }
       rethrow;
     }
     return saved;
@@ -88,11 +96,22 @@ class SupabaseMealRepository implements IMealRepository {
         }).toList();
       });
 
+  /// Downloads a photo from the private bucket; the storage policy only lets the owner read it.
+  @override
+  Future<Result<Uint8List>> mealPhoto(String imageUri) => supabaseGuard(() async {
+    final hit = _photos[imageUri];
+    if (hit != null) return hit;
+    final bytes = await _sb.client.storage.from(bucket).download(imageUri);
+    _photos[imageUri] = bytes;
+    return bytes;
+  }, failMessage: 'Unable to load the photo of this meal.');
+
   @override
   Future<Result<void>> deleteMeal(MealLog m) => supabaseGuard(() async {
     await _sb.from('meal_log').delete().eq('meal_id', m.mealId);
     final uri = m.imageUri;
     if (uri != null && uri.isNotEmpty) {
+      _photos.remove(uri);
       await _sb.client.storage.from(bucket).remove([uri]);
     }
   });

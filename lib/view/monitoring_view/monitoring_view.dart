@@ -6,6 +6,7 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/trend_chart.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/monitoring_view/add_reading_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
@@ -30,7 +31,11 @@ class _MonitoringViewState extends State<MonitoringView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<MonitoringViewModel>().load());
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<MonitoringViewModel>().load();
+      // As a tab, the app shell opens the first-visit guide when the tab is shown.
+      if (mounted && widget.standalone) await showGuideOnce(context, Guides.tracking);
+    });
   }
 
   void _showMessage(MonitoringViewModel vm) {
@@ -137,6 +142,7 @@ class _MonitoringViewState extends State<MonitoringView> {
         title: const Text('Health Tracking'),
         backgroundColor: AppTokens.brandDeep,
         foregroundColor: Colors.white,
+        actions: const [HelpButton(guide: Guides.tracking)],
       ),
       body: body,
     );
@@ -166,6 +172,7 @@ class _MonitoringViewState extends State<MonitoringView> {
                   icon: const Icon(Icons.insights),
                   label: const Text('Health Report', style: TextStyle(fontSize: 16)),
                 ),
+                const HelpButton(guide: Guides.tracking),
               ],
             ),
           ),
@@ -177,7 +184,15 @@ class _MonitoringViewState extends State<MonitoringView> {
               _ConnectionCard(vm: vm),
               const SizedBox(height: 16),
               _RangeChips(vm: vm, onCustom: () => _customRange(vm)),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
+              // Another period is loading: the old one stays on screen under a thin bar.
+              SizedBox(
+                height: 4,
+                child: vm.reloading
+                    ? const LinearProgressIndicator(color: AppTokens.brandDeepAccent, backgroundColor: AppTokens.tint)
+                    : null,
+              ),
+              const SizedBox(height: 8),
               if (vm.state case UiError(:final message))
                 _Banner(message, onRetry: vm.load),
               if (d == null && vm.state is Loading)
@@ -215,7 +230,15 @@ class _MonitoringViewState extends State<MonitoringView> {
                 ),
                 const SizedBox(height: 8),
                 if (d.readings.isEmpty)
-                  const Text(Messages.noData, style: TextStyle(fontSize: 16, color: AppTokens.inkMuted))
+                  EmptyState(
+                    icon: Icons.monitor_heart,
+                    badge: Icons.add,
+                    title: 'No readings in this period',
+                    message: 'Add your blood pressure, blood glucose or weight, or connect Health Connect '
+                        'to bring them in from your watch.',
+                    actionLabel: 'Add a reading',
+                    onAction: () => _add(vm),
+                  )
                 else
                   for (final r in d.recentFirst.take(30)) _readingTile(vm, r),
               ],

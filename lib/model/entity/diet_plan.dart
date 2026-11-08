@@ -2,6 +2,7 @@ import 'package:physical_treatment_and_health_support_system/core/utils/id_utils
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
 
 /// One food planned for one meal slot on one day (Table 4.52). Several rows make up a slot. Only
 /// foods carrying no restriction the patient declared, and no Not Suitable verdict, may appear here
@@ -159,6 +160,8 @@ class PlannedMeal {
 class DietPlan {
   final String dietPlanId;
   final String accountId;
+
+  /// [SafetyLimit.failSafeId] when the plan was made under the fail-safe limits (UC900 E1).
   final String safetyLimitId;
   final PlanType planType;
   final DateTime startDate;
@@ -232,7 +235,7 @@ class DietPlan {
   Map<String, dynamic> toJson() => {
     'diet_plan_id': dietPlanId,
     'account_id': accountId,
-    'safety_limit_id': safetyLimitId,
+    'safety_limit_id': safetyLimitId == SafetyLimit.failSafeId ? null : safetyLimitId,
     'plan_type': planType.db,
     'start_date': startDate.toIso8601String().substring(0, 10),
     'end_date': endDate.toIso8601String().substring(0, 10),
@@ -245,7 +248,7 @@ class DietPlan {
       DietPlan(
         dietPlanId: j['diet_plan_id'] as String,
         accountId: j['account_id'] as String,
-        safetyLimitId: j['safety_limit_id'] as String,
+        safetyLimitId: j['safety_limit_id'] as String? ?? SafetyLimit.failSafeId,
         planType: PlanType.fromDb(j['plan_type'] as String?),
         startDate: DateTime.parse(j['start_date'] as String),
         endDate: DateTime.parse(j['end_date'] as String),

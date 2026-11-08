@@ -1,1 +1,2 @@
 GuideViewModel: the exercise guide's spoken cues (on / off switch, saying a cue) through SpeechService.
+GuideViewModel (usability, Jun Ting): decides whether a screen's picture guide should open by itself (first visit only) and records that it was seen, through UserGuideService.

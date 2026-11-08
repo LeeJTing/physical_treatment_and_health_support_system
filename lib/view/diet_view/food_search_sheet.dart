@@ -5,17 +5,26 @@ import 'package:physical_treatment_and_health_support_system/model/entity/food_i
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 
 /// Search the food catalogue by name, in Malay or English, and pick one (UC800 A2 step 2, A3;
-/// FR700_006, FR700_050). [suggested] are shown first (the recogniser's other likely foods).
+/// FR700_006, FR700_050). [suggested] are shown first (the recogniser's other likely foods);
+/// [suggestedLater] fills them in when they arrive, so the sheet opens without waiting.
 class FoodSearchSheet extends StatefulWidget {
   final Future<List<FoodItem>> Function(String term) search;
   final List<FoodItem> suggested;
+  final Future<List<FoodItem>>? suggestedLater;
   final String title;
-  const FoodSearchSheet({super.key, required this.search, this.suggested = const [], this.title = 'Choose the food'});
+  const FoodSearchSheet({
+    super.key,
+    required this.search,
+    this.suggested = const [],
+    this.suggestedLater,
+    this.title = 'Choose the food',
+  });
 
   static Future<FoodItem?> show(
     BuildContext context, {
     required Future<List<FoodItem>> Function(String) search,
     List<FoodItem> suggested = const [],
+    Future<List<FoodItem>>? suggestedLater,
     String title = 'Choose the food',
   }) => showModalBottomSheet<FoodItem>(
     context: context,
@@ -25,7 +34,7 @@ class FoodSearchSheet extends StatefulWidget {
     shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
     builder: (_) => FractionallySizedBox(
       heightFactor: 0.9,
-      child: FoodSearchSheet(search: search, suggested: suggested, title: title),
+      child: FoodSearchSheet(search: search, suggested: suggested, suggestedLater: suggestedLater, title: title),
     ),
   );
 
@@ -35,18 +44,34 @@ class FoodSearchSheet extends StatefulWidget {
 
 class _FoodSearchSheetState extends State<FoodSearchSheet> {
   List<FoodItem> _results = const [];
+  late List<FoodItem> _suggested = widget.suggested;
   String _term = '';
+  bool _searching = true;
 
   @override
   void initState() {
     super.initState();
     _run('');
+    widget.suggestedLater?.then((s) {
+      if (mounted) setState(() => _suggested = [..._suggested, ...s]);
+    });
+  }
+
+  /// A new search term: shows the progress bar, then the results.
+  void _onTerm(String t) {
+    setState(() => _searching = true);
+    _run(t);
   }
 
   Future<void> _run(String t) async {
     _term = t;
     final r = await widget.search(t);
-    if (mounted && t == _term) setState(() => _results = r);
+    if (mounted && t == _term) {
+      setState(() {
+        _results = r;
+        _searching = false;
+      });
+    }
   }
 
   @override
@@ -58,8 +83,8 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
         Text(widget.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink)),
         const SizedBox(height: 12),
         TextField(
-          autofocus: widget.suggested.isEmpty,
-          onChanged: _run,
+          autofocus: widget.suggested.isEmpty && widget.suggestedLater == null,
+          onChanged: _onTerm,
           style: const TextStyle(fontSize: 18),
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.search),
@@ -67,20 +92,25 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTokens.radiusField)),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 4),
+        SizedBox(
+          height: 4,
+          child: _searching ? const LinearProgressIndicator(color: AppTokens.brandDeepAccent) : null,
+        ),
+        const SizedBox(height: 4),
         Expanded(
           child: ListView(
             children: [
-              if (_term.isEmpty && widget.suggested.isNotEmpty) ...[
+              if (_term.isEmpty && _suggested.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 6),
                   child: Text('Did you mean', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
                 ),
-                for (final f in widget.suggested) FoodTile(food: f, onTap: () => Navigator.pop(context, f)),
+                for (final f in _suggested) FoodTile(food: f, onTap: () => Navigator.pop(context, f)),
                 const Divider(),
               ],
               for (final f in _results) FoodTile(food: f, onTap: () => Navigator.pop(context, f)),
-              if (_results.isEmpty)
+              if (_results.isEmpty && !_searching)
                 const Padding(
                   padding: EdgeInsets.all(16),
                   child: Text('No food found. Try another name.', style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
