@@ -35,25 +35,16 @@ class _StartupViewState extends State<StartupView> {
       setState(() => _offline = true); // still signed in: try again when online
       return;
     }
-    final nav = Navigator.of(context)..pushReplacementNamed(route);
-    // Started by tapping a reminder: its plan opens above Home, so Back goes Home.
     final open = vm.takeReminderOpen();
+    final nav = Navigator.of(context);
+    // A meal reminder: Home opens on the Diet tab.
+    if (open != null && route == Routes.home && Routes.replacesHome(open.route)) {
+      nav.pushReplacementNamed(open.route);
+      return;
+    }
+    nav.pushReplacementNamed(route);
+    // Started by tapping a reminder: its plan opens above Home, so Back goes Home.
     if (open != null) nav.pushNamed(open.route, arguments: open.argument);
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final vm = context.read<AuthViewModel>();
-      final route = await vm.decideStartRoute();
-      if (!mounted) return;
-      final open = vm.takeReminderOpen();
-      final nav = Navigator.of(context);
-      // A meal reminder: Home opens on the Diet tab.
-      if (open != null && route == Routes.home && Routes.replacesHome(open.route)) {
-        nav.pushReplacementNamed(open.route);
-        return;
-      }
-      nav.pushReplacementNamed(route);
-      // Started by tapping a reminder: its plan opens above Home, so Back goes Home.
-      if (open != null) nav.pushNamed(open.route, arguments: open.argument);
-    });
   }
 
   @override

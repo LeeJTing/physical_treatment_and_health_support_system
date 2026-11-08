@@ -94,7 +94,8 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// True while reminders are being added (the button shows a spinner).
+  /// True while reminders are being added: the button shows a spinner, and a second tap before
+  /// the first is saved adds nothing (audit, 23 Oct: two quick taps made two of them).
   bool adding = false;
 
   /// Saves and schedules a reminder (FR600_001 to FR600_003).
@@ -103,9 +104,9 @@ class NotificationViewModel extends BaseViewModel {
     await load(quiet: true);
   }
 
-  /// One change at a time: a second tap waits for the first and starts from what the first
-  /// saved (audit, 24 Oct: two quick day taps both started from the old days, so the second
-  /// undid the first).
+  /// One save at a time: a second tap waits for the first, so the reminder is stored in the order
+  /// the patient tapped (audit, 24 Oct: two quick day taps both started from the old days, so the
+  /// second undid the first). The screen itself changes at once, see [_change].
   Future<void> _last = Future<void>.value();
   Future<void> _oneAtATime(Future<void> Function() op) {
     final next = _last.then((_) => op());
@@ -114,13 +115,6 @@ class NotificationViewModel extends BaseViewModel {
   }
 
   /// Disables or re-enables without deleting (FR600_006).
-  Future<void> toggleReminder(String id, bool on) => _oneAtATime(
-    () => _change(id, (r) => _scheduler.update(r, enabled: on)),
-  );
-
-  /// Changes the time of day it fires (FR600_004).
-  Future<void> changeTime(String id, int hour, int minute) => _oneAtATime(
-    () => _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute)),
   Future<void> toggleReminder(String id, bool on) => _change(
     id,
     (r) => r.copyWith(isEnabled: on),
@@ -136,10 +130,7 @@ class NotificationViewModel extends BaseViewModel {
 
   /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
   /// off: switch the reminder off instead.
-  Future<void> toggleDay(String id, int weekday) =>
-      _oneAtATime(() => _toggleDay(id, weekday));
-
-  Future<void> _toggleDay(String id, int weekday) async {
+  Future<void> toggleDay(String id, int weekday) async {
     final r = _find(id);
     if (r == null) return;
     final days = r.repeatDays.split('');
@@ -165,26 +156,21 @@ class NotificationViewModel extends BaseViewModel {
     _ => false,
   };
 
-  /// True while a health-log reminder is being added: a second tap before the first is saved
-  /// made two of them (audit, 23 Oct).
-  bool _adding = false;
-
   /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
   Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
     final id = _accountId;
-    if (id == null || hasHealthLogReminder || _adding) return;
-    _adding = true;
+    if (id == null || hasHealthLogReminder || adding) return;
+    adding = true;
+    notifyListeners();
     try {
       await _addHealthLog(id, hour, minute);
     } finally {
-      _adding = false;
+      adding = false;
+      notifyListeners();
     }
   }
 
   Future<void> _addHealthLog(String id, int hour, int minute) async {
-    if (id == null || hasHealthLogReminder || adding) return;
-    adding = true;
-    notifyListeners();
     final res = await _scheduler.update(
       Reminder(
         reminderId: newId(),
@@ -198,8 +184,6 @@ class NotificationViewModel extends BaseViewModel {
     // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
     setError(res is Failure ? Messages.dbUnavailable : null);
     await load(quiet: true);
-    adding = false;
-    notifyListeners();
   }
 
   /// Usual Malaysian meal times for the meal reminders (the patient can change each one).
@@ -227,24 +211,27 @@ class NotificationViewModel extends BaseViewModel {
       _ => <String>{},
     };
     var failed = false;
-    for (final e in times.entries) {
-      if (have.contains(e.key.label)) continue;
-      final res = await _scheduler.update(
-        Reminder(
-          reminderId: newId(),
-          accountId: id,
-          reminderType: ReminderType.meal,
-          title: '${e.key.label} reminder',
-          hour: e.value.$1,
-          minute: e.value.$2,
-        ),
-      );
-      failed = failed || res is Failure;
+    try {
+      for (final e in times.entries) {
+        if (have.contains(e.key.label)) continue;
+        final res = await _scheduler.update(
+          Reminder(
+            reminderId: newId(),
+            accountId: id,
+            reminderType: ReminderType.meal,
+            title: '${e.key.label} reminder',
+            hour: e.value.$1,
+            minute: e.value.$2,
+          ),
+        );
+        failed = failed || res is Failure;
+      }
+      setError(failed ? Messages.dbUnavailable : null);
+      await load(quiet: true);
+    } finally {
+      adding = false;
+      notifyListeners();
     }
-    setError(failed ? Messages.dbUnavailable : null);
-    await load(quiet: true);
-    adding = false;
-    notifyListeners();
   }
 
   /// Deletes a reminder the patient added. A treatment plan's exercise reminders stay with the
@@ -263,48 +250,57 @@ class NotificationViewModel extends BaseViewModel {
     await load(quiet: true);
   }
 
+  List<Reminder> get _list => switch (_reminders) {
+    UiSuccess(:final data) => data,
+    _ => const <Reminder>[],
+  };
+
   /// Earliest in the day first.
   static List<Reminder> _byTime(List<Reminder> list) => [...list]
     ..sort(
       (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
     );
-  List<Reminder> get _list => switch (_reminders) {
-    UiSuccess(:final data) => data,
-    _ => const <Reminder>[],
-  };
 
   Reminder? _find(String id) => switch (_reminders) {
     UiSuccess(:final data) => data.where((r) => r.reminderId == id).firstOrNull,
     _ => null,
   };
 
-  /// UI first: [preview] is shown at once, [op] then saves and schedules it; on a failure the
-  /// reminder goes back to how it was. Each step replaces the reminder in the list as it is then,
-  /// so quick taps on several days do not undo each other.
+  /// UI first: [preview] is shown at once, then [op] saves and schedules it, one save at a time;
+  /// on a failure the reminder goes back to how it was. Each tap starts from what the screen shows,
+  /// so quick taps on several days all count (audit, 24 Oct).
   Future<void> _change(
     String id,
     Reminder Function(Reminder) preview,
     Future<Result<Reminder>> Function(Reminder) op,
-  ) async {
+  ) {
     final original = _find(id);
-    if (original == null) return;
+    if (original == null) return Future<void>.value();
     _replace(id, preview(original));
+    _waiting[id] = (_waiting[id] ?? 0) + 1;
     notifyListeners();
-    final res = await op(original);
-    if (res case Success(:final data)) {
-      // Kept in time order, so a changed time moves the card at once (audit, 24 Oct).
-      _reminders = UiSuccess(_byTime([...list]..[i] = data));
-      _replace(id, data);
-      setError(null);
-    } else {
-      _replace(id, original);
-      setError(Messages.dbUnavailable);
-    }
-    notifyListeners();
+    return _oneAtATime(() async {
+      final res = await op(original);
+      final left = (_waiting[id] ?? 1) - 1;
+      _waiting[id] = left;
+      if (res case Success(:final data)) {
+        // A later tap on the same reminder is still on screen: keep showing it.
+        if (left == 0) _replace(id, data);
+        setError(null);
+      } else {
+        if (left == 0) _replace(id, original);
+        setError(Messages.dbUnavailable);
+      }
+      notifyListeners();
+    });
   }
 
+  /// Taps on each reminder that are shown but not saved yet.
+  final Map<String, int> _waiting = {};
+
+  /// Kept in time order, so a changed time moves the card at once (audit, 24 Oct).
   void _replace(String id, Reminder r) {
-    _reminders = UiSuccess([for (final x in _list) x.reminderId == id ? r : x]);
+    _reminders = UiSuccess(_byTime([for (final x in _list) x.reminderId == id ? r : x]));
   }
 
   /// The log's date range (FR600_015): the last two weeks until the patient picks another.
