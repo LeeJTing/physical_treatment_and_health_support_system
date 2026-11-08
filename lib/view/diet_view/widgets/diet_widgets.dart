@@ -163,20 +163,31 @@ class NutrientTable extends StatelessWidget {
   }
 }
 
-/// A logged meal: its slot and time, items, totals and the worst verdict with the reasons.
+/// A logged meal: its photo, slot and time, items, totals and the worst verdict with the reasons.
+/// [saving] marks a meal shown before the database has confirmed it; [onTap] opens its details.
 class MealCard extends StatelessWidget {
   final MealLog meal;
   final VoidCallback? onDelete;
   final void Function(MealItem item)? onAlternatives;
-  const MealCard({super.key, required this.meal, this.onDelete, this.onAlternatives});
+  final Widget? photo;
+  final VoidCallback? onTap;
+  final bool saving;
+  const MealCard({
+    super.key,
+    required this.meal,
+    this.onDelete,
+    this.onAlternatives,
+    this.photo,
+    this.onTap,
+    this.saving = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = meal.consumedAt;
     final verdict = meal.worstVerdict();
     final (bg, _, _) = VerdictChip.colours(verdict);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+    final card = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: verdict == Verdict.suitable ? AppTokens.surface : bg,
@@ -188,6 +199,7 @@ class MealCard extends StatelessWidget {
         children: [
           Row(
             children: [
+              if (photo != null) ...[photo!, const SizedBox(width: 12)],
               Expanded(
                 child: Text(
                   '${meal.mealType.label} · ${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
@@ -196,9 +208,20 @@ class MealCard extends StatelessWidget {
               ),
               VerdictChip(verdict),
               if (onDelete != null)
-                IconButton(tooltip: 'Delete', onPressed: onDelete, icon: const Icon(Icons.delete_outline)),
+                IconButton(tooltip: 'Delete', onPressed: saving ? null : onDelete, icon: const Icon(Icons.delete_outline)),
             ],
           ),
+          if (saving)
+            const Padding(
+              padding: EdgeInsets.only(top: 6),
+              child: Row(
+                children: [
+                  SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2)),
+                  SizedBox(width: 8),
+                  Text('Saving...', style: TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                ],
+              ),
+            ),
           for (final i in meal.items) ...[
             const SizedBox(height: 6),
             Text(
@@ -223,8 +246,22 @@ class MealCard extends StatelessWidget {
             '${meal.totalSugarG.toStringAsFixed(1)} g free sugars',
             style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
           ),
+          if (onTap != null)
+            const Align(
+              alignment: Alignment.centerRight,
+              child: Text('Tap for details', style: TextStyle(fontSize: 13, color: AppTokens.brandDeepAccent)),
+            ),
         ],
       ),
+    );
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: onTap == null
+          ? card
+          : Material(
+              color: Colors.transparent,
+              child: InkWell(borderRadius: BorderRadius.circular(20), onTap: onTap, child: card),
+            ),
     );
   }
 }

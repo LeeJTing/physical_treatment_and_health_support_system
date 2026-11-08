@@ -58,6 +58,19 @@ class MealLogViewModel extends BaseViewModel {
   /// Meal awaiting confirmation (FR700_009).
   MealLog? draft;
   Uint8List? draftImage;
+
+  /// The photo just taken or chosen, shown on the waiting screen while it is checked and identified.
+  Uint8List? pendingPhoto;
+
+  /// Each recognition gets a number; a result that arrives after the patient left is ignored.
+  int _recognition = 0;
+
+  /// Meal photos by meal id: downloaded for the history, or kept from the camera when saved.
+  final Map<String, Uint8List> _photos = {};
+  final Set<String> _photoRequests = {};
+
+  /// Meals shown in today's list before the database has confirmed them ("UI first").
+  final Set<String> _saving = {};
   RecognitionResult? lastResult;
   MealStep step = MealStep.idle;
 
@@ -102,10 +115,18 @@ class MealLogViewModel extends BaseViewModel {
     final start = DateTime(n.year, n.month, n.day);
     final end = DateTime(n.year, n.month, n.day, 23, 59, 59, 999);
     final res = await _mealRepo.findMeals(id, start, end);
-    today = res.dataOrNull ?? today;
-    // Stored verdicts are re-derived so the reasons and alternatives match the current profile.
-    today = [for (final m in today) m.copyWith(items: [for (final i in m.items) _judge(i)])];
-    dailyTotals = Nutrients.sum(today.map((m) => m.totals)).rounded(); // C9
+    final stored = res.dataOrNull;
+    if (stored != null) {
+      // A meal still being saved stays on the list until the database has it.
+      final ids = {for (final m in stored) m.mealId};
+      final waiting = today.where((m) => _saving.contains(m.mealId) && !ids.contains(m.mealId));
+      // Stored verdicts are re-derived so the reasons and alternatives match the current profile.
+      today = [
+        ...waiting,
+        for (final m in stored) m.copyWith(items: [for (final i in m.items) _judge(i)]),
+      ];
+    }
+    _retotal();
     notifyListeners();
   }
 
@@ -114,43 +135,61 @@ class MealLogViewModel extends BaseViewModel {
   // ------------------------------------------------------------- capture and recognition
 
   /// Takes a photograph of the meal (FR700_001).
-  Future<void> captureImage() => _fromSource(_camera.capture);
+  Future<void> captureImage() async {
+    final bytes = await pickPhoto(camera: true);
+    if (bytes != null) await recognise(bytes);
+  }
 
   /// Selects an existing image (FR700_002).
-  Future<void> pickFromGallery() => _fromSource(_camera.pickFromGallery);
+  Future<void> pickFromGallery() async {
+    final bytes = await pickPhoto(camera: false);
+    if (bytes != null) await recognise(bytes);
+  }
 
-  Future<void> _fromSource(Future<Uint8List?> Function() pick) async {
-    Uint8List? bytes;
+  /// Opens the camera or the gallery and returns the photo, or null when the patient cancelled
+  /// (A7, nothing kept) or the camera was refused (A6, with a message). The Diet screen then opens
+  /// the waiting screen at once and calls [recognise].
+  Future<Uint8List?> pickPhoto({required bool camera}) async {
     try {
-      bytes = await pick();
+      return await (camera ? _camera.capture() : _camera.pickFromGallery());
     } on PlatformException catch (_) {
       _message = Messages.cameraPermissionRequired; // A6 M4
       notifyListeners();
-      return;
+      return null;
     } catch (_) {
       _message = Messages.invalidImage;
       notifyListeners();
-      return;
+      return null;
     }
-    if (bytes == null) return; // A7: cancelled, nothing kept
-    await recognise(bytes);
   }
 
   /// Identifies the items, or prompts manual entry below 60 % (FR700_003, FR700_005).
   Future<void> recognise(Uint8List original) async {
+    final run = ++_recognition;
     step = MealStep.recognising;
     manualEntryPrompt = false;
+    pendingPhoto = original;
+    draft = null;
     notifyListeners();
     final prepared = await _recogniser.prepare(original);
+    if (run != _recognition) return; // the patient left the waiting screen
     if (prepared case Failure(:final message)) {
       step = MealStep.idle;
+      pendingPhoto = null;
       _message = message; // A1 M1
       notifyListeners();
       return;
     }
     final img = prepared.dataOrNull!;
     draftImage = img.upload;
-    final res = await _recogniser.recognise(img, ctx.conditionCodes);
+    notifyListeners(); // the reduced photo replaces the original on the waiting screen
+    final res = await _recogniser.recognise(
+      img,
+      ctx.conditionCodes,
+      restrictionCodes: ctx.restrictionCodes,
+      limitationCodes: ctx.limitationCodes,
+    );
+    if (run != _recognition) return;
     final now = _now();
     if (res case Failure(:final message)) {
       // E1: recognition unavailable, manual entry instead (FR700_050).
@@ -203,8 +242,22 @@ class MealLogViewModel extends BaseViewModel {
 
   /// Manual entry without a photo, also while the recognition service is down (FR700_050).
   void startManual() {
+    _recognition++;
     draftImage = null;
+    pendingPhoto = null;
     lastResult = null;
+    draft = _newDraft(EntryMethod.manual, _now());
+    manualEntryPrompt = false;
+    step = MealStep.review;
+    notifyListeners();
+  }
+
+  /// Stops waiting for the recogniser and lets the patient enter the foods; the photo already
+  /// checked is kept with the meal (FR700_050).
+  void enterManually() {
+    _recognition++;
+    lastResult = null;
+    pendingPhoto = null;
     draft = _newDraft(EntryMethod.manual, _now());
     manualEntryPrompt = false;
     step = MealStep.review;
@@ -278,7 +331,10 @@ class MealLogViewModel extends BaseViewModel {
   }
 
   /// Stores the meal, the image and the verdicts (FR700_009, FR700_012), then the running totals
-  /// (FR700_013). On a failure the draft is kept so the patient may retry (E2, M8).
+  /// (FR700_013). The photo is kept whenever the meal started from one, also when the patient then
+  /// entered or corrected the foods by hand. UI first: the meal appears in today's list, marked as
+  /// saving, before the database answers; on a failure it is taken out again and the draft is kept
+  /// so the patient may retry (E2, M8).
   Future<bool> confirmMeal() async {
     final d = draft;
     if (d == null || d.items.isEmpty) {
@@ -287,12 +343,19 @@ class MealLogViewModel extends BaseViewModel {
       return false;
     }
     step = MealStep.saving;
+    final image = draftImage;
+    final meal = d.copyWith(accountId: _accountId);
+    _saving.add(meal.mealId);
+    if (image != null) _photos[meal.mealId] = image;
+    today = [meal, ...today.where((m) => m.mealId != meal.mealId)];
+    _retotal();
     notifyListeners();
-    final res = await _mealRepo.saveMeal(
-      d.copyWith(accountId: _accountId),
-      image: d.entryMethod == EntryMethod.recognition ? draftImage : null,
-    );
+    final res = await _mealRepo.saveMeal(meal, image: image);
+    _saving.remove(meal.mealId);
     if (res is Failure) {
+      today = today.where((m) => m.mealId != meal.mealId).toList();
+      _photos.remove(meal.mealId);
+      _retotal();
       step = MealStep.review;
       _message = Messages.mealSaveFailed;
       notifyListeners();
@@ -300,6 +363,7 @@ class MealLogViewModel extends BaseViewModel {
     }
     draft = null;
     draftImage = null;
+    pendingPhoto = null;
     lastResult = null;
     step = MealStep.idle;
     _message = Messages.mealLogged; // M5
@@ -309,12 +373,39 @@ class MealLogViewModel extends BaseViewModel {
 
   /// Discards the unsaved image and the draft (A7).
   void cancel() {
+    _recognition++;
     draft = null;
     draftImage = null;
+    pendingPhoto = null;
     lastResult = null;
     manualEntryPrompt = false;
     step = MealStep.idle;
     notifyListeners();
+  }
+
+  void _retotal() => dailyTotals = Nutrients.sum(today.map((m) => m.totals)).rounded(); // C9
+
+  /// True while a meal shown in today's list is still being saved.
+  bool isSaving(MealLog m) => _saving.contains(m.mealId);
+
+  /// Whether the meal has a photo (stored, or still being saved).
+  bool hasPhoto(MealLog m) => _photos.containsKey(m.mealId) || (m.imageUri?.isNotEmpty ?? false);
+
+  /// The meal's photo when it is already on the phone, otherwise null (see [fetchPhoto]).
+  Uint8List? photoOf(MealLog m) => _photos[m.mealId];
+
+  /// Downloads the stored photo of a meal once; the screen redraws when it has arrived. A failure
+  /// leaves the placeholder, and the photo is asked for again the next time the meal is shown.
+  Future<void> fetchPhoto(MealLog m) async {
+    final uri = m.imageUri;
+    if (uri == null || uri.isEmpty || _photos.containsKey(m.mealId)) return;
+    if (!_photoRequests.add(m.mealId)) return;
+    final res = await _mealRepo.mealPhoto(uri);
+    _photoRequests.remove(m.mealId);
+    if (res case Success(:final data)) {
+      _photos[m.mealId] = data;
+      notifyListeners();
+    }
   }
 
   // ------------------------------------------------------------- history
@@ -345,15 +436,25 @@ class MealLogViewModel extends BaseViewModel {
     return res.isSuccess;
   }
 
-  /// Removes the meal and its image (FR700_015, FR700_016), then the totals (FR700_013).
+  /// Removes the meal and its image (FR700_015, FR700_016), then the totals (FR700_013). UI first:
+  /// the meal leaves the lists at once and comes back if the database could not delete it.
   Future<bool> deleteMeal(MealLog m) async {
+    final keptHistory = history;
+    final keptToday = today;
+    history = history.where((x) => x.mealId != m.mealId).toList();
+    today = today.where((x) => x.mealId != m.mealId).toList();
+    _retotal();
+    notifyListeners();
     final res = await _mealRepo.deleteMeal(m);
     if (res is Failure) {
+      history = keptHistory;
+      today = keptToday;
+      _retotal();
       _message = Messages.deletionFailed;
       notifyListeners();
       return false;
     }
-    history = history.where((x) => x.mealId != m.mealId).toList();
+    _photos.remove(m.mealId);
     await _loadToday();
     return true;
   }

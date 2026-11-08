@@ -114,6 +114,7 @@ class MainApp extends StatelessWidget {
           Routes.init: (_) =>
               const StartupView(), // uses the app-wide AuthViewModel
           Routes.home: (_) => const MainShell(),
+          Routes.homeDiet: (_) => const MainShell(initialTab: MainShell.dietTab),
           Routes.loginScreen: (_) => const LoginView(),
           Routes.register: (_) => const RegisterView(),
           Routes.verifyCode: (_) => const VerifyCodeView(),
@@ -254,6 +255,10 @@ class _ReminderOpenerState extends State<_ReminderOpener> {
   void _open() {
     final open = _auth.takeReminderOpen();
     if (open == null) return;
+    if (Routes.replacesHome(open.route)) {
+      widget.navigator.currentState?.pushNamedAndRemoveUntil(open.route, (_) => false);
+      return;
+    }
     widget.navigator.currentState?.pushNamed(
       open.route,
       arguments: open.argument,

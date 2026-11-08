@@ -131,7 +131,14 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
                 _error = null;
               }),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 12),
+            _Tip(switch (_metric) {
+              MetricType.bloodPressure =>
+                'Sit quietly for 5 minutes with your arm resting at heart level, then measure.',
+              MetricType.bloodGlucose => 'Say when you measured: it changes what counts as usual for you.',
+              MetricType.bodyWeight => 'Weigh yourself at the same time each day, ideally before breakfast.',
+            }),
+            const SizedBox(height: 14),
             ...switch (_metric) {
               MetricType.bloodPressure => [
                 _field('Systolic (top number)', _primary, 'mmHg'),
@@ -193,4 +200,23 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
       ),
     );
   }
+}
+
+/// A one-line measuring tip with a light-bulb picture, under the reading type.
+class _Tip extends StatelessWidget {
+  final String text;
+  const _Tip(this.text);
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(color: AppTokens.tint, borderRadius: BorderRadius.circular(14)),
+    child: Row(
+      children: [
+        const Icon(Icons.lightbulb_outline, color: AppTokens.brandDeep),
+        const SizedBox(width: 10),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 15, height: 1.3, color: AppTokens.ink))),
+      ],
+    ),
+  );
 }

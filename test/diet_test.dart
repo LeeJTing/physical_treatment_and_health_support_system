@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
 
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
@@ -85,8 +87,11 @@ void main() {
   });
 
   group('suitability (UC900 C2, C6, C8; same cases as the server tests)', () {
+    // Grams of nasi lemak that hold a given amount of sodium (its value comes from laboratory data).
+    double gramsFor(double sodiumMg) => sodiumMg / food('nasi_lemak').sodiumMgPer100g * 100;
+
     test('hypertension: one item over 600 mg sodium is Not Suitable, with the excess', () {
-      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: 250), ctx(conds: ['HYPERTENSION']));
+      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: gramsFor(750)), ctx(conds: ['HYPERTENSION']));
       final v = vs.firstWhere((v) => v.nutrient == 'sodium_mg');
       expect(v.verdict, Verdict.notSuitable);
       expect(v.limit, 600);
@@ -96,7 +101,7 @@ void main() {
     });
 
     test('80-100 % of the limit is Caution', () {
-      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: 170), ctx(conds: ['HYPERTENSION']));
+      final vs = s.assess(MealItem.of(food('nasi_lemak'), grams: gramsFor(510)), ctx(conds: ['HYPERTENSION']));
       expect(vs.firstWhere((v) => v.nutrient == 'sodium_mg').verdict, Verdict.caution);
     });
 
@@ -155,13 +160,31 @@ void main() {
       final planner = DietPlannerService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods);
       final ok = plan([
         PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250),
-        PlannedMeal.of(food('steamed_fish'), day, MealSlot.dinner, 150),
+        PlannedMeal.of(food('grilled_chicken_breast'), day, MealSlot.dinner, 100),
       ]);
       expect(planner.validate(ok, ctx(conds: ['HYPERTENSION'])), isEmpty);
       final salty = plan([PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 40)]);
       expect(planner.validate(salty, ctx()), isNotEmpty);
       final peanut = plan([PlannedMeal.of(food('satay_ayam'), day, MealSlot.dinner, 100)]);
       expect(planner.validate(peanut, ctx(rs: ['PEANUT'])), isNotEmpty);
+    });
+
+    test('a fail-safe plan is stored without a safety limit link (UC900 E1)', () {
+      final failSafe = DietPlan(
+        dietPlanId: 'p',
+        accountId: 'a',
+        safetyLimitId: SafetyLimit.mostRestrictive().safetyLimitId,
+        planType: PlanType.daily,
+        startDate: day,
+        endDate: day,
+        modelVersion: 'test',
+        generatedAt: day,
+        meals: const [],
+      );
+      final row = failSafe.toJson();
+      expect(row['safety_limit_id'], isNull);
+      expect(DietPlan.fromJson(row, const <PlannedMeal>[]).safetyLimitId, SafetyLimit.failSafeId);
+      expect(plan(const []).toJson()['safety_limit_id'], 'sl');
     });
 
     test('adherence counts slots that were logged (FR700_037, FR700_038)', () {
@@ -221,7 +244,7 @@ void main() {
                   'plan_date': today,
                   'meals': [
                     {'meal_slot': 'BREAKFAST', 'items': [{'food_key': 'oats', 'portion_g': 250}]},
-                    {'meal_slot': 'LUNCH', 'items': [{'food_key': 'nasi_putih', 'portion_g': 160}, {'food_key': 'steamed_fish', 'portion_g': 150}]},
+                    {'meal_slot': 'LUNCH', 'items': [{'food_key': 'nasi_putih', 'portion_g': 160}, {'food_key': 'telur_rebus', 'portion_g': 50}]},
                     {'meal_slot': 'DINNER', 'items': [{'food_key': 'nasi_beras_perang', 'portion_g': 160}, {'food_key': 'grilled_chicken_breast', 'portion_g': 100}]},
                     {'meal_slot': 'SNACK', 'items': [{'food_key': 'epal', 'portion_g': 150}]},
                   ],
@@ -364,7 +387,111 @@ void main() {
       vm.addFood(food('roti_canai'));
       expect(await vm.confirmMeal(), isTrue);
       expect(meals.meals.single.entryMethod, EntryMethod.manual);
-      expect(meals.images, isEmpty);
+      expect(meals.images, hasLength(1)); // the photo is kept although the foods were entered by hand
+    });
+
+    String nasiLemak() => jsonEncode({
+      'model_version': 'food-clip-vitb16-head-2',
+      'is_food': true,
+      'confidence': 0.9,
+      'items': [
+        {'food_key': 'nasi_lemak', 'confidence': 0.9, 'primary': true, 'candidates': []},
+      ],
+    });
+
+    test('UI first: the meal is on today\'s list before the database answers; its photo comes back in the history', () async {
+      final vm = build(MockClient((_) async => http.Response(nasiLemak(), 200)));
+      await vm.load();
+      camera.next = jpeg(800, 600);
+      await vm.captureImage();
+      final saving = vm.confirmMeal();
+      // At once: on the list, marked as saving, with its photo and the day's totals.
+      expect(vm.today, hasLength(1));
+      expect(vm.isSaving(vm.today.single), isTrue);
+      expect(vm.photoOf(vm.today.single), isNotNull);
+      expect(vm.dailyTotals.energyKcal, greaterThan(0));
+      expect(await saving, isTrue);
+      expect(vm.isSaving(vm.today.single), isFalse);
+      expect(meals.images, hasLength(1));
+
+      // Opened again later: the history downloads the stored photo (FR700_009, FR700_014).
+      final later = build(MockClient((_) async => http.Response('{}', 500)));
+      await later.load();
+      final now = DateTime.now();
+      expect(await later.loadHistory(now.subtract(const Duration(days: 1)), now), isTrue);
+      final m = later.history.single;
+      expect(later.hasPhoto(m), isTrue);
+      expect(later.photoOf(m), isNull);
+      await later.fetchPhoto(m);
+      expect(later.photoOf(m), meals.images[m.imageUri]);
+    });
+
+    test('a failed save takes the meal off the list again and keeps it for another try (E2, M8)', () async {
+      final vm = build(MockClient((_) async => throw const SocketException('down')));
+      await vm.load();
+      camera.next = jpeg(640, 480);
+      await vm.captureImage();
+      vm.addFood(food('roti_canai'));
+      meals.failNext = true;
+      final saving = vm.confirmMeal();
+      expect(vm.today, hasLength(1));
+      expect(await saving, isFalse);
+      expect(vm.today, isEmpty);
+      expect(vm.step, MealStep.review);
+      expect(vm.draft!.items, hasLength(1));
+      expect(vm.takeMessage(), Messages.mealSaveFailed);
+      expect(await vm.confirmMeal(), isTrue); // try again
+      expect(meals.meals, hasLength(1));
+    });
+
+    test('UI first: a deleted meal leaves at once and comes back if the deletion fails', () async {
+      final vm = build(MockClient((_) async => throw const SocketException('down')));
+      await vm.load();
+      vm.startManual();
+      vm.addFood(food('roti_canai'));
+      expect(await vm.confirmMeal(), isTrue);
+      final m = vm.today.single;
+      meals.failNext = true;
+      final deleting = vm.deleteMeal(m);
+      expect(vm.today, isEmpty);
+      expect(vm.dailyTotals.energyKcal, 0);
+      expect(await deleting, isFalse);
+      expect(vm.today, hasLength(1));
+      expect(meals.meals, hasLength(1));
+      expect(await vm.deleteMeal(m), isTrue);
+      expect(meals.meals, isEmpty);
+    });
+
+    test('while waiting, the patient can enter the food instead; a late answer is ignored (FR700_050)', () async {
+      final slow = Completer<http.Response>();
+      final vm = build(MockClient((_) => slow.future));
+      await vm.load();
+      final waiting = vm.recognise(jpeg(800, 600));
+      expect(vm.step, MealStep.recognising);
+      expect(vm.pendingPhoto, isNotNull); // shown on the waiting screen at once
+      for (var i = 0; i < 500 && vm.draftImage == null; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(vm.draftImage, isNotNull);
+      vm.enterManually();
+      expect(vm.step, MealStep.review);
+      expect(vm.draft!.entryMethod, EntryMethod.manual);
+      slow.complete(http.Response(nasiLemak(), 200));
+      await waiting;
+      expect(vm.lastResult, isNull);
+      expect(vm.step, MealStep.review);
+      vm.addFood(food('roti_canai'));
+      expect(await vm.confirmMeal(), isTrue);
+      expect(meals.images, hasLength(1));
+    });
+
+    test('a cancelled camera keeps nothing and says nothing (A7)', () async {
+      final vm = build(MockClient((_) async => http.Response(nasiLemak(), 200)));
+      await vm.load();
+      camera.next = null;
+      expect(await vm.pickPhoto(camera: true), isNull);
+      expect(vm.takeMessage(), isNull);
+      expect(vm.step, MealStep.idle);
     });
   });
 }

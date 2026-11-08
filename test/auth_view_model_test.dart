@@ -538,6 +538,7 @@ void main() {
 
       device.tapController.add('HEALTH_LOG|');
       await pumpEventQueue();
+      // A health-logging reminder opens the Tracking screen (M600, FR600_002).
       expect(m.takeReminderOpen()?.route, Routes.monitoring);
 
       await auth.signOut();

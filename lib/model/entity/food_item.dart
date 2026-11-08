@@ -83,8 +83,54 @@ class Nutrients {
   };
 }
 
+/// The nutrients the condition rules and the plan targets use besides [Nutrients], for a portion:
+/// saturated fat (heart disease, stroke), fibre (Parkinson's, MS, diabetes), potassium and
+/// phosphorus (kidney disease), calcium (osteoporosis), caffeine (pregnancy).
+class FoodExtras {
+  final double satFatG;
+  final double fibreG;
+  final double potassiumMg;
+  final double phosphorusMg;
+  final double calciumMg;
+  final double caffeineMg;
+
+  const FoodExtras({
+    this.satFatG = 0,
+    this.fibreG = 0,
+    this.potassiumMg = 0,
+    this.phosphorusMg = 0,
+    this.calciumMg = 0,
+    this.caffeineMg = 0,
+  });
+
+  static const zero = FoodExtras();
+
+  FoodExtras operator +(FoodExtras o) => FoodExtras(
+    satFatG: satFatG + o.satFatG,
+    fibreG: fibreG + o.fibreG,
+    potassiumMg: potassiumMg + o.potassiumMg,
+    phosphorusMg: phosphorusMg + o.phosphorusMg,
+    calciumMg: calciumMg + o.calciumMg,
+    caffeineMg: caffeineMg + o.caffeineMg,
+  );
+
+  /// Value by the server's key (sat_fat_g, fibre_g, potassium_mg, phosphorus_mg, calcium_mg, caffeine_mg).
+  double operator [](String key) => switch (key) {
+    'sat_fat_g' => satFatG,
+    'fibre_g' => fibreG,
+    'potassium_mg' => potassiumMg,
+    'phosphorus_mg' => phosphorusMg,
+    'calcium_mg' => calciumMg,
+    'caffeine_mg' => caffeineMg,
+    _ => 0,
+  };
+}
+
 /// Nutrition catalogue (Table 4.48). Values are per 100 g so any portion scales from one row.
 /// [foodKey] is the label the food recogniser and the planner use for the food (food_item.food_key).
+/// Since food-catalogue-2.0 the values come from USDA FoodData Central ingredients and a standard
+/// recipe of the food, replaced by Malaysian laboratory analyses where the food was analysed
+/// ([dataSource] 'lab').
 class FoodItem {
   final String foodId;
   final String foodKey;
@@ -98,7 +144,26 @@ class FoodItem {
   final double sodiumMgPer100g;
   final double sugarGPer100g;
 
-  /// Codes of the dietary restrictions this food breaches (food_restriction).
+  final double totalSugarGPer100g;
+  final double satFatGPer100g;
+  final double fibreGPer100g;
+  final double potassiumMgPer100g;
+  final double phosphorusMgPer100g;
+  final double calciumMgPer100g;
+  final double caffeineMgPer100g;
+
+  /// Needs two hands to eat (bones, shells, whole fish, knife and fork): left out of plans for a
+  /// patient with an arm limitation. [twoHandsReason] says why.
+  final bool needsTwoHands;
+  final String? twoHandsReason;
+
+  /// Why the food is not advised in pregnancy (raw fish, undercooked egg), or null.
+  final String? pregnancyCaution;
+
+  /// 'lab' when at least one value is a laboratory analysis, otherwise 'recipe'.
+  final String dataSource;
+
+  /// The food names its recipe contains (food_restriction), e.g. ONION, PEANUT, PRAWN.
   final List<String> restrictionCodes;
 
   /// meal, staple, protein, veg, fruit, drink, snack, dessert or soup: how the planner may use it.
@@ -119,6 +184,17 @@ class FoodItem {
     required this.fatGPer100g,
     required this.sodiumMgPer100g,
     required this.sugarGPer100g,
+    this.totalSugarGPer100g = 0,
+    this.satFatGPer100g = 0,
+    this.fibreGPer100g = 0,
+    this.potassiumMgPer100g = 0,
+    this.phosphorusMgPer100g = 0,
+    this.calciumMgPer100g = 0,
+    this.caffeineMgPer100g = 0,
+    this.needsTwoHands = false,
+    this.twoHandsReason,
+    this.pregnancyCaution,
+    this.dataSource = 'recipe',
     this.restrictionCodes = const [],
     this.planRole = 'meal',
     this.mealSlots = const [],
@@ -137,11 +213,30 @@ class FoodItem {
     ).rounded();
   }
 
-  /// Whether this food carries the restriction tag.
-  bool breaches(DietaryRestriction r) => restrictionCodes.contains(r.restrictionCode);
+  /// The extra nutrients for a portion, one decimal.
+  FoodExtras extrasFor(double grams) {
+    final f = grams / 100;
+    double r(double x) => (x * f * 10).roundToDouble() / 10;
+    return FoodExtras(
+      satFatG: r(satFatGPer100g),
+      fibreG: r(fibreGPer100g),
+      potassiumMg: r(potassiumMgPer100g),
+      phosphorusMg: r(phosphorusMgPer100g),
+      calciumMg: r(calciumMgPer100g),
+      caffeineMg: r(caffeineMgPer100g),
+    );
+  }
+
+  /// Whether this food contains the declared food (an old diet label counts as its food names).
+  bool breaches(DietaryRestriction r) =>
+      DietaryRestriction.expandCodes([r.restrictionCode]).any(restrictionCodes.contains);
 
   /// Whether the food collides with anything the patient declared.
   bool breachesAny(List<DietaryRestriction> rs) => rs.any(breaches);
+
+  /// The declared food names this food contains.
+  List<String> containsOf(Iterable<String> declaredCodes) =>
+      DietaryRestriction.expandCodes(declaredCodes).where(restrictionCodes.contains).toList();
 
   /// From a row of the catalogue JSON (assets/seed/food_catalogue.json) or of food_item.
   factory FoodItem.fromJson(Map<String, dynamic> j) {
@@ -159,6 +254,17 @@ class FoodItem {
       fatGPer100g: d('fat_g_per_100g'),
       sodiumMgPer100g: d('sodium_mg_per_100g'),
       sugarGPer100g: d('sugar_g_per_100g'),
+      totalSugarGPer100g: d('total_sugar_g_per_100g'),
+      satFatGPer100g: d('sat_fat_g_per_100g'),
+      fibreGPer100g: d('fibre_g_per_100g'),
+      potassiumMgPer100g: d('potassium_mg_per_100g'),
+      phosphorusMgPer100g: d('phosphorus_mg_per_100g'),
+      calciumMgPer100g: d('calcium_mg_per_100g'),
+      caffeineMgPer100g: d('caffeine_mg_per_100g'),
+      needsTwoHands: j['needs_two_hands'] as bool? ?? false,
+      twoHandsReason: j['two_hands_reason'] as String?,
+      pregnancyCaution: j['pregnancy_caution'] as String?,
+      dataSource: (j['data_source'] ?? 'recipe') as String,
       restrictionCodes: ((j['restrictions'] as List?) ?? const []).cast<String>(),
       planRole: (j['plan_role'] ?? 'meal') as String,
       mealSlots: ((j['meal_slots'] as List?) ?? const []).cast<String>(),

@@ -33,9 +33,13 @@ class SafetyLimit {
   double sugarRemaining(double consumed) => dailySugarLimitG - consumed;
   double energyRemaining(double consumed) => dailyCalorieTarget - consumed;
 
+  /// Id of the fail-safe limit below. It has no safety_limit row, so a diet plan made under it
+  /// is stored with no safety_limit_id (UC900 E1; migration 20261101130000).
+  static const failSafeId = 'fail-safe';
+
   /// Fail-safe default used when the profile cannot be read (UC1000 C5).
   static SafetyLimit mostRestrictive() => const SafetyLimit(
-    safetyLimitId: 'fail-safe',
+    safetyLimitId: failSafeId,
     maxExerciseIntensity: ExerciseIntensity.low,
     maxSessionDurationMin: 15,
     dailyCalorieTarget: 1600,

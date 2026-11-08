@@ -1,0 +1,1 @@
+UserGuideService (usability, Jun Ting): remembers on this phone which picture guides the patient has already seen, so each guide opens by itself only the first time (LocalSettings; nothing goes to Supabase).

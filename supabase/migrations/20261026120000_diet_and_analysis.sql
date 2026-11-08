@@ -19,6 +19,8 @@ alter table public.meal_log        alter column model_version type varchar(60);
 alter table public.diet_plan       alter column model_version type varchar(60);
 
 alter table public.health_analysis drop constraint if exists health_analysis_score_band_check;
+-- 'NEEDS_ATTENTION' is 15 characters; the core schema's varchar(10) could not hold it.
+alter table public.health_analysis alter column score_band type varchar(16);
 update public.health_analysis set score_band = case score_band
   when 'EXCELLENT' then 'GOOD' when 'POOR' then 'AT_RISK' else score_band end;
 alter table public.health_analysis add constraint health_analysis_score_band_check

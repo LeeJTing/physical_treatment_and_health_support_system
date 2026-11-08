@@ -209,15 +209,22 @@ class DietPlanViewModel extends BaseViewModel {
   /// Share of planned meals logged this week (FR700_038).
   double adherence() => plan?.adherence() ?? 0;
 
-  /// Protects a slot from regeneration (FR700_036).
+  /// Protects a slot from regeneration (FR700_036). UI first: the lock changes at once and is
+  /// undone if the plan could not be saved.
   Future<void> lockMeal(String plannedMealId, {bool on = true}) async {
     final p = plan;
     if (p == null) return;
-    plan = p.copyWith(
+    final locked = p.copyWith(
       meals: [for (final m in p.meals) m.plannedMealId == plannedMealId ? m.lock(on) : m],
     );
-    await _mealRepo.updatePlan(plan!);
+    plan = locked;
     notifyListeners();
+    final res = await _mealRepo.updatePlan(locked);
+    if (res is Failure && identical(plan, locked)) {
+      plan = p;
+      _message = Messages.dbUnavailable;
+      notifyListeners();
+    }
   }
 
   /// Alternatives that satisfy the same limits (FR700_035, A5.1 step 2).
@@ -243,6 +250,7 @@ class DietPlanViewModel extends BaseViewModel {
       return false;
     }
     plan = updated;
+    notifyListeners(); // UI first: the new food shows at once
     await _mealRepo.updatePlan(updated);
     await _markLogged();
     return true;
@@ -269,11 +277,37 @@ class DietPlanViewModel extends BaseViewModel {
     return const [];
   }
 
-  /// Catalogue search for the manual plan, without foods the patient cannot eat.
+  /// Catalogue search for the manual plan, without foods the patient cannot eat (or, with an arm
+  /// limitation, foods that need two hands).
   Future<List<FoodItem>> searchCatalogue(String term) async =>
       ((await _foods.search(term)).dataOrNull ?? const <FoodItem>[])
-          .where((f) => !f.breachesAny(ctx.restrictions))
+          .where((f) => !f.breachesAny(ctx.restrictions) && !(f.needsTwoHands && ctx.oneHandOnly))
           .toList();
+
+  /// What the profile adds to the day's plan, in words (for the plan screen): the condition limits,
+  /// the needs, and the one-hand and pregnancy rules.
+  List<String> get profileRules {
+    final t = ctx.targets;
+    String g(double x) => x.toStringAsFixed(x == x.roundToDouble() ? 0 : 1);
+    return [
+      if (t.limits['sat_fat_g'] case final v?) 'Saturated fat under ${g(v)} g (${t.basis['sat_fat_g']})',
+      if (t.limits['protein_g'] case final v?) 'Protein at most ${g(v)} g (${t.basis['protein_g']})',
+      if (t.limits['caffeine_mg'] case final v?) 'Caffeine at most ${g(v)} mg; no raw fish, half-boiled eggs or alcohol',
+      if (t.needs['protein_g_min'] case final v?) 'Protein at least ${g(v)} g (${t.basis['protein_g_min']})',
+      if (t.needs['calcium_mg_min'] case final v?) 'Calcium at least ${g(v)} mg (${t.basis['calcium_mg_min']})',
+      if (t.needs['fibre_g_min'] case final v?) 'Fibre at least ${g(v)} g (${t.basis['fibre_g_min']})',
+      if (t.watchPotassium) 'Lower potassium and phosphorus foods first (kidney disease)',
+      if (t.oneHandOnly) 'Only foods you can eat with one hand: no bones, shells or whole fish',
+      if (ctx.restrictions.isNotEmpty)
+        'Without: ${ctx.restrictions.map((r) => r.restrictionName).join(', ')}',
+    ];
+  }
+
+  /// The needs a day of the plan does not reach (protein, calcium, fibre).
+  List<String> unmetNeeds(DateTime day) {
+    final p = plan;
+    return p == null ? const [] : DietPlannerService.unmetNeeds(p, day, ctx);
+  }
 
   // ------------------------------------------------------------- recommendations
 
@@ -324,14 +358,15 @@ class DietPlanViewModel extends BaseViewModel {
     final cands = _catalogue.where((f) {
       if (!f.mealSlots.contains(nextSlot.db)) return false;
       if (!{'meal', 'staple', 'protein', 'fruit', 'snack'}.contains(f.planRole)) return false;
-      if (f.breachesAny(ctx.restrictions)) return false;
+      if (s.isExcludedFromPlans(f, ctx)) return false; // food names, pregnancy, two hands
       final n = f.nutrientsFor(f.baseServingG);
       if (n.energyKcal > energyCap) return false;
       if (n.sodiumMg > remaining.sodiumMg.clamp(0, double.infinity) ||
           n.sugarG > remaining.sugarG.clamp(0, double.infinity)) {
         return false;
       }
-      return s.mostRestrictive([...s.checkNutrients(f, f.baseServingG, ctx)]) == Verdict.suitable;
+      return s.mostRestrictive([...s.checkNutrients(f, f.baseServingG, ctx), ...s.checkLimitations(f, ctx)]) ==
+          Verdict.suitable;
     }).toList()
       ..sort((a, b) {
         double score(FoodItem f) {

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -6,6 +9,8 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
@@ -13,7 +18,9 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_
 /// Meal Result (UC800 BF-12 to BF-20; Figma "Meal Result"): each identified food with its
 /// confidence, portion and nutrients, its verdict coded with a glyph, a word and a colour, the
 /// reason in the patient's words and a safer choice; the patient corrects a food, adjusts a portion
-/// or adds one, then saves. Returns true when the meal was saved.
+/// or adds one, then saves. While the photo is identified it shows the photo with the progress
+/// and photo tips. Save closes the screen at once and returns the save still in progress (a
+/// `Future<bool>`); Cancel returns false.
 class MealResultView extends StatefulWidget {
   const MealResultView({super.key});
 
@@ -34,9 +41,17 @@ class _MealResultViewState extends State<MealResultView> {
       });
     }
     final d = vm.draft;
+    // The photo could not be used (A1): back to Diet, where the message is shown.
+    if (vm.step == MealStep.idle && d == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && ModalRoute.of(context)?.isCurrent == true) Navigator.of(context).pop(false);
+      });
+    }
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
-        if (didPop && vm.step != MealStep.idle) vm.cancel(); // A7
+        // Leaving without saving discards the photo and the draft (A7); a save already started
+        // carries on.
+        if (didPop && (vm.step == MealStep.review || vm.step == MealStep.recognising)) vm.cancel();
       },
       child: Scaffold(
         backgroundColor: AppTokens.screenBackground,
@@ -44,18 +59,10 @@ class _MealResultViewState extends State<MealResultView> {
           title: const Text('Your meal'),
           backgroundColor: AppTokens.brandDeep,
           foregroundColor: Colors.white,
+          actions: const [HelpButton(guide: Guides.diet)],
         ),
         body: switch (vm.step) {
-          MealStep.recognising => const Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Identifying your meal...', style: TextStyle(fontSize: 18)),
-              ],
-            ),
-          ),
+          MealStep.recognising => _RecognisingView(photo: vm.draftImage ?? vm.pendingPhoto, onManual: vm.enterManually),
           _ when d == null => const Center(child: Text('No meal to review.')),
           _ => _review(vm, d),
         },
@@ -87,9 +94,10 @@ class _MealResultViewState extends State<MealResultView> {
                           ),
                           onPressed: d.items.isEmpty || vm.step == MealStep.saving
                               ? null
-                              : () async {
-                                  final nav = Navigator.of(context);
-                                  if (await vm.confirmMeal()) nav.pop(true);
+                              : () {
+                                  // UI first: the meal appears on Diet at once while it is saved.
+                                  final pending = vm.confirmMeal();
+                                  Navigator.of(context).pop(pending);
                                 },
                           child: vm.step == MealStep.saving
                               ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
@@ -184,35 +192,33 @@ class _ItemCard extends StatelessWidget {
   final MealItem item;
   const _ItemCard({required this.vm, required this.item});
 
+  /// The search sheet opens at once; the recogniser's other likely foods appear when found.
   Future<void> _correct(BuildContext context) async {
-    final cands = await vm.candidatesFor(item);
-    if (!context.mounted) return;
-    final f = await FoodSearchSheet.show(context, search: vm.searchFoods, suggested: cands, title: 'Correct the food');
+    final f = await FoodSearchSheet.show(
+      context,
+      search: vm.searchFoods,
+      suggestedLater: vm.candidatesFor(item),
+      title: 'Correct the food',
+    );
     if (f != null) vm.correctItem(item, f);
   }
 
   Future<void> _alternatives(BuildContext context) async {
-    final alts = await vm.alternativesFor(item);
-    if (!context.mounted) return;
-    final chosen = await showModalBottomSheet<FoodItem>(
+    final chosen = await showFutureSheet<List<FoodItem>, FoodItem>(
       context: context,
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Text('Safer choices', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-              if (alts.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(12),
-                  child: Text('No alternative in the same food group fits your limits.'),
-                ),
-              for (final a in alts) FoodTile(food: a, onTap: () => Navigator.pop(ctx, a)),
-            ],
-          ),
-        ),
+      future: vm.alternativesFor(item),
+      title: 'Safer choices',
+      loadingText: 'Finding safer choices...',
+      builder: (ctx, alts) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (alts.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text('No alternative in the same food group fits your limits.'),
+            ),
+          for (final a in alts) FoodTile(food: a, onTap: () => Navigator.pop(ctx, a)),
+        ],
       ),
     );
     if (chosen != null) vm.correctItem(item, chosen);
@@ -297,6 +303,147 @@ class _ItemCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// The waiting screen while a photo is checked and identified (up to 15 s): the photo itself, what
+/// is happening now, and tips for a better photo next time. The patient can switch to entering the
+/// food by hand at any time (FR700_050).
+class _RecognisingView extends StatefulWidget {
+  final Uint8List? photo;
+  final VoidCallback onManual;
+  const _RecognisingView({required this.photo, required this.onManual});
+
+  @override
+  State<_RecognisingView> createState() => _RecognisingViewState();
+}
+
+class _RecognisingViewState extends State<_RecognisingView> {
+  static const _stages = [
+    'Checking the photo...',
+    'Identifying the foods...',
+    'Estimating the nutrients...',
+    'Checking them against your limits...',
+  ];
+  static const _tips = [
+    'Take the photo from above so the whole plate is in the picture.',
+    'Daylight or a bright room gives the best result.',
+    'Keep fingers, cutlery and packaging out of the photo.',
+    'One plate per photo works best.',
+  ];
+  Timer? _timer;
+  int _tick = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 2500), (_) {
+      if (mounted) setState(() => _tick++);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final stage = _stages[_tick < _stages.length ? _tick : _stages.length - 1];
+    final tip = _tips[_tick % _tips.length];
+    final photo = widget.photo;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: SizedBox(
+            height: 240,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (photo != null)
+                  Image.memory(photo, fit: BoxFit.cover, cacheWidth: 800, gaplessPlayback: true)
+                else
+                  const ColoredBox(color: AppTokens.tint),
+                const ColoredBox(color: Color(0x66000000)),
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        width: 56,
+                        height: 56,
+                        child: CircularProgressIndicator(strokeWidth: 5, color: Colors.white),
+                      ),
+                      const SizedBox(height: 14),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 300),
+                        child: Text(
+                          stage,
+                          key: ValueKey(stage),
+                          style: const TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 14),
+        const ClipRRect(
+          borderRadius: BorderRadius.all(Radius.circular(6)),
+          child: LinearProgressIndicator(minHeight: 8, color: AppTokens.brandDeepAccent, backgroundColor: AppTokens.tint),
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'This usually takes a few seconds.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 14, color: AppTokens.inkMuted),
+        ),
+        const SizedBox(height: 18),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppTokens.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: AppTokens.cardBorder),
+          ),
+          child: Row(
+            children: [
+              const GuideIllustration(Icons.lightbulb_outline, size: 64),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Photo tip', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                    const SizedBox(height: 4),
+                    AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      child: Text(
+                        tip,
+                        key: ValueKey(tip),
+                        style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.ink),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        TextButton.icon(
+          onPressed: widget.onManual,
+          icon: const Icon(Icons.edit_note),
+          label: const Text('Enter the food myself instead', style: TextStyle(fontSize: 16)),
+        ),
+      ],
     );
   }
 }

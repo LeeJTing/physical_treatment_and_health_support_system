@@ -6,6 +6,8 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/diet_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
@@ -28,32 +30,28 @@ class _DietPlanViewState extends State<DietPlanView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => context.read<DietPlanViewModel>().load(widget.type));
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<DietPlanViewModel>().load(widget.type);
+      if (mounted) await showGuideOnce(context, Guides.dietPlan); // first visit only
+    });
   }
 
   void _snack(String m) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
+  /// The sheet opens at once and fills when the alternatives have been found.
   Future<void> _replace(DietPlanViewModel vm, PlannedMeal m) async {
-    final alts = await vm.alternativesFor(m);
-    if (!mounted) return;
-    final f = await showModalBottomSheet<FoodItem>(
+    final f = await showFutureSheet<List<FoodItem>, FoodItem>(
       context: context,
-      isScrollControlled: true,
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Replace ${m.food.foodName}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-              const Text('These keep the day within your limits.', style: TextStyle(color: AppTokens.inkMuted)),
-              const SizedBox(height: 8),
-              if (alts.isEmpty) const Text('No other food fits the same limits.'),
-              for (final a in alts) FoodTile(food: a, onTap: () => Navigator.pop(ctx, a)),
-            ],
-          ),
-        ),
+      future: vm.alternativesFor(m),
+      title: 'Replace ${m.food.foodName}',
+      subtitle: 'These keep the day within your limits.',
+      loadingText: 'Finding foods that fit...',
+      builder: (ctx, alts) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (alts.isEmpty) const Text('No other food fits the same limits.'),
+          for (final a in alts) FoodTile(food: a, onTap: () => Navigator.pop(ctx, a)),
+        ],
       ),
     );
     if (f != null) await vm.replaceMeal(m.plannedMealId, f);
@@ -102,10 +100,41 @@ class _DietPlanViewState extends State<DietPlanView> {
             onPressed: vm.isLoading ? null : vm.regenerate,
             icon: const Icon(Icons.refresh),
           ),
+          const HelpButton(guide: Guides.dietPlan),
         ],
+        // A new plan is being made: the current one stays visible under a progress bar.
+        bottom: vm.isLoading && p != null
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(4),
+                child: LinearProgressIndicator(minHeight: 4, color: AppTokens.cta, backgroundColor: AppTokens.tint),
+              )
+            : null,
       ),
       body: vm.isLoading && p == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GuideIllustration(Icons.restaurant_menu, badge: Icons.check_circle, size: 120),
+                    SizedBox(height: 20),
+                    CircularProgressIndicator(color: AppTokens.brandDeepAccent),
+                    SizedBox(height: 14),
+                    Text(
+                      'Making a plan that fits your limits...',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                    ),
+                    SizedBox(height: 6),
+                    Text(
+                      'This can take up to 20 seconds.',
+                      style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+                    ),
+                  ],
+                ),
+              ),
+            )
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
               children: [
@@ -119,6 +148,30 @@ class _DietPlanViewState extends State<DietPlanView> {
                   sodiumLimit: vm.ctx.dailySodiumMg,
                   sugarLimit: vm.ctx.dailySugarG,
                 ),
+                if (vm.profileRules.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                    decoration: BoxDecoration(
+                      color: AppTokens.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppTokens.cardBorder),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text('Planned for your profile',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                        const SizedBox(height: 6),
+                        for (final r in vm.profileRules)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text('• $r', style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 12),
                 if (vm.plannerDown) ...[
                   Container(
@@ -256,6 +309,11 @@ class _DietPlanViewState extends State<DietPlanView> {
           style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
         ),
       ),
+      if (vm.unmetNeeds(day) case final unmet when unmet.isNotEmpty)
+        Text(
+          'Low in ${unmet.join(' and ')} today: add a fruit, vegetables, milk or tofu if you can.',
+          style: const TextStyle(fontSize: 14, color: AppTokens.onWarn),
+        ),
     ];
   }
 }

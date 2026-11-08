@@ -171,7 +171,10 @@ enum RestrictionType {
   allergy('ALLERGY'),
   intolerance('INTOLERANCE'),
   diet('DIET'),
-  religious('RELIGIOUS');
+  religious('RELIGIOUS'),
+
+  /// A food name the patient cannot eat (Onion, Pork, Prawn, ...), whatever the reason.
+  food('FOOD');
 
   final String db;
   const RestrictionType(this.db);
