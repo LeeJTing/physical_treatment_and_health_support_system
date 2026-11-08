@@ -24,7 +24,10 @@ class PostureResultView extends StatelessWidget {
   Future<void> _continue(BuildContext context) async {
     final vm = context.read<TreatmentViewModel>();
     if (vm.testing) {
-      _backTo(context, TestExercisesView.routeName); // testing mode: nothing to save
+      _backTo(
+        context,
+        TestExercisesView.routeName,
+      ); // testing mode: nothing to save
       return;
     }
     final ok = await vm.acceptResult(); // FR300_21
@@ -83,29 +86,12 @@ class PostureResultView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppTokens.gutter),
           children: [
-            const Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    'Posture result',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: AppTokens.text,
-                    ),
-                  ),
-                ),
-                ExitExerciseButton(), // FR300_13
-              ],
-            ),
-            const SizedBox(height: 2),
-            Text(
-              vm.current?.exerciseName ?? '',
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w500,
-                color: AppTokens.accent,
-              ),
+            // The back arrow goes to the previous screen, the same as the phone's Back
+            // (PopScope below); it replaced the Exit button (Elwin, 9 Nov).
+            PlanningHeader(
+              title: 'Posture result',
+              subtitle: vm.current?.exerciseName ?? '',
+              onBack: () => Navigator.of(context).maybePop(),
             ),
             // Testing mode: said at the top, before the score (laptop emulator test, 20 Oct).
             if (vm.testing) ...[
@@ -269,7 +255,9 @@ class PostureResultView extends StatelessWidget {
                 if (!fell) ...[
                   Expanded(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
+                      constraints: const BoxConstraints(
+                        minHeight: AppTokens.minTarget,
+                      ),
                       child: FilledButton(
                         onPressed: saving is Loading
                             ? null
@@ -295,7 +283,9 @@ class PostureResultView extends StatelessWidget {
                 ],
                 Expanded(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
+                    constraints: const BoxConstraints(
+                      minHeight: AppTokens.minTarget,
+                    ),
                     child: OutlinedButton(
                       onPressed: saving is Loading
                           ? null
