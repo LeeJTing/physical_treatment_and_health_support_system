@@ -12,6 +12,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
@@ -27,6 +28,10 @@ import 'package:physical_treatment_and_health_support_system/model/repository/fo
 import 'package:physical_treatment_and_health_support_system/model/repository/meal_repository/fake_meal_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
 
@@ -56,6 +61,34 @@ class _NoCamera implements MealImageSource {
   Future<Uint8List?> capture() async => next;
   @override
   Future<Uint8List?> pickFromGallery() async => next;
+}
+
+/// Records the "follow your diet plan" notifications.
+class _PlanScheduler implements NotificationScheduler {
+  final Map<int, (DateTime, String, String)> pending = {};
+  @override
+  Future<void> init() async {}
+  @override
+  Future<bool> requestPermission() async => true;
+  @override
+  Future<bool> isPermitted() async => true;
+  @override
+  Future<bool> openSettings() async => true;
+  @override
+  Future<void> scheduleOnce(int id, String title, String body, DateTime at, {String? payload}) async =>
+      pending[id] = (at, title, body);
+  @override
+  Future<void> cancel(int id) async => pending.remove(id);
+  @override
+  Future<void> cancelAll() async => pending.clear();
+  @override
+  Stream<String> get taps => const Stream.empty();
+  @override
+  Future<String?> launchPayload() async => null;
+  @override
+  Future<bool> canRingOnTime() async => true;
+  @override
+  Future<void> openExactAlarmSettings() async {}
 }
 
 Uint8List jpeg(int w, int h) => Uint8List.fromList(img.encodeJpg(img.Image(width: w, height: h)));
@@ -296,6 +329,310 @@ void main() {
       });
       expect(problems, isEmpty);
       expect(vm.plan!.modelVersion, 'manual');
+    });
+  });
+
+  group('flexible plan changes and explanations (A5.1, A5.3, DC700_06)', () {
+    final day = DateTime(2026, 10, 26);
+    DietPlan plan(List<PlannedMeal> meals) => DietPlan(
+      dietPlanId: 'p',
+      accountId: 'a',
+      safetyLimitId: 'sl',
+      planType: PlanType.daily,
+      startDate: day,
+      endDate: day,
+      modelVersion: 'diet-planner-2.1+pref-logreg-1',
+      generatedAt: day,
+      meals: meals,
+    );
+    final planner = DietPlannerService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods);
+    PlanChange preview(DietPlan before, DietPlan after, MealSlot slot, DietContext c) => planner.previewChange(
+      kind: PlanChangeKind.add,
+      before: before,
+      after: after,
+      day: day,
+      slot: slot,
+      ctx: c,
+      title: 't',
+      doneMessage: 'd',
+    );
+
+    test('only foods that suit the patient are suggested; a planner choice that does not is rejected', () {
+      const s = SuitabilityService();
+      expect(s.suitsPatient(food('oats'), ctx(conds: ['HYPERTENSION'])), isTrue);
+      expect(s.suitsPatient(food('nasi_lemak'), ctx(conds: ['HYPERTENSION'])), isFalse); // 695 mg sodium
+      expect(s.suitsPatient(food('nasi_lemak'), ctx()), isFalse); // more than 30 % of a day's sodium
+      final lunch = PlannedMeal.of(food('nasi_lemak'), day, MealSlot.lunch, 250);
+      expect(planner.validate(plan([lunch]), ctx()), isEmpty); // the patient may still choose it
+      expect(planner.validate(plan([lunch]), ctx(), strict: true), isNotEmpty); // the planner may not
+      expect(planner.validate(plan([lunch.lock()]), ctx(), strict: true), isEmpty); // locked: the patient's
+    });
+
+    test('alternatives and suggestions are all suitable foods', () async {
+      final c = ctx(conds: ['HYPERTENSION', 'DIABETES']);
+      final m = PlannedMeal.of(food('nasi_putih'), day, MealSlot.lunch, 160);
+      final alts = await planner.alternativesFor(m, plan([m]), c);
+      expect(alts, isNotEmpty);
+      const s = SuitabilityService();
+      expect(alts.every((f) => s.suitsPatient(f, c, m.replaceWith(f).portionSizeG)), isTrue);
+    });
+
+    test('adding a food shows its effect on the day before it is made', () {
+      final before = plan([PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250)]);
+      final after = before.copyWith(meals: [...before.meals, PlannedMeal.of(food('epal'), day, MealSlot.snack, 150)]);
+      final c = preview(before, after, MealSlot.snack, ctx(conds: ['DIABETES']));
+      expect(c.allowed, isTrue);
+      expect(c.after.energyKcal, greaterThan(c.before.energyKcal));
+      expect(c.delta.energyKcal, closeTo(food('epal').nutrientsFor(150).energyKcal, 1));
+      expect(c.effects.any((e) => e.text.startsWith('Energy for') && e.text.contains('→')), isTrue);
+      expect(c.effects.any((e) => e.text.startsWith('Your snack will have')), isTrue);
+    });
+
+    test('a change that would break a limit is shown with the amount and not allowed (FR700_042)', () {
+      final before = plan([PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250)]);
+      final after = before.copyWith(meals: [...before.meals, PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 300)]);
+      final c = preview(before, after, MealSlot.lunch, ctx());
+      expect(c.allowed, isFalse);
+      expect(c.problems.join(' '), contains('sodium'));
+      expect(c.problems.join(' '), contains('of 2,000 mg'));
+      // Too much is said in red, with what it does to the body.
+      final w = c.warnings.map((e) => e.text).join(' ');
+      expect(w, contains('Too much sodium'));
+      expect(w, contains('blood pressure'));
+    });
+
+    test('a food that is high for the patient is explained as a warning; a fine one is not', () {
+      final c = ctx(conds: ['HYPERTENSION']);
+      final salty = PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 20);
+      final r = planner.reasonsFor(salty, plan([salty]), c);
+      expect(r.where((n) => n.warn).map((n) => n.text).join(' '), contains('blood pressure'));
+      final oats = PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250);
+      expect(planner.reasonsFor(oats, plan([oats]), c).where((n) => n.warn), isEmpty);
+      // A day far under its energy target says so.
+      final low = planner.summaryFor(plan([oats]), day, c).firstWhere((x) => x.kind == 'energy');
+      expect(low.ok, isFalse);
+      expect(low.title, 'Too little energy for the day');
+    });
+
+    test('removing the last food of a slot says the slot will be empty', () {
+      final before = plan([
+        PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250),
+        PlannedMeal.of(food('epal'), day, MealSlot.snack, 150),
+      ]);
+      final after = before.copyWith(meals: [before.meals.first]);
+      final c = preview(before, after, MealSlot.snack, ctx());
+      expect(c.allowed, isTrue);
+      expect(c.effects.any((e) => e.text.contains('will have no food planned')), isTrue);
+      expect(c.after.energyKcal, lessThan(c.before.energyKcal));
+    });
+
+    test('each planned food and each day of the plan are explained', () {
+      final m = PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250);
+      final p = plan([m]);
+      final c = ctx(conds: ['HYPERTENSION'], rs: ['PEANUT']);
+      final reasons = planner.reasonsFor(m, p, c);
+      expect(reasons.first.text, contains('starch')); // its place on the plate
+      expect(reasons.any((r) => r.text.contains('because you have declared')), isTrue); // its sodium limit
+      expect(reasons.any((r) => r.text.contains('Peanut')), isTrue); // the foods avoided
+      final kinds = planner.summaryFor(p, day, c).map((r) => r.kind).toList();
+      expect(kinds, containsAll(['energy', 'plate', 'limits', 'profile', 'preference']));
+    });
+
+    test('the patient adds and removes foods; a rejected or stale change is not made', () async {
+      final auth = FakeAuthRepository();
+      await auth.login('demo@apths.test', 'password123');
+      final api = ApiClient(
+        baseUrl: 'http://ai',
+        tokenProvider: () => 't',
+        httpClient: MockClient((_) async => http.Response('{"error":{"code":"error","message":"down"}}', 503)),
+      );
+      final meals = FakeMealRepository();
+      final vm = DietPlanViewModel(
+        DietPlannerService(api, foods),
+        meals,
+        foods,
+        RiskAssessmentService(auth, FakeProfileRepository()),
+        auth,
+      );
+      await vm.load(PlanType.daily);
+      expect(await vm.saveManualPlan({MealSlot.breakfast: [food('oats')]}), isEmpty);
+      final today = vm.plan!.startDate;
+
+      final add = vm.previewAdd(today, MealSlot.snack, food('epal'))!;
+      expect(add.allowed, isTrue);
+      expect(add.effects.first.text, contains('will be added to your snack'));
+      expect(await vm.applyChange(add), isTrue);
+      expect(vm.plan!.mealsFor(today).map((m) => m.food.foodKey), containsAll(['oats', 'epal']));
+      expect(meals.plans.single.meals, hasLength(2)); // saved
+
+      final rm = vm.previewRemove(vm.plan!.meals.firstWhere((m) => m.food.foodKey == 'oats'))!;
+      expect(await vm.applyChange(rm), isTrue);
+      expect(vm.plan!.meals.map((m) => m.food.foodKey), ['epal']);
+
+      final salty = vm.previewAdd(today, MealSlot.lunch, food('ikan_masin'), grams: 300)!;
+      expect(salty.allowed, isFalse);
+      expect(await vm.applyChange(salty), isFalse);
+      expect(vm.plan!.meals, hasLength(1));
+
+      final stale = vm.previewAdd(today, MealSlot.lunch, food('nasi_putih'))!;
+      expect(await vm.applyChange(vm.previewAdd(today, MealSlot.breakfast, food('oats'))!), isTrue);
+      expect(await vm.applyChange(stale), isFalse); // worked out from an older plan
+      expect(vm.plan!.meals, hasLength(2));
+
+      final portion = vm.previewPortion(vm.plan!.meals.firstWhere((m) => m.food.foodKey == 'oats'), 125)!;
+      expect(await vm.applyChange(portion), isTrue);
+      expect(vm.plan!.meals.firstWhere((m) => m.food.foodKey == 'oats').portionSizeG, 125);
+      expect(vm.regenerateEffects.first, contains('not locked'));
+    });
+
+    test('suggestions for a slot fill what it is missing and fit the limits', () async {
+      final auth = FakeAuthRepository();
+      await auth.login('demo@apths.test', 'password123');
+      final api = ApiClient(
+        baseUrl: 'http://ai',
+        tokenProvider: () => 't',
+        httpClient: MockClient((_) async => http.Response('{"error":{"code":"error","message":"down"}}', 503)),
+      );
+      final vm = DietPlanViewModel(
+        DietPlannerService(api, foods),
+        FakeMealRepository(),
+        foods,
+        RiskAssessmentService(auth, FakeProfileRepository()),
+        auth,
+      );
+      await vm.load(PlanType.daily);
+      await vm.saveManualPlan({MealSlot.lunch: [food('nasi_putih')]});
+      final s = await vm.suggestionsFor(vm.plan!.startDate, MealSlot.lunch);
+      expect(s, isNotEmpty);
+      expect(s.first.planRole, anyOf('veg', 'protein')); // rice is there: vegetables or a protein next
+      expect(s.every((f) => f.mealSlots.contains('LUNCH')), isTrue);
+    });
+  });
+
+  group('following the diet plan: alerts (UC900 with M600)', () {
+    final day = DateTime(2026, 10, 26);
+    final planner = DietPlannerService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods);
+    DietPlan dayPlan({String accountId = 'a'}) => DietPlan(
+      dietPlanId: 'p',
+      accountId: accountId,
+      safetyLimitId: 'sl',
+      planType: PlanType.daily,
+      startDate: day,
+      endDate: day,
+      modelVersion: 'diet-planner-2.1',
+      generatedAt: day,
+      meals: [
+        PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250),
+        PlannedMeal.of(food('nasi_putih'), day, MealSlot.lunch, 160),
+        PlannedMeal.of(food('grilled_chicken_breast'), day, MealSlot.lunch, 100),
+        PlannedMeal.of(food('nasi_beras_perang'), day, MealSlot.dinner, 160),
+        PlannedMeal.of(food('epal'), day, MealSlot.snack, 150),
+      ],
+    );
+    MealLog eaten(MealSlot slot, List<(String, double)> items, DateTime at) => MealLog(
+      mealId: newId(),
+      accountId: 'a',
+      mealType: slot,
+      entryMethod: EntryMethod.manual,
+      consumedAt: at,
+      items: [for (final (k, g) in items) MealItem.of(food(k), grams: g)],
+    );
+
+    test('planned meals not logged ring at their time; logged or past ones do not', () {
+      final p = dayPlan();
+      final morning = planner.missedMealAlerts(p, const [], DateTime(2026, 10, 26, 8));
+      expect(morning.map((a) => a.slot), [MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner]); // no snack
+      expect(morning[1].at, DateTime(2026, 10, 26, 14, 30));
+      expect(morning[1].body, contains('Plain white rice'));
+      final noon = planner.missedMealAlerts(
+        p,
+        [eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 8))],
+        DateTime(2026, 10, 26, 12),
+      );
+      expect(noon.map((a) => a.slot), [MealSlot.lunch, MealSlot.dinner]);
+      expect(planner.missedMealAlerts(p, const [], DateTime(2026, 10, 27, 8)), isEmpty); // not a plan day
+    });
+
+    test('how the plan was followed: as planned, differently, missed', () {
+      final p = dayPlan();
+      final logged = [
+        eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 8)), // as planned
+        eaten(MealSlot.dinner, [('nasi_lemak', 250)], DateTime(2026, 10, 26, 19)), // different
+      ];
+      final f = planner.followOf(p, logged, DateTime(2026, 10, 26, 21)); // lunch missed
+      expect((f.due, f.followed, f.different, f.missed), (3, 1, 1, 1));
+      expect(f.notFollowing, isTrue);
+      final early = planner.followOf(p, logged.take(1).toList(), DateTime(2026, 10, 26, 9));
+      expect((early.due, early.followed), (1, 1));
+      expect(early.notFollowing, isFalse);
+    });
+
+    test('a meal off the plan is explained; over a limit it is red with what it does to the body', () {
+      final p = dayPlan();
+      final at = DateTime(2026, 10, 26, 13);
+      final asPlanned = eaten(MealSlot.lunch, [('nasi_putih', 160), ('grilled_chicken_breast', 100)], at);
+      expect(planner.offPlanAlertFor(asPlanned, p, ctx(), [asPlanned], at), isNull);
+      final other = eaten(MealSlot.lunch, [('nasi_lemak', 250)], at);
+      final a = planner.offPlanAlertFor(other, p, ctx(), [other], at)!;
+      expect(a.overLimit, isFalse);
+      expect(a.body, contains('instead of Plain white rice'));
+      final salty = eaten(MealSlot.lunch, [('ikan_masin', 100)], at);
+      final r = planner.offPlanAlertFor(salty, p, ctx(), [salty], at)!;
+      expect(r.overLimit, isTrue);
+      expect(r.body, contains('over your limit'));
+      expect(r.body, contains('blood pressure'));
+    });
+
+    test('alerts are scheduled, cancelled when the meal is logged, and an off-plan meal is logged in the history', () async {
+      final repo = FakeNotificationRepository();
+      final device = _PlanScheduler();
+      final now = DateTime(2026, 10, 26, 8);
+      final alerts = LocalNotificationService(repo, FakeTreatmentRepository(const []), scheduler: device, now: () => now);
+      final p = dayPlan();
+      expect(await alerts.schedulePlanAlerts(planner.missedMealAlerts(p, const [], now)), 3);
+      expect(device.pending.keys, containsAll([700000000, 700000001, 700000002]));
+      final breakfast = eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 9));
+      await alerts.schedulePlanAlerts(planner.missedMealAlerts(p, [breakfast], now));
+      expect(device.pending.containsKey(700000000), isFalse); // breakfast logged: no alert
+      final other = eaten(MealSlot.lunch, [('ikan_masin', 100)], DateTime(2026, 10, 26, 8));
+      final entry = await alerts.planAlert('a', planner.offPlanAlertFor(other, p, ctx(), [other], now)!);
+      expect(repo.log.single.messageBody, entry.messageBody);
+      expect(entry.messageBody, contains('Not following your diet plan'));
+      expect(device.pending.containsKey(LocalNotificationService.offPlanAlertId(MealSlot.lunch)), isTrue);
+    });
+
+    test('logging a meal that is not the planned one alerts the patient on the Diet tab', () async {
+      final auth = FakeAuthRepository();
+      final accountId = (await auth.login('demo@apths.test', 'password123')).dataOrNull!.accountId;
+      final meals = FakeMealRepository();
+      await meals.savePlan(dayPlan(accountId: accountId));
+      final repo = FakeNotificationRepository();
+      final device = _PlanScheduler();
+      final at = DateTime(2026, 10, 26, 13);
+      final vm = MealLogViewModel(
+        meals,
+        FoodRecognitionService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods),
+        foods,
+        RiskAssessmentService(auth, FakeProfileRepository()),
+        auth,
+        _NoCamera(),
+        const SuitabilityService(),
+        () => at,
+        planner,
+        LocalNotificationService(repo, FakeTreatmentRepository(const []), scheduler: device, now: () => at),
+      );
+      await vm.load();
+      expect(vm.planAlert, isNull);
+      expect(device.pending.containsKey(700000000), isFalse); // breakfast time has passed
+      expect(device.pending.containsKey(700000001), isTrue); // lunch rings at 14:30 unless logged
+      vm.startManual();
+      vm.addFood(food('nasi_lemak'));
+      expect(await vm.confirmMeal(), isTrue);
+      expect(vm.planAlert, isNotNull); // lunch was not the planned one
+      expect(repo.log, hasLength(1));
+      expect(device.pending.containsKey(700000001), isFalse); // lunch is logged
+      vm.dismissPlanAlert();
+      expect(vm.planAlert, isNull);
     });
   });
 

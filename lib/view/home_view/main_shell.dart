@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
 import 'package:physical_treatment_and_health_support_system/view/home_view/home_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/home_view_model/home_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/profile_view.dart';
@@ -123,10 +125,30 @@ class MainShellState extends State<MainShell> with WidgetsBindingObserver {
           ),
         ),
         ChangeNotifierProvider(
-          create: (c) => MealLogViewModel(c.read(), c.read(), c.read(), c.read(), c.read(), c.read(), c.read()),
+          // The last two: the diet plan check and its "follow your diet plan" alerts.
+          create: (c) => MealLogViewModel(
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            null,
+            c.read<DietPlannerService>(),
+            c.read<LocalNotificationService>(),
+          ),
         ),
         ChangeNotifierProvider(
-          create: (c) => DietPlanViewModel(c.read(), c.read(), c.read(), c.read(), c.read()),
+          create: (c) => DietPlanViewModel(
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            c.read(),
+            null,
+            c.read<LocalNotificationService>(),
+          ),
         ),
       ],
       child: Builder(builder: _scaffold),

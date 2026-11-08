@@ -52,10 +52,18 @@ class NotificationViewModel extends BaseViewModel {
     }
     _onTime = await _scheduler.canRingOnTime();
     final res = await _repo.getReminders(id);
+    // Changes still being saved (perhaps tapped just before an earlier visit to this screen
+    // closed) are shown as the patient left them, and the list is read again once they are saved.
+    final unsaved = _scheduler.unsaved;
     _reminders = switch (res) {
-      Success(:final data) => UiSuccess(_byTime(data)),
+      Success(:final data) => UiSuccess(_byTime([for (final r in data) unsaved[r.reminderId] ?? r])),
       Failure() => const UiError(Messages.dbUnavailable),
     };
+    if (unsaved.isNotEmpty) {
+      _scheduler.settled.then((_) {
+        if (!isDisposed) load(quiet: true);
+      });
+    }
     final now = DateTime.now();
     await loadLog(now.subtract(const Duration(days: 14)), now);
   }
@@ -104,29 +112,12 @@ class NotificationViewModel extends BaseViewModel {
     await load(quiet: true);
   }
 
-  /// One save at a time: a second tap waits for the first, so the reminder is stored in the order
-  /// the patient tapped (audit, 24 Oct: two quick day taps both started from the old days, so the
-  /// second undid the first). The screen itself changes at once, see [_change].
-  Future<void> _last = Future<void>.value();
-  Future<void> _oneAtATime(Future<void> Function() op) {
-    final next = _last.then((_) => op());
-    _last = next.then((_) {}, onError: (Object _) {});
-    return next;
-  }
-
   /// Disables or re-enables without deleting (FR600_006).
-  Future<void> toggleReminder(String id, bool on) => _change(
-    id,
-    (r) => r.copyWith(isEnabled: on),
-    (r) => _scheduler.update(r, enabled: on),
-  );
+  Future<void> toggleReminder(String id, bool on) => _change(id, (r) => r.copyWith(isEnabled: on));
 
   /// Changes the time of day it fires (FR600_004).
-  Future<void> changeTime(String id, int hour, int minute) => _change(
-    id,
-    (r) => r.copyWith(hour: hour, minute: minute),
-    (r) => _scheduler.update(r, hour: hour, minute: minute),
-  );
+  Future<void> changeTime(String id, int hour, int minute) =>
+      _change(id, (r) => r.copyWith(hour: hour, minute: minute));
 
   /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
   /// off: switch the reminder off instead.
@@ -141,11 +132,7 @@ class NotificationViewModel extends BaseViewModel {
     }
     setError(null);
     final repeat = days.join();
-    await _change(
-      id,
-      (r) => r.copyWith(repeatDays: repeat),
-      (r) => _scheduler.update(r, repeatDays: repeat),
-    );
+    await _change(id, (r) => r.copyWith(repeatDays: repeat));
   }
 
   /// Whether the patient already has a health-logging reminder (FR600_002).
@@ -243,6 +230,7 @@ class NotificationViewModel extends BaseViewModel {
     final before = _list;
     _reminders = UiSuccess(before.where((x) => x.reminderId != id).toList());
     notifyListeners();
+    await _scheduler.settled; // a change still being saved must not bring it back
     final res = await _scheduler.remove(r);
     if (res is Failure) _reminders = UiSuccess(before);
     // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
@@ -266,34 +254,37 @@ class NotificationViewModel extends BaseViewModel {
     _ => null,
   };
 
-  /// UI first: [preview] is shown at once, then [op] saves and schedules it, one save at a time;
-  /// on a failure the reminder goes back to how it was. Each tap starts from what the screen shows,
-  /// so quick taps on several days all count (audit, 24 Oct).
-  Future<void> _change(
-    String id,
-    Reminder Function(Reminder) preview,
-    Future<Result<Reminder>> Function(Reminder) op,
-  ) {
-    final original = _find(id);
-    if (original == null) return Future<void>.value();
-    _replace(id, preview(original));
+  /// UI first: [preview] is shown at once and saved in the background by
+  /// [LocalNotificationService.queueUpdate], one save at a time and in the order tapped, even if
+  /// the screen is closed before it is saved (phone test, 9 Nov). Each tap starts from what the
+  /// screen shows, so quick taps on several days all count (audit, 24 Oct). On a failure the
+  /// reminder goes back to how it was last saved.
+  Future<void> _change(String id, Reminder Function(Reminder) preview) async {
+    final current = _find(id);
+    if (current == null) return;
+    _saved.putIfAbsent(id, () => current);
+    final wanted = preview(current);
+    _replace(id, wanted);
     _waiting[id] = (_waiting[id] ?? 0) + 1;
     notifyListeners();
-    return _oneAtATime(() async {
-      final res = await op(original);
-      final left = (_waiting[id] ?? 1) - 1;
-      _waiting[id] = left;
-      if (res case Success(:final data)) {
-        // A later tap on the same reminder is still on screen: keep showing it.
-        if (left == 0) _replace(id, data);
-        setError(null);
-      } else {
-        if (left == 0) _replace(id, original);
-        setError(Messages.dbUnavailable);
-      }
-      notifyListeners();
-    });
+    final res = await _scheduler.queueUpdate(wanted);
+    final left = (_waiting[id] ?? 1) - 1;
+    _waiting[id] = left;
+    if (res case Success(:final data)) {
+      _saved[id] = data;
+      // A later tap on the same reminder is still on screen: keep showing it.
+      if (left == 0) _replace(id, data);
+      setError(null);
+    } else {
+      if (left == 0) _replace(id, _saved[id] ?? current);
+      setError(Messages.dbUnavailable);
+    }
+    if (left == 0) _saved.remove(id);
+    notifyListeners();
   }
+
+  /// How each reminder was last saved, to go back to if a change cannot be saved.
+  final Map<String, Reminder> _saved = {};
 
   /// Taps on each reminder that are shown but not saved yet.
   final Map<String, int> _waiting = {};

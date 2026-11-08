@@ -330,6 +330,24 @@ class SuitabilityService {
       ]) ==
       Verdict.notSuitable;
 
+  /// A food that may be suggested to the patient (in a plan, as an alternative or as a
+  /// recommendation): Suitable at [grams] for every rule (no Caution or Not Suitable verdict), and
+  /// not more than [AppConstants.itemShare] (30 %) of the day's sodium or free sugars on its own.
+  /// The AI server's planner applies the same rule (diet-planner-2.2, planner._suits).
+  bool suitsPatient(FoodItem f, DietContext ctx, [double? grams]) {
+    final g = grams ?? f.baseServingG;
+    final n = f.nutrientsFor(g);
+    return mostRestrictive([
+          ...checkRestrictions(f, ctx),
+          ...checkPregnancy(f, ctx),
+          ...checkLimitations(f, ctx),
+          ...checkNutrients(f, g, ctx),
+        ]) ==
+        Verdict.suitable &&
+        n.sodiumMg <= AppConstants.itemShare * ctx.dailySodiumMg + 0.5 &&
+        n.sugarG <= AppConstants.itemShare * ctx.dailySugarG + 0.05;
+  }
+
   /// Alternatives for a flagged item (UC900 C3; FR700_020, FR700_027): same food group, below every
   /// limit the item exceeded and breaking no restriction, ordered by the smallest difference in
   /// energy and in the flagged nutrient.

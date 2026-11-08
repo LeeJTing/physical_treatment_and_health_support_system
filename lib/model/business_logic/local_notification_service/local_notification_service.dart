@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/exerci
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/reminder_tap.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/i_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/i_treatment_repository.dart';
 
@@ -408,6 +409,45 @@ class LocalNotificationService {
     return Success(updated);
   }
 
+  // ---------------------------------------------------------------- changes that outlive the screen
+
+  /// Changes made on the Reminders screen that are not saved yet, by reminder id: the latest state
+  /// the patient chose. They are saved in the background, one at a time and in the order made, even
+  /// after the screen is closed, and a Reminders screen opened meanwhile shows them (phone test,
+  /// 9 Nov: days tapped quickly just before closing the screen were missing when it was opened
+  /// again, because the new screen read the reminder before those saves had finished).
+  final Map<String, Reminder> _unsaved = {};
+  final Map<String, Result<Reminder>> _lastSave = {};
+  Future<void> _saving = Future<void>.value();
+
+  Map<String, Reminder> get unsaved => Map.unmodifiable(_unsaved);
+
+  /// Completes when every change queued so far has been saved (or has failed).
+  Future<void> get settled => _saving;
+
+  /// Saves [wanted] (switched on or off, a new time or new days) after the changes queued before
+  /// it, and schedules it. Quick changes to one reminder are merged: only the latest is written.
+  Future<Result<Reminder>> queueUpdate(Reminder wanted) {
+    final id = wanted.reminderId;
+    _unsaved[id] = wanted;
+    final result = _saving.then((_) async {
+      final latest = _unsaved[id];
+      // Already written together with an earlier change of the same reminder.
+      if (latest == null) return _lastSave[id] ?? Success<Reminder>(wanted);
+      Result<Reminder> res;
+      try {
+        res = await update(latest);
+      } catch (e) {
+        res = Failure<Reminder>(Messages.dbUnavailable, cause: e);
+      }
+      if (identical(_unsaved[id], latest)) _unsaved.remove(id); // nothing newer is waiting
+      _lastSave[id] = res;
+      return res;
+    });
+    _saving = result.then((_) {}, onError: (Object _) {});
+    return result;
+  }
+
   /// Cancels a reminder on the phone and deletes it.
   Future<Result<void>> remove(Reminder r) async {
     await cancel(r.reminderId);
@@ -493,6 +533,78 @@ class LocalNotificationService {
         issuedAt: _now(),
       ),
     );
+  }
+
+  // ---------------------------------------------------------------- diet plan alerts (Jun Ting)
+
+  /// Notification ids of today's "follow your diet plan" alerts, one per meal slot, and of the
+  /// alert shown when a logged meal was not the planned one.
+  static int planAlertId(MealSlot s) => 700000000 + s.index;
+  static int offPlanAlertId(MealSlot s) => 700000010 + s.index;
+
+  Future<bool> _mayShow() async {
+    try {
+      return await _scheduler.isPermitted();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Keeps today's "follow your diet plan" alerts in step with the plan and the meals logged: the
+  /// slots in [alerts] (planned, not logged yet) ring at their time, the others are cancelled. Not
+  /// asked for permission here; without it nothing rings. Returns how many were scheduled.
+  Future<int> schedulePlanAlerts(List<PlanAlert> alerts) async {
+    for (final s in MealSlot.values) {
+      await _cancelOne(planAlertId(s));
+    }
+    if (!await _mayShow()) return 0;
+    var n = 0;
+    for (final a in alerts.where((a) => a.at.isAfter(_now()))) {
+      try {
+        await _scheduler.scheduleOnce(
+          planAlertId(a.slot),
+          a.title,
+          a.body,
+          a.at,
+          payload: const ReminderTap(ReminderType.meal).toPayload(), // opens the Diet tab
+        );
+        n++;
+      } catch (_) {
+        // The plugin is unavailable: the alert still shows in the app.
+      }
+    }
+    return n;
+  }
+
+  /// A meal was logged that is not the planned one: recorded in the notification history
+  /// (FR600_013) and shown on the phone now, so it stays in the notification shade.
+  Future<NotificationLog> planAlert(String accountId, PlanAlert a) async {
+    var status = DeliveryStatus.delivered;
+    try {
+      if (await _mayShow()) {
+        await _scheduler.scheduleOnce(
+          offPlanAlertId(a.slot),
+          a.title,
+          a.body,
+          _now().add(const Duration(seconds: 2)),
+          payload: const ReminderTap(ReminderType.meal).toPayload(),
+        );
+      } else {
+        status = DeliveryStatus.failed;
+      }
+    } catch (_) {
+      status = DeliveryStatus.failed;
+    }
+    final entry = NotificationLog(
+      notificationId: newId(),
+      accountId: accountId,
+      notificationType: NotificationType.reminder,
+      messageBody: '${a.title}. ${a.body}',
+      deliveryStatus: status,
+      issuedAt: _now(),
+    );
+    await _repo.logNotification(entry);
+    return entry;
   }
 
   static int _alertId(String anomalyId) => 800000000 + (anomalyId.hashCode & 0x0fffffff) % 99999999;

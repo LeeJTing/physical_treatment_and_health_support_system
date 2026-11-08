@@ -118,11 +118,12 @@ void main() {
   );
 
   test(
-    'calorie target: Mifflin-St Jeor x 1.2, fail-safe when a value is missing',
+    'calorie target: Mifflin-St Jeor x the activity level (1.5 without a limitation), fail-safe when a value is missing',
     () {
-      // Man: 10 x 71.2 + 6.25 x 168 - 5 x 62 + 5 = 1457; x 1.2 = 1748.4
-      expect(complete().generateSafetyLimit().dailyCalorieTarget, 1748);
-      // Woman, same numbers: 1457 - 166 = 1291; x 1.2 = 1549.2
+      // Man: 10 x 71.2 + 6.25 x 168 - 5 x 62 + 5 = 1457; x 1.5 = 2185.5, half up 2186
+      // (DietTargets.energyTarget, the same rule as the AI server).
+      expect(complete().generateSafetyLimit().dailyCalorieTarget, 2186);
+      // Woman, same numbers: 1457 - 166 = 1291; x 1.5 = 1936.5, half up 1937
       final woman = HealthProfile(
         profileId: 'p2',
         accountId: id,
@@ -132,7 +133,7 @@ void main() {
         heightCm: 168,
         updatedAt: DateTime.now(),
       );
-      expect(woman.generateSafetyLimit().dailyCalorieTarget, 1549);
+      expect(woman.generateSafetyLimit().dailyCalorieTarget, 1937);
       final noAge = HealthProfile(
         profileId: 'p3',
         accountId: id,

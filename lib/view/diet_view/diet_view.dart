@@ -3,10 +3,12 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_plan_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_history_view.dart';
@@ -55,17 +57,17 @@ class _DietViewState extends State<DietView> {
           children: [
             ListTile(
               leading: const Icon(Icons.photo_camera, size: 30),
-              title: const Text('Take a photo', style: TextStyle(fontSize: 18)),
+              title: const OneLineText('Take a photo', style: TextStyle(fontSize: 18)),
               onTap: () => Navigator.pop(ctx, 'camera'),
             ),
             ListTile(
               leading: const Icon(Icons.photo_library, size: 30),
-              title: const Text('Choose from gallery', style: TextStyle(fontSize: 18)),
+              title: const OneLineText('Choose from gallery', style: TextStyle(fontSize: 18)),
               onTap: () => Navigator.pop(ctx, 'gallery'),
             ),
             ListTile(
               leading: const Icon(Icons.edit_note, size: 30),
-              title: const Text('Enter the food myself', style: TextStyle(fontSize: 18)),
+              title: const OneLineText('Enter the food myself', style: TextStyle(fontSize: 18)),
               onTap: () => Navigator.pop(ctx, 'manual'),
             ),
           ],
@@ -137,7 +139,7 @@ class _DietViewState extends State<DietView> {
     builder: (ctx, alts) => Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (alts.isEmpty) const Text('No alternative in the same food group fits your limits.'),
+        if (alts.isEmpty) const Text('No alternative in the same food group fits your\u00A0limits.'),
         for (final a in alts) FoodTile(food: a),
         const DietDisclaimer(),
       ],
@@ -188,14 +190,14 @@ class _DietViewState extends State<DietView> {
                   const Row(
                     children: [
                       Expanded(
-                        child: Text('Diet', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
+                        child: OneLineText('Diet', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
                       ),
                       HelpButton(guide: Guides.diet),
                     ],
                   ),
                   const SizedBox(height: 4),
                   const Text(
-                    'Photograph your meal to see its nutrients and whether it suits you.',
+                    'Photograph your meal to see its nutrients and whether it suits\u00A0you.',
                     style: TextStyle(color: AppTokens.onBrandMuted, fontSize: 16),
                   ),
                   const SizedBox(height: 18),
@@ -210,7 +212,7 @@ class _DietViewState extends State<DietView> {
                       ),
                       onPressed: vm.step == MealStep.recognising || vm.step == MealStep.saving ? null : _logMeal,
                       icon: const Icon(Icons.photo_camera, size: 28),
-                      label: Text(switch (vm.step) {
+                      label: OneLineText(switch (vm.step) {
                         MealStep.recognising => 'Identifying...',
                         MealStep.saving => 'Saving your meal...',
                         _ => 'Log Meal',
@@ -232,14 +234,25 @@ class _DietViewState extends State<DietView> {
                     sugarLimit: ctx.dailySugarG,
                     note: ctx.failSafe ? Messages.dietProfileUnavailable : null,
                   ),
+                  if (vm.planAlert case final a?) ...[
+                    const SizedBox(height: 12),
+                    _PlanAlertCard(
+                      alert: a,
+                      onOpen: () {
+                        vm.dismissPlanAlert();
+                        _openPlan(PlanType.daily);
+                      },
+                      onDismiss: vm.dismissPlanAlert,
+                    ),
+                  ],
                   const SizedBox(height: 20),
                   Row(
                     children: [
                       const Expanded(
-                        child: Text("Today's meals",
+                        child: OneLineText("Today's meals",
                             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTokens.ink)),
                       ),
-                      TextButton(onPressed: _openHistory, child: const Text('History', style: TextStyle(fontSize: 16))),
+                      TextButton(onPressed: _openHistory, child: const OneLineText('History', style: TextStyle(fontSize: 16))),
                     ],
                   ),
                   if (vm.today.isEmpty)
@@ -257,7 +270,7 @@ class _DietViewState extends State<DietView> {
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(color: AppTokens.goodContainer, borderRadius: BorderRadius.circular(14)),
-                        child: const Text(Messages.allItemsSuitable, style: TextStyle(color: AppTokens.good, fontSize: 15)), // M3
+                        child: Text(tidy(Messages.allItemsSuitable), style: const TextStyle(color: AppTokens.good, fontSize: 15)), // M3
                       ),
                     for (final m in vm.today)
                       MealCard(
@@ -315,14 +328,14 @@ class _DietViewState extends State<DietView> {
         Row(
           children: [
             Expanded(
-              child: Text('Suggested for ${plan.nextSlot.label.toLowerCase()}',
+              child: OneLineText('Suggested for ${plan.nextSlot.label.toLowerCase()}',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
             ),
             IconButton(tooltip: 'Refresh', onPressed: plan.refreshRecommendations, icon: const Icon(Icons.refresh)),
           ],
         ),
         if (plan.recommendations.isEmpty)
-          const Text('Nothing fits what is left of today\'s allowance.',
+          const Text('Nothing fits what is left of today\'s\u00A0allowance.',
               style: TextStyle(fontSize: 15, color: AppTokens.inkMuted))
         else
           for (final f in plan.recommendations)
@@ -345,8 +358,8 @@ class _DietViewState extends State<DietView> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(f.foodName, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
-            Text('One serving, ${f.baseServingG.round()} g', style: const TextStyle(color: AppTokens.inkMuted)),
+            Text(tidy(f.foodName), style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+            OneLineText('One serving, ${f.baseServingG.round()} g', style: const TextStyle(color: AppTokens.inkMuted)),
             const SizedBox(height: 14),
             NutrientTable(f.nutrientsFor(f.baseServingG)),
             const DietDisclaimer(),
@@ -375,7 +388,63 @@ class _PlanButton extends StatelessWidget {
       ),
       onPressed: onTap,
       icon: Icon(icon),
-      label: Text(label),
+      label: OneLineText(label),
     ),
   );
+}
+
+/// A logged meal that was not the planned one (follow your diet plan): what was different and what
+/// the day will reach, in red when it goes over a limit.
+class _PlanAlertCard extends StatelessWidget {
+  final PlanAlert alert;
+  final VoidCallback onOpen;
+  final VoidCallback onDismiss;
+  const _PlanAlertCard({required this.alert, required this.onOpen, required this.onDismiss});
+
+  @override
+  Widget build(BuildContext context) {
+    final red = alert.overLimit;
+    final fg = red ? AppTokens.onDanger : AppTokens.onWarn;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 12, 6, 6),
+      decoration: BoxDecoration(
+        color: red ? AppTokens.dangerContainer : AppTokens.warnContainer,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: red ? AppTokens.danger : AppTokens.caution),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.warning_amber_rounded, color: red ? AppTokens.danger : AppTokens.caution, size: 26),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(tidy(alert.title), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: fg)),
+              ),
+              IconButton(
+                tooltip: 'Dismiss',
+                onPressed: onDismiss,
+                icon: Icon(Icons.close, color: fg),
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(right: 8),
+            child: Text(tidy(alert.body), style: TextStyle(fontSize: 15, height: 1.35, color: fg)),
+          ),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              style: TextButton.styleFrom(foregroundColor: fg, minimumSize: const Size(0, AppTokens.minTarget)),
+              onPressed: onOpen,
+              icon: const Icon(Icons.restaurant_menu),
+              label: const OneLineText('Open my diet plan', style: TextStyle(fontWeight: FontWeight.w700)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

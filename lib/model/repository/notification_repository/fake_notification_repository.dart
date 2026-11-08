@@ -15,8 +15,12 @@ class FakeNotificationRepository implements INotificationRepository {
     return true;
   }
 
+  /// How long a save takes, as over a slow phone connection (tests of quick taps).
+  Duration saveDelay = Duration.zero;
+
   @override
   Future<Result<void>> saveReminder(Reminder r) async {
+    if (saveDelay > Duration.zero) await Future<void>.delayed(saveDelay);
     if (_failed()) return const Failure('offline', code: 'offline');
     reminders[r.reminderId] = r;
     return const Success(null);
