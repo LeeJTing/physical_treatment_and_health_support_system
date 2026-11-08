@@ -44,4 +44,11 @@ class Routes {
 
   /// Today's and the weekly diet plan (UC900 A5, A6). Argument: PlanType.weekly for the week.
   static const String dietPlan = '/diet-plan';
+
+  /// Home with the Diet tab open (a tapped meal reminder). It replaces Home instead of opening
+  /// above it ([replacesHome]).
+  static const String homeDiet = '/home/diet';
+
+  /// Routes that are Home itself with another tab open.
+  static bool replacesHome(String route) => route == homeDiet;
 }

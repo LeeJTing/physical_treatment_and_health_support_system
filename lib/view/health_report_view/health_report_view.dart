@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/anomal
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_analysis.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/trend_chart.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_report_view/high_alert_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
 
@@ -36,6 +37,7 @@ class _HealthReportViewState extends State<HealthReportView> {
     if (!mounted) return;
     final high = vm.takeHighAlert();
     if (high != null) await HighAlertView.show(context, high); // A3
+    if (mounted) await showGuideOnce(context, Guides.healthReport); // first visit only
   }
 
   @override
@@ -53,15 +55,17 @@ class _HealthReportViewState extends State<HealthReportView> {
             icon: const Icon(Icons.notifications_none),
             onPressed: () => Navigator.of(context).pushNamed(Routes.reminders), // A4, A5
           ),
+          const HelpButton(guide: Guides.healthReport),
         ],
       ),
       body: !vm.loaded && vm.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const _PreparingReport()
           : RefreshIndicator(
               onRefresh: _run,
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(AppTokens.gutter, 16, AppTokens.gutter, 32),
                 children: [
+                  if (vm.running) const _Updating(),
                   if (vm.notice != null) _Notice(vm.notice!),
                   _ScoreCard(analysis: vm.analysis, comparison: vm.analysis?.periodComparison),
                   const SizedBox(height: 12),
@@ -72,7 +76,9 @@ class _HealthReportViewState extends State<HealthReportView> {
                   _scoreTrend(vm),
                   const SizedBox(height: 20),
                   _title('Readings that need attention'),
-                  if (vm.anomalyHistory.isEmpty)
+                  if (vm.anomalyHistory.isEmpty && vm.running)
+                    _card(const Text('Checking your latest readings...', style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)))
+                  else if (vm.anomalyHistory.isEmpty)
                     _card(const Text(Messages.withinRange, style: TextStyle(fontSize: 16, color: AppTokens.ink))) // M6
                   else
                     for (final a in vm.anomalyHistory.take(10)) _AnomalyTile(a),
@@ -129,6 +135,10 @@ class _HealthReportViewState extends State<HealthReportView> {
           ],
         ),
         const SizedBox(height: 10),
+        if (vm.trendLoading) ...[
+          const LinearProgressIndicator(color: AppTokens.brandDeepAccent, backgroundColor: AppTokens.tint),
+          const SizedBox(height: 8),
+        ],
         if (vm.trend.where((a) => a.healthScore != null).length < 2)
           const Text('The trend appears after scores on two different days.',
               style: TextStyle(fontSize: 15, color: AppTokens.inkMuted))
@@ -244,6 +254,11 @@ class _HealthReportViewState extends State<HealthReportView> {
                 ],
               ],
             ),
+            if (vm.forecastSummary(m) case final summary?)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(summary, style: const TextStyle(fontSize: 15, color: AppTokens.ink)),
+              ),
             if (f.forecast != null)
               Padding(
                 padding: const EdgeInsets.only(top: 6),
@@ -485,5 +500,61 @@ class _Disclaimer extends StatelessWidget {
   Widget build(BuildContext context) => const Text(
     Messages.analysisDisclaimer,
     style: TextStyle(fontSize: 13, color: AppTokens.inkMuted, fontStyle: FontStyle.italic),
+  );
+}
+
+/// The first time the report is worked out (up to 30 s): what is happening, instead of a bare
+/// spinner.
+class _PreparingReport extends StatelessWidget {
+  const _PreparingReport();
+
+  @override
+  Widget build(BuildContext context) => const Center(
+    child: Padding(
+      padding: EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GuideIllustration(Icons.insights, badge: Icons.favorite, size: 120),
+          SizedBox(height: 20),
+          CircularProgressIndicator(color: AppTokens.brandDeepAccent),
+          SizedBox(height: 14),
+          Text(
+            'Preparing your Health Report...',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
+          ),
+          SizedBox(height: 6),
+          Text(
+            'We look at your readings, exercise and meals. This can take up to 30 seconds.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+/// Shown above the last stored report while the new one is worked out.
+class _Updating extends StatelessWidget {
+  const _Updating();
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+    decoration: BoxDecoration(color: AppTokens.tint, borderRadius: BorderRadius.circular(16)),
+    child: const Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          'Updating your report with your latest readings...',
+          style: TextStyle(fontSize: 15, color: AppTokens.ink),
+        ),
+        SizedBox(height: 8),
+        LinearProgressIndicator(color: AppTokens.brandDeepAccent, backgroundColor: AppTokens.surface),
+      ],
+    ),
   );
 }

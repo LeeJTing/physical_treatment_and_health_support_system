@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/auth_view_model/auth_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
@@ -34,9 +35,15 @@ class _StartupViewState extends State<StartupView> {
       setState(() => _offline = true); // still signed in: try again when online
       return;
     }
-    final nav = Navigator.of(context)..pushReplacementNamed(route);
-    // Started by tapping a reminder: its plan opens above Home, so Back goes Home.
     final open = vm.takeReminderOpen();
+    final nav = Navigator.of(context);
+    // A meal reminder: Home opens on the Diet tab.
+    if (open != null && route == Routes.home && Routes.replacesHome(open.route)) {
+      nav.pushReplacementNamed(open.route);
+      return;
+    }
+    nav.pushReplacementNamed(route);
+    // Started by tapping a reminder: its plan opens above Home, so Back goes Home.
     if (open != null) nav.pushNamed(open.route, arguments: open.argument);
   }
 

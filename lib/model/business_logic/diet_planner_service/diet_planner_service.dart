@@ -11,9 +11,12 @@ import 'package:physical_treatment_and_health_support_system/model/repository/fo
 
 /// Generates daily and weekly plans inside the safety limits, excluding anything the patient cannot
 /// eat (Table 4.93; UC900 A5, A6). The plan comes from /plan on the AI server (condition-aware
-/// planner with a learned preference ranker, DC700_07); the safety gate is applied again here, on
-/// this side of the connection (C11, C12): a plan that breaches a daily limit, or holds a food that
-/// would be Not Suitable, is rejected and requested again.
+/// planner with a learned preference ranker, DC700_07), which gets the conditions, the food names the
+/// patient cannot eat, the physical limitations and the body measurements (no name or id). The
+/// safety gate is applied again here, on this side of the connection (C11, C12): a plan that
+/// breaches a daily limit (energy, sodium, free sugars and the condition limits of [DietTargets]),
+/// or holds a food that would be Not Suitable or needs two hands for a patient with an arm
+/// limitation, is rejected and requested again.
 class DietPlannerService {
   final ApiClient _api;
   final IFoodRepository _foods;
@@ -58,6 +61,8 @@ class DietPlannerService {
           'today': _d(today),
           'conditions': ctx.failSafe ? const ['HYPERTENSION', 'DIABETES'] : ctx.conditionCodes,
           'restrictions': ctx.restrictionCodes,
+          'limitations': ctx.limitationCodes,
+          'profile': ctx.profileForPlanner,
           'risk_level': ctx.riskLevel.db,
           'limits': {
             'daily_calorie_target': ctx.dailyEnergyKcal,
@@ -168,17 +173,24 @@ class DietPlannerService {
     return res;
   }
 
-  /// The safety gate (FR700_042, C11): every day within the calorie target and the sodium and free
-  /// sugar limits, and no food that would be Not Suitable. Returns the problems; empty = valid.
+  /// The safety gate (FR700_042, C11): every day within the calorie target, the sodium and free
+  /// sugar limits and the condition limits (saturated fat, protein for kidney disease, caffeine in
+  /// pregnancy), and no food that would be Not Suitable or that needs two hands when the patient
+  /// has an arm limitation. Returns the problems; empty = valid.
   List<String> validate(DietPlan p, DietContext ctx, {Nutrients consumedToday = Nutrients.zero}) {
     final problems = <String>[];
     final today = DateTime.now();
+    final limits = ctx.targets.limits;
     for (final day in p.days()) {
       var t = p.totalsFor(day);
       if (_same(day, today)) t = t + consumedToday;
       if (t.energyKcal > ctx.dailyEnergyKcal + 0.5) problems.add('${_d(day)} energy');
       if (t.sodiumMg > ctx.dailySodiumMg + 0.5) problems.add('${_d(day)} sodium');
       if (t.sugarG > ctx.dailySugarG + 0.05) problems.add('${_d(day)} free sugars');
+      final x = extrasFor(p, day);
+      if (limits['sat_fat_g'] case final l? when x.satFatG > l + 0.05) problems.add('${_d(day)} saturated fat');
+      if (limits['protein_g'] case final l? when t.proteinG > l + 0.05) problems.add('${_d(day)} protein');
+      if (limits['caffeine_mg'] case final l? when x.caffeineMg > l + 0.5) problems.add('${_d(day)} caffeine');
     }
     for (final m in p.meals) {
       if (suitability.isExcludedFromPlans(m.food, ctx, m.portionSizeG)) {
@@ -186,6 +198,23 @@ class DietPlannerService {
       }
     }
     return problems;
+  }
+
+  /// Saturated fat, fibre, potassium, phosphorus, calcium and caffeine of one day's planned meals.
+  static FoodExtras extrasFor(DietPlan p, DateTime day) => p.meals
+      .where((m) => _same(m.planDate, day))
+      .fold(FoodExtras.zero, (a, m) => a + m.food.extrasFor(m.portionSizeG));
+
+  /// The needs a day of the plan does not reach (protein, calcium, fibre), for the plan screen.
+  static List<String> unmetNeeds(DietPlan p, DateTime day, DietContext ctx) {
+    final needs = ctx.targets.needs;
+    final t = p.totalsFor(day);
+    final x = extrasFor(p, day);
+    return [
+      if (needs['protein_g_min'] case final n? when t.proteinG < n) 'protein',
+      if (needs['calcium_mg_min'] case final n? when x.calciumMg < n) 'calcium',
+      if (needs['fibre_g_min'] case final n? when x.fibreG < n) 'fibre',
+    ];
   }
 
   /// Alternatives for a planned meal that keep its day within the same limits (FR700_035), best
@@ -198,6 +227,7 @@ class DietPlannerService {
       if (f.foodId == m.food.foodId || f.planRole != m.food.planRole) continue;
       if (!f.mealSlots.contains(m.mealSlot.db)) continue;
       if (f.breachesAny(ctx.restrictions)) continue;
+      if (f.needsTwoHands && ctx.oneHandOnly) continue;
       final repl = m.replaceWith(f);
       if (suitability.isExcludedFromPlans(f, ctx, repl.portionSizeG)) continue;
       final t = dayWithout + repl.nutrients;

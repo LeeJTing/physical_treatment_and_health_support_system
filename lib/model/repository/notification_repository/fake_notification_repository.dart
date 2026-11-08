@@ -6,8 +6,18 @@ class FakeNotificationRepository implements INotificationRepository {
   final Map<String, Reminder> reminders = {};
   final List<NotificationLog> log = [];
 
+  /// The next save or delete of a reminder fails, as without a connection.
+  bool failNext = false;
+
+  bool _failed() {
+    if (!failNext) return false;
+    failNext = false;
+    return true;
+  }
+
   @override
   Future<Result<void>> saveReminder(Reminder r) async {
+    if (_failed()) return const Failure('offline', code: 'offline');
     reminders[r.reminderId] = r;
     return const Success(null);
   }
@@ -24,6 +34,7 @@ class FakeNotificationRepository implements INotificationRepository {
 
   @override
   Future<Result<void>> deleteReminder(String reminderId) async {
+    if (_failed()) return const Failure('offline', code: 'offline');
     reminders.remove(reminderId);
     return const Success(null);
   }

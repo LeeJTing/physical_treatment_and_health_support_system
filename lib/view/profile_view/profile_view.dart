@@ -16,6 +16,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/profile_v
 import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 
 /// My Profile (UC300; Figma "Profile Screen"). Used as the Profile tab and, for a
 /// patient without a complete profile, as a standalone route after sign-in (FR100_035).
@@ -366,24 +367,37 @@ class _ProfileViewState extends State<ProfileView> {
                 ],
               ),
               const SizedBox(height: 24),
-              // "Cannot eat" (UI Design, Profile Screen): allergies, intolerances, diets and
-              // religious rules, used by the diet suitability rules and plans (M700).
+              // "Cannot eat" (UI Design, Profile Screen): food names, whatever the reason
+              // (allergy, religion, dislike). Each food's recipe lists the names it contains, so the
+              // diet suitability rules and plans (M700) leave those dishes out.
               const SectionTitle('Foods I cannot eat'),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  for (final r in vm.restrictions)
-                    ProfileChip(
-                      label: r.restrictionName,
-                      selected: p?.restrictions.contains(r) ?? false,
-                      onTap: vm.isEditing
-                          ? () => vm.toggleRestriction(r.restrictionId)
-                          : null,
-                    ),
-                ],
+              const SizedBox(height: 6),
+              Text(
+                'Tick each food you cannot eat. Dishes that contain it are marked Not Suitable '
+                'and never planned for you.',
+                style: Theme.of(context).textTheme.bodySmall,
               ),
+              for (final (group, items) in vm.restrictionGroups) ...[
+                const SizedBox(height: 12),
+                if (group != null) ...[
+                  Text(group, style: Theme.of(context).textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                ],
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    for (final r in items)
+                      ProfileChip(
+                        label: r.restrictionName,
+                        selected: p?.restrictions.contains(r) ?? false,
+                        onTap: vm.isEditing
+                            ? () => vm.toggleRestriction(r.restrictionId)
+                            : null,
+                      ),
+                  ],
+                ),
+              ],
               if (risk == RiskLevel.medium || risk == RiskLevel.high) ...[
                 const SizedBox(height: 20),
                 InfoBanner(
@@ -412,6 +426,19 @@ class _ProfileViewState extends State<ProfileView> {
                     good: vm.healthConnected,
                   ),
                   onTap: () => _healthSource(vm),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'Picture guides',
+                  subtitle: 'Show the how-to guides again on each screen',
+                  onTap: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    if (await showAllGuidesAgain(context)) {
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('The guides will show again when you open each screen.')),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(height: 10),
                 SettingsCard(

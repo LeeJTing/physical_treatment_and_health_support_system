@@ -1,0 +1,1 @@
+UserGuideViewModel (usability, Jun Ting): decides whether a screen's picture guide should open by itself (first visit only) and records that it was seen, through UserGuideService. (GuideViewModel in guide_view_model/ is Elwin's exercise-guide voice.)

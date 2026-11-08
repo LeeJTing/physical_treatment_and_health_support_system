@@ -1,6 +1,7 @@
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/i_food_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/supabase_guard.dart';
 
@@ -61,7 +62,7 @@ class SupabaseFoodRepository implements IFoodRepository {
               (g) =>
                   g.foodId != f.foodId &&
                   g.foodCategory == f.foodCategory &&
-                  !g.restrictionCodes.any(avoidCodes.contains),
+                  !g.restrictionCodes.any(DietaryRestriction.expandCodes(avoidCodes).contains),
             )
             .toList(),
       );

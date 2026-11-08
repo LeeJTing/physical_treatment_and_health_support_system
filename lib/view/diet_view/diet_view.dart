@@ -6,10 +6,13 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_plan_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_history_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_result_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/meal_photo.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
@@ -29,6 +32,7 @@ class _DietViewState extends State<DietView> {
   @override
   void initState() {
     super.initState();
+    // The first-visit guide is opened by the app shell when this tab is shown.
     WidgetsBinding.instance.addPostFrameCallback((_) => _reload());
   }
 
@@ -70,34 +74,47 @@ class _DietViewState extends State<DietView> {
     );
     if (choice == null || !mounted) return;
     final nav = Navigator.of(context);
-    switch (choice) {
-      case 'camera':
-        final f = vm.captureImage();
-        await _openResult(nav, vm, f);
-      case 'gallery':
-        final f = vm.pickFromGallery();
-        await _openResult(nav, vm, f);
-      default:
-        vm.startManual();
-        await _openResult(nav, vm, Future.value());
-    }
-  }
-
-  Future<void> _openResult(NavigatorState nav, MealLogViewModel vm, Future<void> work) async {
-    // The photo is picked first; the result screen opens when there is something to review.
-    await work;
-    if (!mounted) return;
-    final msg = vm.messagePeek;
-    if (vm.step == MealStep.idle) {
-      if (msg != null) _snack(vm.takeMessage()!);
+    if (choice == 'manual') {
+      vm.startManual();
+      await _openResult(nav, vm);
       return;
     }
-    final saved = await nav.push<bool>(
+    final photo = await vm.pickPhoto(camera: choice == 'camera');
+    if (!mounted) return;
+    if (photo == null) {
+      final m = vm.takeMessage(); // camera refused or unreadable photo; nothing when cancelled
+      if (m != null) _snack(m);
+      return;
+    }
+    // The waiting screen opens at once with the photo; recognition runs behind it.
+    vm.recognise(photo);
+    await _openResult(nav, vm);
+  }
+
+  /// Opens Meal Result. Save closes it at once and hands back the save still in progress (UI
+  /// first); when that save fails, the meal is kept so the patient can try again.
+  Future<void> _openResult(NavigatorState nav, MealLogViewModel vm) async {
+    final result = await nav.push<Object?>(
       MaterialPageRoute(
         builder: (_) => ChangeNotifierProvider.value(value: vm, child: const MealResultView()),
       ),
     );
-    if (saved == true && mounted) await _afterChange();
+    if (!mounted || result is! Future<bool>) return;
+    final saved = await result;
+    if (!mounted) return;
+    if (saved) {
+      final m = vm.takeMessage();
+      if (m != null) _snack(m);
+      await _afterChange();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(vm.takeMessage() ?? Messages.mealSaveFailed),
+          duration: const Duration(seconds: 8),
+          action: SnackBarAction(label: 'Try again', onPressed: () => _openResult(nav, vm)),
+        ),
+      );
+    }
   }
 
   /// A logged meal changes the plan's adherence, the recommendations and the analysis (FR400_030).
@@ -111,29 +128,21 @@ class _DietViewState extends State<DietView> {
     await plan.loadRecommendations();
   }
 
-  Future<void> _alternatives(MealLogViewModel vm, MealItem i) async {
-    final alts = await vm.alternativesFor(i);
-    if (!mounted) return;
-    await showModalBottomSheet<void>(
-      context: context,
-      builder: (ctx) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Instead of ${i.food.foodName}', style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
-              const SizedBox(height: 8),
-              if (alts.isEmpty) const Text('No alternative in the same food group fits your limits.'),
-              for (final a in alts) FoodTile(food: a),
-              const DietDisclaimer(),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  /// The sheet opens at once and fills when the alternatives have been found.
+  Future<void> _alternatives(MealLogViewModel vm, MealItem i) => showFutureSheet<List<FoodItem>, Object>(
+    context: context,
+    future: vm.alternativesFor(i),
+    title: 'Instead of ${i.food.foodName}',
+    loadingText: 'Finding safer choices...',
+    builder: (ctx, alts) => Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (alts.isEmpty) const Text('No alternative in the same food group fits your limits.'),
+        for (final a in alts) FoodTile(food: a),
+        const DietDisclaimer(),
+      ],
+    ),
+  );
 
   void _openPlan(PlanType t) {
     final plan = context.read<DietPlanViewModel>();
@@ -176,7 +185,14 @@ class _DietViewState extends State<DietView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Diet', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
+                  const Row(
+                    children: [
+                      Expanded(
+                        child: Text('Diet', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
+                      ),
+                      HelpButton(guide: Guides.diet),
+                    ],
+                  ),
                   const SizedBox(height: 4),
                   const Text(
                     'Photograph your meal to see its nutrients and whether it suits you.',
@@ -192,9 +208,13 @@ class _DietViewState extends State<DietView> {
                         shape: const StadiumBorder(),
                         textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                       ),
-                      onPressed: vm.step == MealStep.recognising ? null : _logMeal,
+                      onPressed: vm.step == MealStep.recognising || vm.step == MealStep.saving ? null : _logMeal,
                       icon: const Icon(Icons.photo_camera, size: 28),
-                      label: Text(vm.step == MealStep.recognising ? 'Identifying...' : 'Log Meal'),
+                      label: Text(switch (vm.step) {
+                        MealStep.recognising => 'Identifying...',
+                        MealStep.saving => 'Saving your meal...',
+                        _ => 'Log Meal',
+                      }),
                     ),
                   ),
                 ],
@@ -223,7 +243,14 @@ class _DietViewState extends State<DietView> {
                     ],
                   ),
                   if (vm.today.isEmpty)
-                    const Text('No meal logged today.', style: TextStyle(fontSize: 16, color: AppTokens.inkMuted))
+                    EmptyState(
+                      icon: Icons.restaurant,
+                      badge: Icons.photo_camera,
+                      title: 'No meal logged today',
+                      message: 'Photograph your meal to see its nutrients and whether it suits you.',
+                      actionLabel: 'Log my first meal',
+                      onAction: _logMeal,
+                    )
                   else ...[
                     if (vm.allTodaySuitable)
                       Container(
@@ -232,7 +259,14 @@ class _DietViewState extends State<DietView> {
                         decoration: BoxDecoration(color: AppTokens.goodContainer, borderRadius: BorderRadius.circular(14)),
                         child: const Text(Messages.allItemsSuitable, style: TextStyle(color: AppTokens.good, fontSize: 15)), // M3
                       ),
-                    for (final m in vm.today) MealCard(meal: m, onAlternatives: (i) => _alternatives(vm, i)),
+                    for (final m in vm.today)
+                      MealCard(
+                        meal: m,
+                        saving: vm.isSaving(m),
+                        photo: MealPhoto(vm: vm, meal: m),
+                        onTap: () => MealDetailsSheet.show(context, vm, m),
+                        onAlternatives: (i) => _alternatives(vm, i),
+                      ),
                   ],
                   const SizedBox(height: 16),
                   _recommendations(plan),

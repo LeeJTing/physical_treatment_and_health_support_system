@@ -1,1 +1,2 @@
 Entities named as in the Chapter 4 class diagram (Account, HealthProfile, TreatmentPlan, ...), plus team models.
+DietTargets (diet_targets.dart): the daily nutrition targets from the profile (energy equation, condition limits and needs), the same numbers as the AI server's app/food/targets.py.

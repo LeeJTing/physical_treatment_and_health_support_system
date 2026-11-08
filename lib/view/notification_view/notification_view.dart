@@ -7,6 +7,7 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/notification_view_model/notification_view_model.dart';
 
@@ -38,9 +39,10 @@ class _NotificationViewState extends State<NotificationView>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback(
-      (_) => context.read<NotificationViewModel>().load(),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<NotificationViewModel>().load();
+      if (mounted) await showGuideOnce(context, Guides.reminders); // first visit only
+    });
   }
 
   @override
@@ -90,7 +92,18 @@ class _NotificationViewState extends State<NotificationView>
               subtitle: 'When we remind you to exercise and log your health',
               onBack: () => Navigator.of(context).maybePop(),
             ),
-            const SizedBox(height: 16),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 52),
+                child: TextButton.icon(
+                  onPressed: () => UserGuideSheet.show(context, Guides.reminders),
+                  icon: const Icon(Icons.help_outline),
+                  label: const Text('How reminders work', style: TextStyle(fontSize: 15)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
             Padding(
               padding: const EdgeInsets.only(left: 8),
               child: Column(
@@ -158,8 +171,12 @@ class _NotificationViewState extends State<NotificationView>
                       warning: true,
                     ),
                     UiSuccess(:final data) when data.isEmpty =>
-                      const NoticeBanner(
-                        'No reminders yet. Exercise reminders are created when you select a treatment plan.',
+                      const EmptyState(
+                        icon: Icons.alarm,
+                        badge: Icons.add,
+                        title: 'No reminders yet',
+                        message: 'Exercise reminders are created when you select a treatment plan. You can '
+                            'add meal and health-logging reminders below.',
                       ),
                     UiSuccess(:final data) => Column(
                       children: [
@@ -174,11 +191,27 @@ class _NotificationViewState extends State<NotificationView>
                     const SizedBox(height: 8),
                     NoticeBanner(e, warning: true),
                   ],
+                  if (vm.reminders is UiSuccess && !vm.hasMealReminders) ...[
+                    const SizedBox(height: 4),
+                    OutlinedButton.icon(
+                      onPressed: vm.adding ? null : vm.addMealReminders,
+                      icon: vm.adding
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.restaurant_outlined),
+                      label: const Text('Remind me at breakfast, lunch and dinner'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppTokens.accent,
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                    ),
+                  ],
                   if (vm.reminders is UiSuccess && !vm.hasHealthLogReminder) ...[
                     const SizedBox(height: 4),
                     OutlinedButton.icon(
-                      onPressed: vm.addHealthLogReminder,
-                      icon: const Icon(Icons.monitor_heart_outlined),
+                      onPressed: vm.adding ? null : vm.addHealthLogReminder,
+                      icon: vm.adding
+                          ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                          : const Icon(Icons.monitor_heart_outlined),
                       label: const Text(
                         'Remind me to log my health readings',
                       ),
@@ -235,12 +268,10 @@ class _NotificationViewState extends State<NotificationView>
                     ),
                   ),
                   if (vm.log.isEmpty)
-                    const Text(
-                      'Nothing in the selected period.',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: AppTokens.textMuted,
-                      ),
+                    const EmptyState(
+                      icon: Icons.notifications_none,
+                      title: 'Nothing in the selected period',
+                      message: 'Reminders that rang and health alerts appear here. Choose other dates to look further back.',
                     )
                   else
                     for (final n in vm.log) _logTile(n, vm),

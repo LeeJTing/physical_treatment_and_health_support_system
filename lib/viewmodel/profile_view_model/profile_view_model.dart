@@ -69,6 +69,23 @@ class ProfileViewModel extends BaseViewModel {
   /// The dietary restriction list (M700): allergies, intolerances, diets, religious rules.
   List<DietaryRestriction> restrictions = const [];
 
+  /// The food names under their headings, in the profile screen's order (heading null for a list
+  /// without groups).
+  List<(String?, List<DietaryRestriction>)> get restrictionGroups {
+    final order = [...LookupSeed.foodGroups];
+    for (final r in restrictions) {
+      if (r.foodGroup case final g? when !order.contains(g)) order.add(g);
+    }
+    final out = <(String?, List<DietaryRestriction>)>[
+      for (final g in order)
+        if (restrictions.where((r) => r.foodGroup == g).toList() case final items when items.isNotEmpty)
+          (g, items),
+    ];
+    final ungrouped = restrictions.where((r) => r.foodGroup == null).toList();
+    if (ungrouped.isNotEmpty) out.add((null, ungrouped));
+    return out;
+  }
+
   /// Health Connect state (FR100_064).
   bool healthConnected = false;
   DateTime? healthLastSync;
@@ -145,7 +162,9 @@ class ProfileViewModel extends BaseViewModel {
     limitations =
         (results[2] as Result<List<PhysicalLimitation>>).dataOrNull ??
         LookupSeed.limitations;
-    final r = (results[3] as Result<List<DietaryRestriction>>).dataOrNull;
+    final r = (results[3] as Result<List<DietaryRestriction>>).dataOrNull
+        ?.where((x) => x.isActive)
+        .toList();
     restrictions = r == null || r.isEmpty ? LookupSeed.restrictions : r;
     final src = await _biometrics?.healthSourceState(account!.accountId);
     healthConnected = src?.dataOrNull?.connected ?? account!.healthSourceConnected;

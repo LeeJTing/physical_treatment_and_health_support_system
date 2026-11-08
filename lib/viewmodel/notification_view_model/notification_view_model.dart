@@ -31,9 +31,13 @@ class NotificationViewModel extends BaseViewModel {
   int _unreadCount = 0;
   int get unreadCount => _unreadCount;
 
-  Future<void> load() async {
-    _reminders = const Loading();
-    notifyListeners();
+  /// Reads the reminders and the log. [quiet]: the list on screen stays while it is read again
+  /// (after a change), instead of being replaced by a spinner.
+  Future<void> load({bool quiet = false}) async {
+    if (!quiet || _reminders is! UiSuccess<List<Reminder>>) {
+      _reminders = const Loading();
+      notifyListeners();
+    }
     _accountId = (await _auth.currentAccount()).dataOrNull?.accountId;
     final id = _accountId;
     if (id == null) {
@@ -90,15 +94,19 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// True while reminders are being added: the button shows a spinner, and a second tap before
+  /// the first is saved adds nothing (audit, 23 Oct: two quick taps made two of them).
+  bool adding = false;
+
   /// Saves and schedules a reminder (FR600_001 to FR600_003).
   Future<void> createReminder(Reminder r) async {
     await _scheduler.update(r);
-    await load();
+    await load(quiet: true);
   }
 
-  /// One change at a time: a second tap waits for the first and starts from what the first
-  /// saved (audit, 24 Oct: two quick day taps both started from the old days, so the second
-  /// undid the first).
+  /// One save at a time: a second tap waits for the first, so the reminder is stored in the order
+  /// the patient tapped (audit, 24 Oct: two quick day taps both started from the old days, so the
+  /// second undid the first). The screen itself changes at once, see [_change].
   Future<void> _last = Future<void>.value();
   Future<void> _oneAtATime(Future<void> Function() op) {
     final next = _last.then((_) => op());
@@ -107,21 +115,22 @@ class NotificationViewModel extends BaseViewModel {
   }
 
   /// Disables or re-enables without deleting (FR600_006).
-  Future<void> toggleReminder(String id, bool on) => _oneAtATime(
-    () => _change(id, (r) => _scheduler.update(r, enabled: on)),
+  Future<void> toggleReminder(String id, bool on) => _change(
+    id,
+    (r) => r.copyWith(isEnabled: on),
+    (r) => _scheduler.update(r, enabled: on),
   );
 
   /// Changes the time of day it fires (FR600_004).
-  Future<void> changeTime(String id, int hour, int minute) => _oneAtATime(
-    () => _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute)),
+  Future<void> changeTime(String id, int hour, int minute) => _change(
+    id,
+    (r) => r.copyWith(hour: hour, minute: minute),
+    (r) => _scheduler.update(r, hour: hour, minute: minute),
   );
 
   /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
   /// off: switch the reminder off instead.
-  Future<void> toggleDay(String id, int weekday) =>
-      _oneAtATime(() => _toggleDay(id, weekday));
-
-  Future<void> _toggleDay(String id, int weekday) async {
+  Future<void> toggleDay(String id, int weekday) async {
     final r = _find(id);
     if (r == null) return;
     final days = r.repeatDays.split('');
@@ -131,7 +140,12 @@ class NotificationViewModel extends BaseViewModel {
       return;
     }
     setError(null);
-    await _change(id, (r) => _scheduler.update(r, repeatDays: days.join()));
+    final repeat = days.join();
+    await _change(
+      id,
+      (r) => r.copyWith(repeatDays: repeat),
+      (r) => _scheduler.update(r, repeatDays: repeat),
+    );
   }
 
   /// Whether the patient already has a health-logging reminder (FR600_002).
@@ -142,19 +156,17 @@ class NotificationViewModel extends BaseViewModel {
     _ => false,
   };
 
-  /// True while a health-log reminder is being added: a second tap before the first is saved
-  /// made two of them (audit, 23 Oct).
-  bool _adding = false;
-
   /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
   Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
     final id = _accountId;
-    if (id == null || hasHealthLogReminder || _adding) return;
-    _adding = true;
+    if (id == null || hasHealthLogReminder || adding) return;
+    adding = true;
+    notifyListeners();
     try {
       await _addHealthLog(id, hour, minute);
     } finally {
-      _adding = false;
+      adding = false;
+      notifyListeners();
     }
   }
 
@@ -171,19 +183,77 @@ class NotificationViewModel extends BaseViewModel {
     );
     // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
     setError(res is Failure ? Messages.dbUnavailable : null);
-    await load();
+    await load(quiet: true);
+  }
+
+  /// Usual Malaysian meal times for the meal reminders (the patient can change each one).
+  static const mealTimes = <MealSlot, (int, int)>{
+    MealSlot.breakfast: (7, 30),
+    MealSlot.lunch: (12, 30),
+    MealSlot.dinner: (19, 0),
+  };
+
+  bool get hasMealReminders => switch (_reminders) {
+    UiSuccess(:final data) => data.any((r) => r.reminderType == ReminderType.meal),
+    _ => false,
+  };
+
+  /// Adds a daily meal reminder for breakfast, lunch and dinner (M700 with M600): tapping one
+  /// opens the Diet tab to log the meal or see the plan. Slots that already have one are kept.
+  Future<void> addMealReminders({Map<MealSlot, (int, int)> times = mealTimes}) async {
+    final id = _accountId;
+    if (id == null || adding) return;
+    adding = true;
+    notifyListeners();
+    final have = switch (_reminders) {
+      UiSuccess(:final data) =>
+        data.where((r) => r.reminderType == ReminderType.meal).map((r) => r.title.split(' ').first).toSet(),
+      _ => <String>{},
+    };
+    var failed = false;
+    try {
+      for (final e in times.entries) {
+        if (have.contains(e.key.label)) continue;
+        final res = await _scheduler.update(
+          Reminder(
+            reminderId: newId(),
+            accountId: id,
+            reminderType: ReminderType.meal,
+            title: '${e.key.label} reminder',
+            hour: e.value.$1,
+            minute: e.value.$2,
+          ),
+        );
+        failed = failed || res is Failure;
+      }
+      setError(failed ? Messages.dbUnavailable : null);
+      await load(quiet: true);
+    } finally {
+      adding = false;
+      notifyListeners();
+    }
   }
 
   /// Deletes a reminder the patient added. A treatment plan's exercise reminders stay with the
   /// plan (switch them off instead); they go when the plan is stopped or replaced.
+  /// UI first: the reminder leaves the list at once and comes back if it could not be deleted.
   Future<void> deleteReminder(String id) async {
     final r = _find(id);
     if (r == null || r.patientPlanId != null) return;
+    final before = _list;
+    _reminders = UiSuccess(before.where((x) => x.reminderId != id).toList());
+    notifyListeners();
     final res = await _scheduler.remove(r);
+    if (res is Failure) _reminders = UiSuccess(before);
     // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
     setError(res is Failure ? Messages.dbUnavailable : null);
-    await load();
+    await load(quiet: true);
   }
+
+  List<Reminder> get _list => switch (_reminders) {
+    UiSuccess(:final data) => data,
+    _ => const <Reminder>[],
+  };
 
   /// Earliest in the day first.
   static List<Reminder> _byTime(List<Reminder> list) => [...list]
@@ -196,25 +266,41 @@ class NotificationViewModel extends BaseViewModel {
     _ => null,
   };
 
+  /// UI first: [preview] is shown at once, then [op] saves and schedules it, one save at a time;
+  /// on a failure the reminder goes back to how it was. Each tap starts from what the screen shows,
+  /// so quick taps on several days all count (audit, 24 Oct).
   Future<void> _change(
     String id,
+    Reminder Function(Reminder) preview,
     Future<Result<Reminder>> Function(Reminder) op,
-  ) async {
-    final list = switch (_reminders) {
-      UiSuccess(:final data) => data,
-      _ => const <Reminder>[],
-    };
-    final i = list.indexWhere((r) => r.reminderId == id);
-    if (i < 0) return;
-    final res = await op(list[i]);
-    if (res case Success(:final data)) {
-      // Kept in time order, so a changed time moves the card at once (audit, 24 Oct).
-      _reminders = UiSuccess(_byTime([...list]..[i] = data));
-      setError(null);
-    } else {
-      setError(Messages.dbUnavailable);
-    }
+  ) {
+    final original = _find(id);
+    if (original == null) return Future<void>.value();
+    _replace(id, preview(original));
+    _waiting[id] = (_waiting[id] ?? 0) + 1;
     notifyListeners();
+    return _oneAtATime(() async {
+      final res = await op(original);
+      final left = (_waiting[id] ?? 1) - 1;
+      _waiting[id] = left;
+      if (res case Success(:final data)) {
+        // A later tap on the same reminder is still on screen: keep showing it.
+        if (left == 0) _replace(id, data);
+        setError(null);
+      } else {
+        if (left == 0) _replace(id, original);
+        setError(Messages.dbUnavailable);
+      }
+      notifyListeners();
+    });
+  }
+
+  /// Taps on each reminder that are shown but not saved yet.
+  final Map<String, int> _waiting = {};
+
+  /// Kept in time order, so a changed time moves the card at once (audit, 24 Oct).
+  void _replace(String id, Reminder r) {
+    _reminders = UiSuccess(_byTime([for (final x in _list) x.reminderId == id ? r : x]));
   }
 
   /// The log's date range (FR600_015): the last two weeks until the patient picks another.
@@ -238,8 +324,14 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// Clears one entry from the unread count (FR600_016).
+  /// Clears one entry from the unread count (FR600_016). UI first: shown as read at once.
   Future<void> markRead(String id) async {
+    final i = _log.indexWhere((n) => n.notificationId == id);
+    if (i >= 0 && !_log[i].isRead) {
+      _log = [..._log]..[i] = _log[i].markRead();
+      if (_unreadCount > 0) _unreadCount--;
+      notifyListeners();
+    }
     await _repo.markRead(id);
     await loadLog(logFrom, logTo.isBefore(DateTime.now()) ? logTo : DateTime.now());
   }

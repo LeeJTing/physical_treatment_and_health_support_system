@@ -111,24 +111,56 @@ class PhysicalLimitation {
   int get hashCode => limitationId.hashCode;
 }
 
-/// Dietary restriction lookup (Table 4.5). Owned by M700; kept here because
-/// the shared profile screen lets the patient declare them.
+/// Dietary restriction lookup (Table 4.5): since 1 Nov a food name the patient cannot eat (Onion,
+/// Garlic, Pork, Prawn, ...), whatever the reason (allergy, religion, dislike). Each catalogue food
+/// carries the food names its recipe contains (food_restriction), so a dish with one of them is
+/// Not Suitable. Owned by M700; kept here because the shared profile screen lets the patient
+/// declare them.
 class DietaryRestriction {
   final int restrictionId;
   final String restrictionCode;
   final String restrictionName;
   final RestrictionType restrictionType;
 
+  /// Heading the profile screen groups the names under.
+  final String? foodGroup;
+
+  /// False for the diet labels no longer offered (VEGAN, VEGETARIAN, HALAL, SHELLFISH).
+  final bool isActive;
+
   const DietaryRestriction(
     this.restrictionId,
     this.restrictionCode,
     this.restrictionName,
-    this.restrictionType,
-  );
+    this.restrictionType, {
+    this.foodGroup,
+    this.isActive = true,
+  });
 
   bool isHardBlock() =>
       restrictionType == RestrictionType.allergy ||
-      restrictionType == RestrictionType.intolerance;
+      restrictionType == RestrictionType.intolerance ||
+      restrictionType == RestrictionType.food;
+
+  /// The diet labels saved before the list became food names, and the food names each rules out
+  /// (same as the migration 20261101120000 and the AI server's catalogue.expand_restrictions).
+  static const retired = <String, List<String>>{
+    'SHELLFISH': ['PRAWN', 'SHRIMP_PASTE', 'CRAB', 'SQUID', 'MOLLUSC'],
+    'VEGAN': ['PORK', 'LARD', 'BEEF', 'MUTTON', 'CHICKEN', 'DUCK', 'FISH', 'ANCHOVY', 'PRAWN', 'SHRIMP_PASTE', 'CRAB', 'SQUID', 'MOLLUSC', 'EGG', 'MILK'],
+    'VEGETARIAN': ['PORK', 'LARD', 'BEEF', 'MUTTON', 'CHICKEN', 'DUCK', 'FISH', 'ANCHOVY', 'PRAWN', 'SHRIMP_PASTE', 'CRAB', 'SQUID', 'MOLLUSC'],
+    'HALAL': ['PORK', 'LARD', 'ALCOHOL'],
+  };
+
+  /// Food-name codes for a list of declared codes (an old label becomes its food names).
+  static List<String> expandCodes(Iterable<String> codes) {
+    final out = <String>[];
+    for (final c in codes) {
+      for (final x in retired[c] ?? [c]) {
+        if (!out.contains(x)) out.add(x);
+      }
+    }
+    return out;
+  }
 
   factory DietaryRestriction.fromJson(Map<String, dynamic> j) =>
       DietaryRestriction(
@@ -136,6 +168,8 @@ class DietaryRestriction {
         j['restriction_code'] as String,
         j['restriction_name'] as String,
         RestrictionType.fromDb(j['restriction_type'] as String?),
+        foodGroup: j['food_group'] as String?,
+        isActive: j['is_active'] as bool? ?? true,
       );
 
   @override
@@ -275,20 +309,53 @@ class LookupSeed {
     ),
   ];
 
-  /// Dietary restrictions (M700): what the patient cannot eat. Same rows as
-  /// supabase/seed/seed_lookups.sql and the migration 20261026120000_diet_and_analysis.sql; the
-  /// codes are the restriction tags of the food catalogue.
+  /// Foods the patient cannot eat (M700): the 36 food names of the food catalogue
+  /// (assets/seed/food_catalogue.json "exclusions"), the same rows as seed_food.sql and the
+  /// migration 20261101120000_food_names_and_targets.sql.
+  static const _meat = 'Meat, fish and seafood';
+  static const _eggDairy = 'Egg, dairy, nuts and grains';
+  static const _vegOther = 'Vegetables, fruit and others';
+
+  /// The headings of [restrictions], in the order the profile screen shows them.
+  static const foodGroups = [_meat, _eggDairy, _vegOther];
+
   static const restrictions = <DietaryRestriction>[
-    DietaryRestriction(1, 'PEANUT', 'Peanut allergy', RestrictionType.allergy),
-    DietaryRestriction(2, 'SHELLFISH', 'Shellfish allergy', RestrictionType.allergy),
-    DietaryRestriction(3, 'VEGAN', 'Vegan', RestrictionType.diet),
-    DietaryRestriction(4, 'VEGETARIAN', 'Vegetarian', RestrictionType.diet),
-    DietaryRestriction(5, 'HALAL', 'Halal', RestrictionType.religious),
-    DietaryRestriction(6, 'FISH', 'Fish allergy', RestrictionType.allergy),
-    DietaryRestriction(7, 'EGG', 'Egg allergy', RestrictionType.allergy),
-    DietaryRestriction(8, 'MILK', 'Milk or lactose intolerance', RestrictionType.intolerance),
-    DietaryRestriction(9, 'GLUTEN', 'Gluten (wheat) intolerance', RestrictionType.intolerance),
-    DietaryRestriction(10, 'BEEF', 'No beef', RestrictionType.religious),
+    DietaryRestriction(11, 'PORK', 'Pork', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(12, 'LARD', 'Lard (pork fat)', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(10, 'BEEF', 'Beef', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(13, 'MUTTON', 'Mutton or lamb', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(14, 'CHICKEN', 'Chicken', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(15, 'DUCK', 'Duck', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(6, 'FISH', 'Fish (incl. fish sauce, fish balls)', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(16, 'ANCHOVY', 'Anchovies (ikan bilis)', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(17, 'PRAWN', 'Prawn or shrimp (incl. dried shrimp)', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(18, 'SHRIMP_PASTE', 'Shrimp paste (belacan)', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(19, 'CRAB', 'Crab', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(20, 'SQUID', 'Squid or cuttlefish', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(21, 'MOLLUSC', 'Clams, cockles or oyster sauce', RestrictionType.food, foodGroup: _meat),
+    DietaryRestriction(7, 'EGG', 'Egg', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(8, 'MILK', 'Milk and dairy (incl. condensed milk, ghee)', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(1, 'PEANUT', 'Peanut', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(22, 'TREE_NUT', 'Tree nuts (almond, cashew)', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(23, 'SOY', 'Soy (tofu, tempeh, soy sauce, soya milk)', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(24, 'SESAME', 'Sesame', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(25, 'BEANS', 'Beans and lentils (dhal, kacang)', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(9, 'GLUTEN', 'Wheat (gluten)', RestrictionType.food, foodGroup: _eggDairy),
+    DietaryRestriction(26, 'ONION', 'Onion, shallot or spring onion', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(27, 'GARLIC', 'Garlic', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(28, 'CHILLI', 'Chilli', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(29, 'COCONUT', 'Coconut and coconut milk (santan)', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(30, 'MUSHROOM', 'Mushroom', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(31, 'TOMATO', 'Tomato', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(32, 'BRINJAL', 'Brinjal (eggplant)', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(33, 'POTATO', 'Potato', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(34, 'CORN', 'Corn', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(35, 'BANANA', 'Banana', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(36, 'MANGO', 'Mango', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(37, 'PINEAPPLE', 'Pineapple', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(38, 'DURIAN', 'Durian', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(39, 'ALCOHOL', 'Alcohol (incl. cooking wine)', RestrictionType.food, foodGroup: _vegOther),
+    DietaryRestriction(40, 'CAFFEINE', 'Coffee or tea (caffeine)', RestrictionType.food, foodGroup: _vegOther),
   ];
 
   static const limitations = <PhysicalLimitation>[

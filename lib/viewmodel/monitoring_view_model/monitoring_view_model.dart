@@ -56,6 +56,9 @@ class MonitoringViewModel extends BaseViewModel {
   UiState<MonitoringData> state = const Idle();
   MonitoringData? _cache; // shown again when a reload fails (UC700 E1)
 
+  /// True while another period is loaded over the one on screen (a thin progress bar).
+  bool reloading = false;
+
   /// Selected period; rejected when the start is after the end (FR200_020).
   late DateTime rangeStart = _dayStart(
     _now().subtract(const Duration(days: AppConstants.defaultRangeDays - 1)),
@@ -137,10 +140,13 @@ class MonitoringViewModel extends BaseViewModel {
     rangeDays = days;
     if (_cache == null) {
       state = const Loading();
-      notifyListeners();
+    } else {
+      reloading = true; // the chip is selected at once; the old period stays until the new arrives
     }
+    notifyListeners();
     final r = await _repo.findBetween(id, rangeStart, rangeEnd);
     final s = await _treatments.completedSessions(id, rangeStart, rangeEnd);
+    reloading = false;
     if (r is Failure) {
       state = const UiError(Messages.historyRetrievalFailed); // E1; the cache stays visible
       notifyListeners();
@@ -217,13 +223,26 @@ class MonitoringViewModel extends BaseViewModel {
     if (problem != null) return problem;
     final id = _accountId;
     if (id == null) return Messages.sessionExpired;
+    final reading = _draft(metric, primary!, secondary, context, recordedAt, id);
     setLoading(true);
-    final res = await _repo.insert(_draft(metric, primary!, secondary, context, recordedAt, id));
+    final res = await _repo.insert(reading);
     setLoading(false);
     if (res is Failure) return Messages.readingSaveFailed; // E2
     _message = Messages.readingSaved; // M5
-    await loadRange(rangeStart, _now(), days: rangeDays);
+    // UI first: the reading is on the trend as soon as it is stored; the period is then read again
+    // in the background instead of keeping the form open for it.
+    if (!reading.recordedAt.isBefore(rangeStart)) _show([...?data?.readings, reading]);
+    unawaited(loadRange(rangeStart, _now(), days: rangeDays));
     return null;
+  }
+
+  /// Puts [readings] on screen at once, with the period's summary worked out again.
+  void _show(List<BiometricReading> readings) {
+    final sessions = data?.sessions ?? const <ActivityRecord>[];
+    final d = MonitoringData(readings, sessions, PeriodSummary.of(readings, sessions));
+    _cache = d;
+    state = UiSuccess(d);
+    notifyListeners();
   }
 
   /// What a Fix button does after a failed connection (null: none).
@@ -344,15 +363,19 @@ class MonitoringViewModel extends BaseViewModel {
     }
   }
 
-  /// Deletes one entry after the View's confirmation (FR200_022, FR200_023).
+  /// Deletes one entry after the View's confirmation (FR200_022, FR200_023). UI first: the entry
+  /// leaves the list and the trend at once and comes back if the deletion fails.
   Future<bool> deleteReading(String readingId) async {
+    final kept = data?.readings;
+    if (kept != null) _show(kept.where((r) => r.readingId != readingId).toList());
     final res = await _repo.delete(readingId);
     if (res is Failure) {
+      if (kept != null) _show(kept);
       _message = Messages.deletionFailed; // E4
       notifyListeners();
       return false;
     }
-    await loadRange(rangeStart, rangeEnd, days: rangeDays);
+    unawaited(loadRange(rangeStart, rangeEnd, days: rangeDays));
     return true;
   }
 
