@@ -209,15 +209,22 @@ class DietPlanViewModel extends BaseViewModel {
   /// Share of planned meals logged this week (FR700_038).
   double adherence() => plan?.adherence() ?? 0;
 
-  /// Protects a slot from regeneration (FR700_036).
+  /// Protects a slot from regeneration (FR700_036). UI first: the lock changes at once and is
+  /// undone if the plan could not be saved.
   Future<void> lockMeal(String plannedMealId, {bool on = true}) async {
     final p = plan;
     if (p == null) return;
-    plan = p.copyWith(
+    final locked = p.copyWith(
       meals: [for (final m in p.meals) m.plannedMealId == plannedMealId ? m.lock(on) : m],
     );
-    await _mealRepo.updatePlan(plan!);
+    plan = locked;
     notifyListeners();
+    final res = await _mealRepo.updatePlan(locked);
+    if (res is Failure && identical(plan, locked)) {
+      plan = p;
+      _message = Messages.dbUnavailable;
+      notifyListeners();
+    }
   }
 
   /// Alternatives that satisfy the same limits (FR700_035, A5.1 step 2).
@@ -243,6 +250,7 @@ class DietPlanViewModel extends BaseViewModel {
       return false;
     }
     plan = updated;
+    notifyListeners(); // UI first: the new food shows at once
     await _mealRepo.updatePlan(updated);
     await _markLogged();
     return true;

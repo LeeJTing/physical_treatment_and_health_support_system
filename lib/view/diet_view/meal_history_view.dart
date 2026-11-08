@@ -4,11 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/meal_photo.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
 
-/// Dietary history filtered by a date range (UC800 A5, FR700_014), with Delete (A5.1, FR700_015,
-/// FR700_016) after the confirmation (M6).
+/// Dietary history filtered by a date range (UC800 A5, FR700_014), each meal with its photo; a tap
+/// opens the meal's details. Delete (A5.1, FR700_015, FR700_016) after the confirmation (M6) takes
+/// the meal off the list at once and puts it back if the deletion fails.
 class MealHistoryView extends StatefulWidget {
   const MealHistoryView({super.key});
 
@@ -53,7 +56,12 @@ class _MealHistoryViewState extends State<MealHistoryView> {
         ],
       ),
     );
-    if (yes == true) await vm.deleteMeal(m);
+    if (yes != true) return;
+    final ok = await vm.deleteMeal(m);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(ok ? 'Meal deleted.' : (vm.takeMessage() ?? Messages.deletionFailed))),
+    );
   }
 
   @override
@@ -81,9 +89,23 @@ class _MealHistoryViewState extends State<MealHistoryView> {
             label: Text('${f.day}/${f.month}/${f.year} - ${t.day}/${t.month}/${t.year}'),
           ),
           const SizedBox(height: 12),
-          if (vm.isLoading) const Center(child: CircularProgressIndicator()),
+          if (vm.isLoading && vm.history.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(32),
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else if (vm.isLoading)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: LinearProgressIndicator(color: AppTokens.brandDeepAccent),
+            ),
           if (!vm.isLoading && vm.history.isEmpty)
-            const Text(Messages.noData, style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
+            const EmptyState(
+              icon: Icons.history,
+              badge: Icons.restaurant,
+              title: 'No meals in these dates',
+              message: 'Meals you log, with their photos, appear here. Choose other dates above to look further back.',
+            ),
           for (final e in byDay.entries) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -92,7 +114,13 @@ class _MealHistoryViewState extends State<MealHistoryView> {
                 style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTokens.ink),
               ),
             ),
-            for (final m in e.value) MealCard(meal: m, onDelete: () => _delete(vm, m)),
+            for (final m in e.value)
+              MealCard(
+                meal: m,
+                photo: MealPhoto(vm: vm, meal: m),
+                onTap: () => MealDetailsSheet.show(context, vm, m),
+                onDelete: () => _delete(vm, m),
+              ),
           ],
         ],
       ),

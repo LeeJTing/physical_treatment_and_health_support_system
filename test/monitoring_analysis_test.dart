@@ -186,6 +186,18 @@ void main() {
       expect(await vm.deleteReading(readings.readings.single.readingId), isTrue);
       expect(readings.readings, isEmpty);
     });
+
+    test('UI first: a deleted reading leaves at once and comes back if the deletion fails (E4)', () async {
+      await vm.addReading(metric: MetricType.bodyWeight, primary: 70, recordedAt: now.subtract(const Duration(hours: 1)));
+      await vm.loadRange(vm.rangeStart, now, days: vm.rangeDays);
+      final id = readings.readings.single.readingId;
+      readings.failNext = true;
+      final deleting = vm.deleteReading(id);
+      expect(vm.data!.readings, isEmpty); // at once
+      expect(await deleting, isFalse);
+      expect(vm.data!.readings, hasLength(1)); // put back
+      expect(vm.takeMessage(), Messages.deletionFailed);
+    });
   });
 
   group('AnalysisViewModel (UC600)', () {

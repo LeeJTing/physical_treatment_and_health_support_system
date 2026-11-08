@@ -15,6 +15,10 @@ abstract interface class IMealRepository {
   /// Dietary history for a date range, newest first (FR700_014).
   Future<Result<List<MealLog>>> findMeals(String accountId, DateTime from, DateTime to);
 
+  /// The stored photograph of a meal ([imageUri] is `MealLog.imageUri`), so the patient can see
+  /// what they ate in the meal history (FR700_009, FR700_014).
+  Future<Result<Uint8List>> mealPhoto(String imageUri);
+
   /// Deletes the meal, its items and verdicts, and its stored photograph (FR700_015, FR700_016).
   Future<Result<void>> deleteMeal(MealLog m);
 

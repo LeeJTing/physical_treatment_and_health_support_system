@@ -14,6 +14,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/lookup
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 
 /// My Profile (UC300; Figma "Profile Screen"). Used as the Profile tab and, for a
 /// patient without a complete profile, as a standalone route after sign-in (FR100_035).
@@ -404,6 +405,19 @@ class _ProfileViewState extends State<ProfileView> {
                     good: vm.healthConnected,
                   ),
                   onTap: () => _healthSource(vm),
+                ),
+                const SizedBox(height: 10),
+                SettingsCard(
+                  title: 'Picture guides',
+                  subtitle: 'Show the how-to guides again on each screen',
+                  onTap: () async {
+                    final messenger = ScaffoldMessenger.of(context);
+                    if (await showAllGuidesAgain(context)) {
+                      messenger.showSnackBar(
+                        const SnackBar(content: Text('The guides will show again when you open each screen.')),
+                      );
+                    }
+                  },
                 ),
                 const SizedBox(height: 10),
                 SettingsCard(

@@ -118,6 +118,11 @@ class AnalysisViewModel extends BaseViewModel {
         return;
       }
       analysis ??= await _detector.lastStored(id);
+      if (!loaded && analysis != null) {
+        // UI first: the last stored report is shown at once while the new one is worked out.
+        loaded = true;
+        notifyListeners();
+      }
       final snap = (await _risk.retrieve()).dataOrNull; // UC1000 (BF-8)
       profile = snap?.profile;
       final now = _now();
@@ -229,14 +234,20 @@ class AnalysisViewModel extends BaseViewModel {
     return current;
   }
 
-  /// Score history for the trend (FR400_025).
+  /// True while the score trend of another range is being read.
+  bool trendLoading = false;
+
+  /// Score history for the trend (FR400_025). The chosen range is selected at once.
   Future<List<HealthAnalysis>> scoreTrend(int days) async {
     final id = _accountId;
     if (id == null) return const [];
     trendDays = days;
+    trendLoading = true;
+    notifyListeners();
     final now = _now();
     trend = (await _repo.analysisHistory(id, now.subtract(Duration(days: days - 1)), now)).dataOrNull ??
         const [];
+    trendLoading = false;
     notifyListeners();
     return trend;
   }

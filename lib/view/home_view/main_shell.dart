@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/profile_v
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_tab_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/status_bar_strip.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/monitoring_view/monitoring_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
@@ -150,9 +151,25 @@ class MainShellState extends State<MainShell> with WidgetsBindingObserver {
       context.read<MealLogViewModel>().load();
       context.read<DietPlanViewModel>().loadRecommendations();
     }
+    _guideFor(context, i);
+  }
+
+  /// The picture guide of a tab opens by itself the first time the tab is shown (the IndexedStack
+  /// builds every tab at start, so the tabs cannot do this themselves).
+  void _guideFor(BuildContext context, int i) {
+    final guide = switch (i) {
+      MainShell.trackingTab => Guides.tracking,
+      MainShell.dietTab => Guides.diet,
+      _ => null,
+    };
+    if (guide == null) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (context.mounted) showGuideOnce(context, guide);
+    });
   }
 
   Widget _scaffold(BuildContext context) {
+    if (_inner == null) _guideFor(context, _index); // opened straight on Tracking or Diet
     _inner = context;
     return Scaffold(
       appBar: StatusBarStrip(

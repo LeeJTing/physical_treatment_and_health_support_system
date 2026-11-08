@@ -44,7 +44,17 @@ class FakeMealRepository implements IMealRepository {
       );
 
   @override
+  Future<Result<Uint8List>> mealPhoto(String imageUri) async {
+    final bytes = images[imageUri];
+    return bytes == null ? const Failure<Uint8List>('No photo', code: 'not_found') : Success<Uint8List>(bytes);
+  }
+
+  @override
   Future<Result<void>> deleteMeal(MealLog m) async {
+    if (failNext) {
+      failNext = false;
+      return const Failure('offline', code: 'offline');
+    }
     meals.removeWhere((x) => x.mealId == m.mealId);
     if (m.imageUri != null) images.remove(m.imageUri);
     return const Success(null);

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -7,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
 
+import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
@@ -385,7 +387,111 @@ void main() {
       vm.addFood(food('roti_canai'));
       expect(await vm.confirmMeal(), isTrue);
       expect(meals.meals.single.entryMethod, EntryMethod.manual);
-      expect(meals.images, isEmpty);
+      expect(meals.images, hasLength(1)); // the photo is kept although the foods were entered by hand
+    });
+
+    String nasiLemak() => jsonEncode({
+      'model_version': 'food-clip-vitb16-head-2',
+      'is_food': true,
+      'confidence': 0.9,
+      'items': [
+        {'food_key': 'nasi_lemak', 'confidence': 0.9, 'primary': true, 'candidates': []},
+      ],
+    });
+
+    test('UI first: the meal is on today\'s list before the database answers; its photo comes back in the history', () async {
+      final vm = build(MockClient((_) async => http.Response(nasiLemak(), 200)));
+      await vm.load();
+      camera.next = jpeg(800, 600);
+      await vm.captureImage();
+      final saving = vm.confirmMeal();
+      // At once: on the list, marked as saving, with its photo and the day's totals.
+      expect(vm.today, hasLength(1));
+      expect(vm.isSaving(vm.today.single), isTrue);
+      expect(vm.photoOf(vm.today.single), isNotNull);
+      expect(vm.dailyTotals.energyKcal, greaterThan(0));
+      expect(await saving, isTrue);
+      expect(vm.isSaving(vm.today.single), isFalse);
+      expect(meals.images, hasLength(1));
+
+      // Opened again later: the history downloads the stored photo (FR700_009, FR700_014).
+      final later = build(MockClient((_) async => http.Response('{}', 500)));
+      await later.load();
+      final now = DateTime.now();
+      expect(await later.loadHistory(now.subtract(const Duration(days: 1)), now), isTrue);
+      final m = later.history.single;
+      expect(later.hasPhoto(m), isTrue);
+      expect(later.photoOf(m), isNull);
+      await later.fetchPhoto(m);
+      expect(later.photoOf(m), meals.images[m.imageUri]);
+    });
+
+    test('a failed save takes the meal off the list again and keeps it for another try (E2, M8)', () async {
+      final vm = build(MockClient((_) async => throw const SocketException('down')));
+      await vm.load();
+      camera.next = jpeg(640, 480);
+      await vm.captureImage();
+      vm.addFood(food('roti_canai'));
+      meals.failNext = true;
+      final saving = vm.confirmMeal();
+      expect(vm.today, hasLength(1));
+      expect(await saving, isFalse);
+      expect(vm.today, isEmpty);
+      expect(vm.step, MealStep.review);
+      expect(vm.draft!.items, hasLength(1));
+      expect(vm.takeMessage(), Messages.mealSaveFailed);
+      expect(await vm.confirmMeal(), isTrue); // try again
+      expect(meals.meals, hasLength(1));
+    });
+
+    test('UI first: a deleted meal leaves at once and comes back if the deletion fails', () async {
+      final vm = build(MockClient((_) async => throw const SocketException('down')));
+      await vm.load();
+      vm.startManual();
+      vm.addFood(food('roti_canai'));
+      expect(await vm.confirmMeal(), isTrue);
+      final m = vm.today.single;
+      meals.failNext = true;
+      final deleting = vm.deleteMeal(m);
+      expect(vm.today, isEmpty);
+      expect(vm.dailyTotals.energyKcal, 0);
+      expect(await deleting, isFalse);
+      expect(vm.today, hasLength(1));
+      expect(meals.meals, hasLength(1));
+      expect(await vm.deleteMeal(m), isTrue);
+      expect(meals.meals, isEmpty);
+    });
+
+    test('while waiting, the patient can enter the food instead; a late answer is ignored (FR700_050)', () async {
+      final slow = Completer<http.Response>();
+      final vm = build(MockClient((_) => slow.future));
+      await vm.load();
+      final waiting = vm.recognise(jpeg(800, 600));
+      expect(vm.step, MealStep.recognising);
+      expect(vm.pendingPhoto, isNotNull); // shown on the waiting screen at once
+      for (var i = 0; i < 500 && vm.draftImage == null; i++) {
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+      }
+      expect(vm.draftImage, isNotNull);
+      vm.enterManually();
+      expect(vm.step, MealStep.review);
+      expect(vm.draft!.entryMethod, EntryMethod.manual);
+      slow.complete(http.Response(nasiLemak(), 200));
+      await waiting;
+      expect(vm.lastResult, isNull);
+      expect(vm.step, MealStep.review);
+      vm.addFood(food('roti_canai'));
+      expect(await vm.confirmMeal(), isTrue);
+      expect(meals.images, hasLength(1));
+    });
+
+    test('a cancelled camera keeps nothing and says nothing (A7)', () async {
+      final vm = build(MockClient((_) async => http.Response(nasiLemak(), 200)));
+      await vm.load();
+      camera.next = null;
+      expect(await vm.pickPhoto(camera: true), isNull);
+      expect(vm.takeMessage(), isNull);
+      expect(vm.step, MealStep.idle);
     });
   });
 }

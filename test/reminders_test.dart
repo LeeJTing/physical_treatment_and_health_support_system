@@ -16,6 +16,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/notification_view_model/notification_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 
 /// Records what would be scheduled on the phone.
 class FakeScheduler implements NotificationScheduler {
@@ -535,6 +536,38 @@ void main() {
           .reminderId;
       await vm.deleteReminder(id);
       expect(repo.reminders.containsKey(id), isFalse);
+    });
+
+    List<Reminder> shown() => (vm.reminders as UiSuccess<List<Reminder>>).data;
+
+    test('UI first: a switch changes at once and goes back if it could not be saved', () async {
+      expect(shown().single.isEnabled, isTrue);
+      repo.failNext = true;
+      final change = vm.toggleReminder('plan-r', false);
+      expect(shown().single.isEnabled, isFalse); // at once
+      await change;
+      expect(shown().single.isEnabled, isTrue); // put back
+      expect(vm.errorMessage, Messages.dbUnavailable);
+      await vm.toggleReminder('plan-r', false);
+      expect(shown().single.isEnabled, isFalse);
+      expect(repo.reminders['plan-r']!.isEnabled, isFalse);
+      expect(vm.errorMessage, isNull);
+    });
+
+    test('UI first: a new time shows at once; a deleted reminder leaves at once and comes back on a failure', () async {
+      final change = vm.changeTime('plan-r', 18, 30);
+      expect((shown().single.hour, shown().single.minute), (18, 30));
+      await change;
+      expect(repo.reminders['plan-r']!.hour, 18);
+
+      await vm.addHealthLogReminder();
+      final id = repo.reminders.values.firstWhere((r) => r.reminderType == ReminderType.healthLog).reminderId;
+      repo.failNext = true;
+      final deleting = vm.deleteReminder(id);
+      expect(shown().any((r) => r.reminderId == id), isFalse); // at once
+      await deleting;
+      expect(shown().any((r) => r.reminderId == id), isTrue); // put back
+      expect(vm.errorMessage, Messages.dbUnavailable);
     });
   });
 }

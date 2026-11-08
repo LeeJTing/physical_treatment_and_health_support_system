@@ -31,9 +31,13 @@ class NotificationViewModel extends BaseViewModel {
   int _unreadCount = 0;
   int get unreadCount => _unreadCount;
 
-  Future<void> load() async {
-    _reminders = const Loading();
-    notifyListeners();
+  /// Reads the reminders and the log. [quiet]: the list on screen stays while it is read again
+  /// (after a change), instead of being replaced by a spinner.
+  Future<void> load({bool quiet = false}) async {
+    if (!quiet || _reminders is! UiSuccess<List<Reminder>>) {
+      _reminders = const Loading();
+      notifyListeners();
+    }
     _accountId = (await _auth.currentAccount()).dataOrNull?.accountId;
     final id = _accountId;
     if (id == null) {
@@ -94,19 +98,28 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  /// True while reminders are being added (the button shows a spinner).
+  bool adding = false;
+
   /// Saves and schedules a reminder (FR600_001 to FR600_003).
   Future<void> createReminder(Reminder r) async {
     await _scheduler.update(r);
-    await load();
+    await load(quiet: true);
   }
 
   /// Disables or re-enables without deleting (FR600_006).
-  Future<void> toggleReminder(String id, bool on) =>
-      _change(id, (r) => _scheduler.update(r, enabled: on));
+  Future<void> toggleReminder(String id, bool on) => _change(
+    id,
+    (r) => r.copyWith(isEnabled: on),
+    (r) => _scheduler.update(r, enabled: on),
+  );
 
   /// Changes the time of day it fires (FR600_004).
-  Future<void> changeTime(String id, int hour, int minute) =>
-      _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute));
+  Future<void> changeTime(String id, int hour, int minute) => _change(
+    id,
+    (r) => r.copyWith(hour: hour, minute: minute),
+    (r) => _scheduler.update(r, hour: hour, minute: minute),
+  );
 
   /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
   /// off: switch the reminder off instead.
@@ -120,7 +133,12 @@ class NotificationViewModel extends BaseViewModel {
       return;
     }
     setError(null);
-    await _change(id, (r) => _scheduler.update(r, repeatDays: days.join()));
+    final repeat = days.join();
+    await _change(
+      id,
+      (r) => r.copyWith(repeatDays: repeat),
+      (r) => _scheduler.update(r, repeatDays: repeat),
+    );
   }
 
   /// Whether the patient already has a health-logging reminder (FR600_002).
@@ -134,7 +152,9 @@ class NotificationViewModel extends BaseViewModel {
   /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
   Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
     final id = _accountId;
-    if (id == null || hasHealthLogReminder) return;
+    if (id == null || hasHealthLogReminder || adding) return;
+    adding = true;
+    notifyListeners();
     final res = await _scheduler.update(
       Reminder(
         reminderId: newId(),
@@ -147,7 +167,9 @@ class NotificationViewModel extends BaseViewModel {
     );
     // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
     setError(res is Failure ? Messages.dbUnavailable : null);
-    await load();
+    await load(quiet: true);
+    adding = false;
+    notifyListeners();
   }
 
   /// Usual Malaysian meal times for the meal reminders (the patient can change each one).
@@ -166,7 +188,9 @@ class NotificationViewModel extends BaseViewModel {
   /// opens the Diet tab to log the meal or see the plan. Slots that already have one are kept.
   Future<void> addMealReminders({Map<MealSlot, (int, int)> times = mealTimes}) async {
     final id = _accountId;
-    if (id == null) return;
+    if (id == null || adding) return;
+    adding = true;
+    notifyListeners();
     final have = switch (_reminders) {
       UiSuccess(:final data) =>
         data.where((r) => r.reminderType == ReminderType.meal).map((r) => r.title.split(' ').first).toSet(),
@@ -188,43 +212,62 @@ class NotificationViewModel extends BaseViewModel {
       failed = failed || res is Failure;
     }
     setError(failed ? Messages.dbUnavailable : null);
-    await load();
+    await load(quiet: true);
+    adding = false;
+    notifyListeners();
   }
 
   /// Deletes a reminder the patient added. A treatment plan's exercise reminders stay with the
   /// plan (switch them off instead); they go when the plan is stopped or replaced.
+  /// UI first: the reminder leaves the list at once and comes back if it could not be deleted.
   Future<void> deleteReminder(String id) async {
     final r = _find(id);
     if (r == null || r.patientPlanId != null) return;
+    final before = _list;
+    _reminders = UiSuccess(before.where((x) => x.reminderId != id).toList());
+    notifyListeners();
     final res = await _scheduler.remove(r);
+    if (res is Failure) _reminders = UiSuccess(before);
     // Also clears an earlier notice such as "keep at least one day" (phone test, 9 Oct).
     setError(res is Failure ? Messages.dbUnavailable : null);
-    await load();
+    await load(quiet: true);
   }
+
+  List<Reminder> get _list => switch (_reminders) {
+    UiSuccess(:final data) => data,
+    _ => const <Reminder>[],
+  };
 
   Reminder? _find(String id) => switch (_reminders) {
     UiSuccess(:final data) => data.where((r) => r.reminderId == id).firstOrNull,
     _ => null,
   };
 
+  /// UI first: [preview] is shown at once, [op] then saves and schedules it; on a failure the
+  /// reminder goes back to how it was. Each step replaces the reminder in the list as it is then,
+  /// so quick taps on several days do not undo each other.
   Future<void> _change(
     String id,
+    Reminder Function(Reminder) preview,
     Future<Result<Reminder>> Function(Reminder) op,
   ) async {
-    final list = switch (_reminders) {
-      UiSuccess(:final data) => data,
-      _ => const <Reminder>[],
-    };
-    final i = list.indexWhere((r) => r.reminderId == id);
-    if (i < 0) return;
-    final res = await op(list[i]);
+    final original = _find(id);
+    if (original == null) return;
+    _replace(id, preview(original));
+    notifyListeners();
+    final res = await op(original);
     if (res case Success(:final data)) {
-      _reminders = UiSuccess([...list]..[i] = data);
+      _replace(id, data);
       setError(null);
     } else {
+      _replace(id, original);
       setError(Messages.dbUnavailable);
     }
     notifyListeners();
+  }
+
+  void _replace(String id, Reminder r) {
+    _reminders = UiSuccess([for (final x in _list) x.reminderId == id ? r : x]);
   }
 
   /// The log's date range (FR600_015): the last two weeks until the patient picks another.
@@ -248,8 +291,14 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// Clears one entry from the unread count (FR600_016).
+  /// Clears one entry from the unread count (FR600_016). UI first: shown as read at once.
   Future<void> markRead(String id) async {
+    final i = _log.indexWhere((n) => n.notificationId == id);
+    if (i >= 0 && !_log[i].isRead) {
+      _log = [..._log]..[i] = _log[i].markRead();
+      if (_unreadCount > 0) _unreadCount--;
+      notifyListeners();
+    }
     await _repo.markRead(id);
     await loadLog(logFrom, logTo.isBefore(DateTime.now()) ? logTo : DateTime.now());
   }
