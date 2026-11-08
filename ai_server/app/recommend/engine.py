@@ -4,7 +4,8 @@ Stage 1, knowledge-based filter: a plan is dropped when it is unsafe or
 irrelevant for the patient. Every reason is reported back so the decision
 can be explained.
   - an exercise above SafetyLimit.max_exercise_intensity
-  - the plan's total prescribed time above SafetyLimit.max_session_duration_min
+  - the plan's longest single exercise above SafetyLimit.max_session_duration_min: one exercise of a
+    plan is done a day, as PlanRules counts it in the app (Elwin, 23 Oct; it was the sum of all of them)
   - a physical limitation (hybrid-3.1): an exercise that uses the limited limb (the rule of
     Exercise.conflictsWith in the app) drops the plan when it trains another area than the one being
     rehabilitated; when it trains that area, the plan stays only if it is early-stage, low-mobility
@@ -66,7 +67,8 @@ failed attempts in a row at the current exercise, fall alerts) and their results
               that did not pass: the stage and mobility the rules allow go one level below that
               plan's (never above the patient's answers), and that plan is left out.
     PROGRESS  that plan was completed: the rules allow one level above it (never below the patient's
-              answers), and completed plans that train the requested area are left out.
+              answers), and completed plans that train the requested area are left out. A plan
+              completed with an exercise that never passed (moved on after 3 tries) is EASE instead.
   After failed attempts, plans that contain the exercise that did not pass at the same or a higher
   dose (repetitions, time) are left out too (hybrid-3.1), unless that would leave nothing to offer;
   at an easier dose it stays (e.g. Elbow Flexion 12 repetitions in Upper Limb Strength, 10 in the
@@ -202,7 +204,7 @@ def blocked_area(limitation_code: str) -> str | None:
 
 
 def conflicts(exercise_area: str, blocked: str) -> bool:
-    """Mirror of Exercise.conflictsWith in lib/data/models/exercise.dart."""
+    """Mirror of Exercise.conflictsWith in lib/model/entity/exercise.dart."""
     if exercise_area == blocked:
         return True
     if blocked.endswith("_ARM"):
@@ -233,9 +235,10 @@ def exclusion_reasons(req: RecommendRequest, plan: PlanIn) -> list[str]:
         names = ", ".join(e.exercise_name or e.exercise_id for e in too_hard)
         reasons.append(f"intensity above {req.safety_limit.max_exercise_intensity}: {names}")
 
-    total_sec = sum(pe.prescribed_duration_sec for pe in plan.plan_exercise)
-    if total_sec > req.safety_limit.max_session_duration_min * 60:
-        reasons.append(f"session {total_sec // 60} min exceeds {req.safety_limit.max_session_duration_min} min")
+    # One exercise of a plan a day, so a day's session is its longest exercise (as PlanRules in the app).
+    day_sec = max((pe.prescribed_duration_sec for pe in plan.plan_exercise), default=0)
+    if day_sec > req.safety_limit.max_session_duration_min * 60:
+        reasons.append(f"session {-(-day_sec // 60)} min exceeds {req.safety_limit.max_session_duration_min} min")
 
     treated = req.rehab.affected_body_area
     for code in req.limitations:
@@ -486,6 +489,19 @@ def next_step(req: RecommendRequest) -> tuple[str, str, int, int, set[str], set[
                  if h.status == "COMPLETED" and h.plan_id in by_id and same_area(h.plan_id)]
     if any(h.status == "COMPLETED" for h in mine):
         top = by_id[p.from_plan_id]
+        # Bug list #9 (1 Nov): below 80 % the app moves a plan on at the third try, so a plan can be
+        # "completed" with exercises that never passed. That is not a reason to step up: ease instead.
+        results = {e.exercise_id: e for e in p.exercises}
+        unpassed = {pe.exercise.exercise_id for pe in top.plan_exercise
+                    if (r := results.get(pe.exercise.exercise_id)) is not None and r.attempts > 0
+                    and r.passes == 0}
+        if unpassed:
+            s = max(0, min(stage, STAGES.index(top.recovery_stage) - 1))
+            m = max(0, min(mob, MOBILITY.index(top.mobility_level) - 1))
+            n = len(unpassed)
+            why = (f"{n} exercise{'s' if n > 1 else ''} in {top.plan_name} did not pass before the plan "
+                   f"moved on, so plans that should suit you better are shown.")
+            return "EASE", why, s, m, {x.plan_id for x in completed} | {top.plan_id}, unpassed
         s = max(stage, min(len(STAGES) - 1, STAGES.index(top.recovery_stage) + 1))
         m = max(mob, min(len(MOBILITY) - 1, MOBILITY.index(top.mobility_level) + 1))
         why = (f"You completed {top.plan_name}, so plans for the next stage are included."

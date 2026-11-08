@@ -6,6 +6,13 @@ class ExerciseSession {
   /// (UI Design, Posture Result Screen: "over 80% triggers an auto update").
   static const double passMark = 80;
 
+  /// [accuracy] as a whole percent for the screens, never rounded up to the pass mark (bug list #19,
+  /// 1 Nov): 79.6 showed as "80%" next to "did not pass". Elsewhere the usual rounding.
+  static int shownPercent(double accuracy) {
+    final r = accuracy.round();
+    return accuracy < passMark && r >= passMark ? passMark.toInt() - 1 : r;
+  }
+
   final String sessionId;
   final String accountId;
   final String? patientPlanId;
@@ -81,7 +88,7 @@ class ExerciseSession {
     'account_id': accountId,
     'patient_plan_id': patientPlanId,
     'exercise_id': exerciseId,
-    'completed_at': completedAt?.toIso8601String(),
+    'completed_at': completedAt?.toUtc().toIso8601String(),
     'duration_sec': durationSec,
     'repetitions_completed': repetitionsCompleted,
     'completion_status': completionStatus.db,
@@ -97,7 +104,7 @@ class ExerciseSession {
     exerciseId: j['exercise_id'] as String,
     completedAt: j['completed_at'] == null
         ? null
-        : DateTime.parse(j['completed_at'] as String),
+        : DateTime.parse(j['completed_at'] as String).toLocal(),
     durationSec: (j['duration_sec'] as num?)?.toInt(),
     repetitionsCompleted: (j['repetitions_completed'] as num?)?.toInt(),
     completionStatus: CompletionStatus.fromDb(

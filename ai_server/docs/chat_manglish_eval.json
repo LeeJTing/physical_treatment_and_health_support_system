@@ -1,0 +1,17 @@
+{
+ "rules_version": "chat-rules-4.09",
+ "seed": 1,
+ "messages": 2000,
+ "questions": 179,
+ "passed": 1995,
+ "rate": 0.9975,
+ "warning_signs": 72,
+ "warning_signs_passed": 72,
+ "misses": [
+  "'all 3 exercises today feeling good done already' -> plan_exercises (want ['acknowledge', 'how_often']; from 'i did all 3 exercises today feeling good')",
+  "'all exercises what now done already ?' -> getting_started (want ['plan_and_reminders', 'plan_progress']; from 'i finished all exercises what now')",
+  "'all 3 exercises today feeling good done already!' -> plan_exercises (want ['acknowledge', 'how_often']; from 'i did all 3 exercises today feeling good')",
+  "'all exercises what now done already?' -> getting_started (want ['plan_and_reminders', 'plan_progress']; from 'i finished all exercises what now')"
+ ],
+ "seconds": 101
+}

@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/app.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/guide_view_model/guide_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/speech_service/speech_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/chatbot_service/chatbot_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
@@ -141,6 +144,12 @@ Future<void> main() async {
         Provider<IFoodRepository>.value(value: foodRepo),
         Provider<IMealRepository>.value(value: mealRepo),
         Provider<ApiClient>.value(value: api),
+        // Testing mode (Profile, debug builds only): any exercise, nothing saved.
+        ChangeNotifierProvider<TestModeViewModel>(create: (_) => TestModeViewModel()),
+        // Exercise guide (23 Oct): spoken cues, on / off kept while the app runs.
+        ChangeNotifierProvider<GuideViewModel>(
+          create: (_) => GuideViewModel(SpeechService()),
+        ),
         Provider<ServerConnectionService>.value(value: serverConnection),
         // Services are added here module by module; ViewModels are created per route in app.dart.
         Provider<RiskAssessmentService>.value(value: risk),

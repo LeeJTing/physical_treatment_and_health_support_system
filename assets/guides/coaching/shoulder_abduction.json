@@ -1,0 +1,53 @@
+{
+  "pose_key": "shoulder_abduction",
+  "focus": {
+    "joint": "shoulder",
+    "from": "hip",
+    "to": "wrist"
+  },
+  "mover": "wrist",
+  "captions": {
+    "start": "Stand tall, arms by your sides",
+    "go": "Raise your arms out to the side",
+    "top": "Shoulder height: hold 1 second",
+    "back": "Lower slowly"
+  },
+  "say": {
+    "go": "Raise",
+    "back": "Lower"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand tall with your arms by your sides."
+    },
+    {
+      "phase": "go",
+      "text": "Raise both arms out to the side with your elbows straight."
+    },
+    {
+      "phase": "top",
+      "text": "Stop at shoulder height and hold for one second."
+    },
+    {
+      "phase": "back",
+      "text": "Lower your arms slowly."
+    }
+  ],
+  "safety": [
+    "Only lift as high as is pain-free."
+  ],
+  "mistakes": [
+    {
+      "label": "bent_elbow",
+      "wrong": "your elbows were bent while your arms were raised",
+      "right": "Keep your elbows straight as you lift."
+    },
+    {
+      "label": "shoulder_shrug",
+      "wrong": "your shoulders lifted up towards your ears",
+      "right": "Relax your shoulders down, away from your ears."
+    }
+  ],
+  "setup": []
+}

@@ -31,6 +31,8 @@ from chat_round14_set import ROUND14
 from chat_round15_set import ROUND15
 from chat_round16_set import ROUND16
 from chat_round17_set import ROUND17
+from chat_round18_set import ROUND18
+from chat_round19_set import ROUND19
 from chat_posture_messages_set import POSTURE_MESSAGES
 from chat_safety_review_set import SAFETY_REVIEW
 from chat_safety_pass2_set import SAFETY_PASS2
@@ -40,9 +42,9 @@ client = TestClient(app)
 DEV = {"Authorization": "Bearer dev-token"}
 CATALOGUE = json.loads((Path(__file__).parents[2] / "assets" / "seed" / "catalogue.json").read_text(encoding="utf-8"))
 KNEE_PLAN = next(p for p in CATALOGUE["plans"] if p["plan_id"] == KNEE)
-NOT_RECOGNISED = "The question is not recognised, please try asking other question."
+NOT_RECOGNISED = "Question not recognised. Please choose a topic below, or ask it another way."   # 3.66
 
-ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(ROUND14) + list(ROUND15) + list(ROUND16) + list(ROUND17) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
+ALL_QUESTIONS = [(KNEE, q, e) for q, e in EVAL] + list(HOLDOUT) + list(VERIFY) + list(FINAL) + list(ROUND1) + list(ROUND2) + list(ROUND3) + list(ROUND4) + list(ROUND5) + list(ROUND6) + list(ROUND7) + list(ROUND8) + list(ROUND9) + list(ROUND10) + list(ROUND11) + list(ROUND12) + list(ROUND13) + list(ROUND14) + list(ROUND15) + list(ROUND16) + list(ROUND17) + list(ROUND18) + list(ROUND19) + list(POSTURE_MESSAGES) + list(SAFETY_REVIEW) + list(SAFETY_PASS2)
 
 
 def ask(text=None, category=None, plan_id=KNEE, **profile):
@@ -177,7 +179,9 @@ def test_response_fields():
 
 
 def test_unknown_plan_falls_back_to_general_rules():
-    assert ask(text="what exercises are in my plan", plan_id="not-a-plan")["category"] != "plan_exercises"
+    # No plan contents are made up for a plan the rules do not know: the no-plan answer (bug list #2).
+    res = ask(text="what exercises are in my plan", plan_id="not-a-plan")
+    assert res["answer"].startswith("You do not have a treatment plan yet")
 
 
 def test_deterministic():
@@ -192,6 +196,9 @@ def test_rules_file_matches_catalogue():
     keys = [i["key"] for i in rules["intents"]]
     assert len(keys) == len(set(keys))
     for i in rules["intents"]:
+        if i["key"] in ("clarify", "med_help", "word_meaning"):      # 3.53: reached only by a short follow-up with nothing before;
+            assert not i["keywords"] and not i["examples"] and i["answer"]   # 3.66: "med" as the whole message
+            continue
         # Mistake names (rules 3.15) are reached through the glossary, not keywords.
         assert (i["keywords"] or i["key"].startswith("mistake:")) and i["examples"] and i["answer"], i["key"]
         assert all(f in keys for f in i["follow_ups"]), i["key"]
@@ -232,7 +239,7 @@ def test_password_and_start_answers_offer_a_button():
     res = client.post("/chat", json={"text": "how should we start"}, headers=DEV).json()
     assert res["action"]["key"] == "open_planning"
     res = client.post("/chat", json={"text": "asdfgh"}, headers=DEV).json()
-    assert res["action"] is None and res["answer"] == engine.rules()["not_recognised"]   # FR500_22 unchanged
+    assert res["action"] is None and res["answer"].startswith("Question not recognised")   # FR500_22
 
 
 
@@ -240,7 +247,7 @@ def test_password_and_start_answers_offer_a_button():
 
 @pytest.mark.parametrize("text, key, action", [
     ("update my profile", "profile_help", "open_profile"),
-    ("why is my risk level high", "profile_help", "open_profile"),
+    ("why is my risk level high", "risk_level", "open_profile"),
     ("change my reminder time", "reminders_help", "open_reminders"),
     ("show my past results", "history_help", "open_history"),
     ("how do I record my video", "recording_help", "open_treatment"),
@@ -622,3 +629,21 @@ def test_every_new_profile_condition_adds_a_safety_note(code):
 @pytest.mark.parametrize("question", ["do I have cancer", "could this lump be cancer", "what are the signs of cancer"])
 def test_cancer_diagnosis_questions_stay_diagnosis(question):
     assert ask(question)["category"] == "diagnosis"
+
+
+@pytest.mark.parametrize("question", ["what is my plan", "what exercise today", "how many exercises in my plan",
+                                      "show my plan"])
+def test_plan_questions_without_a_plan_point_to_planning(question):
+    """Bug list #2: with no plan these were 'Why plans stop at 65', the posture score or how-to."""
+    res = engine.reply(None, None, question)
+    assert res["category"] == "plan_exercises", res["category"]
+    assert res["answer"].startswith("You do not have a treatment plan yet")
+    assert res["action"]["key"] == "open_planning"
+    # Users from 65 still hear why plans stop, and a patient with a plan still gets the plan.
+    assert engine.reply(None, None, question, restriction="AGE_65_PLUS")["category"] == "age_limit"
+    assert "Your plan, " in engine.reply(KNEE, None, question)["answer"]
+
+
+def test_general_questions_without_a_plan_keep_their_answers():
+    assert engine.reply(None, None, "how do i start")["category"] == "getting_started"
+    assert not any(c["key"] == "plan_exercises" for c in engine.categories_for(None))  # not listed

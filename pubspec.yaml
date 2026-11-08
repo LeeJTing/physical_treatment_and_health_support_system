@@ -24,6 +24,8 @@ dependencies:
   # Phase 4: exercise reminders scheduled on the device (Asia/Kuala_Lumpur)
   flutter_local_notifications: ^19.4.0
   timezone: ^0.10.1
+  # Spoken exercise cues in the guide and while recording (Elwin, 23 Oct)
+  flutter_tts: ^4.2.5
   # M200: blood pressure, glucose and weight from Health Connect (Jun Ting)
   health: ^13.1.0
   # M700: check and reduce the meal photo before upload (UC800 C3, C4), pure Dart
@@ -33,6 +35,10 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  # Test-only fakes of the camera and gallery plugins for recording_view tests; the versions
+  # already locked through camera and image_picker (audit, 24 Oct).
+  camera_platform_interface: 2.14.0
+  image_picker_platform_interface: 2.11.2
 
 #flutter_launcher_icons:
 #  android: true
@@ -47,5 +53,7 @@ flutter:
     - assets/seed/food_catalogue.json
     # Guide animations, one per exercise (training/build_guide_animations.py)
     - assets/guides/
+    # Hand-written guide text per exercise: steps, captions, safety, mistakes (guide walkthrough)
+    - assets/guides/coaching/
     # Terms of Use and Privacy Notice, English and Malay (TermsView)
     - assets/legal/terms.json

@@ -46,9 +46,9 @@ HOLDOUT = [
     (CORE, "do I need a yoga mat for this plan", "equipment"),
     (CORE, "how long will it take to recover my back", "plan_progress"),
     (CORE, "can I do pelvic tilts", None),
-    (CORE, "my back is stiff in the morning", "pain_or_discomfort"),
+    (CORE, "my back is stiff in the morning", ("pain_or_discomfort", "stiffness")),   # 3.78
     (CORE, "what is in my core plan", "plan_exercises"),
     (CORE, "is it dangerous to exercise with back pain", "pain_or_discomfort"),
-    (CORE, "I'm 70, is this safe for me?", "safety"),
+    (CORE, "I'm 70, is this safe for me?", ("safety", "age_limit")),   # 3.74: plans stop at 65
     (CORE, "byee", "goodbye"),
 ]

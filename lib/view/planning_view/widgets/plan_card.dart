@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/plan_reasons.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/whole_words_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 
@@ -56,8 +57,9 @@ class PlanCard extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Never splits a word with large phone text (emulator at 2x, 24 Oct: "Preventio / n").
             Expanded(
-              child: Text(
+              child: WholeWordsText(
                 plan.planName,
                 style: const TextStyle(
                   fontSize: 18,
@@ -151,8 +153,8 @@ class PlanCard extends StatelessWidget {
         Row(
           children: [
             Expanded(
-              child: SizedBox(
-                height: AppTokens.minTarget,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                 child: OutlinedButton(
                   onPressed: onDetails,
                   style: OutlinedButton.styleFrom(
@@ -177,8 +179,8 @@ class PlanCard extends StatelessWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: SizedBox(
-                height: AppTokens.minTarget,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(minHeight: AppTokens.minTarget),
                 child: FilledButton(
                   onPressed: busy ? null : onSelect,
                   style: FilledButton.styleFrom(
@@ -268,8 +270,10 @@ Future<void> showPlanDetails(
           children: [
             InfoChip(RehabLabels.area(plan.targetBodyArea)),
             InfoChip('${plan.frequencyPerWeek}x a week'),
+            // One exercise of a plan a day (as PlanRules and the recommender count it): the day is
+            // its longest exercise, not all of them added up (audit, 24 Oct).
             InfoChip(
-              'About ${RehabLabels.duration(plan.totalDurationSec)} a session',
+              'One exercise a day, up to ${RehabLabels.duration(plan.longestDurationSec)}',
             ),
           ],
         ),

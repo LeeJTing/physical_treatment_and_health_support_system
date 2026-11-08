@@ -41,6 +41,8 @@ class _TapScheduler implements NotificationScheduler {
   @override
   Future<void> cancel(int id) async {}
   @override
+  Future<void> cancelAll() async {}
+  @override
   Stream<String> get taps => tapController.stream;
   @override
   Future<String?> launchPayload() async => launch;
@@ -126,6 +128,37 @@ void main() {
     },
   );
 
+  test(
+    'bad input is refused before the server is asked (audit, 23 Oct)',
+    () async {
+      expect(await vm.register('Ali', 'ali@test.com', 'short'), isFalse);
+      expect((vm.registerState as UiError).message, Messages.passwordInvalid);
+      expect(await vm.register('!!!', 'ali@test.com', 'abc12345'), isFalse);
+      expect(
+        (vm.registerState as UiError).message,
+        Messages.usernameNeedsLetter,
+      );
+      // Nothing was created: the address is still free.
+      expect(await vm.register('Ali', 'ali@test.com', 'abc12345'), isTrue);
+
+      expect(await vm.login('not-an-email', 'password123'), isFalse);
+      expect((vm.loginState as UiError).message, Messages.emailInvalid);
+      expect(await vm.login('demo@apths.test', ''), isFalse);
+      expect((vm.loginState as UiError).message, Messages.passwordEmpty);
+
+      expect(await vm.verify('ali@test.com', '12ab'), isFalse);
+      expect(vm.verifyState, isA<UiError<void>>());
+      // A malformed code is not one of the five wrong tries (FR100_016).
+      for (var i = 0; i < AppConstants.maxCodeAttempts - 1; i++) {
+        await vm.verify('ali@test.com', '000000');
+      }
+      expect(
+        await vm.verify('ali@test.com', FakeAuthRepository.devCode),
+        isTrue,
+      );
+    },
+  );
+
   test('an email that already has an account is refused (UC100 A3)', () async {
     expect(await vm.register('Demo', 'demo@apths.test', 'abc12345'), isFalse);
     expect((vm.registerState as UiError).message, Messages.emailExists);
@@ -161,6 +194,32 @@ void main() {
         isTrue,
       );
       expect(await vm.login('demo@apths.test', 'newpass99'), isTrue);
+    },
+  );
+
+  test(
+    'reset: a weak new password is refused before the server (23 Oct)',
+    () async {
+      expect(
+        await vm.confirmReset(
+          'demo@apths.test',
+          FakeAuthRepository.devCode,
+          'short1',
+        ),
+        isFalse,
+      );
+      expect(
+        (vm.resetConfirmState as UiError).message,
+        Messages.passwordInvalid,
+      );
+      expect(
+        await vm.confirmReset('demo@apths.test', '12a456', 'newpass99'),
+        isFalse,
+      );
+      expect(
+        await vm.login('demo@apths.test', 'password123'),
+        isTrue,
+      ); // unchanged
     },
   );
 

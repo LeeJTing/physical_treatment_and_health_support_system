@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 
 /// Client-side validation rules from Table 3.3 (NFR_05). Each returns null
@@ -5,8 +7,15 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 class FormValidators {
   FormValidators._();
 
-  // local@domain.tld: exactly one @, >=1 char before it, >=2 chars after the last dot.
-  static final RegExp _email = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s.]{2,}$');
+  // local@domain.tld (23 Oct, tightened): the local part is dot-separated words with no dot at
+  // either end or two in a row; each domain label is letters, digits and inner hyphens; the
+  // ending is 2+ letters. a..b@x.com, .a@x.com, a@-x.com and a@x.c0m were accepted before.
+  static final RegExp _email = RegExp(
+    r"^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*"
+    r'@([A-Za-z0-9]([A-Za-z0-9-]*[A-Za-z0-9])?\.)+[A-Za-z]{2,}$',
+  );
+
+  static final RegExp _letter = RegExp(r'\p{L}', unicode: true);
 
   static String? username(String? v) {
     final s = (v ?? '').trim();
@@ -15,13 +24,18 @@ class FormValidators {
         s.length > AppConstants.usernameMax) {
       return 'Username must be 3 to 30 characters.';
     }
+    // Elwin, 23 Oct: at least one letter, in any language ("!!!" or "..." was accepted).
+    if (!_letter.hasMatch(s)) return Messages.usernameNeedsLetter;
     return null;
   }
 
   static String? email(String? v) {
     final s = (v ?? '').trim();
     if (s.isEmpty) return Messages.emailEmpty;
-    if (!_email.hasMatch(s)) return Messages.emailInvalid;
+    // RFC 5321: at most 64 characters before the @ and 254 in all.
+    if (s.length > 254 || s.indexOf('@') > 64 || !_email.hasMatch(s)) {
+      return Messages.emailInvalid;
+    }
     return null;
   }
 
@@ -33,6 +47,10 @@ class FormValidators {
         !s.contains(RegExp(r'[A-Za-z]')) ||
         !s.contains(RegExp(r'\d'))) {
       return Messages.passwordInvalid;
+    }
+    // Supabase refuses a password over 72 bytes (bcrypt), after the form had accepted it.
+    if (utf8.encode(s).length > AppConstants.passwordMax) {
+      return Messages.passwordTooLong;
     }
     return null;
   }

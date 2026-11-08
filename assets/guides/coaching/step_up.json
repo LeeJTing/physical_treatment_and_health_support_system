@@ -1,0 +1,56 @@
+{
+  "pose_key": "step_up",
+  "focus": {
+    "joint": "knee",
+    "from": "hip",
+    "to": "ankle"
+  },
+  "mover": "hip",
+  "captions": {
+    "start": "Face the step, hold the rail",
+    "go": "Step up with one foot",
+    "top": "Leg straight on the step",
+    "back": "Step down slowly"
+  },
+  "say": {
+    "go": "Step up",
+    "back": "Step down"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand facing a low step and hold a rail."
+    },
+    {
+      "phase": "go",
+      "text": "Step up with one foot and bring the other foot up."
+    },
+    {
+      "phase": "top",
+      "text": "Straighten the leading leg fully at the top."
+    },
+    {
+      "phase": "back",
+      "text": "Step down slowly. Change the leading leg each time."
+    }
+  ],
+  "safety": [
+    "Use a step no higher than 15 cm.",
+    "Hold the rail the whole time."
+  ],
+  "mistakes": [
+    {
+      "label": "knee_not_straight",
+      "wrong": "your leading leg was not fully straight at the top of the step",
+      "right": "Straighten your leading leg at the top, holding the rail, as far as is comfortable."
+    },
+    {
+      "label": "drop_down",
+      "wrong": "you came down from the step too quickly",
+      "right": "Step down slowly, holding the rail, and let your foot touch down gently."
+    }
+  ],
+  "setup": [
+    "Put the step side-on to the phone, with the step in the picture."
+  ]
+}

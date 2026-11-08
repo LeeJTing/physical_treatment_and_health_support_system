@@ -1,0 +1,54 @@
+{
+  "pose_key": "march_in_place",
+  "focus": {
+    "joint": "hip",
+    "from": "shoulder",
+    "to": "knee"
+  },
+  "mover": "knee",
+  "captions": {
+    "start": "Stand tall",
+    "go": "Lift one knee",
+    "top": "Knee up, swing your arms",
+    "back": "Step down, then the other knee"
+  },
+  "say": {
+    "go": "Lift",
+    "back": "Down"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand tall near a wall or a sturdy chair."
+    },
+    {
+      "phase": "go",
+      "text": "Lift one knee, towards hip height if it is comfortable."
+    },
+    {
+      "phase": "top",
+      "text": "Swing your arms as you march, at a steady pace."
+    },
+    {
+      "phase": "back",
+      "text": "Put the foot down and lift the other knee."
+    }
+  ],
+  "safety": [
+    "Stay near a wall or a sturdy chair you can hold.",
+    "Stop if you feel dizzy or very short of breath."
+  ],
+  "mistakes": [
+    {
+      "label": "low_knee_lift",
+      "wrong": "your knees did not lift high enough",
+      "right": "Lift your knees a little higher, only as far as is comfortable."
+    },
+    {
+      "label": "leaning_back",
+      "wrong": "you leaned your upper body backwards",
+      "right": "Stand tall; do not lean backwards."
+    }
+  ],
+  "setup": []
+}

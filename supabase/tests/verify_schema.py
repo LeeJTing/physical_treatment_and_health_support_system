@@ -108,6 +108,12 @@ x("insert into public.health_profile (profile_id, account_id, age, gender, weigh
 x("insert into public.safety_limit (profile_id, max_exercise_intensity, max_session_duration_min, daily_calorie_target, daily_sodium_limit_mg, daily_sugar_limit_g) values (%s,'MODERATE',45,1900,2000,50)", (pa,))
 x("insert into public.profile_condition values (%s, 2)", (pa,))
 expect_error("profile age 12 rejected (CHECK)", "insert into public.health_profile (account_id, age, gender, weight_kg, height_cm, bmi, risk_level) values (%s,12,'Male',72,170,24.9,'Low')", (a,))
+# Limits = the largest ever recorded (14 Oct): 272 cm and 635 kg accepted, one more rejected.
+x("update public.health_profile set height_cm=272, weight_kg=635, bmi=85.8 where profile_id=%s", (pa,))
+check("272 cm and 635 kg accepted", x("select height_cm, weight_kg from public.health_profile where profile_id=%s", (pa,)).fetchone() == (272, 635))
+expect_error("273 cm rejected (CHECK)", "update public.health_profile set height_cm=273 where profile_id=%s", (pa,))
+expect_error("636 kg rejected (CHECK)", "update public.health_profile set weight_kg=636 where profile_id=%s", (pa,))
+x("update public.health_profile set height_cm=170, weight_kg=72, bmi=24.9 where profile_id=%s", (pa,))
 expect_error("A cannot create a profile for B", "insert into public.health_profile (account_id, age, gender, weight_kg, height_cm, bmi, risk_level) values (%s,58,'Male',72,170,24.9,'Low')", (b,))
 expect_error("second current safety limit rejected", "insert into public.safety_limit (profile_id, max_exercise_intensity, max_session_duration_min, daily_calorie_target, daily_sodium_limit_mg, daily_sugar_limit_g) values (%s,'LOW',20,1600,1500,25)", (pa,))
 

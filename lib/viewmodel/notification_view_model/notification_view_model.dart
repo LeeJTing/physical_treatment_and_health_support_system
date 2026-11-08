@@ -53,11 +53,7 @@ class NotificationViewModel extends BaseViewModel {
     _onTime = await _scheduler.canRingOnTime();
     final res = await _repo.getReminders(id);
     _reminders = switch (res) {
-      Success(:final data) => UiSuccess(
-        [...data]..sort(
-          (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
-        ),
-      ),
+      Success(:final data) => UiSuccess(_byTime(data)),
       Failure() => const UiError(Messages.dbUnavailable),
     };
     final now = DateTime.now();
@@ -107,7 +103,24 @@ class NotificationViewModel extends BaseViewModel {
     await load(quiet: true);
   }
 
+  /// One change at a time: a second tap waits for the first and starts from what the first
+  /// saved (audit, 24 Oct: two quick day taps both started from the old days, so the second
+  /// undid the first).
+  Future<void> _last = Future<void>.value();
+  Future<void> _oneAtATime(Future<void> Function() op) {
+    final next = _last.then((_) => op());
+    _last = next.then((_) {}, onError: (Object _) {});
+    return next;
+  }
+
   /// Disables or re-enables without deleting (FR600_006).
+  Future<void> toggleReminder(String id, bool on) => _oneAtATime(
+    () => _change(id, (r) => _scheduler.update(r, enabled: on)),
+  );
+
+  /// Changes the time of day it fires (FR600_004).
+  Future<void> changeTime(String id, int hour, int minute) => _oneAtATime(
+    () => _change(id, (r) => _scheduler.update(r, hour: hour, minute: minute)),
   Future<void> toggleReminder(String id, bool on) => _change(
     id,
     (r) => r.copyWith(isEnabled: on),
@@ -123,7 +136,10 @@ class NotificationViewModel extends BaseViewModel {
 
   /// Turns one weekday on or off (FR600_003; [weekday] 1 = Monday). The last day cannot be turned
   /// off: switch the reminder off instead.
-  Future<void> toggleDay(String id, int weekday) async {
+  Future<void> toggleDay(String id, int weekday) =>
+      _oneAtATime(() => _toggleDay(id, weekday));
+
+  Future<void> _toggleDay(String id, int weekday) async {
     final r = _find(id);
     if (r == null) return;
     final days = r.repeatDays.split('');
@@ -149,9 +165,23 @@ class NotificationViewModel extends BaseViewModel {
     _ => false,
   };
 
+  /// True while a health-log reminder is being added: a second tap before the first is saved
+  /// made two of them (audit, 23 Oct).
+  bool _adding = false;
+
   /// Adds a daily reminder to record health readings (FR600_002), at 8 pm unless changed.
   Future<void> addHealthLogReminder({int hour = 20, int minute = 0}) async {
     final id = _accountId;
+    if (id == null || hasHealthLogReminder || _adding) return;
+    _adding = true;
+    try {
+      await _addHealthLog(id, hour, minute);
+    } finally {
+      _adding = false;
+    }
+  }
+
+  Future<void> _addHealthLog(String id, int hour, int minute) async {
     if (id == null || hasHealthLogReminder || adding) return;
     adding = true;
     notifyListeners();
@@ -233,6 +263,11 @@ class NotificationViewModel extends BaseViewModel {
     await load(quiet: true);
   }
 
+  /// Earliest in the day first.
+  static List<Reminder> _byTime(List<Reminder> list) => [...list]
+    ..sort(
+      (a, b) => (a.hour * 60 + a.minute).compareTo(b.hour * 60 + b.minute),
+    );
   List<Reminder> get _list => switch (_reminders) {
     UiSuccess(:final data) => data,
     _ => const <Reminder>[],
@@ -257,6 +292,8 @@ class NotificationViewModel extends BaseViewModel {
     notifyListeners();
     final res = await op(original);
     if (res case Success(:final data)) {
+      // Kept in time order, so a changed time moves the card at once (audit, 24 Oct).
+      _reminders = UiSuccess(_byTime([...list]..[i] = data));
       _replace(id, data);
       setError(null);
     } else {

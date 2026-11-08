@@ -36,6 +36,15 @@ def current_account_id(
         return "00000000-0000-0000-0000-000000000000"
     try:
         claims = _decode(token, s)
+    except jwt.PyJWKClientConnectionError as e:
+        # Supabase's signing keys could not be fetched (project paused, no network): the token
+        # may be fine, so 503, not 401, which the app shows as "session expired" (bug list #3).
+        raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE,
+                            "The service is temporarily unavailable. Please try again later.") from e
     except jwt.PyJWTError as e:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, f"Invalid token: {e}") from e
-    return claims["sub"]
+    sub = claims.get("sub")
+    if not isinstance(sub, str) or not sub:
+        # A signed token without an account id: refused, not a 500 (audit, 23 Oct).
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid token: no account id")
+    return sub

@@ -64,6 +64,12 @@ class _TermsViewState extends State<TermsView> {
       (vm.termsReason == TermsReason.guardianNeeded ||
           (vm.termsProfileAge ?? AppConstants.adultAge) < AppConstants.adultAge);
 
+  /// Opened from the profile for an age of 18 or more: no 13-to-17 option.
+  bool _mustBeAdult(AuthViewModel? vm) =>
+      vm != null &&
+      vm.termsReason == TermsReason.ageChanged &&
+      (vm.termsProfileAge ?? 0) >= AppConstants.adultAge;
+
   bool _canAccept(bool minor) =>
       _agreeTerms &&
       _consentHealth &&
@@ -73,6 +79,7 @@ class _TermsViewState extends State<TermsView> {
               _guardianAgreed));
 
   Future<void> _accept(AuthViewModel vm, bool minor) async {
+    final review = vm.termsReason == TermsReason.ageChanged;
     final ok = await vm.acceptTerms(
       language: _lang,
       minor: minor,
@@ -80,6 +87,10 @@ class _TermsViewState extends State<TermsView> {
       guardianRelationship: _relationship,
     );
     if (ok && mounted) {
+      if (review) {
+        Navigator.of(context).pop(true); // back to the profile, which saves
+        return;
+      }
       Navigator.of(
         context,
       ).pushNamedAndRemoveUntil(vm.nextRoute ?? Routes.home, (_) => false);
@@ -120,7 +131,10 @@ class _TermsViewState extends State<TermsView> {
     final vm = widget.readOnly ? null : context.watch<AuthViewModel>();
     final doc = _doc;
     return PopScope(
-      canPop: widget.readOnly, // the terms are accepted or declined, not skipped
+      // The terms are accepted or declined, not skipped; a review from the
+      // profile can be left (the profile is then not saved).
+      canPop:
+          widget.readOnly || vm?.termsReason == TermsReason.ageChanged,
       child: Scaffold(
         appBar: const StatusBarStrip(),
         backgroundColor: AppTokens.screenBackground,
@@ -133,10 +147,12 @@ class _TermsViewState extends State<TermsView> {
 
   Widget _body(Map<String, dynamic> doc, AuthViewModel? vm) {
     final mustBeMinor = _mustBeMinor(vm);
-    final minor = mustBeMinor ? true : _minor;
+    final mustBeAdult = _mustBeAdult(vm);
+    final minor = mustBeMinor ? true : (mustBeAdult ? false : _minor);
     final reason = switch (vm?.termsReason) {
       TermsReason.updated => _ui('updated'),
       TermsReason.guardianNeeded => _ui('guardian_needed'),
+      TermsReason.ageChanged => _ui('age_changed'),
       _ => _ui('first_time'),
     };
     final contact = doc['contact'] as String;
@@ -204,7 +220,7 @@ class _TermsViewState extends State<TermsView> {
             ),
           ],
         ],
-        if (vm != null) ..._acceptance(vm, mustBeMinor, minor),
+        if (vm != null) ..._acceptance(vm, mustBeMinor, mustBeAdult, minor),
         if (widget.readOnly) ...[
           const SizedBox(height: 24),
           PillButton(
@@ -216,7 +232,12 @@ class _TermsViewState extends State<TermsView> {
     );
   }
 
-  List<Widget> _acceptance(AuthViewModel vm, bool mustBeMinor, bool? minor) {
+  List<Widget> _acceptance(
+    AuthViewModel vm,
+    bool mustBeMinor,
+    bool mustBeAdult,
+    bool? minor,
+  ) {
     final error = switch (vm.termsState) {
       UiError(:final message) => message,
       _ => null,
@@ -242,7 +263,11 @@ class _TermsViewState extends State<TermsView> {
             enabled: !mustBeMinor,
             label: Text(_ui('age_adult')),
           ),
-          ButtonSegment(value: true, label: Text(_ui('age_minor'))),
+          ButtonSegment(
+            value: true,
+            enabled: !mustBeAdult,
+            label: Text(_ui('age_minor')),
+          ),
         ],
         selected: {?minor},
         emptySelectionAllowed: true,

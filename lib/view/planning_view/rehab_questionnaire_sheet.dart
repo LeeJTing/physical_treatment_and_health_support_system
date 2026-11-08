@@ -9,22 +9,38 @@ import 'package:physical_treatment_and_health_support_system/view/common/choice_
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 
+/// The answers so far. Kept by the caller, so a sheet closed by mistake (a swipe down at its top
+/// closes it) opens again with them (emulator, 24 Oct: four answers were lost that way).
+class RehabDraft {
+  Set<String> regions = {};
+  String? listArea;
+  RecoveryStage? stage;
+  MobilityLevel? mobility;
+  String? goal;
+  String? pace;
+}
+
 /// Asks the four FR500_03 questions, and an optional pace, before recommending. Returns null when
-/// the patient closes the sheet. There is no Figma screen for this step, so
-/// it reuses the planning screens' tokens.
-Future<RehabInfo?> showRehabQuestionnaire(BuildContext context) =>
-    showModalBottomSheet<RehabInfo>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppTokens.background,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (_) => const RehabQuestionnaireSheet(),
-    );
+/// the patient closes the sheet; the answers stay in [draft]. There is no Figma screen for this
+/// step, so it reuses the planning screens' tokens.
+Future<RehabInfo?> showRehabQuestionnaire(
+  BuildContext context, {
+  RehabDraft? draft,
+}) => showModalBottomSheet<RehabInfo>(
+  context: context,
+  isScrollControlled: true,
+  backgroundColor: AppTokens.background,
+  shape: const RoundedRectangleBorder(
+    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  ),
+  builder: (_) => RehabQuestionnaireSheet(draft: draft),
+);
 
 class RehabQuestionnaireSheet extends StatefulWidget {
-  const RehabQuestionnaireSheet({super.key});
+  /// Where the answers are kept; a new one when not given.
+  final RehabDraft? draft;
+
+  const RehabQuestionnaireSheet({super.key, this.draft});
 
   @override
   State<RehabQuestionnaireSheet> createState() =>
@@ -32,23 +48,31 @@ class RehabQuestionnaireSheet extends StatefulWidget {
 }
 
 class _RehabQuestionnaireSheetState extends State<RehabQuestionnaireSheet> {
+  late final RehabDraft _d = widget.draft ?? RehabDraft();
+
   /// Regions tapped on the body map (ids of both views).
-  Set<String> _regions = {};
+  Set<String> get _regions => _d.regions;
+  set _regions(Set<String> v) => _d.regions = v;
 
   /// Area chosen from the fallback list instead of the map.
-  String? _listArea;
+  String? get _listArea => _d.listArea;
+  set _listArea(String? v) => _d.listArea = v;
 
   /// The one affected body area sent to /recommend (FR500_03).
   String? get _area =>
       _listArea ??
       BodyRegions.areaFor([for (final id in _regions) ?BodyRegions.byId[id]]);
 
-  RecoveryStage? _stage;
-  MobilityLevel? _mobility;
-  String? _goal;
+  RecoveryStage? get _stage => _d.stage;
+  set _stage(RecoveryStage? v) => _d.stage = v;
+  MobilityLevel? get _mobility => _d.mobility;
+  set _mobility(MobilityLevel? v) => _d.mobility = v;
+  String? get _goal => _d.goal;
+  set _goal(String? v) => _d.goal = v;
 
   /// Optional: SLOW, MEDIUM or FAST.
-  String? _pace;
+  String? get _pace => _d.pace;
+  set _pace(String? v) => _d.pace = v;
 
   bool get _complete =>
       _area != null && _stage != null && _mobility != null && _goal != null;

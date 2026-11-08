@@ -1,0 +1,17 @@
+{
+ "rules_version": "chat-rules-4.09",
+ "seed": 1,
+ "messages": 2000,
+ "passed": 2000,
+ "rate": 1.0,
+ "urgent": 236,
+ "urgent_passed": 236,
+ "by_kind": {
+  "caregiver": {
+   "passed": 2000,
+   "messages": 2000
+  }
+ },
+ "misses": [],
+ "seconds": 148
+}

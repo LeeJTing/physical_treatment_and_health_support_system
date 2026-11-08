@@ -20,7 +20,7 @@ ROUND13 = [
     (KNEE, "what does the green tick mean in my history", ("history_help", "posture_result")),
     (KNEE, "how is my accuracy calculated", "posture_result"),
     (KNEE, "my results page empty", ("history_help", "app_help")),
-    (KNEE, "the app keep crashing when i record", ("recording_help", "app_help")),
+    (KNEE, "the app keep crashing when i record", ("recording_help", "app_help", "app_problem")),   # 3.67
     (KNEE, "video upload very slow", "recording_help"),
     (KNEE, "can i use the app without a phone stand", ("recording_help", "equipment")),
     (KNEE, "hi can you tell me how to do the knee one", ("exercise:knee_extension", "how_to")),
@@ -29,8 +29,8 @@ ROUND13 = [
     (KNEE, "um how many times a day should i do it", "how_often"),
     (KNEE, "i did all 3 exercises today feeling good", ("plan_progress", "acknowledge", "how_often")),
     (KNEE, "the reminder came but i was busy", ("missed_session", "reminders_help")),
-    (KNEE, "does this app share my data", ("app_help", "account_help")),
-    (KNEE, "is my video saved somewhere", ("recording_help", "app_help", "account_help")),
+    (KNEE, "does this app share my data", ("app_help", "account_help", "privacy_data")),
+    (KNEE, "is my video saved somewhere", ("recording_help", "app_help", "account_help", "privacy_data")),
     (KNEE, "can the doctor see my results", ("history_help", "app_help")),
     (KNEE, "what language can i use", ("language", "bot_identity", "app_help")),  # (3.22)
     (KNEE, "boleh guna bahasa melayu", ("language", "bot_identity", "app_help")),  # (3.22)

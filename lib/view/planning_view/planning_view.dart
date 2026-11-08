@@ -18,6 +18,9 @@ import 'package:physical_treatment_and_health_support_system/view/planning_view/
 class PlanningView extends StatelessWidget {
   const PlanningView({super.key});
 
+  /// The questionnaire's answers, one set per planning screen (its ViewModel).
+  static final _drafts = Expando<RehabDraft>();
+
   Future<void> _retrieve(BuildContext context) async {
     final vm = context.read<PlanningViewModel>();
     // 65 and over: the reasons page instead of the questionnaire (Terms of
@@ -35,7 +38,11 @@ class PlanningView extends StatelessWidget {
       return;
     }
     if (!context.mounted) return;
-    final rehab = await showRehabQuestionnaire(context);
+    // The answers stay with this planning screen, so closing the sheet by mistake loses nothing.
+    final rehab = await showRehabQuestionnaire(
+      context,
+      draft: _drafts[vm] ??= RehabDraft(),
+    );
     if (rehab == null || !context.mounted) return;
     vm.recommend(rehab);
     await Navigator.of(context).push(
@@ -152,7 +159,7 @@ class PlanningView extends StatelessWidget {
                 const StepCard(
                   number: 3,
                   text:
-                      'You get the top 3 suggestions to review, customise, and choose from.',
+                      'You get the top 3 suggestions to review and choose from.',
                 ),
               ],
             ),

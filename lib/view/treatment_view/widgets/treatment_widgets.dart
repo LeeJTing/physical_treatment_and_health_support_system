@@ -7,11 +7,12 @@ import 'package:physical_treatment_and_health_support_system/core/routes/routes.
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/rehab_labels.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 /// "Exit" on the recording, analysing and result screens (FR300_13): cancels the exercise in
-/// progress and goes back to the home page. Asks first when [confirm] is given (while
-/// recording or analysing, when something would be lost).
+/// progress and goes back to the home page, or in testing mode to the testing list. Asks first
+/// when [confirm] is given (while recording or analysing, when something would be lost).
 class ExitExerciseButton extends StatelessWidget {
   final String? confirm;
   const ExitExerciseButton({super.key, this.confirm});
@@ -37,10 +38,17 @@ class ExitExerciseButton extends StatelessWidget {
       );
       if (ok != true || !context.mounted) return;
     }
-    context.read<TreatmentViewModel>().cancelExercise();
-    Navigator.of(
-      context,
-    ).pushNamedAndRemoveUntil(Routes.home, (_) => false);
+    final vm = context.read<TreatmentViewModel>();
+    final testing = vm.testing;
+    vm.cancelExercise();
+    if (testing) {
+      // Testing mode: back to the exercise list, as Continue does (laptop emulator test, 22 Oct).
+      Navigator.of(context).popUntil(
+        (r) => r.settings.name == TestExercisesView.routeName || r.isFirst,
+      );
+      return;
+    }
+    Navigator.of(context).pushNamedAndRemoveUntil(Routes.home, (_) => false);
   }
 
   @override
@@ -187,9 +195,14 @@ class StagePill extends StatelessWidget {
       Color bg,
       Color fg,
     ) = switch (stage.status) {
+      // Done below 80% (moved on after 3 tries): not shown as a pass (audit, 24 Oct).
       StageStatus.done => (
         Icons.check,
-        best == null ? 'Done' : '${best.round()}% posture',
+        best == null
+            ? 'Done'
+            : best >= ExerciseSession.passMark
+            ? '${best.round()}% posture'
+            : 'Done, best ${ExerciseSession.shownPercent(best)}%',
         AppTokens.goodContainer,
         AppTokens.good,
       ),
@@ -265,9 +278,14 @@ class StageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pe = stage.item;
-    final subtitle =
-        '${RehabLabels.area(pe.exercise.targetBodyArea)} · ${pe.prescribedRepetitions} reps · '
-        '${RehabLabels.duration(pe.prescribedDurationSec)}';
+    // Non-breaking spaces keep each number with its unit ("1 min") on one line with large phone
+    // text (emulator at 2x, 24 Oct: "10 reps · 1 / min").
+    String together(String s) => s.replaceAll(' ', '\u00A0');
+    final subtitle = [
+      together(RehabLabels.area(pe.exercise.targetBodyArea)),
+      together('${pe.prescribedRepetitions} reps'),
+      together(RehabLabels.duration(pe.prescribedDurationSec)),
+    ].join(' · ');
     return Semantics(
       button: true,
       label: '${pe.exercise.exerciseName}, $subtitle',
@@ -312,9 +330,11 @@ class StageCard extends StatelessWidget {
               ),
               if (_isNext && onStart != null) ...[
                 const SizedBox(height: 14),
-                SizedBox(
-                  width: double.infinity,
-                  height: AppTokens.minTarget,
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minWidth: double.infinity,
+                    minHeight: AppTokens.minTarget,
+                  ),
                   child: FilledButton(
                     onPressed: onStart,
                     style: FilledButton.styleFrom(
@@ -363,7 +383,7 @@ class ScoreRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: 'Posture accuracy ${percent.round()} percent',
+    label: 'Posture accuracy ${ExerciseSession.shownPercent(percent)} percent',
     child: SizedBox(
       width: size,
       height: size,
@@ -371,7 +391,7 @@ class ScoreRing extends StatelessWidget {
         painter: _RingPainter(percent / 100, color, track),
         child: Center(
           child: Text(
-            '${percent.round()}%',
+            '${ExerciseSession.shownPercent(percent)}%',
             style: const TextStyle(
               fontSize: 34,
               fontWeight: FontWeight.w600,

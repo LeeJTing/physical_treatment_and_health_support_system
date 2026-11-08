@@ -1,0 +1,54 @@
+{
+  "pose_key": "bird_dog",
+  "focus": {
+    "joint": "r_shoulder",
+    "from": "r_hip",
+    "to": "r_wrist"
+  },
+  "mover": "r_wrist",
+  "captions": {
+    "start": "On hands and knees, back flat",
+    "go": "Stretch one arm and the other leg out",
+    "top": "Level with your back: hold 2 seconds",
+    "back": "Bring them back slowly"
+  },
+  "say": {
+    "go": "Stretch",
+    "back": "Back"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Kneel on a mat on your hands and knees: hands under your shoulders, knees under your hips."
+    },
+    {
+      "phase": "go",
+      "text": "Stretch one arm forward and the opposite leg back."
+    },
+    {
+      "phase": "top",
+      "text": "Stop when they are level with your back and hold for two seconds."
+    },
+    {
+      "phase": "back",
+      "text": "Bring them back slowly, then do the other arm and leg."
+    }
+  ],
+  "safety": [
+    "Keep your back flat and do not twist.",
+    "Use a mat or a folded towel under your knees."
+  ],
+  "mistakes": [
+    {
+      "label": "arm_leg_low",
+      "wrong": "your arm and leg did not reach the level of your back",
+      "right": "Stretch your arm and leg a little further, towards the level of your back, only as far as feels steady."
+    },
+    {
+      "label": "back_sag",
+      "wrong": "your lower back dipped or your hips tilted while you stretched",
+      "right": "Keep your back flat and your hips level."
+    }
+  ],
+  "setup": []
+}

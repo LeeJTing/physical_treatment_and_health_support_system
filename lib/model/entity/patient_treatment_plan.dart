@@ -69,7 +69,7 @@ class PatientTreatmentPlan {
     'suitability_score': suitabilityScore,
     'progress_percentage': progressPercentage,
     'status': status.db,
-    'selected_at': selectedAt.toIso8601String(),
+    'selected_at': selectedAt.toUtc().toIso8601String(),
   };
 
   /// Reads a patient_plan row joined with its treatment_plan.
@@ -83,6 +83,6 @@ class PatientTreatmentPlan {
         suitabilityScore: (j['suitability_score'] as num?)?.toDouble(),
         progressPercentage: (j['progress_percentage'] as num?)?.toDouble() ?? 0,
         status: PlanStatus.fromDb(j['status'] as String?),
-        selectedAt: DateTime.parse(j['selected_at'] as String),
+        selectedAt: DateTime.parse(j['selected_at'] as String).toLocal(),
       );
 }

@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/utils/body_regions.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/choice_card.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/rehab_info.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/rehab_questionnaire_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/body_map.dart';
@@ -638,6 +641,41 @@ void main() {
     });
   });
 
+  testWidgets(
+    'a sheet closed by mistake opens again with the answers given (emulator, 24 Oct)',
+    (t) async {
+      final draft = RehabDraft();
+      await t.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) => Scaffold(
+              body: TextButton(
+                onPressed: () => showRehabQuestionnaire(context, draft: draft),
+                child: const Text('open'),
+              ),
+            ),
+          ),
+        ),
+      );
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+      await reveal(t, find.text('Early'));
+      await t.tap(find.text('Early'));
+      await t.pump();
+      await t.tapAt(const Offset(10, 10)); // outside the sheet: it closes
+      await t.pumpAndSettle();
+      expect(find.text('Early'), findsNothing);
+
+      await t.tap(find.text('open'));
+      await t.pumpAndSettle();
+      await reveal(t, find.text('Early'));
+      final early = t.widget<ChoiceCard>(
+        find.ancestor(of: find.text('Early'), matching: find.byType(ChoiceCard)),
+      );
+      expect(early.selected, isTrue); // before: a new, empty questionnaire
+    },
+  );
+
   group('plan card thumbnail', () {
     const expected = {
       'LEFT_ARM': (BodyGroup.arm, {BodySide.left}),
@@ -689,5 +727,23 @@ void main() {
       expect(find.bySemanticsLabel('Target area: Left leg'), findsOneWidget);
       handle.dispose();
     });
+  });
+
+  // The parts the map sends as focus_parts must be the ones the server knows (FOCUS_PARTS in
+  // ai_server/app/recommend/engine.py); this reads that file (audit, 24 Oct).
+  test('every focus part of the map is one the server recommender knows', () {
+    final py = File('ai_server/app/recommend/engine.py').readAsStringSync();
+    final line = RegExp(
+      r'^FOCUS_PARTS = \(([^)]*)\)',
+      multiLine: true,
+    ).firstMatch(py)!;
+    final server = {
+      for (final m in RegExp(r'"(\w+)"').allMatches(line[1]!)) m[1]!,
+    };
+    final sent = BodyRegions.focusParts([
+      ...BodyRegions.front,
+      ...BodyRegions.back,
+    ]);
+    expect(sent.toSet(), server);
   });
 }

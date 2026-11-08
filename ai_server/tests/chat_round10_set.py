@@ -8,10 +8,10 @@ from chat_round1_set import KNEE
 from chat_round4_set import CORE, LEGS, SHOULDER
 
 ROUND10 = [
-    (KNEE, "my mother is 75, can she do these exercises", ("for_someone_else", "safety", "getting_started", "plan_exercises")),  # (3.14)
+    (KNEE, "my mother is 75, can she do these exercises", ("for_someone_else", "safety", "getting_started", "plan_exercises", "age_limit")),  # (3.14)
     (KNEE, "i am helping my father record his exercise", "recording_help"),
-    (KNEE, "can i exercise while fasting", ("diet", "best_time")),
-    (KNEE, "puasa boleh senaman tak", ("diet", "best_time")),
+    (KNEE, "can i exercise while fasting", ("diet", "best_time", "fasting")),   # 3.76: the fasting answer
+    (KNEE, "puasa boleh senaman tak", ("diet", "best_time", "fasting")),
     (KNEE, "today very hot can exercise?", ("hot_weather", "safety", "best_time")),  # heat topic since 3.17
     (KNEE, "i feel so lazy to exercise", ("motivation", "tired", "difficulty")),  # (3.14)
     (KNEE, "i'm feeling sad and don't want to do anything", ("low_mood", "motivation", "tired", None)),  # (3.14), low_mood since 3.17

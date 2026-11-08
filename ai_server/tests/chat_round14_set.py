@@ -21,7 +21,7 @@ ROUND14 = [
     (KNEE, "muscle wasting", "muscle_loss"),
     (KNEE, "sarcopenia", "muscle_loss"),
     (KNEE, "I missed 2 weeks because I was in hospital", "missed_session"),
-    (KNEE, "go back to home", None),
+    (KNEE, "go back to home", (None, "exit_exercise")),  # 3.55: Exit takes you home
     # afraid of falling
     (KNEE, "i am scared i will fall while doing the exercise", "fear_of_falling"),
     (KNEE, "i'm afraid of falling", "fear_of_falling"),
@@ -98,8 +98,8 @@ ROUND14 = [
     (KNEE, "suddenly i see double", "red_flag"),
     (KNEE, "my vision went blurry during the exercise", "red_flag"),
     (KNEE, "mata saya kabur tiba tiba", "red_flag"),
-    (KNEE, "my video is blurry", "recording_help"),
-    (KNEE, "the recording looks blurry", "recording_help"),
+    (KNEE, "my video is blurry", ("recording_help", "video_quality")),  # 3.55
+    (KNEE, "the recording looks blurry", ("recording_help", "video_quality")),  # 3.55
     (KNEE, "everything is blurry on the app", None),
     (KNEE, "i'm so blur about how to use the app", "app_help"),
     (KNEE, "mata saya blur tiba tiba", "red_flag"),

@@ -17,14 +17,20 @@ Re-run after editing this file or the catalogue:   python ai_server/app/chat/bui
 """
 import json
 import re
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from app.chat.layout import layout  # noqa: E402  (3.68: every answer set out in lines)
 
 ROOT = Path(__file__).resolve().parents[3]
 CATALOGUE = ROOT / "assets" / "seed" / "catalogue.json"
 OUT = Path(__file__).with_name("rules.json")
-VERSION = "chat-rules-3.50"
+VERSION = "chat-rules-4.09"
 
-NOT_RECOGNISED = "The question is not recognised, please try asking other question."   # UC400 M7, FR500_22
+# FR500_22's "Question not recognised" (3.66; was "The question is not recognised, please try asking other
+# question."). A short message is echoed back in it (engine._not_recognised).
+NOT_RECOGNISED = "Question not recognised. Please choose a topic below, or ask it another way."   # UC400 M7
 
 
 def intent(key, title, priority, keywords, examples, answer, show=True, follow_ups=(), tailor=False,
@@ -55,8 +61,9 @@ INTENTS = [
            "Here is how to start: 1) Make sure your health profile is complete (Profile tab), so your safety "
            "limits are set. 2) Open AI-assisted treatment planning and tap Retrieve physical treatment to get "
            "plans that suit you, then select one. 3) Open My treatment plan from the Treatment tab and start the "
-           "first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; reach "
-           "80% to move on to the next exercise. Your reminders follow the plan's weekly schedule.",
+           "first exercise: read its steps, then record yourself doing it. 4) The app checks your posture; you "
+           "move on to the next exercise at 80% or more, or after 3 tries below 80%. Your reminders follow the "
+           "plan's weekly schedule.",
            action={"key": "open_planning", "label": "Open treatment planning"},
            more_actions=[{"key": "open_profile", "label": "Open Profile"}]),
     intent("how_to", "How to do the exercises", 4,
@@ -131,7 +138,10 @@ INTENTS = [
             "rheumatoid", "copd", "lung disease", "chronic lung", "emphysema", "cancer", "chemo",
             "chemotherapy", "radiotherapy", "kanser", "barah", "kidney disease", "kidney problem", "dialysis",
             "buah pinggang", "parkinson", "parkinsons", "multiple sclerosis", "foot ulcer", "diabetic foot",
-            "wound on my foot"],
+            "wound on my foot",
+            # 3.54 (15 Oct): everyday names (Malay ones arrive translated)
+            "osteoarthritis", "weak bones", "brittle bones", "thin bones", "gave birth", "just had a baby",
+            "after delivery", "parkinson's", "have ms", "with ms", "for ms", "got ms", "ms exercise", "ms can", "ada ms"],
            ["I have diabetes, is there anything special I should do", "can I exercise with high blood pressure",
             "I have asthma, any advice"],
            "Your plan was chosen within the safety limits for the conditions in your health profile, so you can "
@@ -191,9 +201,15 @@ INTENTS = [
             "wobbly", "wobble", "unsteady", "unstable", "shaky", "shaking", "shake", "shakes", "trembling", "tremble",
             "weak", "weakness", "give way", "gives way", "giving way", "give out", "gives out", "collapse",
             "collapsing", "buckle", "buckles", "buckling", "balance", "off balance", "lose balance", "losing balance",
-            "lost my balance", "feel like falling", "jelly", "no strength", "not strong", "heavy legs"],
+            "lost my balance", "feel like falling", "jelly", "no strength", "not strong", "heavy legs",
+            # 3.59: "i can't get up" was the age-limit answer, "can't stand up" heel raises. With a fall,
+            # the floor, "since" or "lying" it is a warning sign instead (red_flag_combos).
+            # Only the difficulty: "how should I stand up from the chair" is the sit-to-stand exercise.
+            "can't get up", "cannot get up", "cant get up", "unable to get up", "hard to get up",
+            "trouble getting up", "can't stand up", "cannot stand up", "cant stand up", "hard to stand up",
+            "trouble standing up"],
            ["my leg feels wobbly when standing", "my legs feel weak", "I feel unsteady on my feet",
-            "my knee gives way", "I lose my balance"],
+            "my knee gives way", "I lose my balance", "I can't get up from the chair", "I can't get up"],
            "Legs, arms or hands that feel weak, wobbly or shaky are common after a long period of less activity, "
            "and this is what your exercises are building up. For standing exercises always keep one hand on a "
            "sturdy chair or counter; for any exercise do fewer repetitions and rest when the shaking starts. If "
@@ -231,7 +247,8 @@ INTENTS = [
             "should I retry the exercise"],
            "The posture score shows how closely your movement matched the correct form, as a percentage, with "
            "tips on what to change. At 80% or more your progress is updated automatically. Below that you can "
-           "read the tips and retry, or continue; every attempt is saved so you can see your improvement. "
+           "read the tips and retry, or tap Continue to save this try. Your plan moves on when you score 80% or "
+           "more, or after 3 tries below 80%. Every attempt is saved so you can see your improvement. "
            "If it counted fewer repetitions than you did, make each one a full, clear movement with a short "
            "pause back at the start, and keep your whole body in the picture."),
     intent("best_time", "When to exercise", 5,
@@ -288,7 +305,8 @@ INTENTS = [
             "where are my exercises", "take me to my exercises", "my pathway", "next stage"],
            ["open my exercises", "where are my exercises", "take me to my treatment plan"],
            "Your treatment plan shows your exercises in order. Open the next one, read its steps, then record "
-           "yourself doing it; the app checks your posture and moves you on when you reach 80%.",
+           "yourself doing it; the app checks your posture and moves you on when you reach 80%, or after 3 "
+           "tries below 80%.",
            show=False, action={"key": "open_treatment", "label": "Open my treatment plan"}),
     intent("profile_help", "Your health profile", 6,
            ["medium risk", "low risk", "high risk", "risk mean", "risk calculated", "my risk level", "risk level mean",
@@ -359,8 +377,10 @@ INTENTS = [
            ["it says my video is quite dark", "why does it say move the phone closer"],
            "A dark video, or you looking small in the picture, makes the posture check less accurate. Record "
            "with a light on in front of you (not behind you), and place the phone about 2 to 3 metres away "
-           "so your whole body fills most of the picture, from head to feet.", show=False,
-           action={"key": "open_treatment", "label": "Record an exercise"}),
+           "so your whole body fills most of the picture, from head to feet. "
+           # 4.00: what to wear, and no one else in the picture
+           "Wear fitted clothes rather than loose ones, and keep other people and pets out of the picture.",
+           show=False, action={"key": "open_treatment", "label": "Record an exercise"}),
     # 8 Oct (round 13): which languages the assistant understands.
     intent("language", "Languages", 5,
            ["what language", "which language", "languages", "bahasa melayu", "guna bahasa", "speak malay",
@@ -410,7 +430,15 @@ INTENTS = [
             "worry about falling", "scared i will fall", "scared i'll fall", "afraid i will fall", "afraid i'll fall",
             "worried i will fall", "worried i'll fall", "scared to fall", "afraid to fall", "if i fall",
             "what if i fall", "in case i fall", "if she falls", "if he falls", "if she fall", "if he fall",
+            # 3.73: told by the person helping ("my father is scared he will fall")
+            "scared he will fall", "scared she will fall", "scared he'll fall", "scared she'll fall",
+            "afraid he will fall", "afraid she will fall", "afraid he'll fall", "afraid she'll fall",
+            "worried he will fall", "worried she will fall", "worried he'll fall", "worried she'll fall",
+            "if he can't get up", "if she can't get up", "if he cannot get up", "if she cannot get up",
             "after a fall", "get up after a fall", "get up from the floor", "get up if i fall", "nobody is home",
+            # 3.62: before weak legs' "cannot get up" (3.59) took "what if i cannot get up after falling".
+            "get up after falling", "get up after fall", "get up after i fall", "can't get up after",
+            "cannot get up after", "cant get up after", "if i can't get up", "if i cannot get up",
             "afraid of getting hurt", "scared of getting hurt", "worried about getting hurt", "afraid of a fall",
             "scared of a fall", "afraid of getting injured", "scared of getting injured",
             "no one is home", "no one at home", "nobody at home", "alone at home", "home alone", "live alone",
@@ -442,7 +470,8 @@ INTENTS = [
            ["the words are too small", "how do I make the text bigger"],
            "The app follows your phone's text size. To make the words bigger, open your phone's Settings, "
            "then Display, then Font size (on some phones, Font size and style), and move the slider up; the "
-           "app's text grows with it. A family member can also sit with you while you use the app.",
+           "app's text grows with it. A family member can also sit with you while you use the app. The app "
+           "has a light theme only; dark mode is not available yet.",
            show=False),
     intent("family_help", "Help from family", 6,
            ["help me with the app", "help me use the app", "help me use", "help me with this app",
@@ -718,11 +747,11 @@ INTENTS = [
            "always use the newest one. If you clicked a link in the email instead, return to the app and log "
            "in.", show=False),
     intent("account_help", "Account and login", 6,
-           ["my information", "my info", "my data", "who can see", "privacy", "private", "personal data", "data safe", "delete my account", "delete account",
+           ["my information", "my info",
             "log in", "login", "log out", "logout", "sign in", "sign out", "account", "email",
             "username", "google sign in",
-            "change my details", "delete my account", "my data", "privacy"],
-           ["how do I log in", "how do I update my health profile", "is my data private"],
+            "change my details"],
+           ["how do I log in", "how do I update my health profile", "how do I log out"],
            "Log in with the email and password you registered with, or use Continue with Google. If you forgot "
            "your password, tap Forgot password? on the login screen to get a reset code by email. You can update "
            "your health details on the Profile page; your plan's safety limits are recalculated when you save. "
@@ -737,9 +766,13 @@ INTENTS = [
            "comfortable range, and it should ease within a day or two. If it lasts longer than three days, do "
            "fewer repetitions and contact your physiotherapist.", show=False, tailor=True, negatable=True),
     intent("pain_sharp", "Sharp or worsening pain", 9,
-           ["sharp", "stabbing", "shooting", "getting worse", "worse", "worsening", "sudden pain", "pain during",
+           ["sharp", "stabbing", "shooting", "getting worse", "worse", "worsening", "sudden pain",
+            # Not "pain during" (3.66: "my wrist pain during push ups" is pain, not sharp pain).
             "can't move", "cannot move", "very painful", "really hurts", "unbearable", "won't go away", "not going away",
-            "every time", "keeps hurting"],
+            # 3.64: not "every time" alone ("do i have to log in every time i open the app").
+            "hurts every time", "hurt every time", "pain every time", "painful every time", "sakit every time",
+            "every time i bend", "every time i move", "every time i stand", "every time i walk",
+            "every time i lift", "every time i do it", "keeps hurting"],
            ["I get a sharp pain during the exercise", "the pain is getting worse"],
            "Stop the exercise that causes it and rest. Do not push through sharp or worsening pain. If it does "
            "not settle within a day, or it stops you moving normally, contact your doctor or physiotherapist "
@@ -754,7 +787,7 @@ INTENTS = [
 
     # ---- hidden intents: outside the bot's scope, answered safely -------------------------------
     intent("medication", "Medicines", 9,
-           ["medicine", "medicines", "medication", "medications", "pill", "pills", "tablet", "tablets", "painkiller",
+           ["medicine", "medicines", "medication", "medications", "meds", "my meds", "pill", "pills", "tablet", "tablets", "painkiller",
             "painkillers", "pain killer", "panadol", "paracetamol", "ibuprofen", "aspirin", "insulin", "drug", "drugs",
             "dose", "dosage", "prescription", "supplement", "supplements", "vitamin", "vitamins", "cream", "ointment",
             "injection", "inhaler dose", "antibiotic", "antibiotics", "antibiotik", "which medicine",
@@ -798,7 +831,10 @@ INTENTS = [
            ["thanks", "thank you", "thank u", "thx", "ty", "tq", "cheers", "appreciate", "appreciated", "helpful",
             "that helps", "that helped", "great", "nice", "ok thanks", "okay thanks", "love this app",
             "love the app", "love it", "great app", "good app", "nice app", "awesome", "app is good",
-            "app is great", "very helpful", "so helpful"],
+            "app is great", "very helpful", "so helpful",
+            # 3.66, Elwin's reports ("Yahnks", "yanks") and other ways thanks is mistyped.
+            "yanks", "yahnks", "thnks", "tahnks", "thnx", "thanx", "tnx", "thks", "thank yuo", "thanku", "tqvm",
+            "tq vm", "tenkyu", "thankss", "thankyou", "thnk you", "thanks you", "terima kasih"],
            ["thank you", "thanks a lot", "that was helpful"],
            "You're welcome. Keep it up! Ask me anything else about your plan, or tap Exit Chatbot when you are done.",
            show=False, small_talk=True),
@@ -823,12 +859,348 @@ INTENTS = [
             "siri", "google assistant", "real doctor", "are you a doctor",
             "are you real", "real person", "what can you do", "what do you do", "what do you know",
             "what can you help", "what can i ask", "help", "how does this work",
-            "how do you work", "chatbot", "chat bot"],
-           ["what can you do", "what can I ask you", "are you a real person"],
+            "how do you work", "chatbot", "chat bot",
+            # 3.66, Elwin's reports: "what question can i ask" was the report answer; "i m ur father".
+            "what question", "what questions", "which question", "which questions", "what to ask",
+            "what should i ask", "what can you answer", "what question can i ask", "what questions can i ask",
+            "what question can", "your father", "ur father", "your mother", "ur mother", "your dad", "ur dad",
+            "your mum", "ur mum", "your mom", "ur mom", "are you my friend", "be my friend", "i love you",
+            "love you", "do you love me", "are you single", "marry me", "are you married"],
+           ["what can you do", "what can I ask you", "are you a real person", "what question can i ask"],
            "I am the rehabilitation assistant for your treatment plan. I answer common questions using answers "
            "prepared in advance, so I cannot diagnose or give medical advice. You can ask about how to do your "
            "exercises, pain, safety, how often to exercise, recording your video, your posture score, and "
-           "your plan or reminders.", show=False, small_talk=True),
+           "your plan or reminders. Tap a topic below to see the questions you can ask.",
+           show=False, small_talk=True),
+    # 3.66, Elwin's reports ("Excuse me?", "exxuse me?"): what he expected - sorry, what can I help with,
+    # and that a wrong answer can be reported.
+    intent("pardon", "Sorry, say again?", 2,
+           ["excuse me", "pardon", "pardon me", "come again", "say again", "say that again", "what did you say",
+            "i beg your pardon", "sorry", "sorry what", "huh what"],
+           ["excuse me?", "pardon?"],                  # not "come again?": "come" alone matched it
+           "Sorry if my answer was not clear. What can I help you with? Choose a topic below, or type your "
+           "question in other words. If an answer was wrong, tap Report this answer under it.",
+           show=False, small_talk=True),
+    # 3.66, Elwin's report ("allergy": "do you mean you have an allergy? You may add it to your profile").
+    intent("allergy", "Allergies", 7,
+           ["allergy", "allergies", "allergic", "alergi", "alahan", "allergic reaction"],
+           ["I have an allergy", "allergy", "I am allergic to latex"],
+           "If you have an allergy, tell your doctor before starting your exercises, and keep any allergy "
+           "medicine you were given (such as an inhaler or an adrenaline pen) with you when you exercise. You "
+           "can keep your health conditions up to date in your profile. If you have trouble breathing, or your "
+           "face, lips or tongue swell, call 999 now.", show=False,
+           action={"key": "open_profile", "label": "Open my profile"}),
+    # 3.66, Elwin's report ("med": "do you need help calling emergencies?"): medicine or medical help.
+    # 3.74 (numbers test, chat_numbers_set.py): a pulse, oxygen or temperature reading or question ("my
+    # oxygen is 96", "what is a normal heart rate"). A reading that needs help now (oxygen 92% or lower, a
+    # pulse of 150 or more, or 40 or less) is a warning sign before this (engine.low_oxygen, odd_pulse).
+    intent("health_readings", "Your health readings", 6,
+           ["heart rate", "heartrate", "pulse", "pulse rate", "heartbeat", "heart beat rate", "bpm",
+            "normal heart rate", "resting heart rate", "oxygen", "oxygen level", "oxygen saturation", "spo2", "sp02",
+            "o2 level", "o2 sat", "oximeter", "pulse oximeter", "body temperature", "my temperature",
+            "temperature is", "temperature of", "check my temperature", "my temp", "suhu badan", "nadi", "kadar nadi",
+            "oksigen", "paras oksigen", "what is a fever", "normal temperature"],
+           ["what is a normal heart rate", "my oxygen is 96", "what temperature is a fever"],
+           "I cannot check your readings, but these are the usual guides when you are resting. "
+           "Pulse (heart rate): 60 to 100 beats a minute; it rises while you exercise and should settle within a "
+           "few minutes of rest. "
+           "Oxygen (SpO2): 95 to 100%; 92% or lower needs a doctor today, and with trouble breathing, call 999. "
+           "Temperature: 38 \u00b0C or higher is a fever; skip exercise and rest until it is gone. "
+           "Blood pressure: do not exercise when it is 180/110 or higher; follow your doctor's target. "
+           "Stop exercising if your heart races, beats unevenly or stays fast after resting; with chest pain or "
+           "fainting, call 999.", show=False),
+    # 3.74: the app counts neither the calories burned nor steps ("how many calories did i burn" was the pain
+    # answer); Home shows the daily food limits.
+    intent("calories", "Calories and steps", 6,
+           ["calorie", "calories", "kalori", "burn calories", "calories burn", "calories burned", "calories burnt",
+            "burn fat", "burning fat", "fat burn", "count calories", "count my calories", "count steps",
+            "count my steps", "step count", "step counter", "steps counter", "pedometer", "how many steps should",
+            "how many steps a day", "how many steps per day", "how many steps do i", "steps a day", "steps per day",
+            "langkah sehari"],
+           ["how many calories did I burn", "does the app count my steps"],
+           "The app does not count the calories you burn or your steps; your phone's step counter or a "
+           "smartwatch can. "
+           "These exercises build strength, balance and movement, and burn only a little energy. "
+           "For food, Home shows your daily limits for calories, salt and sugar, worked out from your profile, "
+           "and the Diet section has food advice; to lose weight, ask your doctor what suits you. "
+           "Walking most days is good for you: start with what feels comfortable and add a little each week.",
+           show=False),
+    # 3.74: "i finished my exercise", "done 10 reps" (was the plan's exercise list). Low priority: "done my
+    # exercise but my knee hurts" is about the knee.
+    intent("session_done", "Well done", 3,
+           ["finished my exercise", "finished my exercises", "finished the exercise", "finished the exercises",
+            "finished today's exercise", "finished todays exercise", "done my exercise",
+            "done my exercises", "done with my exercise", "done with my exercises", "done for today",
+            "completed my exercise", "completed my exercises", "completed today's exercise", "did my exercise",
+            "did my exercises", "have done my exercises", "siap senaman", "dah siap senaman", "sudah siap senaman",
+            "selesai senaman", "habis senaman"],
+           ["I finished my exercise", "I have done all my exercises"],
+           "Well done for finishing your exercise! "
+           "Your posture score and tips are saved in Session history. "
+           "Rest, drink some water, and notice how you feel: mild muscle soreness the next day is normal. "
+           "Each plan gives you one exercise a day: the next one comes tomorrow, and your reminder will tell you "
+           "when.", show=False),
+    # 3.76 (situations test, chat_situations_set.py): everyday situations around exercising. Before: "the haze
+    # is bad today", "i'm on holiday", "i smoke" were not recognised, fasting got the general best time,
+    # "can i exercise after blood donation" condition advice.
+    intent("haze", "Haze and air quality", 7,
+           ["haze", "hazy", "jerebu", "berjerebu", "air quality", "air pollution", "pollution", "polluted",
+            "api reading", "api index", "api level", "air pollutant index", "ipu", "smoky outside", "air is smoky",
+            "smoky air", "berasap", "asap tebal",
+            "asap jerebu"],
+           ["the haze is bad today", "the air quality is bad"],
+           "On hazy days, exercise indoors with the windows and doors closed: all your exercises can be done at home. "
+           "Check the Air Pollutant Index (API): above 100 is unhealthy, so do not exercise outdoors. "
+           "With asthma, COPD or heart disease, keep your inhaler or medicines close, and stop if you cough, wheeze "
+           "or feel short of breath. "
+           "Drink plenty of water.", show=False),
+    intent("fasting", "Exercising while fasting", 7,
+           ["fasting",
+            "puasa", "berpuasa", "ramadan", "ramadhan", "bulan puasa", "iftar", "berbuka",
+            "buka puasa", "sahur", "sahoor", "suhoor", "intermittent fasting"],
+           ["I am fasting in Ramadan", "exercise during Ramadan"],
+           "You can keep doing your exercises while fasting, at a gentle pace. "
+           "The easiest time is 1 to 2 hours after breaking your fast, or before sahur; avoid the late afternoon, "
+           "when you are most tired and thirsty. "
+           "Drink plenty of water between breaking your fast and sahur. "
+           "If you have diabetes, especially with insulin or tablets that can cause low sugar, ask your doctor "
+           "before exercising while fasting, and stop if you feel shaky, sweaty, dizzy or confused.", show=False),
+    intent("weather", "Rain, cold and air-conditioning", 6,
+           ["raining", "rainy", "in the rain", "rain today", "heavy rain", "hujan", "too cold", "very cold", "so cold", "cold room", "room is cold",
+            "room is very cold", "cold weather", "weather is cold", "sejuk", "cuaca sejuk", "aircond", "air cond",
+            "aircon", "air con", "air conditioner", "air conditioned", "air-conditioned", "air conditioning"],
+           ["it is raining today", "my room is very cold"],
+           "Rain does not stop your exercises: they can all be done indoors. "
+           "In a cold or air-conditioned room, warm up for a few minutes longer and wear a layer you can take off. "
+           "With asthma, cold air can bring on wheezing, so keep your inhaler close. "
+           "On hot days, exercise in a cool, airy room and drink water.", show=False),
+    intent("travel", "Travelling or on holiday", 6,
+           ["travelling", "traveling", "going to travel", "will travel", "travel next", "travel overseas", "travel abroad", "on holiday",
+            "go on holiday", "going on holiday", "school holiday", "family holiday", "vacation", "balik kampung", "outstation", "overseas", "abroad",
+            "long flight", "my flight", "on a flight", "hotel room", "cuti sekolah", "bercuti"],
+           ["I am travelling this week", "I will be on holiday next week"],
+           "You can take your plan with you: the exercises need only a sturdy chair and a little space, so a hotel "
+           "room or a relative's house is fine. "
+           "Reminders follow your phone's time, also in another time zone. "
+           "On long journeys, get up and walk, or move your ankles, every hour. "
+           "If you miss a few days, start again gently with fewer repetitions.", show=False),
+    intent("surgery", "Before or after an operation", 7,
+           ["going for surgery", "having surgery", "have surgery", "surgery next", "surgery soon", "surgery on",
+            "operation next", "operation soon", "an operation", "before surgery", "before my surgery",
+            "before the surgery", "before my operation", "before the operation", "after surgery", "after my surgery",
+            "after the surgery", "after my operation", "after the operation", "after operation", "had surgery",
+            "had an operation", "post op", "post-op", "postop", "pembedahan", "lepas operation", "lepas operate",
+            "kena operate", "nak operate", "bedah"],
+           ["I am going for surgery next week", "when can I start again after my operation"],
+           "Before and after an operation, your surgeon's and physiotherapist's advice comes first. "
+           "Before it: keep doing your exercises if they feel comfortable, unless your doctor says otherwise; being "
+           "stronger helps you recover. "
+           "After it: ask them when you may start again and which movements to avoid; you can switch your "
+           "reminders off meanwhile, and your progress is kept. "
+           "Update your health profile if the operation changes anything, such as a new hip or knee.", show=False),
+    intent("period", "Exercising during your period", 7,
+           ["my period", "on my period", "on period", "having my period", "period pain", "period pains",
+            "period cramps", "menstrual", "menstruation", "menstruating", "menses", "haid", "datang bulan",
+            "senggugut", "during my period", "during period", "pms"],
+           ["I am on my period", "period pain"],
+           "Exercising during your period is fine, and gentle exercise can ease cramps. "
+           "Go at an easier pace on heavy or painful days, and drink water. "
+           "Stop and rest if you feel dizzy or faint. "
+           "Very heavy bleeding, or pain that stops you doing daily things, is worth telling your doctor.",
+           show=False),
+    intent("alcohol_smoking", "Alcohol and smoking", 7,
+           ["alcohol", "drinking alcohol", "drank alcohol", "beer", "wine", "liquor", "whisky", "arak", "tuak",
+            "hangover", "i smoke", "smoking", "smoker", "cigarette", "cigarettes", "rokok", "merokok",
+            "vape", "vaping", "quit smoking", "stop smoking", "berhenti merokok"],
+           ["I drank alcohol last night", "I smoke cigarettes"],
+           "Alcohol and smoking both make exercise harder and less safe. "
+           "Do not exercise after drinking alcohol: it upsets your balance, makes falls more likely and dries you "
+           "out, so wait until the next day. "
+           "Smoking makes exercise harder because your muscles get less oxygen; avoid smoking just before or after "
+           "exercising. "
+           "Stopping smoking helps your breathing within weeks, and your clinic or doctor can help you quit.",
+           show=False),
+    intent("after_treatment", "After a massage, blood donation or vaccine", 6,
+           ["massage", "urut", "tukang urut", "acupuncture", "akupunktur", "cupping", "bekam", "blood donation",
+            "donate blood", "donated blood", "donating blood", "derma darah", "after vaccine", "after my vaccine",
+            "after the vaccine", "after a vaccine", "after vaccination", "after covid vaccine", "after my covid vaccine",
+            "had my vaccine", "got my vaccine", "vaccine yesterday", "vaccine today", "just vaccinated",
+            "got vaccinated", "after the jab", "after my jab", "got my flu shot", "had my flu shot",
+            "flu shot today", "after booster", "after my booster", "lepas vaksin", "selepas vaksin"],
+           ["I just had a massage", "I just donated blood"],
+           "Gentle exercise is usually fine afterwards, with a little care. "
+           "After a massage, urut or cupping: if the area is sore or bruised, rest it for a day. "
+           "After giving blood: avoid hard exercise and heavy lifting for the rest of the day and drink extra "
+           "water; carry on with your exercises the next day. "
+           "After a vaccine: light exercise is fine if you feel well; with a fever or feeling unwell, rest until it "
+           "passes, and go easy on a sore arm that day.", show=False),
+    # 3.78 (symptoms test, chat_symptoms_set.py): symptoms by their kind. Before: a cramp was the general pain
+    # answer, "muscle spasm in my back" and "pins and needles in my feet" were not recognised, "stitch in my
+    # side" was the surgical-wound advice (stitches), "pulled hamstring" was not recognised.
+    intent("cramp", "Cramp or muscle spasm", 7,
+           ["cramp", "cramps", "cramped", "cramping", "muscle cramp", "leg cramp", "calf cramp", "charley horse",
+            "spasm", "spasms", "muscle spasm", "back spasm", "back is locked", "locked back", "back locked",
+            "kejang", "kejang otot", "otot kejang", "kaki kejang"],
+           ["I got a cramp in my calf", "muscle spasm in my back"],
+           "A cramp is a muscle suddenly tightening: it hurts, but usually passes within a few minutes. "
+           "Stop and gently stretch the muscle: for a calf cramp, straighten your leg and pull your toes towards "
+           "you, or stand with that heel down and lean on a chair. "
+           "Rub the muscle, walk around once it eases, and drink some water. "
+           "For a back spasm, rest in a comfortable position with a warm pack, and move gently as soon as you can. "
+           "Cramps that keep coming back, or a calf that stays swollen, red or painful, need your doctor.",
+           show=False),
+    intent("pins_needles", "Pins and needles", 7,
+           ["pins and needles", "pin and needles", "tingling", "tingle", "tingles", "tingly", "semut semut",
+            "rasa semut", "kebas lepas duduk", "kebas bila duduk"]
+           + [f"{p} fell asleep" for p in ("foot", "feet", "leg", "legs", "thigh", "calf", "hamstring", "back", "arm",
+                                           "arms", "hand", "hands", "toes", "fingers", "bum", "buttock")],
+           ["pins and needles in my feet", "my foot fell asleep"],
+           "Pins and needles usually come from sitting, kneeling or lying in one position, and pass within a few "
+           "minutes once you move. "
+           "Change position and move the arm or leg gently before you carry on. "
+           "If it does not pass, keeps coming back, or you have diabetes, tell your doctor. "
+           "Sudden numbness or weakness on one side of the body, a drooping face or slurred speech needs 999 at "
+           "once.", show=False),
+    intent("stiffness", "Stiff joints or muscles", 7,
+           ["stiff", "stiffness", "morning stiffness", "stiff in the morning", "feel stiff", "feels stiff",
+            "joints are stiff", "stiff joints", "tight muscles", "muscles are tight", "muscles feel tight",
+            "feels tight", "kaku", "sendi kaku", "badan kaku", "rasa kaku"],
+           ["my joints are stiff in the morning", "my muscles feel tight"],
+           "Stiffness is common after rest, especially in the morning and with arthritis, and usually eases as you "
+           "move. "
+           "Loosen up first with a warm shower or a few minutes of gentle movement, then do your exercises slowly "
+           "through a comfortable range. "
+           "Morning stiffness that lasts more than an hour, with swollen or warm joints, is worth telling your "
+           "doctor.", show=False),
+    intent("stitch", "A stitch in your side", 6,
+           ["stitch in my side", "stitch in the side", "side stitch", "got a stitch", "a stitch when",
+            "a stitch during", "side ache", "stitch under my ribs", "senak bila jalan", "senak masa jalan",
+            "senak bila berjalan", "senak perut", "senak tepi"],
+           ["I get a stitch in my side when walking"],
+           "A stitch is a sharp pain under the ribs when you walk or breathe fast. "
+           "Slow down, breathe out slowly and press on the sore spot: it passes within a few minutes. "
+           "Avoid a big meal or a lot to drink just before exercising. "
+           "Pain in your chest, or pain with breathlessness, is different: stop and call 999.", show=False),
+    intent("muscle_strain", "A pulled or strained muscle", 7,
+           ["pulled hamstring", "pulled my hamstring", "pulled calf", "pulled my calf", "pulled a muscle",
+            "pulled muscle", "pulled my back", "strained muscle", "muscle strain", "strained my", "tweaked my",
+            "otot tertarik", "salah urat"],
+           ["I pulled a muscle", "I think I strained my calf"],
+           "A pulled (strained) muscle usually heals in a few days to a few weeks. "
+           "For the first 2 to 3 days, rest it from the movement that hurts, and use a cold pack wrapped in a cloth "
+           "for 15 minutes a few times a day. "
+           "Then move it gently within what is comfortable and build back up; keep exercising the rest of your "
+           "body. "
+           "See a doctor if you cannot walk or bear weight, there is a big bruise or swelling, or it is not better "
+           "after two weeks.", show=False),
+    # 3.91: sleeping badly most nights ("i can't sleep at night" was the best time to exercise, "i have
+    # insomnia" not recognised). A bad night once is the tired answer ("didn't sleep well").
+    intent("sleep", "Sleeping better", 6,
+           ["can't sleep", "cannot sleep", "cant sleep", "insomnia", "sleep better", "trouble sleeping",
+            "hard to sleep", "sleep problem", "sleep problems", "help me sleep", "tak boleh tidur", "susah tidur",
+            "wake up at night", "waking up at night", "sleep well at night"],
+           ["I can't sleep at night", "how can I sleep better"],
+           "Regular exercise usually helps you sleep better, as long as it is not in the last hour or two before "
+           "bed. "
+           "Keep a regular bedtime, get some daylight in the morning, and avoid coffee or tea after mid-afternoon and "
+           "large meals late at night. "
+           "If you sleep badly most nights for more than a few weeks, or snore loudly and feel sleepy in the day, "
+           "tell your doctor.", show=False),
+    # 3.98 (everyday questions probed by hand): "should i use ice or heat" and "can i talk to a real
+    # physiotherapist" were not recognised, "can this app replace my physiotherapist" was the too-hard answer,
+    # "my feet are always cold" the answer for a cold or flu.
+    intent("ice_heat", "Ice or heat", 6,
+           ["ice pack", "heat pack", "heating pad", "tuam", "tuam panas", "tuam ais", "tuaman", "letak ais", "demah"],
+           ["should I use ice or heat", "ice pack or heat pack for my knee"],
+           "Ice or heat can ease pain; choose by what the pain is like. "
+           "Ice is for a new injury, swelling or a joint that feels hot, in the first 2 days: wrap an ice pack or a "
+           "bag of frozen peas in a towel and hold it on for 10 to 15 minutes. "
+           "Heat is for stiffness and old aches, for example a stiff back in the morning or before exercising: use a "
+           "warm (not hot) towel or pack for up to 20 minutes, never on a swollen or hot joint. "
+           "Never put ice or heat straight on the skin, and ask your doctor first if the skin there feels numb or "
+           "you have diabetes or poor circulation.", show=False),
+    intent("physio_role", "The app and your physiotherapist", 8,      # over "too hard" (difficulty, 7)
+           ["real physiotherapist", "ahli fisioterapi", "jumpa fisioterapi", "cari fisioterapi"],
+           ["can this app replace my physiotherapist", "can I talk to a real physiotherapist"],
+           "HealthGuide helps with your home exercises, but it does not replace your doctor or physiotherapist. "
+           "It cannot examine you or change your treatment, and its posture check is a guide only. "
+           "Keep any physiotherapy or clinic appointments you have, and tell them which exercises you do here. "
+           "To see a physiotherapist, ask your doctor for a referral, or contact the physiotherapy unit of a "
+           "hospital or a private clinic.", show=False),
+    intent("cold_hands_feet", "Cold hands or feet", 6,
+           ["kaki sejuk", "tangan sejuk", "jari sejuk", "peredaran darah"],
+           ["my feet are always cold", "cold hands and feet"],
+           "Cold hands or feet are common when you sit still for a long time or in an air-conditioned room. "
+           "Keep them warm with socks or a blanket, and move your ankles, toes and fingers often; your exercises "
+           "help the blood flow too. "
+           "Tell your doctor if they are often numb, pale or bluish, if your calves hurt when you walk and ease "
+           "when you rest, or if you have diabetes. "
+           "A hand or foot that is suddenly cold, pale and painful needs a doctor at once.", show=False),
+    # 3.98: a carer helping someone up or along ("how to help my mother stand up" was "what can you do", "how
+    # do i help my mother get out of a chair" the equipment answer)
+    intent("helping_someone_move", "Helping someone stand up or walk", 7,
+           ["out of a chair", "out of the chair", "gait belt", "bantu bangun", "bantu berjalan", "angkat pesakit"],
+           ["how do I get my mother out of a chair", "using a gait belt for my father"],
+           "To help someone stand up from a chair, let them do as much as they can. "
+           "Ask them to move to the front of the seat with their feet flat and slightly apart, lean forward "
+           "(nose over toes) and push up on the armrests while you stand at their side and steady them at the "
+           "waist; never pull on their arms or neck. "
+           "Let them stand still for a moment before walking, in case they feel dizzy. "
+           "When walking, stay on their weaker side, a little behind, with a hand at their waist, and let them use "
+           "their walking aid. "
+           "If they cannot take most of their own weight, do not lift them alone; if they have fallen and are hurt "
+           "or cannot get up with a little help, call 999.", show=False),
+    intent("brace_support", "Knee braces and supports", 6,
+           ["knee brace", "knee guard", "knee support", "knee sleeve", "knee strap", "back brace", "back support",
+            "back belt", "lumbar support", "lumbar belt", "ankle brace", "ankle support", "wrist brace",
+            "wrist support", "wrist splint", "splint", "brace", "pendakap", "pendakap lutut", "sokongan lutut",
+            "korset", "tali pinggang sokongan"],
+           ["can I use a knee brace during exercise", "should I use a back support"],
+           "You can wear a brace or support that your doctor or physiotherapist gave you while exercising, unless "
+           "they said otherwise. "
+           "It should feel snug, not tight: take it off if your toes or fingers tingle, go numb or change colour. "
+           "A support you chose yourself is fine for a short time, but your exercises are what build the muscles "
+           "that support the joint; ask your physiotherapist how long to use it.", show=False),
+    # 3.72: reached only by "what does <word> mean" for a word in TERMS (engine.match); the answer is that
+    # word's meaning.
+    intent("word_meaning", "What a word means", 6, [], [],
+           "Which word would you like explained? For example, ask \u201cwhat does flexion mean\u201d or "
+           "\u201cwhat is SpO2\u201d.", show=False),
+    # Matched only as the whole message (engine.match): "meds", "my med" are medicines.
+    intent("med_help", "Medicine or medical help", 9,
+           [],
+           [],
+           "Do you mean your medicine, or do you need medical help? If someone needs urgent help now, call "
+           "999. For questions about medicines, please ask your doctor or pharmacist: I cannot give advice "
+           "about medicines.", show=False),
+    # ---- 3.67 (21 Oct): everyday random inputs (tests/chat_everyday_set.py) ------------------------------
+    intent("how_are_you", "How are you?", 2,
+           ["how are you", "how are you doing", "how r u", "how are u", "how r you", "how's your day",
+            "hows your day", "how is your day", "what's up", "whats up", "wassup", "sup", "apa khabar",
+            "dah makan", "sudah makan", "have you eaten", "you ok", "are you ok"],
+           ["how are you?", "what's up"],
+           "I'm well, thank you for asking! How are you feeling today? If you have a question about your "
+           "exercises, pain or your plan, type it or tap a topic below.", show=False, small_talk=True),
+    intent("cannot_do", "Things I cannot do", 6,
+           ["call my doctor", "call the doctor", "call doctor", "call my son", "call my daughter", "call my wife",
+            "call my husband", "call someone", "call for me", "book an appointment", "book appointment",
+            "make an appointment", "make appointment", "set an appointment", "appointment with", "play music",
+            "play a song", "play song", "play some music", "order food", "order grab", "grab food", "foodpanda",
+            "whatsapp", "send message", "send a message", "send whatsapp", "text my", "message my",
+            "email my doctor", "buy me", "book a taxi", "call a taxi", "call grab"],
+           ["call my doctor", "book an appointment", "play music"],
+           "I cannot make calls, send messages, book appointments, order things or play music. I can answer "
+           "questions about your exercises, pain, safety and your plan. In an emergency, call 999 yourself or "
+           "ask someone near you to call.", show=False),
+    intent("app_problem", "The app is not working", 7,
+           ["update app", "update the app", "app crash", "app crashed", "app crashes", "keeps crashing",
+            "app hang", "app hangs", "app stuck", "app freeze", "app froze", "app not working", "app is slow",
+            "app slow", "app error", "app bug", "bug", "not loading", "won't load", "cannot open the app",
+            "can't open the app", "app closed by itself"],
+           ["the app keeps crashing", "how do I update the app"],
+           "Sorry about that. First close the app fully and open it again. Check that your internet is on. Then "
+           "update the app from the Play Store, or restart your phone. If it still happens, tell the team what "
+           "you were doing when it went wrong.", show=False),
     # 3.49 (11 Oct): plans stop at 65 (Terms of Use, section 2). Anyone can ask why; a restricted user
     # gets RESTRICTIONS below instead, and sees this as the first category.
     intent("age_limit", "Why plans stop at 65", 4,
@@ -849,7 +1221,674 @@ INTENTS = [
            "programme, or ask about a hospital or community rehabilitation service. Your profile, health "
            "logging, past results and this chat assistant stay available.",
            show=False, action={"key": "open_age_limit", "label": "Why plans stop at 65"}),
+
+    # ---- 3.51 (14 Oct, round 18): features added since round 17 -----------------------------------
+    # Wording from the Terms of Use and Privacy Notice (assets/legal/terms.json, version 1.0).
+    intent("privacy_data", "Your data and privacy", 7,
+           ["my data", "my information safe", "my info safe", "data safe", "data secure", "is it safe to share",
+            "who can see", "who can read", "who sees", "privacy", "private", "personal data", "personal info",
+            "sell my data", "sell my info", "share my data", "share my info", "where is my data",
+            "data stored", "data kept", "keep my data", "keep my videos", "keep my video", "keep the video", "keep my exercise video", "keep my exercise videos",
+            "videos saved", "video saved", "store my video", "store my videos", "videos deleted", "video deleted",
+            "copy of my data", "my health info", "my health information", "data protection", "pdpa",
+            "data saya", "maklumat saya", "privasi"],
+           ["is my data safe", "who can see my health information", "do you keep my exercise videos",
+            "how long do you keep my data", "where is my data stored"],
+           "Only you can see your data: each account can read only its own records, and it is not sold or shared "
+           "with anyone. Your profile, plans, results, chat messages, reminders and logged readings are kept on "
+           "our database provider's servers (Supabase) in Singapore. Exercise videos are checked and deleted "
+           "straight after the check; only the score, repetitions and feedback are kept. Your data is kept while "
+           "you use the app, and an account not used for 2 years is deleted with its data. You can correct your "
+           "data in the app, ask for a copy at elwinksy-wm23@student.tarc.edu.my, or delete your account. The "
+           "full Privacy Notice is in Profile, Terms of Use and Privacy Notice.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("delete_account", "Deleting your account", 8,
+           ["delete my account", "delete account", "delete acc", "delete my acc", "remove my account",
+            "remove account", "close my account", "close account", "deactivate", "erase my data",
+            "delete my data", "delete all my data", "remove my data", "undo deleting", "recover my account",
+            "deleted my account", "padam akaun", "hapus akaun", "buang akaun", "padam data"],
+           ["how do I delete my account", "I want to remove my account and data", "can I undo deleting my account"],
+           "Open Profile and tap Delete my account (the last item under Account settings), then confirm. Your account and everything "
+           "saved with it (profile, plans, results, chat messages and reminders) is deleted at once, and this "
+           "phone's reminders are cancelled. It cannot be undone: to use the app again you would register as a "
+           "new user. Deleting your account also withdraws your consent to the use of your health information.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("terms_help", "Terms of Use", 6,
+           ["terms and conditions", "terms of use", "terms & conditions", "t&c", "the terms", "terms again",
+            "decline the terms", "reject the terms", "not accept the terms", "what did i agree",
+            "what i agreed", "agreed to", "privacy notice", "terma", "syarat"],
+           ["where can I read the terms", "why must I accept the terms again", "what happens if I decline the terms"],
+           "You can read the Terms of Use and Privacy Notice any time in Profile, in English or Malay. They say "
+           "what the app is (not a doctor or physiotherapist), who can use it (13 and over; plans only under 65), "
+           "how to exercise safely, how plans are chosen and how your data is kept. When they change, the app "
+           "shows the new version at your next login and you need to accept it to continue. If you decline, you "
+           "are signed out and cannot use the app, but your account is not deleted.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("guardian_consent", "Users under 18", 7,
+           ["under 18", "below 18", "my child", "my kid", "my son use", "my daughter use", "children", "i am 13", "i am 14", "i am 15", "i am 16", "i am 17", "im 13", "im 14",
+            "im 15", "im 16", "im 17", "i'm 13", "i'm 14", "i'm 15", "i'm 16", "i'm 17", "13 years old",
+            "14 years old", "15 years old", "16 years old", "17 years old", "teenager", "teen",
+            "parent need to agree", "parents need to agree", "parent needs to agree", "parent must agree",
+            "parent agree", "guardian agree", "my parent", "my parents", "guardian", "age group",
+            "turned 18", "now 18", "age does not match", "age doesn't match", "age not match",
+            "bawah 18", "ibu bapa", "penjaga"],
+           ["I'm 15, can I use this app", "why does my parent need to agree", "I turned 18, how do I change my age group"],
+           "You can use the app from 13. Under 18, a parent or legal guardian must read the Terms and agree to "
+           "them, and to the use of your health information, on the Terms screen; their name is recorded. If "
+           "your age in the profile does not match the age group you chose in the Terms (for example you have "
+           "turned 18), the profile asks you to tap Review Terms and choose your age group again before it saves.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("doctor_clearance", "Checking with your doctor first", 7,
+           ["check with my doctor first", "check with your doctor first", "check with doctor first",
+            "doctor's ok", "doctors ok", "doctor ok", "doctor said ok", "doctor says ok", "doctor agreed",
+            "doctor agrees", "doctor approved", "doctor's approval", "clearance", "under control",
+            "not controlled", "uncontrolled", "not under control", "terkawal"],
+           ["why can't I get a plan, it says check with my doctor first", "what does under control mean",
+            "my doctor said OK, how do I get a plan"],
+           "Some conditions ask in your health profile whether they are under control (for example asthma or "
+           "blood pressure). Under control means your symptoms are stable with your usual treatment and your "
+           "doctor has not told you to avoid exercise. If you answered No for a condition that needs it, the app "
+           "does not make a new exercise plan until your doctor agrees, because exercise could make it worse. "
+           "When your doctor says it is OK, open Profile, change that answer to Yes and save; then you can get "
+           "a plan again.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("report_answer", "Reporting a wrong answer", 5,
+           ["answer was wrong", "answer is wrong", "wrong answer", "answer wrong", "not what i asked",
+            "didnt answer my question", "didn't answer my question", "did not answer my question",
+            "not answer my question", "not my question", "you misunderstood", "you got it wrong",
+            "not helpful", "unhelpful", "report this answer", "report an answer", "report a wrong answer",
+            "report the answer", "jawapan salah",
+            # 3.66, Elwin's report ("report": "are you trying to report something?") and rude remarks.
+            "report", "report this", "how to report", "i want to report", "report wrong answer",
+            "report a problem", "you are stupid", "you're stupid", "ur stupid", "stupid bot", "useless bot",
+            "you are useless", "you're useless", "you suck", "dumb bot", "bot bodoh"],
+           ["your answer was wrong", "how do I report a wrong answer", "that didn't answer my question"],
+           "Sorry about that. Tap Report this answer under the answer, and if you can, say what you expected "
+           "and which topic you meant. Reports are read and checked by the team before anything in my answers "
+           "changes. You can also try asking in other words, or pick a topic below."),
+
+    # ---- 3.52 (14 Oct, round 19): app features the chatbot had no answer for --------------------------
+    intent("plan_reasons", "Why a plan was chosen", 6,
+           ["why this plan", "why was this plan", "plan chosen", "plan was chosen", "chosen for me",
+            "why recommended", "why is this plan recommended", "why recommend", "why not the other",
+            "why not other plans", "why not this plan", "other plans", "left out", "excluded", "sources",
+            "source", "references", "app safety rule", "guidelines behind", "evidence", "kenapa pelan ini"],
+           ["why was this plan chosen for me", "why not the other plans", "what are the sources under the reasons"],
+           "Each plan card has Why this plan: tap it to see why the plan suits you (the body area, your recovery "
+           "stage, your goal) and the safety rules it meets. Under the plans, Why not the other plans lists each "
+           "plan that was left out and why, for example harder than your safety limit or for another body area. "
+           "Each reason shows the guideline behind it; tap Source to read the full reference. App safety rule "
+           "means a rule of this app itself, set to keep you safe, with no published guideline of its own.",
+           action={"key": "open_planning", "label": "Open treatment planning"}),
+    intent("risk_level", "Your risk level", 6,
+           ["risk level", "high risk", "medium risk", "low risk", "my risk", "risk calculated",
+            "lower my risk", "reduce my risk", "why high risk", "bmi", "body mass index", "risiko tinggi",
+            "tahap risiko"],
+           ["why am I high risk", "what does my risk level mean", "what is BMI"],
+           "Your risk level comes from your health profile. Low: no health conditions or physical limitations. "
+           "Medium: one condition that is under control, or an arm or leg limitation. High: two or more "
+           "conditions; a heart, blood pressure, stroke or nerve condition (such as Parkinson's); a condition "
+           "that is not under control; or a balance problem. A higher level means gentler limits: shorter, "
+           "easier sessions, smaller movement targets in the posture check and fewer plans at once. It is not "
+           "a diagnosis, and it is worked out again whenever you save your profile, so keep it up to date. "
+           "Your BMI (weight divided by height squared) is shown for information; it does not change your risk "
+           "level.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("safety_limits", "Your safety limits", 6,
+           ["safety limit", "safety limits", "intensity limited", "my intensity", "max intensity",
+            "maximum intensity", "session only", "only 20 minutes", "only 30 minutes", "session length",
+            "how long can my session", "daily limits", "daily limit", "had keselamatan"],
+           ["what is my safety limit", "why is my intensity limited", "why is my session only 20 minutes"],
+           "Your safety limits come from your risk level: low risk, up to moderate intensity and 45 minutes a "
+           "session; medium risk, up to moderate intensity and 30 minutes; high risk, up to low intensity and "
+           "20 minutes. Plans with harder exercises or longer sessions are left out, and Why not the other "
+           "plans says so. Home also shows daily limits for food (calories, salt and sugar) worked out from "
+           "your profile. They are recalculated when you save your profile.",
+           action={"key": "open_profile", "label": "Open my profile"}),
+    intent("planning_questions", "The planning questions", 5,
+           ["recovery stage", "stage of recovery", "mobility level", "how well can you move",
+            "which goal", "what goal", "main goal", "pick a goal", "choose a goal", "what does pace",
+            "pace mean", "gentle steady faster", "early intermediate advanced", "how far along",
+            "which stage", "what stage", "questionnaire", "four questions", "planning questions"],
+           ["what is recovery stage", "which mobility level should I choose", "what goal should I pick"],
+           "Treatment planning asks: the area that needs rehabilitation (on the body map or from the list); how "
+           "far along your recovery is (Early: just started recovering; Intermediate: some movement is back; "
+           "Advanced: nearly back to normal); how well you can move (Low: need support to move; Moderate: move "
+           "slowly on my own; High: move freely); your main goal (build strength, move more freely, better "
+           "balance, ease pain or more stamina); and, if you like, your pace (Gentle, about 3 days a week; "
+           "Steady, about 4; Faster, about 5). If you are not sure, choose the lower option: plans for a later "
+           "stage or a higher mobility level than yours are left out, so the lower choice is the safer one.",
+           action={"key": "open_planning", "label": "Open treatment planning"}),
+    intent("guide_animation", "The exercise animation", 5,
+           ["moving figure", "stick figure", "stickman", "stick man", "animation", "animated",
+            "the figure", "moving picture", "moving drawing", "demo figure", "animasi"],
+           ["what is the moving figure in the exercise", "the animation is not showing"],
+           "The moving figure shows one repetition of the exercise, made from recordings of it done correctly. "
+           "Copy its range and its slow, steady pace; you can go slower than it if you need to. It is shown with "
+           "the exercise's steps and in the camera view before you record. If it does not appear, close the "
+           "exercise and open it again; an exercise without one yet (Wrist Extension) has only its written "
+           "steps."),
+    intent("health_connect", "Health Connect and devices", 5,
+           ["health connect", "smartwatch", "smart watch", "fitness band", "fitness tracker", "fitbit",
+            "garmin", "mi band", "galaxy watch", "apple watch", "my watch", "wearable", "device connection",
+            "connect my device", "link my device", "jam pintar"],
+           ["how do I connect my smartwatch", "what is Health Connect"],
+           "Health Connect is Android's app for sharing health data, such as steps or heart rate from a "
+           "smartwatch or fitness band. Profile, Device connection shows whether it is linked. Linking a device "
+           "comes with the app's Health Monitoring part, which is not available in this version yet. You do not "
+           "need a watch for your exercises: the posture check only uses your phone's camera."),
+    intent("app_facts", "About the app", 5,
+           ["is this app free", "is it free", "free to use", "cost", "how much", "pay", "subscription",
+            "iphone", "ios", "apple phone", "ipad", "android", "old phone", "my phone is old", "phone too old",
+            "will it work on my phone", "contact you", "contact the team", "email you", "who do i email",
+            "email for help", "support email", "customer service", "percuma", "berbayar", "hubungi"],
+           ["is this app free", "can I use it on iPhone", "how do I contact you"],
+           "HealthGuide is free. It is a university final-year project prototype for evaluation, made for "
+           "Android phones with a camera and an internet connection; there is no iPhone version. On an older "
+           "phone the posture check may take longer, but it works the same. For help, or about your data, email "
+           "elwinksy-wm23@student.tarc.edu.my."),
 ]
+
+# 3.53: the answer to a short follow-up ("how to", "why", "more") when there is no previous answer to
+# continue (engine.pure_follow_up). Never matched by keywords.
+INTENTS.append(intent(
+    "clarify", "Tell me a bit more", 1, [], [],
+    "Could you tell me a bit more about what you mean? For example: \"how do I do the heel raise?\", "
+    "\"why is my posture score low?\" or \"is it safe to exercise with knee pain?\". You can also pick a topic "
+    "below.", show=False))
+
+# 3.52 (round 19): wider wording for existing rules, found by a probe of the app's features.
+EXTRA_KEYWORDS = {
+    "posture_result": ["repetitions counted", "reps counted", "count my reps", "count the reps",
+                       "counts repetitions", "counts reps", "how does it count", "how is it counted"],
+    "plan_and_reminders": ["restart my plan", "restart the plan", "start my plan again", "start the plan again",
+                           "start over", "begin again"],
+    "best_time": ["fasting", "ramadan", "ramadhan", "puasa", "berpuasa"],
+    "medication": ["blood thinner", "blood thinners", "warfarin", "anticoagulant", "aspirin", "ubat cair darah"],
+}
+# 3.55 (15 Oct, the 10 000-message random test): how users say it in two or three words. A dict of its
+# own, merged into the one above: the same topic may appear in both.
+EXTRA_KEYWORDS_355 = {
+    "fall_alert": ["fall message", "fall warning", "fall alert", "possible fall", "says possible fall",
+                   "fall detected", "detected a fall", "fall notification"],
+    "medication": ["ubat", "ubat saya", "makan ubat", "my medicine", "medicine"],
+    "exit_exercise": ["go back home", "back home", "go home", "back to home", "how to exit", "exit",
+                      "exit button", "keluar"],
+    "verification_code": ["kod", "kod tak sampai", "tak dapat kod", "kod pengesahan", "no code"],
+    "app_facts": ["email support", "support email", "free", "app price", "harga app"],
+    "motivation": ["no motivation", "not motivated", "lazy", "malas", "tak semangat", "no mood to exercise"],
+    "partial_reps": ["partial", "half reps", "half rep", "half repetition", "half repetitions",
+                     "half counted", "reps half"],
+    "adjusted_targets": ["range reduced", "reduced range", "target less", "targets less", "lower target",
+                         "target lower", "target reduced", "why target", "smaller target", "smaller range"],
+    "treatment_nav": ["next exercise where", "where my plan", "where is my plan", "open my plan",
+                      "my treatment plan", "find my plan", "where my exercise", "where to find my plan",
+                      "open the plan", "where plan"],
+    "plan_exercises": ["my exercises", "what exercises", "exercise list", "list of exercises",
+                       "which exercises", "senarai senaman"],
+    "video_quality": ["blurry video", "video blurry", "video is blurry", "video blur", "blur video",
+                      "blurry recording", "recording blurry", "looks blurry", "cannot see me in the video",
+                      "can't see me in the video", "cant see me in video", "not in the video", "phone too far",
+                      "camera too far", "too far away", "too close to the camera", "too dark", "video gelap"],
+    "bot_identity": ["you robot", "are you a robot", "robot", "you human", "are you human", "what are you",
+                     "are you real", "real person", "bot"],
+    "other_activity": ["gym", "go gym", "go to the gym", "jogging", "jog", "swim", "swimming", "badminton",
+                       "cycling", "futsal", "yoga class"],
+    "family_help": ["son can help", "daughter can help", "carer help", "carer", "can family help",
+                    "family help", "family can help", "helper"],
+    "difficulty": ["tough", "so tough", "too tough", "very tough"],
+    "muscle_loss": ["bed rest weak", "weak after bed rest", "after bed rest", "weak after hospital",
+                    "after hospital weak", "muscles weak after", "lost muscle", "muscle loss"],
+    "bladder_leak": ["pee a little", "pee", "peeing", "urine leak", "kencing sikit", "terkencing"],
+    "plan_and_reminders": ["restart plan", "stop plan", "switch plan", "change plan", "change my plan",
+                           "stop my plan", "cancel plan", "tukar plan"],
+    "google_setup": ["sign in google", "google sign in", "login google", "google login", "sign in with google",
+                     "google"],
+    "joint_noise": ["bunyi lutut", "bunyi sendi", "lutut berbunyi", "sendi berbunyi", "bunyi"],
+    "app_help": ["app features", "features", "the tabs", "tabs", "what can this app do", "what can app do",
+                 "what does this app do", "how app works"],
+    "health_log_reminder": ["remind log", "remind me to log", "log blood pressure", "log reading reminder",
+                            "reminder health reading", "health reading reminder", "log my readings"],
+    "eating_concern": ["cannot eat", "can't eat", "cant eat", "no appetite", "skip meals", "skip meal",
+                       "tak lalu makan", "tak selera"],
+    "diagnosis": ["what is wrong with me", "what's wrong with me", "whats wrong with me", "wrong with me",
+                  "is it torn", "torn"],
+    "fear_of_falling": ["fear falling", "fear of falling", "afraid to fall", "scared to fall", "takut jatuh"],
+    "planning_questions": ["pace", "pace meaning", "which goal", "goal meaning", "stage meaning"],
+    "safety": ["safety tips", "safety tip", "safe tips", "tips to be safe"],
+    "hot_weather": ["very hot", "so hot", "too hot", "panas", "cuaca panas"],
+    "change_password": ["new password", "tukar password", "tukar kata laluan", "update password"],
+    "doctor_said": ["doctor say", "doctor says", "doctor said", "physio said", "physio say", "physio says",
+                    "doktor kata"],
+    "how_to": ["exercise steps", "the steps", "langkah"],
+    "getting_started": ["im new", "i'm new", "new here", "new user", "baru guna"],
+    "diet": ["makan apa", "nak makan apa", "what to eat", "food"],
+    "language": ["chinese", "mandarin", "tamil", "chinese can", "bahasa cina"],
+    "text_size": ["cant read small", "cannot read small", "can't read small", "too small to read"],
+    "missed_session": ["lupa exercise", "lupa senaman", "tak buat senaman", "skip exercise", "forget to do",
+                       "forget to exercise", "forget my exercises", "forgot my exercises", "forget to do my exercises"],
+    "low_mood": ["burden", "a burden", "burden to", "useless", "hopeless"],
+}
+# 3.55 batch 4: more wording; a dict of its own, merged like the one above (no key replaces another).
+EXTRA_KEYWORDS_355B = {
+    "equipment": ["what do i need", "what i need", "need anything", "anything i need", "what to prepare"],
+    "acknowledge": ["baik", "ok baik", "baiklah", "okok", "ok ok", "okie", "okey", "orait", "alright"],
+    "body_map": ["choose part", "part body", "body part", "which part", "choose body", "pick body part"],
+    "fear_of_falling": ["what if fall", "if fall", "scared fall", "afraid fall", "fear fall", "afraid getting hurt",
+                        "scared getting hurt", "worried fall", "worried about falling", "scared i will fall",
+                        "fall when nobody", "fall when alone"],
+    "privacy_data": ["keep data", "long keep data", "how long keep", "data kept how long", "store data"],
+    "how_to": ["show how", "show me how"],
+    "plan_progress": ["when can stop", "when to stop", "when stop", "when can i stop"],
+    "tired": ["didnt sleep", "didn't sleep", "did not sleep", "no sleep", "sleep badly", "tak cukup tidur"],
+    "risk_level": ["risk", "risk say high", "risk high", "risk is high", "risk tinggi"],
+    "plan_reasons": ["why recommended", "plan recommended", "recommended plan", "why suggested", "suggested plan",
+                     "why this one", "why was it chosen"],
+    "video_quality": ["cannot see me in video", "can't see me in video", "see me in video", "not see me",
+                      "cannot see video", "can't see video", "cant see video"],
+    "history_help": ["see what i did", "what i did yesterday", "what i did", "where see", "yesterday result",
+                     "yesterday score", "doctor see", "can doctor see", "show my doctor", "share my results",
+                     "share results"],
+    "other_activity": ["can walk", "can i walk", "go walking", "go for a walk", "walk outside", "brisk walk"],
+    "planning_questions": ["goal pick", "pick goal", "choose goal", "goal should", "goal to pick",
+                           "which goal to choose"],
+}
+for _k, _v in list(EXTRA_KEYWORDS_355.items()) + list(EXTRA_KEYWORDS_355B.items()):
+    EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+EXTRA_KEYWORDS |= {
+    "tired": ["had covid", "after covid", "covid recovery", "recovering from covid", "a cold", "have a cold", "flu", "fever", "demam", "selsema", "batuk", "cough"],
+}
+# 3.67 (21 Oct): everyday random inputs (tests/chat_everyday_set.py).
+EXTRA_KEYWORDS_367 = {
+    "greeting": ["nice to meet you", "good morning doc", "morning doc"],
+    "motivation": ["bored", "boring", "so boring", "give up", "i give up", "want to give up", "quit", "want to quit",
+                   "stop trying"],
+    "low_mood": ["stressed", "stress", "so stressed", "angry", "upset", "anxious", "anxiety", "frustrated",
+                 "irritated", "marah", "tertekan"],
+    "tired": ["nausea", "nauseous", "loya"],
+    "other_activity": ["taichi", "tai chi", "qigong", "hiking", "hike", "dance", "can i dance", "play basketball",
+                       "play netball", "play pickleball", "go bowling", "aerobics", "line dance"],
+    "diet": ["coffee", "kopi", "tea", "teh", "teh tarik", "milo", "nasi lemak", "roti canai", "durian", "rice",
+             "nasi", "protein shake", "milk", "fruit", "eat banana", "banana after", "banana before", "oats", "kuih",
+             "how much water"],
+    "text_size": ["font", "dark mode", "night mode", "theme"],
+    "recording_help": ["upload failed", "failed to upload", "upload fail", "cannot upload video",
+                       "video upload failed"],
+}
+for _k, _v in EXTRA_KEYWORDS_367.items():
+    EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+# 3.75 (conditions test, chat_conditions_set.py): conditions the health profile does not list, by the words
+# people use for them. Each gets its own advice; the closing then says to add it as "Other condition (not
+# listed)", which asks for the doctor's clearance. Before: "i have gout can i exercise" was the how-to answer,
+# "dementia", "migraine", "carpal tunnel" were not recognised, "frozen shoulder" was the shoulder exercise.
+UNLISTED_CONDITIONS = {
+    "GOUT": (["gout", "gaut", "uric acid", "asid urik"],
+             "With gout, regular gentle exercise and drinking enough water help between attacks. During an attack "
+             "(a hot, swollen, very painful joint), rest that joint and see your doctor; exercise the rest of your "
+             "body only if it does not hurt."),
+    "DEMENTIA": (["dementia", "alzheimer", "alzheimers", "alzheimer's", "nyanyuk", "demensia"],
+                 "With dementia, regular exercise helps strength, balance and mood. Exercise at the same time each "
+                 "day with a family member or carer close by, keep to simple steps in a clear, safe space, and stop "
+                 "if you feel confused, unsteady or upset."),
+    "EPILEPSY": (["epilepsy", "epileptic", "penyakit sawan", "seizure", "seizures"],
+                 "With epilepsy, exercise is usually safe and good for you when your seizures are controlled. Take "
+                 "your medicines as usual, drink water, avoid getting overtired, and have someone nearby when you "
+                 "exercise, especially if your seizures are not well controlled."),
+    "HERNIA": (["hernia", "burut"],
+               "With a hernia, avoid straining, holding your breath and heavy lifting, and stop if the bulge gets "
+               "bigger or hurts. Ask your doctor which exercises are safe; after hernia surgery, follow your "
+               "surgeon's advice on when to start. A hernia that becomes hard, very painful or comes with vomiting "
+               "needs a doctor at once."),
+    "SCOLIOSIS": (["scoliosis", "curved spine", "spine is curved"],
+                  "With scoliosis, gentle strengthening and stretching are usually fine and can ease stiffness. "
+                  "Keep movements smooth, stop if one side starts to hurt, and a physiotherapist can show you "
+                  "exercises that suit your curve."),
+    "PLANTAR_FASCIITIS": (["plantar fasciitis", "plantar fascitis", "heel spur", "heel spurs"],
+                          "With plantar fasciitis (heel pain), wear supportive shoes rather than going barefoot, and "
+                          "gentle calf and foot stretches help. Go easy on standing exercises such as heel raises if "
+                          "they make the heel pain worse."),
+    "FROZEN_SHOULDER": (["frozen shoulder", "adhesive capsulitis", "bahu beku"],
+                        "With a frozen shoulder, gentle movement within a comfortable range helps it loosen over "
+                        "time. Do not force the arm past where it stops or bounce at the end: a pulling feeling is "
+                        "fine, sharp pain is not."),
+    "CARPAL_TUNNEL": (["carpal tunnel"],
+                      "With carpal tunnel syndrome, keep your wrist straight, avoid gripping hard or bending the "
+                      "wrist for long, and stop if the numbness or tingling in your fingers gets worse. Gentle hand "
+                      "exercises are usually fine."),
+    "TENNIS_ELBOW": (["tennis elbow", "golfer's elbow", "golfers elbow", "golfer elbow"],
+                     "With tennis elbow, avoid gripping and lifting with your palm facing down for now, and stop any "
+                     "exercise that brings on the elbow pain. It usually settles over a few weeks; a "
+                     "physiotherapist can give you exercises for it."),
+    "LUPUS": (["lupus"],
+              "With lupus, regular gentle exercise helps with tiredness and stiff joints. Pace yourself, rest on "
+              "flare days, and protect your skin from the sun if you exercise outdoors."),
+    "FIBROMYALGIA": (["fibromyalgia"],
+                     "With fibromyalgia, gentle exercise built up slowly is one of the best ways to ease pain and "
+                     "tiredness. Start with less than you think you can do, add a little each week, and expect some "
+                     "muscle ache at first."),
+    "OBESITY": (["obesity", "obese", "overweight", "berat badan berlebihan"],
+                "Being overweight is no reason not to start: these exercises are gentle on the joints, and you can "
+                "do many of them sitting. Build up slowly; for weight loss, the food advice in the Diet section "
+                "helps most."),
+    "ANAEMIA": (["anaemia", "anemia", "anaemic", "anemic", "low haemoglobin", "low hemoglobin", "kurang darah"],
+                "With anaemia you may tire and get out of breath sooner. Go slowly, rest between sets, and stop if "
+                "you feel dizzy, faint or short of breath. Treating the anaemia usually makes exercise easier."),
+    "THYROID": (["thyroid", "hypothyroid", "hyperthyroid", "hypothyroidism", "hyperthyroidism", "tiroid", "goitre",
+                 "goiter"],
+                "With a thyroid problem that is treated and stable, exercise is usually fine. If your thyroid is "
+                "overactive and not yet controlled (a racing heart, shaking, losing weight), ask your doctor before "
+                "exercising."),
+    "MIGRAINE": (["migraine", "migraines", "migrain"],
+                 "With migraines, do not exercise during an attack. Between attacks, regular gentle exercise, "
+                 "drinking enough water and not skipping meals can help; stop if exercise brings one on. A sudden, "
+                 "severe headache unlike your usual ones needs 999."),
+    "EYE_CONDITION": (["glaucoma", "glaukoma", "cataract", "cataracts", "katarak", "macular degeneration"],
+                      "With an eye condition, exercise in a clear, well-lit space with a support nearby. With "
+                      "glaucoma, avoid positions with your head lower than your heart; after eye surgery, ask your "
+                      "eye doctor when you may bend and exercise again."),
+    "VARICOSE_VEINS": (["varicose veins", "varicose vein", "urat timbul"],
+                       "With varicose veins, walking and ankle and calf exercises help the blood flow in your legs; "
+                       "raise your legs when you rest. A calf that is suddenly swollen, red, warm and painful needs a "
+                       "doctor the same day."),
+    "DVT": (["dvt", "deep vein thrombosis", "blood clot", "blood clots", "pembekuan darah"],
+            "After a blood clot (DVT), follow your doctor's advice; once treatment has started, walking is usually "
+            "encouraged. On blood thinners you bruise and bleed more easily, so take care not to fall. Sudden "
+            "breathlessness or chest pain needs 999."),
+    # 3.98: "i have sciatica" was "I cannot diagnose"
+    "SCIATICA": (["sciatica", "sciatic nerve", "sciatic pain", "saraf siatik"],
+                 "With sciatica (nerve pain from the lower back down the leg), keep gently active: walking and your "
+                 "exercises usually help more than bed rest. Avoid movements that send the pain further down your "
+                 "leg, and stop if they do. See your doctor if your leg becomes weak or numb, and get help at once if "
+                 "you have numbness around your bottom or lose control of your bladder or bowels."),
+    "SPINE_DISC": (["spinal stenosis", "stenosis", "herniated disc", "slipped disc", "prolapsed disc", "bulging disc",
+                    "disc bulge", "degenerative disc", "spondylosis", "spondylolisthesis", "disc problem",
+                    "cakera tergelincir"],
+                   "With a disc problem or narrowing in the spine, gentle movement and strengthening usually help "
+                   "more than rest. Avoid bending and lifting at the same time, stop if pain spreads down a leg or "
+                   "numbness gets worse, and get help at once if you lose control of your bladder or bowels or your "
+                   "legs become weak."),
+    "ANKYLOSING_SPONDYLITIS": (["ankylosing spondylitis"],
+                               "With ankylosing spondylitis, daily stretching and movement are an important part of "
+                               "treatment and ease morning stiffness. Move smoothly within a comfortable range and "
+                               "build up gradually."),
+    "TENDON": (["bursitis", "tendinitis", "tendonitis", "trigger finger", "de quervain", "de quervain's"],
+               "With an irritated tendon or bursa, rest from the movement that brings on the pain for a while, then "
+               "build up gently. Mild discomfort that settles quickly is fine; sharp or worsening pain means stop."),
+    "NEUROPATHY": (["neuropathy", "peripheral neuropathy", "nerve damage in my feet", "nerve damage in my legs"],
+                   "With neuropathy (numb or tingling feet), check your feet every day, wear well-fitting shoes, and "
+                   "keep a support within reach because balance can be harder. Sudden new numbness or weakness needs "
+                   "999."),
+    "FOOT_SHAPE": (["bunion", "bunions", "flat feet", "flat foot", "kaki leper"],
+                   "With bunions or flat feet, wear wide, supportive shoes for standing exercises, or do them "
+                   "barefoot on a non-slip floor if that is more comfortable. Stop if your foot hurts more "
+                   "afterwards."),
+    "MENOPAUSE": (["menopause", "menopausal", "hot flushes", "hot flashes", "monopaus", "putus haid"],
+                  "Around the menopause, strength and standing exercises help protect your bones and lift your "
+                  "mood. Exercise in a cool place and drink water if you get hot flushes."),
+    "CHOLESTEROL": (["cholesterol", "high cholesterol", "kolesterol", "kolesterol tinggi"],
+                    "With high cholesterol, regular exercise like your plan helps, together with the food advice in "
+                    "the Diet section. If you also have heart disease, keep to the intensity in your plan."),
+    "FATTY_LIVER": (["fatty liver", "hati berlemak"],
+                    "With fatty liver, regular exercise and healthy eating are the main treatment: these exercises "
+                    "help, and the Diet section has food advice."),
+    "SLEEP_APNOEA": (["sleep apnea", "sleep apnoea", "cpap"],
+                     "With sleep apnoea, regular exercise helps your sleep and energy. Use your breathing machine at "
+                     "night as prescribed, and go gently on days you feel very sleepy."),
+    "NERVE_MUSCLE": (["cerebral palsy", "polio", "muscular dystrophy", "myasthenia", "guillain barre",
+                      "guillain-barre", "spinal cord injury"],
+                     "With a long-term nerve or muscle condition, exercises chosen with your physiotherapist suit "
+                     "you best. Use a support, rest between sets, and stop if you feel unsteady or much more tired "
+                     "than usual."),
+}
+# Heart and lung conditions the profile lists under another name.
+LISTED_NAMES = {"HEART_DISEASE": ["heart failure", "angina", "atrial fibrillation", "afib", "heart bypass",
+                                  "bypass surgery", "lemah jantung", "jantung lemah", "heart valve", "valve problem"],
+                "ASTHMA": ["asma"]}
+CONDITION_CLOSING_OTHER = ("This condition is not on the health profile's list: add it as \u201cOther condition "
+                           "(not listed)\u201d in your profile, and ask your doctor whether your plan suits you "
+                           "before you start.")
+
+
+# 3.77 (medicines test, chat_medicines_set.py): medicines by the names people in Malaysia take them under,
+# generic and brand. They are the medicines answer's keywords (still "ask your doctor or pharmacist") and
+# count as medicine for the overdose check ("i took 30 amlodipine" was not recognised; overdoses 205/512).
+DRUG_NAMES = """aspirin cardiprin ibuprofen nurofen brufen naproxen diclofenac voltaren arcoxia etoricoxib celebrex
+celecoxib ponstan mefenamic tramadol codeine morphine gabapentin pregabalin lyrica neurontin
+metformin glucophage gliclazide diamicron sitagliptin januvia empagliflozin jardiance dapagliflozin
+forxiga lantus mixtard novorapid amlodipine norvasc losartan cozaar perindopril coversyl lisinopril
+enalapril hydrochlorothiazide bisoprolol atenolol metoprolol propranolol nifedipine frusemide
+furosemide lasix spironolactone diuretic diuretics statin statins atorvastatin lipitor simvastatin
+rosuvastatin crestor clopidogrel plavix rivaroxaban xarelto apixaban eliquis dabigatran isosorbide
+digoxin nitroglycerin prednisolone prednisone dexamethasone steroid steroids cortisone ventolin
+salbutamol seretide symbicort thyroxine levothyroxine euthyrox carbimazole allopurinol colchicine
+alendronate fosamax zolpidem stilnox diazepam valium antidepressant antidepressants sertraline
+fluoxetine escitalopram amitriptyline levodopa madopar sinemet jamu""".split()
+DRUG_PHRASES = ["beta blocker", "beta blockers", "water pill", "water pills", "sleeping pill", "sleeping pills",
+                "tongkat ali", "ubat tradisional", "ubat kampung", "chinese medicine", "herbal medicine",
+                "calcium tablets", "vitamin d", "steroid injection"]
+
+
+# 3.74 (numbers test): "can i exercise 3 times a day", "is 20 minutes enough". (3.67's heart rate words
+# went from safety to health_readings.)
+EXTRA_KEYWORDS_374 = {
+    # 3.91: mood, belly fat, doing more than the plan
+    "low_mood": ["help my mood", "improve my mood", "mood better", "exercise for depression", "exercise and mood",
+                 # 3.95: "how can i get help for my mental health" was about the assistant
+                 "mental health", "kesihatan mental", "my mental", "emotional health"],
+    "calories": ["belly fat", "lose fat", "tummy fat", "perut buncit", "lose belly"],
+    "difficulty": ["more than my plan", "more than the plan", "do extra", "extra exercises", "add more exercises"],
+    # 3.87: an upset stomach is feeling unwell (skip and rest); "anxious about falling" is the fear of falling
+    "tired": ["diarrhoea", "diarrhea", "stomach ache", "stomachache", "upset stomach", "food poisoning"],
+    "fear_of_falling": ["anxious about falling", "nervous about falling", "anxious i will fall"],
+    # 3.79: app questions in another topic's words ("can i use it on tablet" was the medicines answer, "how to
+    # contact support" safety, "share my progress with my doctor" the plan's progress).
+    "app_facts": ["on tablet", "on a tablet", "on my tablet", "use a tablet", "android tablet", "samsung tab",
+                  "on tab", "contact support", "how to contact", "helpdesk", "help desk", "who to contact"],
+    "history_help": ["share my progress", "show my progress", "progress with my doctor", "send my results",
+                     "send my progress", "show the doctor my results"],
+    # 3.78: soreness the day after; a joint that locks or catches
+    "pain_mild": ["doms", "delayed onset muscle soreness", "sore the next day", "sore 2 days after", "sore two days after"],
+    "joint_noise": ["knee locks", "knee locking", "knee gets stuck", "knee catches", "joint locks", "joint locking",
+                    "knee locked"],
+    "app_problem": ["screen stuck", "screen gets stuck", "screen is stuck", "screen frozen", "screen froze",
+                    "stuck on the screen", "stuck on loading", "page stuck", "button not working"],
+    "medication": DRUG_NAMES + DRUG_PHRASES,
+    "condition_advice": [w for words, _ in UNLISTED_CONDITIONS.values() for w in words]
+                        + [w for words in LISTED_NAMES.values() for w in words],
+    "neck_not_covered": ["whiplash"],
+    "hot_weather": ["temperature outside", "outside temperature", "degrees outside", "hot outside", "hot today"],
+    "how_often": ["times a day", "times per day", "days a week", "days per week", "minutes a day",
+                  "minutes per day", "minutes enough", "enough minutes"],
+    # 3.98: everyday questions probed by hand ("can old people exercise", "is walking enough", "i wake up many
+    # times at night", "i keep tripping", "i miss my wife", "it says i did 0 reps", "is this app approved by
+    # doctors": not recognised, or another topic)
+    "safety": ["seniors", "senior citizen", "senior citizens", "for the elderly"],
+    "other_activity": ["brisk walk", "brisk walking", "jalan kaki", "jalan pagi", "berjalan kaki"],
+    "sleep": ["sleepless", "terjaga malam", "selalu terjaga"],
+    "posture_result": ["0 reps", "0 rep", "0 repetitions"],
+    "language": ["tukar bahasa", "bahasa lain"],
+    "bot_identity": ["siapa buat", "siapa yang buat", "siapa cipta", "siapa reka", "siapa bina"],
+    "recording_help": ["kamera", "kamera tak nampak", "tak nampak saya"],
+}
+EXTRA_KEYWORDS_374["safety"] += ["orang tua buat", "orang tua boleh", "untuk orang tua", "orang tua senaman"]
+# 3.98 (exercise probe): exercises or a plan for a body part are chosen on the body map (the plan's own area lists
+# the plan: engine.plan_intents); "can i use armrest" was not recognised.
+EXTRA_KEYWORDS_374["equipment"] = EXTRA_KEYWORDS_374.get("equipment", []) + [
+    "armrest", "armrests", "arm rest", "arm rests"]
+# 3.98 (third probe): "i had knee surgery 6 weeks ago" was "I cannot diagnose"; "why did the app give me this plan"
+# the plan's exercises; "can i pause my plan" the plan's exercises; "how slow should i go" not recognised.
+EXTRA_KEYWORDS_374["surgery"] = EXTRA_KEYWORDS_374.get("surgery", []) + [
+    "kena bedah", "dibedah", "lepas bedah", "selepas pembedahan"]
+EXTRA_KEYWORDS_374["plan_and_reminders"] = EXTRA_KEYWORDS_374.get("plan_and_reminders", []) + [
+    "pause my plan", "pause the plan", "pause plan", "pause this plan"]
+EXTRA_KEYWORDS_374["how_to"] = EXTRA_KEYWORDS_374.get("how_to", []) + ["laju atau perlahan", "perlahan atau laju"]
+EXTRA_KEYWORDS_374["fear_of_falling"] += ["tersadung", "selalu tersadung", "after fall", "after my fall"]
+EXTRA_KEYWORDS_374["low_mood"] += ["rindu", "rindu keluarga", "rindu arwah"]
+EXTRA_KEYWORDS_374["app_facts"] += ["can i trust this app"]
+# 4.07 (twelfth probe, mixed Malay and English)
+for _k, _v in {"difficulty": ["terlalu senang", "senang sangat", "mudah sangat", "terlalu mudah"],
+               "app_problem": ["app keluar sendiri", "aplikasi keluar sendiri", "keluar sendiri"],
+               "app_help": ["aplikasi ni untuk apa", "apps ni untuk apa", "app ni untuk apa"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
+# 4.06 (eleventh probe): the app, the account and feelings in everyday Malay
+for _k, _v in {"forgot_password": ["tak boleh log masuk", "tak dapat log masuk", "gagal log masuk", "tak boleh masuk akaun",
+                                   "tak dapat masuk akaun"],
+               "account_help": ["log masuk", "log keluar", "daftar akaun", "buat akaun", "cipta akaun", "daftar masuk"],
+               "history_help": ["keputusan lama", "tengok keputusan", "lihat keputusan", "sejarah sesi", "hantar keputusan",
+                                "keputusan kepada doktor", "tunjuk keputusan"],
+               "profile_help": ["tukar berat badan", "kemaskini berat badan", "tukar berat", "kemaskini berat",
+                                "tukar tinggi", "kemaskini profil"],
+               "risk_level": ["risiko sederhana", "risiko rendah", "risiko tinggi", "tahap risiko"],
+               "reminders_help": ["tetapkan peringatan", "pasang peringatan", "buat peringatan",
+                                  "tutup peringatan", "matikan peringatan", "hentikan peringatan", "tukar peringatan"],
+               "app_problem": ["aplikasi tergantung", "app tergantung", "skrin tergantung", "tutup sendiri",
+                               "skrin hitam", "skrin gelap", "skrin putih", "aplikasi rosak", "tak boleh buka aplikasi"],
+               "motivation": ["bosan", "rasa bosan"],
+               "low_mood": ["risau", "rasa risau", "bimbang", "cemas", "gelisah"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
+# 4.05 (tenth probe, Malay)
+for _k, _v in {"wrong_exercise": ["salah senaman", "senaman salah"],
+               "recording_help": ["letak telefon", "telefon letak", "letak phone", "phone letak"],
+               "how_to": ["rehat antara", "rehat antara ulangan", "rehat antara set", "lutut masuk ke dalam",
+                          "lutut masuk dalam"],
+               "plan_and_reminders": ["berhenti pelan", "berhenti plan", "henti pelan"],
+               "missed_session": ["terlupa senaman", "lupa senaman", "lupa buat senaman"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
+# 4.00: someone holding the phone
+EXTRA_KEYWORDS_374["recording_help"] += ["hold the phone", "holding the phone", "hold my phone", "pegang phone",
+                                         "pegang telefon"]
+EXTRA_KEYWORDS_374["app_problem"] = EXTRA_KEYWORDS_374.get("app_problem", []) + ["phone panas", "telefon panas"]
+# 3.99 (sixth probe): everyday Malay and English for feelings, reminders and the account
+for _k, _v in {"low_mood": ["sunyi", "rasa sunyi", "kesunyian", "keseorangan", "sorang sorang",
+                            "takut tak boleh jalan"],
+               "session_done": ["dah buat senaman", "dah buat semua senaman", "sudah buat senaman", "dah siap buat",
+                                "proud of myself"],
+               "reminder_late_or_off": ["peringatan tak keluar", "notifikasi tak keluar", "notification tak keluar",
+                                        "peringatan tak masuk", "tak dapat peringatan", "tak terima peringatan"],
+               "app_help": ["susah guna", "susah nak guna", "sukar guna", "sukar digunakan",
+                            # 4.03: "anak saya yang pasang aplikasi ini, saya tak tahu macam mana nak guna"
+                            "macam mana nak guna", "tak tahu nak guna", "cara guna", "cara nak guna", "tak reti guna",
+                            "tak pandai guna", "pasang aplikasi"],
+               "pardon": ["tak faham", "tidak faham", "tak paham", "x faham", "kurang faham", "tak fhm"],
+               "goodbye": ["selamat malam", "selamat tidur", "jumpa lagi"],
+               "account_help": ["telefon baru", "handphone baru", "tukar phone"]}.items():
+    EXTRA_KEYWORDS_374[_k] = EXTRA_KEYWORDS_374.get(_k, []) + _v
+
+EXTRA_KEYWORDS_374["posture_result"] += ["markah", "markah saya", "markah rendah", "skor saya", "kenapa skor"]
+for _k, _v in EXTRA_KEYWORDS_374.items():
+    EXTRA_KEYWORDS[_k] = EXTRA_KEYWORDS.get(_k, []) + _v
+
+# 3.98: families of phrases, as regular expressions over the cleaned message (engine.clean: lower case, Malay and
+# synonyms mapped, "lift" -> "raise"). A match counts as a three-word keyword (engine.keyword_match). Patterns are
+# not counted in the other-domain weights (build_domain_words), so the everyday words in them ("help", "him",
+# "people") stay as likely in other domains as before: written out as keywords, 600 phrases had let 37 more
+# questions of other domains through.
+_PERSON = (r"(?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather|grandma|grandpa|parents?|"
+           r"patient)|him|her|them|someone|somebody|a person|an elderly(?: person)?|an old person)")
+_PART = (r"(?:knees?|shoulders?|back|lower back|hips?|legs?|arms?|hands?|wrists?|ankles?|elbows?|feet|foot|core|"
+         r"neck)")
+PATTERNS = {
+    "helping_someone_move": [
+        rf"\bhelp(?:ing)? {_PERSON} (?:to )?(?:stand|get up|walk|get out of|sit down|move|get into bed|go to the toilet)\b",
+        # "lift my mother", not "lift her arms" (her: the person's, caregiver test)
+        r"\b(?:raise|carry) (?:my (?:mother|father|mum|mom|dad|wife|husband|grandmother|grandfather)|someone|"
+        r"somebody|a person|the patient)\b", r"\b(?:raise|carry) (?:her|him|them) (?:up|out of|from|into|onto|off)\b"],
+    "family_help": [rf"\bhelp(?:ing)? {_PERSON} (?:to |with )?(?:do )?(?:the |my |his |her |their )?exercis"],
+    "surgery": [r"\b(?:knee|hip|back|spine|spinal|shoulder|ankle|foot|wrist|hand|elbow|neck|heart|bypass|hernia|"
+                r"cataract|eye|acl|ligament|stomach|abdominal|cancer|bowel|brain) (?:surgery|operation|op)\b",
+                r"\b(?:surgery|operation) (?:\w+ )?(?:days?|weeks?|months?) ago\b", r"\boperated on\b"],
+    "low_mood": [r"\bmiss(?:ing)? (?:my (?:late )?(?:wife|husband|family|children|kids|grandchildren|grandkids|son|"
+                 r"daughter|mother|father|mum|mom|dad|parents|friends?|partner|old life)|him|her|them|home)\b"],
+    "body_map": [rf"\b(?:exercises?|plans?) for (?:my |the )?{_PART}\b"],
+    "safety": [r"\bold(?:er)? (?:people|person|persons|adults?|folks)\b"],
+    "other_activity": [r"\b(?:is|are) walking (?:good|enough|ok|okay|better)\b", r"\bwalking (?:is )?(?:good|enough)\b",
+                       r"\b(?:go|going|went) (?:for )?(?:a )?walk(?:s|ing)?\b", r"\bwalk (?:every day|daily)\b",
+                       r"\b(?:morning|evening) walks?\b", r"\bwalk(?:ing)? instead\b",
+                       # 4.01: "is it ok to walk", "walk safe or not" were not recognised
+                       r"\b(?:ok|okay|safe|good|fine|alright) (?:for me )?to (?:go )?(?:for a )?walk(?:ing)?\b",
+                       r"\bwalk(?:ing)? (?:is )?(?:ok|okay|safe|fine|alright)\b"],
+    "app_facts": [r"\b(?:app|it) (?:is )?(?:approved|certified|legit|legitimate|verified)\b",
+                  r"\b(?:approved|certified|verified|made) by (?:a )?doctors?\b", r"\b(?:doctor|medically) approved\b"],
+    "ice_heat": [r"\b(?:put|apply|use|using|putting) (?:an? |some )?(?:ice|heat|hot pack|cold pack|heat pack|ice pack)\b",
+                 r"\bice or heat\b", r"\bheat or ice\b", r"\b(?:ice|cold|hot|heat|warm) (?:packs?|compress(?:es)?|pads?)\b",
+                 r"\bhot water bottle\b", r"\bice (?:it|my|on my)\b"],
+    "physio_role": [r"\b(?:find|see|need|get|meet) (?:a |my )?physiotherapist\b", r"\bphysiotherapist near\b",
+                    r"\breplace (?:my |a |the )?(?:physiotherapist|physiotherapy|doctor)\b",
+                    r"\binstead of (?:going to |seeing )?(?:a |my )?(?:physiotherapist|physiotherapy)\b",
+                    r"\b(?:talk|speak) to (?:a |my )?(?:real )?physiotherapist\b",
+                    r"\bstill (?:need|go to|going to) (?:a |my )?(?:physiotherapist|physiotherapy)\b",
+                    r"\bstop going to (?:physiotherapist|physiotherapy)\b"],
+    "cold_hands_feet": [r"\bcold (?:hands?|feet|foot|toes|fingers)\b",
+                        r"\b(?:hands?|feet|foot|toes|fingers) (?:are |is |feel |feels |always |so |very |too )*cold\b",
+                        r"\b(?:poor|bad|blood) circulation\b"],
+    "sleep": [r"\bwak(?:e|ing) up (?:many times|often|a lot|in the night|too early|very early)\b",
+              r"\bkeep waking up\b", r"\b(?:can't|cannot|don't|not) sleep(?:ing)? well\b",
+              r"\btidur tak lena\b", r"\btak lena tidur\b"],
+    "pins_needles": [r"\bnumb(?:ness)? (?:every night|every morning|on and off|comes and goes)\b"],
+    "language": [r"\b(?:change|switch) (?:the )?language\b", r"\b(?:other|another) language\b",
+                 # 4.08: "i cannot speak english well", "tak boleh cakap inggeris" (no longer "can't speak", a stroke)
+                 r"\b(?:can't|cannot|don't|do not|not|tak|tidak) (?:boleh |can |pandai |reti |good at )?(?:speak|cakap|bercakap|faham|understand|read|baca)(?: in)? (?:english|inggeris|bahasa inggeris|malay|melayu)\b"],
+    "fear_of_falling": [r"\b(?:keep|always|often) trip(?:ping)?\b", r"\btrip(?:ping)? (?:a lot|often|over things)\b"],
+    "plan_reasons": [r"\b(?:give|gave|gives) me this plan\b",
+                     r"\b(?:choose|chose|chooses|choosing|pick|picked|picks) (?:my|the|this) plan\b",
+                     r"\bplans? (?:are |were |is |was )?chosen\b", r"\bhow (?:does|did) the app (?:choose|pick)\b",
+                     r"\bwhy (?:did|do) i get this plan\b"],
+    "plan_and_reminders": [r"\bstop a plan\b", r"\btake a break from (?:my|the) plan\b", r"\bhold my plan\b"],
+    # 3.99: "i want to exercise" was the body map (a loose likeness to "exercise for my hand"); not "i don't want
+    # to exercise" (motivation) or "want to exercise my hand" (the body map)
+    "getting_started": [r"(?<!don't )(?<!not )(?<!never )\bwant to (?:start )?exercis(?:e|ing)\b(?! (?:my|the|for) )"],
+    "app_help": [r"\b(?:app|apps|this) (?:is |so |very |too )*(?:hard|difficult|confusing) to use\b"],
+    "session_done": [r"^(?:\w+ )?i did it$"],
+    # 4.06: "set peringatan" as a pattern ("set" as a keyword let "can i set up mobile deposits" through)
+    "reminders_help": [r"\bset peringatan\b"],
+    # 4.07: "boleh buat masa period" (cleaned "time period"): a pattern, as "time" is a word of every domain
+    "period": [r"\btime period\b"],
+    # "new" as a keyword had let "chinese new year" and "new checks" through (other-domain weights)
+    "account_help": [r"\b(?:a |my )?new (?:phone|handphone|mobile)\b", r"\b(?:changed?|switched?) (?:my )?phones?\b"],
+    # 4.00 (seventh probe, the posture check): "should i wear tight clothes for recording" was the pain answer,
+    # "there are other people in the room" equipment, "the picture is blurry" and "my phone gets hot" not
+    # recognised, "the analysis takes very long" how often, "my score changed when i redid it" swelling ("red")
+    "video_quality": [r"\b(?:wear|wearing|clothes|clothing|shirt|pants|trousers|sarong|baju)\b.{0,30}\b(?:record|recording|video|camera)\b",
+                      r"\b(?:tight|loose|baggy|fitted) (?:clothes|clothing|shirt|pants|trousers)\b",
+                      r"\b(?:other people|someone else|people|family|kids|children|cat|dog|pet)s? (?:are |is )?(?:in|walk(?:ed|ing|s)? (?:in front of|into|across)) (?:the |my )?(?:room|picture|video|frame|background|camera)\b",
+                      r"\b(?:picture|video|image|recording|camera)(?: is| looks)? (?:blurry|blurred|blur|kabur)\b"],
+    # 4.00: "my knee is warm" was the safety answer (warm up)
+    "pain_swelling": [r"\b(?:knee|joint|ankle|hip|elbow|wrist|shoulder)s? (?:is |are |feels? |feel |getting |gets )?(?:very |so )?(?:warm|hot)\b"],
+    "app_problem": [r"\banaly[sz](?:is|ing|e)\b.{0,20}\b(?:long|slow|forever|stuck|taking)\b",
+                    r"\bphone (?:gets |is |getting |becomes |goes )?(?:very |so |too )?(?:hot|warm|overheat|overheating|panas)\b"],
+    # 4.01: "why only 20 min" (the daily limit) was how often; also typed "why olby 20 min"
+    "safety_limits": [r"\bwhy (?:\w{2,6} )?\d+ ?(?:min|mins|minutes)\b"],
+    # 3.99: "i don't want to exercise today" was the plan's exercises ("exercises today")
+    "motivation": [r"\b(?:don't|do not|not|never) (?:really )?(?:want|feel like) (?:to )?(?:do (?:my |the |any )?)?exercis"],
+    "posture_result": [r"\bscore (?:changed|went down|dropped|is different|different|lower|went up)\b",
+                       r"\b(?:different|lower|another) score\b", r"\bcounted (?:only )?\d+\b",
+                       r"\b(?:zero|none|no) (?:reps?|repetitions?) (?:counted|recorded)\b",
+                       r"\b(?:did|says|shows|counted) (?:0|zero)\b", r"\bcounted (?:none|nothing)\b",
+                       r"\b(?:didn't|did not) count any\b"],
+    "how_to": [r"\bhow (?:fast|slow|slowly|quickly) (?:should|do|to|must|can)\b", r"\bspeed of each\b"],
+}
+
+
+def _no_repeated_keys():
+    import ast
+    for node in ast.walk(ast.parse(Path(__file__).read_text(encoding="utf-8"))):
+        if isinstance(node, ast.Dict):
+            keys = [k.value for k in node.keys if isinstance(k, ast.Constant)]
+            repeated = {k for k in keys if keys.count(k) > 1}
+            assert not repeated, f"line {node.lineno}: repeated keys {repeated} (the later one replaces the earlier)"
+
+
+_no_repeated_keys()
+for _i in INTENTS:
+    _i["keywords"] += [k for k in EXTRA_KEYWORDS.get(_i["key"], []) if k not in _i["keywords"]]
+    if PATTERNS.get(_i["key"]):
+        _i["patterns"] = PATTERNS[_i["key"]]
+# Answered when asked, but not offered as topic chips (the list stays short, as before 3.51).
+for _i in INTENTS:
+    if _i["key"] in {"privacy_data", "delete_account", "terms_help", "guardian_consent", "doctor_clearance",
+                     "report_answer", "plan_reasons", "risk_level", "safety_limits", "planning_questions",
+                     "guide_animation", "health_connect", "app_facts"}:
+        _i["show"] = False
 
 # What a restricted user is told instead (the app sends the restriction it got from the recommender).
 # "replace": answers that would send the patient to a plan, a recording or plan reminders; "note_on":
@@ -888,20 +1927,22 @@ GOAL_TEXT = {
 # Alternative names patients use for each exercise (matched as whole phrases; longer phrases win).
 ALIASES = {
     "sit_to_stand": ["sit to stand", "sit-to-stand", "chair stand", "chair stands", "chair squat", "stand up from chair",
-                     "standing up from a chair", "stand up from the chair", "sitting to standing"],
+                     "standing up from a chair", "stand up from the chair", "sitting to standing", "sit stand"],
     "shoulder_abduction": ["shoulder abduction", "side arm raise", "side arm raises", "lateral arm raise",
-                           "lateral raise", "arm raise to the side", "raise my arms to the side", "arms sideways"],
+                           "lateral raise", "arm raise to the side", "raise my arms to the side", "arms sideways",
+                           "raise arms side", "arms to the side", "arm side raise"],
     "shoulder_flexion": ["shoulder flexion", "front arm raise", "front arm raises", "forward arm raise",
                          "raise my arms forward", "arms forward", "arm raise to the front"],
     "hip_abduction": ["hip abduction", "standing hip abduction", "side leg raise", "side leg raises",
-                      "leg raise to the side", "lift my leg to the side", "leg sideways"],
+                      "leg raise to the side", "lift my leg to the side", "leg sideways", "leg out to the side",
+                      "leg out side", "leg to the side"],
     "knee_extension": ["knee extension", "seated knee extension", "knee extensions", "straighten my knee",
                        "straightening my knee", "leg extension", "seated leg raise", "leg straightening"],
     "wrist_extension": ["wrist extension", "wrist lift", "lift my wrist", "lifting the wrist", "wrist exercise",
-                        "wrist exercises", "bend my wrist up", "wrist up"],
+                        "wrist exercises", "bend my wrist up", "wrist up", "lift wrist"],
     "hand_open_close": ["hand open and close", "open and close", "open my hand", "opening the hand", "hand opening",
                         "make a fist", "open close hand", "finger exercise", "finger exercises", "fingers",
-                        "hand exercise", "hand exercises", "grip exercise"],
+                        "hand exercise", "hand exercises", "grip exercise", "open close"],
     "elbow_flexion": ["elbow flexion", "bicep curl", "bicep curls", "biceps curl", "arm curl", "arm curls", "curl",
                       "curls", "elbow bend", "bend my elbow"],
     "wall_push_up": ["wall push up", "wall push-up", "wall pushup", "wall push ups", "wall push-ups", "wall pushups",
@@ -909,19 +1950,67 @@ ALIASES = {
                      "distance from the wall"],
     "heel_raise": ["heel raise", "heel raises", "calf raise", "calf raises", "tiptoe", "tiptoes", "toe raise",
                    "rise on my toes", "stand on my toes", "my heels", "raise my heels",
-                   "lift my heels", "heels up"],
+                   "lift my heels", "heels up", "heels go", "how high heels", "how high my heels"],
     "mini_squat": ["mini squat", "mini squats", "half squat", "small squat", "partial squat", "squat", "squats"],
     "seated_marching": ["seated marching", "seated march", "sitting march", "marching while sitting",
                         "march while sitting", "march sitting down", "march", "marching"],
     "glute_bridge": ["glute bridge", "glute bridges", "hip bridge", "bridge exercise", "bridging", "bridge"],
     "tandem_stance": ["tandem stance", "tandem stand", "heel to toe", "heel-to-toe", "one foot in front of the other",
-                      "balance stand"],
+                      "balance stand", "heel toe", "heel toe stand", "stand heel toe"],
     "bird_dog": ["bird dog", "bird-dog", "birddog", "bird dogs", "opposite arm and leg"],
     "step_up": ["step up", "step-up", "step ups", "step-ups", "stepping up", "stair step", "my step",
                 "step height", "high step", "step too high", "step is"],
     "march_in_place": ["march in place", "marching in place", "march on the spot", "marching on the spot",
-                       "standing march", "marching standing", "march", "marching"],
+                       "standing march", "marching standing", "march", "marching", "march place",
+                       "march spot", "marching place", "marching spot"],
 }
+# 3.80: the exercises described in everyday words, English and Malay ("walking on the spot", "the one where i
+# kneel on all fours", "push against the wall", "small knee bend" were not recognised or another topic).
+for _k, _v in {
+    "glute_bridge": ["lift my hips", "lift my bottom", "lift my bum", "bum lift", "butt lift", "hip lift",
+                     "hips up lying down", "angkat punggung"],
+    "heel_raise": ["up on my toes", "on my toes", "toes up and down", "angkat tumit", "jengket", "jinjit"],
+    "sit_to_stand": ["sitting down standing up", "sit down stand up", "stand up sit down", "get up from the chair",
+                     "get up from a chair", "duduk bangun", "bangun dari kerusi"],
+    "wall_push_up": ["push against the wall", "push the wall", "pushing the wall", "wall press", "tolak dinding"],
+    "bird_dog": ["all fours", "on all fours", "hands and knees", "kneel on all fours", "crawling position",
+                 "merangkak"],
+    "march_in_place": ["walking on the spot", "walk on the spot", "walking in place", "walk in place",
+                       "jalan setempat"],
+    "seated_marching": ["lift knees while sitting", "lift my knees sitting", "lift my knees while sitting",
+                        "knee lifts sitting", "sitting knee lift", "sitting knee lifts"],
+    "knee_extension": ["straighten leg while sitting", "straighten my leg sitting", "straighten my leg while sitting",
+                       "kick out my leg", "leg kick sitting", "luruskan kaki"],
+    "mini_squat": ["small knee bend", "small knee bends", "knee bends", "bend my knees a little", "shallow squat",
+                   "cangkung sikit"],
+    "tandem_stance": ["feet in line", "feet in a line", "one foot in front"],
+    "step_up": ["step onto a stair", "step onto the step", "step on and off", "naik tangga"],
+    "shoulder_flexion": ["arm up in front", "arms up in front", "lift my arms in front", "raise arms in front",
+                         "angkat tangan ke depan"],
+    "shoulder_abduction": ["angkat tangan ke tepi"],
+    "hand_open_close": ["squeeze my hand", "genggam tangan", "buka tutup tangan"],
+}.items():
+    ALIASES[_k] = ALIASES[_k] + [a for a in _v if a not in ALIASES[_k]]
+# 4.04: the exercises by their Malay names (ninth probe: "cara buat tekan dinding", "cara angkat kaki ke sisi",
+# "cara buat separuh cangkung", "cara buat jambatan", "cara berkawad di tempat" were not recognised)
+for _k, _v in {
+    "wall_push_up": ["tekan dinding", "tekan tubi dinding", "push up dinding"],
+    "shoulder_abduction": ["angkat tangan ke sisi", "angkat lengan ke sisi", "angkat lengan ke tepi",
+                           "depakan tangan"],
+    "shoulder_flexion": ["angkat lengan ke depan", "angkat tangan ke atas", "angkat lengan ke atas"],
+    "hip_abduction": ["angkat kaki ke sisi", "angkat kaki ke tepi", "hayun kaki ke sisi"],
+    "elbow_flexion": ["bengkokkan siku", "bengkok siku", "lentur siku", "lenturan siku"],
+    "mini_squat": ["separuh cangkung", "cangkung separuh", "squat kecil", "cangkung kecil"],
+    "glute_bridge": ["jambatan", "angkat pinggul", "jambatan punggung"],
+    "tandem_stance": ["berdiri tumit ke jari", "tumit ke jari", "berdiri satu garisan", "kaki satu garisan"],
+    "bird_dog": ["anjing burung", "merangkak angkat tangan"],
+    "march_in_place": ["berkawad di tempat", "kawad di tempat", "kawad setempat", "berkawad setempat"],
+    "seated_marching": ["kawad sambil duduk", "berkawad sambil duduk", "kawad duduk", "angkat lutut sambil duduk"],
+    "wrist_extension": ["angkat pergelangan tangan", "lentur pergelangan tangan", "pergelangan tangan ke atas"],
+    "knee_extension": ["luruskan lutut sambil duduk"],
+    "step_up": ["naik turun tangga", "naik anak tangga"],
+}.items():
+    ALIASES[_k] = ALIASES[_k] + [a for a in _v if a not in ALIASES[_k]]
 
 CONDITION_NOTES = {
     "HYPERTENSION": "Because you have high blood pressure: breathe out as you lift and never hold your breath, and "
@@ -975,6 +2064,60 @@ RISK_NOTES = {
 }
 
 RED_FLAGS = [
+    # 3.82: Malay chest tightness and breathlessness with "senak" (not a stitch)
+    "senak dada", "dada senak", "dada rasa senak", "senak di dada", "senak nafas", "nafas senak", "dada sesak",
+    "sesak dada",
+    # 4.07: chest tight (sempit), heavy (berat) or pressed (tekan, himpit) in everyday Malay, and "something sitting
+    # on my chest": were not recognised (the last was seated marching)
+    "dada sempit", "dada rasa sempit", "sempit dada", "rasa sempit dada", "sempit di dada", "dada berat",
+    "dada rasa berat", "berat dada", "rasa berat di dada", "berat di dada", "dada kena tekan", "dada macam kena tekan",
+    "dada rasa ditekan", "dada ditekan", "dada tertekan", "dada rasa tertekan", "tekanan di dada", "dada dihimpit",
+    "dada rasa dihimpit", "sitting on my chest", "elephant on my chest", "weight on my chest",
+]
+# 4.08 (thirteenth probe): warning signs as Malay is spoken, and their English, were not urgent. Kept apart
+# ("red_flags_more"): the engine reads them as the others, but they are not counted in the other-domain weights
+# (build_domain_words), as their Malay words clean into everyday English ("tadi": now, "nak": want) and had let
+# "what is the weather doing now" through.
+RED_FLAGS_MORE = [
+    # a stroke (one side, speech)
+    # a stroke (one side, speech)
+    "muka senget", "muka senget sebelah", "senget sebelah", "sebelah badan tak boleh gerak", "sebelah badan lemah",
+    "sebelah badan kebas", "separuh badan lumpuh", "separuh badan tak boleh gerak", "badan sebelah lemah",
+    "tak boleh bercakap", "tak boleh cakap", "susah nak bercakap", "cakap tak jelas", "one side of my body",
+    "one side of the body", "one side of his body", "one side of her body", "half my body", "half of my body",
+    "can't speak", "cannot speak", "unable to speak", "suddenly can't talk", "suddenly cannot talk",
+    # breathing, lips
+    "nafas pendek", "tercungap cungap", "tercungap-cungap", "tak cukup nafas", "nafas berbunyi", "nafas berdehit",
+    "semput teruk", "lelah teruk", "bibir jadi biru", "bibir bertukar biru", "muka jadi biru",
+    # vision going dark, the room spinning
+    "pandangan gelap", "pandangan jadi gelap", "mata gelap", "mata jadi gelap", "dunia berpusing", "bilik berpusing",
+    # the heart, a cold sweat
+    "jantung rasa nak tercabut", "jantung macam nak tercabut", "jantung nak tercabut", "denyutan jantung tak teratur",
+    "degupan jantung tak teratur", "jantung tak teratur", "jantung berdegup kencang", "peluh sejuk", "berpeluh sejuk",
+    "cold sweat", "cold sweats",
+    # bleeding that does not stop
+    "berdarah banyak", "darah banyak keluar", "keluar darah banyak", "luka tak berhenti berdarah", "darah tak berhenti",
+    "berdarah tak berhenti", "tak berhenti berdarah",
+    # sudden confusion, not remembering what happened
+    "keliru tiba tiba", "tiba tiba keliru", "tak ingat apa jadi", "tak ingat apa yang berlaku", "tak ingat apa berlaku",
+    "can't remember what happened", "cannot remember what happened",
+    # the worst headache
+    "sakit kepala teruk sangat", "sakit kepala paling teruk", "sakit kepala yang teruk", "sakit kepala amat teruk",
+    "sakit kepala teruk tiba tiba",
+    # a fit now ("saya ada sawan", epilepsy, is the condition advice)
+    "kena sawan", "terkena sawan", "tengah sawan", "sedang sawan", "sawan tadi", "dapat sawan", "dia sawan",
+]
+RED_FLAGS += [                                           # the phrases from 3.85 on, as before
+    # 3.85: as whole phrases too, so a slip in one word is mended ("felll and cannot get up"); the looser
+    # checks find them typed right. (Not "can't get up from the floor": "...the floor exercise without help".)
+    "fell and cannot get up", "fell and can't get up", "fell and cant get up", "fallen and cannot get up",
+    "fallen and can't get up",
+    # 3.75 (conditions test): a seizure or fit happening now ("she is having a fit" was not recognised, "my
+    # father had a seizure just now" the answer for a family member). Not "seizures" alone: "my seizures are
+    # controlled" is epilepsy advice; "had a seizure last year" is past (engine.HISTORY_EVENTS).
+    "having a seizure", "had a seizure", "has a seizure", "is seizing", "seizure now", "seizure just now",
+    "having a fit", "had a fit", "having fits", "fitting now", "convulsion", "convulsions", "convulsing",
+    "kena sawan", "dia sawan", "sedang sawan", "tengah sawan",
     "chest pain", "chest pains", "chest tightness", "tight chest", "pain in my chest", "heart attack",
     "can't breathe", "cannot breathe", "cant breathe", "can't breath", "cant breath", "cannot breath",
     "hard to breathe", "difficulty breathing", "struggling to breathe", "breathless", "short of breath",
@@ -1034,6 +2177,20 @@ RED_FLAGS += ["gasping for air", "gasping for breath", "gasp for air",
               "bleeding a lot", "bleeding heavily", "heavy bleeding", "bleeding won't stop", "bleeding will not stop",
               "won't stop bleeding", "will not stop bleeding", "can't stop the bleeding", "cannot stop the bleeding",
               "bleeding badly", "losing a lot of blood", "lost a lot of blood",
+              # 3.55 (15 Oct, random test): the words users leave out
+              "short breath", "have short breath", "feel short breath", "bleeding lot", "bleed a lot",
+              "slipped hit", "slip hit", "fell hit", "hit head", "hit hip", "fell bum", "fell on bum",
+              "fell on my bum", "out breath", "out of breath marching", "slipped kitchen", "slipped bathroom",
+              "slipped toilet", "today slipped", "slipped today", "he's floor",
+              "she's floor", "is on floor", "on floor cannot", "hasn't been same since", "not been same since",
+              "not same since", "fell during exercise", "fell down during exercise", "fall down during exercise",
+              "fell while exercising", "fell during the exercise", "fell during senaman", "help fell",
+              "help i fell", "need help fell", "fell down help", "fell now", "i fell now",
+              "cannot move one side", "can't move one side", "fell hit head", "fell hit my head",
+              "pressure chest", "chest pressure",
+              # 3.54 (15 Oct, generated warning signs)
+              "heart beating very fast", "heart beating so fast", "heart beating too fast", "heart beat very fast",
+              "heartbeat very fast", "heart is beating very fast", "heart beats very fast", "heart racing fast",
               "i have collapsed", "i've collapsed", "not able to breathe", "unable to breathe",
               "cannot breathe properly", "can't breathe properly", "not able to breath",
               # PC safety pass 16: a low blood sugar told in words
@@ -1059,6 +2216,16 @@ CRISIS = [
     "take her own life", "take his own life", "sucide", "suicde", "suiside", "suicid", "sucidal",
     # overdose as a statement
     "going to take all my", "gonna take all my", "take all my pills at once", "swallow all my", "took an overdose",
+    # 3.55 (random test): the same without the small words users leave out
+    "want die", "wanna die", "want end life", "want end my life", "want to end life", "want end it all",
+    "dont want wake up", "don't want wake up", "no point going", "no point living", "no point go on",
+    "better if gone", "better off without", "take all pills", "take all my pills", "going take all",
+    "tired of living", "burden children", "burden to children", "burden family",
+    "dont want live", "don't want live", "do not want live", "not want live anymore", "what's point living",
+    "whats point living", "what point living", "point of living", "no point living", "tired living",
+    "wish sleep not wake", "sleep not wake up", "sleep and not wake", "could sleep and not wake",
+    "thinking ending all", "thinking of ending", "ending it all", "end it all", "want end it",
+    "wish dead", "wish i were dead", "wants die", "wants to die", "want to live anymore", "want live anymore",
     "take an overdose", "taken an overdose", "overdose on",
     "saving up my pills", "saving up my sleeping pills", "saving my sleeping pills", "saving up pills",
     # laptop safety pass 3
@@ -1080,17 +2247,48 @@ CRISIS = [
     "thinking about ending it", "thinking of ending it", "think about ending it", "ending it all", "end it all",
     "want to end it all", "going to end it all", "tamatkan hidup", "tamatkan nyawa", "akhiri hidup",
     "mengakhiri hidup", "tamatkan riwayat", "hidup tak berguna", "tak guna hidup", "tidak guna hidup",
+    # 3.73 (caregiver test): told of someone else ("my dad wishes he was dead", "she keeps talking about
+    # killing herself"). Not "cut herself" or "hurt himself": "my mum cut herself cooking" is an accident.
+    "wish he was dead", "wish she was dead", "wish he were dead", "wish she were dead", "wishes he was dead",
+    "wishes she was dead", "wishes he were dead", "wishes she were dead", "wished he was dead",
+    "wished she was dead", "wishes to die", "wished to die", "killing himself", "killing herself",
+    "harm himself", "harm herself", "hang himself", "hang herself", "end his own life", "end her own life",
+    "wants to end his life", "wants to end her life",
+    # 3.84: without the small words ("want give up life" was motivation)
+    "give up life", "giving up life", "give up my life", "suicidal thoughts", "suicide thoughts",
+    "thoughts of suicide", "thinking of suicide", "thoughts of killing myself",
 ]
-CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone. If you "
-                 "are in danger now or might act on these thoughts, call 999 or go to the nearest emergency "
-                 "department. You can talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and "
-                 "confidential) or Talian HEAL 15555 (8 am to midnight daily). Please also tell a family member "
-                 "or your doctor how you feel. I am only an exercise assistant, but these people can help you.")
+# 3.73: the same help for a family member who talks of dying or self-harm ("my mother keeps saying she
+# wants to die"), worded for the person helping them.
+CRISIS_ANSWER_OTHER = ("I am sorry you are going through this. Talk of dying or self-harm needs help today.\n"
+                       "1) If they are in danger now or might act on these thoughts, call 999 or take them to the "
+                       "nearest emergency department. Stay with them.\n"
+                       "2) Talk to someone now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or "
+                       "Talian HEAL 15555 (8 am to midnight daily). You can call for them or with them.\n"
+                       "3) Keep medicines and anything they could hurt themselves with out of reach, and tell "
+                       "their doctor.\n"
+                       "I am only an exercise assistant, but these people can help.")
+CRISIS_ANSWER = ("I am really sorry you are feeling this way, and I am glad you said it. You are not alone.\n"
+                 "1) If you are in danger now or might act on these thoughts, call 999 or go to the nearest "
+                 "emergency department.\n"
+                 "2) Talk to someone right now: Befrienders KL 03-7627 2929 (24 hours, free and confidential) or "
+                 "Talian HEAL 15555 (8 am to midnight daily).\n"
+                 "3) Please also tell a family member or your doctor how you feel.\n"
+                 "I am only an exercise assistant, but these people can help you.")
 # Emergencies described in free words: an anchor word with a symptom word close to it, in any order
 # ("my chest feels heavy and painful", "i can hardly breathe", "my arm suddenly cannot move").
 # [anchors, symptoms, window in words]. A "no"/"not"/"never" just before the anchor cancels it
 # ("no chest pain"); "can't"/"cannot" do not, they are part of the symptom ("cannot breathe").
 RED_FLAG_COMBOS = [
+    # 3.78: sudden tingling, or tingling in the face, is a stroke sign ("sudden tingling in my face and arm" was
+    # pins and needles); pins and needles after sitting are not sudden.
+    [["sudden", "suddenly", "tiba tiba", "tiba-tiba"], ["tingling", "tingly", "tingle", "tingles", "pins and needles"],
+     6],
+    [["face", "muka", "lips", "tongue"], ["tingling", "tingly", "tingle", "tingles", "pins and needles"], 3],
+    # 3.75: a blood clot with swelling, pain or breathlessness now ("i have a blood clot in my leg, it is
+    # swollen and painful" was the swelling answer).
+    [["blood clot", "clot", "dvt", "thrombosis"], ["swollen", "swelling", "bengkak", "painful", "calf pain",
+                                                   "leg pain", "breathless", "short of breath", "chest pain"], 6],
     # Laptop pass 11: swelling of the lips, tongue, face or throat (allergic reaction).
     [["lips", "lip", "tongue", "face", "throat", "eyelids", "bibir"],
      ["swelling", "swollen", "swell", "swells", "puffy", "closing"], 3, ["knee", "ankle", "joint"]],
@@ -1153,7 +2351,7 @@ RED_FLAG_COMBOS = [
       "from falling", "fall yesterday", "fall this morning", "fall just now", "fall today"],
      ["pain", "painful", "hurt", "hurts", "hurting", "sakit", "swollen", "swelling", "bruise", "bruised",
       "can't walk", "cannot walk", "limp", "limping", "numb", "headache", "dizzy", "confused", "bleeding",
-      "can't put weight", "cannot put weight"], 6,
+      "can't put weight", "cannot put weight", "sore", "aching", "lebam"], 6,
      ["what if", "in case", "prevent", "avoid", "how to get up", "how do i get up", "afraid of", "scared of",
       "worried about", "fear of", "get hurt", "getting hurt"]],
     # PC safety pass 13 (generated probe of 6,160 fall messages): a fall, trip or slip with an injury word
@@ -1165,7 +2363,9 @@ RED_FLAG_COMBOS = [
       "bleeding", "berdarah", "cannot stand", "can't stand", "cant stand", "cannot get up", "can't get up",
       "cant get up", "tak boleh bangun", "cannot walk", "can't walk", "limp", "limping", "pening", "dizzy",
       "confused", "keliru", "vomiting", "muntah", "looks bent", "deformed", "broken", "patah", "numb",
-      "headache", "hit my head", "hit her head", "hit his head"], 12,
+      "headache", "hit my head", "hit her head", "hit his head",
+      # 3.62: "fell over, hip sore" was not urgent while "fell over, hip hurts" was.
+      "sore", "aching", "lebam"], 12,
      ["what if", "in case", "prevent", "prevention", "avoid", "afraid of", "scared of", "worried about",
       "fear of", "get hurt", "getting hurt", "risk of", "how to get up", "how do i get up", "pain fell",
       "pain has fallen", "pain level fell", "pain score fell", "swelling has fallen", "swelling fell",
@@ -1188,7 +2388,10 @@ RED_FLAG_COMBOS = [
       "drooping", "droop", "heavy", "no feeling"], 5,
      ["since my stroke", "since the stroke", "after my stroke", "from my stroke", "old stroke", "for years",
       "years ago", "always", "stronger", "weaker than", "since birth", "for a long time", "exercise one side",
-      "one side at a time"]],
+      "one side at a time",
+      # 4.08: the same in Malay ("sebelah badan lemah sejak strok"; "angin ahmar" is cleaned "stroke")
+      "sejak strok", "lepas strok", "sejak kena strok", "sejak stroke", "lepas stroke", "dah lama", "sejak dulu",
+      "bertahun", "sejak lahir"]],
     # One side of the face drooping (stroke), in everyday words ("face one side drop").
     [["face", "mouth"], ["drop", "droop", "drooping", "dropping", "dropped", "crooked", "lopsided",
                          "one side"], 3],
@@ -1199,17 +2402,19 @@ RED_FLAG_COMBOS = [
     [["breathe", "breath", "breathing"], ["hardly", "barely", "can't", "cannot", "difficult", "difficulty",
                                           "trouble", "struggle", "struggling", "hard", "gasping"], 3,
      ["breathing hard", "breathe hard", "breathing heavily", "breathing heavy", "breathe heavily"]],
-    [["suddenly", "sudden"], ["weak", "weakness", "numb", "numbness", "can't move", "cannot move",
+    [["suddenly", "sudden", "tiba tiba", "tiba-tiba", "mengejut"], ["weak", "weakness", "numb", "numbness",
+                                                                    "can't move", "cannot move",
                               "paralysed", "paralyzed", "drooping", "droop", "slurred", "can't speak",
                               "cannot speak", "collapse", "collapsed", "confused", "can't see", "cannot see",
                               "cannot talk", "can't talk", "cant talk", "talk properly", "speak properly",
                               "cannot lift", "can't lift", "cant lift", "cannot raise", "can't raise"], 5],
 ]
 
-RED_FLAG_ANSWER = ("Stop exercising now. If you have chest pain, trouble breathing, fainting, sudden weakness or "
-                   "numbness, slurred speech, or severe swelling, call 999 or go to the nearest emergency "
-                   "department. For other new pain, dizziness or a fall, sit down, rest, and contact your doctor "
-                   "before exercising again.")
+RED_FLAG_ANSWER = ("Stop exercising now.\n"
+                   "1) Chest pain, trouble breathing, fainting, sudden weakness or numbness, slurred speech, or "
+                   "severe swelling: call 999 or go to the nearest emergency department.\n"
+                   "2) Other new pain, dizziness or a fall: sit down, rest, and contact your doctor before "
+                   "exercising again.")
 
 
 def duration(sec: int) -> str:
@@ -1329,6 +2534,7 @@ CONDITION_DETAIL = {
 }
 CONDITION_CLOSING = ("Your plan was chosen within the safety limits set from your health profile, so follow it "
                      "as set and check with your doctor before doing more.")
+
 
 # Food and drink answers get diet notes for the patient's conditions (not exercise reminders).
 DIET_NOTES = {
@@ -1470,11 +2676,168 @@ MISTAKE_ALIASES = {"uneven arm": "uneven_arms", "hip sag": "hips_sag", "hips sag
                    "knee not straight": "knee_not_straight", "heel lift": "heels_lift", "hand used": "hands_used"}
 
 
+# 3.72: the words the app's answers use, in plain words ("what does flexion mean", "apa maksud BMI").
+# An exercise's full name ("tandem stance", "heel raise") gets the exercise's own answer instead.
+TERMS = {
+    "abduction": ("Abduction means moving an arm or a leg out to the side, away from your body. Shoulder "
+                  "abduction lifts your arms out to the sides; hip abduction lifts a leg out to the side."),
+    "adduction": "Adduction means moving an arm or a leg back in, towards your body.",
+    "flexion": ("Flexion means bending a joint, or lifting a limb forward. Elbow flexion bends your elbow; "
+                "shoulder flexion lifts your arm forward and up."),
+    "extension": ("Extension means straightening a joint. Knee extension straightens your knee; wrist extension "
+                  "lifts the back of your hand."),
+    "range of motion": "Range of motion is how far a joint can move, for example how high you can lift your arm.",
+    "repetition": ("A repetition (rep) is one complete movement of an exercise, for example lifting your arm up "
+                   "and lowering it once."),
+    "set": "A set is a group of repetitions done one after the other before you rest.",
+    "intensity": ("Intensity is how hard an exercise feels. Low intensity feels easy: you can talk and sing. "
+                  "Moderate intensity is a little harder: you can talk, but not sing."),
+    "moderate intensity": ("Moderate intensity means the exercise feels a little hard: you breathe faster and "
+                           "can still talk, but you cannot sing."),
+    "low intensity": "Low intensity means the exercise feels easy: you can talk and even sing while doing it.",
+    "rehabilitation": ("Rehabilitation (rehab) is exercise and care that help your body get back its strength and "
+                       "movement after an illness, an injury, an operation or a long rest."),
+    "physiotherapist": ("A physiotherapist (physio) is a health professional trained to help people recover "
+                        "movement and strength with exercise."),
+    "posture": ("Posture is the position of your body. In this app it means how you hold and move your body "
+                "while you do an exercise."),
+    "bmi": ("BMI (body mass index) is your weight in kilograms divided by your height in metres squared. It "
+            "gives a rough idea of whether your weight suits your height; in this app it is shown for "
+            "information only."),
+    "warm up": "A warm-up is a few minutes of gentle movement before exercising, to get your muscles ready.",
+    "cool down": "A cool-down is a few minutes of slow, gentle movement after exercising, to let your body settle.",
+    "glute": "The glutes are the muscles of your buttocks. The glute bridge exercise makes them stronger.",
+    "quadriceps": "The quadriceps (quads) are the large muscles at the front of your thigh. They straighten your knee.",
+    "hamstrings": "The hamstrings are the muscles at the back of your thigh. They bend your knee.",
+    "calf": "The calf is the muscle at the back of your lower leg. The heel raise exercise makes it stronger.",
+    "core": "Your core is the muscles around your tummy and lower back that keep your body steady.",
+    "mobility": "Mobility is how easily you can move, for example walk, stand up or reach.",
+    "stamina": "Stamina (endurance) is how long you can keep going before you get tired.",
+    "inflammation": ("Inflammation is swelling, warmth, redness or pain where your body is healing or "
+                     "irritated."),
+    "hold": "Hold means keeping a position still for a few seconds before you move again.",
+    "atrophy": ("Atrophy means a muscle getting smaller and weaker because it has not been used, for example after "
+                "weeks in bed. Regular exercise builds it back."),
+    # 3.93: the words of the newer answers (readings, situations, conditions, symptoms)
+    "spo2": ("SpO2 (oxygen saturation) is how much oxygen your blood is carrying, measured with a clip on your "
+             "finger (a pulse oximeter). 95 to 100% is normal; 92% or lower needs a doctor."),
+    "api": ("The API (Air Pollutant Index) measures air quality in Malaysia: up to 50 is good, 51 to 100 moderate, "
+            "and above 100 unhealthy. On unhealthy days, exercise indoors."),
+    "dvt": ("DVT (deep vein thrombosis) is a blood clot in a deep vein, usually in the leg. A calf that is suddenly "
+            "swollen, red, warm and painful needs a doctor the same day."),
+    "sahur": "Sahur is the meal eaten before dawn during the fasting month.",
+    "iftar": "Iftar (berbuka puasa) is the meal that breaks the fast at sunset.",
+    "sarcopenia": ("Sarcopenia is the loss of muscle size and strength with age or a long time without moving much. "
+                   "Strength exercises and enough protein help to build it back."),
+    "osteoporosis": ("Osteoporosis means the bones have become thin and weak, so they break more easily. Strength and "
+                     "standing exercises help keep bones strong."),
+    "hypertension": "Hypertension means high blood pressure: readings of 140/90 or higher, again and again.",
+    "hypo": ("A hypo (hypoglycaemia) is a low blood sugar, usually below 4.0 mmol/L. It can make you shaky, sweaty, "
+             "dizzy or confused: take something sugary at once."),
+    "pursed lip breathing": ("Pursed-lip breathing means breathing in through your nose and out slowly through lips held "
+                             "as if to whistle. It helps when you are short of breath."),
+    "reliever inhaler": ("A reliever inhaler (often blue, such as Ventolin) opens the airways quickly when asthma symptoms "
+                         "start."),
+    "cardiac rehab": ("Cardiac rehabilitation (cardiac rehab) is a supervised programme of exercise and advice after a "
+                      "heart attack or heart surgery, run by a hospital team."),
+    "doms": ("DOMS (delayed onset muscle soreness) is the muscle ache that comes a day or two after exercise. It is "
+             "normal and eases within a few days."),
+    "bpm": "BPM means beats per minute: how fast your heart beats.",
+    "resting heart rate": ("Your resting heart rate is your pulse after sitting quietly for a few minutes: 60 to 100 "
+                           "beats a minute is usual."),
+    "stitch": ("A stitch can mean two things: a sudden sharp pain under the ribs when you walk or breathe fast, or a "
+               "thread a doctor uses to close a wound."),
+    "blood thinner": ("A blood thinner (an anticoagulant, such as warfarin) makes the blood clot more slowly. People who "
+                      "take one bruise and bleed more easily, so a fall needs extra care."),
+    "cpap": ("CPAP is a machine that blows air through a mask while you sleep, to keep the airway open in sleep "
+             "apnoea."),
+}
+TERM_ALIASES = {"abduct": "abduction", "adduct": "adduction", "flex": "flexion", "rom": "range of motion",
+                "reps": "repetition", "rep": "repetition", "repetitions": "repetition", "sets": "set",
+                "rehab": "rehabilitation", "physio": "physiotherapist", "physiotherapy": "physiotherapist",
+                "body mass index": "bmi", "warm-up": "warm up", "warmup": "warm up", "cool-down": "cool down",
+                "glutes": "glute", "quads": "quadriceps", "quad": "quadriceps", "hamstring": "hamstrings",
+                "calves": "calf", "endurance": "stamina", "muscle atrophy": "atrophy", "disuse atrophy": "atrophy",
+                "range of movement": "range of motion",
+                # 3.81: the same words in Malay ("apa maksud fleksi")
+                "fleksi": "flexion", "ekstensi": "extension", "abduksi": "abduction", "adduksi": "adduction",
+                "julat pergerakan": "range of motion", "ulangan": "repetition", "pemulihan": "rehabilitation",
+                "fisioterapi": "physiotherapist", "fisioterapis": "physiotherapist", "ahli fisioterapi": "physiotherapist",
+                "postur": "posture", "intensiti": "intensity", "intensiti sederhana": "moderate intensity",
+                "intensiti rendah": "low intensity", "memanaskan badan": "warm up", "menyejukkan badan": "cool down",
+                "otot teras": "core", "atrofi": "atrophy", "keradangan": "inflammation", "mobiliti": "mobility",
+                "daya tahan": "stamina", "indeks jisim badan": "bmi",
+                # 3.93
+                "sp02": "spo2", "oxygen saturation": "spo2", "oximeter": "spo2", "pulse oximeter": "spo2",
+                "air pollutant index": "api", "ipu": "api", "deep vein thrombosis": "dvt", "berbuka": "iftar",
+                "buka puasa": "iftar", "hypoglycaemia": "hypo", "hypoglycemia": "hypo", "pursed lip": "pursed lip breathing",
+                "pursed lips breathing": "pursed lip breathing", "blue inhaler": "reliever inhaler",
+                "cardiac rehabilitation": "cardiac rehab", "delayed onset muscle soreness": "doms",
+                "beats per minute": "bpm", "anticoagulant": "blood thinner", "blood thinners": "blood thinner",
+                "a stitch": "stitch"}
+
+
+
+
+# 4.05: each tip as a patient describes it in Malay (tenth probe: "dia kata lutut saya tak lurus", "saya condong ke
+# depan", "saya guna tangan masa bangun", "tangan saya tak sama tinggi" were not recognised). The English names
+# are matched as names (glossary); these are keywords. No "jatuh" (fall) in them: hips dropping is "turun".
+MISTAKE_KEYWORDS = {
+    "not_closed": ["tangan tak tutup", "tak genggam penuh", "genggam tak penuh"],
+    "arm_leg_low": ["tangan dan kaki rendah", "kaki dan tangan rendah"],
+    "back_arch": ["belakang melengkung", "pinggang melengkung"],
+    "back_sag": ["belakang melendut", "pinggang melendut", "pinggul senget"],
+    "bent_elbow": ["siku bengkok", "siku tak lurus"],
+    "bent_knee": ["lutut bengkok", "lutut tak lurus masa angkat kaki"],
+    "body_swing": ["badan berayun", "hayun badan", "goyang badan"],
+    "drop_down": ["turun terlalu cepat", "turun laju sangat", "turun tangga laju"],
+    "feet_far": ["kaki terlalu jauh", "kaki jauh sangat", "kaki jauh dari punggung"],
+    "feet_forward": ["kaki terlalu ke depan", "kaki ke depan sangat"],
+    "feet_not_in_line": ["kaki tak segaris", "kaki tak satu garisan", "kaki sebelah menyebelah"],
+    "hands_used": ["guna tangan masa bangun", "guna tangan untuk bangun", "tolak dengan tangan", "tolak kerusi",
+                   "pegang lutut masa bangun"],
+    "heels_lift": ["tumit terangkat", "tumit naik"],
+    "hips_back": ["punggung ke belakang", "tolak punggung ke belakang"],
+    "hips_sag": ["pinggul turun", "punggung turun", "punggung jatuh", "pinggul jatuh"],
+    "incomplete_extension": ["lutut tak lurus sepenuhnya", "kaki tak lurus sepenuhnya", "tak luruskan lutut"],
+    "incomplete_stand": ["tak berdiri tegak", "tak berdiri lurus", "tak bangun sepenuhnya"],
+    "fingers_not_spread": ["jari tak terbuka", "jari tak buka luas", "jari rapat"],
+    "head_tilt": ["kepala senget", "kepala condong"],
+    "knee_not_straight": ["lutut tak lurus", "lutut tidak lurus", "kaki tak lurus"],
+    "knees_bend": ["lutut bengkok masa jengket", "lutut bengkok bila naik"],
+    "leaning": ["bersandar pada kaunter", "condong ke tepi", "bersandar kat kaunter"],
+    "leaning_back": ["condong ke belakang", "sandar ke belakang"],
+    "leaning_forward": ["condong ke depan", "badan condong ke depan", "tunduk ke depan"],
+    "leg_forward": ["kaki ke depan bukan ke sisi", "kaki pergi ke depan"],
+    "low_hips": ["pinggul tak cukup tinggi", "punggung tak cukup tinggi"],
+    "low_knee_lift": ["lutut tak cukup tinggi", "lutut rendah sangat"],
+    "low_raise": ["tumit tak cukup tinggi", "jengket tak tinggi"],
+    "low_range": ["pergerakan tak cukup", "gerak tak cukup jauh"],
+    "no_arm_swing": ["tangan tak hayun", "tak hayun tangan"],
+    "no_forward_lean": ["tak condong ke depan", "tak bongkok ke depan"],
+    "no_hold": ["tak tahan di atas", "tak tahan sekejap", "tak berhenti di atas"],
+    "over_arch": ["punggung terlalu tinggi", "pinggul terlalu tinggi"],
+    "shoulder_shrug": ["bahu terangkat", "bahu naik", "angkat bahu"],
+    "slouching": ["duduk bongkok", "badan bongkok", "membongkok", "belakang bengkok"],
+    "stepping_out": ["terlangkah keluar", "kaki terkeluar", "terkeluar dari posisi"],
+    "swinging": ["hayun tangan laju", "angkat tangan laju"],
+    "thigh_lift": ["paha terangkat", "peha terangkat", "paha naik"],
+    "toes_up": ["jari kaki terangkat", "jari kaki ke atas", "jari kaki ke luar"],
+    "too_deep": ["cangkung terlalu dalam", "turun terlalu rendah"],
+    "trunk_forward": ["bongkok di pinggang", "badan tunduk"],
+    "trunk_lean": ["badan condong ke tepi", "badan senget"],
+    "uncontrolled_sit": ["duduk terlalu cepat", "duduk laju sangat", "hempas duduk"],
+    "uneven_arms": ["tangan tak sama tinggi", "tangan tak sama"],
+    "upper_arm_moves": ["lengan atas bergerak", "lengan tak rapat badan"],
+    "using_hands": ["tarik kaki dengan tangan", "guna tangan tarik kaki"],
+}
+
+
 def mistake_intents():
     out = []
     for label, (meaning, tip) in MISTAKE_MEANING.items():
         words = label.replace("_", " ")
-        out.append(intent(f"mistake:{label}", words.capitalize(), 6, [],
+        out.append(intent(f"mistake:{label}", words.capitalize(), 6, MISTAKE_KEYWORDS.get(label, []),
                           [f"what does {words} mean", f"the result said {words}"],
                           f"\u201c{words.capitalize()}\u201d in your posture result means {meaning}. {tip}", show=False,
                           action={"key": "open_history", "label": "See my results"}))
@@ -1515,10 +2878,13 @@ def build() -> dict:
         i["time_aware"] = i["key"] in TIME_AWARE
         if i["key"] in TAILORED:
             i["tailor"] = True
+    for i in INTENTS:
+        i["answer"] = layout(i["answer"])
+    restrictions = {k: {**v, "answer": layout(v["answer"])} for k, v in RESTRICTIONS.items()}
     rules = {
         "version": VERSION,
         "not_recognised": NOT_RECOGNISED,
-        "intents": INTENTS + mistake_intents(),
+        "intents": INTENTS + [{**m, "answer": layout(m["answer"])} for m in mistake_intents()],
         "glossary": glossary(),
         "exercises": exercises,
         "plans": plans,
@@ -1528,15 +2894,25 @@ def build() -> dict:
         "late_night_note": LATE_NIGHT_NOTE,
         "time_notes": TIME_NOTES,
         "now_notes": NOW_NOTES,
-        "condition_detail": CONDITION_DETAIL,
+        "condition_detail": {k: layout(v) for k, v in CONDITION_DETAIL.items()}
+        | {k: layout(text) for k, (_, text) in UNLISTED_CONDITIONS.items()},
         "condition_closing": CONDITION_CLOSING,
+        "condition_closing_other": CONDITION_CLOSING_OTHER,
+        "drug_names": DRUG_NAMES,
+        "unlisted_conditions": sorted(UNLISTED_CONDITIONS),
+        "condition_words": {**{w: code for code, (words, _) in UNLISTED_CONDITIONS.items() for w in words},
+                            **{w: code for code, words in LISTED_NAMES.items() for w in words}},
         "diet_notes": DIET_NOTES,
         "red_flags": RED_FLAGS,
+        "red_flags_more": RED_FLAGS_MORE,
         "crisis": CRISIS,
         "crisis_answer": CRISIS_ANSWER,
+        "crisis_answer_other": CRISIS_ANSWER_OTHER,
         "red_flag_combos": RED_FLAG_COMBOS,
         "red_flag_answer": RED_FLAG_ANSWER,
-        "restrictions": RESTRICTIONS,
+        "restrictions": restrictions,
+        "terms": {k: layout(v) for k, v in TERMS.items()},
+        "term_aliases": TERM_ALIASES,
     }
     OUT.write_text(json.dumps(rules, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     return rules

@@ -39,7 +39,7 @@ ROUND2 = [
     (KNEE, "i feel dizzy and my chest is tight", "red_flag"),
     # navigation
     (KNEE, "where is the reminders page", "reminders_help"),
-    (KNEE, "go back to home", None),
+    (KNEE, "go back to home", (None, "exit_exercise")),  # 3.55: Exit takes you home
     (KNEE, "i want to see my profile", "profile_help"),
     (KNEE, "open my plan", ("treatment_nav", "plan_exercises")),
     (KNEE, "i want to change to a different plan", "plan_and_reminders"),

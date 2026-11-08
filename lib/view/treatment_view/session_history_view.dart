@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -34,33 +35,45 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
     final vm = context.watch<TreatmentViewModel>();
     return Scaffold(
       backgroundColor: AppTokens.background,
-      appBar: AppBar(
-        backgroundColor: AppTokens.primary,
-        foregroundColor: Colors.white,
-        title: const Text('Session history'),
+      body: Column(
+        children: [
+          const HeaderBar(
+            title: 'Session history',
+            subtitle: 'Your posture results over time',
+          ),
+          Expanded(
+            child: switch (vm.plan) {
+              Loading() ||
+              Idle() => const Center(child: CircularProgressIndicator()),
+              UiError(:final message) => _Message(
+                message,
+                onRetry: vm.loadPlan,
+              ),
+              UiSuccess() when vm.activePlan == null => const _Message(
+                'You have no treatment plan yet. Choose one in AI-assisted treatment planning.',
+              ),
+              UiSuccess() when vm.history.isEmpty => const _Message(
+                'No sessions recorded yet. Your results appear here after your first exercise.',
+              ),
+              UiSuccess() => RefreshIndicator(
+                onRefresh: vm.loadPlan,
+                child: _list(vm),
+              ),
+            },
+          ),
+        ],
       ),
-      body: switch (vm.plan) {
-        Loading() || Idle() => const Center(child: CircularProgressIndicator()),
-        UiError(:final message) => _Message(message, onRetry: vm.loadPlan),
-        UiSuccess() when vm.activePlan == null => const _Message(
-          'You have no treatment plan yet. Choose one in AI-assisted treatment planning.',
-        ),
-        UiSuccess() when vm.history.isEmpty => const _Message(
-          'No sessions recorded yet. Your results appear here after your first exercise.',
-        ),
-        UiSuccess() => RefreshIndicator(
-          onRefresh: vm.loadPlan,
-          child: _list(vm),
-        ),
-      },
     );
   }
 
   Widget _list(TreatmentViewModel vm) {
     final entries = vm.history;
+    // Oldest first, only attempts with a time (audit, 24 Oct): a retried try has none and the
+    // history lists it last, so the reversed list drew every retry at the start of the line.
     final scored = [
       for (final e in entries.reversed)
-        if (e.session.postureAccuracy != null) e.session.postureAccuracy!,
+        if (e.session.postureAccuracy != null && e.session.completedAt != null)
+          e.session.postureAccuracy!,
     ];
     return ListView(
       padding: const EdgeInsets.all(AppTokens.gutter),
@@ -131,7 +144,8 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
     );
   }
 
-  static String _pct(double? v) => v == null ? '-' : '${v.round()}%';
+  static String _pct(double? v) =>
+      v == null ? '-' : '${ExerciseSession.shownPercent(v)}%';
 }
 
 class _Stat extends StatelessWidget {
@@ -166,8 +180,7 @@ class _EntryCard extends StatelessWidget {
   final SessionHistoryEntry entry;
   const _EntryCard(this.entry);
 
-  static String _date(DateTime? t) {
-    if (t == null) return 'Not finished';
+  static String _date(DateTime t) {
     final l = t.toLocal();
     const months = [
       'Jan',
@@ -226,7 +239,7 @@ class _EntryCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
-                    '${acc.round()}%',
+                    '${ExerciseSession.shownPercent(acc)}%',
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -239,7 +252,8 @@ class _EntryCard extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             [
-              _date(s.completedAt),
+              // A retried try has no time saved; it was finished, so no "Not finished" (audit, 24 Oct).
+              if (s.completedAt case final at?) _date(at),
               status,
               if (s.repetitionsCompleted != null)
                 '${s.repetitionsCompleted} reps',

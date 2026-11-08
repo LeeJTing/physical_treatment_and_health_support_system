@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/plan_rules/plan_rules.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise.dart';
@@ -24,15 +27,17 @@ Exercise ex(
 );
 
 /// A plan built from posture exercises, named by pose key (as in the catalogue).
-TreatmentPlan posePlan(String id, String area, String goal, List<String> keys) =>
-    plan(
-      id,
-      area: area,
-      goal: goal,
-      exercises: [
-        for (final k in keys) (ex(k, area: area, poseKey: k), 60),
-      ],
-    );
+TreatmentPlan posePlan(
+  String id,
+  String area,
+  String goal,
+  List<String> keys,
+) => plan(
+  id,
+  area: area,
+  goal: goal,
+  exercises: [for (final k in keys) (ex(k, area: area, poseKey: k), 60)],
+);
 
 TreatmentPlan plan(
   String id, {
@@ -170,22 +175,28 @@ void main() {
         isFalse,
       );
     });
-    test(
-      'daily worst case: longest exercise per plan, a shared exercise once',
-      () {
-        final shared = ex('squat');
-        final a = plan('a', exercises: [(shared, 120), (ex('x'), 60)]);
-        final b = plan('b', exercises: [(shared, 90), (ex('y'), 60)]);
-        expect(PlanRules.dailyWorstCaseSec([a, b]), 120);
-        expect(
-          PlanRules.dailyWorstCaseSec([
-            a,
-            plan('c', exercises: [(ex('z'), 300)]),
-          ]),
-          420,
-        );
-      },
-    );
+    test('daily worst case: one exercise per plan, a shared exercise once', () {
+      final shared = ex('squat');
+      final a = plan('a', exercises: [(shared, 120), (ex('x'), 60)]);
+      final b = plan('b', exercises: [(shared, 90), (ex('y'), 60)]);
+      // Bug list #11: a on the squat (120) while b is on y (60). Was 120.
+      expect(PlanRules.dailyWorstCaseSec([a, b]), 180);
+      // Both plans on the shared exercise only: done once, its longer time.
+      expect(
+        PlanRules.dailyWorstCaseSec([
+          plan('d', exercises: [(shared, 120)]),
+          plan('e', exercises: [(shared, 90)]),
+        ]),
+        120,
+      );
+      expect(
+        PlanRules.dailyWorstCaseSec([
+          a,
+          plan('c', exercises: [(ex('z'), 300)]),
+        ]),
+        420,
+      );
+    });
     test('rest day across plans', () {
       expect(PlanRules.noRestDay([plan('a', perWeek: 5)]), isFalse); // M-F
       expect(
@@ -355,6 +366,62 @@ void main() {
         expect(issues.single.level, PlanIssueLevel.warning);
       },
     );
+    test(
+      'a condition now waiting for a doctor\'s OK is flagged first (23 Oct)',
+      () {
+        final heart = LookupSeed.conditions
+            .firstWhere((c) => c.needsClearance)
+            .withStatus(controlled: false);
+        final p = plan(
+          'a',
+          exercises: [(ex('step', intensity: ExerciseIntensity.moderate), 60)],
+        );
+        final issues = PlanRules.checkActive(
+          active: [following(p)],
+          risk: RiskLevel.high,
+          limit: limit(max: ExerciseIntensity.low),
+          conditions: [heart],
+        );
+        expect(codes(issues).first, 'clearance_now');
+        expect(issues.first.message, contains(heart.conditionName));
+        // Answered "yes, under control": no warning.
+        expect(
+          codes(
+            PlanRules.checkActive(
+              active: [following(p)],
+              risk: RiskLevel.high,
+              limit: limit(),
+              conditions: [heart.withStatus(controlled: true)],
+            ),
+          ),
+          isNot(contains('clearance_now')),
+        );
+      },
+    );
+    test(
+      'an exercise for a part of the body now limited is flagged (23 Oct)',
+      () {
+        final left = LookupSeed.limitations.firstWhere(
+          (l) => l.limitationCode == 'LEFT_LEG_MOBILITY',
+        );
+        final p = plan(
+          'legs',
+          exercises: [
+            (ex('squat', area: 'BOTH_LEGS'), 60),
+            (ex('arm raise', area: 'BOTH_ARMS'), 60),
+          ],
+        );
+        final issues = PlanRules.checkActive(
+          active: [following(p)],
+          risk: RiskLevel.medium,
+          limit: limit(),
+          limitations: [left],
+        );
+        expect(issues.single.code, 'area_now');
+        expect(issues.single.message, contains('squat'));
+        expect(issues.single.message, isNot(contains('arm raise')));
+      },
+    );
     test('within limits: nothing', () {
       expect(
         PlanRules.checkActive(
@@ -365,5 +432,21 @@ void main() {
         isEmpty,
       );
     });
+  });
+
+  // plan_rules.dart says to keep its joint map the same as the recommender's POSE_PARTS; this
+  // reads the server file in the same repository so the two cannot drift apart (audit, 23 Oct).
+  test('the joints of each posture exercise match the server recommender', () {
+    final py = File('ai_server/app/recommend/engine.py').readAsStringSync();
+    final block = py.split('\nPOSE_PARTS = {')[1].split('\n}')[0];
+    final server = {
+      for (final m in RegExp(r'"(\w+)": \(([^)]*)\)').allMatches(block))
+        m[1]!: {for (final j in RegExp(r'"(\w+)"').allMatches(m[2]!)) j[1]!: 1},
+    };
+    expect(server, hasLength(17));
+    for (final MapEntry(key: poseKey, value: joints) in server.entries) {
+      final p = posePlan(poseKey, 'BOTH_LEGS', 'STRENGTH', [poseKey]);
+      expect(PlanRules.jointCounts(p), joints, reason: poseKey);
+    }
   });
 }

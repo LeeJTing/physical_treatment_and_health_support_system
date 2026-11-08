@@ -64,8 +64,18 @@ class ChatReply {
   bool get isUrgent => matchedBy == 'red_flag';
 
   /// The answer without the condition notes, which the chat shows in their own box.
+  /// The server adds the notes last, after a blank line ("Note: ..." each); the answer can have blank
+  /// lines of its own (one paragraph per condition), so it is cut where the notes start.
   String get mainAnswer {
     if (notes.isEmpty) return answer;
+    for (final tail in [
+      '\n\n${notes.map((n) => 'Note: $n').join('\n')}',
+      '\n\n${notes.join('\n')}',
+    ]) {
+      if (answer.endsWith(tail)) {
+        return answer.substring(0, answer.length - tail.length);
+      }
+    }
     final cut = answer.indexOf('\n\n');
     return cut < 0 ? answer : answer.substring(0, cut);
   }

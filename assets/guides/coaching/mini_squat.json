@@ -1,0 +1,54 @@
+{
+  "pose_key": "mini_squat",
+  "focus": {
+    "joint": "knee",
+    "from": "hip",
+    "to": "ankle"
+  },
+  "mover": "hip",
+  "captions": {
+    "start": "Feet apart, hold a support",
+    "go": "Bend your knees a little",
+    "top": "About a third of the way down",
+    "back": "Stand up again"
+  },
+  "say": {
+    "go": "Bend",
+    "back": "Up"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Stand with your feet shoulder-width apart, holding a support."
+    },
+    {
+      "phase": "go",
+      "text": "Bend your knees a little, keeping your heels down and your chest up."
+    },
+    {
+      "phase": "top",
+      "text": "Stop about a third of the way down."
+    },
+    {
+      "phase": "back",
+      "text": "Stand up straight again."
+    }
+  ],
+  "safety": [
+    "Hold a support the whole time.",
+    "Your knees should not go past your toes."
+  ],
+  "mistakes": [
+    {
+      "label": "too_deep",
+      "wrong": "you bent your knees further than a mini squat",
+      "right": "Only bend your knees a little, about a third of the way down."
+    },
+    {
+      "label": "heels_lift",
+      "wrong": "your heels came off the floor",
+      "right": "Keep your heels on the floor."
+    }
+  ],
+  "setup": []
+}

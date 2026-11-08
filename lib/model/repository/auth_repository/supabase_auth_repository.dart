@@ -3,6 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/code_attempts.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/login_attempts.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/session_policy.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/supabase_provider/supabase_provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
@@ -18,14 +20,16 @@ class SupabaseAuthRepository implements IAuthRepository {
 
   final SupabaseProvider _sb;
 
-  /// Failed logins per email, for the lockout (FR100_031). Kept in memory:
-  /// Supabase also rate-limits sign-ins on the server.
-  final Map<String, List<DateTime>> _failures = {};
+  /// Failed logins per email, for the lockout (FR100_031), kept between app starts (audit,
+  /// 23 Oct). Supabase also rate-limits sign-ins on the server.
+  late final LoginAttempts _attempts = LoginAttempts(now: _now);
 
   /// Wrong verification codes per email since the code was issued (FR100_016). After
   /// AppConstants.maxCodeAttempts the app stops sending that code; "Resend code" issues a new
-  /// one, which replaces the old code in Supabase.
-  final Map<String, int> _codeRejections = {};
+  /// one, which replaces the old code in Supabase. Kept between app starts, and also counted
+  /// for the password-reset code (bug list #12).
+  final CodeAttempts _codeRejections = CodeAttempts();
+  static String _resetKey(String email) => 'reset:$email';
   final DateTime Function() _now;
 
   SupabaseAuthRepository(this._sb, {DateTime Function()? now})
@@ -94,7 +98,7 @@ class SupabaseAuthRepository implements IAuthRepository {
     String password,
     String username,
   ) async {
-    _codeRejections.remove(email.trim().toLowerCase());
+    await _codeRejections.clear(email.trim().toLowerCase());
     final res = await supabaseGuard(
       () => _auth.signUp(
         email: email.trim().toLowerCase(),
@@ -123,7 +127,7 @@ class SupabaseAuthRepository implements IAuthRepository {
   @override
   Future<Result<Account>> verify(String email, String code) async {
     final e = email.trim().toLowerCase();
-    if ((_codeRejections[e] ?? 0) >= AppConstants.maxCodeAttempts) {
+    if (await _codeRejections.count(e) >= AppConstants.maxCodeAttempts) {
       return const Failure(Messages.codeExpired, code: 'code_attempts');
     }
     final res = await supabaseGuard(
@@ -133,10 +137,10 @@ class SupabaseAuthRepository implements IAuthRepository {
       :final code,
     ) when code == 'otp_expired' || code == 'otp_invalid') {
       // Supabase uses otp_expired for wrong AND expired codes.
-      _codeRejections[e] = (_codeRejections[e] ?? 0) + 1;
+      await _codeRejections.add(e);
       return const Failure(Messages.codeIncorrect, code: 'otp_invalid');
     }
-    _codeRejections.remove(e);
+    await _codeRejections.clear(e);
     if (res case Failure f) return f.cast<Account>();
     final uid =
         (res as Success<AuthResponse>).data.user?.id ?? _sb.currentAccountId;
@@ -157,23 +161,16 @@ class SupabaseAuthRepository implements IAuthRepository {
       ),
       failMessage: Messages.verificationEmailFailed,
     );
-    if (res.isSuccess) _codeRejections.remove(e); // a new code: five new tries
+    if (res.isSuccess) {
+      await _codeRejections.clear(e); // a new code: five new tries
+    }
     return res;
-  }
-
-  bool _locked(String email) {
-    final cutoff = _now().subtract(AppConstants.loginLockout);
-    final recent = (_failures[email] ?? const <DateTime>[])
-        .where((t) => t.isAfter(cutoff))
-        .toList();
-    _failures[email] = recent;
-    return recent.length >= AppConstants.maxLoginFailures;
   }
 
   @override
   Future<Result<Account>> login(String email, String password) async {
     final e = email.trim().toLowerCase();
-    if (_locked(e)) {
+    if (await _attempts.locked(e)) {
       return const Failure(Messages.accountLocked, code: 'locked');
     }
     final res = await supabaseGuard(
@@ -181,8 +178,7 @@ class SupabaseAuthRepository implements IAuthRepository {
       failMessage: Messages.loginUnavailable,
     );
     if (res case Failure(:final code) when code == 'invalid_credentials') {
-      (_failures[e] ??= []).add(_now());
-      return _locked(e)
+      return await _attempts.recordFailure(e)
           ? const Failure(Messages.accountLocked, code: 'locked')
           : const Failure(
               Messages.incorrectCredentials,
@@ -196,7 +192,7 @@ class SupabaseAuthRepository implements IAuthRepository {
       );
     }
     if (res case Failure f) return f.cast<Account>();
-    _failures.remove(e);
+    await _attempts.clear(e);
     await _renew();
     final uid = res.dataOrNull?.user?.id;
     if (uid == null) {
@@ -334,6 +330,10 @@ class SupabaseAuthRepository implements IAuthRepository {
     final res = await supabaseGuard(
       () => _auth.resetPasswordForEmail(email.trim().toLowerCase()),
     );
+    // A new reset code: five new tries (bug list #12).
+    if (res.isSuccess) {
+      await _codeRejections.clear(_resetKey(email.trim().toLowerCase()));
+    }
     if (res case Failure(
       :final code,
     ) when code == 'offline' || code == 'timeout') {
@@ -348,6 +348,11 @@ class SupabaseAuthRepository implements IAuthRepository {
     String code,
     String newPassword,
   ) async {
+    // Bug list #12: the reset code had no limit in the app.
+    final key = _resetKey(email.trim().toLowerCase());
+    if (await _codeRejections.count(key) >= AppConstants.maxCodeAttempts) {
+      return const Failure(Messages.codeExpired, code: 'code_attempts');
+    }
     final verified = await supabaseGuard(
       () => _auth.verifyOTP(
         email: email.trim().toLowerCase(),
@@ -358,8 +363,10 @@ class SupabaseAuthRepository implements IAuthRepository {
     if (verified case Failure(
       :final code,
     ) when code == 'otp_expired' || code == 'otp_invalid') {
+      await _codeRejections.add(key);
       return const Failure(Messages.codeIncorrect, code: 'otp_invalid');
     }
+    await _codeRejections.clear(key);
     if (verified case Failure f) return f.cast<void>();
     final updated = await supabaseGuard(
       () => _auth.updateUser(UserAttributes(password: newPassword)),

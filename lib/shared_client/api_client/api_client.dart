@@ -64,20 +64,30 @@ class ApiClient {
         .timeout(timeout),
   );
 
-  /// Multipart upload for an exercise clip (or a meal photo).
+  /// Multipart upload for an exercise clip (or a meal photo). Without [timeout], the analysis time
+  /// plus the time to upload the file at [AppConstants.slowestUploadBytesPerSecond].
   Future<Result<Map<String, dynamic>>> postFile(
     String path,
     File file, {
     Map<String, String> fields = const {},
-    Duration timeout = AppConstants.poseTimeout,
+    Duration? timeout,
   }) => _send(() async {
     final req = http.MultipartRequest('POST', Uri.parse('$baseUrl$path'))
       ..headers.addAll(_headers(json: false))
       ..fields.addAll(fields)
       ..files.add(await http.MultipartFile.fromPath('file', file.path));
-    final streamed = await _http.send(req).timeout(timeout);
-    return http.Response.fromStream(streamed);
+    final limit = timeout ?? uploadTimeout(await file.length());
+    // The reply is read inside the limit too (bug list #6): a connection that stalled after the
+    // headers left the analysing screen waiting for ever.
+    return _http.send(req).then(http.Response.fromStream).timeout(limit);
   });
+
+  /// How long an upload of [bytes] may take, analysis included.
+  static Duration uploadTimeout(int bytes) =>
+      AppConstants.poseTimeout +
+      Duration(
+        milliseconds: bytes * 1000 ~/ AppConstants.slowestUploadBytesPerSecond,
+      );
 
   /// Multipart upload of bytes already in memory, e.g. a meal photo reduced on the phone
   /// (UC800 C4), as the form field "file".
@@ -134,6 +144,13 @@ class ApiClient {
         cause: e,
       );
     } on SocketException catch (e) {
+      return Failure(
+        'No connection to the server. Please check your internet connection.',
+        code: 'offline',
+        cause: e,
+      );
+    } on http.ClientException catch (e) {
+      // A connection that dropped or could not be made, as supabaseGuard treats it (audit, 24 Oct).
       return Failure(
         'No connection to the server. Please check your internet connection.',
         code: 'offline',

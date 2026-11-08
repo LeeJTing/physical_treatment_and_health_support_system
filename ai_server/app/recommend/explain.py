@@ -20,7 +20,9 @@ SOURCE_KEYS = {"acsm2009", "billinger2014", "colberg2016", "haff2016", "hk_doh",
                "williams2007",
                # 11 Oct: the conditions added to the profile (conditions.py)
                "acog2020", "campbell2019", "eular2018", "gina2024", "kalb2020", "kdigo2024", "nice2020",
-               "osborne2022", "spruit2013"}
+               "osborne2022", "spruit2013",
+               # 14 Oct: osteoporosis
+               "brookewavell2022"}
 
 AREA = {"LEFT_ARM": "left arm", "RIGHT_ARM": "right arm", "BOTH_ARMS": "arms", "LEFT_LEG": "left leg",
         "RIGHT_LEG": "right leg", "BOTH_LEGS": "legs", "CORE": "core and back", "FULL_BODY": "whole body"}
@@ -70,7 +72,7 @@ def why_excluded(req: RecommendRequest, plan: PlanIn, reasons: list[str]) -> lis
                               sources=intensity_sources(req.conditions)))
         elif r.startswith("session "):
             out.append(Reason(code="TOO_LONG",
-                              text=f"A session would take longer than your limit of "
+                              text=f"One of its exercises takes longer than your daily limit of "
                                    f"{req.safety_limit.max_session_duration_min} minutes.",
                               sources=["otago2003", "martinez_velilla2019"]))
         elif r.startswith("conflicts with "):
@@ -141,7 +143,9 @@ def why_shown(req: RecommendRequest, plan: PlanIn, step: str, personal: float | 
     area = req.rehab.affected_body_area
     share = cosine(_PARTS[area], plan_area_vec(plan))
     out.append(Reason(code="MATCH_AREA",
-                      text=f"It trains your {AREA[area]}" + (" and the goal you chose" if plan.goal == req.rehab.goal
+                      # "It trains your legs, for the goal you chose." (24 Oct: "... and the goal you chose" read
+                      # as if the goal were trained.)
+                      text=f"It trains your {AREA[area]}" + (", for the goal you chose" if plan.goal == req.rehab.goal
                                                              else "") + ".",
                       sources=[]))
     if plan.goal in ("STRENGTH", "ENDURANCE"):
@@ -155,11 +159,12 @@ def why_shown(req: RecommendRequest, plan: PlanIn, step: str, personal: float | 
     else:
         out.append(Reason(code="DOSE_MOBILITY", text="Gentle movement on most days helps recover range of motion.",
                           sources=["acsm2009", "mehta2024"]))
-    minutes = max(1, round(sum(pe.prescribed_duration_sec for pe in plan.plan_exercise) / 60))
+    # One exercise of the plan a day: the day's session is at most its longest exercise.
+    minutes = max(1, round(max((pe.prescribed_duration_sec for pe in plan.plan_exercise), default=0) / 60))
     out.append(Reason(code="SAFE",
                       text=f"Every exercise stays within your effort limit "
-                           f"({EFFORT[req.safety_limit.max_exercise_intensity]}), and a session takes about {minutes} "
-                           f"minutes (your limit: {req.safety_limit.max_session_duration_min}).",
+                           f"({EFFORT[req.safety_limit.max_exercise_intensity]}), and each day's exercise takes up to about "
+                           f"{minutes} minutes (your limit: {req.safety_limit.max_session_duration_min}).",
                       sources=intensity_sources(req.conditions) + ["otago2003"]))
     for code in req.limitations:
         b = blocked_area(code)

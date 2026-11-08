@@ -124,8 +124,12 @@ class ChatViewModel extends BaseViewModel {
     return const Failure(Messages.chatReportFailed);
   }
 
-  static String _clip(String s, int max) =>
-      s.length <= max ? s : s.substring(0, max);
+  /// At most [max] characters as the database counts them (char_length: code points). Cut by
+  /// code points, so an emoji at the cut is never split into half a character, which the
+  /// database refuses (audit, 23 Oct).
+  static String _clip(String s, int max) => s.runes.length <= max
+      ? s
+      : String.fromCharCodes(s.runes.take(max));
 
   /// Loads the patient's profile and active plan, then the question categories that belong
   /// to that plan (FR500_18). A failure shows the M5 message with a retry (UC400 E3).

@@ -248,15 +248,15 @@ class PlanningViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// Saves the plan with the patient and selection date, then the exercise
-  /// reminder built from its weekly frequency (FR500_09, FR500_11).
-  /// Saves [p] (FR500_09) and its reminder (FR500_11). [replacing] are the
-  /// patientPlanIds the patient chose to stop for it (a clash or the risk
-  /// cap); every other active plan keeps running.
+  /// Saves [p] with the patient and selection date (FR500_09), then the exercise reminder built
+  /// from its weekly frequency (FR500_11). [replacing] are the patientPlanIds the patient chose
+  /// to stop for it (a clash or the risk cap); every other active plan keeps running.
   Future<bool> select(
     TreatmentPlan p, {
     List<String> replacing = const [],
   }) async {
+    // Two taps before the screen disables the button would assign the plan twice (23 Oct).
+    if (_saving is Loading) return false;
     final accountId = _snapshot?.accountId;
     if (accountId == null) {
       _saving = const UiError(Messages.sessionExpired);
@@ -290,33 +290,39 @@ class PlanningViewModel extends BaseViewModel {
     );
 
     final saved = await _repo.assignPlan(assignment, replacing: replacing);
-    final scheduled = saved.isSuccess
-        ? await _notifications.saveReminder(reminder)
-        : null;
-    final ok = saved.isSuccess && (scheduled?.isSuccess ?? false);
+    if (saved is Failure<void>) {
+      _saving = UiError(
+        saved.code == '23505' ? multiPlanNotEnabled : Messages.dbUnavailable,
+      );
+      notifyListeners();
+      return false;
+    }
+    // The plan is assigned (and the replaced ones ended) from here on, even if its reminder
+    // fails: reporting a failure made the patient select it again and follow it twice
+    // (audit, 23 Oct).
     // FR500_11, M600.1: the new plan's reminder goes on the device; only the
     // replaced plans' reminders are removed.
-    if (ok) {
-      for (final id in replacing) {
-        await _reminders?.removeForPlan(accountId, id);
-      }
-      await _reminders?.planSelected(reminder);
-      _activePlans = [
-        for (final a in _activePlans)
-          if (!replacing.contains(a.patientPlanId)) a,
-        assignment,
-      ];
+    for (final id in replacing) {
+      await _reminders?.removeForPlan(accountId, id);
     }
-    _saving = ok
-        ? UiSuccess(p)
-        : UiError(
-            saved is Failure<void> && saved.code == '23505'
-                ? multiPlanNotEnabled
-                : Messages.dbUnavailable,
-          );
+    final scheduled = await _notifications.saveReminder(reminder);
+    if (scheduled.isSuccess) await _reminders?.planSelected(reminder);
+    reminderNotSet = !scheduled.isSuccess;
+    // The followed plans change only now, with the success: while the reminder was being set
+    // (seconds on the emulator) a redraw showed the selected card as "You are already following
+    // this plan" (emulator, 24 Oct).
+    _activePlans = [
+      for (final a in _activePlans)
+        if (!replacing.contains(a.patientPlanId)) a,
+      assignment,
+    ];
+    _saving = UiSuccess(p);
     notifyListeners();
-    return ok;
+    return true;
   }
+
+  /// The last selected plan was saved but its reminder was not.
+  bool reminderNotSet = false;
 
   /// Clears the recommendation after the patient confirms rejecting all
   /// plans (FR500_12, FR500_13) or exits (FR500_16). Nothing is saved.

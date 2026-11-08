@@ -1,0 +1,331 @@
+{
+  "bird_dog": {
+    "view": "side",
+    "mistakes": {
+      "arm_leg_low": {
+        "feedback": "Stretch your arm and leg a little further, towards the level of your back, only as far as feels steady.",
+        "meaning": "your arm and leg did not reach the level of your back"
+      },
+      "back_sag": {
+        "feedback": "Keep your back flat and your hips level.",
+        "meaning": "your lower back dipped or your hips tilted while you stretched"
+      },
+      "no_hold": {
+        "feedback": "Hold the stretched position for 2 seconds.",
+        "meaning": "you did not hold the top position"
+      }
+    }
+  },
+  "elbow_flexion": {
+    "view": "side",
+    "mistakes": {
+      "upper_arm_moves": {
+        "feedback": "Keep your upper arms still against your body.",
+        "meaning": "your upper arm moved away from your side"
+      },
+      "low_range": {
+        "feedback": "Bend your elbows a little further, bringing your hands towards your shoulders, only as far as is comfortable.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      },
+      "body_swing": {
+        "feedback": "Keep your body still; do not rock back to lift.",
+        "meaning": "you rocked your body back to help lift"
+      }
+    }
+  },
+  "glute_bridge": {
+    "view": "side",
+    "mistakes": {
+      "low_hips": {
+        "feedback": "Lift your hips a little higher, towards a straight line from shoulders to knees, without pain in your back.",
+        "meaning": "your hips did not lift high enough"
+      },
+      "over_arch": {
+        "feedback": "Do not push your hips too high; keep your lower back from arching.",
+        "meaning": "your hips went too high, so your lower back arched"
+      },
+      "feet_far": {
+        "feedback": "Bring your feet closer to your buttocks.",
+        "meaning": "your feet were too far from your buttocks"
+      }
+    }
+  },
+  "hand_open_close": {
+    "view": "front",
+    "mistakes": {
+      "low_range": {
+        "feedback": "Open your fingers a little wider, only as far as is comfortable.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      },
+      "not_closed": {
+        "feedback": "Between openings, close your hand into a gentle fist.",
+        "meaning": "your hand did not close into a fist between openings"
+      },
+      "fingers_not_spread": {
+        "feedback": "Spread your fingers wide as you open your hand, only as far as is comfortable.",
+        "meaning": "your fingers stayed close together when your hand opened"
+      }
+    }
+  },
+  "heel_raise": {
+    "view": "side",
+    "mistakes": {
+      "low_raise": {
+        "feedback": "Rise a little higher onto your toes, holding the chair, only as far as feels steady.",
+        "meaning": "your heels did not rise high enough"
+      },
+      "knees_bend": {
+        "feedback": "Keep your knees straight as you rise.",
+        "meaning": "your knees bent as you rose onto your toes"
+      },
+      "leaning_forward": {
+        "feedback": "Rise straight up, keeping a light hold on the chair rather than leaning on it.",
+        "meaning": "you leaned your upper body forwards"
+      }
+    }
+  },
+  "hip_abduction": {
+    "view": "front",
+    "mistakes": {
+      "trunk_lean": {
+        "feedback": "Keep your body upright; do not lean away from the lifting leg.",
+        "meaning": "your body leaned to the side"
+      },
+      "low_range": {
+        "feedback": "Keep holding the chair and lift your leg a little further out to the side, only as far as is comfortable.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      },
+      "leg_forward": {
+        "feedback": "Lift the leg straight out to the side, not forwards.",
+        "meaning": "your leg went forwards instead of straight out to the side"
+      },
+      "bent_knee": {
+        "feedback": "Keep the knee of the lifting leg straight.",
+        "meaning": "the knee of your lifting leg was bent"
+      },
+      "toes_up": {
+        "feedback": "Keep your toes pointing forwards.",
+        "meaning": "your toes turned up or outwards as the leg lifted"
+      }
+    }
+  },
+  "knee_extension": {
+    "view": "side",
+    "mistakes": {
+      "incomplete_extension": {
+        "feedback": "Straighten your knee so your leg is straight out in front, as far as is comfortable.",
+        "meaning": "your knee did not straighten fully"
+      },
+      "slouching": {
+        "feedback": "Sit up straight with your back against the chair.",
+        "meaning": "you slumped or leaned back away from the chair back"
+      },
+      "thigh_lift": {
+        "feedback": "Keep your thigh resting on the seat; only the lower leg moves.",
+        "meaning": "your whole thigh lifted off the seat"
+      },
+      "no_hold": {
+        "feedback": "Hold the straight leg for 2 seconds before lowering it.",
+        "meaning": "you did not hold the top position"
+      },
+      "leaning_forward": {
+        "feedback": "Keep your upper body upright; do not lean towards your knee.",
+        "meaning": "you leaned your upper body forwards"
+      }
+    }
+  },
+  "march_in_place": {
+    "view": "side",
+    "mistakes": {
+      "low_knee_lift": {
+        "feedback": "Lift your knees a little higher, only as far as is comfortable.",
+        "meaning": "your knees did not lift high enough"
+      },
+      "leaning_back": {
+        "feedback": "Stand tall; do not lean backwards.",
+        "meaning": "you leaned your upper body backwards"
+      },
+      "no_arm_swing": {
+        "feedback": "If you feel steady, swing your arms as you march. If not, keep one hand on the chair.",
+        "meaning": "your arms stayed still while you marched"
+      }
+    }
+  },
+  "mini_squat": {
+    "view": "side",
+    "mistakes": {
+      "too_deep": {
+        "feedback": "Only bend your knees a little, about a third of the way down.",
+        "meaning": "you bent your knees further than a mini squat"
+      },
+      "heels_lift": {
+        "feedback": "Keep your heels on the floor.",
+        "meaning": "your heels came off the floor"
+      },
+      "trunk_forward": {
+        "feedback": "Keep your chest up.",
+        "meaning": "you bent forward at the waist"
+      }
+    }
+  },
+  "seated_marching": {
+    "view": "side",
+    "mistakes": {
+      "low_knee_lift": {
+        "feedback": "Lift your knees a little higher, only as far as is comfortable.",
+        "meaning": "your knees did not lift high enough"
+      },
+      "leaning_back": {
+        "feedback": "Sit upright; do not lean back against the chair.",
+        "meaning": "you leaned your upper body backwards"
+      },
+      "using_hands": {
+        "feedback": "Lift your legs without pulling them up with your hands.",
+        "meaning": "your hands pulled your leg up"
+      }
+    }
+  },
+  "shoulder_abduction": {
+    "view": "front",
+    "mistakes": {
+      "low_range": {
+        "feedback": "Raise your arms a little higher, towards shoulder height, only as far as is comfortable.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      },
+      "bent_elbow": {
+        "feedback": "Keep your elbows straight as you lift.",
+        "meaning": "your elbows were bent while your arms were raised"
+      },
+      "uneven_arms": {
+        "feedback": "Lift both arms together to the same height.",
+        "meaning": "one arm went higher than the other"
+      },
+      "trunk_lean": {
+        "feedback": "Keep your body upright; do not lean to the side.",
+        "meaning": "your body leaned to the side"
+      },
+      "shoulder_shrug": {
+        "feedback": "Relax your shoulders down, away from your ears.",
+        "meaning": "your shoulders lifted up towards your ears"
+      },
+      "head_tilt": {
+        "feedback": "Keep your head level and look straight ahead as you lift.",
+        "meaning": "your head tilted to one side as you lifted"
+      }
+    }
+  },
+  "shoulder_flexion": {
+    "view": "side",
+    "mistakes": {
+      "low_range": {
+        "feedback": "Raise your arms a little higher, towards shoulder height, only as far as is comfortable.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      },
+      "bent_elbow": {
+        "feedback": "Keep your elbows straight as you lift.",
+        "meaning": "your elbows were bent while your arms were raised"
+      },
+      "back_arch": {
+        "feedback": "Keep your back still; do not lean backwards as your arms go up.",
+        "meaning": "your lower back bent backwards as your arms went up"
+      },
+      "swinging": {
+        "feedback": "Lift slowly and pause at the top instead of swinging.",
+        "meaning": "you swung your arms up quickly instead of lifting slowly"
+      },
+      "trunk_forward": {
+        "feedback": "Stand tall; do not bend forward at the waist.",
+        "meaning": "you bent forward at the waist"
+      },
+      "shoulder_shrug": {
+        "feedback": "Relax your shoulders down, away from your ears.",
+        "meaning": "your shoulders lifted up towards your ears"
+      }
+    }
+  },
+  "sit_to_stand": {
+    "view": "side",
+    "mistakes": {
+      "hands_used": {
+        "feedback": "If you can, stand up with your arms crossed. If you need your hands to stand safely, that is fine: keep using them.",
+        "meaning": "your hands pushed on your legs or the chair to help you stand"
+      },
+      "incomplete_stand": {
+        "feedback": "Stand up fully: straighten your hips and knees at the top, as far as you safely can.",
+        "meaning": "you did not stand up fully straight at the top"
+      },
+      "no_forward_lean": {
+        "feedback": "Lean your chest forward a little before you stand up.",
+        "meaning": "you did not lean your chest forward before standing up"
+      },
+      "uncontrolled_sit": {
+        "feedback": "Sit down slowly: reach back for the chair with your hands and lower yourself gently.",
+        "meaning": "you sat down too quickly instead of lowering yourself slowly"
+      },
+      "feet_forward": {
+        "feedback": "Bring your feet back so your knees are above your ankles before you stand.",
+        "meaning": "your feet were too far in front of you when you started to stand"
+      }
+    }
+  },
+  "step_up": {
+    "view": "side",
+    "mistakes": {
+      "trunk_forward": {
+        "feedback": "Keep your chest up as you step.",
+        "meaning": "you bent forward at the waist"
+      },
+      "knee_not_straight": {
+        "feedback": "Straighten your leading leg at the top, holding the rail, as far as is comfortable.",
+        "meaning": "your leading leg was not fully straight at the top of the step"
+      },
+      "drop_down": {
+        "feedback": "Step down slowly, holding the rail, and let your foot touch down gently.",
+        "meaning": "you came down from the step too quickly"
+      }
+    }
+  },
+  "tandem_stance": {
+    "view": "front",
+    "mistakes": {
+      "feet_not_in_line": {
+        "feedback": "Place one foot directly in front of the other, heel touching toe.",
+        "meaning": "your feet were side by side or apart instead of one in front of the other"
+      },
+      "stepping_out": {
+        "feedback": "If you wobble, step out or hold the counter: that is the safe thing to do. With practice you will hold it for longer.",
+        "meaning": "you stepped out of position during the hold"
+      },
+      "leaning": {
+        "feedback": "Stand upright with a light touch on the counter, rather than leaning your weight on it or to the side.",
+        "meaning": "you leaned on the counter or to the side"
+      }
+    }
+  },
+  "wall_push_up": {
+    "view": "side",
+    "mistakes": {
+      "hips_sag": {
+        "feedback": "Keep your body straight; do not let your hips drop towards the wall.",
+        "meaning": "your hips dropped towards the wall, so your body was not straight"
+      },
+      "hips_back": {
+        "feedback": "Keep your body straight; do not push your hips back.",
+        "meaning": "your hips were pushed back, so your body bent at the hips"
+      },
+      "low_range": {
+        "feedback": "Bend your elbows a little more to bring your chest closer to the wall, only as far as is comfortable.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      }
+    }
+  },
+  "wrist_extension": {
+    "view": "side",
+    "mistakes": {
+      "low_range": {
+        "feedback": "Lift your hand a little higher, only as far as is comfortable, keeping your forearm resting on the table.",
+        "meaning": "the movement did not go as far as the exercise asks"
+      }
+    }
+  }
+}

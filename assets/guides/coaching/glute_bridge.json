@@ -1,0 +1,54 @@
+{
+  "pose_key": "glute_bridge",
+  "focus": {
+    "joint": "hip",
+    "from": "shoulder",
+    "to": "knee"
+  },
+  "mover": "hip",
+  "captions": {
+    "start": "On your back, knees bent",
+    "go": "Squeeze and lift your hips",
+    "top": "Shoulders, hips and knees in a line",
+    "back": "Lower slowly"
+  },
+  "say": {
+    "go": "Lift",
+    "back": "Lower"
+  },
+  "steps": [
+    {
+      "phase": "start",
+      "text": "Lie on your back on a mat with your knees bent and your feet flat on the floor."
+    },
+    {
+      "phase": "go",
+      "text": "Squeeze your buttocks and lift your hips."
+    },
+    {
+      "phase": "top",
+      "text": "Stop when your shoulders, hips and knees are in a straight line."
+    },
+    {
+      "phase": "back",
+      "text": "Lower your hips slowly."
+    }
+  ],
+  "safety": [
+    "Do not arch your lower back.",
+    "Use a mat or a folded towel under you."
+  ],
+  "mistakes": [
+    {
+      "label": "low_hips",
+      "wrong": "your hips did not lift high enough",
+      "right": "Lift your hips a little higher, towards a straight line from shoulders to knees, without pain in your back."
+    },
+    {
+      "label": "over_arch",
+      "wrong": "your hips went too high, so your lower back arched",
+      "right": "Do not push your hips too high; keep your lower back from arching."
+    }
+  ],
+  "setup": []
+}

@@ -109,7 +109,17 @@ class _AccountSetupViewState extends State<AccountSetupView> {
         body: SingleChildScrollView(
           child: Column(
             children: [
-              const AuthHeader(heightFactor: 0.22, showSubtitle: false),
+              // A back arrow like Register's (audit, 23 Oct); it asks before discarding, as
+              // the phone's Back and Cancel do.
+              AuthHeader(
+                heightFactor: 0.22,
+                showSubtitle: false,
+                leading: IconButton(
+                  tooltip: 'Back',
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: busy ? null : () => Navigator.of(context).maybePop(),
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.all(24),
                 child: AutofillGroup(

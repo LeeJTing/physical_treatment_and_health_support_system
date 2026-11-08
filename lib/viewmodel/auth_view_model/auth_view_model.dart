@@ -18,7 +18,15 @@ import 'package:physical_treatment_and_health_support_system/core/utils/id_utils
 
 /// Why the terms screen is shown (11 Oct): never accepted, a new version, or
 /// the profile says the patient is under 18 but no guardian agreed.
-enum TermsReason { firstTime, updated, guardianNeeded }
+enum TermsReason {
+  firstTime,
+  updated,
+  guardianNeeded,
+
+  /// Opened from the profile: the age entered does not match the age group
+  /// chosen before (14 Oct). The screen goes back to the profile afterwards.
+  ageChanged,
+}
 
 /// Register, verify, log in and reset the password (UC100, UC200; Table 4.50).
 /// One [UiState] per operation so each screen shows only its own spinner and error.
@@ -87,15 +95,20 @@ class AuthViewModel extends BaseViewModel {
 
   /// First screen when the app opens (FR100_024, FR100_025, FR100_035): no stored
   /// session -> login; signed in without a complete profile -> profile; else home.
-  Future<String> decideStartRoute() async {
-    final account = (await _auth.currentAccount()).dataOrNull;
+  /// Null when the server cannot be reached to check a stored session (Elwin, 23 Oct): the
+  /// patient stays signed in and the start screen offers Try again, instead of a Login page
+  /// whose log in would fail offline too.
+  Future<String?> decideStartRoute() async {
+    final res = await _auth.currentAccount();
+    if (res case Failure(:final code) when code == 'offline' || code == 'timeout') {
+      return null;
+    }
+    final account = res.dataOrNull;
     if (account == null) return Routes.loginScreen;
     // The app was closed during Google account setup: finish it first (FR100_022).
     if ((await _auth.needsAccountSetup()).dataOrNull ?? false) {
       return Routes.accountSetup;
     }
-    // Refresh the phone's reminder schedule; it must not hold up start-up.
-    _notifications?.sync(account.accountId).ignore();
     final route = await _routeAfterSignIn(account);
     // Started by tapping a reminder: its plan opens above Home (takeReminderOpen).
     final tap = await _notifications?.launchTap();
@@ -158,9 +171,16 @@ class AuthViewModel extends BaseViewModel {
   /// after the version changed or a guardian is needed; 11 Oct), then
   /// [_profileRoute].
   Future<String> _routeAfterSignIn(Account a) async {
+    // Every way in (app start, log in, code, Google, account setup) puts this account's
+    // reminders on the phone again: logging out takes them off (Elwin, 23 Oct). Not awaited,
+    // so it never holds up the next screen.
+    _syncing = _notifications?.sync(a.accountId).then((_) {}, onError: (_) {});
     termsReason = await _termsNeeded(a);
     return termsReason != null ? Routes.terms : _profileRoute(a);
   }
+
+  /// The reminder sync started at the last sign-in, so declining the terms can wait for it.
+  Future<void>? _syncing;
 
   /// Null when the current terms are accepted. When the acceptances cannot be
   /// read (offline, or the table not created yet) the patient is not locked
@@ -181,6 +201,16 @@ class AuthViewModel extends BaseViewModel {
       return TermsReason.guardianNeeded;
     }
     return null;
+  }
+
+  /// The profile's new [age] does not match the age group accepted before:
+  /// the terms are accepted again for it (adult from 18, else with a parent or
+  /// guardian), then the profile is saved.
+  void startAgeReview(int age) {
+    termsReason = TermsReason.ageChanged;
+    termsProfileAge = age;
+    termsState = const Idle();
+    notifyListeners();
   }
 
   /// Records the acceptance of the current terms, with the explicit consent
@@ -215,8 +245,10 @@ class AuthViewModel extends BaseViewModel {
       ),
     );
     if (res.isSuccess) {
+      final review = termsReason == TermsReason.ageChanged;
       termsReason = null;
-      nextRoute = await _profileRoute(account);
+      // From the profile: back to it (the view pops), no new route.
+      nextRoute = review ? null : await _profileRoute(account);
       termsState = const UiSuccess(null);
     } else {
       termsState = const UiError(Messages.termsSaveFailed);
@@ -225,9 +257,12 @@ class AuthViewModel extends BaseViewModel {
     return res.isSuccess;
   }
 
-  /// The terms were declined: the app cannot be used, so sign out.
+  /// The terms were declined: the app cannot be used, so sign out. Signing in put the
+  /// account's reminders on the phone; they come off again, as at log out (audit, 23 Oct).
   Future<void> declineTerms() async {
     await _auth.signOut();
+    await _syncing;
+    await _notifications?.cancelEverything();
     termsReason = null;
     termsState = const Idle();
     nextRoute = Routes.loginScreen;
@@ -248,8 +283,18 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> login(String email, String password) async {
-    loginState = const Loading();
     lastErrorCode = null;
+    // Checked here too, not only by the screen, as at registration and reset (audit, 23 Oct).
+    // Only that a password was typed: the strength rule is for new passwords.
+    final invalid =
+        FormValidators.email(email) ??
+        (password.isEmpty ? Messages.passwordEmpty : null);
+    if (invalid != null) {
+      loginState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
+    loginState = const Loading();
     notifyListeners();
     final res = await _auth.login(email, password);
     switch (res) {
@@ -265,6 +310,16 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> register(String username, String email, String password) async {
+    // The same rules as the screen, checked here too (audit, 23 Oct).
+    final invalid =
+        FormValidators.username(username) ??
+        FormValidators.email(email) ??
+        FormValidators.password(password);
+    if (invalid != null) {
+      registerState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
     registerState = const Loading();
     notifyListeners();
     final res = await _auth.register(email, password, username);
@@ -278,6 +333,13 @@ class AuthViewModel extends BaseViewModel {
   }
 
   Future<bool> verify(String email, String code) async {
+    // Checked here too, not only by the screen (audit, 23 Oct).
+    final invalid = FormValidators.otp(code.trim());
+    if (invalid != null) {
+      verifyState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
     verifyState = const Loading();
     notifyListeners();
     final res = await _auth.verify(email, code);
@@ -345,6 +407,14 @@ class AuthViewModel extends BaseViewModel {
     String code,
     String newPassword,
   ) async {
+    // The same rule as registration, checked here too and not only by the screen (23 Oct).
+    final invalid =
+        FormValidators.otp(code) ?? FormValidators.password(newPassword);
+    if (invalid != null) {
+      resetConfirmState = UiError(invalid);
+      notifyListeners();
+      return false;
+    }
     resetConfirmState = const Loading();
     notifyListeners();
     final res = await _auth.confirmPasswordReset(email, code, newPassword);
@@ -476,7 +546,6 @@ class AuthViewModel extends BaseViewModel {
     switch (res) {
       case Success(:final data):
         nextRoute = await _routeAfterSignIn(data);
-        _notifications?.sync(data.accountId).ignore();
         setupState = const UiSuccess(null);
       case Failure f:
         setupState = UiError(messageFor(f, registering: true));

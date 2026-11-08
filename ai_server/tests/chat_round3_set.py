@@ -24,18 +24,18 @@ ROUND3 = [
     (KNEE, "https://example.com", None),
     (KNEE, "select * from users", None),
     (KNEE, "<script>alert(1)</script>", None),
-    (KNEE, "why?", None),
-    (KNEE, "and then?", None),
+    (KNEE, "why?", "clarify"),  # 3.53: a follow-up with nothing before it asks for more
+    (KNEE, "and then?", "clarify"),  # 3.53: a follow-up with nothing before it asks for more
     (KNEE, "what about the second one", None),
-    (KNEE, "yes", None),
-    (KNEE, "no", None),
+    (KNEE, "yes", ("acknowledge", None)),                         # 3.67: yes alone -> okay
+    (KNEE, "no", ("acknowledge", None)),                          # 3.67: no alone -> okay
     (KNEE, "asdf jkl qwerty", None),
     (KNEE, "........", None),
     (KNEE, "a", None),
     (KNEE, "help me", "bot_identity"),
     (KNEE, "i need help with my password", "forgot_password"),
     (KNEE, "i need help, i fell down", "red_flag"),
-    (KNEE, "can you call a doctor for me", ("diagnosis", None)),
+    (KNEE, "can you call a doctor for me", ("diagnosis", None, "cannot_do")),   # 3.67: "I cannot make calls"
     (KNEE, "are you chatgpt", "bot_identity"),
     (KNEE, "i love this app", ("thanks", None)),   # 3.8: a compliment gets the thank-you reply
 ]

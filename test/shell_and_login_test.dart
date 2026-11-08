@@ -5,6 +5,8 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/account.dart';
+import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
@@ -76,6 +78,19 @@ void main() {
       expect(await vm.decideStartRoute(), Routes.loginScreen);
     });
 
+    test(
+      'signed in but the server cannot be reached -> no route, not login (Elwin, 23 Oct)',
+      () async {
+        final auth = _Offline();
+        await auth.login('demo@apths.test', 'password123');
+        auth.offline = true;
+        final vm = AuthViewModel(auth, FakeProfileRepository());
+        expect(await vm.decideStartRoute(), isNull);
+        auth.offline = false;
+        expect(await vm.decideStartRoute(), Routes.healthProfile);
+      },
+    );
+
     test('signed in without a profile -> profile', () async {
       final auth = FakeAuthRepository();
       await auth.login('demo@apths.test', 'password123');
@@ -109,6 +124,25 @@ void main() {
     );
   });
 
+  testWidgets(
+    'StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)',
+    (tester) async {
+      final auth = _Offline();
+      await tester.runAsync(() => auth.login('demo@apths.test', 'password123'));
+      auth.offline = true;
+      await tester.pumpWidget(
+        _app(auth, FakeProfileRepository(), initial: Routes.init),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(Messages.noConnectionAtStart), findsOneWidget);
+      expect(find.text('Welcome back'), findsNothing); // not sent to Login
+      auth.offline = false;
+      await tester.tap(find.text('Try again'));
+      await tester.pumpAndSettle();
+      expect(find.text('route:profile'), findsOneWidget);
+    },
+  );
+
   testWidgets('StartupView goes to the login screen when nobody is signed in', (
     tester,
   ) async {
@@ -137,6 +171,30 @@ void main() {
     expect(find.text(Messages.emailEmpty), findsOneWidget);
     expect(find.text(Messages.passwordEmpty), findsOneWidget);
   });
+
+  testWidgets(
+    'Login: a wrong password shows one way to reset it, not two (audit, 23 Oct)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        _app(
+          FakeAuthRepository(),
+          FakeProfileRepository(),
+          initial: Routes.loginScreen,
+        ),
+      );
+      await tester.enterText(
+        find.byType(TextFormField).at(0),
+        'demo@apths.test',
+      );
+      await tester.enterText(find.byType(TextFormField).at(1), 'wrongpass1');
+      await tester.tap(find.text('Log In'));
+      await tester.pumpAndSettle();
+      expect(find.text(Messages.incorrectCredentials), findsOneWidget);
+      expect(find.textContaining('Forgot password'), findsOneWidget);
+    },
+  );
 
   testWidgets('Login: a wrong password shows the report message', (
     tester,
@@ -206,4 +264,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+}
+
+/// The account cannot be read while [offline], as when the phone has no connection.
+class _Offline extends FakeAuthRepository {
+  bool offline = false;
+
+  @override
+  Future<Result<Account?>> currentAccount() async => offline
+      ? const Failure('No connection', code: 'offline')
+      : super.currentAccount();
 }

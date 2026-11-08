@@ -8,7 +8,7 @@
     ],
     "clips_scored": 50,
     "clips_without_reps": 0,
-    "reps_median": 10.0,
+    "reps_median": 9.5,
     "confusion_rows_true_bad_good_cols_called_bad_good": [
       [
         21,
@@ -23,53 +23,53 @@
     "balanced_accuracy": 0.58,
     "rule_fires_share_of_reps_good_vs_bad": {
       "upper_arm_moves": [
-        0.173,
-        0.211
+        0.172,
+        0.207
       ],
       "low_range": [
-        0.578,
-        0.713
+        0.59,
+        0.723
       ],
       "body_swing": [
-        0.038,
-        0.157
+        0.022,
+        0.15
       ]
     },
     "measure_p10_p50_p90_good_vs_bad": {
       "upper_arm_moves": [
         [
-          4.716,
-          14.788,
-          36.74
+          4.661,
+          14.595,
+          33.652
         ],
         [
-          4.668,
-          16.355,
-          37.034
+          4.387,
+          16.232,
+          35.59
         ]
       ],
       "low_range": [
         [
-          84.373,
-          119.996,
-          144.769
+          83.481,
+          119.78,
+          144.682
         ],
         [
-          84.427,
-          108.476,
-          144.482
+          87.93,
+          108.389,
+          143.262
         ]
       ],
       "body_swing": [
         [
           1.493,
-          3.244,
-          7.552
+          3.222,
+          7.283
         ],
         [
-          1.712,
-          4.141,
-          12.831
+          1.714,
+          4.119,
+          12.678
         ]
       ]
     },
@@ -85,54 +85,54 @@
       "heels_lift",
       "trunk_forward"
     ],
-    "clips_scored": 50,
-    "clips_without_reps": 0,
-    "reps_median": 8.0,
+    "clips_scored": 43,
+    "clips_without_reps": 7,
+    "reps_median": 7.0,
     "confusion_rows_true_bad_good_cols_called_bad_good": [
       [
-        24,
+        23,
         1
       ],
       [
-        25,
+        19,
         0
       ]
     ],
-    "accuracy": 0.48,
-    "balanced_accuracy": 0.48,
+    "accuracy": 0.535,
+    "balanced_accuracy": 0.479,
     "rule_fires_share_of_reps_good_vs_bad": {
       "heels_lift": [
-        0.837,
-        0.78
+        0.85,
+        0.785
       ],
       "trunk_forward": [
-        0.914,
-        0.802
+        0.939,
+        0.799
       ]
     },
     "measure_p10_p50_p90_good_vs_bad": {
       "heels_lift": [
         [
-          0.107,
+          0.117,
           0.2,
-          0.291
+          0.281
         ],
         [
           0.084,
-          0.171,
-          0.323
+          0.169,
+          0.322
         ]
       ],
       "trunk_forward": [
         [
-          15.396,
-          36.26,
-          50.131
+          15.114,
+          35.711,
+          47.638
         ],
         [
-          9.754,
-          30.157,
-          47.485
+          9.717,
+          29.993,
+          45.425
         ]
       ]
     },
@@ -147,53 +147,53 @@
       "hips_sag",
       "hips_back"
     ],
-    "clips_scored": 48,
-    "clips_without_reps": 0,
-    "reps_median": 9.0,
+    "clips_scored": 45,
+    "clips_without_reps": 3,
+    "reps_median": 8.0,
     "confusion_rows_true_bad_good_cols_called_bad_good": [
       [
-        7,
+        6,
         17
       ],
       [
-        4,
-        20
+        3,
+        19
       ]
     ],
-    "accuracy": 0.562,
+    "accuracy": 0.556,
     "balanced_accuracy": 0.562,
     "rule_fires_share_of_reps_good_vs_bad": {
       "hips_sag": [
-        0.174,
-        0.253
+        0.143,
+        0.218
       ],
       "hips_back": [
-        0.011,
-        0.089
+        0.012,
+        0.096
       ]
     },
     "measure_p10_p50_p90_good_vs_bad": {
       "hips_sag": [
         [
-          -0.037,
-          0.051,
-          0.121
+          -0.038,
+          0.054,
+          0.12
         ],
         [
-          -0.106,
+          -0.107,
           0.04,
-          0.186
+          0.185
         ]
       ],
       "hips_back": [
         [
-          -0.119,
+          -0.114,
           -0.021,
-          0.065
+          0.066
         ],
         [
-          -0.255,
-          -0.058,
+          -0.257,
+          -0.053,
           0.086
         ]
       ]

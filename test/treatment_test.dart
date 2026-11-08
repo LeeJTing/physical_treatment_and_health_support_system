@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:provider/provider.dart';
 
+import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
@@ -400,36 +401,39 @@ void main() {
       expect(await h.vm.acceptResult(), isFalse); // nothing left to save
     });
 
-    test('a plan that comes without its exercises shows the FR300_23 message', () async {
-      final h = Harness();
-      final account = (await h.auth.login(
-        'demo@apths.test',
-        'password123',
-      )).dataOrNull!;
-      final p = (await h.treatments.getCatalogue()).dataOrNull!.first;
-      await h.treatments.assignPlan(
-        PatientTreatmentPlan(
-          patientPlanId: 'pp-empty',
-          accountId: account.accountId,
-          plan: TreatmentPlan(
-            planId: p.planId,
-            planName: p.planName,
-            aim: p.aim,
-            targetBodyArea: p.targetBodyArea,
-            recoveryStage: p.recoveryStage,
-            mobilityLevel: p.mobilityLevel,
-            frequencyPerWeek: p.frequencyPerWeek,
-            goal: p.goal,
+    test(
+      'a plan that comes without its exercises shows the FR300_23 message',
+      () async {
+        final h = Harness();
+        final account = (await h.auth.login(
+          'demo@apths.test',
+          'password123',
+        )).dataOrNull!;
+        final p = (await h.treatments.getCatalogue()).dataOrNull!.first;
+        await h.treatments.assignPlan(
+          PatientTreatmentPlan(
+            patientPlanId: 'pp-empty',
+            accountId: account.accountId,
+            plan: TreatmentPlan(
+              planId: p.planId,
+              planName: p.planName,
+              aim: p.aim,
+              targetBodyArea: p.targetBodyArea,
+              recoveryStage: p.recoveryStage,
+              mobilityLevel: p.mobilityLevel,
+              frequencyPerWeek: p.frequencyPerWeek,
+              goal: p.goal,
+            ),
+            selectedAt: DateTime.now(),
           ),
-          selectedAt: DateTime.now(),
-        ),
-      );
-      await h.vm.loadPlan();
-      expect(
-        (h.vm.plan as UiError<PatientTreatmentPlan?>).message,
-        Messages.exerciseRetrieveFailed,
-      );
-    });
+        );
+        await h.vm.loadPlan();
+        expect(
+          (h.vm.plan as UiError<PatientTreatmentPlan?>).message,
+          Messages.exerciseRetrieveFailed,
+        );
+      },
+    );
 
     testWidgets('Exit on the result screen goes back to the home page', (
       tester,
@@ -453,7 +457,10 @@ void main() {
       await tester.tap(find.text('Exit'));
       await tester.pumpAndSettle();
       expect(find.text('HOME PAGE'), findsOneWidget);
-      expect(h.treatments.sessions, isEmpty); // the failing attempt was not kept
+      expect(
+        h.treatments.sessions,
+        isEmpty,
+      ); // the failing attempt was not kept
     });
   });
 
@@ -478,17 +485,52 @@ void main() {
       expect(h.vm.pathway[1].status, StageStatus.current);
     });
 
-    test('below 80% waits for Continue, then saves and advances', () async {
-      final h = Harness();
-      await h.setUp(tmp);
-      h.server.accuracy = 60;
-      await h.recordFirst();
-      expect(h.vm.activePlan!.completedStages, 0);
-      expect(h.treatments.sessions, isEmpty);
-      expect(await h.vm.acceptResult(), isTrue);
-      expect(h.vm.activePlan!.completedStages, 1);
-      expect(h.treatments.sessions.single.postureAccuracy, 60);
-    });
+    test(
+      'below 80%: Continue saves the try, the plan moves on only at the third (Elwin, 23 Oct)',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 60;
+        for (var t = 1; t <= 2; t++) {
+          await h.recordFirst();
+          expect(await h.vm.acceptResult(), isTrue);
+          expect(h.vm.activePlan!.completedStages, 0, reason: 'try $t');
+          expect(h.vm.lastMovedOn, isFalse);
+          expect(h.vm.lastTriesBelowPass, t);
+        }
+        await h.recordFirst();
+        expect(await h.vm.acceptResult(), isTrue);
+        expect(h.vm.activePlan!.completedStages, 1); // third try: moves on
+        expect(h.vm.lastMovedOn, isTrue);
+        expect(h.treatments.sessions.map((s) => s.postureAccuracy), [
+          60,
+          60,
+          60,
+        ]);
+      },
+    );
+
+    test(
+      'below 80% then a pass: moves on at the pass, and the count starts again',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 60;
+        await h.recordFirst();
+        await h.vm.acceptResult();
+        h.server.accuracy = 90;
+        await h.recordFirst(); // 80%+ saves and moves on by itself
+        expect(h.vm.activePlan!.completedStages, 1);
+        final first = h.treatments.sessions.first;
+        expect(
+          TreatmentViewModel.triesBelowPass([
+            first,
+            h.treatments.sessions.last,
+          ], first),
+          1,
+        );
+      },
+    );
 
     test(
       'retry keeps the attempt as RETRIED without advancing (FR300_20)',
@@ -521,6 +563,25 @@ void main() {
       await h.recordFirst();
       expect(h.vm.retriesInARow, 2);
     });
+
+    test(
+      'retries from an earlier visit do not count as in a row (audit, 23 Oct)',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 50;
+        for (var i = 0; i < 2; i++) {
+          await h.recordFirst();
+          await h.vm.retry();
+        }
+        // The next day the screen opens again and reads the stored attempts.
+        final again = TreatmentViewModel(h.treatments, h.pose, h.auth);
+        await again.loadPlan();
+        await again.startExercise(again.pathway.first.item.exercise);
+        await again.submitVideo(h.clip, clipSeconds: 15);
+        expect(again.retriesInARow, 0); // not "try again tomorrow" at once
+      },
+    );
 
     test('server errors map to the UC500 messages', () async {
       for (final (code, message) in [
@@ -596,6 +657,8 @@ void main() {
       expect(find.text('0 of 3 done'), findsOneWidget);
       expect(find.text('Start exercise'), findsOneWidget);
       expect(find.text('Not started'), findsOneWidget);
+      // Each number stays with its unit with large phone text (24 Oct: "10 reps · 1 / min").
+      expect(find.textContaining('10 reps · 1.5 min'), findsWidgets);
     });
 
     testWidgets(
@@ -627,6 +690,9 @@ void main() {
     testWidgets('result screen shows the score, guidance and both buttons', (
       tester,
     ) async {
+      tester.view.physicalSize = const Size(1080, 3600);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
       final h = Harness();
       h.server.accuracy = 70;
       await tester.runAsync(() async {
@@ -652,6 +718,8 @@ void main() {
         find.text('Rest for a minute before you try again.'),
         findsOneWidget,
       );
+      // Below 80% (Elwin, 23 Oct): what Continue does is said before it is tapped.
+      expect(find.byKey(const Key('below_pass_rule')), findsOneWidget);
     });
 
     testWidgets('a possible fall shows its message once and no retry', (
@@ -724,6 +792,43 @@ void main() {
   });
 
   group('next plan (hybrid-3.0)', () {
+    test(
+      'moved on after three tries below 80%: gentler plans are offered (bug list #9)',
+      () async {
+        final h = Harness();
+        await h.setUp(tmp);
+        h.server.accuracy = 50;
+        for (var t = 1; t <= 3; t++) {
+          await h.vm.startExercise(h.vm.activePlan!.currentExercise()!);
+          await h.vm.submitVideo(h.clip, clipSeconds: 15);
+          await h.vm.acceptResult();
+        }
+        expect(h.vm.lastMovedOn, isTrue);
+        expect(
+          h.vm.activePlan!.currentExercise()!.exerciseName,
+          'Seated Marching',
+        );
+        expect(h.vm.failsAtCurrent, 0);
+        expect(
+          h.vm.suggestEasier,
+          isTrue,
+        ); // was false: never offered on this path
+        expect(h.vm.movedOnFromName, 'Seated Knee Extension');
+        // The server is told which exercise failed, so it can ease and leave it out.
+        final plan = h.vm.activePlan!;
+        final json = RecommendationService.progressJson((
+          plans: [plan],
+          sessions: {plan.patientPlanId: h.vm.sessions},
+        ));
+        final sent = (json['plans'] as List).single as Map;
+        expect(sent['consecutive_fails'], 3);
+        expect(
+          sent['current_exercise_id'],
+          plan.plan.orderedExercises().first.exerciseId,
+        );
+      },
+    );
+
     test('three tries that did not pass suggest gentler plans', () async {
       final h = Harness();
       await h.setUp(tmp);

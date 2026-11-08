@@ -9,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/exercise_session.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/reminder_tap.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/notification_repository/fake_notification_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
@@ -58,6 +59,8 @@ class FakeScheduler implements NotificationScheduler {
 
   @override
   Future<void> cancel(int id) async => pending.remove(id);
+  @override
+  Future<void> cancelAll() async => pending.clear();
 
   final tapController = StreamController<String>.broadcast();
   String? launch;
@@ -93,6 +96,8 @@ class ThrowingScheduler implements NotificationScheduler {
   }) => Future.error(Exception('plugin failed'));
   @override
   Future<void> cancel(int id) => Future.error(Exception('plugin failed'));
+  @override
+  Future<void> cancelAll() => Future.error(Exception('plugin failed'));
   @override
   Stream<String> get taps => const Stream.empty();
   @override
@@ -133,6 +138,24 @@ Reminder reminder({
   isEnabled: enabled,
 );
 
+/// The plan the exercise reminders belong to, being followed: a reminder of a plan that is not
+/// followed does not ring (audit, 23 Oct).
+PatientTreatmentPlan following(String accountId, [String id = 'pp1']) =>
+    PatientTreatmentPlan(
+      patientPlanId: id,
+      accountId: accountId,
+      plan: const TreatmentPlan(
+        planId: 'plan-1',
+        planName: 'Early Knee Recovery',
+        aim: '',
+        targetBodyArea: 'BOTH_LEGS',
+        recoveryStage: RecoveryStage.early,
+        mobilityLevel: MobilityLevel.low,
+        frequencyPerWeek: 3,
+      ),
+      selectedAt: now,
+    );
+
 void main() {
   late FakeScheduler device;
   late FakeNotificationRepository repo;
@@ -141,10 +164,11 @@ void main() {
   late LocalNotificationService local;
   late LocalNotificationService service;
 
-  setUp(() {
+  setUp(() async {
     device = FakeScheduler();
     repo = FakeNotificationRepository();
     treatments = FakeTreatmentRepository(const []);
+    await treatments.assignPlan(following('a1'));
     local = LocalNotificationService(
       repo,
       treatments,
@@ -280,6 +304,27 @@ void main() {
       },
     );
 
+    test(
+      'sync leaves out a reminder of a plan no longer followed, unless offline (audit, 23 Oct)',
+      () async {
+        final stale = reminder(id: 'old', plan: 'pp-ended');
+        await repo.saveReminder(stale);
+        await local.schedule(stale); // still on the phone from before
+        expect(await service.sync('a1'), 0);
+        expect(device.pending, isEmpty);
+        expect(repo.reminders, contains('old')); // kept, not deleted
+
+        // The plans cannot be read: nothing is silenced by mistake.
+        final offline = LocalNotificationService(
+          repo,
+          _NoPlans(),
+          scheduler: device,
+          now: () => now,
+        );
+        expect(await offline.sync('a1'), greaterThan(0));
+      },
+    );
+
     test('sync skips today when today\'s session is already done', () async {
       await repo.saveReminder(reminder());
       await treatments.saveSession(
@@ -294,6 +339,60 @@ void main() {
         ),
       );
       expect(await service.sync('a1'), 5);
+    });
+
+    test(
+      'after a possible fall no exercise reminder rings today, in any plan; '
+      'health logging still does (audit, 24 Oct)',
+      () async {
+        await treatments.assignPlan(following('a1', 'pp2'));
+        final r1 = reminder(mask: '1111111');
+        final r2 = reminder(id: 'r2', plan: 'pp2', mask: '1111111');
+        final h = healthLog();
+        for (final r in [r1, r2, h]) {
+          await repo.saveReminder(r);
+          await local.schedule(r);
+        }
+        bool today(String id) => device.pending.containsKey(
+          LocalNotificationService.idFor(id, now),
+        );
+        expect(today('r1') && today('r2') && today('h1'), isTrue);
+
+        await service.restToday('a1');
+        expect(today('r1'), isFalse);
+        expect(today('r2'), isFalse);
+        expect(today('h1'), isTrue);
+        expect(device.pending, hasLength(13 + 13 + 14)); // later days stay
+        expect(
+          [for (final n in repo.log) n.messageBody],
+          everyElement(contains('rest day after a possible fall')),
+        );
+        expect(repo.log, hasLength(2));
+      },
+    );
+
+    test('sync keeps today quiet for every plan after a possible fall', () async {
+      await treatments.assignPlan(following('a1', 'pp2'));
+      await repo.saveReminder(reminder(mask: '1111111'));
+      await repo.saveReminder(reminder(id: 'r2', plan: 'pp2', mask: '1111111'));
+      await treatments.saveSession(
+        ExerciseSession(
+          sessionId: 's1',
+          accountId: 'a1',
+          patientPlanId: 'pp1',
+          exerciseId: 'e1',
+          completedAt: now,
+          completionStatus: CompletionStatus.completed,
+          postureAccuracy: 40,
+          postureFeedback:
+              'Stop and rest: it looks like you may have ${ExerciseSession.fallPhrase}.',
+        ),
+      );
+      expect(await service.sync('a1'), 13 + 13); // before: 13 + 14, pp2 rang today
+      expect(
+        device.pending.values.any((t) => t.day == now.day && t.month == now.month),
+        isFalse,
+      );
     });
 
     test('selecting a new plan removes the old plan\'s reminders', () async {
@@ -422,6 +521,7 @@ void main() {
           repeatDays: '1010100',
         ),
       );
+      await treatments.assignPlan(following(id));
       vm = NotificationViewModel(repo, local, auth);
       await vm.load();
     });
@@ -465,6 +565,16 @@ void main() {
       expect(device.pending, isNotEmpty);
     });
 
+    test('two quick taps, before the first is saved, add one reminder (23 Oct)', () async {
+      await Future.wait([vm.addHealthLogReminder(), vm.addHealthLogReminder()]);
+      expect(
+        repo.reminders.values.where(
+          (r) => r.reminderType == ReminderType.healthLog,
+        ),
+        hasLength(1),
+      );
+    });
+
     test(
       'adds one health-logging reminder, every day at 8 pm (FR600_002)',
       () async {
@@ -503,6 +613,28 @@ void main() {
       await vm.toggleDay('plan-r', DateTime.friday); // would leave no day
       expect(repo.reminders['plan-r']!.repeatDays, '0000100');
       expect(vm.errorMessage, Messages.reminderNeedsADay);
+    });
+
+    test('two quick day taps both count (audit, 24 Oct)', () async {
+      // Not awaited one by one: the second tap comes while the first is being saved.
+      await Future.wait([
+        vm.toggleDay('plan-r', DateTime.monday),
+        vm.toggleDay('plan-r', DateTime.wednesday),
+      ]);
+      expect(repo.reminders['plan-r']!.repeatDays, '0000100'); // before: '1000100'
+      final shown = (vm.reminders as UiSuccess<List<Reminder>>).data;
+      expect(shown.single.repeatDays, '0000100');
+    });
+
+    test('a changed time moves the card into time order at once', () async {
+      await vm.addHealthLogReminder(); // 8 pm, after the 9 am plan reminder
+      List<String> order() => [
+        for (final r in (vm.reminders as UiSuccess<List<Reminder>>).data)
+          r.reminderId,
+      ];
+      expect(order().first, 'plan-r');
+      await vm.changeTime('plan-r', 21, 0);
+      expect(order().last, 'plan-r');
     });
 
     test('the last-day notice goes once anything else succeeds', () async {
@@ -570,4 +702,14 @@ void main() {
       expect(vm.errorMessage, Messages.dbUnavailable);
     });
   });
+}
+
+/// Reading the plans fails, as when the phone is offline.
+class _NoPlans extends FakeTreatmentRepository {
+  _NoPlans() : super(const []);
+
+  @override
+  Future<Result<List<PatientTreatmentPlan>>> getActivePlans(
+    String accountId,
+  ) async => const Failure('down', code: 'offline');
 }
