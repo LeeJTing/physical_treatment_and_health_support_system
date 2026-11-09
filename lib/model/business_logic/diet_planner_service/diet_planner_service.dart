@@ -231,6 +231,15 @@ class DietPlannerService {
     return problems;
   }
 
+  /// User choices may exceed health limits, but malformed portions or dates cannot be stored.
+  List<String> editingProblems(DietPlan p) => [
+    for (final m in p.meals)
+      if (!m.portionSizeG.isFinite || m.portionSizeG <= 0)
+        '${m.food.foodName}: choose a positive portion in grams.'
+      else if (m.planDate.isBefore(p.startDate) || m.planDate.isAfter(p.endDate))
+        '${m.food.foodName}: choose a date within this plan.',
+  ];
+
   /// Saturated fat, fibre, potassium, phosphorus, calcium and caffeine of one day's planned meals.
   static FoodExtras extrasFor(DietPlan p, DateTime day) => p.meals
       .where((m) => _same(m.planDate, day))
@@ -299,7 +308,7 @@ class DietPlannerService {
     final extra = _same(day, DateTime.now()) ? eatenOutside : Nutrients.zero;
     final b = before.totalsFor(day) + extra;
     final a = after.totalsFor(day) + extra;
-    final problems = [
+    final healthWarnings = [
       for (final p in validate(after, ctx, consumedToday: eatenOutside)) _problemWords(p, a, after, day, ctx),
     ];
     final slotKcal = _slotKcal(after, day, slot);
@@ -338,6 +347,7 @@ class DietPlannerService {
           '${_n(usual)} kcal.',
         ),
       ..._limitWarnings(before, after, b, a, day, ctx),
+      for (final warning in healthWarnings) PlanNote(warning, warn: true),
       for (final n in lostNeeds)
         PlanNote(
           'Too little $n: the day would no longer reach your need (${_needWords(n, after, day, ctx)}). '
@@ -360,7 +370,7 @@ class DietPlannerService {
       effects: effects,
       before: b,
       after: a,
-      problems: problems,
+      problems: editingProblems(after),
       basePlan: before,
       plan: after,
       doneMessage: doneMessage,
@@ -381,6 +391,7 @@ class DietPlannerService {
     final slotKcal = _slotKcal(p, m.planDate, m.mealSlot);
     final servings = f.baseServingG > 0 ? m.portionSizeG / f.baseServingG : 1.0;
     final out = <PlanNote>[
+      for (final issue in suitability.planProblems(f, ctx, m.portionSizeG)) PlanNote(issue, warn: true),
       PlanNote(_roleWords(f.planRole, slot)),
       PlanNote(
         '${m.portionSizeG.round()} g (${_servingWords(servings)}) gives ${_n(n.energyKcal)} kcal. Your $slot has '
@@ -432,13 +443,17 @@ class DietPlannerService {
     if (needs['fibre_g_min'] case final v? when x.fibreG >= 2) {
       out.add(PlanNote('Adds ${x.fibreG.toStringAsFixed(1)} g fibre towards the ${_n(v)} g you need a day.'));
     }
-    if (ctx.restrictions.isNotEmpty) {
+    if (ctx.restrictions.isNotEmpty && !f.breachesAny(ctx.restrictions)) {
       out.add(
         PlanNote('Has none of the foods you avoid (${ctx.restrictions.map((r) => r.restrictionName).join(', ')}).'),
       );
     }
-    if (ctx.oneHandOnly) out.add(const PlanNote('Can be eaten with one hand: no bones, shells or whole fish.'));
-    if (ctx.targets.pregnant) out.add(const PlanNote('Safe in pregnancy: no raw fish, undercooked egg or alcohol.'));
+    if (ctx.oneHandOnly && !f.needsTwoHands) {
+      out.add(const PlanNote('Can be eaten with one hand: no bones, shells or whole fish.'));
+    }
+    if (ctx.targets.pregnant && !suitability.isExcludedFromPlans(f, ctx, m.portionSizeG)) {
+      out.add(const PlanNote('No pregnancy exclusion was found for this food.'));
+    }
     if (m.isLocked) out.add(const PlanNote('Locked: a new plan keeps it.'));
     if (m.isLogged) out.add(PlanNote('You have logged your $slot.'));
     out.add(
@@ -539,6 +554,7 @@ class DietPlannerService {
     String pctWord(double v, double l) => '${_pct(v, l)}%';
     final saltHigh = t.sodiumMg >= 0.8 * ctx.dailySodiumMg;
     final sugarHigh = t.sugarG >= 0.8 * ctx.dailySugarG;
+    final choicesFit = p.mealsFor(day).every((m) => suitability.suitsPatient(m.food, ctx, m.portionSizeG));
     return [
       PlanReason(
         'energy',
@@ -575,11 +591,11 @@ class DietPlannerService {
             : 'Within your salt and sugar limits',
         'Planned: ${_n(t.sodiumMg)} of ${_n(ctx.dailySodiumMg)} mg sodium (${pctWord(t.sodiumMg, ctx.dailySodiumMg)}) '
             'and ${t.sugarG.toStringAsFixed(1)} of ${ctx.dailySugarG.toStringAsFixed(0)} g free sugars '
-            '(${pctWord(t.sugarG, ctx.dailySugarG)}). No food in it is Not Suitable for you, and the whole '
-            'plan is checked again on your phone.'
+            '(${pctWord(t.sugarG, ctx.dailySugarG)}). '
+            '${choicesFit ? 'The selected foods fit your profile at these portions.' : 'Some choices do not fit your profile. Review the foods highlighted in red; you can still save your choices.'}'
             '${saltHigh ? ' ${_body['sodium']} Avoid extra salt, soy sauce and salty snacks today.' : ''}'
             '${sugarHigh ? ' ${_body['sugar']} Avoid sweet drinks and kuih today.' : ''}',
-        ok: !saltHigh && !sugarHigh,
+        ok: !saltHigh && !sugarHigh && choicesFit,
       ),
       if (ctx.failSafe)
         const PlanReason(
@@ -591,17 +607,18 @@ class DietPlannerService {
       else if (conds.isNotEmpty)
         PlanReason(
           'profile',
-          'Made for your conditions',
-          'Because you have declared ${_join(conds)}, each food is kept to '
+          choicesFit ? 'Fits your conditions' : 'Review your conditions',
+          'Because you have declared ${_join(conds)}, the guidance for each food is '
               '${sodiumCond != null ? 'at most ${_n(sodiumItem)} mg sodium' : 'a modest amount of sodium'}'
               '${sugarCond != null ? ' and ${sugarItem.toStringAsFixed(1)} g free sugars' : ''}, and the condition '
-              'rules below are kept.',
+              'rules below. Choices outside this guidance are highlighted in red.',
+          ok: choicesFit,
         ),
       PlanReason(
         'preference',
         p.modelVersion == 'manual' ? 'Foods you chose' : 'Foods you like, healthier first',
         p.modelVersion == 'manual'
-            ? 'You chose these foods yourself; they were checked against the same limits.'
+            ? 'You chose these foods yourself. Profile and daily-limit conflicts are shown in red as warnings.'
             : 'Foods like the meals you log are ranked higher, and among them those with less salt and '
                   'sugar and more protein come first. Asking for a new plan gives other choices of the '
                   'same quality.',

@@ -340,9 +340,9 @@ class SuitabilityService {
       for (final verdict in assess(MealItem.of(f, grams: g), ctx))
         if (verdict.verdict != Verdict.suitable) verdict.reasonText,
       if (n.sodiumMg > AppConstants.itemShare * ctx.dailySodiumMg + 0.5)
-        'This portion has ${n.sodiumMg.round()} mg sodium, above the ${(AppConstants.itemShare * ctx.dailySodiumMg).round()} mg allowed for one planned food. Reduce the portion or choose another food.',
+        'This portion has ${n.sodiumMg.round()} mg sodium, above the ${(AppConstants.itemShare * ctx.dailySodiumMg).round()} mg recommended for one planned food. You can reduce the portion or choose another food.',
       if (n.sugarG > AppConstants.itemShare * ctx.dailySugarG + 0.05)
-        'This portion has ${n.sugarG.toStringAsFixed(1)} g free sugars, above the ${(AppConstants.itemShare * ctx.dailySugarG).toStringAsFixed(1)} g allowed for one planned food. Reduce the portion or choose another food.',
+        'This portion has ${n.sugarG.toStringAsFixed(1)} g free sugars, above the ${(AppConstants.itemShare * ctx.dailySugarG).toStringAsFixed(1)} g recommended for one planned food. You can reduce the portion or choose another food.',
     ];
   }
 

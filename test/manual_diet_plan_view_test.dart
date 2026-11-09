@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
@@ -18,13 +22,40 @@ import 'package:physical_treatment_and_health_support_system/model/repository/me
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/manual_diet_plan_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_plan_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_cards.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 
 void main() {
   final foods = FakeFoodRepository.fromJson(File('assets/seed/food_catalogue.json').readAsStringSync());
   late FakeMealRepository repo;
   late DietPlanViewModel vm;
+  final snapshots = Platform.environment['PLAN_UI_SNAPSHOTS'] != null;
+  setUpAll(() async {
+    if (!snapshots) return;
+    TestWidgetsFlutterBinding.ensureInitialized();
+    for (final font in [
+      ('QaFont', r'C:\Windows\Fonts\segoeui.ttf'),
+      ('MaterialIcons', r'C:\flutter\bin\cache\artifacts\material_fonts\MaterialIcons-Regular.otf'),
+    ]) {
+      final loader = FontLoader(font.$1)..addFont(File(font.$2).readAsBytes().then(ByteData.sublistView));
+      await loader.load();
+    }
+  });
+  const captureKey = ValueKey('plan-ui-capture');
+  Future<void> capture(WidgetTester tester, String name) async {
+    final folder = Platform.environment['PLAN_UI_SNAPSHOTS'];
+    if (folder == null) return;
+    final boundary = tester.renderObject<RenderRepaintBoundary>(find.byKey(captureKey));
+    await tester.runAsync(() async {
+      final picture = await boundary.toImage(pixelRatio: 2);
+      final data = await picture.toByteData(format: ui.ImageByteFormat.png);
+      await File('$folder/$name.png').writeAsBytes(data!.buffer.asUint8List());
+      picture.dispose();
+    });
+  }
+
   setUp(() async {
     final auth = FakeAuthRepository();
     await auth.login('demo@apths.test', 'password123');
@@ -55,9 +86,13 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       MaterialApp(
-        builder: (c, child) => MediaQuery(
-          data: MediaQuery.of(c).copyWith(textScaler: TextScaler.linear(scale)),
-          child: child!,
+        theme: snapshots ? ThemeData(fontFamily: 'QaFont') : null,
+        builder: (c, child) => RepaintBoundary(
+          key: captureKey,
+          child: MediaQuery(
+            data: MediaQuery.of(c).copyWith(textScaler: TextScaler.linear(scale)),
+            child: child!,
+          ),
         ),
         home: Builder(
           builder: (context) => Scaffold(
@@ -90,6 +125,7 @@ void main() {
     tester,
   ) async {
     await open(tester, scale: 1.3);
+    await capture(tester, 'manual-overview-130');
     await resizeBreakfast(tester);
     expect(find.textContaining('125 g ·'), findsOneWidget);
     expect(repo.plans.single.meals.single.portionSizeG, 250);
@@ -124,7 +160,7 @@ void main() {
     await open(tester);
     final papaya = foods.foods.firstWhere((f) => f.foodKey == 'betik');
     for (var pick = 0; pick < 2; pick++) {
-      final add = find.text('Add to snack');
+      final add = find.text('Add food to snack');
       await tester.scrollUntilVisible(add, 200, scrollable: find.byType(Scrollable).first);
       await Scrollable.ensureVisible(tester.element(add), alignment: 0.5);
       await tester.pumpAndSettle();
@@ -166,29 +202,91 @@ void main() {
     expect(find.textContaining('No food found'), findsNothing);
   });
 
-  testWidgets('an unsuitable draft food has a red container and blocks Save until the portion is corrected', (
+  testWidgets('a conflicting draft food is red while Save stays enabled; correction clears the warning', (
     tester,
   ) async {
     final bad = foods.foods.firstWhere((f) => f.foodKey == 'nasi_lemak');
     await repo.updatePlan(vm.plan!.copyWith(meals: [PlannedMeal.of(bad, vm.plan!.startDate, MealSlot.breakfast, 250)]));
     await vm.load(PlanType.daily);
     await open(tester, scale: 1.3);
-    await tester.scrollUntilVisible(
-      find.text('Does not fit your plan'),
-      200,
-      scrollable: find.byType(Scrollable).first,
-    );
+    await tester.scrollUntilVisible(find.text('Review this choice'), 200, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
-    final rows = find.byWidgetPredicate(
-      (w) =>
-          w is Container && w.key is ValueKey<String> && (w.key! as ValueKey<String>).value.startsWith('manual-food-'),
+    final row = tester.widget<Container>(
+      find.descendant(of: find.byType(PlanFoodRow), matching: find.byType(Container)).first,
     );
-    final row = tester.widget<Container>(rows);
     expect((row.decoration! as BoxDecoration).color, AppTokens.dangerContainer);
-    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save plan')).onPressed, isNull);
+    await capture(tester, 'manual-warning-130');
+    expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save plan')).onPressed, isNotNull);
     await resizeBreakfast(tester);
-    expect(find.text('Does not fit your plan'), findsNothing);
+    expect(find.text('Review this choice'), findsNothing);
     expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Save plan')).onPressed, isNotNull);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('a warned manual draft can be confirmed and saved without correcting its food', (tester) async {
+    final bad = foods.foods.firstWhere((f) => f.foodKey == 'nasi_lemak');
+    await repo.updatePlan(vm.plan!.copyWith(meals: [PlannedMeal.of(bad, vm.plan!.startDate, MealSlot.breakfast, 250)]));
+    await vm.load(PlanType.daily);
+    await open(tester);
+    await tester.tap(find.text('Save plan'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Save plan').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Open builder'), findsOneWidget);
+    expect(repo.plans.last.meals.single.food.foodKey, 'nasi_lemak');
+    expect(vm.savedFoodWarnings(vm.plan!.meals.single), isNotEmpty);
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final type in PlanType.values) {
+    testWidgets('${type.name} saved plan uses the shared cards and red food warnings', (tester) async {
+      tester.view.physicalSize = const Size(1080, 2400);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final original = vm.plan!;
+      final bad = foods.foods.firstWhere((f) => f.foodKey == 'nasi_lemak');
+      final rows = [PlannedMeal.of(bad, original.startDate, MealSlot.breakfast, 250)];
+      if (type == PlanType.daily) {
+        await repo.updatePlan(original.copyWith(meals: rows));
+      } else {
+        await repo.updatePlan(original.copyWith(meals: rows));
+        await repo.savePlan(
+          DietPlan(
+            dietPlanId: 'week-ui',
+            accountId: original.accountId,
+            safetyLimitId: original.safetyLimitId,
+            planType: type,
+            startDate: original.startDate,
+            endDate: original.startDate.add(const Duration(days: 6)),
+            modelVersion: 'manual',
+            generatedAt: DateTime.now(),
+            meals: rows.map((m) => m.carriedOver()).toList(),
+          ),
+        );
+      }
+      await tester.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: vm,
+          child: MaterialApp(
+            theme: snapshots ? ThemeData(fontFamily: 'QaFont') : null,
+            builder: (c, child) => RepaintBoundary(key: captureKey, child: child!),
+            home: DietPlanView(type: type),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byType(PlanTotalsCard), 200, scrollable: find.byType(Scrollable).first);
+      expect(find.byType(PlanTotalsCard), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Review this choice'), 200, scrollable: find.byType(Scrollable).first);
+      await Scrollable.ensureVisible(tester.element(find.text('Review this choice')), alignment: 0.3);
+      await tester.pumpAndSettle();
+      expect(find.byType(PlanMealCard), findsWidgets);
+      final row = tester.widget<Container>(
+        find.descendant(of: find.byType(PlanFoodRow), matching: find.byType(Container)).first,
+      );
+      expect((row.decoration! as BoxDecoration).color, AppTokens.dangerContainer);
+      await capture(tester, '${type.name}-warning');
+      expect(tester.takeException(), isNull);
+    });
+  }
 }

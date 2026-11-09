@@ -195,7 +195,7 @@ void main() {
     expect(vm.plan!.meals.first.portionSizeG, 125);
   });
 
-  test('a manual draft cannot ignore meals logged outside its slots or save an empty day', () async {
+  test('a manual draft warns about meals logged outside its slots but still rejects an empty day', () async {
     final vm = build();
     await vm.load(PlanType.daily);
     vm.logged = [
@@ -208,7 +208,9 @@ void main() {
         items: [MealItem.of(food('nasi_putih'), grams: 2000)],
       ),
     ];
-    expect(vm.manualProblems([PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 125)]), isNotEmpty);
+    final row = PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 125);
+    expect(vm.manualProblems([row]), isEmpty);
+    expect(vm.manualFoodProblems(row, [row]).join(' '), contains('too much energy'));
     expect(await vm.saveManualMeals([]), isNotEmpty);
     expect(repo.plans, isEmpty);
   });
@@ -224,5 +226,40 @@ void main() {
     expect(vm.plan, isNull);
     expect(vm.takeMessage(), isNotNull);
     expect(repo.plans.single, same(original));
+  });
+
+  test('a new week preserves a warned daily choice after the AI reply passes its own strict checks', () async {
+    await repo.savePlan(stored(PlanType.daily, [PlannedMeal.of(food('nasi_lemak'), day, MealSlot.breakfast, 250)]));
+    final vm = build(
+      client: MockClient(
+        (_) async => http.Response(
+          jsonEncode({
+            'model_version': 'diet-planner-2.2',
+            'days': [
+              for (final date in [day, tomorrow])
+                {
+                  'plan_date': date.toIso8601String().substring(0, 10),
+                  'meals': [
+                    {
+                      'meal_slot': 'BREAKFAST',
+                      'items': [
+                        {'food_key': 'oats', 'portion_g': 125},
+                      ],
+                    },
+                  ],
+                },
+            ],
+          }),
+          200,
+        ),
+      ),
+    );
+    await vm.load(PlanType.weekly);
+    expect(vm.plan, isNotNull);
+    final savedToday = vm.plan!.mealsFor(day).single;
+    expect(savedToday.food.foodKey, 'nasi_lemak');
+    expect(vm.savedFoodWarnings(savedToday), isNotEmpty);
+    expect(vm.plan!.mealsFor(tomorrow).single.food.foodKey, 'oats');
+    expect(vm.savedFoodWarnings(vm.plan!.mealsFor(tomorrow).single), isEmpty);
   });
 }

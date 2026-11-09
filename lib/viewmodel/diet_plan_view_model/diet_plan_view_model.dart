@@ -167,13 +167,7 @@ class DietPlanViewModel extends BaseViewModel {
         if (daily.dataOrNull case final saved?) plan = _withToday(plan!, saved);
       }
       if (plan != null && _planner.validate(plan!, ctx).isNotEmpty) {
-        // Keep the stored choices available in the draft editor, but do not present them as a
-        // plan to follow after the profile or suitability rules have changed.
-        plan = null;
-        _message =
-            'Your saved plan no longer fits your profile. Open Build my plan myself to correct the highlighted foods, or ask for a new plan.';
-        await _markLogged();
-        return;
+        _message = 'Some saved choices do not fit your profile or daily limits. Review the foods highlighted in red.';
       }
       if (plan == null) {
         await _generate();
@@ -205,11 +199,6 @@ class DietPlanViewModel extends BaseViewModel {
         return;
       }
       daily = saved.dataOrNull;
-      if (daily != null && _planner.validate(daily, ctx).isNotEmpty) {
-        _message =
-            "Today's saved plan no longer fits your profile. Change the highlighted foods in Build my plan myself before making a week.";
-        return;
-      }
     }
     final res = await _planner.generate(
       accountId: id,
@@ -234,7 +223,8 @@ class DietPlanViewModel extends BaseViewModel {
     if (res case Success(:final data)) {
       plannerDown = false;
       final next = daily == null ? data : _withToday(data, daily);
-      if (_planner.validate(next, ctx).isNotEmpty) {
+      // The AI reply passed its strict gate before restoring the patient's saved choices.
+      if (_planner.editingProblems(next).isNotEmpty) {
         _message = 'This plan contains foods that do not suit your profile. No new plan was saved.';
         return;
       }
@@ -578,9 +568,8 @@ class DietPlanViewModel extends BaseViewModel {
         notifyListeners();
         return false;
       }
-      if (_planner.validate(c.plan, ctx, consumedToday: _eatenOutside).isNotEmpty) {
-        _message =
-            'This food or portion does not fit your current profile and daily limits. Choose a suitable food or reduce the portion.';
+      if (_planner.editingProblems(c.plan).isNotEmpty) {
+        _message = 'Choose a valid portion and date before saving.';
         notifyListeners();
         return false;
       }
@@ -595,7 +584,9 @@ class DietPlanViewModel extends BaseViewModel {
         }
         return false;
       }
-      _message = c.doneMessage;
+      _message = _planner.validate(c.plan, ctx, consumedToday: _eatenOutside).isEmpty
+          ? c.doneMessage
+          : '${c.doneMessage} Review the foods highlighted in red; some choices do not fit your profile or daily limits.';
       await _markLogged();
       return true;
     } finally {
@@ -748,11 +739,7 @@ class DietPlanViewModel extends BaseViewModel {
   List<String> manualProblems(List<PlannedMeal> meals) {
     if (meals.isEmpty) return const ['Choose at least one food.'];
     final p = _manualDraft(meals);
-    return _planner.validate(
-      p,
-      ctx,
-      consumedToday: _consumedOutsidePlan(logged.where((m) => _sameDay(m.consumedAt, _today)), p),
-    );
+    return _planner.editingProblems(p);
   }
 
   List<String> foodProblemsForPlan(PlannedMeal meal) =>
@@ -761,9 +748,19 @@ class DietPlanViewModel extends BaseViewModel {
   /// Mark the offending portion, and every food contributing to an excessive daily nutrient.
   List<String> manualFoodProblems(PlannedMeal meal, List<PlannedMeal> meals) {
     final draft = _manualDraft(meals);
+    return _foodWarnings(meal, draft);
+  }
+
+  List<String> savedFoodWarnings(PlannedMeal meal) => plan == null ? const [] : _foodWarnings(meal, plan!);
+
+  List<String> _foodWarnings(PlannedMeal meal, DietPlan draft) {
+    final day = meal.planDate;
     final t =
-        draft.totalsFor(_today) + _consumedOutsidePlan(logged.where((m) => _sameDay(m.consumedAt, _today)), draft);
-    final x = DietPlannerService.extrasFor(draft, _today);
+        draft.totalsFor(day) +
+        (_sameDay(day, _today)
+            ? _consumedOutsidePlan(logged.where((m) => _sameDay(m.consumedAt, day)), draft)
+            : Nutrients.zero);
+    final x = DietPlannerService.extrasFor(draft, day);
     final one = meal.nutrients;
     final extras = meal.food.extrasFor(meal.portionSizeG);
     final totals = {
@@ -795,7 +792,7 @@ class DietPlanViewModel extends BaseViewModel {
       for (final entry in ctx.targets.limits.entries)
         if ((totals[entry.key] ?? 0) > entry.value + (entry.key.endsWith('_g') ? 0.05 : 0.5) &&
             (amounts[entry.key] ?? 0) > 0)
-          'Together with your other choices and logged meals, this portion contributes to too much ${names[entry.key]} for today. Reduce a highlighted portion or remove a food.',
+          'Together with your other choices${_sameDay(day, _today) ? ' and logged meals' : ''}, this portion contributes to too much ${names[entry.key]} for this day. You can reduce the portion or choose another food.',
     ];
   }
 
@@ -822,12 +819,9 @@ class DietPlanViewModel extends BaseViewModel {
     return const [];
   }
 
-  /// Catalogue search for the manual plan, without foods the patient cannot eat (or, with an arm
-  /// limitation, foods that need two hands).
+  /// All catalogue foods are available for user choice; health conflicts are shown as warnings.
   Future<List<FoodItem>> searchCatalogue(String term) async =>
-      ((await _foods.search(term)).dataOrNull ?? const <FoodItem>[])
-          .where((f) => !f.breachesAny(ctx.restrictions) && !(f.needsTwoHands && ctx.oneHandOnly))
-          .toList();
+      (await _foods.search(term)).dataOrNull ?? const <FoodItem>[];
 
   /// What the profile adds to the day's plan, in words (for the plan screen): the condition limits,
   /// the needs, and the one-hand and pregnancy rules.

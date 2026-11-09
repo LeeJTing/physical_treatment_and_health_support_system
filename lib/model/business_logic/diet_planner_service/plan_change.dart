@@ -7,7 +7,7 @@ enum PlanChangeKind { add, remove, replace, portion }
 
 /// A change to the plan worked out before it is made, so the patient can see its effect and
 /// confirm it (UC900 A5.1 step 3): the day's totals before and after, what it means in words, and
-/// the problems the safety gate finds with it (FR700_042). A change with problems is not made.
+/// health warnings and any invalid input. Health warnings do not block the patient's choices.
 class PlanChange {
   final PlanChangeKind kind;
   final DateTime day;
@@ -25,7 +25,7 @@ class PlanChange {
   final Nutrients before;
   final Nutrients after;
 
-  /// Limits the change would break, in words ("sodium 2,150 of 2,000 mg"). Empty = allowed.
+  /// Invalid portions or dates that prevent persistence. Health warnings are in [effects].
   final List<String> problems;
 
   /// The plan the change was worked out from, and the plan after it.

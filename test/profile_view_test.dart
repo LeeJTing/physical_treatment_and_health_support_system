@@ -130,6 +130,8 @@ void main() {
     await tester.runAsync(s.prepare);
     await s.pump(tester);
     expect(s.vm.isEditing, isTrue);
+    expect(s.vm.conditions.any((c) => c.isOther), isFalse);
+    expect(find.text('Other condition (not listed)'), findsNothing);
     expect(find.text('Save'), findsOneWidget);
     await tester.enterText(find.byType(TextFormField).at(0), '45');
     await tester.enterText(find.byType(TextFormField).at(1), '70.5');

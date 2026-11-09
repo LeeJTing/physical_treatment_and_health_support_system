@@ -48,7 +48,7 @@ void main() {
     expect(vm.profile, isNull);
     expect(vm.isEditing, isTrue);
     expect(vm.draft, isNotNull);
-    expect(vm.conditions, hasLength(17)); // 7 + 10 added on 11 Oct
+    expect(vm.conditions, hasLength(16)); // The former Other condition is no longer selectable.
     expect(vm.limitations, hasLength(5));
   });
 

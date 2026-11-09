@@ -6,7 +6,6 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/diet_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
-import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
@@ -14,6 +13,7 @@ import 'package:physical_treatment_and_health_support_system/view/diet_view/manu
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/food_picture.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_cards.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 
 enum _FoodAction { portion, swap, lock, remove }
@@ -22,8 +22,8 @@ enum _FoodAction { portion, swap, lock, remove }
 /// free sugars against the limits and "Why this plan?" (how it was made, with the healthy plate);
 /// each slot shows its foods with a picture of their place on the plate. Tapping a food says why it
 /// was chosen and lets the patient change its portion, swap it (A5.1), lock it (A5.2) or remove it;
-/// "Add food" adds any suitable food to a slot. Every change is shown with its effect on the day
-/// and confirmed first, and one that would break a limit cannot be made (FR700_042). Regenerate
+/// "Add food" lets the patient choose any catalogue food. Every change is shown with its effect
+/// and confirmed first; health conflicts are highlighted in red as warnings. Regenerate
 /// (A6.1) and "plan the rest of today" (FR700_034) are confirmed too. When the planner is
 /// unavailable the patient builds the day's plan by choosing foods (E2, FR700_044).
 class DietPlanView extends StatefulWidget {
@@ -127,19 +127,11 @@ class _DietPlanViewState extends State<DietPlanView> {
 
   /// The sheet opens at once and fills when the alternatives have been found.
   Future<void> _swap(DietPlanViewModel vm, PlannedMeal m) async {
-    final f = await showFutureSheet<List<FoodItem>, FoodItem>(
-      context: context,
-      future: vm.alternativesFor(m),
+    final f = await FoodSearchSheet.show(
+      context,
+      search: vm.searchCatalogue,
+      suggestedLater: vm.alternativesFor(m),
       title: 'Swap ${m.food.foodName}',
-      subtitle: 'Foods of the same kind that keep the day within your limits.',
-      loadingText: 'Finding foods that fit...',
-      builder: (ctx, alts) => Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (alts.isEmpty) const Text('No other food fits the same\u00A0limits.'),
-          for (final a in alts) FoodTile(food: a, onTap: () => Navigator.pop(ctx, a)),
-        ],
-      ),
     );
     if (f == null || !mounted) return;
     final c = vm.previewReplace(m, f);
@@ -501,270 +493,94 @@ class _DietPlanViewState extends State<DietPlanView> {
     final t = vm.plannedTotals(day);
     final now = DateTime.now();
     final isToday = day.year == now.year && day.month == now.month && day.day == now.day;
-    return Container(
-      decoration: BoxDecoration(
-        color: AppTokens.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTokens.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                OneLineText(
-                  isToday ? 'Your plan for today' : 'Your plan for ${_dayLabel(day)}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
-                ),
-                PlanBar(
-                  label: 'Energy',
-                  value: t.energyKcal,
-                  limit: vm.ctx.dailyEnergyKcal,
-                  unit: 'kcal',
-                  isTarget: true,
-                ),
-                PlanBar(label: 'Sodium', value: t.sodiumMg, limit: vm.ctx.dailySodiumMg, unit: 'mg'),
-                PlanBar(label: 'Free sugars', value: t.sugarG, limit: vm.ctx.dailySugarG, unit: 'g', decimals: 1),
-                if (vm.unmetNeeds(day) case final unmet when unmet.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Text(
-                      tidy('Too little ${unmet.join(' and ')} today: add vegetables, fruit, milk or tofu if you can.'),
-                      style: const TextStyle(fontSize: 14, color: AppTokens.onDanger, fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                const SizedBox(height: 6),
-                const Text(
-                  'Tap a food to see why it was chosen, or to change, swap, lock or remove\u00A0it.',
-                  style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                ),
-              ],
-            ),
+    return PlanTotalsCard(
+      title: isToday ? 'Your plan for today' : 'Your plan for ${_dayLabel(day)}',
+      totals: t,
+      energyLimit: vm.ctx.dailyEnergyKcal,
+      sodiumLimit: vm.ctx.dailySodiumMg,
+      sugarLimit: vm.ctx.dailySugarG,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Text(
+            'Tap a food to see its details or change it. You can choose any food; profile and daily-limit warnings are highlighted in red.',
+            style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
           ),
-          Theme(
-            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-            child: ExpansionTile(
-              tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-              childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-              leading: const Icon(Icons.lightbulb_outline, color: AppTokens.brandDeep),
-              title: const OneLineText(
-                'Why this plan?',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep),
-              ),
-              subtitle: const Text(
-                'How it was made and how it fits your\u00A0limits',
-                style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-              ),
-              children: [
-                const Row(
-                  children: [
-                    HealthyPlatePicture(size: 112),
-                    SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _PlateKey(FoodLook.plateVeg, 'Half: vegetables and fruit'),
-                          _PlateKey(FoodLook.plateStarch, 'A quarter: rice, bread or noodles'),
-                          _PlateKey(FoodLook.plateProtein, 'A quarter: fish, chicken, egg or tofu'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                for (final r in vm.summaryFor(day)) PlanReasonTile(r),
-                if (vm.profileRules.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Rules from your profile',
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink),
-                  ),
-                  for (final r in vm.profileRules)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(tidy('• $r'), style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
-                    ),
-                ],
-              ],
+        ),
+        Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+            childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+            leading: const Icon(Icons.lightbulb_outline, color: AppTokens.brandDeep),
+            title: const OneLineText(
+              'Why this plan?',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// One meal slot: its picture, energy against its usual share, its foods and "Add food".
-  Widget _slotCard(DietPlanViewModel vm, DietPlan p, DateTime day, MealSlot slot) {
-    final items = p.mealsFor(day).where((m) => m.mealSlot == slot).toList();
-    final kcal = items.fold(0.0, (a, m) => a + m.energyKcal);
-    final usual = vm.usualKcal(slot);
-    final look = SlotLook.of(slot);
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: AppTokens.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppTokens.cardBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Container(
-            padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [look.back, AppTokens.surface]),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+            subtitle: const Text(
+              'How it was made and how it fits your\u00A0limits',
+              style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
             ),
-            child: Row(
-              children: [
-                SlotPicture(slot),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      OneLineText(
-                        slot.label,
-                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTokens.ink),
-                      ),
-                      OneLineText(
-                        '${look.time} · ${fmtNum(kcal)} kcal of about ${fmtNum(usual)}',
-                        style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
-                      ),
-                      const SizedBox(height: 6),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: usual <= 0 ? 0 : (kcal / usual).clamp(0.0, 1.0),
-                          minHeight: 6,
-                          color: kcal > usual * 1.3 ? AppTokens.caution : look.fore,
-                          backgroundColor: AppTokens.surface,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                if (items.any((m) => m.isLogged))
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8),
+            children: [
+              const Row(
+                children: [
+                  HealthyPlatePicture(size: 112),
+                  SizedBox(width: 14),
+                  Expanded(
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.check_circle, color: AppTokens.good, size: 22),
-                        Text(
-                          'Logged',
-                          style: TextStyle(color: AppTokens.good, fontWeight: FontWeight.w600, fontSize: 12),
-                        ),
+                        _PlateKey(FoodLook.plateVeg, 'Half: vegetables and fruit'),
+                        _PlateKey(FoodLook.plateStarch, 'A quarter: rice, bread or noodles'),
+                        _PlateKey(FoodLook.plateProtein, 'A quarter: fish, chicken, egg or tofu'),
                       ],
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              for (final r in vm.summaryFor(day)) PlanReasonTile(r),
+              if (vm.profileRules.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                const Text(
+                  'Rules from your profile',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                ),
+                for (final r in vm.profileRules)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(tidy('• $r'), style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                  ),
               ],
-            ),
+            ],
           ),
-          if (items.isEmpty)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Text(
-                tidy('Nothing planned for your ${slot.label.toLowerCase()} yet.'),
-                style: const TextStyle(fontSize: 15, color: AppTokens.inkMuted),
-              ),
-            ),
-          for (final m in items) _foodRow(vm, m),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 2, 8, 6),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton.icon(
-                style: TextButton.styleFrom(minimumSize: const Size(0, AppTokens.minTarget)),
-                onPressed: vm.isLoading || !vm.canEditDay(day) ? null : () => _add(vm, day, slot),
-                icon: const Icon(Icons.add_circle_outline),
-                label: OneLineText('Add food to ${slot.label.toLowerCase()}'),
-              ),
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
-  Widget _foodRow(DietPlanViewModel vm, PlannedMeal m) => InkWell(
+  /// Shared meal and food cards keep draft, daily and weekly plans consistent.
+  Widget _slotCard(DietPlanViewModel vm, DietPlan p, DateTime day, MealSlot slot) {
+    final items = p.mealsFor(day).where((m) => m.mealSlot == slot).toList();
+    return PlanMealCard(
+      slot: slot,
+      meals: items,
+      usualKcal: vm.usualKcal(slot),
+      rows: [for (final m in items) _foodRow(vm, m)],
+      onAdd: vm.isLoading || !vm.canEditDay(day) ? null : () => _add(vm, day, slot),
+    );
+  }
+
+  Widget _foodRow(DietPlanViewModel vm, PlannedMeal m) => PlanFoodRow(
+    key: ValueKey('saved-food-${m.plannedMealId}'),
+    meal: m,
+    warnings: vm.savedFoodWarnings(m),
     onTap: vm.isLoading
         ? null
         : !vm.canEditDay(m.planDate)
         ? () => _editToday(vm)
         : () => _openFood(vm, m),
-    child: Padding(
-      padding: const EdgeInsets.fromLTRB(14, 10, 4, 4),
-      child: Row(
-        children: [
-          FoodRoleAvatar(m.food.planRole, size: 46),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Text(
-                        tidy(m.food.foodName),
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
-                      ),
-                    ),
-                    if (m.isLocked)
-                      const Padding(
-                        padding: EdgeInsets.only(left: 6),
-                        child: Icon(Icons.lock, size: 16, color: AppTokens.brandDeep, semanticLabel: 'Locked'),
-                      ),
-                  ],
-                ),
-                if (vm.reasonsFor(m).where((r) => r.warn).firstOrNull case final w?)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Padding(
-                          padding: EdgeInsets.only(top: 1, right: 4),
-                          child: Icon(Icons.warning_amber_rounded, size: 16, color: AppTokens.danger),
-                        ),
-                        Expanded(
-                          child: Text(
-                            tidy(w.text.split(':').first),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppTokens.onDanger,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                OneLineText(
-                  '${FoodLook.of(m.food.planRole).label} · ${m.portionSizeG.round()} g · ${fmtNum(m.energyKcal)} kcal',
-                  style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                ),
-                OneLineText(
-                  '${fmtNum(m.sodiumMg)} mg sodium · ${m.sugarG.toStringAsFixed(1)} g sugars',
-                  style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                ),
-              ],
-            ),
-          ),
-          IconButton(
-            tooltip: 'Remove ${m.food.foodName}',
-            onPressed: vm.isLoading || !vm.canEditDay(m.planDate) ? null : () => _remove(vm, m),
-            icon: const Icon(Icons.close, color: AppTokens.inkMuted),
-          ),
-        ],
-      ),
-    ),
+    onRemove: vm.isLoading || !vm.canEditDay(m.planDate) ? null : () => _remove(vm, m),
   );
 }
 

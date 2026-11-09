@@ -111,7 +111,7 @@ void main() {
     expect(vm.takeMessage(), contains('3 attempts'));
   });
 
-  test('a saved plan that no longer suits the profile is withheld but remains available for correction', () async {
+  test('a saved plan with profile conflicts stays visible with red warning reasons after reload', () async {
     var calls = 0;
     final repo = FakeMealRepository();
     final vm = await vmFor(
@@ -126,8 +126,9 @@ void main() {
     await vm.load(PlanType.daily);
     await repo.updatePlan(vm.plan!.copyWith(meals: [PlannedMeal.of(food('nasi_lemak'), day, MealSlot.breakfast, 250)]));
     await vm.load(PlanType.daily);
-    expect(vm.plan, isNull);
-    expect(vm.takeMessage(), contains('no longer fits'));
+    expect(vm.plan!.meals.single.food.foodKey, 'nasi_lemak');
+    expect(vm.savedFoodWarnings(vm.plan!.meals.single), isNotEmpty);
+    expect(vm.takeMessage(), contains('highlighted in red'));
     expect(calls, 1); // user chooses whether to correct or regenerate
     expect((await vm.manualMeals()).dataOrNull!.single.food.foodKey, 'nasi_lemak');
   });
@@ -201,20 +202,21 @@ void main() {
     }
   });
 
-  test('manual save rejects an unsuitable food and daily excess identifies each contributing row', () async {
+  test('manual save allows a conflicting food and daily excess still identifies each contributing row', () async {
     final repo = FakeMealRepository();
     final vm = await vmFor(planner(MockClient((_) async => response('oats', 125))), repo);
     await vm.load(PlanType.daily);
     final bad = PlannedMeal.of(food('nasi_lemak'), day, MealSlot.breakfast, 250);
     expect(vm.manualFoodProblems(bad, [bad]), isNotEmpty);
-    expect(await vm.saveManualMeals([bad]), isNotEmpty);
-    expect(repo.plans, hasLength(1)); // only the earlier suitable generated plan
+    expect(await vm.saveManualMeals([bad]), isEmpty);
+    expect(repo.plans, hasLength(2));
+    expect(vm.savedFoodWarnings(vm.plan!.meals.single), isNotEmpty);
     final grams = vm.ctx.dailyEnergyKcal / food('oats').energyKcalPer100g * 100 / 2;
     final rows = [
       for (final slot in [MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner])
         PlannedMeal.of(food('oats'), day, slot, grams),
     ];
-    expect(vm.manualProblems(rows), isNotEmpty);
+    expect(vm.manualProblems(rows), isEmpty);
     for (final row in rows) {
       expect(vm.manualFoodProblems(row, rows).join(' '), contains('too much energy'));
     }
@@ -243,7 +245,56 @@ void main() {
     expect(vm.plan!.meals.single.portionSizeG, 250);
   });
 
-  test('split duplicate portions cannot bypass the plan suitability gate', () async {
+  test('manual search includes restricted foods and malformed portions still cannot be saved', () async {
+    final vm = await vmFor(planner(MockClient((_) async => response('oats', 125))), FakeMealRepository());
+    await vm.load(PlanType.daily);
+    vm.ctx = DietContext(
+      limit: vm.ctx.limit,
+      restrictions: [LookupSeed.restrictions.firstWhere((r) => r.restrictionCode == 'PEANUT')],
+    );
+    expect((await vm.searchCatalogue('nasi lemak')).map((f) => f.foodKey), contains('nasi_lemak'));
+    final restricted = PlannedMeal.of(food('nasi_lemak'), day, MealSlot.snack, 50);
+    expect(vm.manualFoodProblems(restricted, [restricted]), isNotEmpty);
+    expect(vm.manualProblems([restricted]), isEmpty);
+    for (final grams in [double.nan, double.infinity, 0.0, -10.0]) {
+      final bad = PlannedMeal.of(food('oats'), day, MealSlot.breakfast, grams);
+      expect(vm.manualProblems([bad]), isNotEmpty);
+      expect(vm.previewPortion(vm.plan!.meals.single, 0)!.allowed, isFalse);
+    }
+  });
+
+  test('weekly edits can exceed limits and red reasons survive reopening the week', () async {
+    final repo = FakeMealRepository();
+    final vm = await vmFor(planner(MockClient((_) async => response('oats', 125))), repo);
+    await vm.load(PlanType.daily);
+    final tomorrow = day.add(const Duration(days: 1));
+    await repo.savePlan(
+      DietPlan(
+        dietPlanId: 'week',
+        accountId: vm.plan!.accountId,
+        safetyLimitId: vm.plan!.safetyLimitId,
+        planType: PlanType.weekly,
+        startDate: day,
+        endDate: day.add(const Duration(days: 6)),
+        modelVersion: 'manual',
+        generatedAt: now,
+        meals: [PlannedMeal.of(food('oats'), tomorrow, MealSlot.breakfast, 125)],
+      ),
+    );
+    await vm.load(PlanType.weekly);
+    final change = vm.previewAdd(tomorrow, MealSlot.lunch, food('ikan_masin'), grams: 300)!;
+    expect(change.allowed, isTrue);
+    expect(change.warnings, isNotEmpty);
+    expect(await vm.applyChange(change), isTrue);
+    await vm.load(PlanType.weekly);
+    final salty = vm.plan!.meals.firstWhere((m) => m.food.foodKey == 'ikan_masin');
+    expect(vm.savedFoodWarnings(salty).join(' '), contains('too much sodium'));
+    final remove = vm.previewRemove(salty)!;
+    expect(await vm.applyChange(remove), isTrue);
+    expect(vm.plan!.meals.any((m) => m.food.foodKey == 'ikan_masin'), isFalse);
+  });
+
+  test('split duplicate portions merge before warnings, while the AI gate remains strict', () async {
     final service = planner(MockClient((_) async => response('oats', 125)));
     final vm = await vmFor(service, FakeMealRepository());
     await vm.load(PlanType.daily);
@@ -251,9 +302,11 @@ void main() {
     final grams = vm.ctx.dailySodiumMg * 0.20 / f.sodiumMgPer100g * 100;
     final rows = [for (var i = 0; i < 2; i++) PlannedMeal.of(f, day, MealSlot.breakfast, grams)];
     expect(vm.foodProblemsForPlan(rows.first), isEmpty);
-    expect(vm.manualProblems(rows), isNotEmpty);
-    expect(await vm.saveManualMeals(rows), isNotEmpty);
-    expect(vm.plan!.meals.single.food.foodKey, 'oats');
+    expect(vm.manualProblems(rows), isEmpty);
+    expect(await vm.saveManualMeals(rows), isEmpty);
+    expect(vm.plan!.meals, hasLength(1));
+    expect(vm.savedFoodWarnings(vm.plan!.meals.single), isNotEmpty);
+    expect(service.validate(vm.plan!, vm.ctx), isNotEmpty);
   });
 
   for (final action in ['add', 'remove', 'replace', 'portion']) {

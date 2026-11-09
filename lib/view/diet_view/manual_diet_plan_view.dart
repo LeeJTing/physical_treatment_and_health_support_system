@@ -7,7 +7,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/food_i
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
-import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/food_picture.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_cards.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 
@@ -70,7 +70,7 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
     try {
       final f = await FoodSearchSheet.show(
         context,
-        search: (term) async => (await vm.searchCatalogue(term)).where((f) => f.mealSlots.contains(slot.db)).toList(),
+        search: vm.searchCatalogue,
         title: '${replacing == null ? 'Add to' : 'Change food for'} ${slot.label.toLowerCase()}',
       );
       if (!mounted || f == null) return;
@@ -134,7 +134,7 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      tidy('This food cannot be saved in your plan at this portion. ${issues.join(' ')}'),
+                      tidy('Review this choice before saving. You can still include it. ${issues.join(' ')}'),
                       style: const TextStyle(color: AppTokens.onDanger, fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -250,41 +250,34 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  const Text(
-                    'Choose foods for each meal. You can add more than one, change a portion or remove a food. Nothing is saved until you tap Save plan.',
-                  ),
+                  const Text('Choose foods for each meal, then review and save the day.'),
                   const SizedBox(height: 12),
-                  PlanBar(
-                    label: 'Energy',
-                    value: t.energyKcal,
-                    limit: vm.ctx.dailyEnergyKcal,
-                    unit: 'kcal',
-                    isTarget: true,
+                  PlanTotalsCard(
+                    title: 'Your draft for today',
+                    totals: t,
+                    energyLimit: vm.ctx.dailyEnergyKcal,
+                    sodiumLimit: vm.ctx.dailySodiumMg,
+                    sugarLimit: vm.ctx.dailySugarG,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
+                        child: Text(
+                          'Red highlights show profile or daily-limit warnings. You can still save your choices.',
+                          style: TextStyle(fontSize: 14, color: AppTokens.inkMuted),
+                        ),
+                      ),
+                      if (warnings != null && warnings.isNotEmpty)
+                        ExpansionTile(
+                          title: Text(
+                            'Review warnings (${warnings.length})',
+                            style: const TextStyle(color: AppTokens.onDanger),
+                          ),
+                          leading: const Icon(Icons.warning_amber, color: AppTokens.danger),
+                          children: [Padding(padding: const EdgeInsets.all(12), child: WatchOutBox(warnings))],
+                        ),
+                    ],
                   ),
-                  PlanBar(label: 'Sodium', value: t.sodiumMg, limit: vm.ctx.dailySodiumMg, unit: 'mg'),
-                  PlanBar(label: 'Free sugars', value: t.sugarG, limit: vm.ctx.dailySugarG, unit: 'g', decimals: 1),
-                  if (problems.isNotEmpty && _meals.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(top: 12),
-                      decoration: BoxDecoration(
-                        color: AppTokens.dangerContainer,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Text(
-                        'Save is blocked. Change or remove the foods highlighted in red, or reduce their portions until they fit your profile and daily limits.',
-                        style: TextStyle(color: AppTokens.onDanger, fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  if (warnings != null && warnings.isNotEmpty)
-                    ExpansionTile(
-                      title: Text(
-                        'Review warnings (${warnings.length})',
-                        style: const TextStyle(color: AppTokens.onDanger),
-                      ),
-                      leading: const Icon(Icons.warning_amber, color: AppTokens.danger),
-                      children: [WatchOutBox(warnings)],
-                    ),
+                  const SizedBox(height: 16),
                   if (_error != null)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -294,48 +287,15 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
                       ),
                     ),
                   for (final slot in MealSlot.values)
-                    Card(
-                      margin: const EdgeInsets.only(top: 16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
-                              children: [
-                                SlotPicture(slot, size: 40),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: OneLineText(
-                                    slot.label,
-                                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            if (!_meals.any((m) => m.mealSlot == slot))
-                              const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                child: Text('No food chosen yet.'),
-                              ),
-                            for (final meal in _meals.where((m) => m.mealSlot == slot))
-                              _foodRow(meal, vm.manualFoodProblems(meal, _meals)),
-                            OutlinedButton.icon(
-                              onPressed: _saving || _choosing || _loadFailed ? null : () => _pick(slot),
-                              icon: const Icon(Icons.add),
-                              label: Text('Add to ${slot.label.toLowerCase()}'),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  if (problems.isNotEmpty && _meals.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Text(
-                        tidy('Change the highlighted foods or portions before saving.'),
-                        style: const TextStyle(color: AppTokens.onDanger),
-                      ),
+                    PlanMealCard(
+                      slot: slot,
+                      meals: _meals.where((m) => m.mealSlot == slot).toList(),
+                      usualKcal: vm.usualKcal(slot),
+                      rows: [
+                        for (final meal in _meals.where((m) => m.mealSlot == slot))
+                          _foodRow(meal, vm.manualFoodProblems(meal, _meals)),
+                      ],
+                      onAdd: _saving || _choosing || _loadFailed ? null : () => _pick(slot),
                     ),
                 ],
               ),
@@ -359,45 +319,24 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
     );
   }
 
-  Widget _foodRow(PlannedMeal meal, List<String> problems) => Container(
+  Widget _foodRow(PlannedMeal meal, List<String> problems) => PlanFoodRow(
     key: ValueKey('manual-food-${meal.plannedMealId}'),
-    margin: const EdgeInsets.only(top: 12),
-    padding: const EdgeInsets.all(12),
-    decoration: BoxDecoration(
-      color: problems.isEmpty ? AppTokens.surface : AppTokens.dangerContainer,
-      borderRadius: BorderRadius.circular(12),
-      border: problems.isEmpty ? null : Border.all(color: AppTokens.danger),
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    meal: meal,
+    warnings: problems,
+    onTap: _saving || _choosing ? null : () => _portion(meal.food, meal.mealSlot, replacing: meal),
+    onRemove: _saving || _choosing ? null : () => _remove(meal),
+    actions: Wrap(
+      spacing: 4,
       children: [
-        Text(tidy(meal.food.foodName), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
-        Text('${meal.portionSizeG.round()} g · ${meal.energyKcal.round()} kcal'),
-        if (problems.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          const Text(
-            'Does not fit your plan',
-            style: TextStyle(color: AppTokens.onDanger, fontWeight: FontWeight.w700),
-          ),
-          for (final problem in problems) Text(tidy(problem), style: const TextStyle(color: AppTokens.onDanger)),
-        ],
-        Wrap(
-          spacing: 4,
-          children: [
-            TextButton(
-              onPressed: _saving || _choosing ? null : () => _pick(meal.mealSlot, replacing: meal),
-              child: const Text('Change food'),
-            ),
-            TextButton(
-              onPressed: _saving || _choosing ? null : () => _portion(meal.food, meal.mealSlot, replacing: meal),
-              child: const Text('Portion'),
-            ),
-            IconButton(
-              tooltip: 'Remove ${meal.food.foodName}',
-              onPressed: _saving || _choosing ? null : () => _remove(meal),
-              icon: const Icon(Icons.close),
-            ),
-          ],
+        TextButton.icon(
+          onPressed: _saving || _choosing ? null : () => _pick(meal.mealSlot, replacing: meal),
+          icon: const Icon(Icons.swap_horiz, size: 18),
+          label: const Text('Change food'),
+        ),
+        TextButton.icon(
+          onPressed: _saving || _choosing ? null : () => _portion(meal.food, meal.mealSlot, replacing: meal),
+          icon: const Icon(Icons.tune, size: 18),
+          label: const Text('Portion'),
         ),
       ],
     ),

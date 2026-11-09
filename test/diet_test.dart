@@ -421,15 +421,15 @@ void main() {
       expect(c.effects.any((e) => e.text.startsWith('Your snack will have')), isTrue);
     });
 
-    test('a change that would break a limit is shown with the amount and not allowed (FR700_042)', () {
+    test('a user change over a limit stays allowed with the amount shown as a red warning', () {
       final before = plan([PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250)]);
       final after = before.copyWith(
         meals: [...before.meals, PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 300)],
       );
       final c = preview(before, after, MealSlot.lunch, ctx());
-      expect(c.allowed, isFalse);
-      expect(c.problems.join(' '), contains('sodium'));
-      expect(c.problems.join(' '), contains('of 2,000 mg'));
+      expect(c.allowed, isTrue);
+      expect(c.problems, isEmpty);
+      expect(c.warnings.join(' '), contains('of 2,000 mg'));
       // Too much is said in red, with what it does to the body.
       final w = c.warnings.map((e) => e.text).join(' ');
       expect(w, contains('Too much sodium'));
@@ -510,14 +510,15 @@ void main() {
       expect(vm.plan!.meals.map((m) => m.food.foodKey), ['epal']);
 
       final salty = vm.previewAdd(today, MealSlot.lunch, food('ikan_masin'), grams: 300)!;
-      expect(salty.allowed, isFalse);
-      expect(await vm.applyChange(salty), isFalse);
-      expect(vm.plan!.meals, hasLength(1));
+      expect(salty.allowed, isTrue);
+      expect(await vm.applyChange(salty), isTrue);
+      expect(vm.plan!.meals, hasLength(2));
+      expect(vm.savedFoodWarnings(vm.plan!.meals.last), isNotEmpty);
 
       final stale = vm.previewAdd(today, MealSlot.lunch, food('nasi_putih'))!;
       expect(await vm.applyChange(vm.previewAdd(today, MealSlot.breakfast, food('oats'))!), isTrue);
       expect(await vm.applyChange(stale), isFalse); // worked out from an older plan
-      expect(vm.plan!.meals, hasLength(2));
+      expect(vm.plan!.meals, hasLength(3));
 
       final portion = vm.previewPortion(vm.plan!.meals.firstWhere((m) => m.food.foodKey == 'oats'), 125)!;
       expect(await vm.applyChange(portion), isTrue);

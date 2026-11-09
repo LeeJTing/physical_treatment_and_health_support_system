@@ -244,8 +244,8 @@ class WatchOutBox extends StatelessWidget {
 
 /// Asks the patient to confirm a change to the plan and says what will happen (A5.1 step 3). For
 /// an add or a portion change, [rebuild] works the change out again for another portion, chosen
-/// with half to one and a half servings. A change the safety gate rejects cannot be
-/// confirmed. Returns the confirmed change, or null.
+/// with half to one and a half servings. Health warnings stay visible in red while confirmation
+/// remains available; invalid portions or dates block saving. Returns the confirmed change, or null.
 class PlanChangeDialog extends StatefulWidget {
   final PlanChange initial;
   final PlanChange? Function(double grams)? rebuild;
