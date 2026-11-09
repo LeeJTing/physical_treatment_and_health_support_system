@@ -626,6 +626,32 @@ void main() {
       expect(shown.single.repeatDays, '0000100');
     });
 
+    test('days tapped quickly just before the screen closes are all kept when it opens again (9 Nov)', () async {
+      repo.saveDelay = const Duration(milliseconds: 40); // saving is slow, as on a phone
+      // Three quick taps, and the screen is closed before any of them is saved.
+      final taps = [
+        vm.toggleDay('plan-r', DateTime.tuesday),
+        vm.toggleDay('plan-r', DateTime.thursday),
+        vm.toggleDay('plan-r', DateTime.monday),
+      ];
+      vm.dispose();
+      expect(repo.reminders['plan-r']!.repeatDays, '1010100'); // nothing saved yet
+      // Opened again at once: it shows the days as they were left, not the old ones.
+      final again = NotificationViewModel(repo, local, auth);
+      await again.load();
+      List<Reminder> shownAgain() => (again.reminders as UiSuccess<List<Reminder>>).data;
+      expect(shownAgain().single.repeatDays, '0111100');
+      // A tap on the new screen starts from those days, so nothing is lost.
+      final more = again.toggleDay('plan-r', DateTime.saturday);
+      expect(shownAgain().single.repeatDays, '0111110');
+      await Future.wait([...taps, more]);
+      await local.settled;
+      expect(repo.reminders['plan-r']!.repeatDays, '0111110');
+      await again.load(quiet: true);
+      expect(shownAgain().single.repeatDays, '0111110');
+      again.dispose();
+    });
+
     test('a changed time moves the card into time order at once', () async {
       await vm.addHealthLogReminder(); // 8 pm, after the 9 am plan reminder
       List<String> order() => [

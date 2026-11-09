@@ -7,6 +7,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 
 /// The photo of a logged meal (FR700_009). It is downloaded from the private store the first time
 /// it is shown, with a soft placeholder meanwhile; a meal entered without a photo shows a plate.
@@ -102,7 +103,7 @@ class MealDetailsSheet {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  Text(
+                  OneLineText(
                     '${meal.mealType.label} · ${t.day}/${t.month}/${t.year} '
                     '${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink),
@@ -114,7 +115,7 @@ class MealDetailsSheet {
                     )
                   else
                     const Text(
-                      'This meal was entered without a photo.',
+                      'This meal was entered without a\u00A0photo.',
                       style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
                     ),
                   const SizedBox(height: 16),
@@ -128,12 +129,12 @@ class MealDetailsSheet {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(i.food.foodName,
+                                Text(tidy(i.food.foodName),
                                     style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTokens.ink)),
-                                Text('${i.portionSizeG.round()} g · ${fmtNum(i.energyKcal)} kcal',
+                                OneLineText('${i.portionSizeG.round()} g · ${fmtNum(i.energyKcal)} kcal',
                                     style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
                                 for (final v in i.verdicts.where((v) => v.verdict != Verdict.suitable))
-                                  Text(v.reasonText, style: const TextStyle(fontSize: 14, color: AppTokens.ink)),
+                                  Text(tidy(v.reasonText), style: const TextStyle(fontSize: 14, color: AppTokens.ink)),
                               ],
                             ),
                           ),
@@ -142,7 +143,7 @@ class MealDetailsSheet {
                       ),
                     ),
                   const Divider(),
-                  const Text('This meal', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                  const OneLineText('This meal', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
                   const SizedBox(height: 8),
                   NutrientTable(meal.totals),
                   const DietDisclaimer(),

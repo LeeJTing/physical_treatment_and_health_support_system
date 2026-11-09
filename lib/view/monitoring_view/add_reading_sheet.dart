@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
 
@@ -116,11 +117,16 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppTokens.ink),
             ),
             const SizedBox(height: 14),
+            // No tick on the chosen one, and each name on one line (phone, 9 Nov).
             SegmentedButton<MetricType>(
+              showSelectedIcon: false,
               segments: const [
-                ButtonSegment(value: MetricType.bloodPressure, label: Text('Blood pressure')),
-                ButtonSegment(value: MetricType.bloodGlucose, label: Text('Glucose')),
-                ButtonSegment(value: MetricType.bodyWeight, label: Text('Weight')),
+                ButtonSegment(
+                  value: MetricType.bloodPressure,
+                  label: OneLineText('Blood pressure', alignment: Alignment.center),
+                ),
+                ButtonSegment(value: MetricType.bloodGlucose, label: OneLineText('Glucose', alignment: Alignment.center)),
+                ButtonSegment(value: MetricType.bodyWeight, label: OneLineText('Weight', alignment: Alignment.center)),
               ],
               selected: {_metric},
               onSelectionChanged: (s) => setState(() {

@@ -5,6 +5,7 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/trend_chart.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
@@ -157,22 +158,33 @@ class _MonitoringViewState extends State<MonitoringView> {
         if (!widget.standalone)
           Container(
             color: AppTokens.brandDeep,
-            padding: EdgeInsets.fromLTRB(24, top + 20, 12, 20),
-            child: Row(
+            padding: EdgeInsets.fromLTRB(24, top + 20, 12, 12),
+            // The title keeps the whole width of its line, with "How to use this screen" beside
+            // it and the Health Report button below that (phone test, 9 Nov: squeezed between the
+            // two buttons, the "g" of "Tracking" broke onto a second line).
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Expanded(
-                  child: Text(
-                    'Health Tracking',
-                    style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700),
+                const Row(
+                  children: [
+                    Expanded(
+                      child: OneLineText(
+                        'Health Tracking',
+                        style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    HelpButton(guide: Guides.tracking),
+                  ],
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton.icon(
+                    style: TextButton.styleFrom(foregroundColor: Colors.white),
+                    onPressed: () => _openReport(),
+                    icon: const Icon(Icons.insights),
+                    label: const OneLineText('Health Report', style: TextStyle(fontSize: 16)),
                   ),
                 ),
-                TextButton.icon(
-                  style: TextButton.styleFrom(foregroundColor: Colors.white),
-                  onPressed: () => _openReport(),
-                  icon: const Icon(Icons.insights),
-                  label: const Text('Health Report', style: TextStyle(fontSize: 16)),
-                ),
-                const HelpButton(guide: Guides.tracking),
               ],
             ),
           ),
@@ -205,11 +217,20 @@ class _MonitoringViewState extends State<MonitoringView> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      // No tick on the chosen one, and each name on one line: with the tick, the last
+                      // letter of "Pressure" or "Glucose" dropped onto a second line (phone, 9 Nov).
                       SegmentedButton<MetricType>(
+                        showSelectedIcon: false,
                         segments: const [
-                          ButtonSegment(value: MetricType.bloodPressure, label: Text('Pressure')),
-                          ButtonSegment(value: MetricType.bloodGlucose, label: Text('Glucose')),
-                          ButtonSegment(value: MetricType.bodyWeight, label: Text('Weight')),
+                          ButtonSegment(
+                            value: MetricType.bloodPressure,
+                            label: OneLineText('Pressure', alignment: Alignment.center),
+                          ),
+                          ButtonSegment(
+                            value: MetricType.bloodGlucose,
+                            label: OneLineText('Glucose', alignment: Alignment.center),
+                          ),
+                          ButtonSegment(value: MetricType.bodyWeight, label: OneLineText('Weight', alignment: Alignment.center)),
                         ],
                         selected: {_metric},
                         onSelectionChanged: (s) => setState(() => _metric = s.first),
@@ -449,12 +470,12 @@ class _RangeChips extends StatelessWidget {
           children: [
             for (final d in AppConstants.rangeChoices)
               ChoiceChip(
-                label: Text('$d days', style: const TextStyle(fontSize: 15)),
+                label: OneLineText('$d days', style: const TextStyle(fontSize: 15)),
                 selected: vm.rangeDays == d,
                 onSelected: (_) => vm.selectDays(d),
               ),
             ChoiceChip(
-              label: const Text('Custom', style: TextStyle(fontSize: 15)),
+              label: const OneLineText('Custom', style: TextStyle(fontSize: 15)),
               selected: vm.rangeDays == null,
               onSelected: (_) => onCustom(),
             ),

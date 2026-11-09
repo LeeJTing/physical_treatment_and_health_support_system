@@ -5,6 +5,45 @@ import 'package:physical_treatment_and_health_support_system/core/themes/design_
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/food_picture.dart';
+
+/// Shared reminder at meal entry and review, including manual and photo-based logging.
+class DietPlanReminder extends StatelessWidget {
+  const DietPlanReminder({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(color: AppTokens.accentContainer, borderRadius: BorderRadius.circular(14)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.restaurant_menu, color: AppTokens.brandDeep, size: 22),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Follow your diet plan',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          tidy(
+            'Use its foods and portions as a guide to meet your nutrition targets and manage salt and sugar. '
+            'Log what you actually ate so your progress stays accurate.',
+          ),
+          style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.ink),
+        ),
+      ],
+    ),
+  );
+}
 
 String fmtNum(num v) =>
     v.round().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
@@ -31,7 +70,7 @@ class VerdictChip extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: fg),
           const SizedBox(width: 4),
-          Text(verdict.label, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14)),
+          Text(verdict.label, maxLines: 1, softWrap: false, style: TextStyle(color: fg, fontWeight: FontWeight.w700, fontSize: 14)),
         ],
       ),
     );
@@ -83,17 +122,22 @@ class AllowanceCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Expanded(child: Text(label, style: const TextStyle(fontSize: 16, color: AppTokens.inkMuted))),
-                Text(
-                  '${fmtNum(used)} / ${fmtNum(limit)} $unit',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                Expanded(child: OneLineText(label, style: const TextStyle(fontSize: 16, color: AppTokens.inkMuted))),
+                const SizedBox(width: 8),
+                Flexible(
+                  flex: 2,
+                  child: OneLineText(
+                    '${fmtNum(used)} / ${fmtNum(limit)} $unit',
+                    alignment: Alignment.centerRight,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 6),
             bar(used, limit),
             const SizedBox(height: 2),
-            Text(
+            OneLineText(
               left >= 0 ? '${fmtNum(left)} $unit left today' : '${fmtNum(-left)} $unit over today',
               style: TextStyle(fontSize: 13, color: left >= 0 ? AppTokens.inkMuted : AppTokens.danger),
             ),
@@ -118,7 +162,7 @@ class AllowanceCard extends StatelessWidget {
           row('Free sugars', consumed.sugarG, sugarLimit, 'g'),
           if (note != null) ...[
             const SizedBox(height: 10),
-            Text(note!, style: const TextStyle(fontSize: 13, color: AppTokens.onWarn)),
+            Text(tidy(note!), style: const TextStyle(fontSize: 13, color: AppTokens.onWarn)),
           ],
         ],
       ),
@@ -136,8 +180,8 @@ class NutrientTable extends StatelessWidget {
     Widget cell(String l, String v) => Expanded(
       child: Column(
         children: [
-          Text(v, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
-          Text(l, style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted)),
+          OneLineText(v, alignment: Alignment.center, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+          OneLineText(l, alignment: Alignment.center, style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted)),
         ],
       ),
     );
@@ -201,7 +245,7 @@ class MealCard extends StatelessWidget {
             children: [
               if (photo != null) ...[photo!, const SizedBox(width: 12)],
               Expanded(
-                child: Text(
+                child: OneLineText(
                   '${meal.mealType.label} · ${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}',
                   style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTokens.ink),
                 ),
@@ -225,25 +269,27 @@ class MealCard extends StatelessWidget {
           for (final i in meal.items) ...[
             const SizedBox(height: 6),
             Text(
-              '${i.food.foodName} · ${i.portionSizeG.round()} g · ${fmtNum(i.energyKcal)} kcal',
+              keepGroups('${i.food.foodName} · ${i.portionSizeG.round()} g · ${fmtNum(i.energyKcal)} kcal'),
               style: const TextStyle(fontSize: 15, color: AppTokens.ink),
             ),
             for (final v in i.verdicts.where((v) => v.verdict != Verdict.suitable))
               Padding(
                 padding: const EdgeInsets.only(left: 8, top: 2),
-                child: Text('• ${v.reasonText}', style: const TextStyle(fontSize: 14, color: AppTokens.ink)),
+                child: Text(tidy('• ${v.reasonText}'), style: const TextStyle(fontSize: 14, color: AppTokens.ink)),
               ),
             if (i.worstVerdict() != Verdict.suitable && onAlternatives != null)
               TextButton.icon(
                 onPressed: () => onAlternatives!(i),
                 icon: const Icon(Icons.swap_horiz),
-                label: const Text('See a safer choice'),
+                label: const OneLineText('See a safer choice'),
               ),
           ],
           const SizedBox(height: 6),
           Text(
-            'Total ${fmtNum(meal.totalEnergyKcal)} kcal · ${fmtNum(meal.totalSodiumMg)} mg sodium · '
-            '${meal.totalSugarG.toStringAsFixed(1)} g free sugars',
+            keepGroups(
+              'Total ${fmtNum(meal.totalEnergyKcal)} kcal · ${fmtNum(meal.totalSodiumMg)} mg sodium · '
+              '${meal.totalSugarG.toStringAsFixed(1)} g free sugars',
+            ),
             style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
           ),
           if (onTap != null)
@@ -281,9 +327,12 @@ class FoodTile extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
       onTap: onTap,
-      title: Text(food.foodName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
+      leading: FoodRoleAvatar(food.planRole, size: 42),
+      title: Text(tidy(food.foodName), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
       subtitle: Text(
-        '${g.round()} g · ${fmtNum(n.energyKcal)} kcal · ${fmtNum(n.sodiumMg)} mg sodium · ${n.sugarG.toStringAsFixed(1)} g sugars',
+        keepGroups(
+          '${g.round()} g · ${fmtNum(n.energyKcal)} kcal · ${fmtNum(n.sodiumMg)} mg sodium · ${n.sugarG.toStringAsFixed(1)} g sugars',
+        ),
         style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
       ),
       trailing: trailing,
@@ -294,11 +343,11 @@ class FoodTile extends StatelessWidget {
 class DietDisclaimer extends StatelessWidget {
   const DietDisclaimer({super.key});
   @override
-  Widget build(BuildContext context) => const Padding(
-    padding: EdgeInsets.symmetric(vertical: 8),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8),
     child: Text(
-      Messages.dietDisclaimer,
-      style: TextStyle(fontSize: 13, color: AppTokens.inkMuted, fontStyle: FontStyle.italic),
+      tidy(Messages.dietDisclaimer),
+      style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted, fontStyle: FontStyle.italic),
     ),
   );
 }

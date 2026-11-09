@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/user_guide_view_model/user_guide_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 
 /// One page of a picture guide: a drawn picture, a short title and one or two plain sentences.
 class GuideStep {
@@ -58,16 +59,24 @@ abstract final class Guides {
     GuideStep(
       Icons.restaurant_menu,
       'A plan that fits you',
-      'Every meal in the plan keeps the day within your energy, salt and sugar limits.',
+      'AI plans are checked against your profile and limits. You can also choose any food yourself. '
+          'Choices outside your guidance are highlighted in red, and you can still save them.',
       badge: Icons.check_circle,
     ),
-    GuideStep(Icons.lock, 'Keep a meal you like', 'Tap the lock next to a food to keep it when you ask for a new plan.'),
     GuideStep(
-      Icons.swap_horiz,
-      'Swap a food',
-      'Tap the arrows to choose another food that still fits your limits.',
+      Icons.touch_app,
+      'Tap a food',
+      'See why it was chosen, then change its portion, swap it, lock it to keep it, or remove it.',
     ),
-    GuideStep(Icons.refresh, 'Ask for a new plan', 'Tap the refresh button at the top for a fresh plan.'),
+    GuideStep(
+      Icons.add_circle,
+      'Add or remove foods',
+      'Tap "Add food" under a meal, or the cross next to a food. You will see what changes before '
+          'anything is changed. "Build my plan myself" lets you review all four meals in a draft before saving.',
+    ),
+    GuideStep(Icons.refresh, 'Ask for a new plan',
+      'Tap refresh. Suitable locked foods stay. A new week also keeps today\'s saved meals; '
+          'use "Edit today\'s plan" to change them.'),
   ]);
 
   static const tracking = UserGuide('tracking', 'Recording your health readings', [
@@ -263,13 +272,13 @@ class _UserGuideSheetState extends State<UserGuideSheet> {
               children: [
                 Expanded(
                   child: Text(
-                    widget.guide.title,
+                    tidy(widget.guide.title),
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink),
                   ),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Skip', style: TextStyle(fontSize: 16)),
+                  child: const OneLineText('Skip', alignment: Alignment.center, style: TextStyle(fontSize: 16)),
                 ),
               ],
             ),
@@ -287,19 +296,20 @@ class _UserGuideSheetState extends State<UserGuideSheet> {
                       const SizedBox(height: 12),
                       GuideIllustration(s.icon, badge: s.badge),
                       const SizedBox(height: 18),
-                      Text(
+                      OneLineText(
                         'Step ${i + 1} of ${steps.length}',
+                        alignment: Alignment.center,
                         style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted, fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        s.title,
+                        tidy(s.title),
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 21, fontWeight: FontWeight.w700, color: AppTokens.ink),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        s.text,
+                        tidy(s.text),
                         textAlign: TextAlign.center,
                         style: const TextStyle(fontSize: 17, height: 1.4, color: AppTokens.ink),
                       ),
@@ -333,7 +343,7 @@ class _UserGuideSheetState extends State<UserGuideSheet> {
                     child: OutlinedButton(
                       style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(54), shape: const StadiumBorder()),
                       onPressed: () => _go(_page - 1),
-                      child: const Text('Back', style: TextStyle(fontSize: 17)),
+                      child: const OneLineText('Back', alignment: Alignment.center, style: TextStyle(fontSize: 17)),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -347,7 +357,7 @@ class _UserGuideSheetState extends State<UserGuideSheet> {
                       shape: const StadiumBorder(),
                     ),
                     onPressed: last ? () => Navigator.of(context).pop() : () => _go(_page + 1),
-                    child: Text(last ? 'Got it' : 'Next', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                    child: OneLineText(last ? 'Got it' : 'Next', alignment: Alignment.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
                   ),
                 ),
               ],
@@ -435,13 +445,13 @@ class EmptyState extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          message,
+          tidy(message),
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.inkMuted),
         ),
         if (actionLabel != null && onAction != null) ...[
           const SizedBox(height: 8),
-          TextButton(onPressed: onAction, child: Text(actionLabel!, style: const TextStyle(fontSize: 16))),
+          TextButton(onPressed: onAction, child: OneLineText(actionLabel!, alignment: Alignment.center, style: const TextStyle(fontSize: 16))),
         ],
       ],
     ),

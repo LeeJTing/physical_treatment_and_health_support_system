@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/view/common/user_gu
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/meal_photo.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 
 /// Dietary history filtered by a date range (UC800 A5, FR700_014), each meal with its photo; a tap
 /// opens the meal's details. Delete (A5.1, FR700_015, FR700_016) after the confirmation (M6) takes
@@ -45,13 +46,13 @@ class _MealHistoryViewState extends State<MealHistoryView> {
     final yes = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        content: const Text(Messages.confirmDeleteMeal, style: TextStyle(fontSize: 17)),
+        content: Text(tidy(Messages.confirmDeleteMeal), style: const TextStyle(fontSize: 17)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const OneLineText('Cancel', alignment: Alignment.center)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppTokens.danger),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Confirm'),
+            child: const OneLineText('Confirm', alignment: Alignment.center),
           ),
         ],
       ),
@@ -76,7 +77,7 @@ class _MealHistoryViewState extends State<MealHistoryView> {
     return Scaffold(
       backgroundColor: AppTokens.screenBackground,
       appBar: AppBar(
-        title: const Text('Dietary history'),
+        title: const OneLineText('Dietary history'),
         backgroundColor: AppTokens.brandDeep,
         foregroundColor: Colors.white,
       ),
@@ -86,7 +87,7 @@ class _MealHistoryViewState extends State<MealHistoryView> {
           OutlinedButton.icon(
             onPressed: () => _range(vm),
             icon: const Icon(Icons.date_range),
-            label: Text('${f.day}/${f.month}/${f.year} - ${t.day}/${t.month}/${t.year}'),
+            label: OneLineText('${f.day}/${f.month}/${f.year} - ${t.day}/${t.month}/${t.year}'),
           ),
           const SizedBox(height: 12),
           if (vm.isLoading && vm.history.isEmpty)
@@ -109,7 +110,7 @@ class _MealHistoryViewState extends State<MealHistoryView> {
           for (final e in byDay.entries) ...[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Text(
+              child: OneLineText(
                 '${e.key} · ${fmtNum(e.value.fold<double>(0, (a, m) => a + m.totalEnergyKcal))} kcal',
                 style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppTokens.ink),
               ),

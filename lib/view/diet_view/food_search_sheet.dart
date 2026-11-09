@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 
 /// Search the food catalogue by name, in Malay or English, and pick one (UC800 A2 step 2, A3;
 /// FR700_006, FR700_050). [suggested] are shown first (the recogniser's other likely foods);
@@ -47,13 +48,19 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
   late List<FoodItem> _suggested = widget.suggested;
   String _term = '';
   bool _searching = true;
+  late bool _loadingSuggestions = widget.suggestedLater != null;
 
   @override
   void initState() {
     super.initState();
     _run('');
     widget.suggestedLater?.then((s) {
-      if (mounted) setState(() => _suggested = [..._suggested, ...s]);
+      if (mounted) {
+        setState(() {
+          _suggested = [..._suggested, ...s];
+          _loadingSuggestions = false;
+        });
+      }
     });
   }
 
@@ -80,7 +87,21 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(widget.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+        Row(
+          children: [
+            Expanded(
+              child: OneLineText(
+                widget.title,
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink),
+              ),
+            ),
+            IconButton(
+              tooltip: 'Close food search',
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(Icons.close),
+            ),
+          ],
+        ),
         const SizedBox(height: 12),
         TextField(
           autofocus: widget.suggested.isEmpty && widget.suggestedLater == null,
@@ -95,7 +116,9 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
         const SizedBox(height: 4),
         SizedBox(
           height: 4,
-          child: _searching ? const LinearProgressIndicator(color: AppTokens.brandDeepAccent) : null,
+          child: _searching || (_term.isEmpty && _loadingSuggestions)
+              ? const LinearProgressIndicator(color: AppTokens.brandDeepAccent)
+              : null,
         ),
         const SizedBox(height: 4),
         Expanded(
@@ -104,16 +127,19 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
               if (_term.isEmpty && _suggested.isNotEmpty) ...[
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 6),
-                  child: Text('Did you mean', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
+                  child: OneLineText('Did you mean', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
                 ),
                 for (final f in _suggested) FoodTile(food: f, onTap: () => Navigator.pop(context, f)),
                 const Divider(),
               ],
               for (final f in _results) FoodTile(food: f, onTap: () => Navigator.pop(context, f)),
-              if (_results.isEmpty && !_searching)
+              if (_results.isEmpty && !_searching && !(_term.isEmpty && (_loadingSuggestions || _suggested.isNotEmpty)))
                 const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Text('No food found. Try another name.', style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
+                  child: Text(
+                    'No food found. Try another\u00A0name.',
+                    style: TextStyle(fontSize: 16, color: AppTokens.inkMuted),
+                  ),
                 ),
             ],
           ),

@@ -38,13 +38,7 @@ class PlannedMeal {
     this.isLogged = false,
   });
 
-  factory PlannedMeal.of(
-    FoodItem f,
-    DateTime day,
-    MealSlot slot,
-    double grams, {
-    bool locked = false,
-  }) {
+  factory PlannedMeal.of(FoodItem f, DateTime day, MealSlot slot, double grams, {bool locked = false}) {
     final n = f.nutrientsFor(grams);
     return PlannedMeal(
       plannedMealId: newId(),
@@ -61,11 +55,40 @@ class PlannedMeal {
 
   Nutrients get nutrients => food.nutrientsFor(portionSizeG);
 
-  PlannedMeal copyWith({
-    bool? isLocked,
-    bool? isLogged,
-    String? dietPlanId,
-  }) => PlannedMeal(
+  PlannedMeal scaleTo(double grams) {
+    final n = food.nutrientsFor(grams);
+    return PlannedMeal(
+      plannedMealId: plannedMealId,
+      dietPlanId: dietPlanId,
+      food: food,
+      planDate: planDate,
+      mealSlot: mealSlot,
+      portionSizeG: grams,
+      energyKcal: n.energyKcal,
+      sodiumMg: n.sodiumMg,
+      sugarG: n.sugarG,
+      isLocked: isLocked,
+      isLogged: isLogged,
+    );
+  }
+
+  /// Repeated picks add to one portion within the same date and meal slot.
+  static List<PlannedMeal> mergeDuplicates(Iterable<PlannedMeal> meals) {
+    final rows = <String, PlannedMeal>{};
+    for (final meal in meals) {
+      final key =
+          '${meal.planDate.year}-${meal.planDate.month}-${meal.planDate.day}|${meal.mealSlot.db}|${meal.food.foodId}';
+      final previous = rows[key];
+      rows[key] = previous == null
+          ? meal
+          : previous
+                .scaleTo(previous.portionSizeG + meal.portionSizeG)
+                .copyWith(isLocked: previous.isLocked || meal.isLocked, isLogged: previous.isLogged || meal.isLogged);
+    }
+    return rows.values.toList();
+  }
+
+  PlannedMeal copyWith({bool? isLocked, bool? isLogged, String? dietPlanId}) => PlannedMeal(
     plannedMealId: plannedMealId,
     dietPlanId: dietPlanId ?? this.dietPlanId,
     food: food,
@@ -99,10 +122,7 @@ class PlannedMeal {
   /// Marks the slot as fulfilled by a logged meal of the same day and slot (FR700_037).
   bool matchLogged(MealLog m) {
     final d = m.consumedAt;
-    return m.mealType == mealSlot &&
-        d.year == planDate.year &&
-        d.month == planDate.month &&
-        d.day == planDate.day;
+    return m.mealType == mealSlot && d.year == planDate.year && d.month == planDate.month && d.day == planDate.day;
   }
 
   /// Swaps in an alternative that satisfies the same limits (FR700_035). Same energy where the
@@ -140,20 +160,19 @@ class PlannedMeal {
     'is_logged': isLogged,
   };
 
-  factory PlannedMeal.fromJson(Map<String, dynamic> j, FoodItem food) =>
-      PlannedMeal(
-        plannedMealId: j['planned_meal_id'] as String,
-        dietPlanId: j['diet_plan_id'] as String?,
-        food: food,
-        planDate: DateTime.parse(j['plan_date'] as String),
-        mealSlot: MealSlot.fromDb(j['meal_slot'] as String?),
-        portionSizeG: (j['portion_size_g'] as num).toDouble(),
-        energyKcal: (j['energy_kcal'] as num).toDouble(),
-        sodiumMg: (j['sodium_mg'] as num).toDouble(),
-        sugarG: (j['sugar_g'] as num).toDouble(),
-        isLocked: (j['is_locked'] ?? false) as bool,
-        isLogged: (j['is_logged'] ?? false) as bool,
-      );
+  factory PlannedMeal.fromJson(Map<String, dynamic> j, FoodItem food) => PlannedMeal(
+    plannedMealId: j['planned_meal_id'] as String,
+    dietPlanId: j['diet_plan_id'] as String?,
+    food: food,
+    planDate: DateTime.parse(j['plan_date'] as String),
+    mealSlot: MealSlot.fromDb(j['meal_slot'] as String?),
+    portionSizeG: (j['portion_size_g'] as num).toDouble(),
+    energyKcal: (j['energy_kcal'] as num).toDouble(),
+    sodiumMg: (j['sodium_mg'] as num).toDouble(),
+    sugarG: (j['sugar_g'] as num).toDouble(),
+    isLocked: (j['is_locked'] ?? false) as bool,
+    isLogged: (j['is_logged'] ?? false) as bool,
+  );
 }
 
 /// One generated daily or weekly diet plan (Table 4.47; FR700_029 to FR700_045).
@@ -187,12 +206,7 @@ class DietPlan {
   /// The slots planned for one day, in slot order.
   List<PlannedMeal> mealsFor(DateTime day) =>
       meals
-          .where(
-            (m) =>
-                m.planDate.year == day.year &&
-                m.planDate.month == day.month &&
-                m.planDate.day == day.day,
-          )
+          .where((m) => m.planDate.year == day.year && m.planDate.month == day.month && m.planDate.day == day.day)
           .toList()
         ..sort((a, b) => a.mealSlot.index.compareTo(b.mealSlot.index));
 
@@ -204,8 +218,7 @@ class DietPlan {
     return out;
   }
 
-  Nutrients totalsFor(DateTime day) =>
-      Nutrients.sum(mealsFor(day).map((m) => m.nutrients)).rounded();
+  Nutrients totalsFor(DateTime day) => Nutrients.sum(mealsFor(day).map((m) => m.nutrients)).rounded();
 
   /// Share of planned slots that were logged (FR700_038). A slot counts once however many foods
   /// it holds.
@@ -244,17 +257,16 @@ class DietPlan {
     'generated_at': generatedAt.toUtc().toIso8601String(),
   };
 
-  factory DietPlan.fromJson(Map<String, dynamic> j, List<PlannedMeal> meals) =>
-      DietPlan(
-        dietPlanId: j['diet_plan_id'] as String,
-        accountId: j['account_id'] as String,
-        safetyLimitId: j['safety_limit_id'] as String? ?? SafetyLimit.failSafeId,
-        planType: PlanType.fromDb(j['plan_type'] as String?),
-        startDate: DateTime.parse(j['start_date'] as String),
-        endDate: DateTime.parse(j['end_date'] as String),
-        adherenceRate: (j['adherence_rate'] as num?)?.toDouble(),
-        modelVersion: j['model_version'] as String,
-        generatedAt: DateTime.parse(j['generated_at'] as String).toLocal(),
-        meals: meals,
-      );
+  factory DietPlan.fromJson(Map<String, dynamic> j, List<PlannedMeal> meals) => DietPlan(
+    dietPlanId: j['diet_plan_id'] as String,
+    accountId: j['account_id'] as String,
+    safetyLimitId: j['safety_limit_id'] as String? ?? SafetyLimit.failSafeId,
+    planType: PlanType.fromDb(j['plan_type'] as String?),
+    startDate: DateTime.parse(j['start_date'] as String),
+    endDate: DateTime.parse(j['end_date'] as String),
+    adherenceRate: (j['adherence_rate'] as num?)?.toDouble(),
+    modelVersion: j['model_version'] as String,
+    generatedAt: DateTime.parse(j['generated_at'] as String).toLocal(),
+    meals: meals,
+  );
 }

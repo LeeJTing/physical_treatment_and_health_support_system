@@ -41,8 +41,7 @@ class DietContext {
 
   factory DietContext.from(ProfileSnapshot s) {
     final p = s.profile;
-    final failSafe =
-        s.status == ProfileStatus.error || s.status == ProfileStatus.unauthenticated;
+    final failSafe = s.status == ProfileStatus.error || s.status == ProfileStatus.unauthenticated;
     return DietContext(
       conditions: p?.conditions ?? const [],
       restrictions: p?.restrictions ?? const [],
@@ -58,8 +57,7 @@ class DietContext {
   }
 
   List<String> get conditionCodes => conditions.map((c) => c.conditionCode).toList();
-  List<String> get restrictionCodes =>
-      restrictions.map((r) => r.restrictionCode).toList();
+  List<String> get restrictionCodes => restrictions.map((r) => r.restrictionCode).toList();
   List<String> get limitationCodes => limitations.map((l) => l.limitationCode).toList();
 
   bool hasCondition(String code) => conditions.any((c) => c.conditionCode == code);
@@ -67,12 +65,8 @@ class DietContext {
 
   /// Daily limits for plans and the remaining allowance (UC900 C10): the safety limit, never above
   /// the WHO 2000 mg sodium / 25 g free sugars.
-  double get dailySodiumMg => limit.dailySodiumLimitMg
-      .toDouble()
-      .clamp(0, AppConstants.whoSodiumMg)
-      .toDouble();
-  double get dailySugarG =>
-      limit.dailySugarLimitG.clamp(0, AppConstants.whoSugarG).toDouble();
+  double get dailySodiumMg => limit.dailySodiumLimitMg.toDouble().clamp(0, AppConstants.whoSodiumMg).toDouble();
+  double get dailySugarG => limit.dailySugarLimitG.clamp(0, AppConstants.whoSugarG).toDouble();
   double get dailyEnergyKcal => limit.dailyCalorieTarget.toDouble();
 
   /// The day's limits and needs for this patient (saturated fat, protein, caffeine, calcium, fibre).
@@ -314,21 +308,43 @@ class SuitabilityService {
   }
 
   /// The verdict displayed when several apply (FR700_028).
-  Verdict mostRestrictive(List<SuitabilityVerdict> vs) => vs.fold(
-    Verdict.suitable,
-    (w, v) => v.verdict.index > w.index ? v.verdict : w,
-  );
+  Verdict mostRestrictive(List<SuitabilityVerdict> vs) =>
+      vs.fold(Verdict.suitable, (w, v) => v.verdict.index > w.index ? v.verdict : w);
 
   /// Keeps unsuitable foods out of generated plans (FR700_033), and foods that need two hands
   /// out of the plans of a patient with an arm limitation.
   bool isExcludedFromPlans(FoodItem f, DietContext ctx, [double? grams]) =>
       (f.needsTwoHands && ctx.oneHandOnly) ||
       mostRestrictive([
-        ...checkRestrictions(f, ctx),
-        ...checkPregnancy(f, ctx),
-        ...checkNutrients(f, grams ?? f.baseServingG, ctx),
-      ]) ==
-      Verdict.notSuitable;
+            ...checkRestrictions(f, ctx),
+            ...checkPregnancy(f, ctx),
+            ...checkNutrients(f, grams ?? f.baseServingG, ctx),
+          ]) ==
+          Verdict.notSuitable;
+
+  /// A food that may be suggested to the patient (in a plan, as an alternative or as a
+  /// recommendation): Suitable at [grams] for every rule (no Caution or Not Suitable verdict), and
+  /// not more than [AppConstants.itemShare] (30 %) of the day's sodium or free sugars on its own.
+  /// The AI server's planner applies the same rule (diet-planner-2.2, planner._suits).
+  bool suitsPatient(FoodItem f, DietContext ctx, [double? grams]) {
+    return planProblems(f, ctx, grams).isEmpty;
+  }
+
+  /// Why this particular portion cannot be offered in a plan, in words the patient can act on.
+  /// Caution foods need changing too: every saved or suggested planned food must be Suitable.
+  List<String> planProblems(FoodItem f, DietContext ctx, [double? grams]) {
+    final g = grams ?? f.baseServingG;
+    if (!g.isFinite || g <= 0) return const ['Choose a valid portion greater than zero.'];
+    final n = f.nutrientsFor(g);
+    return [
+      for (final verdict in assess(MealItem.of(f, grams: g), ctx))
+        if (verdict.verdict != Verdict.suitable) verdict.reasonText,
+      if (n.sodiumMg > AppConstants.itemShare * ctx.dailySodiumMg + 0.5)
+        'This portion has ${n.sodiumMg.round()} mg sodium, above the ${(AppConstants.itemShare * ctx.dailySodiumMg).round()} mg recommended for one planned food. You can reduce the portion or choose another food.',
+      if (n.sugarG > AppConstants.itemShare * ctx.dailySugarG + 0.05)
+        'This portion has ${n.sugarG.toStringAsFixed(1)} g free sugars, above the ${(AppConstants.itemShare * ctx.dailySugarG).toStringAsFixed(1)} g recommended for one planned food. You can reduce the portion or choose another food.',
+    ];
+  }
 
   /// Alternatives for a flagged item (UC900 C3; FR700_020, FR700_027): same food group, below every
   /// limit the item exceeded and breaking no restriction, ordered by the smallest difference in
@@ -340,6 +356,7 @@ class SuitabilityService {
     final scored = <(double, FoodItem)>[];
     for (final g in sameGroup) {
       if (g.foodId == item.food.foodId) continue;
+      if (!suitsPatient(g, ctx)) continue;
       final vs = [
         ...checkRestrictions(g, ctx),
         ...checkPregnancy(g, ctx),
