@@ -62,6 +62,7 @@ class _ProfileViewState extends State<ProfileView> {
 
   Future<void> _save(ProfileViewModel vm) async {
     FocusScope.of(context).unfocus();
+    final profileChanged = vm.profile != null && vm.hasUnsavedChanges;
     final ok = await vm.saveProfile();
     if (!mounted) return;
     final messenger = ScaffoldMessenger.of(context);
@@ -70,14 +71,36 @@ class _ProfileViewState extends State<ProfileView> {
       messenger.showSnackBar(
         const SnackBar(content: Text(Messages.profileSaved)),
       );
+      final updatePlans = profileChanged && await _askDietPlanUpdate();
+      if (!mounted) return;
       // Reached straight after sign-in (nothing to go back to): continue into the app.
       if (_standalone && !Navigator.of(context).canPop()) {
         Navigator.of(
           context,
         ).pushNamedAndRemoveUntil(Routes.home, (_) => false);
       }
+      if (updatePlans) {
+        await Navigator.of(context).pushNamed(Routes.refreshDietPlans);
+      }
     }
   }
+
+  Future<bool> _askDietPlanUpdate() async =>
+      await showDialog<bool>(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Update your diet plan?'),
+          content: const SingleChildScrollView(child: Text(
+            'Your profile has been saved. Update your daily plan and saved weekly plan using the new profile? '
+            'Foods may change. Your logged meal history stays. Choose Not now to keep your plans.',
+          )),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Not now')),
+            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Update plans')),
+          ],
+        ),
+      ) ?? false;
 
   /// The age does not match the age group accepted in the Terms (14 Oct):
   /// accept them again for the new age, then save.

@@ -28,7 +28,8 @@ enum _FoodAction { portion, swap, lock, remove }
 /// unavailable the patient builds the day's plan by choosing foods (E2, FR700_044).
 class DietPlanView extends StatefulWidget {
   final PlanType type;
-  const DietPlanView({super.key, required this.type});
+  final bool refreshForProfile;
+  const DietPlanView({super.key, required this.type, this.refreshForProfile = false});
 
   @override
   State<DietPlanView> createState() => _DietPlanViewState();
@@ -41,7 +42,12 @@ class _DietPlanViewState extends State<DietPlanView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<DietPlanViewModel>().load(widget.type);
+      final vm = context.read<DietPlanViewModel>();
+      if (widget.refreshForProfile) {
+        await vm.refreshAfterProfileChange();
+      } else {
+        await vm.load(widget.type);
+      }
       if (mounted) await showGuideOnce(context, Guides.dietPlan); // first visit only
     });
   }
@@ -323,162 +329,181 @@ class _DietPlanViewState extends State<DietPlanView> {
     final p = vm.plan;
     final days = p?.days() ?? const <DateTime>[];
     if (_day >= days.length) _day = 0;
-    return Scaffold(
-      backgroundColor: AppTokens.screenBackground,
-      appBar: AppBar(
-        title: Text(widget.type == PlanType.weekly ? 'Weekly Plan' : "Today's Plan"),
-        backgroundColor: AppTokens.brandDeep,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            tooltip: 'Make a new plan',
-            onPressed: vm.isLoading ? null : () => _regenerate(vm),
-            icon: const Icon(Icons.refresh),
-          ),
-          const HelpButton(guide: Guides.dietPlan),
-        ],
-        // A new plan is being made: the current one stays visible under a progress bar.
-        bottom: vm.isLoading && p != null
-            ? PreferredSize(
-                preferredSize: Size.fromHeight(vm.changeInProgress == null ? 4 : 38),
-                child: Column(
-                  children: [
-                    const LinearProgressIndicator(minHeight: 4, color: AppTokens.cta, backgroundColor: AppTokens.tint),
-                    if (vm.changeInProgress case final action?)
-                      Padding(
-                        padding: const EdgeInsets.all(6),
-                        child: Text(action, style: const TextStyle(color: Colors.white)),
+    return PopScope(
+      canPop: !widget.refreshForProfile || !vm.isLoading,
+      child: Scaffold(
+        backgroundColor: AppTokens.screenBackground,
+        appBar: AppBar(
+          title: Text(widget.type == PlanType.weekly ? 'Weekly Plan' : "Today's Plan"),
+          backgroundColor: AppTokens.brandDeep,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              tooltip: 'Make a new plan',
+              onPressed: vm.isLoading ? null : () => _regenerate(vm),
+              icon: const Icon(Icons.refresh),
+            ),
+            const HelpButton(guide: Guides.dietPlan),
+          ],
+          // A new plan is being made: the current one stays visible under a progress bar.
+          bottom: vm.isLoading && p != null
+              ? PreferredSize(
+                  preferredSize: Size.fromHeight(vm.changeInProgress == null ? 4 : 38),
+                  child: Column(
+                    children: [
+                      const LinearProgressIndicator(
+                        minHeight: 4,
+                        color: AppTokens.cta,
+                        backgroundColor: AppTokens.tint,
                       ),
-                  ],
-                ),
-              )
-            : null,
-      ),
-      body: vm.isLoading && p == null
-          ? const Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    HealthyPlatePicture(size: 132),
-                    SizedBox(height: 20),
-                    CircularProgressIndicator(color: AppTokens.brandDeepAccent),
-                    SizedBox(height: 14),
-                    Text(
-                      'Making a plan that fits your\u00A0limits...',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
-                    ),
-                    SizedBox(height: 6),
-                    Text(
-                      'This can take up to 20\u00A0seconds.',
-                      style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-              children: [
-                AllowanceCard(
-                  consumed: Nutrients(
-                    energyKcal: vm.ctx.dailyEnergyKcal - vm.remaining.energyKcal,
-                    sodiumMg: vm.ctx.dailySodiumMg - vm.remaining.sodiumMg,
-                    sugarG: vm.ctx.dailySugarG - vm.remaining.sugarG,
+                      if (vm.changeInProgress case final action?)
+                        Padding(
+                          padding: const EdgeInsets.all(6),
+                          child: Text(action, style: const TextStyle(color: Colors.white)),
+                        ),
+                    ],
                   ),
-                  energyTarget: vm.ctx.dailyEnergyKcal,
-                  sodiumLimit: vm.ctx.dailySodiumMg,
-                  sugarLimit: vm.ctx.dailySugarG,
-                ),
-                const SizedBox(height: 12),
-                // Not following the plan: what was missed or eaten differently, in red.
-                if (vm.followWarnings case final w when w.isNotEmpty) ...[
-                  WatchOutBox(
-                    w,
-                    title: 'Please follow your diet plan',
-                    action: widget.type == PlanType.daily
-                        ? Align(
-                            alignment: Alignment.centerLeft,
-                            child: TextButton.icon(
-                              style: TextButton.styleFrom(foregroundColor: AppTokens.onDanger),
-                              onPressed: vm.isLoading ? null : () => _regenerateRemaining(vm),
-                              icon: const Icon(Icons.update),
-                              label: const OneLineText('Plan the rest of today'),
-                            ),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (vm.plannerDown) ...[
-                  Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(color: AppTokens.warnContainer, borderRadius: BorderRadius.circular(16)),
-                    child: Text(
-                      tidy(Messages.plannerUnavailable),
-                      style: const TextStyle(color: AppTokens.onWarn, fontSize: 15),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52), shape: const StadiumBorder()),
-                  onPressed: vm.isLoading ? null : () => _manual(vm),
-                  icon: const Icon(Icons.edit_note),
-                  label: const OneLineText('Build my plan myself'),
-                ),
-                const SizedBox(height: 12),
-                if (p != null) ...[
-                  if (widget.type == PlanType.weekly) ...[
-                    Text(
-                      tidy('This week you followed ${(vm.adherence() * 100).round()}% of your planned meals.'),
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
-                    ),
-                    const SizedBox(height: 8),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (var i = 0; i < days.length; i++)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 6),
-                              child: ChoiceChip(
-                                label: Text(_dayLabel(days[i])),
-                                selected: _day == i,
-                                onSelected: (_) => setState(() => _day = i),
-                              ),
-                            ),
-                        ],
+                )
+              : null,
+        ),
+        body: vm.isLoading && p == null
+            ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      HealthyPlatePicture(size: 132),
+                      SizedBox(height: 20),
+                      CircularProgressIndicator(color: AppTokens.brandDeepAccent),
+                      SizedBox(height: 14),
+                      Text(
+                        'Making a plan that fits your\u00A0limits...',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  if (days.isNotEmpty) ...[
-                    if (!vm.canEditDay(days[_day])) ...[
-                      const Text("Today's meals are the same as Today's Plan. Changes made there also appear here."),
-                      TextButton.icon(
-                        onPressed: vm.isLoading ? null : () => _editToday(vm),
-                        icon: const Icon(Icons.edit_outlined),
-                        label: const Text("Edit today's plan"),
+                      SizedBox(height: 6),
+                      Text(
+                        'This can take up to 20\u00A0seconds.',
+                        style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
                       ),
                     ],
-                    _overview(vm, days[_day]),
-                    const SizedBox(height: 12),
-                    for (final slot in MealSlot.values) _slotCard(vm, p, days[_day], slot),
-                  ],
-                  if (widget.type == PlanType.daily)
-                    TextButton.icon(
-                      onPressed: vm.isLoading ? null : () => _regenerateRemaining(vm),
-                      icon: const Icon(Icons.update),
-                      label: const Text("Plan the rest of today from what I've\u00A0eaten"),
+                  ),
+                ),
+              )
+            : ListView(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+                children: [
+                  AllowanceCard(
+                    consumed: Nutrients(
+                      energyKcal: vm.ctx.dailyEnergyKcal - vm.remaining.energyKcal,
+                      sodiumMg: vm.ctx.dailySodiumMg - vm.remaining.sodiumMg,
+                      sugarG: vm.ctx.dailySugarG - vm.remaining.sugarG,
                     ),
-                  Text('Planned by ${p.modelVersion}', style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted)),
+                    energyTarget: vm.ctx.dailyEnergyKcal,
+                    sodiumLimit: vm.ctx.dailySodiumMg,
+                    sugarLimit: vm.ctx.dailySugarG,
+                  ),
+                  const SizedBox(height: 12),
+                  // Not following the plan: what was missed or eaten differently, in red.
+                  if (vm.followWarnings case final w when w.isNotEmpty) ...[
+                    WatchOutBox(
+                      w,
+                      title: 'Please follow your diet plan',
+                      action: widget.type == PlanType.daily
+                          ? Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                style: TextButton.styleFrom(foregroundColor: AppTokens.onDanger),
+                                onPressed: vm.isLoading ? null : () => _regenerateRemaining(vm),
+                                icon: const Icon(Icons.update),
+                                label: const OneLineText('Plan the rest of today'),
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (vm.plannerDown) ...[
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppTokens.warnContainer,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Text(
+                        tidy(Messages.plannerUnavailable),
+                        style: const TextStyle(color: AppTokens.onWarn, fontSize: 15),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(52),
+                      shape: const StadiumBorder(),
+                    ),
+                    onPressed: vm.isLoading ? null : () => _manual(vm),
+                    icon: const Icon(Icons.edit_note),
+                    label: const OneLineText('Build my plan myself'),
+                  ),
+                  const SizedBox(height: 12),
+                  if (p != null) ...[
+                    if (widget.type == PlanType.weekly) ...[
+                      Text(
+                        tidy('This week you followed ${(vm.adherence() * 100).round()}% of your planned meals.'),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                      ),
+                      const SizedBox(height: 8),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (var i = 0; i < days.length; i++)
+                              Padding(
+                                padding: const EdgeInsets.only(right: 6),
+                                child: ChoiceChip(
+                                  avatar: vm.nutritionWarnings(days[i]).isEmpty
+                                      ? null
+                                      : const Icon(Icons.warning_amber_rounded, color: AppTokens.danger, size: 18),
+                                  label: Text(_dayLabel(days[i])),
+                                  selected: _day == i,
+                                  onSelected: (_) => setState(() => _day = i),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    if (days.isNotEmpty) ...[
+                      if (!vm.canEditDay(days[_day])) ...[
+                        const Text("Today's meals are the same as Today's Plan. Changes made there also appear here."),
+                        TextButton.icon(
+                          onPressed: vm.isLoading ? null : () => _editToday(vm),
+                          icon: const Icon(Icons.edit_outlined),
+                          label: const Text("Edit today's plan"),
+                        ),
+                      ],
+                      _overview(vm, days[_day]),
+                      const SizedBox(height: 12),
+                      for (final slot in MealSlot.values) _slotCard(vm, p, days[_day], slot),
+                    ],
+                    if (widget.type == PlanType.daily)
+                      TextButton.icon(
+                        onPressed: vm.isLoading ? null : () => _regenerateRemaining(vm),
+                        icon: const Icon(Icons.update),
+                        label: const Text("Plan the rest of today from what I've\u00A0eaten"),
+                      ),
+                    Text(
+                      'Planned by ${p.modelVersion}',
+                      style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted),
+                    ),
+                  ],
+                  const DietDisclaimer(),
                 ],
-                const DietDisclaimer(),
-              ],
-            ),
+              ),
+      ),
     );
   }
 
@@ -500,6 +525,11 @@ class _DietPlanViewState extends State<DietPlanView> {
       sodiumLimit: vm.ctx.dailySodiumMg,
       sugarLimit: vm.ctx.dailySugarG,
       children: [
+        if (vm.nutritionWarnings(day) case final alerts when alerts.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: WatchOutBox(alerts, title: 'This day may not provide enough nutrition'),
+          ),
         const Padding(
           padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
           child: Text(

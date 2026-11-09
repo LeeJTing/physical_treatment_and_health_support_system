@@ -262,6 +262,54 @@ class DietPlanViewModel extends BaseViewModel {
     setLoading(false);
   }
 
+  /// Called only after the patient agrees to update plans following a saved profile change.
+  /// Refresh today first so a stored week incorporates today's newly generated choices.
+  Future<void> refreshAfterProfileChange() async {
+    if (isLoading) return;
+    setLoading(true);
+    try {
+      await _context();
+      final id = _accountId;
+      if (id == null) return;
+      final saved = await Future.wait([
+        _mealRepo.planFor(id, PlanType.daily, _today),
+        _mealRepo.planFor(id, PlanType.weekly, _today),
+      ]);
+      if (saved.any((r) => r is Failure)) {
+        _message = Messages.dbUnavailable;
+        return;
+      }
+      final daily = saved[0].dataOrNull;
+      final week = saved[1].dataOrNull;
+      type = PlanType.daily;
+      plan = daily;
+      changeInProgress = "Updating today's plan...";
+      notifyListeners();
+      await _generate(seed: _now().millisecondsSinceEpoch);
+      final refreshed = plan;
+      if (refreshed == null || refreshed.dietPlanId == daily?.dietPlanId) return;
+      if (week != null) {
+        type = PlanType.weekly;
+        plan = week;
+        changeInProgress = 'Updating your weekly plan...';
+        notifyListeners();
+        await _generate(seed: _now().millisecondsSinceEpoch + 1);
+        final weekUpdated = plan?.dietPlanId != week.dietPlanId;
+        type = PlanType.daily;
+        plan = refreshed;
+        await _markLogged();
+        _message = weekUpdated
+            ? 'Your daily and weekly plans now use your updated profile. Review any red nutrition alerts.'
+            : "Today's plan was updated, but your weekly plan could not be updated. Its saved foods were kept. Please try again.";
+      } else {
+        _message = "Today's plan now uses your updated profile. Review any red nutrition alerts.";
+      }
+    } finally {
+      changeInProgress = null;
+      setLoading(false);
+    }
+  }
+
   /// Regenerate on request (FR700_040, A6.1): unlocked meals change, locked ones stay.
   Future<void> regenerate() async {
     setLoading(true);
@@ -606,6 +654,25 @@ class DietPlanViewModel extends BaseViewModel {
   List<PlanReason> summaryFor(DateTime day) {
     final p = plan;
     return p == null ? const [] : _planner.summaryFor(p, day, ctx, eatenOutside: _eatenOutside);
+  }
+
+  List<PlanNote> nutritionWarnings(DateTime day) => plan == null ? const [] : _nutritionWarnings(plan!, day);
+
+  List<PlanNote> manualNutritionWarnings(List<PlannedMeal> meals) => _nutritionWarnings(_manualDraft(meals), _today);
+
+  List<PlanNote> _nutritionWarnings(DietPlan p, DateTime day) {
+    final outside = _sameDay(day, _today)
+        ? logged.where((m) => _sameDay(m.consumedAt, day) && !p.mealsFor(day).any((row) => row.mealSlot == m.mealType))
+        : const <MealLog>[];
+    return _planner.nutritionWarnings(
+      p,
+      day,
+      ctx,
+      eatenOutside: Nutrients.sum(outside.map((m) => m.totals)),
+      outsideExtras: outside
+          .expand((m) => m.items)
+          .fold(FoodExtras.zero, (sum, item) => sum + item.food.extrasFor(item.portionSizeG)),
+    );
   }
 
   /// A slot's usual share of the day's energy target (breakfast 25 %, lunch 35 %, dinner 30 %,

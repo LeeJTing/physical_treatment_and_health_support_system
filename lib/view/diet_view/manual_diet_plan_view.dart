@@ -259,6 +259,11 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
                     sodiumLimit: vm.ctx.dailySodiumMg,
                     sugarLimit: vm.ctx.dailySugarG,
                     children: [
+                      if (vm.manualNutritionWarnings(_meals) case final alerts when alerts.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+                          child: WatchOutBox(alerts, title: 'This day may not provide enough nutrition'),
+                        ),
                       const Padding(
                         padding: EdgeInsets.fromLTRB(16, 0, 16, 12),
                         child: Text(

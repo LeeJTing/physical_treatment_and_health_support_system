@@ -125,6 +125,7 @@ void main() {
     tester,
   ) async {
     await open(tester, scale: 1.3);
+    expect(find.textContaining('This day may not provide'), findsOneWidget);
     await capture(tester, 'manual-overview-130');
     await resizeBreakfast(tester);
     expect(find.textContaining('125 g ·'), findsOneWidget);
@@ -277,6 +278,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.scrollUntilVisible(find.byType(PlanTotalsCard), 200, scrollable: find.byType(Scrollable).first);
       expect(find.byType(PlanTotalsCard), findsOneWidget);
+      expect(find.textContaining('This day may not provide'), findsOneWidget);
       await tester.scrollUntilVisible(find.text('Review this choice'), 200, scrollable: find.byType(Scrollable).first);
       await Scrollable.ensureVisible(tester.element(find.text('Review this choice')), alignment: 0.3);
       await tester.pumpAndSettle();

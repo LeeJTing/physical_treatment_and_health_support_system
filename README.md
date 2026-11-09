@@ -45,6 +45,9 @@ The app talks to two back ends:
     conflict with the profile or limits. Those foods stay highlighted in red with the reason,
     including foods contributing to an excessive daily total; the warning does not block saving.
     Search includes all catalogue foods, and warnings persist when saved plans are reopened.
+  - A red alert stays visible when the day's energy is below 75% of its target or a profile-specific
+    protein, calcium or fibre need is unmet. Weekly day chips also mark shortfalls. These alerts
+    update with food changes and count today's logged foods outside planned slots; saving remains allowed.
   - Today's meals in the weekly view follow Today's Plan, including portions, locks and empty slots.
     Weekly regeneration keeps them. Use **Edit today's plan** to change them; the other days stay.
   - **Build my plan myself** opens a draft with all four meals. Review existing picks, add several
@@ -52,6 +55,9 @@ The app talks to two back ends:
     Close asks before discarding changes, and a failed save keeps the draft for another try.
     The builder shares the meal headers, food icons, nutrient rows and totals cards used by the
     Today/Weekly screens. Profile choices no longer include **Other condition (not listed)**.
+  - After an existing profile is changed and saved, the patient chooses **Not now** or **Update plans**.
+    Only confirmation regenerates today and then any saved week using the new profile. Failed updates
+    retain saved choices, and a weekly failure after a successful daily update is reported separately.
   - The patient can add, remove or swap a food, or change a portion. Before saving, the app shows what
     the change does to the day. Anything that would go over a limit or is not good for the patient's
     conditions is shown in red.
@@ -134,7 +140,7 @@ How to start the server and the tunnel: the `fyp-fastapi` README, section "Phone
 
 ```
 flutter analyze                    # must report no issues
-flutter test                       # 593 tests in 49 files (9 Nov 2026)
+flutter test                       # 606 tests in 50 files (9 Nov 2026)
 python tool/check_architecture.py  # the layer rules above
 dart run tool/check_ai_server.dart http://192.168.0.13:8000 [--photo meal.jpg] [--token <Supabase token>]
 ```

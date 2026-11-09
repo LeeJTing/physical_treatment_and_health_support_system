@@ -257,6 +257,33 @@ class DietPlannerService {
     ];
   }
 
+  /// Visible shortfall alerts use the existing 75% energy threshold and profile nutrient needs.
+  List<PlanNote> nutritionWarnings(
+    DietPlan p,
+    DateTime day,
+    DietContext ctx, {
+    Nutrients eatenOutside = Nutrients.zero,
+    FoodExtras outsideExtras = FoodExtras.zero,
+  }) {
+    final t = p.totalsFor(day) + eatenOutside;
+    final x = extrasFor(p, day) + outsideExtras;
+    final needs = ctx.targets.needs;
+    return [
+      if (t.energyKcal < ctx.dailyEnergyKcal * 0.75)
+        PlanNote(
+          'Too little energy for this day: ${_n(t.energyKcal)} of your ${_n(ctx.dailyEnergyKcal)} kcal target '
+          '(below 75%). Add food or increase a portion. You can still save your choices.',
+          warn: true,
+        ),
+      if (needs['protein_g_min'] case final n? when t.proteinG < n)
+        PlanNote('Too little protein: ${_n(t.proteinG)} of at least ${_n(n)} g for this day.', warn: true),
+      if (needs['calcium_mg_min'] case final n? when x.calciumMg < n)
+        PlanNote('Too little calcium: ${_n(x.calciumMg)} of at least ${_n(n)} mg for this day.', warn: true),
+      if (needs['fibre_g_min'] case final n? when x.fibreG < n)
+        PlanNote('Too little fibre: ${x.fibreG.toStringAsFixed(1)} of at least ${_n(n)} g for this day.', warn: true),
+    ];
+  }
+
   /// Alternatives for a planned meal that keep its day within the same limits (FR700_035), best
   /// fitting first: same plan role and slot, suitable, and the day's totals stay under the limits.
   Future<List<FoodItem>> alternativesFor(PlannedMeal m, DietPlan p, DietContext ctx) async {

@@ -34,6 +34,10 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_
 import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/server_settings_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/server_settings_view_model/server_settings_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_plan_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 
 /// Root widget: theme, locales and routes. Each module registers its View
 /// here as it is built.
@@ -115,6 +119,10 @@ class MainApp extends StatelessWidget {
               const StartupView(), // uses the app-wide AuthViewModel
           Routes.home: (_) => const MainShell(),
           Routes.homeDiet: (_) => const MainShell(initialTab: MainShell.dietTab),
+          Routes.refreshDietPlans: (_) => ChangeNotifierProvider(
+            create: (c) => DietPlanViewModel(c.read(), c.read(), c.read(), c.read(), c.read(), null, c.read<LocalNotificationService>()),
+            child: const DietPlanView(type: PlanType.daily, refreshForProfile: true),
+          ),
           Routes.loginScreen: (_) => const LoginView(),
           Routes.register: (_) => const RegisterView(),
           Routes.verifyCode: (_) => const VerifyCodeView(),

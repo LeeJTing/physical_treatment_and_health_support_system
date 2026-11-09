@@ -12,6 +12,8 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
+import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/profile_view.dart';
@@ -22,8 +24,9 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode
 Widget _stub(String name) => Scaffold(body: Text('route:$name'));
 
 class _Setup {
+  _Setup({FakeProfileRepository? profileRepo}) : profiles = profileRepo ?? FakeProfileRepository();
   final auth = FakeAuthRepository();
-  final profiles = FakeProfileRepository();
+  final FakeProfileRepository profiles;
   final testMode = TestModeViewModel();
   late final vm = ProfileViewModel(
     profiles,
@@ -69,6 +72,7 @@ class _Setup {
           Routes.loginScreen: (_) => _stub('login'),
           Routes.changePassword: (_) => _stub('change-password'),
           Routes.terms: (_) => _stub('terms'),
+          Routes.refreshDietPlans: (_) => _stub('refresh-diet-plans'),
         },
         // Only the profile route: the default would stack '/' under it, so it could pop.
         initialRoute: route ?? '/profile-tab',
@@ -83,6 +87,13 @@ class _Setup {
     await tester.pumpWidget(app);
     await tester.pump();
   }
+}
+
+class _FailProfileSave extends FakeProfileRepository {
+  bool refuse = false;
+  @override
+  Future<Result<void>> saveProfile(HealthProfile p, SafetyLimit limit) async =>
+      refuse ? const Failure('offline') : super.saveProfile(p, limit);
 }
 
 Future<void> _settle(WidgetTester tester) async {
@@ -240,6 +251,57 @@ void main() {
     await tester.tap(find.text('Discard'));
     await _settle(tester);
     expect(s.vm.isEditing, isFalse);
+    expect(s.vm.profile!.age, 40);
+  });
+
+  for (final update in [false, true]) {
+    testWidgets('successful profile change asks before updating plans: ${update ? 'Update plans' : 'Not now'}', (tester) async {
+      final s = _Setup();
+      await tester.runAsync(() => s.prepare(age: 40));
+      await s.pump(tester);
+      tester.view.physicalSize = const Size(1080, 2400);
+      await tester.pump();
+      await tester.tap(find.text('Edit'));
+      await tester.pump();
+      await tester.enterText(find.byType(TextFormField).at(0), '41');
+      await tester.tap(find.text('Save'));
+      await _settle(tester);
+      expect(s.vm.profile!.age, 41);
+      expect(find.text('Update your diet plan?'), findsOneWidget);
+      expect(find.text('route:refresh-diet-plans'), findsNothing);
+      await tester.tap(find.text(update ? 'Update plans' : 'Not now'));
+      await _settle(tester);
+      expect(find.text('route:refresh-diet-plans'), update ? findsOneWidget : findsNothing);
+      expect(find.text('Update your diet plan?'), findsNothing);
+    });
+  }
+
+  testWidgets('an unchanged profile save does not ask to regenerate plans', (tester) async {
+    final s = _Setup();
+    await tester.runAsync(() => s.prepare(age: 40));
+    await s.pump(tester);
+    await tester.tap(find.text('Edit'));
+    await tester.pump();
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Update your diet plan?'), findsNothing);
+    expect(s.vm.isEditing, isFalse);
+  });
+
+  testWidgets('a failed profile save keeps the draft and never asks to update plans', (tester) async {
+    final profiles = _FailProfileSave();
+    final s = _Setup(profileRepo: profiles);
+    await tester.runAsync(() => s.prepare(age: 40));
+    await s.pump(tester);
+    profiles.refuse = true;
+    await tester.tap(find.text('Edit'));
+    await tester.pump();
+    await tester.enterText(find.byType(TextFormField).at(0), '41');
+    await tester.tap(find.text('Save'));
+    await _settle(tester);
+    expect(find.text('Update your diet plan?'), findsNothing);
+    expect(find.text(Messages.profileSaveFailed), findsOneWidget);
+    expect(s.vm.isEditing, isTrue);
     expect(s.vm.profile!.age, 40);
   });
 
