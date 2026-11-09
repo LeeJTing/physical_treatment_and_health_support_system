@@ -8,6 +8,43 @@ import 'package:physical_treatment_and_health_support_system/model/entity/meal_l
 import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/food_picture.dart';
 
+/// Shared reminder at meal entry and review, including manual and photo-based logging.
+class DietPlanReminder extends StatelessWidget {
+  const DietPlanReminder({super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    margin: const EdgeInsets.only(bottom: 12),
+    padding: const EdgeInsets.all(14),
+    decoration: BoxDecoration(color: AppTokens.accentContainer, borderRadius: BorderRadius.circular(14)),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Row(
+          children: [
+            Icon(Icons.restaurant_menu, color: AppTokens.brandDeep, size: 22),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Follow your diet plan',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Text(
+          tidy(
+            'Use its foods and portions as a guide to meet your nutrition targets and manage salt and sugar. '
+            'Log what you actually ate so your progress stays accurate.',
+          ),
+          style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.ink),
+        ),
+      ],
+    ),
+  );
+}
+
 String fmtNum(num v) =>
     v.round().toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ',');
 

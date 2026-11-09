@@ -52,25 +52,28 @@ class _DietViewState extends State<DietView> {
     final choice = await showModalBottomSheet<String>(
       context: context,
       builder: (ctx) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_camera, size: 30),
-              title: const OneLineText('Take a photo', style: TextStyle(fontSize: 18)),
-              onTap: () => Navigator.pop(ctx, 'camera'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.photo_library, size: 30),
-              title: const OneLineText('Choose from gallery', style: TextStyle(fontSize: 18)),
-              onTap: () => Navigator.pop(ctx, 'gallery'),
-            ),
-            ListTile(
-              leading: const Icon(Icons.edit_note, size: 30),
-              title: const OneLineText('Enter the food myself', style: TextStyle(fontSize: 18)),
-              onTap: () => Navigator.pop(ctx, 'manual'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(padding: EdgeInsets.fromLTRB(16, 16, 16, 0), child: DietPlanReminder()),
+              ListTile(
+                leading: const Icon(Icons.photo_camera, size: 30),
+                title: const OneLineText('Take a photo', style: TextStyle(fontSize: 18)),
+                onTap: () => Navigator.pop(ctx, 'camera'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library, size: 30),
+                title: const OneLineText('Choose from gallery', style: TextStyle(fontSize: 18)),
+                onTap: () => Navigator.pop(ctx, 'gallery'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.edit_note, size: 30),
+                title: const OneLineText('Enter the food myself', style: TextStyle(fontSize: 18)),
+                onTap: () => Navigator.pop(ctx, 'manual'),
+              ),
+            ],
+          ),
         ),
       ),
     );

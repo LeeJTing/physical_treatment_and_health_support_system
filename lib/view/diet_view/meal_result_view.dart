@@ -135,6 +135,7 @@ class _MealResultViewState extends State<MealResultView> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
+        const DietPlanReminder(),
         if (vm.draftImage != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(20),

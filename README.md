@@ -29,6 +29,8 @@ The app talks to two back ends:
   found shows its confidence, its nutrients for the portion and a verdict for the patient's conditions
   (Suitable, Limit, Not Suitable) with the reason. Below 60 % confidence, the app asks the patient to
   search for the food instead.
+- **Meal-entry reminder.** Log Meal and the meal review screen remind the patient to follow the
+  plan's foods and portions towards their nutrition targets and to record what they actually ate.
 - **Set the weight of each food.** Use the − and + buttons (one step is a quarter of a serving), or
   tap the weight and type it in grams. The weight must be **from 10 g to 1000 g**
   (`AppConstants.portionMinG` / `portionMaxG`). A weight outside that range, or text that is not a
