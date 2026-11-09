@@ -1,4 +1,5 @@
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
@@ -45,6 +46,7 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// The plan in force.
   DietPlan? plan;
+  String? changeInProgress;
 
   /// Meals logged in the plan's period (for adherence and today's allowance).
   List<MealLog> logged = const [];
@@ -54,6 +56,7 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// Planner unavailable (E2): the patient can build a plan by hand (FR700_044).
   bool plannerDown = false;
+  bool needsDailyReplan = false;
 
   /// Meal recommendations for the next meal (FR700_021).
   List<FoodItem> recommendations = const [];
@@ -70,6 +73,46 @@ class DietPlanViewModel extends BaseViewModel {
   DateTime get _today {
     final n = _now();
     return DateTime(n.year, n.month, n.day);
+  }
+
+  /// Today's foods are edited in the daily plan, also when viewed as part of a week.
+  bool canEditDay(DateTime day) => type == PlanType.daily || !_sameDay(day, _today);
+
+  DietPlan _dailyPart(DietPlan weekly) => DietPlan(
+    dietPlanId: newId(),
+    accountId: weekly.accountId,
+    safetyLimitId: weekly.safetyLimitId,
+    planType: PlanType.daily,
+    startDate: _today,
+    endDate: _today,
+    modelVersion: weekly.modelVersion,
+    generatedAt: _now(),
+    meals: weekly.mealsFor(_today).map((m) => m.carriedOver()).toList(),
+  );
+
+  /// Copy today's daily foods without sharing planned-meal ids between the two stored plans.
+  DietPlan _withToday(DietPlan weekly, DietPlan daily) {
+    final original = weekly.mealsFor(_today);
+    final used = <String>{};
+    final today = <PlannedMeal>[];
+    for (final m in PlannedMeal.mergeDuplicates(daily.mealsFor(_today))) {
+      final same = original
+          .where(
+            (w) =>
+                !used.contains(w.plannedMealId) &&
+                w.mealSlot == m.mealSlot &&
+                w.food.foodId == m.food.foodId &&
+                w.portionSizeG == m.portionSizeG,
+          )
+          .firstOrNull;
+      if (same != null) used.add(same.plannedMealId);
+      today.add(
+        (same ?? m.carriedOver()).copyWith(dietPlanId: weekly.dietPlanId, isLocked: m.isLocked, isLogged: m.isLogged),
+      );
+    }
+    return weekly.copyWith(
+      meals: PlannedMeal.mergeDuplicates([...weekly.meals.where((m) => !_sameDay(m.planDate, _today)), ...today]),
+    );
   }
 
   Future<void> _context() async {
@@ -92,7 +135,41 @@ class DietPlanViewModel extends BaseViewModel {
       await _context();
       final id = _accountId;
       if (id == null) return;
-      plan = (await _mealRepo.planFor(id, t, _today)).dataOrNull;
+      final stored = await _mealRepo.planFor(id, t, _today);
+      if (stored is Failure) {
+        _message = Messages.dbUnavailable;
+        plan = null;
+        return;
+      }
+      plan = stored.dataOrNull;
+      if (plan != null) plan = plan!.copyWith(meals: PlannedMeal.mergeDuplicates(plan!.meals));
+      if (t == PlanType.daily && plan == null) {
+        final week = await _mealRepo.planFor(id, PlanType.weekly, _today);
+        if (week is Failure) {
+          _message = Messages.dbUnavailable;
+          return;
+        }
+        if (week.dataOrNull case final weekly?) {
+          final daily = _dailyPart(weekly);
+          if (await _mealRepo.savePlan(daily) is Success) {
+            plan = daily;
+          } else {
+            _message = Messages.dbUnavailable;
+            return;
+          }
+        }
+      }
+      if (t == PlanType.weekly && plan != null) {
+        final daily = await _mealRepo.planFor(id, PlanType.daily, _today);
+        if (daily is Failure) {
+          _message = Messages.dbUnavailable;
+          return;
+        }
+        if (daily.dataOrNull case final saved?) plan = _withToday(plan!, saved);
+      }
+      if (plan != null && _planner.validate(plan!, ctx).isNotEmpty) {
+        _message = 'Some saved choices do not fit your profile or daily limits. Review the foods highlighted in red.';
+      }
       if (plan == null) {
         await _generate();
       } else {
@@ -105,17 +182,32 @@ class DietPlanViewModel extends BaseViewModel {
 
   Future<List<MealLog>> _history() async {
     final id = _accountId!;
-    return (await _mealRepo.findMeals(id, _today.subtract(const Duration(days: 30)), _now()))
-            .dataOrNull ??
+    return (await _mealRepo.findMeals(id, _today.subtract(const Duration(days: 30)), _now())).dataOrNull ??
         const <MealLog>[];
   }
 
   /// Daily: breakfast, lunch, dinner and a snack (FR700_029). Weekly: seven days (FR700_030).
   Future<void> _generate({int seed = 0}) async {
+    needsDailyReplan = false;
     final id = _accountId;
     if (id == null) return;
     final history = await _history();
     final todays = history.where((m) => _sameDay(m.consumedAt, _today)).toList();
+    DietPlan? daily;
+    if (type == PlanType.weekly) {
+      final saved = await _mealRepo.planFor(id, PlanType.daily, _today);
+      if (saved is Failure) {
+        _message = Messages.dbUnavailable;
+        return;
+      }
+      daily = saved.dataOrNull;
+      if (daily != null && _generationProblems(daily, todays).isNotEmpty) {
+        needsDailyReplan = true;
+        _message =
+            "Today's saved plan does not meet all nutrition targets and limits. Replan Today's Plan first, then make a new week. Your saved plans were kept.";
+        return;
+      }
+    }
     final res = await _planner.generate(
       accountId: id,
       ctx: ctx,
@@ -125,8 +217,12 @@ class DietPlanViewModel extends BaseViewModel {
       loggedSlots: todays.map((m) => m.mealType).toSet(),
       // Locked foods stay, and so do the slots already eaten today (they are marked logged).
       locked: [
+        // Keep all of today's choices, including hand-picked foods; restore their real locks below.
+        ...?daily?.mealsFor(_today).map((m) => m.lock()),
         ...?plan?.meals.where(
-          (m) => m.isLocked || (_sameDay(m.planDate, _today) && todays.any((l) => l.mealType == m.mealSlot)),
+          (m) =>
+              !(daily != null && _sameDay(m.planDate, _today)) &&
+              (m.isLocked || (_sameDay(m.planDate, _today) && todays.any((l) => l.mealType == m.mealSlot))),
         ),
       ],
       history: history,
@@ -134,15 +230,39 @@ class DietPlanViewModel extends BaseViewModel {
     );
     if (res case Success(:final data)) {
       plannerDown = false;
-      plan = data;
-      await _mealRepo.savePlan(data); // FR700_041, with its model version (FR700_043)
+      final next = daily == null ? data : _withToday(data, daily);
+      if (_generationProblems(next, todays).isNotEmpty) {
+        _message = 'This plan does not meet all nutrition targets and limits. No new plan was saved.';
+        return;
+      }
+      if (await _mealRepo.savePlan(next) is Failure) {
+        _message = Messages.dbUnavailable;
+        return;
+      }
+      plan = next;
       await _markLogged();
     } else {
-      plannerDown = true; // E2
-      _message = Messages.plannerUnavailable; // M5
+      plannerDown = switch (res) {
+        Failure(:final code) => code != 'plan_breaches_limits',
+        _ => true,
+      };
+      _message = switch (res) {
+        Failure(:final message) => message,
+        _ => Messages.plannerUnavailable,
+      };
       await _markLogged();
     }
   }
+
+  List<String> _generationProblems(DietPlan p, List<MealLog> todays) => _planner.generationProblems(
+    p,
+    ctx,
+    consumedToday: Nutrients.sum(todays.map((m) => m.totals)),
+    consumedExtras: todays
+        .expand((m) => m.items)
+        .fold(FoodExtras.zero, (sum, item) => sum + item.food.extrasFor(item.portionSizeG)),
+    loggedSlots: todays.map((m) => m.mealType).toSet(),
+  );
 
   Future<void> generateDaily() async {
     type = PlanType.daily;
@@ -160,6 +280,54 @@ class DietPlanViewModel extends BaseViewModel {
     await _context();
     await _generate();
     setLoading(false);
+  }
+
+  /// Called only after the patient agrees to update plans following a saved profile change.
+  /// Refresh today first so a stored week incorporates today's newly generated choices.
+  Future<void> refreshAfterProfileChange() async {
+    if (isLoading) return;
+    setLoading(true);
+    try {
+      await _context();
+      final id = _accountId;
+      if (id == null) return;
+      final saved = await Future.wait([
+        _mealRepo.planFor(id, PlanType.daily, _today),
+        _mealRepo.planFor(id, PlanType.weekly, _today),
+      ]);
+      if (saved.any((r) => r is Failure)) {
+        _message = Messages.dbUnavailable;
+        return;
+      }
+      final daily = saved[0].dataOrNull;
+      final week = saved[1].dataOrNull;
+      type = PlanType.daily;
+      plan = daily;
+      changeInProgress = "Updating today's plan...";
+      notifyListeners();
+      await _generate(seed: _now().millisecondsSinceEpoch);
+      final refreshed = plan;
+      if (refreshed == null || refreshed.dietPlanId == daily?.dietPlanId) return;
+      if (week != null) {
+        type = PlanType.weekly;
+        plan = week;
+        changeInProgress = 'Updating your weekly plan...';
+        notifyListeners();
+        await _generate(seed: _now().millisecondsSinceEpoch + 1);
+        final weekUpdated = plan?.dietPlanId != week.dietPlanId;
+        type = PlanType.daily;
+        plan = refreshed;
+        await _markLogged();
+        _message = weekUpdated
+            ? 'Your daily and weekly plans now use your updated profile. Review any red nutrition alerts.'
+            : "Today's plan was updated, but your weekly plan could not be updated. Its saved foods were kept. Please try again.";
+      } else {
+        _message = "Today's plan now uses your updated profile. Review any red nutrition alerts.";
+      }
+    } finally {
+      changeInProgress = null;
+      setLoading(false);
+    }
   }
 
   /// Regenerate on request (FR700_040, A6.1): unlocked meals change, locked ones stay.
@@ -246,7 +414,9 @@ class DietPlanViewModel extends BaseViewModel {
       final s = slot.label.toLowerCase();
       final names = planned.map((m) => m.food.foodName).join(', ');
       if (eaten.isEmpty && now.isAfter(deadline)) {
-        out.add(PlanNote('You have not logged your $s. Your plan had $names. If you ate something else, log it.', warn: true));
+        out.add(
+          PlanNote('You have not logged your $s. Your plan had $names. If you ate something else, log it.', warn: true),
+        );
       } else if (eaten.isNotEmpty && !DietPlannerService.follows(planned, eaten)) {
         out.add(
           PlanNote(
@@ -277,18 +447,26 @@ class DietPlanViewModel extends BaseViewModel {
   /// Protects a slot from regeneration (FR700_036). UI first: the lock changes at once and is
   /// undone if the plan could not be saved.
   Future<void> lockMeal(String plannedMealId, {bool on = true}) async {
+    if (isLoading) return;
     final p = plan;
     if (p == null) return;
-    final locked = p.copyWith(
-      meals: [for (final m in p.meals) m.plannedMealId == plannedMealId ? m.lock(on) : m],
-    );
-    plan = locked;
-    notifyListeners();
-    final res = await _mealRepo.updatePlan(locked);
-    if (res is Failure && identical(plan, locked)) {
-      plan = p;
-      _message = Messages.dbUnavailable;
+    final meal = p.meals.where((m) => m.plannedMealId == plannedMealId).firstOrNull;
+    if (meal == null || !canEditDay(meal.planDate)) return;
+    final locked = p.copyWith(meals: [for (final m in p.meals) m.plannedMealId == plannedMealId ? m.lock(on) : m]);
+    changeInProgress = on ? 'Locking food...' : 'Unlocking food...';
+    setLoading(true);
+    try {
+      plan = locked;
       notifyListeners();
+      final res = await _mealRepo.updatePlan(locked);
+      if (res is Failure && identical(plan, locked)) {
+        plan = p;
+        _message = Messages.dbUnavailable;
+        notifyListeners();
+      }
+    } finally {
+      changeInProgress = null;
+      setLoading(false);
     }
   }
 
@@ -327,7 +505,7 @@ class DietPlanViewModel extends BaseViewModel {
   }) => _planner.previewChange(
     kind: kind,
     before: plan!,
-    after: after,
+    after: after.copyWith(meals: PlannedMeal.mergeDuplicates(after.meals)),
     day: day,
     slot: slot,
     ctx: ctx,
@@ -340,7 +518,7 @@ class DietPlanViewModel extends BaseViewModel {
   /// Adding [f] to a slot of [day], [grams] defaulting to one serving, worked out before it is made.
   PlanChange? previewAdd(DateTime day, MealSlot slot, FoodItem f, {double? grams}) {
     final p = plan;
-    if (p == null) return null;
+    if (p == null || !canEditDay(day)) return null;
     final g = (grams ?? f.baseServingG).roundToDouble();
     final s = slot.label.toLowerCase();
     final added = PlannedMeal.of(f, day, slot, g).copyWith(dietPlanId: p.dietPlanId);
@@ -351,18 +529,27 @@ class DietPlanViewModel extends BaseViewModel {
       slot,
       'Add ${f.foodName} to your $s?',
       '${f.foodName} added to your $s.',
-      notes: ['${f.foodName}, ${g.round()} g, will be added to your $s.'],
+      notes: [
+        '${f.foodName}, ${g.round()} g, will be added to your $s.',
+        if (p.mealsFor(day).any((m) => m.mealSlot == slot && m.food.foodId == f.foodId))
+          'It is already in this meal. Its portions will be combined into one row and checked together.',
+      ],
     );
   }
 
   /// Taking [m] out of the plan, worked out before it is made.
   PlanChange? previewRemove(PlannedMeal m) {
     final p = plan;
-    if (p == null) return null;
+    if (p == null || !canEditDay(m.planDate)) return null;
     final s = m.mealSlot.label.toLowerCase();
     return _preview(
       PlanChangeKind.remove,
-      p.copyWith(meals: [for (final x in p.meals) if (x.plannedMealId != m.plannedMealId) x]),
+      p.copyWith(
+        meals: [
+          for (final x in p.meals)
+            if (x.plannedMealId != m.plannedMealId) x,
+        ],
+      ),
       m.planDate,
       m.mealSlot,
       'Remove ${m.food.foodName} from your $s?',
@@ -378,7 +565,7 @@ class DietPlanViewModel extends BaseViewModel {
   /// Swapping [m] for [f] at about the same energy (FR700_035), worked out before it is made.
   PlanChange? previewReplace(PlannedMeal m, FoodItem f) {
     final p = plan;
-    if (p == null) return null;
+    if (p == null || !canEditDay(m.planDate)) return null;
     final r = m.replaceWith(f);
     final s = m.mealSlot.label.toLowerCase();
     return _preview(
@@ -398,12 +585,15 @@ class DietPlanViewModel extends BaseViewModel {
   /// Changing the portion of [m] to [grams], worked out before it is made.
   PlanChange? previewPortion(PlannedMeal m, double grams) {
     final p = plan;
-    if (p == null) return null;
+    if (p == null || !canEditDay(m.planDate)) return null;
     final g = grams.roundToDouble();
-    final r = PlannedMeal.of(m.food, m.planDate, m.mealSlot, g, locked: m.isLocked).copyWith(
-      dietPlanId: m.dietPlanId,
-      isLogged: m.isLogged,
-    );
+    final r = PlannedMeal.of(
+      m.food,
+      m.planDate,
+      m.mealSlot,
+      g,
+      locked: m.isLocked,
+    ).copyWith(dietPlanId: m.dietPlanId, isLogged: m.isLogged);
     final s = m.mealSlot.label.toLowerCase();
     return _preview(
       PlanChangeKind.portion,
@@ -419,10 +609,11 @@ class DietPlanViewModel extends BaseViewModel {
   /// Makes a change the patient confirmed. UI first: the plan changes at once and is put back if
   /// it could not be saved. A change the safety gate rejects is not made (FR700_042).
   Future<bool> applyChange(PlanChange c) async {
+    if (isLoading) return false;
     final p = plan;
-    if (p == null) return false;
+    if (p == null || !canEditDay(c.day)) return false;
     if (!c.allowed) {
-      _message = 'Not changed: it would go over your ${c.problems.first}.';
+      _message = 'Not changed: ${c.problems.first}.';
       notifyListeners();
       return false;
     }
@@ -431,20 +622,45 @@ class DietPlanViewModel extends BaseViewModel {
       notifyListeners();
       return false;
     }
-    plan = c.plan;
-    notifyListeners();
-    final res = await _mealRepo.updatePlan(c.plan);
-    if (res is Failure) {
-      if (identical(plan, c.plan)) {
-        plan = p;
-        _message = Messages.dbUnavailable;
+    changeInProgress = switch (c.kind) {
+      PlanChangeKind.add => 'Adding food...',
+      PlanChangeKind.remove => 'Removing food...',
+      PlanChangeKind.replace => 'Changing food...',
+      PlanChangeKind.portion => 'Updating portion...',
+    };
+    setLoading(true);
+    try {
+      await _context();
+      if (!identical(plan, p)) {
+        _message = 'Your plan changed in the meantime. Please try again.';
         notifyListeners();
+        return false;
       }
-      return false;
+      if (_planner.editingProblems(c.plan).isNotEmpty) {
+        _message = 'Choose a valid portion and date before saving.';
+        notifyListeners();
+        return false;
+      }
+      plan = c.plan;
+      notifyListeners();
+      final res = await _mealRepo.updatePlan(c.plan);
+      if (res is Failure) {
+        if (identical(plan, c.plan)) {
+          plan = p;
+          _message = Messages.dbUnavailable;
+          notifyListeners();
+        }
+        return false;
+      }
+      _message = _planner.validate(c.plan, ctx, consumedToday: _eatenOutside).isEmpty
+          ? c.doneMessage
+          : '${c.doneMessage} Review the foods highlighted in red; some choices do not fit your profile or daily limits.';
+      await _markLogged();
+      return true;
+    } finally {
+      changeInProgress = null;
+      setLoading(false);
     }
-    _message = c.doneMessage;
-    await _markLogged();
-    return true;
   }
 
   /// Why a planned food was chosen, in plain words; warnings (too much, too little, not good for
@@ -458,6 +674,25 @@ class DietPlanViewModel extends BaseViewModel {
   List<PlanReason> summaryFor(DateTime day) {
     final p = plan;
     return p == null ? const [] : _planner.summaryFor(p, day, ctx, eatenOutside: _eatenOutside);
+  }
+
+  List<PlanNote> nutritionWarnings(DateTime day) => plan == null ? const [] : _nutritionWarnings(plan!, day);
+
+  List<PlanNote> manualNutritionWarnings(List<PlannedMeal> meals) => _nutritionWarnings(_manualDraft(meals), _today);
+
+  List<PlanNote> _nutritionWarnings(DietPlan p, DateTime day) {
+    final outside = _sameDay(day, _today)
+        ? logged.where((m) => _sameDay(m.consumedAt, day) && !p.mealsFor(day).any((row) => row.mealSlot == m.mealType))
+        : const <MealLog>[];
+    return _planner.nutritionWarnings(
+      p,
+      day,
+      ctx,
+      eatenOutside: Nutrients.sum(outside.map((m) => m.totals)),
+      outsideExtras: outside
+          .expand((m) => m.items)
+          .fold(FoodExtras.zero, (sum, item) => sum + item.food.extrasFor(item.portionSizeG)),
+    );
   }
 
   /// A slot's usual share of the day's energy target (breakfast 25 %, lunch 35 %, dinner 30 %,
@@ -475,10 +710,14 @@ class DietPlanViewModel extends BaseViewModel {
   List<String> get regenerateEffects {
     final p = plan;
     if (p == null) return const ['A new plan will be made for you within your limits.'];
-    final eaten = p.meals.where((m) => _sameDay(m.planDate, _today) && m.isLogged && !m.isLocked).length;
-    final changing = p.meals.where((m) => !m.isLocked).length - eaten;
+    final eaten = p.meals
+        .where((m) => canEditDay(m.planDate) && _sameDay(m.planDate, _today) && m.isLogged && !m.isLocked)
+        .length;
+    final changing = p.meals.where((m) => canEditDay(m.planDate) && !m.isLocked).length - eaten;
     final locked = p.meals.where((m) => m.isLocked).length;
     return [
+      if (type == PlanType.weekly)
+        "Today's meals stay the same as Today's Plan, including empty slots. Edit them there.",
       '$changing ${changing == 1 ? 'food' : 'foods'} that ${changing == 1 ? 'is' : 'are'} not locked will be '
           'replaced with new choices, including foods you added or changed yourself.',
       if (locked > 0)
@@ -559,24 +798,117 @@ class DietPlanViewModel extends BaseViewModel {
   /// Builds today's plan from foods the patient picked while the planner is down (FR700_044).
   /// Returns the problems found by the safety gate; empty when it was saved.
   Future<List<String>> saveManualPlan(Map<MealSlot, List<FoodItem>> chosen) async {
+    return saveManualMeals([
+      for (final e in chosen.entries)
+        for (final f in e.value) PlannedMeal.of(f, _today, e.key, f.baseServingG),
+    ]);
+  }
+
+  Future<Result<List<PlannedMeal>>> manualMeals() async {
+    final id = _accountId;
+    if (id == null) return const Failure('Please sign in again.');
+    final daily = await _mealRepo.planFor(id, PlanType.daily, _today);
+    if (daily is Failure) return const Failure(Messages.dbUnavailable);
+    final source = daily.dataOrNull ?? plan;
+    return Success(PlannedMeal.mergeDuplicates(source?.mealsFor(_today).map((m) => m.carriedOver()) ?? []));
+  }
+
+  DietPlan _manualDraft(List<PlannedMeal> meals) => _planner
+      .buildManually(accountId: _accountId ?? '', ctx: ctx, day: _today, chosen: const {})
+      .copyWith(meals: PlannedMeal.mergeDuplicates(meals));
+
+  List<PlannedMeal> mergeManualChoice(List<PlannedMeal> meals, PlannedMeal incoming, {PlannedMeal? replacing}) =>
+      PlannedMeal.mergeDuplicates([
+        for (final meal in meals) meal.plannedMealId == replacing?.plannedMealId ? incoming : meal,
+        if (replacing == null) incoming,
+      ]);
+
+  List<String> manualProblems(List<PlannedMeal> meals) {
+    if (meals.isEmpty) return const ['Choose at least one food.'];
+    final p = _manualDraft(meals);
+    return _planner.editingProblems(p);
+  }
+
+  List<String> foodProblemsForPlan(PlannedMeal meal) =>
+      _planner.suitability.planProblems(meal.food, ctx, meal.portionSizeG);
+
+  /// Mark the offending portion, and every food contributing to an excessive daily nutrient.
+  List<String> manualFoodProblems(PlannedMeal meal, List<PlannedMeal> meals) {
+    final draft = _manualDraft(meals);
+    return _foodWarnings(meal, draft);
+  }
+
+  List<String> savedFoodWarnings(PlannedMeal meal) => plan == null ? const [] : _foodWarnings(meal, plan!);
+
+  List<String> _foodWarnings(PlannedMeal meal, DietPlan draft) {
+    final day = meal.planDate;
+    final t =
+        draft.totalsFor(day) +
+        (_sameDay(day, _today)
+            ? _consumedOutsidePlan(logged.where((m) => _sameDay(m.consumedAt, day)), draft)
+            : Nutrients.zero);
+    final x = DietPlannerService.extrasFor(draft, day);
+    final one = meal.nutrients;
+    final extras = meal.food.extrasFor(meal.portionSizeG);
+    final totals = {
+      'energy_kcal': t.energyKcal,
+      'sodium_mg': t.sodiumMg,
+      'sugar_g': t.sugarG,
+      'protein_g': t.proteinG,
+      'sat_fat_g': x.satFatG,
+      'caffeine_mg': x.caffeineMg,
+    };
+    final amounts = {
+      'energy_kcal': one.energyKcal,
+      'sodium_mg': one.sodiumMg,
+      'sugar_g': one.sugarG,
+      'protein_g': one.proteinG,
+      'sat_fat_g': extras.satFatG,
+      'caffeine_mg': extras.caffeineMg,
+    };
+    const names = {
+      'energy_kcal': 'energy',
+      'sodium_mg': 'sodium',
+      'sugar_g': 'free sugars',
+      'protein_g': 'protein',
+      'sat_fat_g': 'saturated fat',
+      'caffeine_mg': 'caffeine',
+    };
+    return [
+      ...foodProblemsForPlan(meal),
+      for (final entry in ctx.targets.limits.entries)
+        if ((totals[entry.key] ?? 0) > entry.value + (entry.key.endsWith('_g') ? 0.05 : 0.5) &&
+            (amounts[entry.key] ?? 0) > 0)
+          'Together with your other choices${_sameDay(day, _today) ? ' and logged meals' : ''}, this portion contributes to too much ${names[entry.key]} for this day. You can reduce the portion or choose another food.',
+    ];
+  }
+
+  List<PlanNote> manualWarnings(List<PlannedMeal> meals) {
+    final draft = _manualDraft(meals);
+    return [
+      for (final m in meals) ..._planner.reasonsFor(m, draft, ctx).where((n) => n.warn),
+      for (final reason in _planner.summaryFor(draft, _today, ctx))
+        if (!reason.ok) PlanNote(reason.text, warn: true),
+    ];
+  }
+
+  Future<List<String>> saveManualMeals(List<PlannedMeal> meals) async {
+    await _context();
     final id = _accountId;
     if (id == null) return const ['session'];
-    final p = _planner.buildManually(accountId: id, ctx: ctx, day: _today, chosen: chosen);
-    final problems = _planner.validate(p, ctx);
+    final problems = manualProblems(meals);
     if (problems.isNotEmpty) return problems;
+    final p = _manualDraft(meals.map((m) => m.carriedOver()).toList());
+    if (await _mealRepo.savePlan(p) is Failure) return const [Messages.dbUnavailable];
     plan = p;
     type = PlanType.daily;
-    await _mealRepo.savePlan(p);
     await _markLogged();
     return const [];
   }
 
-  /// Catalogue search for the manual plan, without foods the patient cannot eat (or, with an arm
-  /// limitation, foods that need two hands).
+  /// All catalogue foods are available for user choice; health conflicts are shown as warnings.
   Future<List<FoodItem>> searchCatalogue(String term) async =>
-      ((await _foods.search(term)).dataOrNull ?? const <FoodItem>[])
-          .where((f) => !f.breachesAny(ctx.restrictions) && !(f.needsTwoHands && ctx.oneHandOnly))
-          .toList();
+      (await _foods.search(term)).dataOrNull ?? const <FoodItem>[];
 
   /// What the profile adds to the day's plan, in words (for the plan screen): the condition limits,
   /// the needs, and the one-hand and pregnancy rules.
@@ -586,14 +918,14 @@ class DietPlanViewModel extends BaseViewModel {
     return [
       if (t.limits['sat_fat_g'] case final v?) 'Saturated fat under ${g(v)} g (${t.basis['sat_fat_g']})',
       if (t.limits['protein_g'] case final v?) 'Protein at most ${g(v)} g (${t.basis['protein_g']})',
-      if (t.limits['caffeine_mg'] case final v?) 'Caffeine at most ${g(v)} mg; no raw fish, half-boiled eggs or alcohol',
+      if (t.limits['caffeine_mg'] case final v?)
+        'Caffeine at most ${g(v)} mg; no raw fish, half-boiled eggs or alcohol',
       if (t.needs['protein_g_min'] case final v?) 'Protein at least ${g(v)} g (${t.basis['protein_g_min']})',
       if (t.needs['calcium_mg_min'] case final v?) 'Calcium at least ${g(v)} mg (${t.basis['calcium_mg_min']})',
       if (t.needs['fibre_g_min'] case final v?) 'Fibre at least ${g(v)} g (${t.basis['fibre_g_min']})',
       if (t.watchPotassium) 'Lower potassium and phosphorus foods first (kidney disease)',
       if (t.oneHandOnly) 'Only foods you can eat with one hand: no bones, shells or whole fish',
-      if (ctx.restrictions.isNotEmpty)
-        'Without: ${ctx.restrictions.map((r) => r.restrictionName).join(', ')}',
+      if (ctx.restrictions.isNotEmpty) 'Without: ${ctx.restrictions.map((r) => r.restrictionName).join(', ')}',
     ];
   }
 
@@ -649,34 +981,32 @@ class DietPlanViewModel extends BaseViewModel {
     };
     final energyCap = remaining.energyKcal > 0 ? remaining.energyKcal : ctx.dailyEnergyKcal * share;
     const s = SuitabilityService();
-    final cands = _catalogue.where((f) {
-      if (!f.mealSlots.contains(nextSlot.db)) return false;
-      if (!{'meal', 'staple', 'protein', 'fruit', 'snack'}.contains(f.planRole)) return false;
-      if (s.isExcludedFromPlans(f, ctx)) return false; // food names, pregnancy, two hands
-      final n = f.nutrientsFor(f.baseServingG);
-      if (n.energyKcal > energyCap) return false;
-      if (n.sodiumMg > remaining.sodiumMg.clamp(0, double.infinity) ||
-          n.sugarG > remaining.sugarG.clamp(0, double.infinity)) {
-        return false;
-      }
-      return s.suitsPatient(f, ctx);
-    }).toList()
-      ..sort((a, b) {
-        double score(FoodItem f) {
+    final cands =
+        _catalogue.where((f) {
+          if (!f.mealSlots.contains(nextSlot.db)) return false;
+          if (!{'meal', 'staple', 'protein', 'fruit', 'snack'}.contains(f.planRole)) return false;
+          if (s.isExcludedFromPlans(f, ctx)) return false; // food names, pregnancy, two hands
           final n = f.nutrientsFor(f.baseServingG);
-          return n.sodiumMg / 100 + n.sugarG * 2 - n.proteinG / 5 + (f.planRole == 'meal' ? -1 : 0);
-        }
+          if (n.energyKcal > energyCap) return false;
+          if (n.sodiumMg > remaining.sodiumMg.clamp(0, double.infinity) ||
+              n.sugarG > remaining.sugarG.clamp(0, double.infinity)) {
+            return false;
+          }
+          return s.suitsPatient(f, ctx);
+        }).toList()..sort((a, b) {
+          double score(FoodItem f) {
+            final n = f.nutrientsFor(f.baseServingG);
+            return n.sodiumMg / 100 + n.sugarG * 2 - n.proteinG / 5 + (f.planRole == 'meal' ? -1 : 0);
+          }
 
-        return score(a).compareTo(score(b));
-      });
+          return score(a).compareTo(score(b));
+        });
     if (cands.isEmpty) {
       recommendations = const [];
       return;
     }
     final start = (_refresh * 5) % cands.length;
-    recommendations = [
-      for (var i = 0; i < 5 && i < cands.length; i++) cands[(start + i) % cands.length],
-    ];
+    recommendations = [for (var i = 0; i < 5 && i < cands.length; i++) cands[(start + i) % cands.length]];
   }
 
   static bool _sameDay(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;

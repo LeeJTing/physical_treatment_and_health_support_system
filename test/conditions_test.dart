@@ -176,14 +176,10 @@ void main() {
       expect(await vm.saveProfile(), isTrue);
     });
 
-    test('"Other" must say what the condition is', () async {
+    test('"Other" is unavailable and a stale selection cannot add it', () async {
+      expect(vm.conditions.any((c) => c.isOther), isFalse);
       vm.toggleCondition(17);
-      vm.setConditionControlled(17, true);
-      expect(await vm.saveProfile(), isFalse);
-      expect((vm.saveState as UiError).message, Messages.otherConditionNote);
-      vm.setConditionNote(17, ' Lupus ');
-      expect(await vm.saveProfile(), isTrue);
-      expect(vm.profile!.conditions.single.note, 'Lupus');
+      expect(vm.draft!.conditions.any((c) => c.isOther), isFalse);
     });
 
     test('changing only an answer counts as an unsaved change', () async {

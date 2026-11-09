@@ -4,6 +4,12 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 class AppConstants {
   AppConstants._();
 
+  // ---- Meal portions (FR700_007) ---------------------------------------------
+  /// The weight the patient may type for one food of a meal: from a spoonful to a very large
+  /// plate. Outside it the weight is almost certainly mistyped (0, 2 g, 25000 g).
+  static const int portionMinG = 10;
+  static const int portionMaxG = 1000;
+
   // ---- AI server (FastAPI) --------------------------------------------------
   /// The AI server on the laptop (Cloudflare tunnel). The tunnel address changes each time it
   /// starts: set the new one in the app (Profile > AI server), or build with
@@ -444,6 +450,9 @@ class Messages {
       'We could not identify this meal confidently. Please select or enter the food item.';
   static const portionUpdated =
       'Nutrition values have been updated for the selected portion size.';
+  static const portionNotNumber = 'Enter the weight as a number of grams, for example 150.';
+  static const portionOutOfRange =
+      'Enter a weight from ${AppConstants.portionMinG} g to ${AppConstants.portionMaxG} g.';
   static const cameraPermissionRequired =
       'Camera and photo access are required to log a meal.';
   static const mealLogged = 'Your meal has been recorded.';

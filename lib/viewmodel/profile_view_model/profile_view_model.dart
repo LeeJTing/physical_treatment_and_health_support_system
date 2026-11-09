@@ -157,8 +157,10 @@ class ProfileViewModel extends BaseViewModel {
     }
     profile = p.dataOrNull;
     conditions =
-        (results[1] as Result<List<HealthCondition>>).dataOrNull ??
-        LookupSeed.conditions;
+        ((results[1] as Result<List<HealthCondition>>).dataOrNull ??
+                LookupSeed.conditions)
+            .where((c) => !c.isOther)
+            .toList();
     limitations =
         (results[2] as Result<List<PhysicalLimitation>>).dataOrNull ??
         LookupSeed.limitations;
@@ -244,7 +246,8 @@ class ProfileViewModel extends BaseViewModel {
   void toggleCondition(int id) {
     final d = draft;
     if (d == null || !isEditing) return;
-    final c = conditions.firstWhere((c) => c.conditionId == id);
+    final c = conditions.where((c) => c.conditionId == id).firstOrNull;
+    if (c == null) return;
     final list = [...d.conditions];
     if (list.contains(c)) {
       list.remove(c);

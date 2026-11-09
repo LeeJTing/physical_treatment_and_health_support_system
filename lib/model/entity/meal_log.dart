@@ -82,6 +82,35 @@ class MealItem {
     sugarG: sugarG,
   );
 
+  /// Duplicate rows are merged only within this meal; verdicts are reassessed by its ViewModel.
+  static List<MealItem> mergeDuplicates(Iterable<MealItem> items) {
+    final rows = <String, MealItem>{};
+    for (final item in items) {
+      final previous = rows[item.food.foodId];
+      if (previous == null) {
+        rows[item.food.foodId] = item;
+      } else {
+        final scaled = previous.scaleTo(previous.portionSizeG + item.portionSizeG);
+        rows[item.food.foodId] = MealItem(
+          mealItemId: previous.mealItemId,
+          mealId: previous.mealId,
+          food: previous.food,
+          portionSizeG: scaled.portionSizeG,
+          energyKcal: scaled.energyKcal,
+          carbG: scaled.carbG,
+          proteinG: scaled.proteinG,
+          fatG: scaled.fatG,
+          sodiumMg: scaled.sodiumMg,
+          sugarG: scaled.sugarG,
+          isUserCorrected: previous.isUserCorrected || item.isUserCorrected,
+          confidence: previous.confidence,
+          candidateKeys: {...previous.candidateKeys, ...item.candidateKeys}.toList(),
+        );
+      }
+    }
+    return rows.values.toList();
+  }
+
   /// Recomputes every nutrient for a new portion (FR700_011).
   MealItem scaleTo(double grams) {
     final n = food.nutrientsFor(grams);
@@ -103,10 +132,7 @@ class MealItem {
   }
 
   /// The most restrictive verdict, which is the one displayed (FR700_028).
-  Verdict worstVerdict() => verdicts.fold(
-    Verdict.suitable,
-    (w, v) => v.verdict.index > w.index ? v.verdict : w,
-  );
+  Verdict worstVerdict() => verdicts.fold(Verdict.suitable, (w, v) => v.verdict.index > w.index ? v.verdict : w);
 
   MealItem withVerdicts(List<SuitabilityVerdict> vs) => MealItem(
     mealItemId: mealItemId,
@@ -156,11 +182,7 @@ class MealItem {
     'is_user_corrected': isUserCorrected,
   };
 
-  factory MealItem.fromJson(
-    Map<String, dynamic> j,
-    FoodItem food, {
-    List<SuitabilityVerdict> verdicts = const [],
-  }) {
+  factory MealItem.fromJson(Map<String, dynamic> j, FoodItem food, {List<SuitabilityVerdict> verdicts = const []}) {
     double d(String k) => ((j[k] ?? 0) as num).toDouble();
     return MealItem(
       mealItemId: j['meal_item_id'] as String,
@@ -217,15 +239,11 @@ class MealLog {
   double get totalSugarG => totals.sugarG;
 
   /// True when recognition confidence is below 0.60 (FR700_005).
-  bool needsManualEntry() =>
-      entryMethod == EntryMethod.recognition &&
-      (recognitionConfidence ?? 0) < confidenceFloor;
+  bool needsManualEntry() => entryMethod == EntryMethod.recognition && (recognitionConfidence ?? 0) < confidenceFloor;
 
   /// The most restrictive verdict over the items.
-  Verdict worstVerdict() => items.fold(
-    Verdict.suitable,
-    (w, i) => i.worstVerdict().index > w.index ? i.worstVerdict() : w,
-  );
+  Verdict worstVerdict() =>
+      items.fold(Verdict.suitable, (w, i) => i.worstVerdict().index > w.index ? i.worstVerdict() : w);
 
   MealLog copyWith({
     String? accountId,
@@ -248,11 +266,10 @@ class MealLog {
   );
 
   /// Adds an item and refreshes the totals.
-  MealLog addItem(MealItem i) => copyWith(items: [...items, i]);
+  MealLog addItem(MealItem i) => copyWith(items: MealItem.mergeDuplicates([...items, i]));
 
   /// Removes an item and refreshes the totals.
-  MealLog removeItem(MealItem i) =>
-      copyWith(items: items.where((x) => x.mealItemId != i.mealItemId).toList());
+  MealLog removeItem(MealItem i) => copyWith(items: items.where((x) => x.mealItemId != i.mealItemId).toList());
 
   /// Totals are computed from the items, so re-summing is a no-op kept for the class diagram.
   MealLog recalculateTotals() => this;
@@ -275,18 +292,16 @@ class MealLog {
     };
   }
 
-  factory MealLog.fromJson(Map<String, dynamic> j, List<MealItem> items) =>
-      MealLog(
-        mealId: j['meal_id'] as String,
-        accountId: j['account_id'] as String,
-        plannedMealId: j['planned_meal_id'] as String?,
-        mealType: MealSlot.fromDb(j['meal_type'] as String?),
-        entryMethod: EntryMethod.fromDb(j['entry_method'] as String?),
-        imageUri: j['image_uri'] as String?,
-        recognitionConfidence: (j['recognition_confidence'] as num?)
-            ?.toDouble(),
-        modelVersion: j['model_version'] as String?,
-        consumedAt: DateTime.parse(j['consumed_at'] as String).toLocal(),
-        items: items,
-      );
+  factory MealLog.fromJson(Map<String, dynamic> j, List<MealItem> items) => MealLog(
+    mealId: j['meal_id'] as String,
+    accountId: j['account_id'] as String,
+    plannedMealId: j['planned_meal_id'] as String?,
+    mealType: MealSlot.fromDb(j['meal_type'] as String?),
+    entryMethod: EntryMethod.fromDb(j['entry_method'] as String?),
+    imageUri: j['image_uri'] as String?,
+    recognitionConfidence: (j['recognition_confidence'] as num?)?.toDouble(),
+    modelVersion: j['model_version'] as String?,
+    consumedAt: DateTime.parse(j['consumed_at'] as String).toLocal(),
+    items: items,
+  );
 }

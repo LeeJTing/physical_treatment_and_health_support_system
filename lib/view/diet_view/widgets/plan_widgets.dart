@@ -44,7 +44,10 @@ class PlanBar extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: OneLineText(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTokens.ink)),
+                child: OneLineText(
+                  label,
+                  style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -163,7 +166,9 @@ class EffectList extends StatelessWidget {
                   padding: const EdgeInsets.only(top: 3, right: 8),
                   child: Icon(bullet, size: 18, color: AppTokens.brandDeepAccent),
                 ),
-                Expanded(child: Text(tidy(l.text), style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.ink))),
+                Expanded(
+                  child: Text(tidy(l.text), style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.ink)),
+                ),
               ],
             ),
           ),
@@ -220,7 +225,12 @@ class WatchOutBox extends StatelessWidget {
                 Expanded(
                   child: Text(
                     tidy(l.text),
-                    style: const TextStyle(fontSize: 15, height: 1.35, color: AppTokens.onDanger, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 15,
+                      height: 1.35,
+                      color: AppTokens.onDanger,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ],
@@ -234,8 +244,8 @@ class WatchOutBox extends StatelessWidget {
 
 /// Asks the patient to confirm a change to the plan and says what will happen (A5.1 step 3). For
 /// an add or a portion change, [rebuild] works the change out again for another portion, chosen
-/// with half to one and a half servings. A change the safety gate rejects cannot be
-/// confirmed. Returns the confirmed change, or null.
+/// with half to one and a half servings. Health warnings stay visible in red while confirmation
+/// remains available; invalid portions or dates block saving. Returns the confirmed change, or null.
 class PlanChangeDialog extends StatefulWidget {
   final PlanChange initial;
   final PlanChange? Function(double grams)? rebuild;
@@ -313,27 +323,28 @@ class _PlanChangeDialogState extends State<PlanChangeDialog> {
     final serving = widget.servingG;
     final options = serving == null
         ? const <(String, double)>[]
-        : [
-            ('½', serving * 0.5),
-            ('¾', serving * 0.75),
-            ('1', serving),
-            ('1¼', serving * 1.25),
-            ('1½', serving * 1.5),
-          ];
+        : [('½', serving * 0.5), ('¾', serving * 0.75), ('1', serving), ('1¼', serving * 1.25), ('1½', serving * 1.5)];
     return AlertDialog(
       backgroundColor: AppTokens.surface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
       icon: widget.role != null
           ? FoodRoleAvatar(widget.role!, size: 56)
           : Icon(widget.icon, size: 36, color: widget.destructive ? AppTokens.danger : AppTokens.brandDeep),
-      title: Text(tidy(_c.title), textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+      title: Text(
+        tidy(_c.title),
+        textAlign: TextAlign.center,
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+      ),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (options.isNotEmpty && widget.rebuild != null) ...[
-              const Text('How many servings?', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+              const Text(
+                'How many servings?',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink),
+              ),
               const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
@@ -355,7 +366,10 @@ class _PlanChangeDialogState extends State<PlanChangeDialog> {
                 style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
               )
             else ...[
-              const Text('What will happen', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+              const Text(
+                'What will happen',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink),
+              ),
               const SizedBox(height: 6),
               EffectList(_c.effects),
             ],
@@ -366,7 +380,7 @@ class _PlanChangeDialogState extends State<PlanChangeDialog> {
                 decoration: BoxDecoration(color: AppTokens.dangerContainer, borderRadius: BorderRadius.circular(14)),
                 child: Text(
                   tidy(
-                    'This cannot be done: it would go over your ${_c.problems.join(', ')}. '
+                    'This change cannot be saved: ${_c.problems.join('; ')}. '
                     '${widget.rebuild != null ? 'Try a smaller portion or another food.' : 'Try another food.'}',
                   ),
                   style: const TextStyle(fontSize: 15, color: AppTokens.onDanger, fontWeight: FontWeight.w600),
@@ -406,13 +420,20 @@ Future<bool> confirmEffects(
         backgroundColor: AppTokens.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         icon: Icon(icon, size: 36, color: AppTokens.brandDeep),
-        title: Text(tidy(title), textAlign: TextAlign.center, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+        title: Text(
+          tidy(title),
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('What will happen', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+              const Text(
+                'What will happen',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink),
+              ),
               const SizedBox(height: 6),
               EffectList([for (final e in effects) PlanNote(e)]),
             ],

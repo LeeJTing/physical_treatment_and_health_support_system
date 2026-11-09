@@ -108,8 +108,7 @@ class MealLogViewModel extends BaseViewModel {
   Nutrients get remaining => ctx.remaining(dailyTotals);
 
   /// UC900 A1: every logged item today is Suitable.
-  bool get allTodaySuitable =>
-      today.isNotEmpty && today.every((m) => m.worstVerdict() == Verdict.suitable);
+  bool get allTodaySuitable => today.isNotEmpty && today.every((m) => m.worstVerdict() == Verdict.suitable);
 
   Future<void> load() async {
     _accountId ??= (await _auth.currentAccount()).dataOrNull?.accountId;
@@ -141,7 +140,9 @@ class MealLogViewModel extends BaseViewModel {
           (await _mealRepo.planFor(id, PlanType.daily, day)).dataOrNull ??
           (await _mealRepo.planFor(id, PlanType.weekly, day)).dataOrNull;
       if (plan == null) return;
-      final todays = today.where((m) => m.consumedAt.year == n.year && m.consumedAt.month == n.month && m.consumedAt.day == n.day).toList();
+      final todays = today
+          .where((m) => m.consumedAt.year == n.year && m.consumedAt.month == n.month && m.consumedAt.day == n.day)
+          .toList();
       if (justLogged != null) {
         final a = planner.offPlanAlertFor(justLogged, plan, ctx, todays, n);
         if (a != null) {
@@ -272,6 +273,9 @@ class MealLogViewModel extends BaseViewModel {
                 ),
             ],
     );
+    if (draft case final meal?) {
+      draft = meal.copyWith(items: MealItem.mergeDuplicates(meal.items).map(_judge).toList());
+    }
     if (r.needsManualEntry) {
       manualEntryPrompt = true;
       _message = Messages.lowConfidence; // A2 M2
@@ -322,14 +326,20 @@ class MealLogViewModel extends BaseViewModel {
     return out;
   }
 
-  Future<List<FoodItem>> searchFoods(String term) async =>
-      (await _foods.search(term)).dataOrNull ?? const [];
+  Future<List<FoodItem>> searchFoods(String term) async => (await _foods.search(term)).dataOrNull ?? const [];
 
   /// Adds a food chosen by search (A2 step 2, manual entry).
   void addFood(FoodItem f, {double? grams}) {
     final d = draft;
     if (d == null) return;
-    draft = d.addItem(_judge(MealItem.of(f, grams: grams)));
+    final items = MealItem.mergeDuplicates([...d.items, MealItem.of(f, grams: grams)]);
+    if (!_withinPortionRange(items)) return;
+    draft = d.copyWith(items: items.map(_judge).toList());
+    final item = draft!.items.firstWhere((i) => i.food.foodId == f.foodId);
+    if (d.items.any((i) => i.food.foodId == f.foodId)) {
+      _message = '${f.foodName} is already in this meal. Its portion is now ${item.portionSizeG.round()} g.';
+    }
+    _selectionAlert(item);
     manualEntryPrompt = false;
     notifyListeners();
   }
@@ -338,24 +348,68 @@ class MealLogViewModel extends BaseViewModel {
   void correctItem(MealItem i, FoodItem f) {
     final d = draft;
     if (d == null) return;
-    draft = d.copyWith(
-      items: [
-        for (final x in d.items)
-          x.mealItemId == i.mealItemId ? _judge(MealItem.of(f, corrected: true)) : x,
-      ],
-    );
+    final item = _judge(MealItem.of(f, corrected: true));
+    final items = MealItem.mergeDuplicates([for (final x in d.items) x.mealItemId == i.mealItemId ? item : x]);
+    if (!_withinPortionRange(items)) return;
+    draft = d.copyWith(items: items.map(_judge).toList());
+    _selectionAlert(draft!.items.firstWhere((i) => i.food.foodId == f.foodId));
     notifyListeners();
   }
 
   /// Rescales the nutrients to a new portion (FR700_007, FR700_011, A4 M3).
   void adjustPortion(MealItem i, double grams) {
     final d = draft;
-    if (d == null || grams <= 0) return;
-    draft = d.copyWith(
-      items: [for (final x in d.items) x.mealItemId == i.mealItemId ? _judge(x.scaleTo(grams)) : x],
-    );
+    if (d == null || grams < AppConstants.portionMinG || grams > AppConstants.portionMaxG) return;
+    draft = d.copyWith(items: [for (final x in d.items) x.mealItemId == i.mealItemId ? _judge(x.scaleTo(grams)) : x]);
     _message = Messages.portionUpdated;
+    _selectionAlert(_judge(i.scaleTo(grams)));
     notifyListeners();
+  }
+
+  void _selectionAlert(MealItem item) {
+    final flagged = item.verdicts.where((v) => v.verdict != Verdict.suitable).toList();
+    if (flagged.isEmpty) {
+      if (_message?.startsWith('Not suitable:') == true || _message?.startsWith('Use caution:') == true) {
+        _message = null;
+      }
+      return;
+    }
+    final label = item.worstVerdict() == Verdict.notSuitable ? 'Not suitable' : 'Use caution';
+    _message = '$label: ${item.food.foodName}. ${flagged.map((v) => v.reasonText).join(' ')}';
+  }
+
+  /// Rejects a merged quantity outside the meal-entry range without changing the existing draft.
+  bool _withinPortionRange(List<MealItem> items) {
+    for (final item in items) {
+      if (!item.portionSizeG.isFinite ||
+          item.portionSizeG < AppConstants.portionMinG ||
+          item.portionSizeG > AppConstants.portionMaxG) {
+        _message =
+            '${item.food.foodName}: the combined portion must be from ${AppConstants.portionMinG} to ${AppConstants.portionMaxG} g. Change the existing portion instead.';
+        notifyListeners();
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /// What is wrong with a typed weight, or null when it may be used: a number of grams from
+  /// [AppConstants.portionMinG] to [AppConstants.portionMaxG] (a comma is read as a decimal point).
+  static String? checkPortion(String text) {
+    final g = double.tryParse(text.trim().replaceAll(',', '.'));
+    if (g == null || g.isNaN) return Messages.portionNotNumber;
+    if (g < AppConstants.portionMinG || g > AppConstants.portionMaxG) return Messages.portionOutOfRange;
+    return null;
+  }
+
+  /// The patient types the weight of a food in grams (FR700_007), instead of stepping it. The
+  /// nutrients follow at once; a weight outside the range is refused with the reason, and the
+  /// portion stays as it was. Returns the problem, or null when the weight was set.
+  String? enterPortion(MealItem i, String text) {
+    final problem = checkPortion(text);
+    if (problem != null) return problem;
+    adjustPortion(i, double.parse(text.trim().replaceAll(',', '.')).roundToDouble());
+    return null;
   }
 
   void removeItem(MealItem i) {
@@ -477,8 +531,7 @@ class MealLogViewModel extends BaseViewModel {
     setLoading(true);
     final res = await _mealRepo.findMeals(id, historyFrom, historyTo);
     history = [
-      for (final m in res.dataOrNull ?? const <MealLog>[])
-        m.copyWith(items: [for (final i in m.items) _judge(i)]),
+      for (final m in res.dataOrNull ?? const <MealLog>[]) m.copyWith(items: [for (final i in m.items) _judge(i)]),
     ];
     if (res is Failure) _message = Messages.historyRetrievalFailed;
     setLoading(false);

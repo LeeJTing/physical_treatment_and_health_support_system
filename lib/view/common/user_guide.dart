@@ -59,8 +59,8 @@ abstract final class Guides {
     GuideStep(
       Icons.restaurant_menu,
       'A plan that fits you',
-      'Every day keeps within your energy, salt and sugar limits. Tap "Why this plan?" to see how it '
-          'was made. Anything too much or too little for your body is shown in red.',
+      'AI plans are checked against your profile and limits. You can also choose any food yourself. '
+          'Choices outside your guidance are highlighted in red, and you can still save them.',
       badge: Icons.check_circle,
     ),
     GuideStep(
@@ -72,9 +72,11 @@ abstract final class Guides {
       Icons.add_circle,
       'Add or remove foods',
       'Tap "Add food" under a meal, or the cross next to a food. You will see what changes before '
-          'anything is changed.',
+          'anything is changed. "Build my plan myself" lets you review all four meals in a draft before saving.',
     ),
-    GuideStep(Icons.refresh, 'Ask for a new plan', 'Tap the refresh button at the top. Locked foods stay.'),
+    GuideStep(Icons.refresh, 'Ask for a new plan',
+      'Tap refresh. Suitable locked foods stay. A new week also keeps today\'s saved meals; '
+          'use "Edit today\'s plan" to change them.'),
   ]);
 
   static const tracking = UserGuide('tracking', 'Recording your health readings', [

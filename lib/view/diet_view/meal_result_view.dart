@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
@@ -30,7 +30,9 @@ class MealResultView extends StatefulWidget {
 }
 
 class _MealResultViewState extends State<MealResultView> {
-  void _snack(String m) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
+  void _snack(String m) => ScaffoldMessenger.of(
+    context,
+  ).showSnackBar(SnackBar(backgroundColor: m.startsWith('Not suitable:') ? AppTokens.danger : null, content: Text(m)));
 
   @override
   Widget build(BuildContext context) {
@@ -76,12 +78,19 @@ class _MealResultViewState extends State<MealResultView> {
                     children: [
                       Expanded(
                         child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56), shape: const StadiumBorder()),
+                          style: OutlinedButton.styleFrom(
+                            minimumSize: const Size.fromHeight(56),
+                            shape: const StadiumBorder(),
+                          ),
                           onPressed: () {
                             vm.cancel();
                             Navigator.of(context).pop(false);
                           },
-                          child: const OneLineText('Cancel', alignment: Alignment.center, style: TextStyle(fontSize: 17)),
+                          child: const OneLineText(
+                            'Cancel',
+                            alignment: Alignment.center,
+                            style: TextStyle(fontSize: 17),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -101,8 +110,16 @@ class _MealResultViewState extends State<MealResultView> {
                                   Navigator.of(context).pop(pending);
                                 },
                           child: vm.step == MealStep.saving
-                              ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2.5))
-                              : const OneLineText('Save', alignment: Alignment.center, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(strokeWidth: 2.5),
+                                )
+                              : const OneLineText(
+                                  'Save',
+                                  alignment: Alignment.center,
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                ),
                         ),
                       ),
                     ],
@@ -118,6 +135,7 @@ class _MealResultViewState extends State<MealResultView> {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
+        const DietPlanReminder(),
         if (vm.draftImage != null)
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
@@ -159,7 +177,10 @@ class _MealResultViewState extends State<MealResultView> {
             if (f != null) vm.addFood(f);
           },
           icon: const Icon(Icons.add),
-          label: OneLineText(d.items.isEmpty ? 'Select or enter the food' : 'Add another food', style: const TextStyle(fontSize: 16)),
+          label: OneLineText(
+            d.items.isEmpty ? 'Select or enter the food' : 'Add another food',
+            style: const TextStyle(fontSize: 16),
+          ),
         ),
         const SizedBox(height: 12),
         if (d.items.isNotEmpty)
@@ -246,15 +267,19 @@ class _ItemCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(tidy(item.food.foodName),
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                child: Text(
+                  tidy(item.food.foodName),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                ),
               ),
               VerdictChip(v),
             ],
           ),
           if (item.confidence != null)
-            OneLineText('${(item.confidence! * 100).round()}% confidence',
-                style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted)),
+            OneLineText(
+              '${(item.confidence! * 100).round()}% confidence',
+              style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+            ),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -262,35 +287,70 @@ class _ItemCard extends StatelessWidget {
               const Spacer(),
               IconButton.filledTonal(
                 tooltip: 'Smaller portion',
-                onPressed: item.portionSizeG - step < 10 ? null : () => vm.adjustPortion(item, item.portionSizeG - step),
+                onPressed: item.portionSizeG - step < AppConstants.portionMinG
+                    ? null
+                    : () => vm.adjustPortion(item, item.portionSizeG - step),
                 icon: const Icon(Icons.remove),
               ),
+              // The weight itself: tap it to type the grams (FR700_007).
               SizedBox(
-                width: 84,
-                child: OneLineText('${item.portionSizeG.round()} g',
-                    alignment: Alignment.center, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                width: 104,
+                child: TextButton(
+                  onPressed: () => _typeGrams(context, vm, item),
+                  style: TextButton.styleFrom(foregroundColor: AppTokens.ink, padding: EdgeInsets.zero),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Flexible(
+                        child: OneLineText(
+                          '${item.portionSizeG.round()} g',
+                          semanticsLabel: '${item.portionSizeG.round()} grams, tap to type the weight',
+                          alignment: Alignment.center,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      const Icon(Icons.edit, size: 16, color: AppTokens.brandDeepAccent),
+                    ],
+                  ),
+                ),
               ),
               IconButton.filledTonal(
                 tooltip: 'Bigger portion',
-                onPressed: () => vm.adjustPortion(item, item.portionSizeG + step),
+                onPressed: item.portionSizeG + step > AppConstants.portionMaxG
+                    ? null
+                    : () => vm.adjustPortion(item, item.portionSizeG + step),
                 icon: const Icon(Icons.add),
               ),
             ],
           ),
-          OneLineText('One serving is ${item.food.baseServingG.round()} g',
-              style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted)),
+          OneLineText(
+            'One serving is ${item.food.baseServingG.round()} g · tap the weight to type it',
+            style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted),
+          ),
           const SizedBox(height: 8),
           NutrientTable(item.nutrients),
           for (final r in item.verdicts.where((x) => x.verdict != Verdict.suitable))
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: Text(tidy(r.reasonText), style: const TextStyle(fontSize: 15, color: AppTokens.ink)),
+              child: Text(
+                tidy(r.reasonText),
+                style: TextStyle(
+                  fontSize: 15,
+                  color: r.verdict == Verdict.notSuitable ? AppTokens.onDanger : AppTokens.onWarn,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           const SizedBox(height: 4),
           Wrap(
             spacing: 4,
             children: [
-              TextButton.icon(onPressed: () => _correct(context), icon: const Icon(Icons.edit), label: const OneLineText('Not this food?')),
+              TextButton.icon(
+                onPressed: () => _correct(context),
+                icon: const Icon(Icons.edit),
+                label: const OneLineText('Not this food?'),
+              ),
               if (v != Verdict.suitable)
                 TextButton.icon(
                   onPressed: () => _alternatives(context),
@@ -400,7 +460,11 @@ class _RecognisingViewState extends State<_RecognisingView> {
         const SizedBox(height: 14),
         const ClipRRect(
           borderRadius: BorderRadius.all(Radius.circular(6)),
-          child: LinearProgressIndicator(minHeight: 8, color: AppTokens.brandDeepAccent, backgroundColor: AppTokens.tint),
+          child: LinearProgressIndicator(
+            minHeight: 8,
+            color: AppTokens.brandDeepAccent,
+            backgroundColor: AppTokens.tint,
+          ),
         ),
         const SizedBox(height: 6),
         const Text(
@@ -424,7 +488,10 @@ class _RecognisingViewState extends State<_RecognisingView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const OneLineText('Photo tip', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                    const OneLineText(
+                      'Photo tip',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                    ),
                     const SizedBox(height: 4),
                     AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
@@ -445,6 +512,84 @@ class _RecognisingViewState extends State<_RecognisingView> {
           onPressed: widget.onManual,
           icon: const Icon(Icons.edit_note),
           label: const OneLineText('Enter the food myself instead', style: TextStyle(fontSize: 16)),
+        ),
+      ],
+    );
+  }
+}
+
+/// Lets the patient type the weight of a food in grams (FR700_007), from
+/// [AppConstants.portionMinG] to [AppConstants.portionMaxG]. The reason shows under the box while
+/// the weight is not accepted, and Set stays off until it is.
+Future<void> _typeGrams(BuildContext context, MealLogViewModel vm, MealItem item) async {
+  final grams = await showDialog<String>(context: context, builder: (_) => _GramsDialog(item));
+  if (grams != null) vm.enterPortion(item, grams);
+}
+
+/// Asks for the weight of one food in grams; Set stays off until the weight is in range.
+class _GramsDialog extends StatefulWidget {
+  final MealItem item;
+  const _GramsDialog(this.item);
+
+  @override
+  State<_GramsDialog> createState() => _GramsDialogState();
+}
+
+class _GramsDialogState extends State<_GramsDialog> {
+  late final TextEditingController text = TextEditingController(text: widget.item.portionSizeG.round().toString());
+
+  @override
+  void dispose() {
+    text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final item = widget.item;
+    final problem = MealLogViewModel.checkPortion(text.text);
+    return AlertDialog(
+      backgroundColor: AppTokens.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      title: Text(
+        tidy('How much ${item.food.foodName}?'),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+      ),
+      content: TextField(
+        controller: text,
+        autofocus: true,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')), LengthLimitingTextInputFormatter(6)],
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
+        decoration: InputDecoration(
+          labelText: 'Weight',
+          suffixText: 'g',
+          helperText: tidy(
+            'From ${AppConstants.portionMinG} to ${AppConstants.portionMaxG} g. '
+            'One serving is ${item.food.baseServingG.round()} g.',
+          ),
+          helperMaxLines: 2,
+          errorText: text.text.isEmpty ? null : problem,
+          errorMaxLines: 2,
+        ),
+        onChanged: (_) => setState(() {}),
+        onSubmitted: (v) {
+          if (MealLogViewModel.checkPortion(v) == null) Navigator.pop(context, v);
+        },
+      ),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const OneLineText('Cancel', alignment: Alignment.center),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: AppTokens.brandDeep,
+            minimumSize: const Size(120, AppTokens.minTarget),
+          ),
+          onPressed: problem == null ? () => Navigator.pop(context, text.text) : null,
+          child: const OneLineText('Set', alignment: Alignment.center),
         ),
       ],
     );
