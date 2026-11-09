@@ -1,0 +1,30 @@
+# PostureModule_AnalyseExercise_TC001 (was TC-POS-01): a correct clip chosen from the phone's
+# gallery is analysed, passes, and moves the pathway on. The gallery is Android's photo picker, so
+# this case is a Maestro flow. Test data: subject_019_bicep_curl_good_side.mp4 (29.3 s,
+# 810 x 1440; Prashanth et al., 2026), copied to the emulator as Movies/clip_019_correct.mp4.
+# Needs the AI server on the computer (port 8000, DEV_AUTH_BYPASS=true).
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: PostureModule_AnalyseExercise_TC001
+---
+- runFlow: common/recorder_upper_limb.yaml
+- tapOn: 'Upload video[\s\S]*'
+# Android's photo picker
+- extendedWaitUntil:
+    visible: This app can only access the photos you select
+    timeout: 10000
+- takeScreenshot: evidence/pos_01_android_photo_picker
+- tapOn: '.*with duration 00:29'
+- extendedWaitUntil:
+    visible: '[\s\S]*Posture result[\s\S]*'
+    timeout: 180000
+- assertVisible: '.*Posture accuracy (8\d|9\d|100) percent[\s\S]*'
+- assertVisible: '[\s\S]*repetitions counted[\s\S]*'
+- assertVisible: 'Score 80% or more: your progress has been saved\.'
+- takeScreenshot: evidence/pos_01_result
+- tapOn: Continue
+- extendedWaitUntil:
+    visible: '[\s\S]*1 of 4 exercises done[\s\S]*'
+    timeout: 10000
+- assertVisible: '[\s\S]*Today.s exercise is done\. Your next exercise unlocks tomorrow\.[\s\S]*'
+- assertVisible: '[\s\S]*Elbow Flexion[\s\S]*% posture[\s\S]*'
+- takeScreenshot: evidence/pos_01_pathway

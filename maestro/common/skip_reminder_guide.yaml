@@ -1,0 +1,7 @@
+# The first visit to Reminders shows a three-step guide ("Reminders and alerts"); skip it.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+---
+- extendedWaitUntil:
+    visible: Reminders and alerts
+    timeout: 10000
+- tapOn: Skip

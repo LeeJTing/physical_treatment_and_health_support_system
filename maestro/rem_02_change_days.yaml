@@ -1,0 +1,31 @@
+# ReminderModule_ScheduleReminders_TC002 (was TC-REM-02): turning on Tuesday and Thursday on the
+# reminder card reschedules the reminder. Pre-condition: ReminderModule_ScheduleReminders_TC001
+# passes (it is run first, as this flow's set-up). The new alarms are listed by run_android.sh.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: ReminderModule_ScheduleReminders_TC002
+---
+- runFlow: rem_01_permission_allowed.yaml
+- tapOn: 'Tuesday[\s\S]*'
+- tapOn: 'Thursday[\s\S]*'
+- assertVisible:
+    text: 'Tuesday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Thursday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Monday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Saturday[\s\S]*'
+    selected: false
+- takeScreenshot: evidence/rem_02_tuesday_thursday_on
+# Leaving and opening Reminders again shows the saved days.
+- tapOn: Back
+- tapOn: Reminders
+- assertVisible:
+    text: 'Tuesday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Thursday[\s\S]*'
+    selected: true

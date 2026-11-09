@@ -8,6 +8,7 @@ import 'package:physical_treatment_and_health_support_system/view/treatment_view
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/test_exercises_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/test_mode_view_model/test_mode_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/treatment_widgets.dart';
 
 /// The Treatment tab (UI Design, Treatment Screen): open my plan, get a new plan, progress
@@ -156,100 +157,137 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
                     key: const Key('test_mode_card'),
                     icon: Icons.science_outlined,
                     title: 'Testing mode: try any exercise',
-                    subtitle: 'Record any exercise and check your posture now. Nothing is saved.',
+                    subtitle:
+                        'Record any exercise and check your posture now. Nothing is saved.',
                     onTap: _openTests,
                   ),
                   const SizedBox(height: AppTokens.gap),
                 ],
-                // The highlighted card is the next thing to do (Elwin, 23 Oct): the plan once
-                // there is one, before that getting one.
-                _NavCard(
-                  key: const Key('my_plan_card'),
-                  dark: plan != null,
-                  icon: Icons.monitor_heart_outlined,
-                  title: 'My treatment plan',
-                  subtitle: plan == null
-                      ? 'No plan yet: get one below'
-                      : 'View pathway, do exercises, check posture',
-                  onTap: _openPlan,
-                ),
-                const SizedBox(height: AppTokens.gap),
-                _NavCard(
-                  key: const Key('planning_card'),
-                  dark: plan == null,
-                  icon: Icons.auto_awesome_outlined,
-                  title: 'AI-assisted treatment planning',
-                  subtitle: 'Get a new plan, ask the chat bot',
-                  onTap: _openPlanning,
-                ),
-                if (plan != null) ...[
+                // First load: wait for the plan instead of showing "No plan yet" before it is known
+                // (10 Nov). Later refreshes keep the cards, so this shows only once.
+                if (vm.plan is Loading || vm.plan is Idle)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 48),
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        key: Key('treatment_loading'),
+                      ),
+                    ),
+                  )
+                else ...[
+                  if (vm.plan case UiError(:final message))
+                    // The plan could not be read: say so, rather than "No plan yet" (FR300_22).
+                    TreatmentCard(
+                      key: const Key('treatment_load_error'),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            message,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: AppTokens.text,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          OutlinedButton(
+                            onPressed: vm.loadPlan,
+                            child: const Text('Try again'),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    // The highlighted card is the next thing to do (Elwin, 23 Oct): the plan once
+                    // there is one, before that getting one.
+                    _NavCard(
+                      key: const Key('my_plan_card'),
+                      dark: plan != null,
+                      icon: Icons.monitor_heart_outlined,
+                      title: 'My treatment plan',
+                      subtitle: plan == null
+                          ? 'No plan yet: get one below'
+                          : 'View pathway, do exercises, check posture',
+                      onTap: _openPlan,
+                    ),
                   const SizedBox(height: AppTokens.gap),
                   _NavCard(
-                    icon: Icons.insights_outlined,
-                    title: 'Session history',
-                    subtitle: vm.sessions.isEmpty
-                        ? 'Your posture results will appear here'
-                        : 'Your posture accuracy over time',
-                    onTap: _openHistory,
+                    key: const Key('planning_card'),
+                    dark: plan == null,
+                    icon: Icons.auto_awesome_outlined,
+                    title: 'AI-assisted treatment planning',
+                    subtitle: 'Get a new plan, ask the chat bot',
+                    onTap: _openPlanning,
                   ),
-                ],
-                if (plan != null) ...[
-                  const SizedBox(height: 28),
-                  const Text(
-                    'Progress overview',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppTokens.text,
+                  if (plan != null) ...[
+                    const SizedBox(height: AppTokens.gap),
+                    _NavCard(
+                      icon: Icons.insights_outlined,
+                      title: 'Session history',
+                      subtitle: vm.sessions.isEmpty
+                          ? 'Your posture results will appear here'
+                          : 'Your posture accuracy over time',
+                      onTap: _openHistory,
                     ),
-                  ),
-                  const SizedBox(height: AppTokens.gap),
-                  ProgressBlock(
-                    label: plan.plan.planName,
-                    done: plan.completedStages,
-                    total: plan.plan.exercises.length,
-                    footerLeft: days == 0
-                        ? 'Started today'
-                        : 'Started $days day${days == 1 ? '' : 's'} ago',
-                    footerRight: '${plan.plan.frequencyPerWeek}x a week',
-                  ),
-                  const SizedBox(height: AppTokens.gap),
-                  TreatmentCard(
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.notifications_active_outlined,
-                          color: AppTokens.text,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Next reminder',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppTokens.text,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                vm.nextReminderAt == null
-                                    ? 'No reminder scheduled'
-                                    : '${_when(vm.nextReminderAt!)}${next == null ? '' : ' · ${next.exerciseName}'}',
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: AppTokens.textMuted,
-                                ),
-                              ),
-                            ],
+                  ],
+                  if (plan != null) ...[
+                    const SizedBox(height: 28),
+                    const Text(
+                      'Progress overview',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: AppTokens.text,
+                      ),
+                    ),
+                    const SizedBox(height: AppTokens.gap),
+                    ProgressBlock(
+                      label: plan.plan.planName,
+                      done: plan.completedStages,
+                      total: plan.plan.exercises.length,
+                      footerLeft: days == 0
+                          ? 'Started today'
+                          : 'Started $days day${days == 1 ? '' : 's'} ago',
+                      footerRight: '${plan.plan.frequencyPerWeek}x a week',
+                    ),
+                    const SizedBox(height: AppTokens.gap),
+                    TreatmentCard(
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.notifications_active_outlined,
+                            color: AppTokens.text,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Next reminder',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppTokens.text,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  vm.nextReminderAt == null
+                                      ? 'No reminder scheduled'
+                                      : '${_when(vm.nextReminderAt!)}${next == null ? '' : ' · ${next.exerciseName}'}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppTokens.textMuted,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ],
               ],
             ),

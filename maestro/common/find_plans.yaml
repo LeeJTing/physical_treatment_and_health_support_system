@@ -1,0 +1,38 @@
+# Shared steps: the planning questionnaire up to the recommended plans. Starts on Home. The
+# calling flow passes REGION1, REGION2, STAGE, MOBILITY and GOAL (the TC-PLN-01 answers are
+# Right knee, Left knee, Early, Low, Move more freely).
+# Card labels carry their hint on a second line, hence the '[\s\S]*' at the end of the patterns.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+---
+- tapOn: "Treatment\nTab 3 of 5"
+- tapOn: 'AI-assisted treatment planning[\s\S]*'
+- tapOn: 'Retrieve physical treatment[\s\S]*'
+- extendedWaitUntil:
+    visible: 'Which area needs rehabilitation\?[\s\S]*'
+    timeout: 10000
+# The body map: every painted region is a button named after it (TalkBack reads the same names).
+- tapOn: ${REGION1}
+- tapOn: ${REGION2}
+- assertVisible:
+    text: ${REGION1}
+    selected: true
+- assertVisible:
+    text: ${REGION2}
+    selected: true
+- assertVisible: '[\s\S]*Your plan will focus on: [\s\S]*'
+- scrollUntilVisible:
+    element: '${STAGE}[\s\S]*'
+    direction: DOWN
+- tapOn: '${STAGE}[\s\S]*'
+- scrollUntilVisible:
+    element: '${MOBILITY}\n[\s\S]*'
+    direction: DOWN
+- tapOn: '${MOBILITY}\n[\s\S]*'
+- scrollUntilVisible:
+    element: '${GOAL}[\s\S]*'
+    direction: DOWN
+- tapOn: '${GOAL}[\s\S]*'
+- tapOn: Find my plans
+- extendedWaitUntil:
+    visible: Recommended plans
+    timeout: 30000

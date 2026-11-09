@@ -35,7 +35,14 @@ class PathwayStage {
 class SessionHistoryEntry {
   final ExerciseSession session;
   final String exerciseName;
-  const SessionHistoryEntry(this.session, this.exerciseName);
+
+  /// Repetitions the plan asks for, so the history can say "8 of 12 reps" (10 Nov).
+  final int? targetRepetitions;
+  const SessionHistoryEntry(
+    this.session,
+    this.exerciseName, {
+    this.targetRepetitions,
+  });
 }
 
 /// Pathway progress, video capture and the posture result (Table 4.52).
@@ -193,8 +200,14 @@ class TreatmentViewModel extends BaseViewModel {
 
   /// Reads the assigned plan and its pathway (FR300_01, FR300_02).
   Future<void> loadPlan() async {
-    _plan = const Loading();
-    notifyListeners();
+    // A refresh keeps the plan on screen until the new one arrives (10 Nov): the tab is refreshed
+    // every time it is opened, and clearing it first showed "No plan yet" for a moment and lost
+    // the plan chosen in My treatment plan. Only the first load shows a loading state.
+    final hadPlan = _plan is UiSuccess<PatientTreatmentPlan?>;
+    if (!hadPlan) {
+      _plan = const Loading();
+      notifyListeners();
+    }
     final account = (await _auth.currentAccount()).dataOrNull;
     if (account == null) {
       _plan = const UiError(Messages.sessionExpired);
@@ -261,7 +274,8 @@ class TreatmentViewModel extends BaseViewModel {
         _nextReminderAt = times.isEmpty ? null : times.first;
       }
     } else {
-      _plan = const UiError(Messages.planRetrieveFailed); // FR300_22
+      // FR300_22. A failed background refresh keeps what is already shown.
+      if (!hadPlan) _plan = const UiError(Messages.planRetrieveFailed);
     }
     notifyListeners();
   }
@@ -362,12 +376,14 @@ class TreatmentViewModel extends BaseViewModel {
   List<SessionHistoryEntry> get history {
     final p = activePlan;
     if (p == null) return const [];
-    final names = {
-      for (final e in p.plan.exercises) e.exerciseId: e.exercise.exerciseName,
-    };
+    final byId = {for (final e in p.plan.exercises) e.exerciseId: e};
     final list = [
       for (final s in _sessions)
-        SessionHistoryEntry(s, names[s.exerciseId] ?? 'Exercise'),
+        SessionHistoryEntry(
+          s,
+          byId[s.exerciseId]?.exercise.exerciseName ?? 'Exercise',
+          targetRepetitions: byId[s.exerciseId]?.prescribedRepetitions,
+        ),
     ];
     // Unfinished attempts have no completion time; they sort last.
     list.sort(
