@@ -56,6 +56,7 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// Planner unavailable (E2): the patient can build a plan by hand (FR700_044).
   bool plannerDown = false;
+  bool needsDailyReplan = false;
 
   /// Meal recommendations for the next meal (FR700_021).
   List<FoodItem> recommendations = const [];
@@ -187,6 +188,7 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// Daily: breakfast, lunch, dinner and a snack (FR700_029). Weekly: seven days (FR700_030).
   Future<void> _generate({int seed = 0}) async {
+    needsDailyReplan = false;
     final id = _accountId;
     if (id == null) return;
     final history = await _history();
@@ -199,6 +201,12 @@ class DietPlanViewModel extends BaseViewModel {
         return;
       }
       daily = saved.dataOrNull;
+      if (daily != null && _generationProblems(daily, todays).isNotEmpty) {
+        needsDailyReplan = true;
+        _message =
+            "Today's saved plan does not meet all nutrition targets and limits. Replan Today's Plan first, then make a new week. Your saved plans were kept.";
+        return;
+      }
     }
     final res = await _planner.generate(
       accountId: id,
@@ -223,9 +231,8 @@ class DietPlanViewModel extends BaseViewModel {
     if (res case Success(:final data)) {
       plannerDown = false;
       final next = daily == null ? data : _withToday(data, daily);
-      // The AI reply passed its strict gate before restoring the patient's saved choices.
-      if (_planner.editingProblems(next).isNotEmpty) {
-        _message = 'This plan contains foods that do not suit your profile. No new plan was saved.';
+      if (_generationProblems(next, todays).isNotEmpty) {
+        _message = 'This plan does not meet all nutrition targets and limits. No new plan was saved.';
         return;
       }
       if (await _mealRepo.savePlan(next) is Failure) {
@@ -235,7 +242,10 @@ class DietPlanViewModel extends BaseViewModel {
       plan = next;
       await _markLogged();
     } else {
-      plannerDown = true; // E2
+      plannerDown = switch (res) {
+        Failure(:final code) => code != 'plan_breaches_limits',
+        _ => true,
+      };
       _message = switch (res) {
         Failure(:final message) => message,
         _ => Messages.plannerUnavailable,
@@ -243,6 +253,16 @@ class DietPlanViewModel extends BaseViewModel {
       await _markLogged();
     }
   }
+
+  List<String> _generationProblems(DietPlan p, List<MealLog> todays) => _planner.generationProblems(
+    p,
+    ctx,
+    consumedToday: Nutrients.sum(todays.map((m) => m.totals)),
+    consumedExtras: todays
+        .expand((m) => m.items)
+        .fold(FoodExtras.zero, (sum, item) => sum + item.food.extrasFor(item.portionSizeG)),
+    loggedSlots: todays.map((m) => m.mealType).toSet(),
+  );
 
   Future<void> generateDaily() async {
     type = PlanType.daily;

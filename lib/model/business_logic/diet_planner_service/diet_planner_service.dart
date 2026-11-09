@@ -54,7 +54,13 @@ class DietPlannerService {
     final day0 = DateTime(start.year, start.month, start.day);
     final today = DateTime.now();
     final dayEnd = type == PlanType.weekly ? day0.add(const Duration(days: 6)) : day0;
-    final safeLocked = locked.where((m) => suitability.suitsPatient(m.food, ctx, m.portionSizeG)).toList();
+    final safeLocked = PlannedMeal.mergeDuplicates(
+      locked,
+    ).where((m) => suitability.suitsPatient(m.food, ctx, m.portionSizeG)).toList();
+    final consumedExtras = history
+        .where((m) => _same(m.consumedAt, today))
+        .expand((m) => m.items)
+        .fold(FoodExtras.zero, (sum, item) => sum + item.food.extrasFor(item.portionSizeG));
     final rejectedFoods = <String>{...exclude};
     for (var attempt = 0; attempt < _maxAttempts; attempt++) {
       final res = await _api.post(AppConstants.planPath, {
@@ -72,9 +78,13 @@ class DietPlannerService {
           'daily_sugar_limit_g': ctx.dailySugarG,
         },
         'consumed_today': {
-          'energy_kcal': consumedToday.energyKcal,
-          'sodium_mg': consumedToday.sodiumMg,
-          'sugar_g': consumedToday.sugarG,
+          ...consumedToday.toJson(),
+          'sat_fat_g': consumedExtras.satFatG,
+          'fibre_g': consumedExtras.fibreG,
+          'calcium_mg': consumedExtras.calciumMg,
+          'potassium_mg': consumedExtras.potassiumMg,
+          'phosphorus_mg': consumedExtras.phosphorusMg,
+          'caffeine_mg': consumedExtras.caffeineMg,
         },
         'logged_slots_today': loggedSlots.map((s) => s.db).toList(),
         'locked': [
@@ -151,18 +161,19 @@ class DietPlannerService {
         generatedAt: DateTime.now(),
         meals: PlannedMeal.mergeDuplicates(meals),
       );
-      // A slot already eaten today counts once: what was eaten, not also what was planned for it.
-      final eatenPlanned = Nutrients.sum(
-        plan.meals.where((m) => _same(m.planDate, today) && loggedSlots.contains(m.mealSlot)).map((m) => m.nutrients),
-      );
       if (!rejectedResponse &&
-          meals.isNotEmpty &&
-          validate(plan, ctx, consumedToday: consumedToday - eatenPlanned, strict: true).isEmpty) {
+          generationProblems(
+            plan,
+            ctx,
+            consumedToday: consumedToday,
+            consumedExtras: consumedExtras,
+            loggedSlots: loggedSlots,
+          ).isEmpty) {
         return Success(plan);
       }
     }
     return const Failure(
-      'We could not make a plan with suitable foods after 3 attempts. No new plan was saved. Try again or build your plan yourself.',
+      'We could not meet all nutrition targets and upper limits with suitable foods after 3 attempts. No new plan was saved. Review your locked foods or profile and try again.',
       code: 'plan_breaches_limits',
     );
   }
@@ -206,21 +217,30 @@ class DietPlannerService {
   /// [strict] (a plan from the planner): every food the planner chose must also suit the patient
   /// ([SuitabilityService.suitsPatient]: no Caution, at most 30 % of a day's sodium or free sugars);
   /// locks and logged flags never exempt a food from the current profile's rules.
-  List<String> validate(DietPlan p, DietContext ctx, {Nutrients consumedToday = Nutrients.zero, bool strict = true}) {
+  List<String> validate(
+    DietPlan p,
+    DietContext ctx, {
+    Nutrients consumedToday = Nutrients.zero,
+    FoodExtras consumedExtras = FoodExtras.zero,
+    bool strict = true,
+    bool allowRoundingSlack = true,
+  }) {
     p = p.copyWith(meals: PlannedMeal.mergeDuplicates(p.meals));
     final problems = <String>[];
     final today = DateTime.now();
     final limits = ctx.targets.limits;
+    final mgSlack = allowRoundingSlack ? 0.5 : 1e-8;
+    final gSlack = allowRoundingSlack ? 0.05 : 1e-8;
     for (final day in p.days()) {
       var t = p.totalsFor(day);
       if (_same(day, today)) t = t + consumedToday;
-      if (t.energyKcal > ctx.dailyEnergyKcal + 0.5) problems.add('${_d(day)} energy');
-      if (t.sodiumMg > ctx.dailySodiumMg + 0.5) problems.add('${_d(day)} sodium');
-      if (t.sugarG > ctx.dailySugarG + 0.05) problems.add('${_d(day)} free sugars');
-      final x = extrasFor(p, day);
-      if (limits['sat_fat_g'] case final l? when x.satFatG > l + 0.05) problems.add('${_d(day)} saturated fat');
-      if (limits['protein_g'] case final l? when t.proteinG > l + 0.05) problems.add('${_d(day)} protein');
-      if (limits['caffeine_mg'] case final l? when x.caffeineMg > l + 0.5) problems.add('${_d(day)} caffeine');
+      if (t.energyKcal > ctx.dailyEnergyKcal + mgSlack) problems.add('${_d(day)} energy');
+      if (t.sodiumMg > ctx.dailySodiumMg + mgSlack) problems.add('${_d(day)} sodium');
+      if (t.sugarG > ctx.dailySugarG + gSlack) problems.add('${_d(day)} free sugars');
+      final x = extrasFor(p, day) + (_same(day, today) ? consumedExtras : FoodExtras.zero);
+      if (limits['sat_fat_g'] case final l? when x.satFatG > l + gSlack) problems.add('${_d(day)} saturated fat');
+      if (limits['protein_g'] case final l? when t.proteinG > l + gSlack) problems.add('${_d(day)} protein');
+      if (limits['caffeine_mg'] case final l? when x.caffeineMg > l + mgSlack) problems.add('${_d(day)} caffeine');
     }
     for (final m in p.meals) {
       if (suitability.isExcludedFromPlans(m.food, ctx, m.portionSizeG) ||
@@ -229,6 +249,42 @@ class DietPlannerService {
       }
     }
     return problems;
+  }
+
+  /// AI generation must meet lower nutrition targets as well as the existing upper/profile gate.
+  /// A logged slot counts its actual food once, rather than its planned food plus the meal log.
+  List<String> generationProblems(
+    DietPlan p,
+    DietContext ctx, {
+    Nutrients consumedToday = Nutrients.zero,
+    FoodExtras consumedExtras = FoodExtras.zero,
+    Set<MealSlot> loggedSlots = const {},
+  }) {
+    final today = DateTime.now();
+    p = p.copyWith(meals: PlannedMeal.mergeDuplicates(p.meals));
+    final reviewed = p.copyWith(
+      meals: p.meals.where((m) => !_same(m.planDate, today) || !loggedSlots.contains(m.mealSlot)).toList(),
+    );
+    return [
+      for (final m in p.meals)
+        if (!suitability.suitsPatient(m.food, ctx, m.portionSizeG)) '${m.food.foodName} is not suitable',
+      ...validate(
+        reviewed,
+        ctx,
+        consumedToday: consumedToday,
+        consumedExtras: consumedExtras,
+        allowRoundingSlack: false,
+      ),
+      for (final day in p.days())
+        for (final warning in nutritionWarnings(
+          reviewed,
+          day,
+          ctx,
+          eatenOutside: _same(day, today) ? consumedToday : Nutrients.zero,
+          outsideExtras: _same(day, today) ? consumedExtras : FoodExtras.zero,
+        ))
+          '${_d(day)}: ${warning.text}',
+    ];
   }
 
   /// User choices may exceed health limits, but malformed portions or dates cannot be stored.

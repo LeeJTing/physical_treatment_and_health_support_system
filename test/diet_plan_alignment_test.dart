@@ -19,6 +19,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/pr
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
+import 'support/diet_plan_fixtures.dart';
 
 class _FailPlanSave extends FakeMealRepository {
   bool refuse = false;
@@ -74,72 +75,44 @@ void main() {
     repo = FakeMealRepository();
   });
 
-  test(
-    'weekly generation and regeneration keep the whole daily plan, including empty slots and unlocked portions',
-    () async {
-      final daily = stored(PlanType.daily, [PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 125)]);
-      await repo.savePlan(daily);
-      var calls = 0;
-      final vm = build(
-        client: MockClient((req) async {
-          calls++;
-          final body = jsonDecode(req.body) as Map<String, dynamic>;
-          final locked = (body['locked'] as List).cast<Map<String, dynamic>>();
-          expect(locked.single['food_key'], 'oats');
-          expect(locked.single['portion_g'], 125);
-          return http.Response(
-            jsonEncode({
-              'model_version': 'diet-planner-2.2+pref-logreg-1',
-              'days': [
-                // The server may fill an empty slot: the client's daily plan still takes precedence.
-                {
-                  'plan_date': day.toIso8601String().substring(0, 10),
-                  'meals': [
-                    {
-                      'meal_slot': 'BREAKFAST',
-                      'items': [
-                        {'food_key': 'oats', 'portion_g': 125},
-                      ],
-                    },
-                    {
-                      'meal_slot': 'SNACK',
-                      'items': [
-                        {'food_key': 'epal', 'portion_g': 150},
-                      ],
-                    },
-                  ],
-                },
-                {
-                  'plan_date': tomorrow.toIso8601String().substring(0, 10),
-                  'meals': [
-                    {
-                      'meal_slot': 'BREAKFAST',
-                      'items': [
-                        {'food_key': 'oats', 'portion_g': 250},
-                      ],
-                    },
-                  ],
-                },
-              ],
-            }),
-            200,
-          );
-        }),
-      );
-      await vm.load(PlanType.weekly);
-      expect(vm.plan!.mealsFor(day), hasLength(1));
-      expect(vm.plan!.mealsFor(day).single.portionSizeG, 125);
-      expect(vm.plan!.mealsFor(day).single.isLocked, isFalse); // preservation is not a patient lock
-      expect(vm.plan!.mealsFor(day).single.plannedMealId, isNot(daily.meals.single.plannedMealId));
-      expect(vm.plan!.mealsFor(tomorrow).single.portionSizeG, 250);
-      expect(vm.previewRemove(vm.plan!.mealsFor(day).single), isNull);
-      expect(vm.previewAdd(tomorrow, MealSlot.snack, food('epal')), isNotNull);
-      await vm.regenerate();
-      expect(calls, 2);
-      expect(vm.plan!.mealsFor(day).single.portionSizeG, 125);
-      expect(vm.regenerateEffects.first, contains("Today's meals stay"));
-    },
-  );
+  test('weekly generation keeps an adequate daily plan, including its empty snack and unlocked portions', () async {
+    final daily = stored(PlanType.daily, adequateMeals(foods, day));
+    await repo.savePlan(daily);
+    var calls = 0;
+    final vm = build(
+      client: MockClient((req) async {
+        calls++;
+        final body = jsonDecode(req.body) as Map;
+        final locked = body['locked'] as List;
+        expect(locked, hasLength(3));
+        expect(locked.first['food_key'], 'oats');
+        expect(locked.first['portion_g'], 125);
+        final days = [
+          for (var i = 0; i < 7; i++) adequateDay(foods, day.add(Duration(days: i)), grams: i == 1 ? 250 : 125),
+        ];
+        (days.first['meals'] as List).add({
+          'meal_slot': 'SNACK',
+          'items': [
+            {'food_key': 'epal', 'portion_g': 150},
+          ],
+        });
+        return http.Response(jsonEncode({'model_version': 'diet-planner-2.3', 'days': days}), 200);
+      }),
+    );
+    await vm.load(PlanType.weekly);
+    expect(vm.plan!.mealsFor(day), hasLength(3));
+    expect(vm.plan!.mealsFor(day).first.portionSizeG, 125);
+    expect(vm.plan!.mealsFor(day).first.isLocked, isFalse);
+    expect(vm.plan!.mealsFor(day).first.plannedMealId, isNot(daily.meals.first.plannedMealId));
+    expect(vm.plan!.mealsFor(day).any((m) => m.mealSlot == MealSlot.snack), isFalse);
+    expect(vm.plan!.mealsFor(tomorrow).first.portionSizeG, 250);
+    expect(vm.previewRemove(vm.plan!.mealsFor(day).first), isNull);
+    expect(vm.previewAdd(tomorrow, MealSlot.snack, food('epal')), isNotNull);
+    await vm.regenerate();
+    expect(calls, 2);
+    expect(vm.plan!.mealsFor(day).first.portionSizeG, 125);
+    expect(vm.regenerateEffects.first, contains("Today's meals stay"));
+  });
 
   test('reopening the week reflects daily edits and removals while keeping the other days and row ids', () async {
     final future = PlannedMeal.of(food('epal'), tomorrow, MealSlot.snack, 150);
@@ -228,38 +201,14 @@ void main() {
     expect(repo.plans.single, same(original));
   });
 
-  test('a new week preserves a warned daily choice after the AI reply passes its own strict checks', () async {
-    await repo.savePlan(stored(PlanType.daily, [PlannedMeal.of(food('nasi_lemak'), day, MealSlot.breakfast, 250)]));
-    final vm = build(
-      client: MockClient(
-        (_) async => http.Response(
-          jsonEncode({
-            'model_version': 'diet-planner-2.2',
-            'days': [
-              for (final date in [day, tomorrow])
-                {
-                  'plan_date': date.toIso8601String().substring(0, 10),
-                  'meals': [
-                    {
-                      'meal_slot': 'BREAKFAST',
-                      'items': [
-                        {'food_key': 'oats', 'portion_g': 125},
-                      ],
-                    },
-                  ],
-                },
-            ],
-          }),
-          200,
-        ),
-      ),
-    );
+  test('a new week refuses to copy a warned or underfilled daily choice and keeps saved plans', () async {
+    final saved = stored(PlanType.daily, [PlannedMeal.of(food('nasi_lemak'), day, MealSlot.breakfast, 250)]);
+    await repo.savePlan(saved);
+    final vm = build(client: MockClient((_) async => throw StateError('Replan Today before making a week')));
     await vm.load(PlanType.weekly);
-    expect(vm.plan, isNotNull);
-    final savedToday = vm.plan!.mealsFor(day).single;
-    expect(savedToday.food.foodKey, 'nasi_lemak');
-    expect(vm.savedFoodWarnings(savedToday), isNotEmpty);
-    expect(vm.plan!.mealsFor(tomorrow).single.food.foodKey, 'oats');
-    expect(vm.savedFoodWarnings(vm.plan!.mealsFor(tomorrow).single), isEmpty);
+    expect(vm.plan, isNull);
+    expect(repo.plans.single, same(saved));
+    expect(vm.takeMessage(), contains("Replan Today's Plan first"));
+    expect(vm.needsDailyReplan, isTrue);
   });
 }

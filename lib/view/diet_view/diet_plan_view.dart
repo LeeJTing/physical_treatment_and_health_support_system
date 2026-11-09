@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/diet_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
@@ -437,6 +438,23 @@ class _DietPlanViewState extends State<DietPlanView> {
                       ),
                     ),
                     const SizedBox(height: 8),
+                  ],
+                  if (widget.type == PlanType.weekly && vm.needsDailyReplan) ...[
+                    WatchOutBox(
+                      const [
+                        PlanNote(
+                          "Today's saved plan does not meet all nutrition targets and limits. Replan it before making a new week. Your saved weekly plan is kept.",
+                          warn: true,
+                        ),
+                      ],
+                      title: "Replan Today's Plan first",
+                      action: TextButton.icon(
+                        onPressed: vm.isLoading ? null : () => _editToday(vm),
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text("Open Today's Plan"),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                   ],
                   OutlinedButton.icon(
                     style: OutlinedButton.styleFrom(

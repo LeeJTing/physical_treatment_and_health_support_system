@@ -20,6 +20,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/pr
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
+import 'support/diet_plan_fixtures.dart';
 
 class _DelayedMeals extends FakeMealRepository {
   Completer<void>? resume;
@@ -42,25 +43,12 @@ void main() {
   final foods = FakeFoodRepository.fromJson(File('assets/seed/food_catalogue.json').readAsStringSync());
   final now = DateTime.now();
   final day = DateTime(now.year, now.month, now.day);
-  final date = day.toIso8601String().substring(0, 10);
   FoodItem food(String key) => foods.foods.firstWhere((f) => f.foodKey == key);
   final ctx = DietContext(limit: SafetyLimit.mostRestrictive());
   http.Response response(String key, num grams) => http.Response(
     jsonEncode({
-      'model_version': 'diet-planner-2.2',
-      'days': [
-        {
-          'plan_date': date,
-          'meals': [
-            {
-              'meal_slot': 'BREAKFAST',
-              'items': [
-                {'food_key': key, 'portion_g': grams, 'verdict': 'SUITABLE'},
-              ],
-            },
-          ],
-        },
-      ],
+      'model_version': 'diet-planner-2.3',
+      'days': [adequateDay(foods, day, key: key, grams: grams.toDouble())],
     }),
     200,
   );
@@ -88,8 +76,8 @@ void main() {
     final vm = await vmFor(service, repo);
     await vm.load(PlanType.daily);
     expect(calls, 2);
-    expect(repo.plans.single.meals.single.food.foodKey, 'oats');
-    expect(vm.plan!.meals.single.food.foodKey, 'oats');
+    expect(repo.plans.single.meals.first.food.foodKey, 'oats');
+    expect(vm.plan!.meals.first.food.foodKey, 'oats');
   });
 
   test('three unsafe replies stop with an explanation and never save a plan', () async {
@@ -109,6 +97,183 @@ void main() {
     expect(repo.plans, isEmpty);
     expect(vm.plan, isNull);
     expect(vm.takeMessage(), contains('3 attempts'));
+  });
+
+  test('an underfilled Suitable reply is retried without excluding its safe food', () async {
+    var calls = 0;
+    final repo = FakeMealRepository();
+    final vm = await vmFor(
+      planner(
+        MockClient((request) async {
+          calls++;
+          if (calls == 1) {
+            final body = jsonDecode(response('oats', 125).body) as Map;
+            final dayData = (body['days'] as List).single as Map;
+            dayData['meals'] = [(dayData['meals'] as List).first];
+            return http.Response(jsonEncode(body), 200);
+          }
+          expect((jsonDecode(request.body) as Map)['exclude'], isNot(contains('oats')));
+          return response('oats', 125);
+        }),
+      ),
+      repo,
+    );
+    await vm.load(PlanType.daily);
+    expect(calls, 2);
+    expect(repo.plans, hasLength(1));
+    expect(vm.nutritionWarnings(day), isEmpty);
+  });
+
+  test('three underfilled replans keep the previous saved foods and do not report the server offline', () async {
+    var calls = 0;
+    final repo = FakeMealRepository();
+    final vm = await vmFor(
+      planner(
+        MockClient((_) async {
+          calls++;
+          final result = response('oats', 125);
+          if (calls == 1) return result;
+          final body = jsonDecode(result.body) as Map;
+          final d = (body['days'] as List).single as Map;
+          d['meals'] = [(d['meals'] as List).first];
+          return http.Response(jsonEncode(body), 200);
+        }),
+      ),
+      repo,
+    );
+    await vm.load(PlanType.daily);
+    final previous = vm.plan!;
+    await vm.regenerate();
+    expect(calls, 4);
+    expect(repo.plans, hasLength(1));
+    expect(vm.plan!.dietPlanId, previous.dietPlanId);
+    expect(vm.plan!.meals.map((m) => m.plannedMealId), previous.meals.map((m) => m.plannedMealId));
+    expect(vm.plannerDown, isFalse);
+    expect(vm.takeMessage(), contains('No new plan was saved'));
+  });
+
+  test('a weekly reply with missing days cannot be saved as an adequate week', () async {
+    var calls = 0;
+    final result = await planner(
+      MockClient((_) async {
+        calls++;
+        return response('oats', 125);
+      }),
+    ).generate(accountId: 'a', ctx: ctx, type: PlanType.weekly, start: day);
+    expect(result, isA<Failure<DietPlan>>());
+    expect(calls, 3);
+  });
+
+  test('a calorie-complete reply missing the profile fibre target is rejected', () async {
+    final diabetic = DietContext(
+      limit: ctx.limit,
+      conditions: [LookupSeed.conditions.firstWhere((c) => c.conditionCode == 'DIABETES')],
+    );
+    var calls = 0;
+    final result = await planner(
+      MockClient((_) async {
+        calls++;
+        return response('oats', 125);
+      }),
+    ).generate(accountId: 'a', ctx: diabetic, type: PlanType.daily, start: day);
+    expect(result, isA<Failure<DietPlan>>());
+    expect(calls, 3);
+  });
+
+  test('an otherwise suitable reply over the calorie ceiling is rejected', () async {
+    var calls = 0;
+    final result = await planner(
+      MockClient((_) async {
+        calls++;
+        return http.Response(
+          jsonEncode({
+            'model_version': 'diet-planner-2.3',
+            'days': [
+              {
+                'plan_date': day.toIso8601String().substring(0, 10),
+                'meals': [
+                  {
+                    'meal_slot': 'LUNCH',
+                    'items': [
+                      {'food_key': 'nasi_putih', 'portion_g': 1500, 'verdict': 'SUITABLE'},
+                    ],
+                  },
+                ],
+              },
+            ],
+          }),
+          200,
+        );
+      }),
+    ).generate(accountId: 'a', ctx: ctx, type: PlanType.daily, start: day);
+    expect(result, isA<Failure<DietPlan>>());
+    expect(calls, 3);
+  });
+
+  test('the request sends consumed protein, fat, carbohydrate and condition nutrients', () async {
+    final eaten = MealLog(
+      mealId: 'eaten',
+      accountId: 'a',
+      mealType: MealSlot.breakfast,
+      entryMethod: EntryMethod.manual,
+      consumedAt: now,
+      items: [MealItem.of(food('oats'), grams: 125)],
+    );
+    Map? sent;
+    await planner(
+      MockClient((request) async {
+        sent = jsonDecode(request.body) as Map;
+        return http.Response('{"error":{"code":"offline","message":"down"}}', 503);
+      }),
+    ).generate(
+      accountId: 'a',
+      ctx: ctx,
+      type: PlanType.daily,
+      start: day,
+      consumedToday: eaten.totals,
+      history: [eaten],
+      loggedSlots: {MealSlot.breakfast},
+    );
+    final nutrients = sent!['consumed_today'] as Map;
+    expect(nutrients['protein_g'], eaten.totals.proteinG);
+    expect(nutrients['carb_g'], eaten.totals.carbG);
+    expect(nutrients['fat_g'], eaten.totals.fatG);
+    expect(nutrients['fibre_g'], food('oats').extrasFor(125).fibreG);
+    expect(nutrients['calcium_mg'], food('oats').extrasFor(125).calciumMg);
+  });
+
+  test('logged slots count actual food once and even a small upper-limit excess blocks generation', () {
+    final service = planner(MockClient((_) async => response('oats', 125)));
+    final row = PlannedMeal.of(
+      food('oats'),
+      day,
+      MealSlot.breakfast,
+      ctx.dailyEnergyKcal * .85 / food('oats').energyKcalPer100g * 100,
+    );
+    final p = DietPlan(
+      dietPlanId: 'p',
+      accountId: 'a',
+      safetyLimitId: 'sl',
+      planType: PlanType.daily,
+      startDate: day,
+      endDate: day,
+      modelVersion: 'test',
+      generatedAt: now,
+      meals: [row],
+    );
+    expect(
+      service.generationProblems(p, ctx, consumedToday: row.nutrients, loggedSlots: {MealSlot.breakfast}),
+      isEmpty,
+    );
+    expect(service.generationProblems(p, ctx, consumedToday: row.nutrients), isNotEmpty);
+    expect(
+      service.generationProblems(
+        p.copyWith(meals: []),
+        ctx,
+        consumedToday: Nutrients(energyKcal: ctx.dailyEnergyKcal + .1),
+      ),
+      isNotEmpty,
+    );
   });
 
   test('a saved plan with profile conflicts stays visible with red warning reasons after reload', () async {
@@ -164,7 +329,7 @@ void main() {
     );
     expect(calls, 2);
     expect(result.isSuccess, isTrue);
-    expect(result.dataOrNull!.meals.single.food.foodKey, 'oats');
+    expect(result.dataOrNull!.meals.first.food.foodKey, 'oats');
   });
 
   test('Caution foods are rejected even when locked or marked logged', () {
@@ -259,7 +424,7 @@ void main() {
     for (final grams in [double.nan, double.infinity, 0.0, -10.0]) {
       final bad = PlannedMeal.of(food('oats'), day, MealSlot.breakfast, grams);
       expect(vm.manualProblems([bad]), isNotEmpty);
-      expect(vm.previewPortion(vm.plan!.meals.single, 0)!.allowed, isFalse);
+      expect(vm.previewPortion(vm.plan!.meals.first, 0)!.allowed, isFalse);
     }
   });
 
@@ -314,7 +479,7 @@ void main() {
       final repo = _DelayedMeals();
       final vm = await vmFor(planner(MockClient((_) async => response('oats', 125))), repo);
       await vm.load(PlanType.daily);
-      final row = vm.plan!.meals.single;
+      final row = vm.plan!.meals.first;
       final change = switch (action) {
         'add' => vm.previewAdd(day, MealSlot.breakfast, food('oats'), grams: 125)!,
         'remove' => vm.previewRemove(row)!,
@@ -334,8 +499,8 @@ void main() {
       expect(vm.isLoading, isFalse);
       expect(vm.changeInProgress, isNull);
       if (action == 'add') {
-        expect(repo.plans.single.meals, hasLength(1));
-        expect(repo.plans.single.meals.single.portionSizeG, 250);
+        expect(repo.plans.single.meals, hasLength(3));
+        expect(repo.plans.single.meals.first.portionSizeG, 250);
       }
     });
   }
@@ -348,9 +513,9 @@ void main() {
     final release = Completer<void>();
     repo.resume = release;
     repo.fail = true;
-    final pending = vm.applyChange(vm.previewRemove(original.meals.single)!);
+    final pending = vm.applyChange(vm.previewRemove(original.meals.first)!);
     await repo.started.future;
-    expect(vm.plan!.meals, isEmpty);
+    expect(vm.plan!.meals, hasLength(2));
     release.complete();
     expect(await pending, isFalse);
     expect(vm.plan, same(original));

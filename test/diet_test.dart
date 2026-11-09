@@ -293,14 +293,14 @@ void main() {
                     {
                       'meal_slot': 'LUNCH',
                       'items': [
-                        {'food_key': 'nasi_putih', 'portion_g': 160},
+                        {'food_key': 'nasi_putih', 'portion_g': 350},
                         {'food_key': 'telur_rebus', 'portion_g': 50},
                       ],
                     },
                     {
                       'meal_slot': 'DINNER',
                       'items': [
-                        {'food_key': 'nasi_beras_perang', 'portion_g': 160},
+                        {'food_key': 'nasi_beras_perang', 'portion_g': 350},
                         {'food_key': 'grilled_chicken_breast', 'portion_g': 100},
                       ],
                     },

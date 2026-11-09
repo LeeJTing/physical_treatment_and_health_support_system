@@ -39,8 +39,10 @@ The app talks to two back ends:
 - **Repeated foods.** Adding the same food twice in one meal combines its grams into one row and
   recalculates nutrients and suitability for the combined portion. Changing a food to another
   existing choice also merges them. The same food in different meals or days stays separate.
-- **Diet plan.** A daily or weekly plan built from suitable foods only (`/plan`). It stays within the
-  calorie target and the sodium and free-sugar limits.
+- **Diet plan.** A daily or weekly plan built from suitable foods only (`/plan`). Every generated day
+  supplies 75–100% of its calorie target, meets applicable protein, calcium and fibre minima, and stays
+  within sodium, free-sugar and condition-specific upper limits. The server and phone independently
+  check the returned whole-gram portions; today's actual logged nutrients count once.
   - The phone checks every returned food against the current profile, including locked foods.
     An unsafe reply is rejected and requested again, up to three attempts; it is never saved.
     User choices in the manual builder and Today/Weekly plan edits are allowed even when they
@@ -51,7 +53,9 @@ The app talks to two back ends:
     protein, calcium or fibre need is unmet. Weekly day chips also mark shortfalls. These alerts
     update with food changes and count today's logged foods outside planned slots; saving remains allowed.
   - Today's meals in the weekly view follow Today's Plan, including portions, locks and empty slots.
-    Weekly regeneration keeps them. Use **Edit today's plan** to change them; the other days stay.
+    Weekly regeneration keeps them when they pass the generation checks. Otherwise it keeps saved
+    plans and offers **Open Today's Plan** to replan today first. If no passing daily or weekly plan
+    can be generated after bounded retries, no replacement is saved.
   - **Build my plan myself** opens a draft with all four meals. Review existing picks, add several
     foods, change a food or portion, or remove one. The whole day is confirmed before saving;
     Close asks before discarding changes, and a failed save keeps the draft for another try.
@@ -142,7 +146,7 @@ How to start the server and the tunnel: the `fyp-fastapi` README, section "Phone
 
 ```
 flutter analyze                    # must report no issues
-flutter test                       # 606 tests in 50 files (9 Nov 2026)
+flutter test                       # 616 tests in 51 files (9 Nov 2026)
 python tool/check_architecture.py  # the layer rules above
 dart run tool/check_ai_server.dart http://192.168.0.13:8000 [--photo meal.jpg] [--token <Supabase token>]
 ```

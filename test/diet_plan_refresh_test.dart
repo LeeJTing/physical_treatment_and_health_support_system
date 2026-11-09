@@ -22,6 +22,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/pr
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
+import 'support/diet_plan_fixtures.dart';
 
 class _ReadFailure extends FakeMealRepository {
   @override
@@ -62,17 +63,11 @@ void main() {
         'model_version': 'diet-planner-2.2',
         'days': [
           for (var i = 0; i < days; i++)
-            {
-              'plan_date': day.add(Duration(days: i)).toIso8601String().substring(0, 10),
-              'meals': [
-                {
-                  'meal_slot': 'BREAKFAST',
-                  'items': [
-                    {'food_key': 'oats', 'portion_g': 125},
-                  ],
-                },
-              ],
-            },
+            adequateDay(
+              foods,
+              day.add(Duration(days: i)),
+              energyTarget: (body['limits']['daily_calorie_target'] as num).toDouble(),
+            ),
         ],
       }),
       200,
