@@ -53,73 +53,88 @@ class DietPlannerService {
     }
     final day0 = DateTime(start.year, start.month, start.day);
     final today = DateTime.now();
+    final dayEnd = type == PlanType.weekly ? day0.add(const Duration(days: 6)) : day0;
+    final safeLocked = locked.where((m) => suitability.suitsPatient(m.food, ctx, m.portionSizeG)).toList();
+    final rejectedFoods = <String>{...exclude};
     for (var attempt = 0; attempt < _maxAttempts; attempt++) {
-      final res = await _api.post(
-        AppConstants.planPath,
-        {
-          'plan_type': type.db,
-          'start_date': _d(day0),
-          'today': _d(today),
-          'conditions': ctx.failSafe ? const ['HYPERTENSION', 'DIABETES'] : ctx.conditionCodes,
-          'restrictions': ctx.restrictionCodes,
-          'limitations': ctx.limitationCodes,
-          'profile': ctx.profileForPlanner,
-          'risk_level': ctx.riskLevel.db,
-          'limits': {
-            'daily_calorie_target': ctx.dailyEnergyKcal,
-            'daily_sodium_limit_mg': ctx.dailySodiumMg,
-            'daily_sugar_limit_g': ctx.dailySugarG,
-          },
-          'consumed_today': {
-            'energy_kcal': consumedToday.energyKcal,
-            'sodium_mg': consumedToday.sodiumMg,
-            'sugar_g': consumedToday.sugarG,
-          },
-          'logged_slots_today': loggedSlots.map((s) => s.db).toList(),
-          'locked': [
-            for (final m in locked)
-              {
-                'plan_date': _d(m.planDate),
-                'meal_slot': m.mealSlot.db,
-                'food_key': m.food.foodKey,
-                'portion_g': m.portionSizeG,
-              },
-          ],
-          'history': [
-            for (final e in counts.entries) {'food_key': e.key, 'count': e.value},
-          ],
-          'exclude': exclude,
-          'seed': seed + attempt * 101,
+      final res = await _api.post(AppConstants.planPath, {
+        'plan_type': type.db,
+        'start_date': _d(day0),
+        'today': _d(today),
+        'conditions': ctx.failSafe ? const ['HYPERTENSION', 'DIABETES'] : ctx.conditionCodes,
+        'restrictions': ctx.restrictionCodes,
+        'limitations': ctx.limitationCodes,
+        'profile': ctx.profileForPlanner,
+        'risk_level': ctx.riskLevel.db,
+        'limits': {
+          'daily_calorie_target': ctx.dailyEnergyKcal,
+          'daily_sodium_limit_mg': ctx.dailySodiumMg,
+          'daily_sugar_limit_g': ctx.dailySugarG,
         },
-        timeout: AppConstants.planTimeout,
-      );
+        'consumed_today': {
+          'energy_kcal': consumedToday.energyKcal,
+          'sodium_mg': consumedToday.sodiumMg,
+          'sugar_g': consumedToday.sugarG,
+        },
+        'logged_slots_today': loggedSlots.map((s) => s.db).toList(),
+        'locked': [
+          for (final m in safeLocked)
+            {
+              'plan_date': _d(m.planDate),
+              'meal_slot': m.mealSlot.db,
+              'food_key': m.food.foodKey,
+              'portion_g': m.portionSizeG,
+            },
+        ],
+        'history': [
+          for (final e in counts.entries) {'food_key': e.key, 'count': e.value},
+        ],
+        'exclude': rejectedFoods.toList(),
+        'seed': seed + attempt * 101,
+      }, timeout: AppConstants.planTimeout);
       if (res case Failure(:final code, :final cause)) {
+        if (code == 'no_suitable_plan') continue;
         return Failure(Messages.plannerUnavailable, code: code, cause: cause); // E2
       }
       final body = res.dataOrNull!;
       modelVersion = (body['model_version'] ?? '') as String;
       final meals = <PlannedMeal>[];
+      var rejectedResponse = false;
       for (final day in (body['days'] as List? ?? const [])) {
         final dm = Map<String, dynamic>.from(day as Map);
-        final date = DateTime.parse(dm['plan_date'] as String);
+        final date = DateTime.tryParse(dm['plan_date'] as String? ?? '');
+        if (date == null) {
+          rejectedResponse = true;
+          continue;
+        }
+        if (date.isBefore(day0) || date.isAfter(dayEnd)) rejectedResponse = true;
         for (final slot in (dm['meals'] as List? ?? const [])) {
           final sm = Map<String, dynamic>.from(slot as Map);
           final ms = MealSlot.fromDb(sm['meal_slot'] as String?);
-          final wasLocked = locked.where((l) => _same(l.planDate, date) && l.mealSlot == ms).toList();
-          if (wasLocked.isNotEmpty) {
-            meals.addAll(wasLocked.map((l) => l.carriedOver()));
-            continue;
-          }
+          final fromServer = <PlannedMeal>[];
           for (final it in (sm['items'] as List? ?? const [])) {
             final im = Map<String, dynamic>.from(it as Map);
-            final food = (await _foods.byKey(im['food_key'] as String)).dataOrNull;
-            if (food == null) continue;
-            meals.add(PlannedMeal.of(food, date, ms, ((im['portion_g'] ?? food.baseServingG) as num).toDouble()));
+            final key = im['food_key'];
+            if (key is! String) {
+              rejectedResponse = true;
+              continue;
+            }
+            final food = (await _foods.byKey(key)).dataOrNull;
+            final portion = im['portion_g'];
+            final grams = portion is num ? portion.toDouble() : null;
+            if (food == null || grams == null || !suitability.suitsPatient(food, ctx, grams)) {
+              rejectedResponse = true;
+              rejectedFoods.add(key);
+              continue;
+            }
+            fromServer.add(PlannedMeal.of(food, date, ms, grams));
           }
+          final wasLocked = safeLocked.where((l) => _same(l.planDate, date) && l.mealSlot == ms).toList();
+          meals.addAll(wasLocked.isEmpty ? fromServer : wasLocked.map((l) => l.carriedOver()));
         }
       }
       // Locked or already-eaten slots the server skipped stay in the plan as they were.
-      for (final l in locked) {
+      for (final l in safeLocked) {
         final kept = meals.any(
           (m) => _same(m.planDate, l.planDate) && m.mealSlot == l.mealSlot && m.food.foodId == l.food.foodId,
         );
@@ -134,17 +149,22 @@ class DietPlannerService {
         endDate: type == PlanType.weekly ? day0.add(const Duration(days: 6)) : day0,
         modelVersion: modelVersion,
         generatedAt: DateTime.now(),
-        meals: meals,
+        meals: PlannedMeal.mergeDuplicates(meals),
       );
       // A slot already eaten today counts once: what was eaten, not also what was planned for it.
       final eatenPlanned = Nutrients.sum(
         plan.meals.where((m) => _same(m.planDate, today) && loggedSlots.contains(m.mealSlot)).map((m) => m.nutrients),
       );
-      if (validate(plan, ctx, consumedToday: consumedToday - eatenPlanned, strict: true).isEmpty) {
+      if (!rejectedResponse &&
+          meals.isNotEmpty &&
+          validate(plan, ctx, consumedToday: consumedToday - eatenPlanned, strict: true).isEmpty) {
         return Success(plan);
       }
     }
-    return const Failure(Messages.plannerUnavailable, code: 'plan_breaches_limits');
+    return const Failure(
+      'We could not make a plan with suitable foods after 3 attempts. No new plan was saved. Try again or build your plan yourself.',
+      code: 'plan_breaches_limits',
+    );
   }
 
   /// Rebuilds the rest of the day from what was eaten (FR700_034): the slots already logged and
@@ -185,13 +205,9 @@ class DietPlannerService {
   ///
   /// [strict] (a plan from the planner): every food the planner chose must also suit the patient
   /// ([SuitabilityService.suitsPatient]: no Caution, at most 30 % of a day's sodium or free sugars);
-  /// foods the patient locked or already ate are theirs and are not judged again.
-  List<String> validate(
-    DietPlan p,
-    DietContext ctx, {
-    Nutrients consumedToday = Nutrients.zero,
-    bool strict = false,
-  }) {
+  /// locks and logged flags never exempt a food from the current profile's rules.
+  List<String> validate(DietPlan p, DietContext ctx, {Nutrients consumedToday = Nutrients.zero, bool strict = true}) {
+    p = p.copyWith(meals: PlannedMeal.mergeDuplicates(p.meals));
     final problems = <String>[];
     final today = DateTime.now();
     final limits = ctx.targets.limits;
@@ -208,7 +224,7 @@ class DietPlannerService {
     }
     for (final m in p.meals) {
       if (suitability.isExcludedFromPlans(m.food, ctx, m.portionSizeG) ||
-          (strict && !m.isLocked && !m.isLogged && !suitability.suitsPatient(m.food, ctx, m.portionSizeG))) {
+          (strict && !suitability.suitsPatient(m.food, ctx, m.portionSizeG))) {
         problems.add('${m.food.foodName} is not suitable');
       }
     }
@@ -283,10 +299,8 @@ class DietPlannerService {
     final extra = _same(day, DateTime.now()) ? eatenOutside : Nutrients.zero;
     final b = before.totalsFor(day) + extra;
     final a = after.totalsFor(day) + extra;
-    final old = validate(before, ctx, consumedToday: eatenOutside).toSet();
     final problems = [
-      for (final p in validate(after, ctx, consumedToday: eatenOutside))
-        if (!old.contains(p)) _problemWords(p, a, after, day, ctx),
+      for (final p in validate(after, ctx, consumedToday: eatenOutside)) _problemWords(p, a, after, day, ctx),
     ];
     final slotKcal = _slotKcal(after, day, slot);
     final usual = ctx.dailyEnergyKcal * slotShare[slot]!;
@@ -419,7 +433,9 @@ class DietPlannerService {
       out.add(PlanNote('Adds ${x.fibreG.toStringAsFixed(1)} g fibre towards the ${_n(v)} g you need a day.'));
     }
     if (ctx.restrictions.isNotEmpty) {
-      out.add(PlanNote('Has none of the foods you avoid (${ctx.restrictions.map((r) => r.restrictionName).join(', ')}).'));
+      out.add(
+        PlanNote('Has none of the foods you avoid (${ctx.restrictions.map((r) => r.restrictionName).join(', ')}).'),
+      );
     }
     if (ctx.oneHandOnly) out.add(const PlanNote('Can be eaten with one hand: no bones, shells or whole fish.'));
     if (ctx.targets.pregnant) out.add(const PlanNote('Safe in pregnancy: no raw fish, undercooked egg or alcohol.'));
@@ -511,12 +527,7 @@ class DietPlannerService {
   }
 
   /// How a day of the plan was made and how it fits the patient's limits (DC700_06).
-  List<PlanReason> summaryFor(
-    DietPlan p,
-    DateTime day,
-    DietContext ctx, {
-    Nutrients eatenOutside = Nutrients.zero,
-  }) {
+  List<PlanReason> summaryFor(DietPlan p, DateTime day, DietContext ctx, {Nutrients eatenOutside = Nutrients.zero}) {
     final t = p.totalsFor(day) + (_same(day, DateTime.now()) ? eatenOutside : Nutrients.zero);
     final basis = ctx.targets.basis['energy_kcal'] ?? 'your safety limit';
     final conds = ctx.conditions.map((c) => c.conditionName.toLowerCase()).toList();
@@ -539,7 +550,11 @@ class DietPlannerService {
         'Your target is ${_n(ctx.dailyEnergyKcal)} kcal a day ($basis). Breakfast gets about 25%, lunch 35%, '
             'dinner 30% and a snack 10%, so no meal is too heavy. This day has ${_n(t.energyKcal)} kcal '
             '(${pctWord(t.energyKcal, ctx.dailyEnergyKcal)} of the target).'
-            '${t.energyKcal > ctx.dailyEnergyKcal ? ' ${_body['energy_over']}' : t.energyKcal < 0.75 * ctx.dailyEnergyKcal ? ' ${_body['energy_low']} Add a food to a meal.' : ''}',
+            '${t.energyKcal > ctx.dailyEnergyKcal
+                ? ' ${_body['energy_over']}'
+                : t.energyKcal < 0.75 * ctx.dailyEnergyKcal
+                ? ' ${_body['energy_low']} Add a food to a meal.'
+                : ''}',
         ok: t.energyKcal <= ctx.dailyEnergyKcal && t.energyKcal >= 0.75 * ctx.dailyEnergyKcal,
       ),
       const PlanReason(
@@ -552,7 +567,11 @@ class DietPlannerService {
       PlanReason(
         'limits',
         saltHigh || sugarHigh
-            ? 'Close to your ${saltHigh && sugarHigh ? 'salt and sugar limits' : saltHigh ? 'salt limit' : 'sugar limit'}'
+            ? 'Close to your ${saltHigh && sugarHigh
+                  ? 'salt and sugar limits'
+                  : saltHigh
+                  ? 'salt limit'
+                  : 'sugar limit'}'
             : 'Within your salt and sugar limits',
         'Planned: ${_n(t.sodiumMg)} of ${_n(ctx.dailySodiumMg)} mg sodium (${pctWord(t.sodiumMg, ctx.dailySodiumMg)}) '
             'and ${t.sugarG.toStringAsFixed(1)} of ${ctx.dailySugarG.toStringAsFixed(0)} g free sugars '
@@ -651,7 +670,9 @@ class DietPlannerService {
     }
     if (p.endsWith(' protein')) return 'protein ${a.proteinG.round()} of at most ${_n(lim['protein_g'] ?? 0)} g';
     if (p.endsWith(' caffeine')) return 'caffeine ${_n(x.caffeineMg)} of ${_n(lim['caffeine_mg'] ?? 0)} mg';
-    if (p.endsWith(' is not suitable')) return '${p.substring(0, p.length - 16)} is Not Suitable for you at this portion';
+    if (p.endsWith(' is not suitable')) {
+      return '${p.substring(0, p.length - 16)} does not suit your profile at this portion';
+    }
     return p;
   }
 
@@ -665,7 +686,9 @@ class DietPlannerService {
 
   static String _servingWords(double s) {
     final r = (s * 4).round() / 4;
-    final t = r == r.roundToDouble() ? r.round().toString() : r.toStringAsFixed(r * 2 == (r * 2).roundToDouble() ? 1 : 2);
+    final t = r == r.roundToDouble()
+        ? r.round().toString()
+        : r.toStringAsFixed(r * 2 == (r * 2).roundToDouble() ? 1 : 2);
     return '$t ${r == 1 ? 'serving' : 'servings'}';
   }
 
@@ -679,11 +702,7 @@ class DietPlannerService {
 
   /// The time by which a planned main meal is expected to be logged; the "follow your plan" alert
   /// rings then when it has not been (snacks have none).
-  static const mealDeadline = {
-    MealSlot.breakfast: (10, 30),
-    MealSlot.lunch: (14, 30),
-    MealSlot.dinner: (20, 30),
-  };
+  static const mealDeadline = {MealSlot.breakfast: (10, 30), MealSlot.lunch: (14, 30), MealSlot.dinner: (20, 30)};
 
   static DateTime? deadlineOf(MealSlot s, DateTime day) {
     final t = mealDeadline[s];
@@ -695,7 +714,10 @@ class DietPlannerService {
   static bool follows(List<PlannedMeal> planned, List<MealLog> eaten) {
     if (planned.isEmpty || eaten.isEmpty) return false;
     if (eaten.any((m) => planned.any((p) => p.plannedMealId == m.plannedMealId))) return true;
-    final keys = {for (final m in eaten) for (final i in m.items) i.food.foodKey};
+    final keys = {
+      for (final m in eaten)
+        for (final i in m.items) i.food.foodKey,
+    };
     return planned.where((p) => keys.contains(p.food.foodKey)).length * 2 >= planned.length;
   }
 
@@ -762,7 +784,9 @@ class DietPlannerService {
     final slot = meal.mealType;
     final s = slot.label.toLowerCase();
     final planned = p.mealsFor(day).where((m) => m.mealSlot == slot).toList();
-    final eatenToday = {for (final m in [...loggedToday, meal]) m.mealId: m}.values.toList();
+    final eatenToday = {
+      for (final m in [...loggedToday, meal]) m.mealId: m,
+    }.values.toList();
     if (follows(planned, eatenToday.where((m) => m.mealType == slot).toList())) return null;
     final ate = meal.totals;
     final plannedT = Nutrients.sum(planned.map((m) => m.nutrients));

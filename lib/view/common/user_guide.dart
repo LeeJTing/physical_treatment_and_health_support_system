@@ -72,9 +72,11 @@ abstract final class Guides {
       Icons.add_circle,
       'Add or remove foods',
       'Tap "Add food" under a meal, or the cross next to a food. You will see what changes before '
-          'anything is changed.',
+          'anything is changed. "Build my plan myself" lets you review all four meals in a draft before saving.',
     ),
-    GuideStep(Icons.refresh, 'Ask for a new plan', 'Tap the refresh button at the top. Locked foods stay.'),
+    GuideStep(Icons.refresh, 'Ask for a new plan',
+      'Tap refresh. Locked foods stay. A new week also keeps today\'s saved meals; '
+          'use "Edit today\'s plan" to change them.'),
   ]);
 
   static const tracking = UserGuide('tracking', 'Recording your health readings', [

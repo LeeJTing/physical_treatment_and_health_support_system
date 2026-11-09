@@ -99,7 +99,15 @@ void main() {
   group('food catalogue', () {
     test('holds the Malaysian and healthcare foods the server recognises', () {
       expect(foods.foods.length, greaterThanOrEqualTo(200));
-      for (final k in ['nasi_lemak', 'roti_canai', 'char_kway_teow', 'asam_laksa', 'teh_tarik', 'oats', 'steamed_fish']) {
+      for (final k in [
+        'nasi_lemak',
+        'roti_canai',
+        'char_kway_teow',
+        'asam_laksa',
+        'teh_tarik',
+        'oats',
+        'steamed_fish',
+      ]) {
         expect(foods.foods.any((f) => f.foodKey == k), isTrue, reason: k);
       }
     });
@@ -139,9 +147,9 @@ void main() {
     });
 
     test('diabetes: 7.5 g free sugars per item, most restrictive verdict shown (FR700_028)', () {
-      final item = MealItem.of(food('teh_tarik')).withVerdicts(
-        s.assess(MealItem.of(food('teh_tarik')), ctx(conds: ['DIABETES', 'HYPERTENSION'])),
-      );
+      final item = MealItem.of(
+        food('teh_tarik'),
+      ).withVerdicts(s.assess(MealItem.of(food('teh_tarik')), ctx(conds: ['DIABETES', 'HYPERTENSION'])));
       expect(item.worstVerdict(), Verdict.notSuitable);
       expect(item.verdicts.any((v) => v.nutrient == 'sugar_g' && v.limit == 7.5), isTrue);
     });
@@ -276,10 +284,32 @@ void main() {
                 {
                   'plan_date': today,
                   'meals': [
-                    {'meal_slot': 'BREAKFAST', 'items': [{'food_key': 'oats', 'portion_g': 250}]},
-                    {'meal_slot': 'LUNCH', 'items': [{'food_key': 'nasi_putih', 'portion_g': 160}, {'food_key': 'telur_rebus', 'portion_g': 50}]},
-                    {'meal_slot': 'DINNER', 'items': [{'food_key': 'nasi_beras_perang', 'portion_g': 160}, {'food_key': 'grilled_chicken_breast', 'portion_g': 100}]},
-                    {'meal_slot': 'SNACK', 'items': [{'food_key': 'epal', 'portion_g': 150}]},
+                    {
+                      'meal_slot': 'BREAKFAST',
+                      'items': [
+                        {'food_key': 'oats', 'portion_g': 250},
+                      ],
+                    },
+                    {
+                      'meal_slot': 'LUNCH',
+                      'items': [
+                        {'food_key': 'nasi_putih', 'portion_g': 160},
+                        {'food_key': 'telur_rebus', 'portion_g': 50},
+                      ],
+                    },
+                    {
+                      'meal_slot': 'DINNER',
+                      'items': [
+                        {'food_key': 'nasi_beras_perang', 'portion_g': 160},
+                        {'food_key': 'grilled_chicken_breast', 'portion_g': 100},
+                      ],
+                    },
+                    {
+                      'meal_slot': 'SNACK',
+                      'items': [
+                        {'food_key': 'epal', 'portion_g': 150},
+                      ],
+                    },
                   ],
                 },
               ],
@@ -363,9 +393,12 @@ void main() {
       expect(s.suitsPatient(food('nasi_lemak'), ctx(conds: ['HYPERTENSION'])), isFalse); // 695 mg sodium
       expect(s.suitsPatient(food('nasi_lemak'), ctx()), isFalse); // more than 30 % of a day's sodium
       final lunch = PlannedMeal.of(food('nasi_lemak'), day, MealSlot.lunch, 250);
-      expect(planner.validate(plan([lunch]), ctx()), isEmpty); // the patient may still choose it
+      expect(planner.validate(plan([lunch]), ctx()), isNotEmpty); // manual plans must suit the patient too
       expect(planner.validate(plan([lunch]), ctx(), strict: true), isNotEmpty); // the planner may not
-      expect(planner.validate(plan([lunch.lock()]), ctx(), strict: true), isEmpty); // locked: the patient's
+      expect(
+        planner.validate(plan([lunch.lock()]), ctx(), strict: true),
+        isNotEmpty,
+      ); // a lock never bypasses the rules
     });
 
     test('alternatives and suggestions are all suitable foods', () async {
@@ -390,7 +423,9 @@ void main() {
 
     test('a change that would break a limit is shown with the amount and not allowed (FR700_042)', () {
       final before = plan([PlannedMeal.of(food('oats'), day, MealSlot.breakfast, 250)]);
-      final after = before.copyWith(meals: [...before.meals, PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 300)]);
+      final after = before.copyWith(
+        meals: [...before.meals, PlannedMeal.of(food('ikan_masin'), day, MealSlot.lunch, 300)],
+      );
       final c = preview(before, after, MealSlot.lunch, ctx());
       expect(c.allowed, isFalse);
       expect(c.problems.join(' '), contains('sodium'));
@@ -455,7 +490,12 @@ void main() {
         auth,
       );
       await vm.load(PlanType.daily);
-      expect(await vm.saveManualPlan({MealSlot.breakfast: [food('oats')]}), isEmpty);
+      expect(
+        await vm.saveManualPlan({
+          MealSlot.breakfast: [food('oats')],
+        }),
+        isEmpty,
+      );
       final today = vm.plan!.startDate;
 
       final add = vm.previewAdd(today, MealSlot.snack, food('epal'))!;
@@ -501,7 +541,9 @@ void main() {
         auth,
       );
       await vm.load(PlanType.daily);
-      await vm.saveManualPlan({MealSlot.lunch: [food('nasi_putih')]});
+      await vm.saveManualPlan({
+        MealSlot.lunch: [food('nasi_putih')],
+      });
       final s = await vm.suggestionsFor(vm.plan!.startDate, MealSlot.lunch);
       expect(s, isNotEmpty);
       expect(s.first.planRole, anyOf('veg', 'protein')); // rice is there: vegetables or a protein next
@@ -544,11 +586,9 @@ void main() {
       expect(morning.map((a) => a.slot), [MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner]); // no snack
       expect(morning[1].at, DateTime(2026, 10, 26, 14, 30));
       expect(morning[1].body, contains('Plain white rice'));
-      final noon = planner.missedMealAlerts(
-        p,
-        [eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 8))],
-        DateTime(2026, 10, 26, 12),
-      );
+      final noon = planner.missedMealAlerts(p, [
+        eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 8)),
+      ], DateTime(2026, 10, 26, 12));
       expect(noon.map((a) => a.slot), [MealSlot.lunch, MealSlot.dinner]);
       expect(planner.missedMealAlerts(p, const [], DateTime(2026, 10, 27, 8)), isEmpty); // not a plan day
     });
@@ -583,23 +623,31 @@ void main() {
       expect(r.body, contains('blood pressure'));
     });
 
-    test('alerts are scheduled, cancelled when the meal is logged, and an off-plan meal is logged in the history', () async {
-      final repo = FakeNotificationRepository();
-      final device = _PlanScheduler();
-      final now = DateTime(2026, 10, 26, 8);
-      final alerts = LocalNotificationService(repo, FakeTreatmentRepository(const []), scheduler: device, now: () => now);
-      final p = dayPlan();
-      expect(await alerts.schedulePlanAlerts(planner.missedMealAlerts(p, const [], now)), 3);
-      expect(device.pending.keys, containsAll([700000000, 700000001, 700000002]));
-      final breakfast = eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 9));
-      await alerts.schedulePlanAlerts(planner.missedMealAlerts(p, [breakfast], now));
-      expect(device.pending.containsKey(700000000), isFalse); // breakfast logged: no alert
-      final other = eaten(MealSlot.lunch, [('ikan_masin', 100)], DateTime(2026, 10, 26, 8));
-      final entry = await alerts.planAlert('a', planner.offPlanAlertFor(other, p, ctx(), [other], now)!);
-      expect(repo.log.single.messageBody, entry.messageBody);
-      expect(entry.messageBody, contains('Not following your diet plan'));
-      expect(device.pending.containsKey(LocalNotificationService.offPlanAlertId(MealSlot.lunch)), isTrue);
-    });
+    test(
+      'alerts are scheduled, cancelled when the meal is logged, and an off-plan meal is logged in the history',
+      () async {
+        final repo = FakeNotificationRepository();
+        final device = _PlanScheduler();
+        final now = DateTime(2026, 10, 26, 8);
+        final alerts = LocalNotificationService(
+          repo,
+          FakeTreatmentRepository(const []),
+          scheduler: device,
+          now: () => now,
+        );
+        final p = dayPlan();
+        expect(await alerts.schedulePlanAlerts(planner.missedMealAlerts(p, const [], now)), 3);
+        expect(device.pending.keys, containsAll([700000000, 700000001, 700000002]));
+        final breakfast = eaten(MealSlot.breakfast, [('oats', 250)], DateTime(2026, 10, 26, 9));
+        await alerts.schedulePlanAlerts(planner.missedMealAlerts(p, [breakfast], now));
+        expect(device.pending.containsKey(700000000), isFalse); // breakfast logged: no alert
+        final other = eaten(MealSlot.lunch, [('ikan_masin', 100)], DateTime(2026, 10, 26, 8));
+        final entry = await alerts.planAlert('a', planner.offPlanAlertFor(other, p, ctx(), [other], now)!);
+        expect(repo.log.single.messageBody, entry.messageBody);
+        expect(entry.messageBody, contains('Not following your diet plan'));
+        expect(device.pending.containsKey(LocalNotificationService.offPlanAlertId(MealSlot.lunch)), isTrue);
+      },
+    );
 
     test('logging a meal that is not the planned one alerts the patient on the Diet tab', () async {
       final auth = FakeAuthRepository();
@@ -657,6 +705,52 @@ void main() {
       camera = _NoCamera();
     });
 
+    test('adding papaya twice combines the grams and nutrients in one row before saving', () async {
+      final vm = build(MockClient((_) async => http.Response('{}', 503)));
+      await vm.load();
+      vm.startManual();
+      final papaya = food('betik');
+      vm.addFood(papaya, grams: 100);
+      final id = vm.draft!.items.single.mealItemId;
+      vm.addFood(papaya, grams: 150);
+      final row = vm.draft!.items.single;
+      expect(row.mealItemId, id);
+      expect(row.portionSizeG, 250);
+      expect(row.energyKcal, papaya.nutrientsFor(250).energyKcal);
+      expect(row.sugarG, papaya.nutrientsFor(250).sugarG);
+      expect(vm.takeMessage(), contains('250 g'));
+      expect(await vm.confirmMeal(), isTrue);
+      expect(meals.meals.single.items, hasLength(1));
+    });
+
+    test('correcting another food to papaya merges and preserves the correction flag', () async {
+      final vm = build(MockClient((_) async => http.Response('{}', 503)));
+      await vm.load();
+      vm.startManual();
+      vm.addFood(food('betik'), grams: 100);
+      vm.addFood(food('oats'), grams: 125);
+      vm.correctItem(vm.draft!.items.last, food('betik'));
+      expect(vm.draft!.items, hasLength(1));
+      expect(vm.draft!.items.single.portionSizeG, 100 + food('betik').baseServingG);
+      expect(vm.draft!.items.single.isUserCorrected, isTrue);
+    });
+
+    test('merged quantities are reassessed and an excessive combined quantity leaves the draft unchanged', () async {
+      final vm = build(MockClient((_) async => http.Response('{}', 503)));
+      await vm.load();
+      vm.startManual();
+      vm.addFood(food('ikan_masin'), grams: 10);
+      vm.takeMessage();
+      vm.addFood(food('ikan_masin'), grams: 30);
+      expect(vm.draft!.items.single.portionSizeG, 40);
+      expect(vm.takeMessage(), contains('Not suitable:'));
+      vm.startManual();
+      vm.addFood(food('betik'), grams: 900);
+      vm.addFood(food('betik'), grams: 150);
+      expect(vm.draft!.items.single.portionSizeG, 900);
+      expect(vm.takeMessage(), contains('combined portion'));
+    });
+
     test('a photo is checked (C3) and reduced to 384 px JPEG before upload (C4)', () async {
       final svc = FoodRecognitionService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods);
       expect((await svc.prepare(jpeg(100, 100))).isSuccess, isFalse);
@@ -666,22 +760,46 @@ void main() {
       expect(ok.height, 288);
     });
 
+    test('choosing or resizing an unsuitable logged food alerts with the reason; correction clears it', () async {
+      final vm = build(MockClient((_) async => http.Response('{}', 503)));
+      await vm.load();
+      vm.startManual();
+      vm.addFood(food('ikan_masin'), grams: 40);
+      expect(vm.takeMessage(), contains('Not suitable:'));
+      vm.correctItem(vm.draft!.items.single, food('oats'));
+      expect(vm.takeMessage(), isNull);
+      vm.correctItem(vm.draft!.items.single, food('ikan_masin'));
+      vm.adjustPortion(vm.draft!.items.single, 40);
+      expect(vm.takeMessage(), contains('sodium'));
+      // A diary can record what was eaten; this is separate from saving a suitable diet plan.
+      expect(await vm.confirmMeal(), isTrue);
+    });
+
     test('recognised meal: items with verdicts; saved with its photo and model version', () async {
-      final vm = build(MockClient((req) async {
-        expect(req.headers['authorization'], 'Bearer t'); // FR700_047
-        return http.Response(
-          jsonEncode({
-            'model_version': 'food-clip-vitb16-head-1',
-            'is_food': true,
-            'confidence': 0.86,
-            'items': [
-              {'food_key': 'nasi_lemak', 'confidence': 0.86, 'primary': true, 'candidates': [{'food_key': 'nasi_kerabu'}]},
-              {'food_key': 'teh_tarik', 'confidence': 0.7, 'primary': false, 'candidates': []},
-            ],
-          }),
-          200,
-        );
-      }));
+      final vm = build(
+        MockClient((req) async {
+          expect(req.headers['authorization'], 'Bearer t'); // FR700_047
+          return http.Response(
+            jsonEncode({
+              'model_version': 'food-clip-vitb16-head-1',
+              'is_food': true,
+              'confidence': 0.86,
+              'items': [
+                {
+                  'food_key': 'nasi_lemak',
+                  'confidence': 0.86,
+                  'primary': true,
+                  'candidates': [
+                    {'food_key': 'nasi_kerabu'},
+                  ],
+                },
+                {'food_key': 'teh_tarik', 'confidence': 0.7, 'primary': false, 'candidates': []},
+              ],
+            }),
+            200,
+          );
+        }),
+      );
       await vm.load();
       camera.next = jpeg(800, 600);
       await vm.captureImage();
@@ -691,6 +809,20 @@ void main() {
       expect(meals.images, isEmpty); // not stored before confirmation (FR700_009)
       vm.adjustPortion(vm.draft!.items.first, 125); // FR700_007
       expect(vm.draft!.items.first.portionSizeG, 125);
+      // The weight can also be typed, from 10 g to 1000 g; anything else is refused with the reason.
+      final first = vm.draft!.items.first;
+      expect(vm.enterPortion(first, '5'), Messages.portionOutOfRange);
+      expect(vm.enterPortion(first, '1200'), Messages.portionOutOfRange);
+      expect(vm.enterPortion(first, 'abc'), Messages.portionNotNumber);
+      expect(vm.enterPortion(first, ''), Messages.portionNotNumber);
+      expect(vm.draft!.items.first.portionSizeG, 125); // unchanged
+      expect(vm.enterPortion(vm.draft!.items.first, '180,4'), isNull); // a comma is a decimal point
+      expect(vm.draft!.items.first.portionSizeG, 180);
+      final kcal180 = vm.draft!.items.first.energyKcal;
+      expect(vm.enterPortion(vm.draft!.items.first, '1000'), isNull); // the top of the range
+      expect(vm.draft!.items.first.energyKcal, closeTo(kcal180 * 1000 / 180, 1)); // nutrients follow
+      expect(vm.enterPortion(vm.draft!.items.first, '10'), isNull); // the bottom of the range
+      vm.adjustPortion(vm.draft!.items.first, 125);
       expect(await vm.confirmMeal(), isTrue);
       expect(meals.meals.single.modelVersion, 'food-clip-vitb16-head-1'); // FR700_008
       expect(meals.images, hasLength(1));
@@ -701,10 +833,21 @@ void main() {
     });
 
     test('below 60 % confidence the patient enters the food (A2, FR700_005)', () async {
-      final vm = build(MockClient((_) async => http.Response(
-        jsonEncode({'model_version': 'v', 'is_food': true, 'confidence': 0.41, 'items': [{'food_key': 'mee_goreng', 'confidence': 0.41}]}),
-        200,
-      )));
+      final vm = build(
+        MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'model_version': 'v',
+              'is_food': true,
+              'confidence': 0.41,
+              'items': [
+                {'food_key': 'mee_goreng', 'confidence': 0.41},
+              ],
+            }),
+            200,
+          ),
+        ),
+      );
       await vm.load();
       camera.next = jpeg(640, 480);
       await vm.pickFromGallery();
@@ -736,32 +879,35 @@ void main() {
       ],
     });
 
-    test('UI first: the meal is on today\'s list before the database answers; its photo comes back in the history', () async {
-      final vm = build(MockClient((_) async => http.Response(nasiLemak(), 200)));
-      await vm.load();
-      camera.next = jpeg(800, 600);
-      await vm.captureImage();
-      final saving = vm.confirmMeal();
-      // At once: on the list, marked as saving, with its photo and the day's totals.
-      expect(vm.today, hasLength(1));
-      expect(vm.isSaving(vm.today.single), isTrue);
-      expect(vm.photoOf(vm.today.single), isNotNull);
-      expect(vm.dailyTotals.energyKcal, greaterThan(0));
-      expect(await saving, isTrue);
-      expect(vm.isSaving(vm.today.single), isFalse);
-      expect(meals.images, hasLength(1));
+    test(
+      'UI first: the meal is on today\'s list before the database answers; its photo comes back in the history',
+      () async {
+        final vm = build(MockClient((_) async => http.Response(nasiLemak(), 200)));
+        await vm.load();
+        camera.next = jpeg(800, 600);
+        await vm.captureImage();
+        final saving = vm.confirmMeal();
+        // At once: on the list, marked as saving, with its photo and the day's totals.
+        expect(vm.today, hasLength(1));
+        expect(vm.isSaving(vm.today.single), isTrue);
+        expect(vm.photoOf(vm.today.single), isNotNull);
+        expect(vm.dailyTotals.energyKcal, greaterThan(0));
+        expect(await saving, isTrue);
+        expect(vm.isSaving(vm.today.single), isFalse);
+        expect(meals.images, hasLength(1));
 
-      // Opened again later: the history downloads the stored photo (FR700_009, FR700_014).
-      final later = build(MockClient((_) async => http.Response('{}', 500)));
-      await later.load();
-      final now = DateTime.now();
-      expect(await later.loadHistory(now.subtract(const Duration(days: 1)), now), isTrue);
-      final m = later.history.single;
-      expect(later.hasPhoto(m), isTrue);
-      expect(later.photoOf(m), isNull);
-      await later.fetchPhoto(m);
-      expect(later.photoOf(m), meals.images[m.imageUri]);
-    });
+        // Opened again later: the history downloads the stored photo (FR700_009, FR700_014).
+        final later = build(MockClient((_) async => http.Response('{}', 500)));
+        await later.load();
+        final now = DateTime.now();
+        expect(await later.loadHistory(now.subtract(const Duration(days: 1)), now), isTrue);
+        final m = later.history.single;
+        expect(later.hasPhoto(m), isTrue);
+        expect(later.photoOf(m), isNull);
+        await later.fetchPhoto(m);
+        expect(later.photoOf(m), meals.images[m.imageUri]);
+      },
+    );
 
     test('a failed save takes the meal off the list again and keeps it for another try (E2, M8)', () async {
       final vm = build(MockClient((_) async => throw const SocketException('down')));

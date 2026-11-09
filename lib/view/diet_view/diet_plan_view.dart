@@ -10,6 +10,7 @@ import 'package:physical_treatment_and_health_support_system/view/common/future_
 import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/manual_diet_plan_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/food_picture.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_widgets.dart';
@@ -143,7 +144,13 @@ class _DietPlanViewState extends State<DietPlanView> {
     if (f == null || !mounted) return;
     final c = vm.previewReplace(m, f);
     if (c == null) return;
-    final ok = await PlanChangeDialog.show(context, change: c, confirmLabel: 'Swap', icon: Icons.swap_horiz, role: f.planRole);
+    final ok = await PlanChangeDialog.show(
+      context,
+      change: c,
+      confirmLabel: 'Swap',
+      icon: Icons.swap_horiz,
+      role: f.planRole,
+    );
     if (ok != null) await vm.applyChange(ok);
   }
 
@@ -181,8 +188,10 @@ class _DietPlanViewState extends State<DietPlanView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(tidy(m.food.foodName),
-                          style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                      Text(
+                        tidy(m.food.foodName),
+                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                      ),
                       OneLineText(
                         '${look.label} · ${m.mealSlot.label} · ${m.portionSizeG.round()} g',
                         style: const TextStyle(fontSize: 15, color: AppTokens.inkMuted),
@@ -194,7 +203,10 @@ class _DietPlanViewState extends State<DietPlanView> {
                             children: [
                               Icon(Icons.lock, size: 16, color: AppTokens.brandDeep),
                               SizedBox(width: 4),
-                              Text('Locked', style: TextStyle(color: AppTokens.brandDeep, fontWeight: FontWeight.w600)),
+                              Text(
+                                'Locked',
+                                style: TextStyle(color: AppTokens.brandDeep, fontWeight: FontWeight.w600),
+                              ),
                             ],
                           ),
                         ),
@@ -206,7 +218,10 @@ class _DietPlanViewState extends State<DietPlanView> {
             const SizedBox(height: 14),
             NutrientTable(m.nutrients),
             const SizedBox(height: 16),
-            const Text('Why this food', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+            const Text(
+              'Why this food',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
+            ),
             const Text(
               'Anything that is too much, too little or not good for your body is shown in\u00A0red.',
               style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
@@ -217,8 +232,10 @@ class _DietPlanViewState extends State<DietPlanView> {
             if (m.isLocked)
               const Padding(
                 padding: EdgeInsets.only(bottom: 8),
-                child: Text('Unlock it to change the portion or swap\u00A0it.',
-                    style: TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                child: Text(
+                  'Unlock it to change the portion or swap\u00A0it.',
+                  style: TextStyle(fontSize: 14, color: AppTokens.inkMuted),
+                ),
               ),
             Row(
               children: [
@@ -278,22 +295,26 @@ class _DietPlanViewState extends State<DietPlanView> {
   }
 
   Future<void> _manual(DietPlanViewModel vm) async {
-    final chosen = <MealSlot, List<FoodItem>>{};
-    for (final s in MealSlot.values) {
-      if (!mounted) return;
-      final f = await FoodSearchSheet.show(
-        context,
-        search: (t) async => (await vm.searchCatalogue(t)).where((x) => x.mealSlots.contains(s.db)).toList(),
-        title: 'Choose your ${s.label.toLowerCase()}',
-      );
-      if (f != null) chosen[s] = [f];
-    }
-    if (chosen.isEmpty) return;
-    final problems = await vm.saveManualPlan(chosen);
+    final saved = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => ManualDietPlanView(viewModel: vm)));
     if (!mounted) return;
-    if (problems.isNotEmpty) {
-      _snack('This plan goes over a daily limit (${problems.first}). Choose lighter foods.');
+    if (saved == true) {
+      await vm.load(widget.type);
+      if (mounted) _snack("Today's plan has been saved.");
     }
+  }
+
+  Future<void> _editToday(DietPlanViewModel vm) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => ChangeNotifierProvider.value(
+          value: vm,
+          child: const DietPlanView(type: PlanType.daily),
+        ),
+      ),
+    );
+    if (mounted) await vm.load(PlanType.weekly);
   }
 
   // ------------------------------------------------------------------ screen
@@ -326,9 +347,18 @@ class _DietPlanViewState extends State<DietPlanView> {
         ],
         // A new plan is being made: the current one stays visible under a progress bar.
         bottom: vm.isLoading && p != null
-            ? const PreferredSize(
-                preferredSize: Size.fromHeight(4),
-                child: LinearProgressIndicator(minHeight: 4, color: AppTokens.cta, backgroundColor: AppTokens.tint),
+            ? PreferredSize(
+                preferredSize: Size.fromHeight(vm.changeInProgress == null ? 4 : 38),
+                child: Column(
+                  children: [
+                    const LinearProgressIndicator(minHeight: 4, color: AppTokens.cta, backgroundColor: AppTokens.tint),
+                    if (vm.changeInProgress case final action?)
+                      Padding(
+                        padding: const EdgeInsets.all(6),
+                        child: Text(action, style: const TextStyle(color: Colors.white)),
+                      ),
+                  ],
+                ),
               )
             : null,
       ),
@@ -394,17 +424,20 @@ class _DietPlanViewState extends State<DietPlanView> {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(color: AppTokens.warnContainer, borderRadius: BorderRadius.circular(16)),
-                    child: Text(tidy(Messages.plannerUnavailable), style: const TextStyle(color: AppTokens.onWarn, fontSize: 15)),
+                    child: Text(
+                      tidy(Messages.plannerUnavailable),
+                      style: const TextStyle(color: AppTokens.onWarn, fontSize: 15),
+                    ),
                   ),
                   const SizedBox(height: 8),
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52), shape: const StadiumBorder()),
-                    onPressed: () => _manual(vm),
-                    icon: const Icon(Icons.edit_note),
-                    label: const OneLineText('Build my plan myself'),
-                  ),
-                  const SizedBox(height: 12),
                 ],
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52), shape: const StadiumBorder()),
+                  onPressed: vm.isLoading ? null : () => _manual(vm),
+                  icon: const Icon(Icons.edit_note),
+                  label: const OneLineText('Build my plan myself'),
+                ),
+                const SizedBox(height: 12),
                 if (p != null) ...[
                   if (widget.type == PlanType.weekly) ...[
                     Text(
@@ -431,6 +464,14 @@ class _DietPlanViewState extends State<DietPlanView> {
                     const SizedBox(height: 8),
                   ],
                   if (days.isNotEmpty) ...[
+                    if (!vm.canEditDay(days[_day])) ...[
+                      const Text("Today's meals are the same as Today's Plan. Changes made there also appear here."),
+                      TextButton.icon(
+                        onPressed: vm.isLoading ? null : () => _editToday(vm),
+                        icon: const Icon(Icons.edit_outlined),
+                        label: const Text("Edit today's plan"),
+                      ),
+                    ],
                     _overview(vm, days[_day]),
                     const SizedBox(height: 12),
                     for (final slot in MealSlot.values) _slotCard(vm, p, days[_day], slot),
@@ -478,7 +519,13 @@ class _DietPlanViewState extends State<DietPlanView> {
                   isToday ? 'Your plan for today' : 'Your plan for ${_dayLabel(day)}',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
                 ),
-                PlanBar(label: 'Energy', value: t.energyKcal, limit: vm.ctx.dailyEnergyKcal, unit: 'kcal', isTarget: true),
+                PlanBar(
+                  label: 'Energy',
+                  value: t.energyKcal,
+                  limit: vm.ctx.dailyEnergyKcal,
+                  unit: 'kcal',
+                  isTarget: true,
+                ),
                 PlanBar(label: 'Sodium', value: t.sodiumMg, limit: vm.ctx.dailySodiumMg, unit: 'mg'),
                 PlanBar(label: 'Free sugars', value: t.sugarG, limit: vm.ctx.dailySugarG, unit: 'g', decimals: 1),
                 if (vm.unmetNeeds(day) case final unmet when unmet.isNotEmpty)
@@ -503,10 +550,14 @@ class _DietPlanViewState extends State<DietPlanView> {
               tilePadding: const EdgeInsets.symmetric(horizontal: 16),
               childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
               leading: const Icon(Icons.lightbulb_outline, color: AppTokens.brandDeep),
-              title: const OneLineText('Why this plan?',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep)),
-              subtitle: const Text('How it was made and how it fits your\u00A0limits',
-                  style: TextStyle(fontSize: 13, color: AppTokens.inkMuted)),
+              title: const OneLineText(
+                'Why this plan?',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppTokens.brandDeep),
+              ),
+              subtitle: const Text(
+                'How it was made and how it fits your\u00A0limits',
+                style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+              ),
               children: [
                 const Row(
                   children: [
@@ -528,8 +579,10 @@ class _DietPlanViewState extends State<DietPlanView> {
                 for (final r in vm.summaryFor(day)) PlanReasonTile(r),
                 if (vm.profileRules.isNotEmpty) ...[
                   const SizedBox(height: 4),
-                  const Text('Rules from your profile',
-                      style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                  const Text(
+                    'Rules from your profile',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                  ),
                   for (final r in vm.profileRules)
                     Padding(
                       padding: const EdgeInsets.only(top: 4),
@@ -574,7 +627,10 @@ class _DietPlanViewState extends State<DietPlanView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      OneLineText(slot.label, style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                      OneLineText(
+                        slot.label,
+                        style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                      ),
                       OneLineText(
                         '${look.time} · ${fmtNum(kcal)} kcal of about ${fmtNum(usual)}',
                         style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
@@ -598,7 +654,10 @@ class _DietPlanViewState extends State<DietPlanView> {
                     child: Column(
                       children: [
                         Icon(Icons.check_circle, color: AppTokens.good, size: 22),
-                        Text('Logged', style: TextStyle(color: AppTokens.good, fontWeight: FontWeight.w600, fontSize: 12)),
+                        Text(
+                          'Logged',
+                          style: TextStyle(color: AppTokens.good, fontWeight: FontWeight.w600, fontSize: 12),
+                        ),
                       ],
                     ),
                   ),
@@ -620,7 +679,7 @@ class _DietPlanViewState extends State<DietPlanView> {
               alignment: Alignment.centerLeft,
               child: TextButton.icon(
                 style: TextButton.styleFrom(minimumSize: const Size(0, AppTokens.minTarget)),
-                onPressed: vm.isLoading ? null : () => _add(vm, day, slot),
+                onPressed: vm.isLoading || !vm.canEditDay(day) ? null : () => _add(vm, day, slot),
                 icon: const Icon(Icons.add_circle_outline),
                 label: OneLineText('Add food to ${slot.label.toLowerCase()}'),
               ),
@@ -632,7 +691,11 @@ class _DietPlanViewState extends State<DietPlanView> {
   }
 
   Widget _foodRow(DietPlanViewModel vm, PlannedMeal m) => InkWell(
-    onTap: () => _openFood(vm, m),
+    onTap: vm.isLoading
+        ? null
+        : !vm.canEditDay(m.planDate)
+        ? () => _editToday(vm)
+        : () => _openFood(vm, m),
     child: Padding(
       padding: const EdgeInsets.fromLTRB(14, 10, 4, 4),
       child: Row(
@@ -646,8 +709,10 @@ class _DietPlanViewState extends State<DietPlanView> {
                 Row(
                   children: [
                     Flexible(
-                      child: Text(tidy(m.food.foodName),
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
+                      child: Text(
+                        tidy(m.food.foodName),
+                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                      ),
                     ),
                     if (m.isLocked)
                       const Padding(
@@ -671,7 +736,11 @@ class _DietPlanViewState extends State<DietPlanView> {
                             tidy(w.text.split(':').first),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 13, color: AppTokens.onDanger, fontWeight: FontWeight.w700),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppTokens.onDanger,
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
                         ),
                       ],
@@ -690,7 +759,7 @@ class _DietPlanViewState extends State<DietPlanView> {
           ),
           IconButton(
             tooltip: 'Remove ${m.food.foodName}',
-            onPressed: vm.isLoading ? null : () => _remove(vm, m),
+            onPressed: vm.isLoading || !vm.canEditDay(m.planDate) ? null : () => _remove(vm, m),
             icon: const Icon(Icons.close, color: AppTokens.inkMuted),
           ),
         ],
@@ -709,9 +778,15 @@ class _PlateKey extends StatelessWidget {
     padding: const EdgeInsets.symmetric(vertical: 3),
     child: Row(
       children: [
-        Container(width: 12, height: 12, decoration: BoxDecoration(color: colour, shape: BoxShape.circle)),
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(color: colour, shape: BoxShape.circle),
+        ),
         const SizedBox(width: 8),
-        Expanded(child: Text(tidy(text), style: const TextStyle(fontSize: 13, color: AppTokens.ink))),
+        Expanded(
+          child: Text(tidy(text), style: const TextStyle(fontSize: 13, color: AppTokens.ink)),
+        ),
       ],
     ),
   );
