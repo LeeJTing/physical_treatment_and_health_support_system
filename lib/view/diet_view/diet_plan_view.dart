@@ -17,7 +17,7 @@ import 'package:physical_treatment_and_health_support_system/view/diet_view/widg
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/plan_cards.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 
-enum _FoodAction { portion, swap, lock, remove }
+enum _FoodAction { portion, swap, lock, remove, editToday }
 
 /// Today's plan (UC900 A5) or the weekly plan (A6). Each day shows its planned energy, sodium and
 /// free sugars against the limits and "Why this plan?" (how it was made, with the healthy plate);
@@ -228,7 +228,7 @@ class _DietPlanViewState extends State<DietPlanView> {
             const SizedBox(height: 6),
             EffectList(reasons, bullet: Icons.check_circle),
             const SizedBox(height: 12),
-            if (m.isLocked)
+            if (vm.canEditDay(m.planDate) && m.isLocked)
               const Padding(
                 padding: EdgeInsets.only(bottom: 8),
                 child: Text(
@@ -236,46 +236,54 @@ class _DietPlanViewState extends State<DietPlanView> {
                   style: TextStyle(fontSize: 14, color: AppTokens.inkMuted),
                 ),
               ),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.tune,
-                    label: 'Portion',
-                    onTap: m.isLocked ? null : () => Navigator.pop(ctx, _FoodAction.portion),
+            if (!vm.canEditDay(m.planDate))
+              _ActionButton(
+                icon: Icons.edit_outlined,
+                label: "Edit today's plan",
+                onTap: () => Navigator.pop(ctx, _FoodAction.editToday),
+              )
+            else ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: _ActionButton(
+                      icon: Icons.tune,
+                      label: 'Portion',
+                      onTap: m.isLocked ? null : () => Navigator.pop(ctx, _FoodAction.portion),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.swap_horiz,
-                    label: 'Swap',
-                    onTap: m.isLocked ? null : () => Navigator.pop(ctx, _FoodAction.swap),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _ActionButton(
+                      icon: Icons.swap_horiz,
+                      label: 'Swap',
+                      onTap: m.isLocked ? null : () => Navigator.pop(ctx, _FoodAction.swap),
+                    ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: m.isLocked ? Icons.lock_open : Icons.lock,
-                    label: m.isLocked ? 'Unlock' : 'Lock',
-                    onTap: () => Navigator.pop(ctx, _FoodAction.lock),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _ActionButton(
+                      icon: m.isLocked ? Icons.lock_open : Icons.lock,
+                      label: m.isLocked ? 'Unlock' : 'Lock',
+                      onTap: () => Navigator.pop(ctx, _FoodAction.lock),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.delete_outline,
-                    label: 'Remove',
-                    danger: true,
-                    onTap: () => Navigator.pop(ctx, _FoodAction.remove),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _ActionButton(
+                      icon: Icons.delete_outline,
+                      label: 'Remove',
+                      danger: true,
+                      onTap: () => Navigator.pop(ctx, _FoodAction.remove),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -290,6 +298,8 @@ class _DietPlanViewState extends State<DietPlanView> {
         await vm.toggleLock(m);
       case _FoodAction.remove:
         await _remove(vm, m);
+      case _FoodAction.editToday:
+        await _editToday(vm);
     }
   }
 
@@ -623,11 +633,7 @@ class _DietPlanViewState extends State<DietPlanView> {
     key: ValueKey('saved-food-${m.plannedMealId}'),
     meal: m,
     warnings: vm.savedFoodWarnings(m),
-    onTap: vm.isLoading
-        ? null
-        : !vm.canEditDay(m.planDate)
-        ? () => _editToday(vm)
-        : () => _openFood(vm, m),
+    onTap: vm.isLoading ? null : () => _openFood(vm, m),
     onRemove: vm.isLoading || !vm.canEditDay(m.planDate) ? null : () => _remove(vm, m),
   );
 }

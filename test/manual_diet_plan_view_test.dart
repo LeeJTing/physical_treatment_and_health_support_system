@@ -240,7 +240,7 @@ void main() {
   });
 
   for (final type in PlanType.values) {
-    testWidgets('${type.name} saved plan uses the shared cards and red food warnings', (tester) async {
+    testWidgets('${type.name} saved plan shows food details without navigating away', (tester) async {
       tester.view.physicalSize = const Size(1080, 2400);
       tester.view.devicePixelRatio = 3;
       addTearDown(tester.view.reset);
@@ -288,6 +288,26 @@ void main() {
       );
       expect((row.decoration! as BoxDecoration).color, AppTokens.dangerContainer);
       await capture(tester, '${type.name}-warning');
+      await tester.tap(find.byType(PlanFoodRow).first);
+      await tester.pumpAndSettle();
+      expect(find.text('Why this food'), findsOneWidget);
+      expect(vm.type, type);
+      expect(find.byType(DietPlanView), findsOneWidget);
+      final action = find.descendant(
+        of: find.byType(DraggableScrollableSheet),
+        matching: find.text(type == PlanType.weekly ? "Edit today's plan" : 'Portion'),
+      );
+      await tester.scrollUntilVisible(
+        action,
+        200,
+        scrollable: find.descendant(of: find.byType(DraggableScrollableSheet), matching: find.byType(Scrollable)).first,
+      );
+      if (type == PlanType.weekly) {
+        expect(find.text('Portion'), findsNothing);
+        await tester.tap(action);
+        await tester.pumpAndSettle();
+        expect(vm.type, PlanType.daily);
+      }
       expect(tester.takeException(), isNull);
     });
   }

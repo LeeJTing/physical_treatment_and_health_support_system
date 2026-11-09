@@ -53,6 +53,7 @@ The app talks to two back ends:
     protein, calcium or fibre need is unmet. Weekly day chips also mark shortfalls. These alerts
     update with food changes and count today's logged foods outside planned slots; saving remains allowed.
   - Today's meals in the weekly view follow Today's Plan, including portions, locks and empty slots.
+    Tapping any day's food opens its information sheet; today's sheet has an explicit **Edit today's plan** button.
     Weekly regeneration keeps them when they pass the generation checks. Otherwise it keeps saved
     plans and offers **Open Today's Plan** to replan today first. If no passing daily or weekly plan
     can be generated after bounded retries, no replacement is saved.
