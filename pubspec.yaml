@@ -34,6 +34,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # On-device tests of the real app (integration_test/, Chapter 5 functional test cases; 9 Nov).
+  integration_test:
+    sdk: flutter
   flutter_lints: ^6.0.0
   # Test-only fakes of the camera and gallery plugins for recording_view tests; the versions
   # already locked through camera and image_picker (audit, 24 Oct).

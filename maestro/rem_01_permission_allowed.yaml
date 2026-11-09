@@ -1,0 +1,59 @@
+# ReminderModule_ScheduleReminders_TC001 (was TC-REM-01): selecting a plan asks Android for the
+# notification permission; after Allow, the plan's reminder is set for 9:00 AM on its three days.
+# The permission dialog belongs to Android, so this case is a Maestro flow and not a Flutter
+# integration test. The alarms themselves are listed afterwards by maestro/run_android.sh
+# (adb shell dumpsys alarm).
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: ReminderModule_ScheduleReminders_TC001
+---
+- runFlow:
+    file: common/patient_on_home.yaml
+    env:
+      AGE: "58"
+      CONDITION: Hypertension
+- runFlow:
+    file: common/find_plans.yaml
+    env:
+      REGION1: Right knee
+      REGION2: Left knee
+      STAGE: Early
+      MOBILITY: Low
+      GOAL: Move more freely
+- assertVisible: 'Early Knee Recovery'
+- tapOn:
+    text: Select
+    index: 0
+# Android's own dialog
+- extendedWaitUntil:
+    visible: '.*Allow.*HealthGuide.*notifications.*'
+    timeout: 10000
+- takeScreenshot: evidence/rem_01_android_permission_dialog
+- tapOn: Allow
+- extendedWaitUntil:
+    visible: The Plan has been saved successfully.
+    timeout: 15000
+- takeScreenshot: evidence/rem_01_plan_saved
+# Saving returns to the Treatment tab; the reminders are opened from Home.
+- tapOn: "Home\nTab 1 of 5"
+- tapOn: Reminders
+- runFlow: common/skip_reminder_guide.yaml
+# The reminder card is read as one node; each day is a button named after the day and marked
+# selected when it is on.
+- extendedWaitUntil:
+    visible: '[\s\S]*Time for Early Knee Recovery[\s\S]*'
+    timeout: 10000
+- assertVisible: '9:00 AM[\s\S]*'
+- assertVisible:
+    text: 'Monday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Wednesday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Friday[\s\S]*'
+    selected: true
+- assertVisible:
+    text: 'Tuesday[\s\S]*'
+    selected: false
+- assertNotVisible: '[\s\S]*Notifications are turned off[\s\S]*'
+- takeScreenshot: evidence/rem_01_reminder_mon_wed_fri

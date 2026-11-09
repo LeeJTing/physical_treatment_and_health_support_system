@@ -1,0 +1,47 @@
+# Shared steps: the Low-risk patient (TC-PRO-04 profile) follows Upper Limb Strength, whose first
+# exercise is Elbow Flexion, and is on the recorder. Android asks for notifications when the plan
+# is selected and for the camera when the recorder opens; both are allowed.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+---
+- runFlow:
+    file: patient_on_home.yaml
+    env:
+      AGE: "58"
+      CONDITION: None
+- assertVisible: '[\s\S]*Low risk[\s\S]*'
+- runFlow:
+    file: find_plans.yaml
+    env:
+      REGION1: Right elbow
+      REGION2: Left elbow
+      STAGE: Intermediate
+      MOBILITY: Moderate
+      GOAL: Build strength
+- assertVisible: Upper Limb Strength
+- tapOn:
+    text: Select
+    index: 0
+- extendedWaitUntil:
+    visible: '.*Allow.*HealthGuide.*notifications.*'
+    timeout: 10000
+- tapOn: Allow
+- extendedWaitUntil:
+    visible: '.*Plan has been saved.*'
+    timeout: 15000
+# The pathway of the plan
+- tapOn: 'My treatment plan[\s\S]*'
+- assertVisible: '[\s\S]*Elbow Flexion[\s\S]*'
+- tapOn: Start exercise
+# The guide before the first try
+- extendedWaitUntil:
+    visible: How to do it
+    timeout: 10000
+- tapOn: Skip
+# Android's camera permission
+- extendedWaitUntil:
+    visible: '.*Allow HealthGuide to take pictures and record video.*'
+    timeout: 10000
+- tapOn: While using the app
+- extendedWaitUntil:
+    visible: Record exercise
+    timeout: 10000

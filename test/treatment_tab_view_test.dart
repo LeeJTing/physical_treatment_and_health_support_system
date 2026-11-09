@@ -92,6 +92,84 @@ void main() {
     }
   }
 
+  testWidgets(
+    'before the plan is known: a spinner, not "No plan yet" (10 Nov)',
+    (tester) async {
+      final h = Harness();
+      late TreatmentViewModel vm;
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        vm = TreatmentViewModel(h.treatments, h.pose, h.auth);
+      });
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: vm),
+            ChangeNotifierProvider.value(value: TestModeViewModel()),
+          ],
+          child: const MaterialApp(home: Scaffold(body: TreatmentTabView())),
+        ),
+      );
+      // The first frame, before the plan has been read.
+      expect(find.byKey(const Key('treatment_loading')), findsOneWidget);
+      expect(find.text('No plan yet: get one below'), findsNothing);
+      await tester.runAsync(vm.loadPlan);
+      await tester.pump();
+      expect(find.byKey(const Key('treatment_loading')), findsNothing);
+      expect(
+        find.text('View pathway, do exercises, check posture'),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets(
+    'opening the tab again refreshes behind the cards they already show (10 Nov)',
+    (tester) async {
+      final (_, vm, _) = await open(tester);
+      final refresh = vm.loadPlan(); // what the shell does on every tab tap
+      await tester.pump();
+      expect(find.byKey(const Key('treatment_loading')), findsNothing);
+      expect(find.text('No plan yet: get one below'), findsNothing);
+      expect(
+        find.text('View pathway, do exercises, check posture'),
+        findsOneWidget,
+      );
+      await tester.runAsync(() => refresh);
+    },
+  );
+
+  testWidgets(
+    'a plan that cannot be read says so with Try again, not "No plan yet" (10 Nov)',
+    (tester) async {
+      final h = Harness();
+      late TreatmentViewModel vm;
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        await h.auth.signOut();
+        vm = TreatmentViewModel(h.treatments, h.pose, h.auth);
+      });
+      await tester.pumpWidget(
+        MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: vm),
+            ChangeNotifierProvider.value(value: TestModeViewModel()),
+          ],
+          child: const MaterialApp(home: Scaffold(body: TreatmentTabView())),
+        ),
+      );
+      await tester.runAsync(vm.loadPlan);
+      await tester.pump();
+      expect(find.byKey(const Key('treatment_load_error')), findsOneWidget);
+      expect(
+        find.text('Your session has expired. Please log in again.'),
+        findsOneWidget,
+      );
+      expect(find.text('Try again'), findsOneWidget);
+      expect(find.text('No plan yet: get one below'), findsNothing);
+    },
+  );
+
   testWidgets('no plan: get one below, and the planning screen opens', (
     tester,
   ) async {
