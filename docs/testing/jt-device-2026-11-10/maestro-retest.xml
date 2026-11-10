@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="Test Suite" tests="3" failures="2" time="317.352" timestamp="2026-11-10T13:13:16">
+    <testcase id="JT M700 manual meal duplicate merge and history" name="JT M700 manual meal duplicate merge and history" classname="JT M700 manual meal duplicate merge and history" file=".maestro\flows\05_meal_logging.yaml" time="87.67" timestamp="2026-11-10T13:13:16" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+    <testcase id="JT M100 logout invalid login and successful login" name="JT M100 logout invalid login and successful login" classname="JT M100 logout invalid login and successful login" file=".maestro\flows\08_login.yaml" time="104.0" timestamp="2026-11-10T13:14:44" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+      <failure>Assertion is false: "The email or password you entered is incorrect." is visible</failure>
+    </testcase>
+    <testcase id="JT M700 manual plan combined portions and advisory warnings" name="JT M700 manual plan combined portions and advisory warnings" classname="JT M700 manual plan combined portions and advisory warnings" file=".maestro\flows\09_manual_plan.yaml" time="125.647" timestamp="2026-11-10T13:16:28" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+      <failure>Element not found: Text matching regex: (?s)Rice.*Nasi lemak.*</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

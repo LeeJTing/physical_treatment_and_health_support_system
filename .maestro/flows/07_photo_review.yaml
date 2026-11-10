@@ -1,0 +1,27 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M700 selected photo recognition and review
+tags: [JT, M700]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Diet.*'
+- tapOn: Log Meal
+- tapOn: Choose from gallery
+- assertVisible: Your meal
+- assertVisible: '(?s).*Follow your diet plan.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Papaya.*'
+    direction: DOWN
+    timeout: 60000
+- scrollUntilVisible:
+    element:
+      text: '(?s).*95%.*confidence.*'
+    direction: DOWN
+    timeout: 60000
+- assertVisible: '(?s).*95%.*confidence.*'
+- takeScreenshot: jt-07-photo-review
+- tapOn: Save
+- assertVisible: '(?s)Diet.*Tab 4.*'

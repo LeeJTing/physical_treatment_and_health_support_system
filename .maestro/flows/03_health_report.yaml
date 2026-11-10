@@ -1,0 +1,21 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M400 score forecast and explanation
+tags: [JT, M400]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Tracking.*'
+- tapOn: Health Report
+- assertVisible: '(?s).*Health Score.*'
+- assertVisible: '(?s).*78.*'
+- takeScreenshot: jt-03-health-score
+- scrollUntilVisible:
+    element:
+      text: '.*e2e-forecast-fixture.*'
+    direction: DOWN
+    timeout: 60000
+- assertVisible: '.*e2e-forecast-fixture.*'
+- back
+- assertVisible: Health Tracking
