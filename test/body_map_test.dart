@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'support/server_source.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -732,7 +732,7 @@ void main() {
   // The parts the map sends as focus_parts must be the ones the server knows (FOCUS_PARTS in
   // ai_server/app/recommend/engine.py); this reads that file (audit, 24 Oct).
   test('every focus part of the map is one the server recommender knows', () {
-    final py = File('ai_server/app/recommend/engine.py').readAsStringSync();
+    final py = serverSource('app/recommend/engine.py').readAsStringSync();
     final line = RegExp(
       r'^FOCUS_PARTS = \(([^)]*)\)',
       multiLine: true,

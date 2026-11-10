@@ -1,3 +1,4 @@
+import 'support/server_source.dart';
 // The Chapter 4 entity classes as the Supabase repositories read and write them: toJson then
 // fromJson gives the same values back, missing columns take their defaults, and the small rules
 // on each class. NFR_17 coverage (22 Oct); the business rules are in models_test.
@@ -496,7 +497,7 @@ void main() {
   // The rest day after a fall finds the server's FALL_MESSAGE in the saved feedback by this
   // phrase; if the server's wording changed, no fall would be noticed (audit, 23 Oct).
   test('the fall phrase is part of the server fall message', () {
-    final py = File('ai_server/app/pose/analyse.py').readAsStringSync();
+    final py = serverSource('app/pose/analyse.py').readAsStringSync();
     final message = py
         .split('FALL_MESSAGE = (')[1]
         .split(')')[0]

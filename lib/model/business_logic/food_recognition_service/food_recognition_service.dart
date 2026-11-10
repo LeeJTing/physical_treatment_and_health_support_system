@@ -8,11 +8,12 @@ import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/recognition_result.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/food_recognition_details.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/food_repository/i_food_repository.dart';
 
 /// A meal photo checked against UC800 C3 and reduced for upload (C4).
 class PreparedImage {
-  /// JPEG, 384 px on the long edge, quality 80: what is uploaded and, once confirmed, stored.
+  /// JPEG, 1024 px on the long edge, quality 80: what is uploaded and, once confirmed, stored.
   final Uint8List upload;
   final int width;
   final int height;
@@ -22,7 +23,7 @@ class PreparedImage {
 
 /// Sends a meal photo to /recognise and maps the labels onto catalogue foods (Table 4.94).
 /// Only the photo and the declared condition codes leave the phone (FR700_046); the request
-/// carries the session token (FR700_047) and is abandoned after 15 s (FR700_048).
+/// carries the session token (FR700_047) and is abandoned after 30 s (FR700_048).
 class FoodRecognitionService {
   final ApiClient _api;
   final IFoodRepository _foods;
@@ -35,7 +36,7 @@ class FoodRecognitionService {
 
   FoodRecognitionService(this._api, this._foods);
 
-  /// Checks the photo (JPEG or PNG, at most 10 MB, at least 224 x 224) and reduces it to 384 px on
+  /// Checks the photo (JPEG or PNG, at most 10 MB, at least 224 x 224) and reduces it to 1024 px on
   /// the long edge as JPEG quality 80 (UC800 C3, C4). Runs off the UI thread (ASR_03).
   Future<Result<PreparedImage>> prepare(Uint8List original) async {
     if (original.length > AppConstants.maxImageBytes) {
@@ -43,7 +44,9 @@ class FoodRecognitionService {
     }
     try {
       final out = await Isolate.run(() => _prepare(original));
-      if (out == null) return const Failure(Messages.invalidImage, code: 'invalid_image');
+      if (out == null) {
+        return const Failure(Messages.invalidImage, code: 'invalid_image');
+      }
       return Success(out);
     } catch (e) {
       return Failure(Messages.invalidImage, code: 'invalid_image', cause: e);
@@ -52,7 +55,9 @@ class FoodRecognitionService {
 
   static PreparedImage? _prepare(Uint8List bytes) {
     final format = img.findFormatForData(bytes);
-    if (format != img.ImageFormat.jpg && format != img.ImageFormat.png) return null;
+    if (format != img.ImageFormat.jpg && format != img.ImageFormat.png) {
+      return null;
+    }
     final decoded = img.decodeImage(bytes);
     if (decoded == null) return null;
     final im = img.bakeOrientation(decoded);
@@ -111,6 +116,12 @@ class FoodRecognitionService {
           confidence: ((it['confidence'] ?? 0) as num).toDouble(),
           primary: (it['primary'] ?? true) as bool,
           candidates: cands,
+          portionG: switch (it['portion_g']) {
+            final num g when g.isFinite && g >= AppConstants.portionMinG && g <= AppConstants.portionMaxG =>
+              g.toDouble(),
+            _ => null,
+          },
+          details: body['provider'] == 'gemini' ? FoodRecognitionDetails.fromJson(it) : null,
         ),
       );
     }
@@ -121,13 +132,14 @@ class FoodRecognitionService {
         isFood: (body['is_food'] ?? true) as bool,
         modelVersion: modelVersion,
         elapsedMs: ((body['elapsed_ms'] ?? 0) as num).toInt(),
+        warnings: (body['warnings'] as List? ?? const []).whereType<String>().toList(),
+        provider: body['provider'] as String? ?? 'local',
       ),
     );
   }
 
   /// Resolves a raw label onto a catalogue food.
-  Future<FoodItem?> mapToCatalogue(String label) async =>
-      (await _foods.byKey(label)).dataOrNull;
+  Future<FoodItem?> mapToCatalogue(String label) async => (await _foods.byKey(label)).dataOrNull;
 
   /// Whether the result may be used without manual confirmation.
   bool isConfident(double c) => c >= confidenceFloor;

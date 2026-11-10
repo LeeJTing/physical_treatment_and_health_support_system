@@ -35,6 +35,7 @@ class Routes {
 
   /// Health Report (UC600): forecast, Health Score, risks and anomalies.
   static const String healthReport = '/health-report';
+  static const String dietInsights = '/diet-insights';
 
   /// Dietary history (UC800 A5).
   static const String mealHistory = '/meal-history';

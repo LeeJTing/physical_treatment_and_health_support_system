@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'support/server_source.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
@@ -437,7 +437,7 @@ void main() {
   // plan_rules.dart says to keep its joint map the same as the recommender's POSE_PARTS; this
   // reads the server file in the same repository so the two cannot drift apart (audit, 23 Oct).
   test('the joints of each posture exercise match the server recommender', () {
-    final py = File('ai_server/app/recommend/engine.py').readAsStringSync();
+    final py = serverSource('app/recommend/engine.py').readAsStringSync();
     final block = py.split('\nPOSE_PARTS = {')[1].split('\n}')[0];
     final server = {
       for (final m in RegExp(r'"(\w+)": \(([^)]*)\)').allMatches(block))

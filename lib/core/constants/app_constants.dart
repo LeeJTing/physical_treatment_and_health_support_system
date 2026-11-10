@@ -139,7 +139,7 @@ class AppConstants {
   static const String planPath = '/plan';
   static const String alternativesPath = '/plan/alternatives';
 
-  static const Duration recogniseTimeout = Duration(seconds: 15); // FR700_048
+  static const Duration recogniseTimeout = Duration(seconds: 30); // FR700_048
   static const Duration planTimeout = Duration(seconds: 20); // FR700_049
   static const Duration analysisTimeout = Duration(seconds: 30); // FR400_038
 
@@ -181,7 +181,7 @@ class AppConstants {
   static const double recognitionConfidenceFloor = 0.60; // C6, FR700_005
   static const int maxImageBytes = 10 * 1024 * 1024; // C3
   static const int minImageSidePx = 224; // C3
-  static const int uploadLongEdgePx = 384; // C4
+  static const int uploadLongEdgePx = 1024; // C4
   static const int uploadJpegQuality = 80; // C4
 
   /// WHO daily limits (UC900 C2, C6, C10) and the one-item share (C2).

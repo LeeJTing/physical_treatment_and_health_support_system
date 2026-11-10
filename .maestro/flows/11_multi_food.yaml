@@ -1,0 +1,31 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: ACD multiple foods and quantity correction
+tags: [ACD, M700]
+---
+# Build tool/e2e_app.dart with E2E_TESTING=true and E2E_MULTI_FOOD=true.
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Diet.*'
+- tapOn: Log Meal
+- tapOn: Choose from gallery
+- assertVisible: Your meal
+- scrollUntilVisible:
+    element:
+      text: '(?s).*2 whole items.*'
+    direction: DOWN
+- takeScreenshot: acd-multi-food-review
+- tapOn:
+    text: Review count and weight
+    index: 0
+- assertVisible: Review food quantity
+- tapOn: Whole items / pieces (optional)
+- eraseText
+- inputText: '3'
+- hideKeyboard
+- assertVisible: '150'
+- takeScreenshot: acd-quantity-review
+- tapOn: Confirm quantity
+- tapOn: Save
+- assertVisible: '(?s)Diet.*Tab 4.*'

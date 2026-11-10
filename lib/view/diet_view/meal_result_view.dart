@@ -12,6 +12,8 @@ import 'package:physical_treatment_and_health_support_system/model/entity/meal_l
 import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_quantity_dialog.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/recognition_photo.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/tidy_text.dart';
@@ -47,14 +49,18 @@ class _MealResultViewState extends State<MealResultView> {
     // The photo could not be used (A1): back to Diet, where the message is shown.
     if (vm.step == MealStep.idle && d == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && ModalRoute.of(context)?.isCurrent == true) Navigator.of(context).pop(false);
+        if (mounted && ModalRoute.of(context)?.isCurrent == true) {
+          Navigator.of(context).pop(false);
+        }
       });
     }
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {
         // Leaving without saving discards the photo and the draft (A7); a save already started
         // carries on.
-        if (didPop && (vm.step == MealStep.review || vm.step == MealStep.recognising)) vm.cancel();
+        if (didPop && (vm.step == MealStep.review || vm.step == MealStep.recognising)) {
+          vm.cancel();
+        }
       },
       child: Scaffold(
         backgroundColor: AppTokens.screenBackground,
@@ -136,10 +142,15 @@ class _MealResultViewState extends State<MealResultView> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
         const DietPlanReminder(),
-        if (vm.draftImage != null)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Image.memory(vm.draftImage!, height: 200, fit: BoxFit.cover),
+        if (vm.draftImage != null) RecognitionPhoto(bytes: vm.draftImage!, items: d.items),
+        if (r != null)
+          for (final warning in r.warnings) Padding(padding: const EdgeInsets.only(top: 10), child: Text(warning)),
+        if (r?.provider == 'gemini')
+          const Padding(
+            padding: EdgeInsets.only(top: 8),
+            child: Text(
+              'The numbers on the photo match the food cards below. Saving confirms the foods and quantities you reviewed.',
+            ),
           ),
         if (vm.manualEntryPrompt) ...[
           const SizedBox(height: 12),
@@ -152,7 +163,7 @@ class _MealResultViewState extends State<MealResultView> {
             ),
           ),
         ],
-        if (r != null && !vm.manualEntryPrompt)
+        if (r != null && !vm.manualEntryPrompt && r.provider != 'gemini')
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text(
@@ -268,18 +279,31 @@ class _ItemCard extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  tidy(item.food.foodName),
+                  tidy(
+                    '${item.recognitionDetails != null ? '${vm.draft!.items.indexOf(item) + 1}. ' : ''}${item.food.foodName}',
+                  ),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
                 ),
               ),
               VerdictChip(v),
             ],
           ),
-          if (item.confidence != null)
+          if (item.confidence != null && item.recognitionDetails?.modelEstimate != true)
             OneLineText(
               '${(item.confidence! * 100).round()}% confidence',
               style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
             ),
+          if (item.recognitionDetails case final details?) ...[
+            Text(
+              '${details.countLabel ?? 'Count not estimated'} · ${details.confirmed ? 'Quantity reviewed' : 'AI estimate — check quantity'}',
+              style: const TextStyle(color: AppTokens.inkMuted),
+            ),
+            TextButton.icon(
+              onPressed: () => MealQuantityDialog.show(context, vm, item),
+              icon: const Icon(Icons.fact_check_outlined),
+              label: const Text('Review count and weight'),
+            ),
+          ],
           const SizedBox(height: 8),
           Row(
             children: [
@@ -574,7 +598,9 @@ class _GramsDialogState extends State<_GramsDialog> {
         ),
         onChanged: (_) => setState(() {}),
         onSubmitted: (v) {
-          if (MealLogViewModel.checkPortion(v) == null) Navigator.pop(context, v);
+          if (MealLogViewModel.checkPortion(v) == null) {
+            Navigator.pop(context, v);
+          }
         },
       ),
       actionsAlignment: MainAxisAlignment.spaceBetween,

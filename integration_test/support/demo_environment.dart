@@ -146,6 +146,22 @@ class DemoAiClient extends http.BaseClient {
     }
     if (path == '/plan/alternatives') return _reply([]);
     if (path == '/recognise') {
+      if (const bool.fromEnvironment('E2E_MULTI_FOOD')) {
+        return _reply({
+          'provider': 'gemini', 'confidence': .85, 'is_food': true,
+          'model_version': 'gemini:synthetic-e2e-fixture',
+          'warnings': ['Synthetic test response. Check every food, count and weight before saving.'],
+          'items': [
+            {'food_key': 'telur_rebus', 'portion_g': 100, 'confidence': .85,
+              'count': 2, 'count_unit': 'whole', 'unit_weight_g': 50,
+              'portion_estimated': true, 'confidence_kind': 'model_estimate',
+              'boxes': [[.1,.1,.4,.4],[.1,.5,.4,.8]], 'candidates': []},
+            {'food_key': 'silken_tofu', 'portion_g': 120, 'confidence': .65,
+              'count': 4, 'count_unit': 'piece', 'portion_estimated': true,
+              'confidence_kind': 'model_estimate', 'boxes': [[.5,.1,.9,.8]], 'candidates': []},
+          ],
+        });
+      }
       return _reply({
         'confidence': 0.95,
         'is_food': true,

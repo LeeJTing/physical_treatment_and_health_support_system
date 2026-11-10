@@ -1,0 +1,32 @@
+[
+  {
+    "file": "A01-quantity-review.png",
+    "sha256": "ab5c67b94013a5e2eb4790e5c44dc6f9b912c076179ac262d5ed82226836a9d4",
+    "source": "Flutter host widget renderer, 430 x 932 logical pixels at 2x raster, isolated synthetic records",
+    "status": "verified checkpoint in a passing host screen test; not an Android capture"
+  },
+  {
+    "file": "C01-weekly-review.png",
+    "sha256": "fabac77967e62c4c969b244f8b3cb7481981603d56de60cdd7ddafa580656fe5",
+    "source": "Flutter host widget renderer, 430 x 932 logical pixels at 2x raster, isolated synthetic records",
+    "status": "verified checkpoint in a passing host screen test; not an Android capture"
+  },
+  {
+    "file": "C02-food-contributors.png",
+    "sha256": "b2851fb0ae1c1fd19c449e6a3dd32c6ad6af106a1c65e80b02ece117d5267443",
+    "source": "Flutter host widget renderer, 430 x 932 logical pixels at 2x raster, isolated synthetic records",
+    "status": "verified checkpoint in a passing host screen test; not an Android capture"
+  },
+  {
+    "file": "D01-meal-reading-pattern.png",
+    "sha256": "63a1c3d752fb87b482173490f10ff8d99b62bda66621ae7b4b656516a13dbdd6",
+    "source": "Flutter host widget renderer, 430 x 932 logical pixels at 2x raster, isolated synthetic records",
+    "status": "verified checkpoint in a passing host screen test; not an Android capture"
+  },
+  {
+    "file": "D02-insufficient-records.png",
+    "sha256": "1d0ec25dae00e2cbe66de306b04775118684a2aa38e78df011e77ab76294e07b",
+    "source": "Flutter host widget renderer, 430 x 932 logical pixels at 2x raster, isolated synthetic records",
+    "status": "verified checkpoint in a passing host screen test; not an Android capture"
+  }
+]

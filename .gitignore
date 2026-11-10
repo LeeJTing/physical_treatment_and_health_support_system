@@ -46,3 +46,5 @@ app.*.map.json
 
 # Local secrets for flutter run --dart-define-from-file (never commit)
 config/dev.json
+# Supabase CLI download/version cache.
+supabase/.temp/

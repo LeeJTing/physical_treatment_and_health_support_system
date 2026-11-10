@@ -1,6 +1,7 @@
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/food_recognition_details.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/suitability_verdict.dart';
 
 /// One food inside a logged meal, with its portion and the nutrients for that portion (Table 4.50).
@@ -29,6 +30,7 @@ class MealItem {
 
   /// One verdict per applicable condition and restriction (FR700_024).
   final List<SuitabilityVerdict> verdicts;
+  final FoodRecognitionDetails? recognitionDetails;
 
   const MealItem({
     required this.mealItemId,
@@ -45,6 +47,7 @@ class MealItem {
     this.confidence,
     this.candidateKeys = const [],
     this.verdicts = const [],
+    this.recognitionDetails,
   });
 
   /// A new item at [grams] (default: one standard serving, UC800 C8).
@@ -54,6 +57,7 @@ class MealItem {
     double? confidence,
     List<String> candidateKeys = const [],
     bool corrected = false,
+    FoodRecognitionDetails? recognitionDetails,
   }) {
     final g = grams ?? food.baseServingG;
     final n = food.nutrientsFor(g);
@@ -70,6 +74,7 @@ class MealItem {
       isUserCorrected: corrected,
       confidence: confidence,
       candidateKeys: candidateKeys,
+      recognitionDetails: recognitionDetails,
     );
   }
 
@@ -105,6 +110,8 @@ class MealItem {
           isUserCorrected: previous.isUserCorrected || item.isUserCorrected,
           confidence: previous.confidence,
           candidateKeys: {...previous.candidateKeys, ...item.candidateKeys}.toList(),
+          // The old visual count no longer describes the combined, manually changed amount.
+          recognitionDetails: null,
         );
       }
     }
@@ -128,6 +135,7 @@ class MealItem {
       isUserCorrected: isUserCorrected,
       confidence: confidence,
       candidateKeys: candidateKeys,
+      recognitionDetails: recognitionDetails?.reviewed(grams: grams),
     );
   }
 
@@ -149,6 +157,25 @@ class MealItem {
     confidence: confidence,
     candidateKeys: candidateKeys,
     verdicts: vs,
+    recognitionDetails: recognitionDetails,
+  );
+
+  MealItem withRecognitionDetails(FoodRecognitionDetails? details) => MealItem(
+    mealItemId: mealItemId,
+    mealId: mealId,
+    food: food,
+    portionSizeG: portionSizeG,
+    energyKcal: energyKcal,
+    carbG: carbG,
+    proteinG: proteinG,
+    fatG: fatG,
+    sodiumMg: sodiumMg,
+    sugarG: sugarG,
+    isUserCorrected: isUserCorrected,
+    confidence: confidence,
+    candidateKeys: candidateKeys,
+    verdicts: verdicts,
+    recognitionDetails: details,
   );
 
   MealItem withMeal(String mealId) => MealItem(
@@ -166,6 +193,7 @@ class MealItem {
     confidence: confidence,
     candidateKeys: candidateKeys,
     verdicts: [for (final v in verdicts) v.copyWith(mealItemId: mealItemId)],
+    recognitionDetails: recognitionDetails,
   );
 
   Map<String, dynamic> toJson() => {
@@ -180,6 +208,7 @@ class MealItem {
     'sodium_mg': sodiumMg,
     'sugar_g': sugarG,
     'is_user_corrected': isUserCorrected,
+    if (recognitionDetails != null) 'recognition_details': recognitionDetails!.toJson(),
   };
 
   factory MealItem.fromJson(Map<String, dynamic> j, FoodItem food, {List<SuitabilityVerdict> verdicts = const []}) {
@@ -197,6 +226,9 @@ class MealItem {
       sugarG: d('sugar_g'),
       isUserCorrected: (j['is_user_corrected'] ?? false) as bool,
       verdicts: verdicts,
+      recognitionDetails: j['recognition_details'] is Map
+          ? FoodRecognitionDetails.fromJson(Map<String, dynamic>.from(j['recognition_details'] as Map))
+          : null,
     );
   }
 }

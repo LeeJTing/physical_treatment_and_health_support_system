@@ -49,3 +49,13 @@ Flutter integration tests assert both the displayed behavior and resulting dispo
 The demo HTTP transport uses the API's response shapes and sends successful, underfilled and failed responses through the real API client and decoders. Unscripted endpoints return 501 and cannot escape to the network. These scripts do not establish real server reachability, model accuracy, clinical validity, real Google/email verification, physical camera/gallery permission handling, Health Connect OS grants, background alarm delivery or real database persistence. Keep those separate from isolated automation results; the earlier server regression suite and real server-to-Flutter contract fixtures provide additional evidence.
 
 The notification scheduler and Health Connect/photo inputs are stand-ins, so permission dialogs and actual background notification delivery still require a separate device acceptance pass with dedicated test records. No real phone test should be reported as passing merely because this project builds or a host smoke check passes.
+
+## Additional diet feature suite
+
+`diet_features_test.dart` adds four shared screen journeys for quantity correction, recorded-week
+summaries and present/withheld meal-reading associations. They also run in
+`test/diet_features_widget_test.dart`. The host suite passed; new Android execution is pending the
+user's phone availability. Run `tool/run_jt_e2e.ps1 -DeviceId YOUR_DEVICE -FeatureSet DietFeatures`
+for the new Integration Test target and Maestro flows 10/11. Its synthetic multi-food fixture is
+selected by `E2E_MULTI_FOOD=true`. Existing JT flows use the legacy fixture.
+See `../docs/testing/jt-diet-insights-2026-11-10/README.md` for evidence scope and commands.

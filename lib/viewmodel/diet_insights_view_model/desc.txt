@@ -1,0 +1,1 @@
+Loads the signed-in account's meal history, stored plans, current profile and readings for the weekly diet review and 28-day exploratory pattern screen.
