@@ -56,3 +56,11 @@ This builds only the separate `.e2e` test package, with E2E_MULTI_FOOD=true for 
 Use English input (SwiftKey English on the previously used phone). The normal JT suite explicitly
 runs its original nine flows with the legacy fixture. HealthGuide Test and the normal app retain
 separate storage. Inspect outputs under build/e2e before reporting device results.
+
+## Remote branch integration
+
+The first app push found newer remote treatment-module changes. The diet commit was rebased onto
+origin/JT without conflicts. A duplicate integration_test dependency in the incoming pubspec was
+removed, retaining the same SDK dependency once. The complete combined suite then passed **639
+tests**; its separate log preserves the original 633-test feature validation rather than replacing it.
+No new device execution is implied. The report records the earlier 633-test feature run.
