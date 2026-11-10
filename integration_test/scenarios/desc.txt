@@ -1,0 +1,1 @@
+Shared production-app journey definitions run by Flutter Integration Test on the selected Android device.

@@ -1,0 +1,41 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M600 health alert history and meal reminders
+tags: [JT, M600]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn:
+    id: notifications-bell
+- scrollUntilVisible:
+    element:
+      id: notification-log-e2e-health-alert
+    direction: DOWN
+    timeout: 60000
+- tapOn:
+    id: notification-log-e2e-health-alert
+- assertVisible: Health note
+- takeScreenshot: jt-04-health-note
+- tapOn: OK
+- scrollUntilVisible:
+    element:
+      text: Remind me to log my health readings
+    direction: UP
+    timeout: 60000
+- tapOn: Remind me to log my health readings
+- scrollUntilVisible:
+    element:
+      text: Remind me at breakfast, lunch and dinner
+    direction: DOWN
+    timeout: 60000
+- tapOn: Remind me at breakfast, lunch and dinner
+- scrollUntilVisible:
+    element:
+      id: notification-log-e2e-health-alert
+    direction: DOWN
+    timeout: 60000
+- assertVisible: '(?s).*Log your health readings.*'
+- assertNotVisible: Remind me to log my health readings
+- assertNotVisible: Remind me at breakfast, lunch and dinner
+- takeScreenshot: jt-04-reminders

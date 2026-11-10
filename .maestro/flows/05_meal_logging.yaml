@@ -1,0 +1,65 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M700 manual meal duplicate merge and history
+tags: [JT, M700]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Diet.*'
+- tapOn: Log Meal
+- assertVisible: Follow your diet plan
+- tapOn: Enter the food myself
+- tapOn: Select or enter the food
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: food-search
+      - eraseText: 10
+      - inputText: papaya
+      - pressKey: enter
+      - assertVisible:
+          id: food-search
+          text: papaya
+- tapOn: '(?s)Fruit.*Papaya.*'
+- scrollUntilVisible:
+    element:
+      text: Add another food
+    direction: DOWN
+    timeout: 60000
+- tapOn: Add another food
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: food-search
+      - eraseText: 10
+      - inputText: papaya
+      - pressKey: enter
+      - assertVisible:
+          id: food-search
+          text: papaya
+- tapOn: '(?s)Fruit.*Papaya.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*300.*g.*'
+    direction: UP
+    timeout: 60000
+- assertVisible: '(?s).*300.*g.*'
+- takeScreenshot: jt-05-combined-papaya
+- scrollUntilVisible:
+    element:
+      text: Breakfast
+    direction: UP
+    timeout: 60000
+- tapOn: Breakfast
+- tapOn: Save
+- scrollUntilVisible:
+    element:
+      text: History
+    direction: DOWN
+    timeout: 60000
+- tapOn: History
+- assertVisible: '(?s).*Breakfast.*'
+- takeScreenshot: jt-05-meal-history

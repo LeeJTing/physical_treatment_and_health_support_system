@@ -1,0 +1,49 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M700 daily weekly food information and replan
+tags: [JT, M700]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Diet.*'
+- scrollUntilVisible:
+    element:
+      text: Today's Plan
+    direction: DOWN
+    timeout: 60000
+- tapOn: Today's Plan
+- tapOn: Make a new plan
+- assertVisible: '(?s)Make a new.*plan\?'
+- tapOn: Make new plan
+- scrollUntilVisible:
+    element:
+      id: 'plan-food-oats-.*'
+    direction: DOWN
+    timeout: 60000
+- tapOn:
+    id: 'plan-food-oats-.*'
+- assertVisible: Why this food
+- takeScreenshot: jt-06-today-food-info
+- back
+- back
+- tapOn: Weekly Plan
+- tapOn: Make a new plan
+- assertVisible: '(?s)Make a new.*plan\?'
+- tapOn: Make new plan
+- scrollUntilVisible:
+    element:
+      id: 'plan-food-oats-.*'
+    direction: DOWN
+    timeout: 60000
+- tapOn:
+    id: 'plan-food-oats-.*'
+- assertVisible: Why this food
+- takeScreenshot: jt-06-weekly-food-info
+- scrollUntilVisible:
+    element:
+      text: Edit today's plan
+    direction: DOWN
+    timeout: 60000
+- tapOn: Edit today's plan
+- assertVisible: Today's Plan

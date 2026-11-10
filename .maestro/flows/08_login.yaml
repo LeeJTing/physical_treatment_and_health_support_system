@@ -1,0 +1,70 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M100 logout invalid login and successful login
+tags: [JT, M100]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Profile.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s)Log out.*End this session.*'
+    direction: DOWN
+    timeout: 60000
+- tapOn: '(?s)Log out.*End this session.*'
+- tapOn: Log out
+- tapOn:
+    id: auth-email-address
+- eraseText: 20
+- inputText: demo@apths.test
+- assertVisible:
+    id: auth-email-address
+    text: demo@apths.test
+- scrollUntilVisible:
+    element:
+      id: auth-password
+    direction: DOWN
+    centerElement: true
+    timeout: 60000
+- tapOn:
+    id: auth-password
+- inputText: wrong12345
+- pressKey: enter
+- runFlow:
+    when:
+      visible: Log In
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: Log In
+          direction: DOWN
+          centerElement: true
+          timeout: 60000
+      - tapOn: Log In
+- assertVisible: The email or password you entered is incorrect.
+- takeScreenshot: jt-08-invalid-login
+- scrollUntilVisible:
+    element:
+      id: auth-password
+    direction: DOWN
+    centerElement: true
+    timeout: 60000
+- tapOn:
+    id: auth-password
+- eraseText: 10
+- inputText: password123
+- pressKey: enter
+- runFlow:
+    when:
+      visible: Log In
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: Log In
+          direction: DOWN
+          centerElement: true
+          timeout: 60000
+      - tapOn: Log In
+- assertVisible: '(?s)Tracking.*Tab 2.*'
+- takeScreenshot: jt-08-login-success

@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="Test Suite" tests="9" failures="4" time="634.437" timestamp="2026-11-09T23:01:50">
+    <testcase id="JT M100 profile update and diet refresh consent" name="JT M100 profile update and diet refresh consent" classname="JT M100 profile update and diet refresh consent" file=".maestro\flows\01_profile.yaml" time="50.624" timestamp="2026-11-09T23:01:50" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+    </testcase>
+    <testcase id="JT M200 reading validation save and delete" name="JT M200 reading validation save and delete" classname="JT M200 reading validation save and delete" file=".maestro\flows\02_tracking.yaml" time="74.035" timestamp="2026-11-09T23:02:41" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M200" />
+      </properties>
+    </testcase>
+    <testcase id="JT M400 score forecast and explanation" name="JT M400 score forecast and explanation" classname="JT M400 score forecast and explanation" file=".maestro\flows\03_health_report.yaml" time="38.498" timestamp="2026-11-09T23:03:55" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M400" />
+      </properties>
+    </testcase>
+    <testcase id="JT M600 health alert history and meal reminders" name="JT M600 health alert history and meal reminders" classname="JT M600 health alert history and meal reminders" file=".maestro\flows\04_health_diet_alerts.yaml" time="104.332" timestamp="2026-11-09T23:04:33" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M600" />
+      </properties>
+      <failure>No visible element found: "Log your health readings"</failure>
+    </testcase>
+    <testcase id="JT M700 manual meal duplicate merge and history" name="JT M700 manual meal duplicate merge and history" classname="JT M700 manual meal duplicate merge and history" file=".maestro\flows\05_meal_logging.yaml" time="72.949" timestamp="2026-11-09T23:06:18" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+    <testcase id="JT M700 daily weekly food information and replan" name="JT M700 daily weekly food information and replan" classname="JT M700 daily weekly food information and replan" file=".maestro\flows\06_diet_plans.yaml" time="70.304" timestamp="2026-11-09T23:07:31" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+      <failure>Assertion is false: "Why this food" is visible</failure>
+    </testcase>
+    <testcase id="JT M700 selected photo recognition and review" name="JT M700 selected photo recognition and review" classname="JT M700 selected photo recognition and review" file=".maestro\flows\07_photo_review.yaml" time="43.263" timestamp="2026-11-09T23:08:41" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+    <testcase id="JT M100 logout invalid login and successful login" name="JT M100 logout invalid login and successful login" classname="JT M100 logout invalid login and successful login" file=".maestro\flows\08_login.yaml" time="120.747" timestamp="2026-11-09T23:09:24" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+      <failure>Assertion is false: "(?s)Tracking.*Tab 2.*" is visible</failure>
+    </testcase>
+    <testcase id="JT M700 manual plan combined portions and advisory warnings" name="JT M700 manual plan combined portions and advisory warnings" classname="JT M700 manual plan combined portions and advisory warnings" file=".maestro\flows\09_manual_plan.yaml" time="59.633" timestamp="2026-11-09T23:11:25" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+      <failure>Element not found: Text matching regex: Build my plan myself</failure>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,17 @@
+00:00 +0: loading <app>/build/jt_flows_smoke_test.dart
+00:00 +0: JT-M100-01 login rejects a wrong password then opens the signed-in shell
+00:04 +1: JT-M100-02 profile validates age and asks before updating diet plans
+00:10 +2: JT-M200-01 invalid reading cannot save; valid weight is saved and deleted
+00:18 +3: JT-M400-01 report shows a score and seven-day forecasts; offline keeps stored results
+00:21 +4: JT-M600-01 health note opens and is marked read; health and meal reminders schedule
+00:26 +5: JT-M700-01 manual meal merges papaya, saves and reopens in history
+00:37 +6: JT-M700-02 gallery fixture passes recognition into editable meal review
+00:42 +7: JT-M700-03 adequate daily and weekly plans show food info without redirecting
+00:46 +8: JT-M700-04 inadequate AI reply is retried and cannot overwrite the saved plan
+00:49 +9: JT-M600-02 a high health alert requires acknowledgement and is stored once
+00:53 +10: JT-M700-05 manual builder merges repeats and permits saving warned choices
+01:09 +11: JT-M200-02 Health Connect imports once and rejects duplicates
+01:12 +12: JT-M100-03 server address validation and readiness stay local to the test transport
+01:17 +13: JT-M400-02 declared condition risk shows its three contributing factors
+01:19 +14: JT-M100-04 accepting profile refresh saves a plan under the updated profile
+01:24 +15: All tests passed!

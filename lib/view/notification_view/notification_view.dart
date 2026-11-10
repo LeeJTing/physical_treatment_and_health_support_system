@@ -471,34 +471,38 @@ class _NotificationViewState extends State<NotificationView>
       Severity.high => (AppTokens.danger, 'High'),
       null => (null, null),
     };
-    return ListTile(
-      contentPadding: EdgeInsets.zero,
-      onTap: () => _open(n, vm),
-      leading: n.isAlert
-          ? CircleAvatar(
-              radius: 18,
-              backgroundColor: badge,
-              child: const Icon(Icons.priority_high, color: Colors.white, size: 20),
-            )
-          : Icon(
-              suppressed
-                  ? Icons.notifications_off_outlined
-                  : Icons.notifications_outlined,
-              color: n.isRead ? AppTokens.textMuted : AppTokens.action,
-            ),
-      title: Text(
-        n.messageBody,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 15,
-          color: AppTokens.text,
-          fontWeight: n.isRead ? FontWeight.w400 : FontWeight.w600,
+    return Semantics(
+      container: true,
+      identifier: 'notification-log-${n.notificationId}',
+      child: ListTile(
+        contentPadding: EdgeInsets.zero,
+        onTap: () => _open(n, vm),
+        leading: n.isAlert
+            ? CircleAvatar(
+                radius: 18,
+                backgroundColor: badge,
+                child: const Icon(Icons.priority_high, color: Colors.white, size: 20),
+              )
+            : Icon(
+                suppressed
+                    ? Icons.notifications_off_outlined
+                    : Icons.notifications_outlined,
+                color: n.isRead ? AppTokens.textMuted : AppTokens.action,
+              ),
+        title: Text(
+          n.messageBody,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 15,
+            color: AppTokens.text,
+            fontWeight: n.isRead ? FontWeight.w400 : FontWeight.w600,
+          ),
         ),
-      ),
-      subtitle: Text(
-        word == null ? label : '$word severity alert · $label',
-        style: const TextStyle(fontSize: 13, color: AppTokens.textMuted),
+        subtitle: Text(
+          word == null ? label : '$word severity alert · $label',
+          style: const TextStyle(fontSize: 13, color: AppTokens.textMuted),
+        ),
       ),
     );
   }

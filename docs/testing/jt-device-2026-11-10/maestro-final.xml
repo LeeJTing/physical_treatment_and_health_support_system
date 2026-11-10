@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="Latest per-flow results across full run and focused retests" device="AWJC6R4B05000630" tests="9" failures="0" time="688.384" timestamp="2026-11-10T13:00:51">
+    <testcase id="JT M100 profile update and diet refresh consent" name="JT M100 profile update and diet refresh consent" classname="JT M100 profile update and diet refresh consent" file=".maestro\flows\01_profile.yaml" time="51.951" timestamp="2026-11-10T13:00:51" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+    </testcase>
+    <testcase id="JT M200 reading validation save and delete" name="JT M200 reading validation save and delete" classname="JT M200 reading validation save and delete" file=".maestro\flows\02_tracking.yaml" time="74.773" timestamp="2026-11-10T13:01:43" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M200" />
+      </properties>
+    </testcase>
+    <testcase id="JT M400 score forecast and explanation" name="JT M400 score forecast and explanation" classname="JT M400 score forecast and explanation" file=".maestro\flows\03_health_report.yaml" time="40.499" timestamp="2026-11-10T13:02:57" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M400" />
+      </properties>
+    </testcase>
+    <testcase id="JT M600 health alert history and meal reminders" name="JT M600 health alert history and meal reminders" classname="JT M600 health alert history and meal reminders" file=".maestro\flows\04_health_diet_alerts.yaml" time="49.976" timestamp="2026-11-10T13:03:38" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M600" />
+      </properties>
+    </testcase>
+    <testcase id="JT M700 manual meal duplicate merge and history" name="JT M700 manual meal duplicate merge and history" classname="JT M700 manual meal duplicate merge and history" file=".maestro\flows\05_meal_logging.yaml" time="87.67" timestamp="2026-11-10T13:13:16" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+    <testcase id="JT M700 daily weekly food information and replan" name="JT M700 daily weekly food information and replan" classname="JT M700 daily weekly food information and replan" file=".maestro\flows\06_diet_plans.yaml" time="84.107" timestamp="2026-11-10T13:05:33" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+    <testcase id="JT M700 selected photo recognition and review" name="JT M700 selected photo recognition and review" classname="JT M700 selected photo recognition and review" file=".maestro\flows\07_photo_review.yaml" time="43.073" timestamp="2026-11-10T13:06:57" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+    <testcase id="JT M100 logout invalid login and successful login" name="JT M100 logout invalid login and successful login" classname="JT M100 logout invalid login and successful login" file=".maestro\flows\08_login.yaml" time="135.386" timestamp="2026-11-10T13:23:42" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+    </testcase>
+  <testcase id="JT M700 manual plan combined portions and advisory warnings" name="JT M700 manual plan combined portions and advisory warnings" classname="JT M700 manual plan combined portions and advisory warnings" file=".maestro\flows\09_manual_plan.yaml" time="120.949" timestamp="2026-11-10T13:20:56" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

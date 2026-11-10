@@ -1,0 +1,35 @@
+00:00 +0: loading <app>/test/diet_plan_safety_test.dart
+00:00 +0: <app>/test/diet_plan_safety_test.dart: an unsafe server food is rejected despite its Suitable label and only the regenerated plan is saved
+00:00 +1: <app>/test/diet_plan_safety_test.dart: three unsafe replies stop with an explanation and never save a plan
+00:00 +2: <app>/test/diet_plan_safety_test.dart: an underfilled Suitable reply is retried without excluding its safe food
+00:00 +3: <app>/test/diet_plan_safety_test.dart: three underfilled replans keep the previous saved foods and do not report the server offline
+00:00 +4: <app>/test/diet_plan_safety_test.dart: a weekly reply with missing days cannot be saved as an adequate week
+00:00 +5: <app>/test/diet_plan_safety_test.dart: a calorie-complete reply missing the profile fibre target is rejected
+00:00 +6: <app>/test/diet_plan_safety_test.dart: an otherwise suitable reply over the calorie ceiling is rejected
+00:00 +7: <app>/test/diet_plan_safety_test.dart: the request sends consumed protein, fat, carbohydrate and condition nutrients
+00:00 +8: <app>/test/diet_plan_safety_test.dart: logged slots count actual food once and even a small upper-limit excess blocks generation
+00:00 +9: <app>/test/diet_plan_safety_test.dart: a saved plan with profile conflicts stays visible with red warning reasons after reload
+00:00 +10: <app>/test/diet_plan_safety_test.dart: unknown foods and invalid portions reject the entire reply instead of silently dropping an item
+00:00 +11: <app>/test/diet_plan_safety_test.dart: a locked slot does not hide an unsuitable food supplied by the server
+00:00 +12: <app>/test/diet_plan_safety_test.dart: Caution foods are rejected even when locked or marked logged
+00:00 +13: <app>/test/diet_plan_safety_test.dart: manual save allows a conflicting food and daily excess still identifies each contributing row
+00:00 +14: <app>/test/diet_plan_safety_test.dart: manual picks merge within a date and slot, including changing a food into an existing choice
+00:00 +15: <app>/test/diet_plan_safety_test.dart: manual search includes restricted foods and malformed portions still cannot be saved
+00:00 +16: <app>/test/diet_plan_safety_test.dart: weekly edits can exceed limits and red reasons survive reopening the week
+00:00 +17: <app>/test/diet_plan_safety_test.dart: split duplicate portions merge before warnings, while the AI gate remains strict
+00:00 +18: <app>/test/diet_plan_safety_test.dart: add shows progress and refuses repeat taps until persistence finishes
+00:00 +19: <app>/test/diet_plan_safety_test.dart: remove shows progress and refuses repeat taps until persistence finishes
+00:00 +20: <app>/test/diet_plan_safety_test.dart: replace shows progress and refuses repeat taps until persistence finishes
+00:00 +21: <app>/test/diet_plan_safety_test.dart: portion shows progress and refuses repeat taps until persistence finishes
+00:00 +22: <app>/test/diet_plan_safety_test.dart: a delayed failed save rolls back the food change and clears the loading state
+00:00 +23: <app>/test/manual_diet_plan_view_test.dart: (setUpAll)
+00:00 +23: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:01 +24: <app>/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:01 +25: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:02 +26: <app>/test/manual_diet_plan_view_test.dart: food search and delayed suggestions show progress until their results arrive
+00:02 +27: <app>/test/manual_diet_plan_view_test.dart: a conflicting draft food is red while Save stays enabled; correction clears the warning
+00:02 +28: <app>/test/manual_diet_plan_view_test.dart: a warned manual draft can be confirmed and saved without correcting its food
+00:02 +29: <app>/test/manual_diet_plan_view_test.dart: daily saved plan shows food details without navigating away
+00:02 +30: <app>/test/manual_diet_plan_view_test.dart: weekly saved plan shows food details without navigating away
+00:03 +31: <app>/test/manual_diet_plan_view_test.dart: (tearDownAll)
+00:03 +31: All tests passed!

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="Test Suite" tests="1" failures="0" time="135.399" timestamp="2026-11-10T13:23:42">
+    <testcase id="JT M100 logout invalid login and successful login" name="JT M100 logout invalid login and successful login" classname="JT M100 logout invalid login and successful login" file=".maestro\flows\08_login.yaml" time="135.386" timestamp="2026-11-10T13:23:42" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<testsuites>
+  <testsuite name="Test Suite" tests="2" failures="1" time="216.359" timestamp="2026-11-10T13:19:20">
+    <testcase id="JT M100 logout invalid login and successful login" name="JT M100 logout invalid login and successful login" classname="JT M100 logout invalid login and successful login" file=".maestro\flows\08_login.yaml" time="95.389" timestamp="2026-11-10T13:19:20" status="ERROR">
+      <properties>
+        <property name="tags" value="JT, M100" />
+      </properties>
+      <failure>Assertion is false: "demo@apths.test", id: auth-email-address is visible</failure>
+    </testcase>
+    <testcase id="JT M700 manual plan combined portions and advisory warnings" name="JT M700 manual plan combined portions and advisory warnings" classname="JT M700 manual plan combined portions and advisory warnings" file=".maestro\flows\09_manual_plan.yaml" time="120.949" timestamp="2026-11-10T13:20:56" status="SUCCESS">
+      <properties>
+        <property name="tags" value="JT, M700" />
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

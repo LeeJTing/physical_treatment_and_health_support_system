@@ -154,6 +154,10 @@ dart run tool/check_ai_server.dart http://192.168.0.13:8000 [--photo meal.jpg] [
 
 - `check_ai_server.dart` calls every AI server endpoint through the app's own services and prints
   PASS or FAIL for each.
+- Jun Ting's [device test guide](integration_test/README.md) provides **15 Flutter Integration Test
+  journeys and 9 Maestro flows** for shared account/profile handling, tracking, analysis, health/diet
+  alerts and diet support. Run `tool/run_jt_e2e.ps1` with an authorized Android device. The tests use a
+  separate `.e2e` APK and disposable demo data; the normal app and live health records stay separate.
 - The Postman collection "FYP AI server (M400 / M700) tests" in the workspace "FYP AI server API
   testing" checks the same endpoints, including that diet plans contain suitable foods only.
 

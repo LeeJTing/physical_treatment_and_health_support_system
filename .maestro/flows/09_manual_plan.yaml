@@ -1,0 +1,59 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M700 manual plan combined portions and advisory warnings
+tags: [JT, M700]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Diet.*'
+- scrollUntilVisible:
+    element:
+      text: Today's Plan
+    direction: DOWN
+    timeout: 60000
+- tapOn: Today's Plan
+- scrollUntilVisible:
+    element:
+      text: Build my plan myself
+    direction: DOWN
+    timeout: 60000
+- tapOn: Build my plan myself
+- runFlow: ../subflows/add_papaya.yaml
+- runFlow: ../subflows/add_papaya.yaml
+- scrollUntilVisible:
+    element:
+      text: '(?s).*300.*g.*'
+    direction: UP
+    timeout: 60000
+- assertVisible: '(?s).*300.*g.*'
+- takeScreenshot: jt-09-combined-draft
+- scrollUntilVisible:
+    element:
+      text: Add food to breakfast
+    direction: DOWN
+    timeout: 60000
+- tapOn: Add food to breakfast
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: food-search
+      - eraseText: 10
+      - inputText: nasi lemak
+      - pressKey: enter
+      - assertVisible:
+          id: food-search
+          text: nasi lemak
+- tapOn: '(?s)Complete dish.*Nasi lemak\n.*'
+- tapOn: Add to draft
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Review this choice.*'
+    direction: DOWN
+    timeout: 60000
+- assertVisible: '(?s).*Review this choice.*'
+- takeScreenshot: jt-09-advisory-warning
+- tapOn: Save plan
+- tapOn: Save plan
+- assertVisible: Today's Plan
