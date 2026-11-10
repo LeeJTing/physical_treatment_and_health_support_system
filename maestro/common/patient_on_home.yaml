@@ -1,0 +1,141 @@
+# Shared steps: a new patient on Home (TC-AUTH-01 data, the TC-PRO-01 profile by default).
+# The fakes build keeps its data in memory, so every flow starts with a clean app and registers.
+# The calling flow passes AGE and CONDITION (a subflow's own env would override them): AGE 58
+# with CONDITION Hypertension is the High-risk patient of TC-PRO-01; CONDITION None gives the
+# Low-risk patient of TC-PRO-04.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+---
+# Maestro grants every permission at launch unless told otherwise; unset keeps Android's own
+# dialogs, as on a phone where HealthGuide has just been installed.
+- launchApp:
+    clearState: true
+    permissions:
+      all: unset
+- extendedWaitUntil:
+    visible: Welcome back
+    timeout: 30000
+- scrollUntilVisible:
+    element: Create account
+    direction: DOWN
+- tapOn: Create account
+- extendedWaitUntil:
+    visible: Start your personalised recovery plan.
+    timeout: 10000
+
+# Registration (UserModule_UserRegistration_TC001 data)
+- tapOn:
+    below: USERNAME
+    index: 0
+- inputText: maria
+- hideKeyboard
+- tapOn:
+    below: EMAIL ADDRESS
+    index: 0
+- inputText: maria@apths.test
+- hideKeyboard
+- scrollUntilVisible:
+    element: "^PASSWORD$"
+    direction: DOWN
+- tapOn:
+    below: "^PASSWORD$"
+    index: 0
+- inputText: abcd1234
+- hideKeyboard
+- scrollUntilVisible:
+    element: CONFIRM PASSWORD
+    direction: DOWN
+- tapOn:
+    below: CONFIRM PASSWORD
+    index: 0
+- inputText: abcd1234
+- hideKeyboard
+- scrollUntilVisible:
+    element: "I agree.*"
+    direction: DOWN
+# The agree box has no label of its own; with the keyboard closed the form fits the screen,
+# so the box is at a fixed place on the 1080 x 2436 emulator.
+- tapOn:
+    point: "13%,86%"
+- assertVisible:
+    checked: true
+- tapOn:
+    text: Create account
+    below: "I agree.*"
+
+# Verification code of the fakes build
+- extendedWaitUntil:
+    visible: Enter your code
+    timeout: 15000
+- tapOn:
+    below: VERIFICATION CODE
+    index: 0
+- inputText: "123456"
+- tapOn: Verify
+
+# Terms of Use, as an adult
+- extendedWaitUntil:
+    visible: Terms of Use and Privacy Notice
+    timeout: 15000
+- scrollUntilVisible:
+    element: '18 or older[\s\S]*'
+    direction: DOWN
+    timeout: 40000
+- tapOn: '18 or older[\s\S]*'
+- scrollUntilVisible:
+    element: "I have read and agree.*"
+    direction: DOWN
+- tapOn: "I have read and agree.*"
+- tapOn: "I give my explicit consent.*"
+- tapOn: Agree and continue
+
+# Health profile
+- extendedWaitUntil:
+    visible: ".*complete your health profile.*"
+    timeout: 15000
+# The profile card is one accessibility node, so its labels cannot anchor a tap. The fields are
+# found from what is beside them: Age is left of the Male chip, Weight is below the age just
+# typed, and Height is right of the weight just typed and below the gender chips. The keyboard's Enter closes it (Back
+# would ask to discard the changes once the keyboard is already closed).
+- tapOn:
+    leftOf: Male
+- inputText: ${AGE}
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn: Female
+- tapOn:
+    below: ${AGE}
+    index: 0
+- inputText: "62"
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 2000
+- tapOn:
+    rightOf: "62"
+    below: Male
+    index: 0
+- inputText: "158"
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 2000
+- assertVisible: "158"
+# A condition is ticked only for the High-risk patient; with none ticked the risk is Low.
+- runFlow:
+    when:
+      true: ${CONDITION != 'None'}
+    commands:
+      - scrollUntilVisible:
+          element: ${CONDITION}
+          direction: DOWN
+      - tapOn: ${CONDITION}
+      - scrollUntilVisible:
+          element: "Yes"
+          direction: DOWN
+      - tapOn: "Yes"
+- scrollUntilVisible:
+    element: Save
+    direction: DOWN
+- tapOn: Save
+- extendedWaitUntil:
+    visible: ".*risk.*"
+    timeout: 20000

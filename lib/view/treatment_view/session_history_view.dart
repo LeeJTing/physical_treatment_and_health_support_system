@@ -41,6 +41,39 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
             title: 'Session history',
             subtitle: 'Your posture results over time',
           ),
+          // Several plans at once: the same choice as in My treatment plan (10 Nov), kept above
+          // the list so it stays when the chosen plan has no attempts yet.
+          if (vm.plan is UiSuccess && vm.plans.length > 1)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppTokens.gutter,
+                AppTokens.gap,
+                AppTokens.gutter,
+                0,
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    for (final a in vm.plans)
+                      ChoiceChip(
+                        label: Text(a.plan.planName),
+                        selected:
+                            a.patientPlanId == vm.activePlan?.patientPlanId,
+                        selectedColor: AppTokens.accentContainer,
+                        labelStyle: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: AppTokens.primary,
+                        ),
+                        onSelected: (_) => vm.selectPlan(a.patientPlanId),
+                      ),
+                  ],
+                ),
+              ),
+            ),
           Expanded(
             child: switch (vm.plan) {
               Loading() ||
@@ -89,7 +122,8 @@ class _SessionHistoryViewState extends State<SessionHistoryView> {
         const SizedBox(height: AppTokens.gap),
         Row(
           children: [
-            Expanded(child: _Stat('Sessions', '${vm.completedSessionCount}')),
+            // Every attempt in the list below, so the count matches it (10 Nov).
+            Expanded(child: _Stat('Attempts', '${entries.length}')),
             const SizedBox(width: AppTokens.gap),
             Expanded(child: _Stat('Average', _pct(vm.averageAccuracy))),
             const SizedBox(width: AppTokens.gap),
@@ -255,8 +289,12 @@ class _EntryCard extends StatelessWidget {
               // A retried try has no time saved; it was finished, so no "Not finished" (audit, 24 Oct).
               if (s.completedAt case final at?) _date(at),
               status,
-              if (s.repetitionsCompleted != null)
-                '${s.repetitionsCompleted} reps',
+              // In words as well as colour (10 Nov), so the result does not depend on the colour.
+              if (acc != null) pass ? 'Passed' : 'Below 80%',
+              if (s.repetitionsCompleted case final reps?)
+                entry.targetRepetitions == null
+                    ? '$reps reps'
+                    : '$reps of ${entry.targetRepetitions} reps',
             ].join(' · '),
             style: const TextStyle(fontSize: 14, color: AppTokens.textMuted),
           ),

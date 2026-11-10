@@ -1,0 +1,28 @@
+# PostureModule_AnalyseExercise_TC002 (was TC-POS-02): a clip with a mistake (the elbows are not
+# bent far enough) gets corrective guidance and can be recorded again. Test data:
+# subject_022_bicep_curl_good_side.mp4 (27.1 s, 810 x 1440; Prashanth et al., 2026), copied to
+# the emulator as Movies/clip_022_short_range.mp4. Needs the AI server on the computer.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: PostureModule_AnalyseExercise_TC002
+---
+- runFlow: common/recorder_upper_limb.yaml
+- tapOn: 'Upload video[\s\S]*'
+- extendedWaitUntil:
+    visible: This app can only access the photos you select
+    timeout: 10000
+- tapOn: '.*with duration 00:27'
+- extendedWaitUntil:
+    visible: '[\s\S]*Posture result[\s\S]*'
+    timeout: 180000
+- assertVisible: '.*Posture accuracy ([0-7]?\d) percent[\s\S]*'
+- assertVisible: '[\s\S]*Needs improvement[\s\S]*'
+- assertVisible: '[\s\S]*Bend your elbows a little further[\s\S]*'
+- assertVisible: '[\s\S]*Your plan moves on when you score 80% or more, or after 3 tries below 80%\.[\s\S]*'
+- assertVisible: Retry exercise
+- assertVisible: Continue
+- takeScreenshot: evidence/pos_02_result
+- tapOn: Retry exercise
+- extendedWaitUntil:
+    visible: Record exercise
+    timeout: 10000
+- takeScreenshot: evidence/pos_02_back_to_recorder

@@ -161,11 +161,118 @@ void main() {
         trend.properties.label,
         'Accuracy of the last 2 attempts, from 85% to 90%',
       );
-      // Its card says what happened, not "Not finished".
-      expect(find.text('Tried again'), findsOneWidget);
+      // Its card says what happened, not "Not finished", and that it was below the pass mark.
+      expect(find.text('Tried again · Below 80%'), findsOneWidget);
       expect(find.textContaining('Not finished'), findsNothing);
     },
   );
+
+  testWidgets(
+    'each attempt says passed or below 80% in words, and its reps out of the target (10 Nov)',
+    (tester) async {
+      tester.view.physicalSize = const Size(1080, 3600);
+      addTearDown(tester.view.reset);
+      final s = _Setup();
+      await tester.runAsync(
+        () => s.withPlan(attempts: [(0, 60, 3), (0, 85, 2), (1, 90, 0)]),
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: s.vm,
+            child: const SessionHistoryView(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final ordered = s.plan.plan.orderedExercises();
+      final target0 = ordered[0].prescribedRepetitions;
+      expect(s.vm.history.last.targetRepetitions, target0);
+      expect(find.textContaining('Passed · 5 of '), findsNWidgets(2));
+      expect(
+        find.textContaining('Below 80% · 5 of $target0 reps'),
+        findsOneWidget,
+      );
+      // The first tile counts every attempt listed, retries included.
+      expect(find.text('Attempts'), findsOneWidget);
+      expect(find.text('Sessions'), findsNothing);
+      expect(
+        find.descendant(
+          of: find
+              .ancestor(
+                of: find.text('Attempts'),
+                matching: find.byType(Column),
+              )
+              .first,
+          matching: find.text('3'),
+        ),
+        findsOneWidget,
+      );
+    },
+  );
+
+  testWidgets('with two plans, chips switch the history between them (10 Nov)', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(1080, 3600);
+    addTearDown(tester.view.reset);
+    final s = _Setup();
+    late PatientTreatmentPlan second;
+    await tester.runAsync(() async {
+      await s.withPlan(attempts: [(0, 85, 1)]);
+      final catalogue = (await s.treatments.getCatalogue()).dataOrNull!;
+      second = PatientTreatmentPlan(
+        patientPlanId: newId(),
+        accountId: s.plan.accountId,
+        plan: catalogue[1],
+        selectedAt: DateTime.now(),
+      );
+      await s.treatments.assignPlan(second);
+      await s.vm.loadPlan();
+      s.vm.selectPlan(s.plan.patientPlanId);
+    });
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ChangeNotifierProvider.value(
+          value: s.vm,
+          child: const SessionHistoryView(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byType(ChoiceChip), findsNWidgets(2));
+    expect(find.text('All attempts'), findsOneWidget);
+    // The second plan has no attempts yet; its chip stays so the patient can switch back.
+    await tester.tap(find.widgetWithText(ChoiceChip, second.plan.planName));
+    await tester.pumpAndSettle();
+    expect(s.vm.activePlan!.patientPlanId, second.patientPlanId);
+    expect(find.textContaining('No sessions recorded yet'), findsOneWidget);
+    expect(find.byType(ChoiceChip), findsNWidgets(2));
+    await tester.tap(find.widgetWithText(ChoiceChip, s.plan.plan.planName));
+    await tester.pumpAndSettle();
+    expect(find.text('All attempts'), findsOneWidget);
+  });
+
+  test('a refresh keeps the plan shown and the plan chosen (10 Nov)', () async {
+    final s = _Setup();
+    await s.withPlan(attempts: [(0, 85, 1)]);
+    final catalogue = (await s.treatments.getCatalogue()).dataOrNull!;
+    final second = PatientTreatmentPlan(
+      patientPlanId: newId(),
+      accountId: s.plan.accountId,
+      plan: catalogue[1],
+      selectedAt: DateTime.now(),
+    );
+    await s.treatments.assignPlan(second);
+    await s.vm.loadPlan();
+    s.vm.selectPlan(s.plan.patientPlanId);
+    final seen = <String?>[];
+    s.vm.addListener(() => seen.add(s.vm.activePlan?.patientPlanId));
+    await s.vm.loadPlan();
+    // Never cleared while loading, and still the plan the patient chose.
+    expect(seen, isNot(contains(null)));
+    expect(s.vm.activePlan!.patientPlanId, s.plan.patientPlanId);
+  });
 
   // Audit D2 (23 Oct): large phone text on a 360 dp phone.
   for (final scale in [1.5, 2.0]) {

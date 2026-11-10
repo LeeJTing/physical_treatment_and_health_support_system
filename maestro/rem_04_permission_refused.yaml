@@ -1,0 +1,52 @@
+# ReminderModule_ScheduleReminders_TC003 (was TC-REM-04): when notifications are refused, the
+# reminder is still saved, a notice says it cannot ring, and its button opens Android's
+# notification settings for HealthGuide; changing the reminder does not ask again.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: ReminderModule_ScheduleReminders_TC003
+---
+- runFlow:
+    file: common/patient_on_home.yaml
+    env:
+      AGE: "58"
+      CONDITION: Hypertension
+- runFlow:
+    file: common/find_plans.yaml
+    env:
+      REGION1: Right knee
+      REGION2: Left knee
+      STAGE: Early
+      MOBILITY: Low
+      GOAL: Move more freely
+- tapOn:
+    text: Select
+    index: 0
+- extendedWaitUntil:
+    visible: '.*Allow.*HealthGuide.*notifications.*'
+    timeout: 10000
+- tapOn: Don.t allow
+- extendedWaitUntil:
+    visible: '.*Plan has been saved.*'
+    timeout: 15000
+- takeScreenshot: evidence/rem_04_plan_saved_after_refusal
+- tapOn: "Home\nTab 1 of 5"
+- tapOn: Reminders
+- runFlow: common/skip_reminder_guide.yaml
+- assertVisible: '[\s\S]*Notifications are turned off for HealthGuide, so your reminders cannot ring\.[\s\S]*'
+- assertVisible: '[\s\S]*Time for Early Knee Recovery[\s\S]*'
+- takeScreenshot: evidence/rem_04_notice
+# Changing the reminder does not show Android's dialog again.
+- tapOn: 'Tuesday[\s\S]*'
+- assertNotVisible: '.*Allow.*HealthGuide.*notifications.*'
+- assertVisible:
+    text: 'Tuesday[\s\S]*'
+    selected: true
+# The button opens Android's notification settings for the app.
+- tapOn: Turn on notifications
+- extendedWaitUntil:
+    visible: '.*HealthGuide notifications.*'
+    timeout: 10000
+- takeScreenshot: evidence/rem_04_android_notification_settings
+- back
+- extendedWaitUntil:
+    visible: '[\s\S]*Notifications are turned off[\s\S]*'
+    timeout: 10000

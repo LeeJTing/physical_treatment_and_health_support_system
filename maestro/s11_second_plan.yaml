@@ -1,0 +1,62 @@
+# PlanModule_FollowTwoPlans_TC001 (was S-11): a plan for a different area can be followed together
+# with the current plan. The Low-risk patient (TC-PRO-04 profile) first selects Early Knee
+# Recovery, which also passes through Android's notification dialog, then asks for arm plans.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: PlanModule_FollowTwoPlans_TC001
+---
+- runFlow:
+    file: common/patient_on_home.yaml
+    env:
+      AGE: "58"
+      CONDITION: None
+- assertVisible: '[\s\S]*Low risk[\s\S]*'
+- runFlow:
+    file: common/find_plans.yaml
+    env:
+      REGION1: Right knee
+      REGION2: Left knee
+      STAGE: Early
+      MOBILITY: Low
+      GOAL: Move more freely
+- tapOn:
+    text: Select
+    index: 0
+- extendedWaitUntil:
+    visible: '.*Allow.*HealthGuide.*notifications.*'
+    timeout: 10000
+- tapOn: Allow
+- extendedWaitUntil:
+    visible: '.*Plan has been saved.*'
+    timeout: 15000
+# The second plan, for both arms
+- tapOn: "Home\nTab 1 of 5"
+- runFlow:
+    file: common/find_plans.yaml
+    env:
+      REGION1: Right elbow
+      REGION2: Left elbow
+      STAGE: Intermediate
+      MOBILITY: Moderate
+      GOAL: Build strength
+- assertVisible: 'Upper Limb Strength'
+- assertVisible: '[\s\S]*Can be followed together with your current plans\.[\s\S]*'
+- takeScreenshot: evidence/s11_fits_together
+- tapOn:
+    text: Select
+    index: 0
+- extendedWaitUntil:
+    visible: 'Add Upper Limb Strength\?'
+    timeout: 10000
+- assertVisible: '.*together with your current plans: one exercise from each plan a day\.'
+- takeScreenshot: evidence/s11_add_dialog
+- tapOn: Add plan
+- extendedWaitUntil:
+    visible: '.*Plan has been saved.*'
+    timeout: 15000
+# Both plans are followed: My treatment plan has a tab for each of them.
+- tapOn: 'My treatment plan[\s\S]*'
+- extendedWaitUntil:
+    visible: Early Knee Recovery
+    timeout: 10000
+- assertVisible: Upper Limb Strength
+- takeScreenshot: evidence/s11_two_plans

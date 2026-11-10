@@ -1,0 +1,21 @@
+# ReminderModule_ExactAlarms_TC001 (was S-19): on Android 14 and later a new app may not set exact
+# alarms. Reminders then show a notice that they may be late, and its button opens Android's
+# "Alarms & reminders" page; once allowed there, the notice goes away.
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system
+name: ReminderModule_ExactAlarms_TC001
+---
+- runFlow: rem_01_permission_allowed.yaml
+- assertVisible: '.*may deliver reminders up to an hour late[\s\S]*'
+- takeScreenshot: evidence/s19_late_notice
+- tapOn: Turn on Alarms & reminders
+- extendedWaitUntil:
+    visible: '.*Allow setting alarms and reminders.*'
+    timeout: 10000
+- takeScreenshot: evidence/s19_android_alarms_page
+- tapOn: '.*Allow setting alarms and reminders.*'
+- back
+- extendedWaitUntil:
+    notVisible: '.*may deliver reminders up to an hour late[\s\S]*'
+    timeout: 10000
+- assertVisible: '[\s\S]*Time for Early Knee Recovery[\s\S]*'
+- takeScreenshot: evidence/s19_notice_gone
