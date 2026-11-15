@@ -435,40 +435,43 @@ class NumberField extends StatelessWidget {
           style: const TextStyle(color: AppTokens.inkMuted, fontSize: 15),
         ),
         const SizedBox(height: 6),
-        TextFormField(
-          controller: controller,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          inputFormatters: formatters,
-          onChanged: onChanged,
-          validator: validator,
-          // After a failed Save, show the errors even on untouched fields.
-          autovalidateMode: forceError
-              ? AutovalidateMode.always
-              : AutovalidateMode.onUserInteraction,
-          style: const TextStyle(
-            color: AppTokens.ink,
-            fontSize: 20,
-            fontWeight: FontWeight.w500,
-          ),
-          cursorColor: AppTokens.brandDeep,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppTokens.surface,
-            isDense: true,
-            // The whole message, even in the narrow age box (29 Oct, emulator: "...outside the ac..."
-            // was cut at three lines).
-            errorMaxLines: 8,
-            errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 13),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 14,
+        Semantics(
+          identifier: 'profile-${label.toLowerCase().split(' ').first}',
+          child: TextFormField(
+            controller: controller,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: formatters,
+            onChanged: onChanged,
+            validator: validator,
+            // After a failed Save, show the errors even on untouched fields.
+            autovalidateMode: forceError
+                ? AutovalidateMode.always
+                : AutovalidateMode.onUserInteraction,
+            style: const TextStyle(
+              color: AppTokens.ink,
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
             ),
-            enabledBorder: marked ? _b(AppTokens.cta) : _b(AppTokens.outline),
-            focusedBorder: marked
-                ? _b(AppTokens.cta, 2)
-                : _b(AppTokens.brandDeep, 2),
-            errorBorder: _b(AppTokens.cta),
-            focusedErrorBorder: _b(AppTokens.cta, 2),
+            cursorColor: AppTokens.brandDeep,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: AppTokens.surface,
+              isDense: true,
+              // The whole message, even in the narrow age box (29 Oct, emulator: "...outside the ac..."
+              // was cut at three lines).
+              errorMaxLines: 8,
+              errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 13),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 14,
+                vertical: 14,
+              ),
+              enabledBorder: marked ? _b(AppTokens.cta) : _b(AppTokens.outline),
+              focusedBorder: marked
+                  ? _b(AppTokens.cta, 2)
+                  : _b(AppTokens.brandDeep, 2),
+              errorBorder: _b(AppTokens.cta),
+              focusedErrorBorder: _b(AppTokens.cta, 2),
+            ),
           ),
         ),
       ],

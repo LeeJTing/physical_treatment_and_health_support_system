@@ -1,0 +1,2 @@
+Isolated demo repositories, scripted AI responses and device adapters for Jun Ting's device tests.
+These are test inputs, not evidence of clinical accuracy or live backend/platform integration.

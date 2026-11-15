@@ -324,18 +324,21 @@ class FoodTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final g = grams ?? food.baseServingG;
     final n = food.nutrientsFor(g);
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-      onTap: onTap,
-      leading: FoodRoleAvatar(food.planRole, size: 42),
-      title: Text(tidy(food.foodName), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
-      subtitle: Text(
-        keepGroups(
-          '${g.round()} g · ${fmtNum(n.energyKcal)} kcal · ${fmtNum(n.sodiumMg)} mg sodium · ${n.sugarG.toStringAsFixed(1)} g sugars',
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4),
+        onTap: onTap,
+        leading: FoodRoleAvatar(food.planRole, size: 42),
+        title: Text(tidy(food.foodName), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
+        subtitle: Text(
+          keepGroups(
+            '${g.round()} g · ${fmtNum(n.energyKcal)} kcal · ${fmtNum(n.sodiumMg)} mg sodium · ${n.sugarG.toStringAsFixed(1)} g sugars',
+          ),
+          style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
         ),
-        style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+        trailing: trailing,
       ),
-      trailing: trailing,
     );
   }
 }

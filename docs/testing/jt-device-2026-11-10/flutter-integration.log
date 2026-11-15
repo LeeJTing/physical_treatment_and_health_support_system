@@ -1,0 +1,30 @@
+00:00 +0: loading <app>/integration_test/jt_flows_test.dart
+Running Gradle task 'assembleDebug'...
+WARNING: Your app uses the following plugins that apply Kotlin Gradle Plugin (KGP): camera_android_camerax, flutter_tts, health
+Future versions of Flutter will fail to build if your app uses plugins that apply KGP.
+
+Please check the changelogs of these plugins and upgrade to a version that supports Built-in Kotlin.
+If no such version exists, report the issue to the plugin. If necessary, here is a guide on filing
+an issue against a plugin: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-app-developers#report-incompatible-kotlin-gradle-plugin-usage-to-plugin-authors
+
+If you are a plugin author, please migrate your plugin to Built-in Kotlin using this guide: https://docs.flutter.dev/release/breaking-changes/migrate-to-built-in-kotlin/for-plugin-authors
+Running Gradle task 'assembleDebug'...                             20.2s
+√ Built build\app\outputs\flutter-apk\app-debug.apk
+Installing build\app\outputs\flutter-apk\app-debug.apk...          12.3s
+00:00 +0: JT-M100-01 login rejects a wrong password then opens the signed-in shell
+00:14 +1: JT-M100-02 profile validates age and asks before updating diet plans
+00:30 +2: JT-M200-01 invalid reading cannot save; valid weight is saved and deleted
+00:53 +3: JT-M400-01 report shows a score and seven-day forecasts; offline keeps stored results
+01:01 +4: JT-M600-01 health note opens and is marked read; health and meal reminders schedule
+01:14 +5: JT-M700-01 manual meal merges papaya, saves and reopens in history
+01:44 +6: JT-M700-02 gallery fixture passes recognition into editable meal review
+01:56 +7: JT-M700-03 adequate daily and weekly plans show food info without redirecting
+02:09 +8: JT-M700-04 inadequate AI reply is retried and cannot overwrite the saved plan
+02:18 +9: JT-M600-02 a high health alert requires acknowledgement and is stored once
+02:28 +10: JT-M700-05 manual builder merges repeats and permits saving warned choices
+03:10 +11: JT-M200-02 Health Connect imports once and rejects duplicates
+03:18 +12: JT-M100-03 server address validation and readiness stay local to the test transport
+03:32 +13: JT-M400-02 declared condition risk shows its three contributing factors
+03:38 +14: JT-M100-04 accepting profile refresh saves a plan under the updated profile
+03:51 +15: (tearDownAll)
+03:51 +15: All tests passed!

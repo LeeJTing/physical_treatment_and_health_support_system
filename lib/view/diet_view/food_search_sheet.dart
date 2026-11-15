@@ -103,14 +103,17 @@ class _FoodSearchSheetState extends State<FoodSearchSheet> {
           ],
         ),
         const SizedBox(height: 12),
-        TextField(
-          autofocus: widget.suggested.isEmpty && widget.suggestedLater == null,
-          onChanged: _onTerm,
-          style: const TextStyle(fontSize: 18),
-          decoration: InputDecoration(
-            prefixIcon: const Icon(Icons.search),
-            hintText: 'e.g. nasi lemak, roti canai, teh tarik',
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTokens.radiusField)),
+        Semantics(
+          identifier: 'food-search',
+          child: TextField(
+            autofocus: widget.suggested.isEmpty && widget.suggestedLater == null,
+            onChanged: _onTerm,
+            style: const TextStyle(fontSize: 18),
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search),
+              hintText: 'e.g. nasi lemak, roti canai, teh tarik',
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTokens.radiusField)),
+            ),
           ),
         ),
         const SizedBox(height: 4),

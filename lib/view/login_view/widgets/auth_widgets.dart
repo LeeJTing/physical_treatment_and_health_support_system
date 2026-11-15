@@ -187,53 +187,56 @@ class _LabeledFieldState extends State<LabeledField> {
         ),
       ),
       const SizedBox(height: 8),
-      TextFormField(
-        controller: widget.controller,
-        validator: widget.validator,
-        obscureText: _hidden,
-        keyboardType: widget.keyboardType,
-        textInputAction: widget.textInputAction,
-        autofillHints: widget.autofillHints,
-        inputFormatters: widget.inputFormatters,
-        onChanged: widget.onChanged,
-        onFieldSubmitted: widget.onSubmitted,
-        maxLength: widget.maxLength,
-        textAlign: widget.textAlign,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        style:
-            widget.style ?? const TextStyle(color: AppTokens.ink, fontSize: 17),
-        cursorColor: AppTokens.brandDeep,
-        // Every colour is fixed: with the phone in dark mode the theme's defaults
-        // were white text on these light screens.
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: AppTokens.surface,
-          hintText: widget.hint,
-          hintStyle: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
-          errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 14),
-          helperMaxLines: 3,
-          errorMaxLines: 3,
-          counterText: '',
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 19,
+      Semantics(
+        identifier: 'auth-${widget.label.toLowerCase().replaceAll(' ', '-')}',
+        child: TextFormField(
+          controller: widget.controller,
+          validator: widget.validator,
+          obscureText: _hidden,
+          keyboardType: widget.keyboardType,
+          textInputAction: widget.textInputAction,
+          autofillHints: widget.autofillHints,
+          inputFormatters: widget.inputFormatters,
+          onChanged: widget.onChanged,
+          onFieldSubmitted: widget.onSubmitted,
+          maxLength: widget.maxLength,
+          textAlign: widget.textAlign,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          style:
+              widget.style ?? const TextStyle(color: AppTokens.ink, fontSize: 17),
+          cursorColor: AppTokens.brandDeep,
+          // Every colour is fixed: with the phone in dark mode the theme's defaults
+          // were white text on these light screens.
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: AppTokens.surface,
+            hintText: widget.hint,
+            hintStyle: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
+            errorStyle: const TextStyle(color: AppTokens.cta, fontSize: 14),
+            helperMaxLines: 3,
+            errorMaxLines: 3,
+            counterText: '',
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 19,
+            ),
+            enabledBorder: _border(AppTokens.outline),
+            focusedBorder: _border(AppTokens.brandDeep, 2),
+            errorBorder: _border(AppTokens.cta),
+            focusedErrorBorder: _border(AppTokens.cta, 2),
+            suffixIcon: widget.obscure
+                ? IconButton(
+                    tooltip: _hidden ? 'Show password' : 'Hide password',
+                    icon: Icon(
+                      _hidden
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                      color: AppTokens.inkMuted,
+                    ),
+                    onPressed: () => setState(() => _hidden = !_hidden),
+                  )
+                : null,
           ),
-          enabledBorder: _border(AppTokens.outline),
-          focusedBorder: _border(AppTokens.brandDeep, 2),
-          errorBorder: _border(AppTokens.cta),
-          focusedErrorBorder: _border(AppTokens.cta, 2),
-          suffixIcon: widget.obscure
-              ? IconButton(
-                  tooltip: _hidden ? 'Show password' : 'Hide password',
-                  icon: Icon(
-                    _hidden
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                    color: AppTokens.inkMuted,
-                  ),
-                  onPressed: () => setState(() => _hidden = !_hidden),
-                )
-              : null,
         ),
       ),
       // Below the field and lined up with the label (InputDecoration.helperText is

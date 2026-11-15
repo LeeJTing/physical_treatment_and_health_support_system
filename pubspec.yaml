@@ -32,6 +32,8 @@ dependencies:
   image: ^4.3.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
   # On-device tests of the real app (integration_test/, Chapter 5 functional test cases; 9 Nov).

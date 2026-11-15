@@ -1,0 +1,51 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M200 reading validation save and delete
+tags: [JT, M200]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Tracking.*'
+- tapOn: Add Reading
+- tapOn: Weight
+- tapOn:
+    id: reading-weight
+- inputText: '900'
+- assertVisible: '.*plausible.*|.*range.*'
+- assertVisible:
+    text: Save
+    enabled: false
+- takeScreenshot: jt-02-invalid-reading
+- tapOn:
+    id: reading-weight
+- eraseText: 3
+- inputText: '67'
+- pressKey: enter
+- extendedWaitUntil:
+    visible:
+      text: '67'
+      id: reading-weight
+    timeout: 10000
+- assertVisible:
+    text: Save
+    enabled: true
+- tapOn: Save
+- scrollUntilVisible:
+    element:
+      text: Weight
+    direction: UP
+    timeout: 60000
+- tapOn: Weight
+- scrollUntilVisible:
+    element:
+      text: '(?s).*67.*'
+    direction: DOWN
+    timeout: 60000
+- assertVisible: '(?s).*67.*'
+- takeScreenshot: jt-02-saved-reading
+- tapOn:
+    text: Delete
+    index: 0
+- tapOn: Confirm
+- assertNotVisible: '(?s).*67.*'

@@ -1,0 +1,116 @@
+[
+  {
+    "file": "08-login-before-fix.png",
+    "sha256": "3e55774d2b0679fa5a10860eb41b7fef4390a271b7bca7a4f171a55a95f4aef8",
+    "status": "failed run before selector correction",
+    "source_run": "2026-11-09_230140"
+  },
+  {
+    "file": "04-reminders-before-fix.png",
+    "sha256": "060e9e6f2b4d43bde594b89f72b05f84c312fa1e7842b210736d334435ae4e49",
+    "status": "failed run before selector correction",
+    "source_run": "2026-11-09_230140"
+  },
+  {
+    "file": "06-food-selector-before-fix.png",
+    "sha256": "ac434bb0d37a6201979924d50348512d51fd0c6f00c2039cd95c36d0f4b86ddf",
+    "status": "failed run before selector correction",
+    "source_run": "2026-11-09_230140"
+  },
+  {
+    "file": "09-builder-before-fix.png",
+    "sha256": "5a1abfc9a60da13ad19798ba256b2e771892022cd01d5f6c4c86f35c258e9b92",
+    "status": "failed run before selector correction",
+    "source_run": "2026-11-09_230140"
+  },
+  {
+    "file": "jt-01-profile-refresh-consent.png",
+    "sha256": "fa931c6bfb5e272fbeb9526a1c5c07e81a66d37f94cc95de32d95a30fe1a771a",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M100 profile update and diet refresh consent"
+  },
+  {
+    "file": "jt-02-invalid-reading.png",
+    "sha256": "59280bccd4f221ec06c3511cdad723d6b17be4fd2ce3958f4f8877e2fd09b3a4",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M200 reading validation save and delete"
+  },
+  {
+    "file": "jt-02-saved-reading.png",
+    "sha256": "1fcf971b298a27fb153233dfa7e1e703ef84e908f165506c7b34341c0cb414fe",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M200 reading validation save and delete"
+  },
+  {
+    "file": "jt-03-health-score.png",
+    "sha256": "acac91874ef56339a0da4b1205a3d9cdab37127d3a0ebce1e6b55e88759a8fde",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M400 score forecast and explanation"
+  },
+  {
+    "file": "jt-04-health-note.png",
+    "sha256": "22062324a8f87569f3c5516f03343ecfe4830df00908b6911f71caecdf57e132",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M600 health alert history and meal reminders"
+  },
+  {
+    "file": "jt-04-reminders.png",
+    "sha256": "d69e5e2b843987a0316141c9ceaab67df0294ea09332f73813e65cefb22e9b19",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M600 health alert history and meal reminders"
+  },
+  {
+    "file": "jt-05-combined-papaya.png",
+    "sha256": "1f3257ac02f852a149aac634ae18427a3be26026cb887f0855f03a005a0c06d9",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 manual meal duplicate merge and history"
+  },
+  {
+    "file": "jt-05-meal-history.png",
+    "sha256": "4d86aab875bfb99016c4fac8a03934db07041513a23511346a75c30efae37e65",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 manual meal duplicate merge and history"
+  },
+  {
+    "file": "jt-06-today-food-info.png",
+    "sha256": "959d1269a4f565bd177e7ce4420d8a6ebe4be0fd8cd287f3ca31d1b0a09844c3",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 daily weekly food information and replan"
+  },
+  {
+    "file": "jt-06-weekly-food-info.png",
+    "sha256": "3b817810c8f7029d916eb5b9e5f83ed1df2f19fbad352af541f7dda199c5b10e",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 daily weekly food information and replan"
+  },
+  {
+    "file": "jt-07-photo-review.png",
+    "sha256": "66320fab32f23705c18ae20a1633a7aeb47a9a2390b404d8700abef0a7ac98cf",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 selected photo recognition and review"
+  },
+  {
+    "file": "jt-08-invalid-login.png",
+    "sha256": "68b942df0cc348c4846c34924d7c3384e8d0a7ab3f136ae4dd54831170449de4",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M100 logout invalid login and successful login"
+  },
+  {
+    "file": "jt-08-login-success.png",
+    "sha256": "c29473c61434eb7ddd34d8d3843c937bcf63bae7f519f41948c7c182ffe01ca9",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M100 logout invalid login and successful login"
+  },
+  {
+    "file": "jt-09-advisory-warning.png",
+    "sha256": "33a48486bdd4277ba9393f9a9cec068cb9d01eb92ace62f111a65f4af733c2ea",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 manual plan combined portions and advisory warnings"
+  },
+  {
+    "file": "jt-09-combined-draft.png",
+    "sha256": "011054446abc23698ba54350f8f4c22b920491bebcf12704441ced69d1826841",
+    "status": "verified checkpoint in a passing flow",
+    "flow": "JT M700 manual plan combined portions and advisory warnings"
+  }
+]

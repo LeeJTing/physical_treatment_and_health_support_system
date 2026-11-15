@@ -296,15 +296,18 @@ class _Bell extends StatelessWidget {
   const _Bell({required this.unread, required this.onTap});
 
   @override
-  Widget build(BuildContext context) => IconButton(
-    tooltip: unread == 0 ? 'Reminders' : 'Reminders, $unread unread',
-    iconSize: 30,
-    onPressed: onTap,
-    icon: Badge(
-      isLabelVisible: unread > 0,
-      backgroundColor: AppTokens.cta,
-      label: Text('$unread'),
-      child: const Icon(Icons.notifications_none, color: Colors.white),
+  Widget build(BuildContext context) => Semantics(
+    identifier: 'notifications-bell',
+    child: IconButton(
+      tooltip: unread == 0 ? 'Reminders' : 'Reminders, $unread unread',
+      iconSize: 30,
+      onPressed: onTap,
+      icon: Badge(
+        isLabelVisible: unread > 0,
+        backgroundColor: AppTokens.cta,
+        label: Text('$unread'),
+        child: const Icon(Icons.notifications_none, color: Colors.white),
+      ),
     ),
   );
 }

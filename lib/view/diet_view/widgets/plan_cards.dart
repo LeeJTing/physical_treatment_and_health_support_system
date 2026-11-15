@@ -172,88 +172,92 @@ class PlanFoodRow extends StatelessWidget {
   const PlanFoodRow({super.key, required this.meal, this.warnings = const [], this.onTap, this.onRemove, this.actions});
 
   @override
-  Widget build(BuildContext context) => Container(
-    margin: const EdgeInsets.fromLTRB(8, 6, 8, 2),
-    decoration: BoxDecoration(
-      color: warnings.isEmpty ? AppTokens.surface : AppTokens.dangerContainer,
-      borderRadius: BorderRadius.circular(14),
-      border: warnings.isEmpty ? null : Border.all(color: AppTokens.danger),
-    ),
-    child: InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(8, 10, 0, 4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FoodRoleAvatar(meal.food.planRole, size: 46),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Flexible(
-                            child: Text(
-                              tidy(meal.food.foodName),
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
-                            ),
-                          ),
-                          if (meal.isLocked)
-                            const Padding(
-                              padding: EdgeInsets.only(left: 6),
-                              child: Icon(Icons.lock, size: 16, color: AppTokens.brandDeep, semanticLabel: 'Locked'),
-                            ),
-                        ],
-                      ),
-                      OneLineText(
-                        '${FoodLook.of(meal.food.planRole).label} · ${meal.portionSizeG.round()} g · ${fmtNum(meal.energyKcal)} kcal',
-                        style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                      ),
-                      OneLineText(
-                        '${fmtNum(meal.sodiumMg)} mg sodium · ${meal.sugarG.toStringAsFixed(1)} g sugars',
-                        style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'Remove ${meal.food.foodName}',
-                  onPressed: onRemove,
-                  icon: const Icon(Icons.close, color: AppTokens.inkMuted),
-                ),
-              ],
-            ),
-            if (warnings.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 8, 10, 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Row(
+  Widget build(BuildContext context) => Semantics(
+    container: true,
+    identifier: 'plan-food-${meal.food.foodKey}-${meal.plannedMealId}',
+    child: Container(
+      margin: const EdgeInsets.fromLTRB(8, 6, 8, 2),
+      decoration: BoxDecoration(
+        color: warnings.isEmpty ? AppTokens.surface : AppTokens.dangerContainer,
+        borderRadius: BorderRadius.circular(14),
+        border: warnings.isEmpty ? null : Border.all(color: AppTokens.danger),
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 10, 0, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FoodRoleAvatar(meal.food.planRole, size: 46),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.warning_amber_rounded, size: 18, color: AppTokens.danger),
-                        SizedBox(width: 6),
-                        Expanded(
-                          child: Text(
-                            'Review this choice',
-                            style: TextStyle(color: AppTokens.onDanger, fontWeight: FontWeight.w700),
-                          ),
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                tidy(meal.food.foodName),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
+                              ),
+                            ),
+                            if (meal.isLocked)
+                              const Padding(
+                                padding: EdgeInsets.only(left: 6),
+                                child: Icon(Icons.lock, size: 16, color: AppTokens.brandDeep, semanticLabel: 'Locked'),
+                              ),
+                          ],
+                        ),
+                        OneLineText(
+                          '${FoodLook.of(meal.food.planRole).label} · ${meal.portionSizeG.round()} g · ${fmtNum(meal.energyKcal)} kcal',
+                          style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+                        ),
+                        OneLineText(
+                          '${fmtNum(meal.sodiumMg)} mg sodium · ${meal.sugarG.toStringAsFixed(1)} g sugars',
+                          style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
                         ),
                       ],
                     ),
-                    for (final warning in warnings)
-                      Text(tidy(warning), style: const TextStyle(fontSize: 14, color: AppTokens.onDanger)),
-                  ],
-                ),
+                  ),
+                  IconButton(
+                    tooltip: 'Remove ${meal.food.foodName}',
+                    onPressed: onRemove,
+                    icon: const Icon(Icons.close, color: AppTokens.inkMuted),
+                  ),
+                ],
               ),
-            ?actions,
-          ],
+              if (warnings.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(4, 8, 10, 4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded, size: 18, color: AppTokens.danger),
+                          SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              'Review this choice',
+                              style: TextStyle(color: AppTokens.onDanger, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                        ],
+                      ),
+                      for (final warning in warnings)
+                        Text(tidy(warning), style: const TextStyle(fontSize: 14, color: AppTokens.onDanger)),
+                    ],
+                  ),
+                ),
+              ?actions,
+            ],
+          ),
         ),
       ),
     ),

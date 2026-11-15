@@ -46,13 +46,8 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
   double? get _p => double.tryParse(_primary.text.trim());
   double? get _s => double.tryParse(_secondary.text.trim());
 
-  String? get _problem => widget.vm.validate(
-    metric: _metric,
-    primary: _p,
-    secondary: _s,
-    context: _context,
-    recordedAt: _at,
-  );
+  String? get _problem =>
+      widget.vm.validate(metric: _metric, primary: _p, secondary: _s, context: _context, recordedAt: _at);
 
   Future<void> _pickTime() async {
     final d = await showDatePicker(
@@ -86,15 +81,18 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
 
   Widget _field(String label, TextEditingController c, String unit) => Padding(
     padding: const EdgeInsets.only(bottom: 14),
-    child: TextField(
-      controller: c,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      onChanged: (_) => setState(() => _error = null),
-      style: const TextStyle(fontSize: 20),
-      decoration: InputDecoration(
-        labelText: label,
-        suffixText: unit,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTokens.radiusField)),
+    child: Semantics(
+      identifier: 'reading-${label.toLowerCase().split(' ').first}',
+      child: TextField(
+        controller: c,
+        keyboardType: const TextInputType.numberWithOptions(decimal: true),
+        onChanged: (_) => setState(() => _error = null),
+        style: const TextStyle(fontSize: 20),
+        decoration: InputDecoration(
+          labelText: label,
+          suffixText: unit,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppTokens.radiusField)),
+        ),
       ),
     ),
   );
@@ -103,7 +101,8 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
   Widget build(BuildContext context) {
     final problem = _problem;
     final bottom = MediaQuery.viewInsetsOf(context).bottom;
-    final at = '${_at.day}/${_at.month}/${_at.year}  '
+    final at =
+        '${_at.day}/${_at.month}/${_at.year}  '
         '${_at.hour.toString().padLeft(2, '0')}:${_at.minute.toString().padLeft(2, '0')}';
     return Padding(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 20 + bottom),
@@ -125,8 +124,14 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
                   value: MetricType.bloodPressure,
                   label: OneLineText('Blood pressure', alignment: Alignment.center),
                 ),
-                ButtonSegment(value: MetricType.bloodGlucose, label: OneLineText('Glucose', alignment: Alignment.center)),
-                ButtonSegment(value: MetricType.bodyWeight, label: OneLineText('Weight', alignment: Alignment.center)),
+                ButtonSegment(
+                  value: MetricType.bloodGlucose,
+                  label: OneLineText('Glucose', alignment: Alignment.center),
+                ),
+                ButtonSegment(
+                  value: MetricType.bodyWeight,
+                  label: OneLineText('Weight', alignment: Alignment.center),
+                ),
               ],
               selected: {_metric},
               onSelectionChanged: (s) => setState(() {
@@ -181,10 +186,7 @@ class _AddReadingSheetState extends State<AddReadingSheet> {
             if (_error != null || (problem != null && (_p != null || _primary.text.isNotEmpty)))
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  _error ?? problem!,
-                  style: const TextStyle(color: AppTokens.danger, fontSize: 15),
-                ),
+                child: Text(_error ?? problem!, style: const TextStyle(color: AppTokens.danger, fontSize: 15)),
               ),
             const SizedBox(height: 8),
             SizedBox(
@@ -221,7 +223,9 @@ class _Tip extends StatelessWidget {
       children: [
         const Icon(Icons.lightbulb_outline, color: AppTokens.brandDeep),
         const SizedBox(width: 10),
-        Expanded(child: Text(text, style: const TextStyle(fontSize: 15, height: 1.3, color: AppTokens.ink))),
+        Expanded(
+          child: Text(text, style: const TextStyle(fontSize: 15, height: 1.3, color: AppTokens.ink)),
+        ),
       ],
     ),
   );

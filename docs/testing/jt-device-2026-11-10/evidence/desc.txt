@@ -1,0 +1,1 @@
+Original screenshots and SHA-256 provenance manifest; before-fix files record failed attempts.

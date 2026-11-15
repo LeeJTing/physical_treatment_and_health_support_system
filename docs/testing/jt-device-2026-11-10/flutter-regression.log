@@ -1,0 +1,620 @@
+00:00 +0: loading <app>/test/age_group_test.dart
+00:00 +0: <app>/test/age_group_test.dart: chose 13 to 17 in the Terms: 18 is not saved until the Terms are reviewed
+00:00 +1: <app>/test/age_group_test.dart: chose 18 or older: under 18 needs a parent or guardian first
+00:00 +2: <app>/test/age_group_test.dart: reviewing the Terms for the new age: adult only, back to the profile, then it saves
+00:00 +3: <app>/test/age_group_test.dart: no Terms record (offline or not created yet): the age is not held back
+00:00 +4: <app>/test/age_group_test.dart: height and weight up to the largest ever recorded
+00:00 +5: <app>/test/age_limit_test.dart: plans stop at 65 the limit is 65 and needs a known age
+00:00 +6: <app>/test/age_limit_test.dart: plans stop at 65 from 65 no plan is requested, also for the next plan
+00:00 +7: <app>/test/age_limit_test.dart: plans stop at 65 at 64 the request carries the age and the conditions
+00:00 +8: <app>/test/age_limit_test.dart: plans stop at 65 a restriction from the server is read too
+00:00 +9: <app>/test/age_limit_test.dart: plans stop at 65 a followed plan is paused: nothing can be started
+00:00 +10: <app>/test/age_limit_test.dart: plans stop at 65 exercise reminders stop ringing; health-log reminders still ring
+00:00 +11: <app>/test/age_limit_test.dart: plans stop at 65 the chat is told about the restriction
+00:00 +12: <app>/test/age_limit_test.dart: why this plan, why not the reasons and their sources are read
+00:00 +13: <app>/test/age_limit_test.dart: why this plan, why not sources are cited by name; none means an app safety rule
+00:00 +14: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +15: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +16: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +17: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +18: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +19: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +20: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +21: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +22: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +23: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +24: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +25: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +26: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +27: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +28: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +29: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +30: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +31: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +32: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +33: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +34: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +35: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +36: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +37: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +38: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +39: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +40: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +41: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +42: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +43: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +44: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +45: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +46: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +47: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +48: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +49: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +50: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +51: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +52: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +53: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +54: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +55: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +56: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +57: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +58: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +59: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +60: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +61: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +62: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +63: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +64: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +65: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +66: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +67: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +68: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +69: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +70: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +71: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +72: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +73: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +74: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +75: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +76: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +77: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +78: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +79: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +80: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +81: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +82: <app>/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +83: <app>/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +84: <app>/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +85: <app>/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +86: <app>/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +87: <app>/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +88: <app>/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +89: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +90: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +91: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +92: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +93: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +94: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +95: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +96: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +97: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +98: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +99: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +100: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +101: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +102: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +103: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +104: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +105: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +106: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +107: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +108: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +109: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +110: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +111: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +112: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +113: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +114: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +115: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +116: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +117: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +118: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +119: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +120: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +121: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +122: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +123: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +124: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +125: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +126: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +127: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +128: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +129: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +130: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +131: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +132: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +133: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +134: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +135: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +136: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +137: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +138: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +139: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +140: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +141: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +142: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +143: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +144: <app>/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +145: <app>/test/chat_test.dart: ChatView shows topics, answers, follow-ups and the exit button
+00:02 +146: <app>/test/chat_test.dart: ChatView shows topics, answers, follow-ups and the exit button
+00:02 +147: <app>/test/chat_test.dart: ChatView shows topics, answers, follow-ups and the exit button
+00:02 +148: <app>/test/analysing_view_test.dart: the back arrow asks first; Keep checking stays
+00:02 +149: <app>/test/body_map_test.dart: BodyMap widget switching front and back keeps the selection
+00:02 +150: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +151: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +152: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +153: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +154: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +155: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +156: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +157: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +158: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +159: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +160: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +161: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +162: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +163: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +164: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +165: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +166: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +167: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +168: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +169: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +170: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +171: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +172: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +173: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +174: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +175: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +176: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +177: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +178: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +179: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +180: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +181: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +182: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +183: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +184: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +185: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +186: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +187: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +188: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +189: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +190: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:02 +191: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +192: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +193: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +194: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +195: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +196: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +197: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +198: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +199: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +200: <app>/test/auth_views_test.dart: RegisterView (UC100) a new account goes to the code screen with its email
+00:03 +201: <app>/test/chat_test.dart: the send key while an answer is coming keeps the question in the box
+00:03 +202: <app>/test/chat_test.dart: the send key while an answer is coming keeps the question in the box
+00:03 +203: <app>/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +204: <app>/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +205: <app>/test/diet_test.dart: meal logging (UC800) a photo is checked (C3) and reduced to 384 px JPEG before upload (C4)
+00:03 +206: <app>/test/diet_test.dart: meal logging (UC800) a photo is checked (C3) and reduced to 384 px JPEG before upload (C4)
+00:03 +207: <app>/test/diet_test.dart: meal logging (UC800) a photo is checked (C3) and reduced to 384 px JPEG before upload (C4)
+00:03 +208: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +209: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +210: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +211: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +212: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +213: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +214: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +215: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +216: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +217: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +218: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +219: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +220: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +221: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +222: <app>/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +223: <app>/test/exercise_animation_test.dart: plays in a card; nothing is shown for an exercise without one
+00:03 +224: <app>/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +225: <app>/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +226: <app>/test/analysing_view_test.dart: Back on a result that did not pass is Retry exercise
+00:03 +227: <app>/test/analysing_view_test.dart: Back on a result that did not pass is Retry exercise
+00:03 +228: <app>/test/analysing_view_test.dart: Back on a result that did not pass is Retry exercise
+00:03 +229: <app>/test/analysing_view_test.dart: Back on a result that did not pass is Retry exercise
+00:04 +230: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +231: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +232: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +233: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +234: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +235: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +236: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +237: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +238: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +239: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +240: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +241: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +242: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +243: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +244: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +245: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +246: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +247: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +248: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +249: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +250: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +251: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +252: <app>/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +253: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +254: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +255: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +256: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +257: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +258: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +259: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +260: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +261: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +262: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +263: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +264: <app>/test/analysing_view_test.dart: at 1.5x text on 360 dp every step shows, no overflow
+00:04 +265: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:04 +266: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +267: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +268: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +269: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +270: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +271: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +272: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +273: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +274: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +275: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +276: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +277: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +278: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +279: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +280: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +281: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +282: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +283: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +284: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +285: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +286: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +287: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +288: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +289: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +290: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +291: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +292: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +293: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +294: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +295: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +296: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +297: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +298: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +299: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +300: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +301: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +302: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +303: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +304: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +305: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +306: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +307: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +308: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +309: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +310: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +311: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +312: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +313: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +314: <app>/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +315: <app>/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:06 +316: <app>/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:06 +317: <app>/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:06 +318: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +319: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +320: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +321: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +322: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +323: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +324: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +325: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +326: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +327: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +328: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +329: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +330: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +331: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:06 +332: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +333: <app>/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +334: <app>/test/home_view_test.dart: the bell shows unread reminders and opens them
+00:07 +335: <app>/test/guide_test.dart: the guide on screen an exercise without a written guide still gets one
+00:07 +336: <app>/test/guide_test.dart: the guide on screen an exercise without a written guide still gets one
+00:07 +337: <app>/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:07 +338: <app>/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:07 +339: <app>/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:07 +340: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +341: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +342: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +343: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +344: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +345: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +346: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +347: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +348: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +348: <app>/test/planning_test.dart: RecommendationService server error becomes the M4 message (FR500_25)
+recommend failed: error boom
+00:07 +349: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +350: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +351: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +352: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +353: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +354: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +355: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +356: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:07 +357: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +358: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +359: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +360: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +361: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +362: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +363: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +364: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +365: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +366: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +367: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +368: <app>/test/notification_view_test.dart: no reminders yet: the note and the health-log offer
+00:08 +369: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +370: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +371: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +372: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +373: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +374: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +375: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +376: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +377: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +378: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +379: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +380: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +381: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +382: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +383: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +384: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +385: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +386: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +387: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +388: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +389: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +390: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +391: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +392: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +393: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +394: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +395: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +396: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +397: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:08 +398: <app>/test/manual_diet_plan_view_test.dart: picking papaya twice displays one combined row in the draft
+00:09 +399: <app>/test/plan_card_text_test.dart: at 2x phone text the longest word of every plan name fits its line
+00:09 +400: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +401: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +402: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +403: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +404: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +405: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +406: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +407: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +408: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +409: <app>/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:09 +410: <app>/test/manual_diet_plan_view_test.dart: a conflicting draft food is red while Save stays enabled; correction clears the warning
+00:09 +411: <app>/test/notification_view_test.dart: Change opens the time picker; a new time is saved
+00:09 +412: <app>/test/notification_view_test.dart: Change opens the time picker; a new time is saved
+00:09 +413: <app>/test/notification_view_test.dart: Change opens the time picker; a new time is saved
+00:09 +414: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +415: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +416: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +417: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +418: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +419: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +420: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +421: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +422: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +423: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +424: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +425: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +426: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +427: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +428: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +429: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +430: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +431: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +432: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +433: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +434: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +435: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +436: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +437: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +438: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +439: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +440: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +441: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +442: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +443: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +444: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +445: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +446: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +447: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +448: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +449: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +450: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +451: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +452: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +453: <app>/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:10 +454: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +455: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +456: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +457: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +458: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +459: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +460: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +461: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +462: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +463: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +464: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +465: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +466: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +467: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +468: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +469: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +470: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +471: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +472: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +473: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +474: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +475: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +476: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +477: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +478: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +479: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +480: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +481: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +482: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +483: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +484: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +485: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +486: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +487: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +488: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +489: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +490: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +491: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +492: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +493: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +494: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +495: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +496: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +497: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +498: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +499: <app>/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:11 +500: <app>/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +501: <app>/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +502: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +503: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +504: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +505: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +506: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +507: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +508: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +509: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +510: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +511: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +512: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +513: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +514: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +515: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +516: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +517: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +518: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +519: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +520: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +521: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +522: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +523: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +524: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +525: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:12 +526: <app>/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:12 +527: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +528: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +529: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +530: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +531: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +532: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +533: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +534: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +535: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +536: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +537: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +538: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +539: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +540: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +541: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +542: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +543: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +544: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +545: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +546: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +547: <app>/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +548: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +549: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +550: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +551: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +552: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +553: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +554: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +555: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +556: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +557: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +558: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +559: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +560: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +561: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +562: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +563: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +564: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +565: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +566: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +567: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +568: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +569: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +570: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +571: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +572: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +573: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +574: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +575: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +576: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +577: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +578: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +579: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +580: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +581: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +582: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +583: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +584: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +585: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +586: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +587: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +588: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +589: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +590: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +591: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +592: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +593: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +594: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +595: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +596: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +597: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +598: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +599: <app>/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:15 +600: <app>/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:15 +601: <app>/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:15 +602: <app>/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:15 +603: <app>/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:15 +604: <app>/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:15 +605: <app>/test/profile_view_test.dart: successful profile change asks before updating plans: Update plans
+00:15 +606: <app>/test/profile_view_test.dart: an unchanged profile save does not ask to regenerate plans
+00:15 +607: <app>/test/profile_view_test.dart: a failed profile save keeps the draft and never asks to update plans
+00:16 +608: <app>/test/profile_view_test.dart: Back never leaves an empty screen (emulator, 24 Oct) after sign-in, an untouched new profile: Back goes on to Home, no discard question
+00:16 +609: <app>/test/profile_view_test.dart: Back never leaves an empty screen (emulator, 24 Oct) after sign-in, something typed: Discard goes on to Home (before: a black screen)
+00:16 +610: <app>/test/profile_view_test.dart: Back never leaves an empty screen (emulator, 24 Oct) the Profile tab with unsaved changes: Discard cancels the edit and stays on the tab
+00:16 +611: <app>/test/profile_view_test.dart: a high-risk profile shows the advisory and the risk badge
+00:16 +612: <app>/test/profile_view_test.dart: account settings: change password, device, testing mode
+00:16 +613: <app>/test/profile_view_test.dart: log out asks first; Cancel stays, Log out goes to login
+00:16 +614: <app>/test/profile_view_test.dart: delete my account: confirmed, then back to login
+00:16 +615: <app>/test/profile_view_test.dart: the profile cannot load: the message and Try again
+00:17 +616: All tests passed!

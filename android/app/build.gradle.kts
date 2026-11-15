@@ -1,3 +1,5 @@
+import java.util.Base64
+
 plugins {
     id("com.android.application")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
@@ -19,6 +21,11 @@ android {
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system"
+        // An isolated automation APK must never replace the patient's installed app/data.
+        val isolatedTestBuild = providers.gradleProperty("dart-defines").orNull
+            ?.split(",")?.any { String(Base64.getDecoder().decode(it)) == "E2E_TESTING=true" } == true
+        if (isolatedTestBuild) applicationIdSuffix = ".e2e"
+        manifestPlaceholders["appLabel"] = if (isolatedTestBuild) "HealthGuide Test" else "HealthGuide"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         // Health Connect (the health plugin, M200) needs Android 8.0 (API 26).

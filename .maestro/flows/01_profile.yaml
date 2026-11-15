@@ -1,0 +1,25 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: JT M100 profile update and diet refresh consent
+tags: [JT, M100]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Profile.*'
+- tapOn: Edit
+- tapOn:
+    id: profile-age
+- eraseText: 2
+- inputText: '61'
+- scrollUntilVisible:
+    element:
+      text: Save
+    direction: DOWN
+    timeout: 60000
+- tapOn: Save
+- assertVisible: Update your diet plan?
+- takeScreenshot: jt-01-profile-refresh-consent
+- tapOn: Not now
+- assertVisible: Edit
+- assertNotVisible: Other condition \(not listed\)
