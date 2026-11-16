@@ -1,0 +1,21 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: ACD weekly review and withheld associations
+tags: [ACD, M700]
+---
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s)Diet.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Diet review.*'
+    direction: DOWN
+- tapOn: '(?s).*Diet review.*'
+- assertVisible: Your recorded week
+- assertVisible: '(?s).*0 of.*elapsed days.*'
+- takeScreenshot: acd-weekly-review
+- tapOn: Meal & readings
+- assertVisible: Patterns in your records
+- assertVisible: '(?s).*0 paired records.*'
+- takeScreenshot: acd-withheld-patterns

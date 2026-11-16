@@ -1,0 +1,108 @@
+files per layer: {'other': 2, 'core': 16, 'device': 6, 'main': 1, 'service': 22, 'entity': 28, 'repo_impl': 20, 'repo_iface': 9, 'shared_client': 2, 'view': 64, 'viewmodel': 18}
+
+# problems: 18
+
+## Future not Result: 14
+   model/business_logic/anomaly_detection_service/anomaly_detection_service.dart: Future<HealthAnalysis?> lastStored(
+   model/business_logic/diet_planner_service/diet_planner_service.dart: Future<List<FoodItem>> alternativesFor(
+   model/business_logic/food_recognition_service/food_recognition_service.dart: Future<FoodItem?> mapToCatalogue(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<HealthConnectAttempt> connect(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<HealthSourceState> state(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<bool> checkAvailability(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<bool> hasPermissions(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<bool> openPermissionSettings(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<bool> requestPermissions(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<void> applyFix(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<void> installOrUpdate(
+   model/business_logic/health_connect_service/health_connect_service.dart: Future<void> revoke(
+   model/business_logic/server_connection_service/server_connection_service.dart: Future<void> reset(
+   model/business_logic/server_connection_service/server_connection_service.dart: Future<void> restore(
+
+## View uses a service: 2
+   view/home_view/main_shell.dart: DietPlannerService
+   view/home_view/main_shell.dart: LocalNotificationService
+
+## forbidden layer import: 2
+   viewmodel/analysis_view_model/analysis_view_model.dart (viewmodel) -> model/repository/treatment_repository/activity_records.dart (repo_impl)
+   viewmodel/monitoring_view_model/monitoring_view_model.dart (viewmodel) -> model/repository/treatment_repository/activity_records.dart (repo_impl)
+
+# allowed by the report (for the record)
+
+## return types of Tables 4.75 / 4.76: 22
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<NotificationLog> planAlert(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<NotificationLog> receiveAnomaly(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<ReminderTap?> launchTap(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<bool> canRingOnTime(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<bool> checkPermission(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<bool> openNotificationSettings(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<bool> requestPermission(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<int> schedule(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<int> schedulePlanAlerts(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<int> sync(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> cancel(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> cancelAllFor(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> cancelEverything(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> cancelToday(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> exerciseDone(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> importOverdue(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> openOnTimeSettings(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> removeForPlan(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> restToday(
+   model/business_logic/local_notification_service/local_notification_service.dart: Future<void> showAlert(
+   model/business_logic/pose_estimation_service/pose_estimation_service.dart: Future<VideoCheck> validateVideo(
+   model/business_logic/pose_estimation_service/pose_estimation_service.dart: Future<VideoInfo> probe(
+
+## event streams from the phone (errors handled inside): 1
+   model/business_logic/local_notification_service/local_notification_service.dart: Stream<ReminderTap> taps(
+
+## View -> result types in a service folder: 13
+   view/diet_view/diet_plan_view.dart -> model/business_logic/diet_planner_service/plan_change.dart
+   view/diet_view/diet_view.dart -> model/business_logic/diet_planner_service/plan_change.dart
+   view/diet_view/widgets/plan_widgets.dart -> model/business_logic/diet_planner_service/plan_change.dart
+   view/home_view/main_shell.dart -> model/business_logic/diet_planner_service/diet_planner_service.dart
+   view/home_view/main_shell.dart -> model/business_logic/local_notification_service/local_notification_service.dart
+   view/planning_view/age_limit_view.dart -> model/business_logic/recommendation_service/recommendation.dart
+   view/planning_view/chat_view.dart -> model/business_logic/chatbot_service/chat_reply.dart
+   view/planning_view/planning_view.dart -> model/business_logic/recommendation_service/recommendation.dart
+   view/planning_view/recommended_plans_view.dart -> model/business_logic/plan_rules/plan_rules.dart
+   view/planning_view/recommended_plans_view.dart -> model/business_logic/recommendation_service/recommendation.dart
+   view/planning_view/widgets/plan_card.dart -> model/business_logic/recommendation_service/recommendation.dart
+   view/planning_view/widgets/plan_reasons.dart -> model/business_logic/recommendation_service/recommendation.dart
+   view/profile_view/server_settings_view.dart -> model/business_logic/server_connection_service/server_status.dart
+
+## ViewModel -> repository interface (class tables 4.44-4.52): 35
+   viewmodel/analysis_view_model/analysis_view_model.dart -> model/repository/analysis_repository/i_analysis_repository.dart
+   viewmodel/analysis_view_model/analysis_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/analysis_view_model/analysis_view_model.dart -> model/repository/biometric_repository/i_biometric_repository.dart
+   viewmodel/analysis_view_model/analysis_view_model.dart -> model/repository/meal_repository/i_meal_repository.dart
+   viewmodel/analysis_view_model/analysis_view_model.dart -> model/repository/treatment_repository/i_treatment_repository.dart
+   viewmodel/auth_view_model/auth_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/auth_view_model/auth_view_model.dart -> model/repository/profile_repository/i_profile_repository.dart
+   viewmodel/auth_view_model/auth_view_model.dart -> model/repository/terms_repository/i_terms_repository.dart
+   viewmodel/chat_view_model/chat_view_model.dart -> model/repository/treatment_repository/i_treatment_repository.dart
+   viewmodel/diet_insights_view_model/diet_insights_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/diet_insights_view_model/diet_insights_view_model.dart -> model/repository/biometric_repository/i_biometric_repository.dart
+   viewmodel/diet_insights_view_model/diet_insights_view_model.dart -> model/repository/meal_repository/i_meal_repository.dart
+   viewmodel/diet_plan_view_model/diet_plan_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/diet_plan_view_model/diet_plan_view_model.dart -> model/repository/food_repository/i_food_repository.dart
+   viewmodel/diet_plan_view_model/diet_plan_view_model.dart -> model/repository/meal_repository/i_meal_repository.dart
+   viewmodel/home_view_model/home_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/home_view_model/home_view_model.dart -> model/repository/notification_repository/i_notification_repository.dart
+   viewmodel/home_view_model/home_view_model.dart -> model/repository/treatment_repository/i_treatment_repository.dart
+   viewmodel/meal_log_view_model/meal_log_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/meal_log_view_model/meal_log_view_model.dart -> model/repository/food_repository/i_food_repository.dart
+   viewmodel/meal_log_view_model/meal_log_view_model.dart -> model/repository/meal_repository/i_meal_repository.dart
+   viewmodel/monitoring_view_model/monitoring_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/monitoring_view_model/monitoring_view_model.dart -> model/repository/biometric_repository/i_biometric_repository.dart
+   viewmodel/monitoring_view_model/monitoring_view_model.dart -> model/repository/treatment_repository/i_treatment_repository.dart
+   viewmodel/notification_view_model/notification_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/notification_view_model/notification_view_model.dart -> model/repository/notification_repository/i_notification_repository.dart
+   viewmodel/planning_view_model/planning_view_model.dart -> model/repository/notification_repository/i_notification_repository.dart
+   viewmodel/planning_view_model/planning_view_model.dart -> model/repository/treatment_repository/i_treatment_repository.dart
+   viewmodel/profile_view_model/profile_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/profile_view_model/profile_view_model.dart -> model/repository/biometric_repository/i_biometric_repository.dart
+   viewmodel/profile_view_model/profile_view_model.dart -> model/repository/profile_repository/i_profile_repository.dart
+   viewmodel/profile_view_model/profile_view_model.dart -> model/repository/terms_repository/i_terms_repository.dart
+   viewmodel/treatment_view_model/treatment_view_model.dart -> model/repository/auth_repository/i_auth_repository.dart
+   viewmodel/treatment_view_model/treatment_view_model.dart -> model/repository/notification_repository/i_notification_repository.dart
+   viewmodel/treatment_view_model/treatment_view_model.dart -> model/repository/treatment_repository/i_treatment_repository.dart

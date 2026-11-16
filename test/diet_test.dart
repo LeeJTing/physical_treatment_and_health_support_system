@@ -752,13 +752,13 @@ void main() {
       expect(vm.takeMessage(), contains('combined portion'));
     });
 
-    test('a photo is checked (C3) and reduced to 384 px JPEG before upload (C4)', () async {
+    test('a photo is checked and preserves 1024 px detail for multiple-food review', () async {
       final svc = FoodRecognitionService(ApiClient(baseUrl: 'x', tokenProvider: () => null), foods);
       expect((await svc.prepare(jpeg(100, 100))).isSuccess, isFalse);
       expect((await svc.prepare(Uint8List.fromList([1, 2, 3]))).isSuccess, isFalse);
       final ok = (await svc.prepare(jpeg(1200, 900))).dataOrNull!;
-      expect(ok.width, 384);
-      expect(ok.height, 288);
+      expect(ok.width, 1024);
+      expect(ok.height, 768);
     });
 
     test('choosing or resizing an unsuitable logged food alerts with the reason; correction clears it', () async {
@@ -774,6 +774,60 @@ void main() {
       expect(vm.takeMessage(), contains('sodium'));
       // A diary can record what was eaten; this is separate from saving a suitable diet plan.
       expect(await vm.confirmMeal(), isTrue);
+    });
+
+    test('multiple-food response preserves counts and grams then saves user-confirmed quantities', () async {
+      final vm = build(
+        MockClient(
+          (_) async => http.Response(
+            jsonEncode({
+              'provider': 'gemini',
+              'is_food': true,
+              'confidence': .85,
+              'model_version': 'gemini:fixture',
+              'warnings': ['Review all estimated quantities'],
+              'items': [
+                {
+                  'food_key': 'telur_rebus',
+                  'confidence': .85,
+                  'portion_g': 100,
+                  'count': 2,
+                  'count_unit': 'whole',
+                  'unit_weight_g': 50,
+                  'confidence_kind': 'model_estimate',
+                  'boxes': [
+                    [.1, .1, .4, .4],
+                  ],
+                },
+                {
+                  'food_key': 'silken_tofu',
+                  'confidence': .65,
+                  'portion_g': 120,
+                  'count': 4,
+                  'count_unit': 'piece',
+                  'confidence_kind': 'model_estimate',
+                  'boxes': [
+                    [.5, .1, .9, .8],
+                  ],
+                },
+              ],
+            }),
+            200,
+          ),
+        ),
+      );
+      await vm.load();
+      camera.next = jpeg(800, 600);
+      await vm.captureImage();
+      expect(vm.draft!.items, hasLength(2));
+      expect(vm.draft!.items.first.recognitionDetails!.count, 2);
+      expect(vm.draft!.items.last.portionSizeG, 120);
+      expect(vm.lastResult!.warnings, contains('Review all estimated quantities'));
+      expect(vm.confirmQuantity(vm.draft!.items.first, 3, 150), isNull);
+      expect(vm.draft!.items.first.energyKcal, food('telur_rebus').nutrientsFor(150).energyKcal);
+      expect(await vm.confirmMeal(), isTrue);
+      expect(meals.meals.single.items.map((i) => i.recognitionDetails!.count), [3, 4]);
+      expect(meals.meals.single.items.every((i) => i.recognitionDetails!.confirmed), isTrue);
     });
 
     test('recognised meal: items with verdicts; saved with its photo and model version', () async {

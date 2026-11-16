@@ -1,0 +1,637 @@
+00:00 +0: loading C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_group_test.dart
+00:00 +0: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_group_test.dart: chose 13 to 17 in the Terms: 18 is not saved until the Terms are reviewed
+00:00 +1: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_group_test.dart: chose 18 or older: under 18 needs a parent or guardian first
+00:00 +2: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_group_test.dart: reviewing the Terms for the new age: adult only, back to the profile, then it saves
+00:00 +3: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_group_test.dart: no Terms record (offline or not created yet): the age is not held back
+00:00 +4: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_group_test.dart: height and weight up to the largest ever recorded
+00:00 +5: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 the limit is 65 and needs a known age
+00:00 +6: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 from 65 no plan is requested, also for the next plan
+00:00 +7: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 at 64 the request carries the age and the conditions
+00:00 +8: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 a restriction from the server is read too
+00:00 +9: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 a followed plan is paused: nothing can be started
+00:00 +10: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 exercise reminders stop ringing; health-log reminders still ring
+00:00 +11: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: plans stop at 65 the chat is told about the restriction
+00:00 +12: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not the reasons and their sources are read
+00:00 +13: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not sources are cited by name; none means an app safety rule
+00:00 +14: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +15: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +16: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +17: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +18: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +19: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +20: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +21: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +22: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +23: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +24: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +25: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +26: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +27: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +28: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +29: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +30: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +31: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +32: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +33: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +34: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +35: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +36: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +37: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +38: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +39: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +40: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +41: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +42: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +43: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +44: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +45: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +46: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +47: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +48: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +49: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +50: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +51: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +52: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +53: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +54: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +55: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +56: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +57: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +58: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +59: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:00 +60: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +61: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +62: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +63: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +64: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +65: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +66: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +67: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +68: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +69: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +70: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +71: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +72: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +73: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +74: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +75: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +76: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +77: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +78: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +79: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +80: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +81: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +82: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +83: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +84: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +85: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +86: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/age_limit_test.dart: why this plan, why not each plan opens "Why this plan"; the others say why not
+00:01 +87: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +88: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: the steps while checking, then the posture result
+00:01 +89: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +90: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +91: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +92: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +93: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +94: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +95: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +96: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +97: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +98: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +99: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +100: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:01 +101: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +102: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +103: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +104: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +105: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +106: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +107: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +108: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +109: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Create account waits for every field and the terms box
+00:02 +110: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: ChatView shows topics, answers, follow-ups and the exit button
+00:02 +111: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: ChatView shows topics, answers, follow-ups and the exit button
+00:02 +112: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +113: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +114: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +115: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +116: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +117: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +118: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +119: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +120: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +121: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +122: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +123: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +124: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +125: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +126: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +127: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +128: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +129: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +130: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +131: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +132: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +133: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +134: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +135: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +136: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +137: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +138: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +139: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +140: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +141: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +142: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +143: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +144: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +145: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:02 +146: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-C01 recorded week and nutrient contributors render with missing-day guidance
+00:03 +147: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +148: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +149: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +150: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +151: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +152: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +153: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +154: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +155: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +156: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +157: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +158: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +159: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +160: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +161: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back while checking asks; Stop returns to the recorder, nothing saved
+00:03 +162: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +163: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +164: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +165: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +166: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +167: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +168: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +169: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +170: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +171: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +172: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +173: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +174: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +175: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +176: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +177: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +178: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +179: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +180: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +181: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +182: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +183: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +184: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +185: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) an email already registered: the message and Go to log in
+00:03 +186: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +187: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +188: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +189: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +190: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +191: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +192: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +193: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +194: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +195: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +196: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +197: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +198: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +199: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +200: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +201: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +202: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +203: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +204: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +205: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +206: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +207: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +208: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +209: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +210: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +211: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +212: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +213: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +214: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +215: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +216: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +217: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +218: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/chat_test.dart: a button opens its screen above the chat, so Back returns to the chat; the screen the chat came from is not stacked twice
+00:03 +219: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +220: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +221: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +222: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +223: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +224: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +225: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +226: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +227: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +228: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +229: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: RegisterView (UC100) Back with typed details asks; Keep editing, then Discard
+00:03 +230: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back on a result that did not pass is Retry exercise
+00:03 +231: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/analysing_view_test.dart: Back on a result that did not pass is Retry exercise
+00:03 +232: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:03 +233: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:03 +234: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:04 +235: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:04 +236: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:04 +237: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:04 +238: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:04 +239: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/diet_features_widget_test.dart: ACD-A01 quantity review validates, recalculates and persists confirmed counts
+00:04 +240: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +241: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +242: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +243: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +244: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +245: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +246: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +247: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +248: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +249: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +250: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +251: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +252: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire returns the area mapped from the body map
+00:04 +253: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/exercise_animation_test.dart: plays in a card; nothing is shown for an exercise without one
+00:04 +254: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/exercise_animation_test.dart: plays in a card; nothing is shown for an exercise without one
+00:04 +255: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/exercise_animation_test.dart: plays in a card; nothing is shown for an exercise without one
+00:04 +256: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/exercise_animation_test.dart: plays in a card; nothing is shown for an exercise without one
+00:04 +257: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/exercise_animation_test.dart: plays in a card; nothing is shown for an exercise without one
+00:04 +258: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire the pace is optional
+00:04 +259: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) a wrong code is refused and the screen stays
+00:04 +260: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) a wrong code is refused and the screen stays
+00:04 +261: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire the chosen pace is returned
+00:05 +262: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +263: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +264: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +265: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +266: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +267: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +268: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +269: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +270: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +271: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +272: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +273: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +274: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +275: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +276: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/auth_views_test.dart: ResetPasswordView (UC200) the right code resets the password, then Log in
+00:05 +277: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +278: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +279: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +280: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +281: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +282: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +283: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +284: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +285: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +286: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +287: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +288: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/body_map_test.dart: questionnaire tapping the chosen pace again clears it
+00:05 +289: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +290: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +291: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +292: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +293: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:05 +294: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +295: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +296: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +297: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +298: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +299: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +300: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +301: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +302: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +303: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +304: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +305: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +306: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +307: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +308: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +309: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +310: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +311: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +312: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +313: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +314: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +315: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +316: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +317: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +318: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +319: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +320: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +321: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +322: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +323: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +324: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +325: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +326: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +327: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +328: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +329: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +330: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +331: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +332: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +333: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +334: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +335: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/guide_test.dart: the guide on screen Sit-to-Stand: watch, four steps, safety, phone set-up
+00:06 +336: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:06 +337: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:06 +338: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:06 +339: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +340: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +341: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +342: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +343: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +344: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +344: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendationService server error becomes the M4 message (FR500_25)
+recommend failed: error boom
+00:07 +345: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +346: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +347: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/home_view_test.dart: a new patient: complete-profile notice and Get a plan
+00:07 +348: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +349: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +350: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +351: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +352: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +353: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +354: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +355: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +356: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +357: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +358: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +359: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +360: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +361: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +362: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +363: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +364: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +365: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +366: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +367: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +368: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +369: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +370: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +371: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +372: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +373: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:07 +374: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +375: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +376: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +377: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +378: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +379: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +380: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +381: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +382: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +383: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +384: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +385: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +386: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +387: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +388: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +389: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +390: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +391: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +392: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +393: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +394: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +395: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +396: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +397: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +398: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +399: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +400: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +401: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +402: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: a changed draft is visible at large phone text and Close can discard without changing the saved plan
+00:08 +403: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/plan_card_text_test.dart: at 2x phone text the longest word of every plan name fits its line
+00:08 +404: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/plan_card_text_test.dart: at 2x phone text the longest word of every plan name fits its line
+00:08 +405: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/plan_card_text_test.dart: at 2x phone text the longest word of every plan name fits its line
+00:08 +406: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/plan_card_text_test.dart: at 2x phone text the longest word of every plan name fits its line
+00:08 +407: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +408: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +409: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +410: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +411: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +412: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +413: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +414: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +415: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +416: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +417: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +418: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/planning_test.dart: RecommendedPlansView a plan for another area is added beside the current one
+00:08 +419: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:08 +420: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:08 +421: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/manual_diet_plan_view_test.dart: the whole day is confirmed before a revised portion is saved
+00:09 +422: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +423: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +424: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +425: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +426: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +427: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +428: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +429: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +430: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +431: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +432: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +433: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +434: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +435: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +436: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +437: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +438: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +439: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +440: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +441: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +442: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +443: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +444: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +445: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +446: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +447: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +448: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +449: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +450: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +451: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +452: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +453: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +454: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +455: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +456: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +457: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_model_test.dart: a field marked by Save is outlined although its value is in range
+00:09 +458: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +459: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +460: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +461: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +462: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +463: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +464: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +465: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +466: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +467: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +468: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +469: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +470: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +471: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +472: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +473: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +474: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +475: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +476: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +477: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +478: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +479: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +480: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +481: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +482: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +483: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +484: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +485: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +486: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:09 +487: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +488: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +489: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +490: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +491: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +492: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +493: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +494: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +495: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +496: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +497: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +498: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +499: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +500: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +501: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +502: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +503: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +504: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +505: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +506: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +507: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +508: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +509: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +510: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +511: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an out-of-range age shows its whole message in the narrow box (emulator, 29 Oct)
+00:10 +512: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:10 +513: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:10 +514: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +515: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +516: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +517: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +518: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +519: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +520: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +521: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +522: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +523: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +524: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +525: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +526: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +527: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +528: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/session_history_test.dart: the screen shows the summary, the trend and every attempt
+00:11 +529: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +530: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +531: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +532: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +533: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +534: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +535: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +536: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/shell_and_login_test.dart: StartupView offline says so with Try again, then carries on (Elwin, 23 Oct)
+00:11 +537: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:11 +538: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:11 +539: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:11 +540: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:11 +541: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:11 +542: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:11 +543: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +544: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +545: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +546: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a new patient fills the form and saves the profile
+00:12 +547: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +548: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +549: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +550: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +551: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +552: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +553: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +554: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +555: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +556: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +557: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +558: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +559: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +560: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +561: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +562: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +563: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +564: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +565: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +566: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +567: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +568: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +569: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:12 +570: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +571: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +572: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +573: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +574: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +575: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +576: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +577: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +578: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +579: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +580: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +581: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +582: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +583: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +584: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +585: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +586: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +587: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +588: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +589: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +590: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +591: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +592: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +593: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +594: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +595: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +596: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +597: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +598: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +599: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +600: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +601: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +602: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:13 +603: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +604: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +605: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +606: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +607: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +608: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +609: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +610: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +611: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +612: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +613: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +614: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +615: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +616: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/terms_test.dart: the screen: age group, guardian for 13 to 17, two separate ticks, Malay
+00:14 +617: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:14 +618: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:14 +619: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:14 +620: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:14 +621: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: successful profile change asks before updating plans: Not now
+00:14 +622: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: successful profile change asks before updating plans: Update plans
+00:15 +623: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: an unchanged profile save does not ask to regenerate plans
+00:15 +624: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a failed profile save keeps the draft and never asks to update plans
+00:15 +625: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: Back never leaves an empty screen (emulator, 24 Oct) after sign-in, an untouched new profile: Back goes on to Home, no discard question
+00:15 +626: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: Back never leaves an empty screen (emulator, 24 Oct) after sign-in, something typed: Discard goes on to Home (before: a black screen)
+00:15 +627: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: Back never leaves an empty screen (emulator, 24 Oct) the Profile tab with unsaved changes: Discard cancels the edit and stays on the tab
+00:16 +628: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: a high-risk profile shows the advisory and the risk badge
+00:16 +629: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: account settings: change password, device, testing mode
+00:16 +630: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: log out asks first; Cancel stays, Log out goes to login
+00:16 +631: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: delete my account: confirmed, then back to login
+00:16 +632: C:/Users/User/StudioProjects/physical_treatment_and_health_support_system/test/profile_view_test.dart: the profile cannot load: the message and Try again
+00:16 +633: All tests passed!
