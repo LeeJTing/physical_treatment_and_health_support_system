@@ -9,7 +9,9 @@ import 'package:physical_treatment_and_health_support_system/device_platform/loc
 import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/analysis_repository/fake_analysis_repository.dart';
@@ -36,17 +38,18 @@ class DemoEnvironment {
   });
   final health = FakeHealthDataSource();
   final scheduler = DemoScheduler();
-  final photos = DemoPhotos();
+  late DemoPhotos photos;
   late FakeFoodRepository foods;
   late FakeTreatmentRepository treatments;
   late DemoAiClient ai;
   late String accountId;
 
-  static Future<DemoEnvironment> create({bool signedIn = true}) async {
+  static Future<DemoEnvironment> create({bool signedIn = true, bool dietFeatures = false}) async {
     final e = DemoEnvironment();
     e.foods = FakeFoodRepository.fromJson(await rootBundle.loadString('assets/seed/food_catalogue.json'));
     e.treatments = FakeTreatmentRepository.fromJson(await rootBundle.loadString('assets/seed/catalogue.json'));
-    e.ai = DemoAiClient(e.foods);
+    e.ai = DemoAiClient(e.foods, multiFood: dietFeatures);
+    e.photos = DemoPhotos(multiFood: dietFeatures);
     e.accountId = (await e.auth.login('demo@apths.test', 'password123')).dataOrNull!.accountId;
     final now = DateTime.now();
     final profile = HealthProfile(
@@ -71,7 +74,7 @@ class DemoEnvironment {
       ),
     );
     for (var d = 1; d <= 20; d++) {
-      for (final metric in MetricType.values) {
+      for (final metric in dietFeatures ? [MetricType.bodyWeight] : MetricType.values) {
         await e.biometrics.insert(
           BiometricReading(
             readingId: 'seed-${metric.db}-$d',
@@ -89,6 +92,7 @@ class DemoEnvironment {
         );
       }
     }
+    if (dietFeatures) await e._seedDietFeatures(now);
     await e.notifications.logNotification(
       NotificationLog(
         notificationId: 'e2e-health-alert',
@@ -105,16 +109,74 @@ class DemoEnvironment {
     }
     return e;
   }
+
+  Future<void> _seedDietFeatures(DateTime now) async {
+    final catalogue = {for (final food in foods.foods) food.foodKey: food};
+    List<MealItem> items(List<(String, double)> portions) =>
+        [for (final (key, grams) in portions) MealItem.of(catalogue[key]!, grams: grams)];
+
+    for (var daysAgo = 24; daysAgo >= 1; daysAgo--) {
+      // Leave a gap in each week to demonstrate how missing meal records are displayed.
+      if (daysAgo % 7 == 3) continue;
+      final variation = (daysAgo * 7) % 13;
+      DateTime at(int hour, {int nextDay = 0}) =>
+          DateTime(now.year, now.month, now.day - daysAgo + nextDay, hour);
+      final mealsForDay = <(MealSlot, int, List<(String, double)>)>[
+        (MealSlot.breakfast, 8, [('oats', 180), ('telur_rebus', 50), ('betik', 100)]),
+        (MealSlot.lunch, 12, [('nasi_putih', 105 + variation * 9.0), ('steamed_fish', 125)]),
+        (MealSlot.dinner, 19, [('nasi_putih', 125), ('silken_tofu', 100 + variation * 11.0)]),
+      ];
+      for (final (slot, hour, portions) in mealsForDay) {
+        await meals.saveMeal(MealLog(
+          mealId: 'demo-diet-$daysAgo-${slot.name}',
+          accountId: accountId,
+          mealType: slot,
+          entryMethod: EntryMethod.manual,
+          consumedAt: at(hour),
+          items: items(portions),
+        ));
+      }
+      await biometrics.insert(BiometricReading(
+        readingId: 'demo-post-meal-$daysAgo',
+        accountId: accountId,
+        metricType: MetricType.bloodGlucose,
+        primaryValue: 5.4 + variation * .16 + (daysAgo % 3) * .15,
+        measurementContext: MeasurementContext.postMeal,
+        recordedAt: at(14),
+      ));
+      final morning = at(7, nextDay: 1);
+      if (!morning.isAfter(now)) {
+        await biometrics.insert(BiometricReading(
+          readingId: 'demo-next-morning-$daysAgo',
+          accountId: accountId,
+          metricType: MetricType.bloodPressure,
+          primaryValue: 116 + variation * .9 + (daysAgo % 5) * 1.5,
+          secondaryValue: 74 + (daysAgo % 5).toDouble(),
+          recordedAt: morning,
+        ));
+      }
+    }
+    // Keeps today's review populated even on Monday morning. Earlier days have all main meals.
+    await meals.saveMeal(MealLog(
+      mealId: 'demo-diet-today',
+      accountId: accountId,
+      mealType: MealSlot.snack,
+      entryMethod: EntryMethod.manual,
+      consumedAt: now,
+      items: items([('betik', 150)]),
+    ));
+  }
 }
 
 /// Scripted transport responses exercise production ApiClient/decoders, not model accuracy.
 class DemoAiClient extends http.BaseClient {
   final FakeFoodRepository foods;
+  final bool multiFood;
   final List<String> requests = [];
   bool offline = false;
   bool underfilled = false;
   bool highAlert = false;
-  DemoAiClient(this.foods);
+  DemoAiClient(this.foods, {this.multiFood = false});
 
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) async {
@@ -146,7 +208,7 @@ class DemoAiClient extends http.BaseClient {
     }
     if (path == '/plan/alternatives') return _reply([]);
     if (path == '/recognise') {
-      if (const bool.fromEnvironment('E2E_MULTI_FOOD')) {
+      if (multiFood) {
         return _reply({
           'provider': 'gemini', 'confidence': .85, 'is_food': true,
           'model_version': 'gemini:synthetic-e2e-fixture',
@@ -286,8 +348,32 @@ class DemoAiClient extends http.BaseClient {
 }
 
 class DemoPhotos implements MealImageSource {
-  final Uint8List bytes = Uint8List.fromList(img.encodeJpg(img.Image(width: 400, height: 400)));
+  final Uint8List bytes;
   bool cancel = false;
+
+  DemoPhotos({bool multiFood = false}) : bytes = multiFood ? _samplePlate() : _blankPhoto();
+
+  static Uint8List _blankPhoto() => img.encodeJpg(img.Image(width: 400, height: 400));
+
+  /// An illustration used with the scripted response. Coordinates match its food regions.
+  static Uint8List _samplePlate() {
+    final plate = img.Image(width: 400, height: 400);
+    img.fill(plate, color: img.ColorRgb8(179, 147, 122));
+    img.fillCircle(plate, x: 200, y: 200, radius: 180, color: img.ColorRgb8(225, 233, 229), antialias: true);
+    img.fillCircle(plate, x: 200, y: 200, radius: 159, color: img.ColorRgb8(247, 245, 232), antialias: true);
+
+    for (final y in [115, 252]) {
+      img.fillCircle(plate, x: 125, y: y, radius: 36, color: img.ColorRgb8(218, 205, 176), antialias: true);
+      img.fillCircle(plate, x: 124, y: y - 2, radius: 33, color: img.ColorRgb8(255, 253, 239), antialias: true);
+      img.fillCircle(plate, x: 127, y: y - 2, radius: 16, color: img.ColorRgb8(244, 183, 46), antialias: true);
+    }
+    for (final (x, y) in [(204, 130), (266, 145), (211, 198), (273, 212)]) {
+      img.fillRect(plate, x1: x + 3, y1: y + 4, x2: x + 52, y2: y + 51, radius: 6, color: img.ColorRgb8(185, 150, 94));
+      img.fillRect(plate, x1: x, y1: y, x2: x + 49, y2: y + 47, radius: 6, color: img.ColorRgb8(234, 208, 140));
+    }
+    return img.encodeJpg(plate);
+  }
+
   @override
   Future<Uint8List?> capture() async => cancel ? null : bytes;
   @override

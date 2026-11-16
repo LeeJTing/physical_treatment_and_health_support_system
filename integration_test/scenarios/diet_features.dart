@@ -129,6 +129,78 @@ void runDietFeatureTests({
     }
   }
 
+  testWidgets(
+    'The diet demo has meals, both reading patterns and a multi-food sample',
+    (t) async {
+      hostSize(t);
+      final env = (await t.runAsync(
+        () => DemoEnvironment.create(dietFeatures: true),
+      ))!;
+      final vm = DietInsightsViewModel(
+        env.meals,
+        env.biometrics,
+        env.auth,
+        RiskAssessmentService(env.auth, env.profiles),
+      );
+      addTearDown(vm.dispose);
+      await vm.load();
+      expect(vm.insights!.week.loggedDays, greaterThanOrEqualTo(1));
+      expect(vm.insights!.patterns, hasLength(2));
+      expect(
+        vm.insights!.patterns.every((pattern) => pattern.available),
+        isTrue,
+      );
+      await vm.previousWeek();
+      expect(vm.insights!.week.loggedDays, 6);
+      expect(vm.insights!.week.contributors['sodium_mg'], isNotEmpty);
+      expect(
+        vm.insights!.patterns.every((pattern) => pattern.available),
+        isTrue,
+      );
+      await vm.nextWeek();
+
+      await t.pumpWidget(
+        MaterialApp(
+          builder: (_, child) => RepaintBoundary(
+            key: const ValueKey('diet-evidence'),
+            child: child!,
+          ),
+          home: ChangeNotifierProvider.value(
+            value: vm,
+            child: const DietInsightsView(),
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(find.text('Your recorded week'), findsOneWidget);
+      await capture?.call(t, 'seeded-weekly-diet-review');
+      await t.tap(find.text('Meal & readings'));
+      await t.pumpAndSettle();
+      expect(find.textContaining('Rank association:'), findsWidgets);
+      await capture?.call(t, 'seeded-meal-reading-pattern');
+
+      final recognised = await t.runAsync(() async {
+        final service = FoodRecognitionService(
+          ApiClient(
+            baseUrl: 'http://isolated.test',
+            tokenProvider: () => 't',
+            httpClient: env.ai,
+          ),
+          env.foods,
+        );
+        final photo = await env.photos.pickFromGallery();
+        final prepared = (await service.prepare(photo!)).dataOrNull!;
+        return (await service.recognise(prepared, [])).dataOrNull!;
+      });
+      expect(recognised!.items.map((item) => item.food.foodKey), [
+        'telur_rebus',
+        'silken_tofu',
+      ]);
+      expect(recognised.items.map((item) => item.details!.count), [2, 4]);
+      expect(recognised.items.map((item) => item.portionG), [100, 120]);
+    },
+  );
+
   testWidgets('Weekly Plan opens on today and a future week can be scheduled', (
     t,
   ) async {
