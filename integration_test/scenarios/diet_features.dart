@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/recognition_result.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -21,6 +22,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/pr
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_insights_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_quantity_dialog.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_result_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_insights_view_model/diet_insights_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
 
@@ -248,6 +250,35 @@ void runDietFeatureTests({
         ),
       );
       vm.draft = vm.draft!.copyWith(items: [item]);
+      Future<void> showMealReview() => t.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: vm,
+          child: MaterialApp(
+            home: MealResultView(key: ValueKey(vm.lastResult!.modelVersion)),
+          ),
+        ),
+      );
+      vm.lastResult = const RecognitionResult(
+        items: [],
+        confidence: .85,
+        isFood: true,
+        modelVersion: 'gemini:gemini-3.1-flash-lite',
+        provider: 'gemini',
+      );
+      await showMealReview();
+      expect(find.text('Recognition model: gemini:gemini-3.1-flash-lite'), findsOneWidget);
+      expect(find.textContaining('85%'), findsNothing);
+      vm.lastResult = const RecognitionResult(
+        items: [],
+        confidence: .45,
+        isFood: true,
+        modelVersion: 'food-clip-vitb16-head-1',
+      );
+      vm.manualEntryPrompt = true;
+      await showMealReview();
+      expect(find.text('Recognition model: food-clip-vitb16-head-1'), findsOneWidget);
+      vm.lastResult = null;
+      vm.manualEntryPrompt = false;
       expect(vm.confirmQuantity(item, 0, 150), isNotNull);
       expect(vm.confirmQuantity(item, 3, double.nan), isNotNull);
       await t.pumpWidget(

@@ -143,6 +143,14 @@ class _MealResultViewState extends State<MealResultView> {
       children: [
         const DietPlanReminder(),
         if (vm.draftImage != null) RecognitionPhoto(bytes: vm.draftImage!, items: d.items),
+        if (r != null && r.modelVersion.trim().isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 10),
+            child: Text(
+              'Recognition model: ${r.modelVersion}',
+              style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
+            ),
+          ),
         if (r != null)
           for (final warning in r.warnings) Padding(padding: const EdgeInsets.only(top: 10), child: Text(warning)),
         if (r?.provider == 'gemini')
@@ -167,7 +175,7 @@ class _MealResultViewState extends State<MealResultView> {
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text(
-              keepGroups('Identified with ${(r.confidence * 100).round()}% confidence · model ${r.modelVersion}'),
+              keepGroups('Identified with ${(r.confidence * 100).round()}% confidence'),
               style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
             ),
           ),
