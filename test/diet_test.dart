@@ -124,6 +124,8 @@ void main() {
     test('search finds Malay and English names', () async {
       expect((await foods.search('lemak')).dataOrNull!.map((f) => f.foodKey), contains('nasi_lemak'));
       expect((await foods.search('fried chicken')).dataOrNull!.map((f) => f.foodKey), contains('ayam_goreng'));
+      expect((await foods.search('biscuit')).dataOrNull!.map((f) => f.foodKey), contains('cream_crackers'));
+      expect((await foods.search('biskut krim')).dataOrNull!.map((f) => f.foodKey), contains('cream_crackers'));
     });
   });
 

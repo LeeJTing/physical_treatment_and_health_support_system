@@ -33,7 +33,7 @@ class FoodRecognitionDetails {
     }
     return FoodRecognitionDetails(
       count: c is int && c > 0 && c <= 100 ? c : null,
-      unit: const ['whole', 'piece', 'serving'].contains(j['count_unit'])
+      unit: const ['whole', 'piece', 'serving', 'cup'].contains(j['count_unit'])
           ? j['count_unit'] as String
           : null,
       unitWeightG: w is num && w.isFinite && w > 0 && w <= 1000
@@ -52,6 +52,7 @@ class FoodRecognitionDetails {
     return '$c ${switch (unit) {
       'whole' => c == 1 ? 'whole item' : 'whole items',
       'piece' => c == 1 ? 'piece' : 'pieces',
+      'cup' => c == 1 ? 'cup' : 'cups',
       _ => c == 1 ? 'serving' : 'servings',
     }}';
   }

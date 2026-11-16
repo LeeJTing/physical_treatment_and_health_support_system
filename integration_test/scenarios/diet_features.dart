@@ -250,35 +250,6 @@ void runDietFeatureTests({
         ),
       );
       vm.draft = vm.draft!.copyWith(items: [item]);
-      Future<void> showMealReview() => t.pumpWidget(
-        ChangeNotifierProvider.value(
-          value: vm,
-          child: MaterialApp(
-            home: MealResultView(key: ValueKey(vm.lastResult!.modelVersion)),
-          ),
-        ),
-      );
-      vm.lastResult = const RecognitionResult(
-        items: [],
-        confidence: .85,
-        isFood: true,
-        modelVersion: 'gemini:gemini-3.1-flash-lite',
-        provider: 'gemini',
-      );
-      await showMealReview();
-      expect(find.text('Recognition model: gemini:gemini-3.1-flash-lite'), findsOneWidget);
-      expect(find.textContaining('85%'), findsNothing);
-      vm.lastResult = const RecognitionResult(
-        items: [],
-        confidence: .45,
-        isFood: true,
-        modelVersion: 'food-clip-vitb16-head-1',
-      );
-      vm.manualEntryPrompt = true;
-      await showMealReview();
-      expect(find.text('Recognition model: food-clip-vitb16-head-1'), findsOneWidget);
-      vm.lastResult = null;
-      vm.manualEntryPrompt = false;
       expect(vm.confirmQuantity(item, 0, 150), isNotNull);
       expect(vm.confirmQuantity(item, 3, double.nan), isNotNull);
       await t.pumpWidget(
@@ -320,6 +291,77 @@ void runDietFeatureTests({
       expect(await vm.confirmMeal(), isTrue);
       expect(f.meals.meals.single.items.single.recognitionDetails!.count, 3);
       expect(t.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'two cups use a single editable total and keep the model out of meal review',
+    (t) async {
+      hostSize(t);
+      final f = DietFeatureFixture();
+      await f.initialise(populated: false);
+      final tea = FoodItem.fromJson({
+        'food_id': 'tea',
+        'food_key': 'teh_tarik',
+        'food_name': 'Teh tarik',
+        'food_category': 'Beverage',
+        'base_serving_g': 250,
+        'energy_kcal_per_100g': 58,
+      });
+      final foods = FakeFoodRepository([tea]);
+      final vm = MealLogViewModel(
+        f.meals,
+        FoodRecognitionService(
+          ApiClient(baseUrl: 'http://isolated.test', tokenProvider: () => null),
+          foods,
+        ),
+        foods,
+        f.risk,
+        f.auth,
+        _NoPhoto(),
+      );
+      await vm.load();
+      vm.startManual();
+      vm.addFood(tea, grams: 500);
+      final details = FoodRecognitionDetails.fromJson({
+        'count': 2,
+        'count_unit': 'cup',
+        'unit_weight_g': 250,
+      });
+      final item = vm.draft!.items.single.withRecognitionDetails(details);
+      vm.draft = vm.draft!.copyWith(items: [item]);
+      vm.lastResult = const RecognitionResult(
+        items: [],
+        confidence: .85,
+        isFood: true,
+        modelVersion: 'gemini:demo-model',
+        provider: 'gemini',
+      );
+      await t.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: vm,
+          child: const MaterialApp(home: MealResultView()),
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(find.textContaining('2 cups'), findsOneWidget);
+      expect(find.text('Total weight'), findsOneWidget);
+      expect(find.textContaining('demo-model'), findsNothing);
+      expect(find.textContaining('85%'), findsNothing);
+      await t.tap(find.text('500 g'));
+      await t.pumpAndSettle();
+      expect(find.text('Cups (optional)'), findsOneWidget);
+      expect(find.text('Combined drink weight for all cups.'), findsOneWidget);
+      expect(find.textContaining('One serving is'), findsNothing);
+      final gramsField = find.byType(TextFormField).last;
+      expect(t.widget<TextFormField>(gramsField).controller!.text, '500');
+      await t.enterText(gramsField, '360');
+      await t.tap(find.text('Confirm quantity'));
+      await t.pumpAndSettle();
+      expect(find.text('360 g'), findsOneWidget);
+      expect(find.textContaining('2 cups'), findsOneWidget);
+      expect(vm.draft!.items.single.energyKcal, 208.8);
+      expect(vm.draft!.items.single.recognitionDetails!.unitWeightG, 180);
     },
   );
 }
