@@ -21,6 +21,9 @@ import 'package:physical_treatment_and_health_support_system/model/repository/au
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/treatment_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/treatment_view/posture_result_view.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/exercise_evidence.dart';
+import 'package:physical_treatment_and_health_support_system/device_platform/link_opener/link_opener.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/link_service/link_service.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/treatment_view_model/treatment_view_model.dart';
 
 final String catalogueJson = File(
@@ -79,6 +82,18 @@ class FakePoseServer {
   });
 }
 
+/// Records the addresses the app asked the browser to open; [works] false = no browser.
+class FakeLinkOpener implements LinkOpener {
+  final opened = <Uri>[];
+  bool works = true;
+
+  @override
+  Future<bool> open(Uri address) async {
+    opened.add(address);
+    return works;
+  }
+}
+
 class Harness {
   final server = FakePoseServer();
   final probe = FakeProbe();
@@ -92,7 +107,16 @@ class Harness {
     ),
     probe: probe,
   );
-  late final vm = TreatmentViewModel(treatments, pose, auth);
+  final links = FakeLinkOpener();
+  late final vm = TreatmentViewModel(
+    treatments,
+    pose,
+    auth,
+    null,
+    null,
+    null,
+    LinkService(links),
+  );
   late final File clip;
 
   Future<void> setUp(Directory tmp) async {
@@ -760,6 +784,212 @@ void main() {
       );
       expect(find.text('Continue'), findsOneWidget);
     });
+
+    Future<Harness> resultScreen(
+      WidgetTester tester, {
+      double accuracy = 70,
+      String? fall,
+      Size size = const Size(1080, 6000),
+    }) async {
+      tester.view.physicalSize = size;
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final h = Harness();
+      h.server.accuracy = accuracy;
+      h.server.fallMessage = fall;
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        await h.recordFirst();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const PostureResultView(),
+          ),
+        ),
+      );
+      await tester.pump();
+      return h;
+    }
+
+    testWidgets(
+      'benefits in the patient\'s words; the numbers and the finding under More (15 Nov)',
+      (tester) async {
+        final h = await resultScreen(tester); // Seated Knee Extension, 70%
+        expect(find.byKey(const Key('evidence_card')), findsOneWidget);
+        expect(find.text('Why it helps'), findsOneWidget);
+        expect(find.text('Knee and leg'), findsOneWidget);
+        expect(find.text('Less knee pain'), findsOneWidget);
+        expect(find.text('Easier to move about'), findsOneWidget);
+        expect(find.text(ExerciseEvidence.whenBelow), findsOneWidget);
+        expect(find.text(ExerciseEvidence.caveat), findsOneWidget);
+        // The study's numbers and its finding are not on the card until More is tapped.
+        expect(find.text('−12'), findsNothing);
+        expect(find.textContaining('knee osteoarthritis'), findsNothing);
+        await tester.tap(find.text('More'));
+        await tester.pump();
+        expect(find.text('−12'), findsOneWidget); // pain, 44 -> 32 of 100
+        expect(find.text('+10'), findsOneWidget); // function
+        expect(find.textContaining('knee osteoarthritis'), findsOneWidget);
+        expect(find.text('Less'), findsOneWidget);
+        await tester.tap(find.byKey(const Key('evidence_link')));
+        await tester.pump();
+        expect(h.links.opened, [
+          Uri.parse('https://doi.org/10.1002/14651858.CD004376.pub3'),
+        ]);
+        // Without a browser the address is shown, so it can still be copied.
+        h.links.works = false;
+        await tester.tap(find.byKey(const Key('evidence_link')));
+        await tester.pump();
+        await tester.pump();
+        expect(
+          find.text(
+            'Could not open the link: https://doi.org/10.1002/14651858.CD004376.pub3',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('a passing score words the research for good form (10 Nov)', (
+      tester,
+    ) async {
+      await resultScreen(tester, accuracy: 92);
+      expect(find.text(ExerciseEvidence.whenPassing), findsOneWidget);
+      expect(find.text(ExerciseEvidence.whenBelow), findsNothing);
+    });
+
+    testWidgets(
+      'passing is rewarded: Well done and the plan\'s progress under the score (15 Nov)',
+      (tester) async {
+        await resultScreen(tester, accuracy: 92);
+        await tester.pumpAndSettle(); // the ring's arc has finished drawing
+        expect(find.byKey(const Key('result_well_done')), findsOneWidget);
+        // Early Knee Recovery has 3 exercises; this one was passed and saved.
+        expect(find.text('1 of 3 exercises done'), findsOneWidget);
+        expect(find.text('92%'), findsOneWidget);
+      },
+    );
+
+    testWidgets('below 80%: the progress without the reward (15 Nov)', (
+      tester,
+    ) async {
+      await resultScreen(tester);
+      expect(find.byKey(const Key('result_well_done')), findsNothing);
+      expect(find.text('0 of 3 exercises done'), findsOneWidget);
+      // The number is the final score from the first frame; only the arc is animated.
+      expect(find.text('70%'), findsOneWidget);
+    });
+
+    testWidgets(
+      'the outlook comes before the research; one attempt has no empty tile (15 Nov)',
+      (tester) async {
+        await resultScreen(tester);
+        final outlook = find.byKey(const Key('outlook_card'));
+        expect(outlook, findsOneWidget);
+        expect(
+          tester.getTopLeft(outlook).dy,
+          lessThan(
+            tester.getTopLeft(find.byKey(const Key('evidence_card'))).dy,
+          ),
+        );
+        // Early Knee Recovery: 3 exercises, none passed yet, 3 times a week.
+        expect(find.text('plan\nfinish'), findsOneWidget);
+        expect(find.text('exercises\nleft'), findsOneWidget);
+        expect(
+          find.descendant(of: outlook, matching: find.text('3')),
+          findsOneWidget,
+        );
+        // A single attempt has no trend: no "score by then" tile and a hint instead of a graph.
+        expect(find.byKey(const Key('outlook_score')), findsNothing);
+        expect(find.text('–'), findsNothing);
+        expect(find.byKey(const Key('outlook_need_more')), findsOneWidget);
+        expect(
+          find.text('Pace: 1 try per exercise · 3× a week'),
+          findsOneWidget,
+        );
+        final study = tester.widget<Text>(
+          find.descendant(
+            of: find.byKey(const Key('outlook_study')),
+            matching: find.byType(Text),
+          ),
+        );
+        expect(study.data, 'Studies: less knee pain, better function');
+        expect(
+          find.text('Estimate from your scores, not a medical prediction.'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('two attempts draw the trend graph (11 Nov)', (tester) async {
+      tester.view.physicalSize = const Size(1080, 6000);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.reset);
+      final h = Harness();
+      h.server.accuracy = 60;
+      await tester.runAsync(() async {
+        await h.setUp(tmp);
+        await h.recordFirst();
+        await h.vm.acceptResult(); // the first try, saved below 80%
+        h.server.accuracy = 75;
+        await h.recordFirst();
+      });
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ChangeNotifierProvider.value(
+            value: h.vm,
+            child: const PostureResultView(),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.byKey(const Key('outlook_need_more')), findsNothing);
+      expect(find.byKey(const Key('outlook_score')), findsOneWidget);
+      expect(find.text('Your scores'), findsOneWidget);
+      expect(find.text('Projected'), findsOneWidget);
+    });
+
+    testWidgets(
+      'after a possible fall: no research or outlook, only the safety message (10 Nov)',
+      (tester) async {
+        await resultScreen(
+          tester,
+          accuracy: 40,
+          fall: 'Stop and rest: you may have fallen.',
+        );
+        expect(find.byKey(const Key('evidence_card')), findsNothing);
+        expect(find.byKey(const Key('outlook_card')), findsNothing);
+        expect(find.byKey(const Key('result_plan_progress')), findsNothing);
+        expect(find.byKey(const Key('result_well_done')), findsNothing);
+        expect(find.text('Continue'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Continue stays on screen at the bottom and still saves the try (10 Nov)',
+      (tester) async {
+        // A small phone (360 x 640 dp): the cards make the page long, Continue must not scroll.
+        final h = await resultScreen(tester, size: const Size(1080, 1920));
+        final plan = h.vm.activePlan!;
+        Future<int> saved() async => (await h.treatments.getSessions(
+          plan.patientPlanId,
+        )).dataOrNull!.length;
+        late int before;
+        await tester.runAsync(() async => before = await saved());
+        expect(find.text('Continue').hitTestable(), findsOneWidget);
+        expect(find.text('Retry exercise').hitTestable(), findsOneWidget);
+        await tester.tap(find.text('Continue'));
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 50)),
+        );
+        await tester.pump();
+        late int after;
+        await tester.runAsync(() async => after = await saved());
+        expect(after, before + 1);
+      },
+    );
 
     // Older users are told to raise the phone's font size (chatbot text_size answer).
     testWidgets('result screen has no overflow with 2x phone text on 360x800', (

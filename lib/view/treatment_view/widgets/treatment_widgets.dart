@@ -373,35 +373,53 @@ class ScoreRing extends StatelessWidget {
   final Color track;
   final double size;
 
+  /// Draws the arc from empty to the score when the ring appears (15 Nov). Only the arc moves:
+  /// the number is the final score from the start, so it is never read half-way.
+  final bool animate;
+
   const ScoreRing({
     super.key,
     required this.percent,
     required this.color,
     required this.track,
     this.size = 150,
+    this.animate = false,
   });
 
   @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'Posture accuracy ${ExerciseSession.shownPercent(percent)} percent',
-    child: SizedBox(
-      width: size,
-      height: size,
-      child: CustomPaint(
-        painter: _RingPainter(percent / 100, color, track),
-        child: Center(
-          child: Text(
-            '${ExerciseSession.shownPercent(percent)}%',
-            style: const TextStyle(
-              fontSize: 34,
-              fontWeight: FontWeight.w600,
-              color: AppTokens.text,
-            ),
+  Widget build(BuildContext context) {
+    Widget ring(double value) => CustomPaint(
+      painter: _RingPainter(value, color, track),
+      child: Center(
+        child: Text(
+          '${ExerciseSession.shownPercent(percent)}%',
+          style: const TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.w600,
+            color: AppTokens.text,
           ),
         ),
       ),
-    ),
-  );
+    );
+    // Phones set to reduce motion get the finished ring at once.
+    final moving = animate && !MediaQuery.disableAnimationsOf(context);
+    return Semantics(
+      label:
+          'Posture accuracy ${ExerciseSession.shownPercent(percent)} percent',
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: moving
+            ? TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0, end: percent / 100),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (_, value, _) => ring(value),
+              )
+            : ring(percent / 100),
+      ),
+    );
+  }
 }
 
 class _RingPainter extends CustomPainter {

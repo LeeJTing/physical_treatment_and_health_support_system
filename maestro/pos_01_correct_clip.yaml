@@ -20,7 +20,33 @@ name: PostureModule_AnalyseExercise_TC001
 - assertVisible: '.*Posture accuracy (8\d|9\d|100) percent[\s\S]*'
 - assertVisible: '[\s\S]*repetitions counted[\s\S]*'
 - assertVisible: 'Score 80% or more: your progress has been saved\.'
+# The reward and the place in the plan, under the score (15 Nov)
+- assertVisible: '[\s\S]*Well done! 1 of 4 exercises done[\s\S]*'
 - takeScreenshot: evidence/pos_01_result
+# The outlook: finish date, exercises left, the study result
+- scrollUntilVisible:
+    element: '[\s\S]*not a medical prediction[\s\S]*'
+    direction: DOWN
+- assertVisible: '[\s\S]*plan\sfinish[\s\S]*'
+- assertVisible: '[\s\S]*exercises\sleft[\s\S]*'
+- takeScreenshot: evidence/pos_01_outlook
+# Why it helps: the benefits in plain words, then the source of the research
+- scrollUntilVisible:
+    element: 'Liu & Latham \(2009\)'
+    direction: DOWN
+- assertVisible: '[\s\S]*Stronger muscles[\s\S]*'
+- takeScreenshot: evidence/pos_01_research
+# The source opens in the phone's browser; Back returns to the result
+- tapOn: 'Liu & Latham \(2009\)'
+- extendedWaitUntil:
+    notVisible: Continue
+    timeout: 15000
+- takeScreenshot: evidence/pos_01_study_opened
+- back
+- extendedWaitUntil:
+    visible: Continue
+    timeout: 15000
+# Continue is fixed at the bottom of the screen and saves the try
 - tapOn: Continue
 - extendedWaitUntil:
     visible: '[\s\S]*1 of 4 exercises done[\s\S]*'
