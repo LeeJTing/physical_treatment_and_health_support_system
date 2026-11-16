@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:image/image.dart' as img;
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/recognition_result.dart';
@@ -21,6 +22,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/me
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_insights_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_history_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_quantity_dialog.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_result_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_insights_view_model/diet_insights_view_model.dart';
@@ -362,6 +364,79 @@ void runDietFeatureTests({
       expect(find.textContaining('2 cups'), findsOneWidget);
       expect(vm.draft!.items.single.energyKcal, 208.8);
       expect(vm.draft!.items.single.recognitionDetails!.unitWeightG, 180);
+    },
+  );
+
+  testWidgets(
+    'history photo opens an uncropped preview and closes back to the meal',
+    (t) async {
+      hostSize(t);
+      final f = DietFeatureFixture();
+      await f.initialise(populated: false);
+      final foods = FakeFoodRepository([fixtureFood]);
+      final vm = MealLogViewModel(
+        f.meals,
+        FoodRecognitionService(
+          ApiClient(
+            baseUrl: 'http://isolated.test',
+            tokenProvider: () => null,
+            httpClient: MockClient((_) async => http.Response('{}', 503)),
+          ),
+          foods,
+        ),
+        foods,
+        f.risk,
+        f.auth,
+        _NoPhoto(),
+      );
+      final photo = img.encodePng(img.Image(width: 320, height: 480));
+      await f.meals.saveMeal(
+        MealLog(
+          mealId: 'history-photo',
+          accountId: f.account,
+          mealType: MealSlot.lunch,
+          entryMethod: EntryMethod.manual,
+          consumedAt: DateTime.now(),
+          items: [MealItem.of(fixtureFood)],
+        ),
+        image: photo,
+      );
+      await vm.load();
+      await t.pumpWidget(
+        ChangeNotifierProvider.value(
+          value: vm,
+          child: const MaterialApp(home: MealHistoryView()),
+        ),
+      );
+      await t.pumpAndSettle();
+
+      final preview = find.byWidgetPredicate(
+        (w) => w is Image && w.semanticLabel == 'Full meal photo',
+      );
+      await t.tap(find.byIcon(Icons.zoom_in));
+      await t.pumpAndSettle();
+      final image = t.widget<Image>(preview);
+      expect(image.fit, BoxFit.contain);
+      expect((image.image as MemoryImage).bytes, photo);
+      expect(find.byType(InteractiveViewer), findsOneWidget);
+      expect(find.byType(BottomSheet), findsNothing);
+      await t.tap(find.byTooltip('Close photo preview'));
+      await t.pumpAndSettle();
+      expect(find.text('Dietary history'), findsOneWidget);
+
+      await t.tap(find.textContaining('Lunch'));
+      await t.pumpAndSettle();
+      final detailPhoto = find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byIcon(Icons.zoom_in),
+      );
+      expect(detailPhoto, findsOneWidget);
+      await t.tap(detailPhoto);
+      await t.pumpAndSettle();
+      expect(preview, findsOneWidget);
+      await t.tap(find.byTooltip('Close photo preview'));
+      await t.pumpAndSettle();
+      expect(find.byType(BottomSheet), findsOneWidget);
     },
   );
 }
