@@ -147,7 +147,7 @@ How to start the server and the tunnel: the `fyp-fastapi` README, section "Phone
 
 ```
 flutter analyze                    # must report no issues
-flutter test                       # 616 tests in 51 files (9 Nov 2026)
+flutter test                       # 633 tests (10 Nov 2026); set AI_SERVER_ROOT to the separate server checkout
 python tool/check_architecture.py  # the layer rules above
 dart run tool/check_ai_server.dart http://192.168.0.13:8000 [--photo meal.jpg] [--token <Supabase token>]
 ```
@@ -169,3 +169,26 @@ dart run tool/check_ai_server.dart http://192.168.0.13:8000 [--photo meal.jpg] [
   analyses (see the AI server's `training/reports/catalogue_validation.md`).
 - **Patient data.** Patient data stays in Supabase under row-level security. The AI server receives
   only condition codes, readings and a pseudonymous id, never a name.
+
+## Diet review and multiple-food photos
+
+The Diet tab now opens **Diet review**. Weekly review shows recorded-day averages, food contributors,
+current profile guidance and matching to stored plans. Missing logs are excluded from averages and
+shown explicitly. Condition-specific composition extras use the current catalogue and are labelled
+as estimates. Saved nutrient snapshots remain the basis of the core weekly totals.
+
+**Meal & readings** shows exploratory associations over 28 days. Glucose pairs require a marked
+after-meal reading 90–150 minutes after a meal, no intervening meal/snack, and unique readings.
+Pressure pairs require all three main meal slots on the previous recorded day and a next-morning
+systolic reading from 06:00 to 12:00. At least 12 pairs across 7 days and variation in both values are
+required before displaying Spearman rank association. These are app quality checks, not clinical
+validation; associations never change treatment, targets or food suitability.
+
+The AI server can propose several foods, visible counts and total grams with Gemini. Users review
+and correct labels, count and weight before saving. The server receives the photo and profile codes;
+only the resized photo and public food labels are forwarded to Gemini. Counts and weights remain
+estimates. The optional `meal_item.recognition_details` migration preserves reviewed proposals.
+Keep `GEMINI_API_KEY` only in the server's ignored `.env` and restart the server after setting it.
+The default is `gemini-3.1-flash-lite`; local fallback cannot estimate piece counts.
+
+[Implementation, checks and screenshot evidence](docs/testing/jt-diet-insights-2026-11-10/README.md).

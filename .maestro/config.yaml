@@ -1,2 +1,10 @@
 flows:
-  - flows/*.yaml
+  - flows/01_profile.yaml
+  - flows/02_tracking.yaml
+  - flows/03_health_report.yaml
+  - flows/04_health_diet_alerts.yaml
+  - flows/05_meal_logging.yaml
+  - flows/06_diet_plans.yaml
+  - flows/07_photo_review.yaml
+  - flows/08_login.yaml
+  - flows/09_manual_plan.yaml

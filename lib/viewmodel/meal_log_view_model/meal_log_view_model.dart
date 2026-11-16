@@ -14,6 +14,7 @@ import 'package:physical_treatment_and_health_support_system/model/business_logi
 import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/food_recognition_details.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/i_auth_repository.dart';
@@ -116,7 +117,9 @@ class MealLogViewModel extends BaseViewModel {
     if (snap case Success(:final data)) {
       ctx = DietContext.from(data);
       profileStatus = data.status;
-      if (data.status == ProfileStatus.error) _message = Messages.dietProfileUnavailable; // E1 M4
+      if (data.status == ProfileStatus.error) {
+        _message = Messages.dietProfileUnavailable; // E1 M4
+      }
     } else {
       ctx = DietContext(limit: SafetyLimit.mostRestrictive(), failSafe: true);
       profileStatus = ProfileStatus.error;
@@ -269,6 +272,8 @@ class MealLogViewModel extends BaseViewModel {
                     it.food,
                     confidence: it.confidence,
                     candidateKeys: it.candidates.map((c) => c.foodKey).toList(),
+                    grams: it.portionG,
+                    recognitionDetails: it.details,
                   ),
                 ),
             ],
@@ -359,11 +364,55 @@ class MealLogViewModel extends BaseViewModel {
   /// Rescales the nutrients to a new portion (FR700_007, FR700_011, A4 M3).
   void adjustPortion(MealItem i, double grams) {
     final d = draft;
-    if (d == null || grams < AppConstants.portionMinG || grams > AppConstants.portionMaxG) return;
+    if (d == null || grams < AppConstants.portionMinG || grams > AppConstants.portionMaxG) {
+      return;
+    }
     draft = d.copyWith(items: [for (final x in d.items) x.mealItemId == i.mealItemId ? _judge(x.scaleTo(grams)) : x]);
     _message = Messages.portionUpdated;
     _selectionAlert(_judge(i.scaleTo(grams)));
     notifyListeners();
+  }
+
+  /// A piece count is a proposal; the user confirms both count and total edible weight.
+  String? confirmQuantity(MealItem item, int? count, double grams) {
+    if (!grams.isFinite || grams < AppConstants.portionMinG || grams > AppConstants.portionMaxG) {
+      return Messages.portionOutOfRange;
+    }
+    if (count != null && (count < 1 || count > 100)) {
+      return 'Enter a count from 1 to 100.';
+    }
+    final d = draft;
+    if (d == null) return 'This meal is no longer open.';
+    final old = item.recognitionDetails;
+    final details = FoodRecognitionDetails(
+      count: count,
+      unit: old?.unit ?? (count == null ? null : 'piece'),
+      unitWeightG: count == null ? null : grams / count,
+      confirmed: true,
+      modelEstimate: old?.modelEstimate ?? true,
+      boxes: old?.boxes ?? const [],
+    );
+    final scaled = item.scaleTo(grams);
+    final updated = MealItem(
+      mealItemId: item.mealItemId,
+      mealId: item.mealId,
+      food: item.food,
+      portionSizeG: grams,
+      energyKcal: scaled.energyKcal,
+      carbG: scaled.carbG,
+      proteinG: scaled.proteinG,
+      fatG: scaled.fatG,
+      sodiumMg: scaled.sodiumMg,
+      sugarG: scaled.sugarG,
+      isUserCorrected: true,
+      confidence: item.confidence,
+      candidateKeys: item.candidateKeys,
+      recognitionDetails: details,
+    );
+    draft = d.copyWith(items: [for (final i in d.items) i.mealItemId == item.mealItemId ? _judge(updated) : i]);
+    _selectionAlert(_judge(updated));
+    notifyListeners();
+    return null;
   }
 
   void _selectionAlert(MealItem item) {
@@ -398,7 +447,9 @@ class MealLogViewModel extends BaseViewModel {
   static String? checkPortion(String text) {
     final g = double.tryParse(text.trim().replaceAll(',', '.'));
     if (g == null || g.isNaN) return Messages.portionNotNumber;
-    if (g < AppConstants.portionMinG || g > AppConstants.portionMaxG) return Messages.portionOutOfRange;
+    if (g < AppConstants.portionMinG || g > AppConstants.portionMaxG) {
+      return Messages.portionOutOfRange;
+    }
     return null;
   }
 
@@ -446,7 +497,15 @@ class MealLogViewModel extends BaseViewModel {
     }
     step = MealStep.saving;
     final image = draftImage;
-    final meal = d.copyWith(accountId: _accountId);
+    final meal = d.copyWith(
+      accountId: _accountId,
+      items: [
+        for (final i in d.items)
+          i.recognitionDetails == null
+              ? i
+              : i.withRecognitionDetails(i.recognitionDetails!.reviewed(grams: i.portionSizeG)),
+      ],
+    );
     _saving.add(meal.mealId);
     if (image != null) _photos[meal.mealId] = image;
     today = [meal, ...today.where((m) => m.mealId != meal.mealId)];

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_insights_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/diet_insights_view_model/diet_insights_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/theme_constants.dart';
@@ -188,6 +190,10 @@ class MainApp extends StatelessWidget {
             child: const NotificationView(),
           ),
           // Jun Ting's modules, opened from a notification (the tabs live in MainShell).
+          Routes.dietInsights: (_) => ChangeNotifierProvider(
+            create: (c) => DietInsightsViewModel(c.read(), c.read(), c.read(), c.read())..load(),
+            child: const DietInsightsView(),
+          ),
           Routes.healthReport: (_) => ChangeNotifierProvider(
             create: _analysis,
             child: const HealthReportView(),

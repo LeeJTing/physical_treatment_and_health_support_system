@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/plan_change.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -153,7 +154,10 @@ class _DietViewState extends State<DietView> {
     final plan = context.read<DietPlanViewModel>();
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => ChangeNotifierProvider.value(value: plan, child: DietPlanView(type: t)),
+        builder: (_) => ChangeNotifierProvider.value(
+          value: plan,
+          child: DietPlanView(type: t),
+        ),
       ),
     );
   }
@@ -193,7 +197,10 @@ class _DietViewState extends State<DietView> {
                   const Row(
                     children: [
                       Expanded(
-                        child: OneLineText('Diet', style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700)),
+                        child: OneLineText(
+                          'Diet',
+                          style: TextStyle(color: Colors.white, fontSize: 30, fontWeight: FontWeight.w700),
+                        ),
                       ),
                       HelpButton(guide: Guides.diet),
                     ],
@@ -252,10 +259,15 @@ class _DietViewState extends State<DietView> {
                   Row(
                     children: [
                       const Expanded(
-                        child: OneLineText("Today's meals",
-                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+                        child: OneLineText(
+                          "Today's meals",
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTokens.ink),
+                        ),
                       ),
-                      TextButton(onPressed: _openHistory, child: const OneLineText('History', style: TextStyle(fontSize: 16))),
+                      TextButton(
+                        onPressed: _openHistory,
+                        child: const OneLineText('History', style: TextStyle(fontSize: 16)),
+                      ),
                     ],
                   ),
                   if (vm.today.isEmpty)
@@ -272,8 +284,14 @@ class _DietViewState extends State<DietView> {
                       Container(
                         margin: const EdgeInsets.only(bottom: 10),
                         padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(color: AppTokens.goodContainer, borderRadius: BorderRadius.circular(14)),
-                        child: Text(tidy(Messages.allItemsSuitable), style: const TextStyle(color: AppTokens.good, fontSize: 15)), // M3
+                        decoration: BoxDecoration(
+                          color: AppTokens.goodContainer,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          tidy(Messages.allItemsSuitable),
+                          style: const TextStyle(color: AppTokens.good, fontSize: 15),
+                        ), // M3
                       ),
                     for (final m in vm.today)
                       MealCard(
@@ -307,6 +325,15 @@ class _DietViewState extends State<DietView> {
                     ],
                   ),
                   const SizedBox(height: 8),
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.insights, color: AppTokens.brandDeep),
+                      title: const Text('Diet review'),
+                      subtitle: const Text('Weekly nutrition and meal / reading patterns'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.pushNamed(context, Routes.dietInsights),
+                    ),
+                  ),
                   const DietDisclaimer(),
                 ],
               ),
@@ -331,22 +358,22 @@ class _DietViewState extends State<DietView> {
         Row(
           children: [
             Expanded(
-              child: OneLineText('Suggested for ${plan.nextSlot.label.toLowerCase()}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+              child: OneLineText(
+                'Suggested for ${plan.nextSlot.label.toLowerCase()}',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
+              ),
             ),
             IconButton(tooltip: 'Refresh', onPressed: plan.refreshRecommendations, icon: const Icon(Icons.refresh)),
           ],
         ),
         if (plan.recommendations.isEmpty)
-          const Text('Nothing fits what is left of today\'s\u00A0allowance.',
-              style: TextStyle(fontSize: 15, color: AppTokens.inkMuted))
+          const Text(
+            'Nothing fits what is left of today\'s\u00A0allowance.',
+            style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+          )
         else
           for (final f in plan.recommendations)
-            FoodTile(
-              food: f,
-              onTap: () => _details(f),
-              trailing: const Icon(Icons.chevron_right),
-            ),
+            FoodTile(food: f, onTap: () => _details(f), trailing: const Icon(Icons.chevron_right)),
       ],
     ),
   );
@@ -424,7 +451,10 @@ class _PlanAlertCard extends StatelessWidget {
               Icon(Icons.warning_amber_rounded, color: red ? AppTokens.danger : AppTokens.caution, size: 26),
               const SizedBox(width: 8),
               Expanded(
-                child: Text(tidy(alert.title), style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: fg)),
+                child: Text(
+                  tidy(alert.title),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: fg),
+                ),
               ),
               IconButton(
                 tooltip: 'Dismiss',

@@ -1,0 +1,1 @@
+Builds weekly dietary summaries and explicitly exploratory meal/reading associations from the account's recorded data. No external health-data upload or treatment decisions.

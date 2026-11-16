@@ -133,6 +133,8 @@ class MealDetailsSheet {
                                     style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTokens.ink)),
                                 OneLineText('${i.portionSizeG.round()} g · ${fmtNum(i.energyKcal)} kcal',
                                     style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
+                                if (i.recognitionDetails?.countLabel case final label?)
+                                  Text('$label · reviewed portion', style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted)),
                                 for (final v in i.verdicts.where((v) => v.verdict != Verdict.suitable))
                                   Text(tidy(v.reasonText), style: const TextStyle(fontSize: 14, color: AppTokens.ink)),
                               ],
