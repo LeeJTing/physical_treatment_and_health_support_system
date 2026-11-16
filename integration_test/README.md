@@ -52,10 +52,32 @@ The notification scheduler and Health Connect/photo inputs are stand-ins, so per
 
 ## Additional diet feature suite
 
-`diet_features_test.dart` adds four shared screen journeys for quantity correction, recorded-week
-summaries and present/withheld meal-reading associations. They also run in
+`diet_features_test.dart` runs shared screen journeys for quantity correction, recorded-week
+summaries, meal-reading associations, saved diet plans and photo review. They also run in
 `test/diet_features_widget_test.dart`. The host suite passed; new Android execution is pending the
 user's phone availability. Run `tool/run_jt_e2e.ps1 -DeviceId YOUR_DEVICE -FeatureSet DietFeatures`
 for the new Integration Test target and Maestro flows 10/11. Its synthetic multi-food fixture is
 selected by `E2E_MULTI_FOOD=true`. Existing JT flows use the legacy fixture.
 See `../docs/testing/jt-diet-insights-2026-11-10/README.md` for evidence scope and commands.
+
+### Try the preloaded diet demo
+
+Build the separate debug app with the two flags below, then install its `.e2e` APK.
+
+```powershell
+flutter build apk --debug -t tool/e2e_app.dart --dart-define=E2E_TESTING=true --dart-define=E2E_MULTI_FOOD=true
+```
+
+The demo opens already signed in. Its in-memory records are recreated relative to
+the device date on each new launch.
+
+- **Diet → Log Meal → Choose from gallery** supplies an illustrated test plate
+  and a scripted reply for two boiled eggs (100 g total) and four pieces of tofu
+  (120 g total). Change the egg count to three to check the revised 150 g total.
+- **Diet → Diet review → Weekly review** shows the preloaded meals and nutrient
+  contributors. **Previous week** has six recorded days and one gap.
+- **Diet → Diet review → Meal & readings** shows the post-meal glucose and
+  next-morning blood pressure scatter plots. Scroll down for the second plot.
+
+All readings, meals and photo results in this APK are synthetic. The sample photo
+exercises the review and save flow with a scripted response.

@@ -46,6 +46,8 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// The plan in force.
   DietPlan? plan;
+  DateTime? savedViewDate;
+  bool generatingFuture = false;
   String? changeInProgress;
 
   /// Meals logged in the plan's period (for adherence and today's allowance).
@@ -75,8 +77,12 @@ class DietPlanViewModel extends BaseViewModel {
     return DateTime(n.year, n.month, n.day);
   }
 
-  /// Today's foods are edited in the daily plan, also when viewed as part of a week.
-  bool canEditDay(DateTime day) => type == PlanType.daily || !_sameDay(day, _today);
+  DateTime get today => _today;
+
+  bool isPastSavedDay(DateTime day) => savedViewDate != null && day.isBefore(_today);
+
+  /// Today's foods are edited in the daily plan. Previous plans are available for review.
+  bool canEditDay(DateTime day) => !isPastSavedDay(day) && (type == PlanType.daily || !_sameDay(day, _today));
 
   DietPlan _dailyPart(DietPlan weekly) => DietPlan(
     dietPlanId: newId(),
@@ -130,6 +136,9 @@ class DietPlanViewModel extends BaseViewModel {
   /// Opens today's plan or this week's plan, generating one when none is stored.
   Future<void> load(PlanType t) async {
     type = t;
+    savedViewDate = null;
+    plannerDown = false;
+    needsDailyReplan = false;
     setLoading(true);
     try {
       await _context();
@@ -184,6 +193,86 @@ class DietPlanViewModel extends BaseViewModel {
     final id = _accountId!;
     return (await _mealRepo.findMeals(id, _today.subtract(const Duration(days: 30)), _now())).dataOrNull ??
         const <MealLog>[];
+  }
+
+  /// Looks up a date without generating a plan or changing today's alerts.
+  Future<bool> openSavedDate(DateTime day) async {
+    day = DateTime(day.year, day.month, day.day);
+    if (isLoading) return false;
+    setLoading(true);
+    try {
+      await _context();
+      final id = _accountId;
+      if (id == null) return false;
+      final stored = await _mealRepo.planFor(id, PlanType.daily, day);
+      if (stored is Failure) {
+        _message = Messages.dbUnavailable;
+        return false;
+      }
+      final chosen = stored.dataOrNull == null ? await _mealRepo.planFor(id, PlanType.weekly, day) : stored;
+      if (chosen is Failure) {
+        _message = Messages.dbUnavailable;
+        return false;
+      }
+      _showSavedPlan(day, chosen.dataOrNull);
+      return true;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  /// Saves once every date has passed the existing planner checks.
+  Future<bool> generateFuture(DateTime start, DateTime end) async {
+    if (isLoading) return false;
+    start = DateTime(start.year, start.month, start.day);
+    end = DateTime(end.year, end.month, end.day);
+    if (!start.isAfter(_today)) {
+      _message = 'Choose a start date after today.';
+      notifyListeners();
+      return false;
+    }
+    generatingFuture = true;
+    changeInProgress = 'Creating your future plan...';
+    setLoading(true);
+    try {
+      await _context();
+      final id = _accountId;
+      if (id == null) return false;
+      final result = await _planner.generateFuturePeriod(
+        accountId: id,
+        ctx: ctx,
+        start: start,
+        end: end,
+        history: await _history(),
+        seed: _now().millisecondsSinceEpoch,
+      );
+      if (result case Failure<DietPlan>(:final message)) {
+        _message = message;
+        return false;
+      }
+      final next = result.dataOrNull!;
+      if (await _mealRepo.savePlan(next) is Failure) {
+        _message = Messages.dbUnavailable;
+        return false;
+      }
+      _showSavedPlan(start, next);
+      _message = 'Future plan saved.';
+      return true;
+    } catch (_) {
+      _message = 'Your future plan could not be created. Please try again.';
+      return false;
+    } finally {
+      generatingFuture = false;
+      changeInProgress = null;
+      setLoading(false);
+    }
+  }
+
+  void _showSavedPlan(DateTime day, DietPlan? entry) {
+    savedViewDate = day;
+    plan = entry?.copyWith(meals: PlannedMeal.mergeDuplicates(entry.meals));
+    plannerDown = false;
+    needsDailyReplan = false;
   }
 
   /// Daily: breakfast, lunch, dinner and a snack (FR700_029). Weekly: seven days (FR700_030).
@@ -368,6 +457,7 @@ class DietPlanViewModel extends BaseViewModel {
   Future<void> _markLogged() async {
     final id = _accountId;
     final p = plan;
+    if (savedViewDate != null) return;
     final start = p?.startDate ?? _today;
     final end = p == null ? _now() : p.endDate.add(const Duration(hours: 23, minutes: 59));
     if (id != null) {
@@ -678,7 +768,8 @@ class DietPlanViewModel extends BaseViewModel {
 
   List<PlanNote> nutritionWarnings(DateTime day) => plan == null ? const [] : _nutritionWarnings(plan!, day);
 
-  List<PlanNote> manualNutritionWarnings(List<PlannedMeal> meals) => _nutritionWarnings(_manualDraft(meals), _today);
+  List<PlanNote> manualNutritionWarnings(List<PlannedMeal> meals, {DateTime? day}) =>
+      _nutritionWarnings(_manualDraft(meals, day: day), day ?? _today);
 
   List<PlanNote> _nutritionWarnings(DietPlan p, DateTime day) {
     final outside = _sameDay(day, _today)
@@ -688,6 +779,7 @@ class DietPlanViewModel extends BaseViewModel {
       p,
       day,
       ctx,
+      suggestEdits: !isPastSavedDay(day),
       eatenOutside: Nutrients.sum(outside.map((m) => m.totals)),
       outsideExtras: outside
           .expand((m) => m.items)
@@ -804,17 +896,24 @@ class DietPlanViewModel extends BaseViewModel {
     ]);
   }
 
-  Future<Result<List<PlannedMeal>>> manualMeals() async {
+  Future<Result<List<PlannedMeal>>> manualMeals({DateTime? day}) async {
     final id = _accountId;
     if (id == null) return const Failure('Please sign in again.');
-    final daily = await _mealRepo.planFor(id, PlanType.daily, _today);
+    final date = day ?? _today;
+    final daily = await _mealRepo.planFor(id, PlanType.daily, date);
     if (daily is Failure) return const Failure(Messages.dbUnavailable);
-    final source = daily.dataOrNull ?? plan;
-    return Success(PlannedMeal.mergeDuplicates(source?.mealsFor(_today).map((m) => m.carriedOver()) ?? []));
+    var source = daily.dataOrNull;
+    if (source == null && day != null) {
+      final weekly = await _mealRepo.planFor(id, PlanType.weekly, date);
+      if (weekly is Failure) return const Failure(Messages.dbUnavailable);
+      source = weekly.dataOrNull;
+    }
+    source ??= plan;
+    return Success(PlannedMeal.mergeDuplicates(source?.mealsFor(date).map((m) => m.carriedOver()) ?? []));
   }
 
-  DietPlan _manualDraft(List<PlannedMeal> meals) => _planner
-      .buildManually(accountId: _accountId ?? '', ctx: ctx, day: _today, chosen: const {})
+  DietPlan _manualDraft(List<PlannedMeal> meals, {DateTime? day}) => _planner
+      .buildManually(accountId: _accountId ?? '', ctx: ctx, day: day ?? _today, chosen: const {})
       .copyWith(meals: PlannedMeal.mergeDuplicates(meals));
 
   List<PlannedMeal> mergeManualChoice(List<PlannedMeal> meals, PlannedMeal incoming, {PlannedMeal? replacing}) =>
@@ -823,9 +922,9 @@ class DietPlanViewModel extends BaseViewModel {
         if (replacing == null) incoming,
       ]);
 
-  List<String> manualProblems(List<PlannedMeal> meals) {
+  List<String> manualProblems(List<PlannedMeal> meals, {DateTime? day}) {
     if (meals.isEmpty) return const ['Choose at least one food.'];
-    final p = _manualDraft(meals);
+    final p = _manualDraft(meals, day: day);
     return _planner.editingProblems(p);
   }
 
@@ -834,7 +933,7 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// Mark the offending portion, and every food contributing to an excessive daily nutrient.
   List<String> manualFoodProblems(PlannedMeal meal, List<PlannedMeal> meals) {
-    final draft = _manualDraft(meals);
+    final draft = _manualDraft(meals, day: meal.planDate);
     return _foodWarnings(meal, draft);
   }
 
@@ -883,26 +982,32 @@ class DietPlanViewModel extends BaseViewModel {
     ];
   }
 
-  List<PlanNote> manualWarnings(List<PlannedMeal> meals) {
-    final draft = _manualDraft(meals);
+  List<PlanNote> manualWarnings(List<PlannedMeal> meals, {DateTime? day}) {
+    final draft = _manualDraft(meals, day: day);
     return [
       for (final m in meals) ..._planner.reasonsFor(m, draft, ctx).where((n) => n.warn),
-      for (final reason in _planner.summaryFor(draft, _today, ctx))
+      for (final reason in _planner.summaryFor(draft, day ?? _today, ctx))
         if (!reason.ok) PlanNote(reason.text, warn: true),
     ];
   }
 
-  Future<List<String>> saveManualMeals(List<PlannedMeal> meals) async {
+  Future<List<String>> saveManualMeals(List<PlannedMeal> meals, {DateTime? day}) async {
+    if (day != null && !day.isAfter(_today)) return const ['Choose a date after today.'];
     await _context();
     final id = _accountId;
     if (id == null) return const ['session'];
-    final problems = manualProblems(meals);
+    final problems = manualProblems(meals, day: day);
     if (problems.isNotEmpty) return problems;
-    final p = _manualDraft(meals.map((m) => m.carriedOver()).toList());
+    final p = _manualDraft(meals.map((m) => m.carriedOver()).toList(), day: day);
     if (await _mealRepo.savePlan(p) is Failure) return const [Messages.dbUnavailable];
-    plan = p;
-    type = PlanType.daily;
-    await _markLogged();
+    if (day != null) {
+      _showSavedPlan(day, p);
+      notifyListeners();
+    } else {
+      plan = p;
+      type = PlanType.daily;
+      await _markLogged();
+    }
     return const [];
   }
 

@@ -212,7 +212,7 @@ class DietPlan {
 
   List<DateTime> days() {
     final out = <DateTime>[];
-    for (var d = startDate; !d.isAfter(endDate); d = d.add(const Duration(days: 1))) {
+    for (var d = startDate; !d.isAfter(endDate); d = DateTime(d.year, d.month, d.day + 1)) {
       out.add(DateTime(d.year, d.month, d.day));
     }
     return out;

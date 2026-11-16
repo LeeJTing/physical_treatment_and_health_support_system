@@ -23,13 +23,13 @@ abstract interface class IFoodRepository {
   Future<Result<List<FoodItem>>> alternativesTo(FoodItem f, List<String> avoidCodes);
 }
 
-/// Search shared by the fake and the Supabase repository: every word of the term must appear in
-/// the name or the key, so "nasi lemak", "lemak" and "ayam goreng" all work.
+/// Search shared by the fake and live repositories, including common food names.
 List<FoodItem> searchFoods(List<FoodItem> foods, String term) {
   final words = term.toLowerCase().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
   if (words.isEmpty) return foods;
   return foods.where((f) {
-    final hay = '${f.foodName} ${f.foodKey.replaceAll('_', ' ')} ${f.foodCategory}'.toLowerCase();
+    final aliases = f.foodKey == 'cream_crackers' ? 'biscuit biscuits biskut krim kraker biskut tawar' : '';
+    final hay = '${f.foodName} ${f.foodKey.replaceAll('_', ' ')} ${f.foodCategory} $aliases'.toLowerCase();
     return words.every(hay.contains);
   }).toList();
 }

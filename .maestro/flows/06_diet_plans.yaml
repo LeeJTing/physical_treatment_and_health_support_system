@@ -47,3 +47,26 @@ tags: [JT, M700]
     timeout: 60000
 - tapOn: Edit today's plan
 - assertVisible: Today's Plan
+- back
+- scrollUntilVisible:
+    element:
+      text: Add future plan
+    direction: UP
+- tapOn: Add future plan
+- assertVisible: Choose a start date
+- tapOn: OK
+- tapOn: Choose end date
+- assertVisible: Choose an end date
+- tapOn: OK
+- tapOn: 1 week
+- tapOn: Generate plan
+- extendedWaitUntil:
+    visible: Future Plan
+    timeout: 30000
+- takeScreenshot: jt-06-future-week
+- tapOn: View saved plan
+- assertVisible: Choose a saved plan date
+- tapOn: OK
+- assertVisible: Future Plan
+- tapOn: Back to today
+- assertVisible: Weekly Plan

@@ -60,9 +60,11 @@ class _MealQuantityDialogState extends State<MealQuantityDialog> {
               controller: _count,
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
-                labelText: widget.item.recognitionDetails?.unit == 'serving'
-                    ? 'Servings (optional)'
-                    : 'Whole items / pieces (optional)',
+                labelText: switch (widget.item.recognitionDetails?.unit) {
+                  'cup' => 'Cups (optional)',
+                  'serving' => 'Servings (optional)',
+                  _ => 'Whole items / pieces (optional)',
+                },
                 helperText: 'Leave blank if the count is unknown.',
               ),
               validator: (s) => s!.trim().isEmpty
@@ -87,9 +89,11 @@ class _MealQuantityDialogState extends State<MealQuantityDialog> {
               keyboardType: const TextInputType.numberWithOptions(
                 decimal: true,
               ),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Total edible weight (g)',
-                helperText: 'Total for all pieces, not weight per piece.',
+                helperText: widget.item.recognitionDetails?.unit == 'cup'
+                    ? 'Combined drink weight for all cups.'
+                    : 'Combined weight for this food.',
               ),
               validator: (value) => MealLogViewModel.checkPortion(value ?? ''),
             ),
