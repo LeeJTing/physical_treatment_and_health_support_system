@@ -14,7 +14,8 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan
 /// A local draft: food picks stay visible until the whole day is reviewed and saved.
 class ManualDietPlanView extends StatefulWidget {
   final DietPlanViewModel viewModel;
-  const ManualDietPlanView({super.key, required this.viewModel});
+  final DateTime? day;
+  const ManualDietPlanView({super.key, required this.viewModel, this.day});
 
   @override
   State<ManualDietPlanView> createState() => _ManualDietPlanViewState();
@@ -25,6 +26,8 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
   bool _loading = true, _saving = false, _dirty = false, _allowPop = false, _loadFailed = false, _choosing = false;
   String? _error;
   DietPlanViewModel get vm => widget.viewModel;
+  String get _dateLabel =>
+      widget.day == null ? 'today' : MaterialLocalizations.of(context).formatMediumDate(widget.day!);
 
   @override
   void initState() {
@@ -33,7 +36,7 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
   }
 
   Future<void> _load() async {
-    final result = await vm.manualMeals();
+    final result = await vm.manualMeals(day: widget.day);
     if (!mounted) return;
     setState(() {
       _loading = false;
@@ -81,8 +84,7 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
   }
 
   Future<void> _portion(FoodItem food, MealSlot slot, {PlannedMeal? replacing}) async {
-    final now = DateTime.now();
-    final day = replacing?.planDate ?? DateTime(now.year, now.month, now.day);
+    final day = replacing?.planDate ?? widget.day ?? vm.today;
     final existing = _meals
         .where((m) => m.mealSlot == slot && m.food.foodId == food.foodId && m.plannedMealId != replacing?.plannedMealId)
         .fold<double>(0, (sum, meal) => sum + meal.portionSizeG);
@@ -195,19 +197,19 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
     final empty = MealSlot.values.where((s) => !_meals.any((m) => m.mealSlot == s));
     final ok = await confirmEffects(
       context,
-      title: "Save today's plan?",
+      title: widget.day == null ? "Save today's plan?" : 'Save plan for $_dateLabel?',
       icon: Icons.save_outlined,
       effects: [
-        "Today's saved plan will be replaced by these ${_meals.length} foods. Your logged meals stay in your history.",
+        'This one-day plan for $_dateLabel will contain ${_meals.length} foods.',
         '${totals.energyKcal.round()} kcal, ${totals.sodiumMg.round()} mg sodium and ${totals.sugarG.toStringAsFixed(1)} g free sugars.',
         if (empty.isNotEmpty) 'No food is planned for ${empty.map((s) => s.label.toLowerCase()).join(', ')}.',
-        "The weekly view will use this same plan for today.",
+        if (widget.day == null) "The weekly view will use this same plan for today.",
       ],
       confirmLabel: 'Save plan',
     );
     if (!ok || !mounted) return;
     setState(() => _saving = true);
-    final problems = await vm.saveManualMeals(_meals);
+    final problems = await vm.saveManualMeals(_meals, day: widget.day);
     if (!mounted) return;
     if (problems.isEmpty) {
       setState(() {
@@ -226,8 +228,8 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
   @override
   Widget build(BuildContext context) {
     final t = Nutrients.sum(_meals.map((m) => m.nutrients));
-    final problems = _loading ? const <String>[] : vm.manualProblems(_meals);
-    final warnings = _loading || _meals.isEmpty ? null : vm.manualWarnings(_meals);
+    final problems = _loading ? const <String>[] : vm.manualProblems(_meals, day: widget.day);
+    final warnings = _loading || _meals.isEmpty ? null : vm.manualWarnings(_meals, day: widget.day);
     return PopScope(
       canPop: _allowPop,
       onPopInvokedWithResult: (didPop, _) {
@@ -236,7 +238,7 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
       child: Scaffold(
         backgroundColor: AppTokens.screenBackground,
         appBar: AppBar(
-          title: const OneLineText("Build today's plan"),
+          title: OneLineText(widget.day == null ? "Build today's plan" : 'Build a future day'),
           backgroundColor: AppTokens.brandDeep,
           foregroundColor: Colors.white,
           leading: IconButton(
@@ -253,13 +255,13 @@ class _ManualDietPlanViewState extends State<ManualDietPlanView> {
                   const Text('Choose foods for each meal, then review and save the day.'),
                   const SizedBox(height: 12),
                   PlanTotalsCard(
-                    title: 'Your draft for today',
+                    title: 'Your draft for $_dateLabel',
                     totals: t,
                     energyLimit: vm.ctx.dailyEnergyKcal,
                     sodiumLimit: vm.ctx.dailySodiumMg,
                     sugarLimit: vm.ctx.dailySugarG,
                     children: [
-                      if (vm.manualNutritionWarnings(_meals) case final alerts when alerts.isNotEmpty)
+                      if (vm.manualNutritionWarnings(_meals, day: widget.day) case final alerts when alerts.isNotEmpty)
                         Padding(
                           padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
                           child: WatchOutBox(alerts, title: 'This day may not provide enough nutrition'),

@@ -8,9 +8,12 @@ import 'package:http/testing.dart';
 import 'package:image/image.dart' as img;
 import 'package:physical_treatment_and_health_support_system/device_platform/camera_gallery/meal_image_picker.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/food_recognition_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/food_recognition_service/recognition_result.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/diet_plan.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/food_recognition_details.dart';
@@ -22,11 +25,14 @@ import 'package:physical_treatment_and_health_support_system/model/repository/me
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
 import 'package:physical_treatment_and_health_support_system/shared_client/api_client/api_client.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_insights_view.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/diet_plan_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_history_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_quantity_dialog.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_result_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_insights_view_model/diet_insights_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
+import '../support/demo_environment.dart';
 
 class _NoPhoto implements MealImageSource {
   @override
@@ -122,6 +128,78 @@ void runDietFeatureTests({
       addTearDown(t.view.resetDevicePixelRatio);
     }
   }
+
+  testWidgets('Weekly Plan opens on today and a future week can be scheduled', (
+    t,
+  ) async {
+    hostSize(t);
+    final env = (await t.runAsync(() => DemoEnvironment.create()))!;
+    final now = DateTime.now();
+    DateTime offset(int n) => DateTime(now.year, now.month, now.day + n);
+    final vm = DietPlanViewModel(
+      DietPlannerService(
+        ApiClient(
+          baseUrl: 'http://isolated.test',
+          tokenProvider: () => 'test-token',
+          httpClient: env.ai,
+        ),
+        env.foods,
+      ),
+      env.meals,
+      env.foods,
+      RiskAssessmentService(env.auth, env.profiles),
+      env.auth,
+      () => now,
+    );
+    await env.meals.savePlan(
+      DietPlan(
+        dietPlanId: 'started-two-days-ago',
+        accountId: env.accountId,
+        safetyLimitId: SafetyLimit.failSafeId,
+        planType: PlanType.weekly,
+        startDate: offset(-2),
+        endDate: offset(4),
+        modelVersion: 'test-week',
+        generatedAt: offset(-2),
+        meals: [PlannedMeal.of(fixtureFood, offset(0), MealSlot.lunch, 100)],
+      ),
+    );
+    await t.pumpWidget(
+      ChangeNotifierProvider.value(
+        value: vm,
+        child: MaterialApp(
+          builder: (_, child) => RepaintBoundary(
+            key: const ValueKey('diet-evidence'),
+            child: child!,
+          ),
+          home: const DietPlanView(type: PlanType.weekly),
+        ),
+      ),
+    );
+    await t.pumpAndSettle();
+    final todayChip = find.widgetWithText(
+      ChoiceChip,
+      'Today, ${const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][now.weekday - 1]} ${now.day}/${now.month}',
+    );
+    expect(t.widget<ChoiceChip>(todayChip).selected, isTrue);
+    await t.tap(find.text('Add future plan'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('OK'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('1 week'));
+    await t.pumpAndSettle();
+    await t.tap(find.text('Generate plan'));
+    await t.pumpAndSettle();
+    expect(find.text('Future Plan'), findsOneWidget);
+    expect(vm.plan!.startDate, offset(1));
+    expect(vm.plan!.endDate, offset(7));
+    expect(env.meals.plans, hasLength(2));
+    await capture?.call(t, 'future-week-plan');
+    await t.tap(find.text('Back to today'));
+    await t.pumpAndSettle();
+    expect(t.widget<ChoiceChip>(todayChip).selected, isTrue);
+    expect(vm.plan!.dietPlanId, 'started-two-days-ago');
+  });
 
   Future<void> showReview(
     WidgetTester t,

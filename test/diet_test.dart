@@ -34,6 +34,7 @@ import 'package:physical_treatment_and_health_support_system/model/repository/no
 import 'package:physical_treatment_and_health_support_system/model/repository/treatment_repository/fake_treatment_repository.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan_view_model/diet_plan_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/meal_log_view_model/meal_log_view_model.dart';
+import '../integration_test/support/demo_environment.dart';
 
 final foods = FakeFoodRepository.fromJson(File('assets/seed/food_catalogue.json').readAsStringSync());
 FoodItem food(String key) => foods.foods.firstWhere((f) => f.foodKey == key);
@@ -94,6 +95,96 @@ class _PlanScheduler implements NotificationScheduler {
 Uint8List jpeg(int w, int h) => Uint8List.fromList(img.encodeJpg(img.Image(width: w, height: h)));
 
 void main() {
+  group('future diet plans', () {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    late DietPlanViewModel vm;
+    late FakeMealRepository meals;
+    late String accountId;
+    late List<Map<String, dynamic>> requests;
+    DateTime? failFrom;
+
+    setUp(() async {
+      failFrom = null;
+      requests = [];
+      final auth = FakeAuthRepository();
+      accountId = (await auth.login('demo@apths.test', 'password123')).dataOrNull!.accountId;
+      final ai = DemoAiClient(foods);
+      final transport = MockClient((req) async {
+        final body = jsonDecode(req.body) as Map<String, dynamic>;
+        requests.add(body);
+        if (failFrom != null && !DateTime.parse(body['start_date'] as String).isBefore(failFrom!)) {
+          return http.Response('{"error":{"code":"offline","message":"Down"}}', 503);
+        }
+        return ai.post(req.url, headers: req.headers, body: req.body);
+      });
+      meals = FakeMealRepository();
+      vm = DietPlanViewModel(
+        DietPlannerService(ApiClient(baseUrl: 'http://ai', tokenProvider: () => 't', httpClient: transport), foods),
+        meals,
+        foods,
+        RiskAssessmentService(auth, FakeProfileRepository()),
+        auth,
+        () => now,
+      );
+    });
+
+    test('day, week and 31-day periods save once with complete dates', () async {
+      for (final length in [1, 7, 31]) {
+        final start = DateTime(today.year, today.month, today.day + length);
+        final end = DateTime(start.year, start.month, start.day + length - 1);
+        final before = meals.plans.length;
+        expect(await vm.generateFuture(start, end), isTrue, reason: vm.takeMessage());
+        final saved = meals.plans.last;
+        expect(meals.plans, hasLength(before + 1));
+        expect(saved.startDate, start);
+        expect(saved.endDate, end);
+        expect(saved.days(), hasLength(length));
+        expect(saved.days().every((d) => saved.mealsFor(d).map((m) => m.mealSlot).toSet().length == 4), isTrue);
+        expect(vm.futureViewDate, start);
+        expect(await vm.openFutureDate(end), isTrue);
+        expect(vm.plan!.dietPlanId, saved.dietPlanId);
+      }
+      expect((await meals.planFor(accountId, PlanType.daily, today)).dataOrNull, isNull);
+      expect((await meals.planFor(accountId, PlanType.weekly, today)).dataOrNull, isNull);
+      expect(requests.map((r) => r['plan_type']), [
+        'DAILY',
+        'WEEKLY',
+        'WEEKLY',
+        'WEEKLY',
+        'WEEKLY',
+        'WEEKLY',
+        'DAILY',
+        'DAILY',
+        'DAILY',
+      ]);
+      expect(requests.every((r) => (r['logged_slots_today'] as List).isEmpty), isTrue);
+    });
+
+    test('a failed later block leaves the existing plans in place', () async {
+      expect(await vm.generateFuture(tomorrow, tomorrow), isTrue);
+      final before = vm.plan;
+      failFrom = DateTime(today.year, today.month, today.day + 8);
+      expect(await vm.generateFuture(tomorrow, DateTime(today.year, today.month, today.day + 30)), isFalse);
+      expect(meals.plans.map((p) => p.dietPlanId), [before?.dietPlanId]);
+      expect(vm.plan!.dietPlanId, before!.dietPlanId);
+      expect(vm.isLoading, isFalse);
+      expect(await vm.generateFuture(today, today), isFalse);
+    });
+
+    test('a manual future day is stored on its selected date and takes priority there', () async {
+      final end = DateTime(today.year, today.month, today.day + 7);
+      expect(await vm.generateFuture(tomorrow, end), isTrue);
+      final picked = PlannedMeal.of(food('oats'), tomorrow, MealSlot.breakfast, 120);
+      expect(await vm.saveManualMeals([picked], day: tomorrow), isEmpty);
+      expect(await vm.openFutureDate(tomorrow), isTrue);
+      expect(vm.plan!.planType, PlanType.daily);
+      expect(vm.plan!.meals.single.portionSizeG, 120);
+      expect((await meals.planFor(accountId, PlanType.daily, today)).dataOrNull, isNull);
+    });
+  });
+
   const s = SuitabilityService();
 
   group('food catalogue', () {

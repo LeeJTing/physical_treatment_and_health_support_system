@@ -19,6 +19,23 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/diet_plan
 
 enum _FoodAction { portion, swap, lock, remove, editToday }
 
+enum _FutureDuration {
+  day('1 day'),
+  week('1 week'),
+  month('1 month');
+
+  const _FutureDuration(this.label);
+  final String label;
+
+  DateTime endDate(DateTime start) {
+    if (this == day) return start;
+    if (this == week) return DateTime(start.year, start.month, start.day + 6);
+    final daysNextMonth = DateTime(start.year, start.month + 2, 0).day;
+    final nextDay = start.day.clamp(1, daysNextMonth);
+    return DateTime(start.year, start.month + 1, nextDay - 1);
+  }
+}
+
 /// Today's plan (UC900 A5) or the weekly plan (A6). Each day shows its planned energy, sodium and
 /// free sugars against the limits and "Why this plan?" (how it was made, with the healthy plate);
 /// each slot shows its foods with a picture of their place on the plate. Tapping a food says why it
@@ -37,12 +54,13 @@ class DietPlanView extends StatefulWidget {
 }
 
 class _DietPlanViewState extends State<DietPlanView> {
-  int _day = 0;
+  DateTime? _selectedDay;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       final vm = context.read<DietPlanViewModel>();
       if (widget.refreshForProfile) {
         await vm.refreshAfterProfileChange();
@@ -303,14 +321,99 @@ class _DietPlanViewState extends State<DietPlanView> {
     }
   }
 
-  Future<void> _manual(DietPlanViewModel vm) async {
-    final saved = await Navigator.of(
-      context,
-    ).push<bool>(MaterialPageRoute(builder: (_) => ManualDietPlanView(viewModel: vm)));
+  Future<void> _manual(DietPlanViewModel vm, {DateTime? day}) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => ManualDietPlanView(viewModel: vm, day: day),
+      ),
+    );
     if (!mounted) return;
     if (saved == true) {
-      await vm.load(widget.type);
-      if (mounted) _snack("Today's plan has been saved.");
+      if (day == null) {
+        await vm.load(widget.type);
+        if (mounted) _snack("Today's plan has been saved.");
+      } else {
+        setState(() => _selectedDay = day);
+        _snack('Future day saved.');
+      }
+    }
+  }
+
+  Future<DateTime?> _pickFutureDate(DietPlanViewModel vm) {
+    final today = vm.today;
+    final tomorrow = DateTime(today.year, today.month, today.day + 1);
+    final current = vm.futureViewDate;
+    return showDatePicker(
+      context: context,
+      currentDate: today,
+      firstDate: tomorrow,
+      initialDate: current != null && current.isAfter(today) ? current : tomorrow,
+      lastDate: DateTime(today.year + 5, today.month, today.day),
+      helpText: 'Choose a future date',
+    );
+  }
+
+  Future<void> _viewFuture(DietPlanViewModel vm) async {
+    final day = await _pickFutureDate(vm);
+    if (!mounted || day == null) return;
+    if (await vm.openFutureDate(day) && mounted) setState(() => _selectedDay = day);
+  }
+
+  Future<void> _addFuture(DietPlanViewModel vm) async {
+    final start = await _pickFutureDate(vm);
+    if (!mounted || start == null) return;
+    var duration = _FutureDuration.day;
+    final action = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, update) {
+          final format = MaterialLocalizations.of(context).formatMediumDate;
+          final end = duration.endDate(start);
+          return AlertDialog(
+            title: const Text('Add future plan'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(start == end ? format(start) : '${format(start)} – ${format(end)}'),
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    children: [
+                      for (final d in _FutureDuration.values)
+                        ChoiceChip(
+                          label: Text(d.label),
+                          selected: duration == d,
+                          onSelected: (_) => update(() => duration = d),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    'A saved one-day plan takes priority on its date. For overlapping longer plans, the later start date takes priority.',
+                  ),
+                  if (duration == _FutureDuration.day)
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text('Choose foods myself'),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+              FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Generate plan')),
+            ],
+          );
+        },
+      ),
+    );
+    if (!mounted || action == null) return;
+    if (!action) {
+      await _manual(vm, day: start);
+    } else if (await vm.generateFuture(start, duration.endDate(start)) && mounted) {
+      setState(() => _selectedDay = start);
     }
   }
 
@@ -323,7 +426,10 @@ class _DietPlanViewState extends State<DietPlanView> {
         ),
       ),
     );
-    if (mounted) await vm.load(PlanType.weekly);
+    if (mounted) {
+      setState(() => _selectedDay = null);
+      await vm.load(PlanType.weekly);
+    }
   }
 
   // ------------------------------------------------------------------ screen
@@ -338,22 +444,35 @@ class _DietPlanViewState extends State<DietPlanView> {
       });
     }
     final p = vm.plan;
-    final days = p?.days() ?? const <DateTime>[];
-    if (_day >= days.length) _day = 0;
+    final future = vm.futureViewDate;
+    final days = p?.days().where((d) => future == null || d.isAfter(vm.today)).toList() ?? const <DateTime>[];
+    final anchor = future ?? vm.today;
+    final day = days.contains(_selectedDay)
+        ? _selectedDay
+        : days.contains(anchor)
+        ? anchor
+        : days.firstOrNull;
     return PopScope(
-      canPop: !widget.refreshForProfile || !vm.isLoading,
+      canPop: !vm.generatingFuture && (!widget.refreshForProfile || !vm.isLoading),
       child: Scaffold(
         backgroundColor: AppTokens.screenBackground,
         appBar: AppBar(
-          title: Text(widget.type == PlanType.weekly ? 'Weekly Plan' : "Today's Plan"),
+          title: Text(
+            future != null
+                ? 'Future Plan'
+                : widget.type == PlanType.weekly
+                ? 'Weekly Plan'
+                : "Today's Plan",
+          ),
           backgroundColor: AppTokens.brandDeep,
           foregroundColor: Colors.white,
           actions: [
-            IconButton(
-              tooltip: 'Make a new plan',
-              onPressed: vm.isLoading ? null : () => _regenerate(vm),
-              icon: const Icon(Icons.refresh),
-            ),
+            if (future == null)
+              IconButton(
+                tooltip: 'Make a new plan',
+                onPressed: vm.isLoading ? null : () => _regenerate(vm),
+                icon: const Icon(Icons.refresh),
+              ),
             const HelpButton(guide: Guides.dietPlan),
           ],
           // A new plan is being made: the current one stays visible under a progress bar.
@@ -378,25 +497,20 @@ class _DietPlanViewState extends State<DietPlanView> {
               : null,
         ),
         body: vm.isLoading && p == null
-            ? const Center(
+            ? Center(
                 child: Padding(
-                  padding: EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(32),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      HealthyPlatePicture(size: 132),
-                      SizedBox(height: 20),
-                      CircularProgressIndicator(color: AppTokens.brandDeepAccent),
-                      SizedBox(height: 14),
+                      const HealthyPlatePicture(size: 132),
+                      const SizedBox(height: 20),
+                      const CircularProgressIndicator(color: AppTokens.brandDeepAccent),
+                      const SizedBox(height: 14),
                       Text(
-                        'Making a plan that fits your\u00A0limits...',
+                        vm.changeInProgress ?? 'Making a plan that fits your\u00A0limits...',
                         textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
-                      ),
-                      SizedBox(height: 6),
-                      Text(
-                        'This can take up to 20\u00A0seconds.',
-                        style: TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppTokens.ink),
                       ),
                     ],
                   ),
@@ -405,19 +519,48 @@ class _DietPlanViewState extends State<DietPlanView> {
             : ListView(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
                 children: [
-                  AllowanceCard(
-                    consumed: Nutrients(
-                      energyKcal: vm.ctx.dailyEnergyKcal - vm.remaining.energyKcal,
-                      sodiumMg: vm.ctx.dailySodiumMg - vm.remaining.sodiumMg,
-                      sugarG: vm.ctx.dailySugarG - vm.remaining.sugarG,
+                  if (widget.type == PlanType.weekly) ...[
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        FilledButton.tonalIcon(
+                          onPressed: vm.isLoading ? null : () => _addFuture(vm),
+                          icon: const Icon(Icons.event_available),
+                          label: const Text('Add future plan'),
+                        ),
+                        OutlinedButton(
+                          onPressed: vm.isLoading ? null : () => _viewFuture(vm),
+                          child: const Text('View future date'),
+                        ),
+                        if (future != null)
+                          TextButton(
+                            onPressed: vm.isLoading
+                                ? null
+                                : () async {
+                                    setState(() => _selectedDay = null);
+                                    await vm.load(PlanType.weekly);
+                                  },
+                            child: const Text('Back to today'),
+                          ),
+                      ],
                     ),
-                    energyTarget: vm.ctx.dailyEnergyKcal,
-                    sodiumLimit: vm.ctx.dailySodiumMg,
-                    sugarLimit: vm.ctx.dailySugarG,
-                  ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (future == null)
+                    AllowanceCard(
+                      consumed: Nutrients(
+                        energyKcal: vm.ctx.dailyEnergyKcal - vm.remaining.energyKcal,
+                        sodiumMg: vm.ctx.dailySodiumMg - vm.remaining.sodiumMg,
+                        sugarG: vm.ctx.dailySugarG - vm.remaining.sugarG,
+                      ),
+                      energyTarget: vm.ctx.dailyEnergyKcal,
+                      sodiumLimit: vm.ctx.dailySodiumMg,
+                      sugarLimit: vm.ctx.dailySugarG,
+                    ),
                   const SizedBox(height: 12),
                   // Not following the plan: what was missed or eaten differently, in red.
-                  if (vm.followWarnings case final w when w.isNotEmpty) ...[
+                  if (vm.followWarnings case final w when future == null && w.isNotEmpty) ...[
                     WatchOutBox(
                       w,
                       title: 'Please follow your diet plan',
@@ -466,46 +609,64 @@ class _DietPlanViewState extends State<DietPlanView> {
                     ),
                     const SizedBox(height: 12),
                   ],
-                  OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size.fromHeight(52),
-                      shape: const StadiumBorder(),
+                  if (future == null)
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(52),
+                        shape: const StadiumBorder(),
+                      ),
+                      onPressed: vm.isLoading ? null : () => _manual(vm),
+                      icon: const Icon(Icons.edit_note),
+                      label: const OneLineText('Build my plan myself'),
                     ),
-                    onPressed: vm.isLoading ? null : () => _manual(vm),
-                    icon: const Icon(Icons.edit_note),
-                    label: const OneLineText('Build my plan myself'),
-                  ),
                   const SizedBox(height: 12),
+                  if (future != null && p == null)
+                    Text('No saved plan for ${_dayLabel(future)}. Use Add future plan to create one.'),
                   if (p != null) ...[
-                    if (widget.type == PlanType.weekly) ...[
+                    if (widget.type == PlanType.weekly && future == null) ...[
                       Text(
                         tidy('This week you followed ${(vm.adherence() * 100).round()}% of your planned meals.'),
                         style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
                       ),
                       const SizedBox(height: 8),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: [
-                            for (var i = 0; i < days.length; i++)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 6),
-                                child: ChoiceChip(
-                                  avatar: vm.nutritionWarnings(days[i]).isEmpty
-                                      ? null
-                                      : const Icon(Icons.warning_amber_rounded, color: AppTokens.danger, size: 18),
-                                  label: Text(_dayLabel(days[i])),
-                                  selected: _day == i,
-                                  onSelected: (_) => setState(() => _day = i),
-                                ),
-                              ),
-                          ],
-                        ),
+                    ],
+                    if (days.length > 1 && days.length <= 7) ...[
+                      Wrap(
+                        spacing: 6,
+                        children: [
+                          for (final date in days)
+                            ChoiceChip(
+                              avatar: vm.nutritionWarnings(date).isEmpty
+                                  ? null
+                                  : const Icon(Icons.warning_amber_rounded, color: AppTokens.danger, size: 18),
+                              label: Text(date == vm.today ? 'Today, ${_dayLabel(date)}' : _dayLabel(date)),
+                              selected: day == date,
+                              onSelected: (_) => setState(() => _selectedDay = date),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 8),
                     ],
-                    if (days.isNotEmpty) ...[
-                      if (!vm.canEditDay(days[_day])) ...[
+                    if (days.length > 7 && day != null)
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final date = await showDatePicker(
+                            context: context,
+                            initialDate: day,
+                            firstDate: days.first,
+                            lastDate: days.last,
+                            currentDate: vm.today,
+                            helpText: 'Choose a day in this plan',
+                          );
+                          if (mounted && date != null) setState(() => _selectedDay = date);
+                        },
+                        icon: const Icon(Icons.date_range),
+                        label: Text('Plan day · ${_dayLabel(day)}'),
+                      ),
+                    if (day != null) ...[
+                      if (future != null && p.startDate != p.endDate)
+                        Text('Plan period · ${_dayLabel(p.startDate)} – ${_dayLabel(p.endDate)}'),
+                      if (!vm.canEditDay(day)) ...[
                         const Text("Today's meals are the same as Today's Plan. Changes made there also appear here."),
                         TextButton.icon(
                           onPressed: vm.isLoading ? null : () => _editToday(vm),
@@ -513,9 +674,9 @@ class _DietPlanViewState extends State<DietPlanView> {
                           label: const Text("Edit today's plan"),
                         ),
                       ],
-                      _overview(vm, days[_day]),
+                      _overview(vm, day),
                       const SizedBox(height: 12),
-                      for (final slot in MealSlot.values) _slotCard(vm, p, days[_day], slot),
+                      for (final slot in MealSlot.values) _slotCard(vm, p, day, slot),
                     ],
                     if (widget.type == PlanType.daily)
                       TextButton.icon(
@@ -544,8 +705,7 @@ class _DietPlanViewState extends State<DietPlanView> {
   /// explanation of how the plan was made.
   Widget _overview(DietPlanViewModel vm, DateTime day) {
     final t = vm.plannedTotals(day);
-    final now = DateTime.now();
-    final isToday = day.year == now.year && day.month == now.month && day.day == now.day;
+    final isToday = day == vm.today;
     return PlanTotalsCard(
       title: isToday ? 'Your plan for today' : 'Your plan for ${_dayLabel(day)}',
       totals: t,

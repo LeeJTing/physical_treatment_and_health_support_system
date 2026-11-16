@@ -30,6 +30,54 @@ class DietPlannerService {
 
   static const _maxAttempts = 3;
 
+  /// Uses the daily and weekly API to build a future period before the caller saves it.
+  Future<Result<DietPlan>> generateFuturePeriod({
+    required String accountId,
+    required DietContext ctx,
+    required DateTime start,
+    required DateTime end,
+    required List<MealLog> history,
+    int seed = 0,
+  }) async {
+    final length =
+        DateTime.utc(end.year, end.month, end.day).difference(DateTime.utc(start.year, start.month, start.day)).inDays +
+        1;
+    if (length < 1 || length > 31) return const Failure('Choose a period of 1 to 31 days.');
+    final meals = <PlannedMeal>[];
+    var version = '';
+    for (var offset = 0; offset < length;) {
+      final weekly = length - offset >= 7;
+      final part = await generate(
+        accountId: accountId,
+        ctx: ctx,
+        type: weekly ? PlanType.weekly : PlanType.daily,
+        start: DateTime(start.year, start.month, start.day + offset),
+        history: history,
+        seed: seed + offset * 1009,
+      );
+      if (part case Failure<DietPlan>(:final message, :final code, :final cause)) {
+        return Failure(message, code: code, cause: cause);
+      }
+      final block = part.dataOrNull!;
+      version = block.modelVersion;
+      meals.addAll(block.meals);
+      offset += weekly ? 7 : 1;
+    }
+    return Success(
+      DietPlan(
+        dietPlanId: newId(),
+        accountId: accountId,
+        safetyLimitId: ctx.limit.safetyLimitId,
+        planType: length == 1 ? PlanType.daily : PlanType.weekly,
+        startDate: start,
+        endDate: end,
+        modelVersion: version,
+        generatedAt: DateTime.now(),
+        meals: meals,
+      ),
+    );
+  }
+
   /// Builds a plan within the daily limits (FR700_029 to FR700_033). [consumedToday] and
   /// [loggedSlots] let the rest of today be planned around what was already eaten (FR700_034);
   /// [locked] meals are kept as they are (FR700_036); [history] feeds the preference ranker (C4).
@@ -53,12 +101,17 @@ class DietPlannerService {
     }
     final day0 = DateTime(start.year, start.month, start.day);
     final today = DateTime.now();
-    final dayEnd = type == PlanType.weekly ? day0.add(const Duration(days: 6)) : day0;
-    final safeLocked = PlannedMeal.mergeDuplicates(
-      locked,
-    ).where((m) => suitability.suitsPatient(m.food, ctx, m.portionSizeG)).toList();
+    final dayEnd = type == PlanType.weekly ? DateTime(day0.year, day0.month, day0.day + 6) : day0;
+    final safeLocked = PlannedMeal.mergeDuplicates(locked)
+        .where(
+          (m) =>
+              !m.planDate.isBefore(day0) &&
+              !m.planDate.isAfter(dayEnd) &&
+              suitability.suitsPatient(m.food, ctx, m.portionSizeG),
+        )
+        .toList();
     final consumedExtras = history
-        .where((m) => _same(m.consumedAt, today))
+        .where((m) => !day0.isAfter(today) && _same(m.consumedAt, today))
         .expand((m) => m.items)
         .fold(FoodExtras.zero, (sum, item) => sum + item.food.extrasFor(item.portionSizeG));
     final rejectedFoods = <String>{...exclude};
@@ -156,7 +209,7 @@ class DietPlannerService {
         safetyLimitId: ctx.limit.safetyLimitId,
         planType: type,
         startDate: day0,
-        endDate: type == PlanType.weekly ? day0.add(const Duration(days: 6)) : day0,
+        endDate: dayEnd,
         modelVersion: modelVersion,
         generatedAt: DateTime.now(),
         meals: PlannedMeal.mergeDuplicates(meals),
