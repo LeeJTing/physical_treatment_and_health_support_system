@@ -46,7 +46,7 @@ class DietPlanViewModel extends BaseViewModel {
 
   /// The plan in force.
   DietPlan? plan;
-  DateTime? futureViewDate;
+  DateTime? savedViewDate;
   bool generatingFuture = false;
   String? changeInProgress;
 
@@ -79,8 +79,10 @@ class DietPlanViewModel extends BaseViewModel {
 
   DateTime get today => _today;
 
-  /// Today's foods are edited in the daily plan, also when viewed as part of a week.
-  bool canEditDay(DateTime day) => type == PlanType.daily || !_sameDay(day, _today);
+  bool isPastSavedDay(DateTime day) => savedViewDate != null && day.isBefore(_today);
+
+  /// Today's foods are edited in the daily plan. Previous plans are available for review.
+  bool canEditDay(DateTime day) => !isPastSavedDay(day) && (type == PlanType.daily || !_sameDay(day, _today));
 
   DietPlan _dailyPart(DietPlan weekly) => DietPlan(
     dietPlanId: newId(),
@@ -134,7 +136,7 @@ class DietPlanViewModel extends BaseViewModel {
   /// Opens today's plan or this week's plan, generating one when none is stored.
   Future<void> load(PlanType t) async {
     type = t;
-    futureViewDate = null;
+    savedViewDate = null;
     plannerDown = false;
     needsDailyReplan = false;
     setLoading(true);
@@ -193,10 +195,10 @@ class DietPlanViewModel extends BaseViewModel {
         const <MealLog>[];
   }
 
-  /// Opens a saved future date without generating a plan or changing today's alerts.
-  Future<bool> openFutureDate(DateTime day) async {
+  /// Looks up a date without generating a plan or changing today's alerts.
+  Future<bool> openSavedDate(DateTime day) async {
     day = DateTime(day.year, day.month, day.day);
-    if (isLoading || !day.isAfter(_today)) return false;
+    if (isLoading) return false;
     setLoading(true);
     try {
       await _context();
@@ -212,7 +214,7 @@ class DietPlanViewModel extends BaseViewModel {
         _message = Messages.dbUnavailable;
         return false;
       }
-      _showFuture(day, chosen.dataOrNull);
+      _showSavedPlan(day, chosen.dataOrNull);
       return true;
     } finally {
       setLoading(false);
@@ -253,7 +255,7 @@ class DietPlanViewModel extends BaseViewModel {
         _message = Messages.dbUnavailable;
         return false;
       }
-      _showFuture(start, next);
+      _showSavedPlan(start, next);
       _message = 'Future plan saved.';
       return true;
     } catch (_) {
@@ -266,8 +268,8 @@ class DietPlanViewModel extends BaseViewModel {
     }
   }
 
-  void _showFuture(DateTime day, DietPlan? entry) {
-    futureViewDate = day;
+  void _showSavedPlan(DateTime day, DietPlan? entry) {
+    savedViewDate = day;
     plan = entry?.copyWith(meals: PlannedMeal.mergeDuplicates(entry.meals));
     plannerDown = false;
     needsDailyReplan = false;
@@ -455,7 +457,7 @@ class DietPlanViewModel extends BaseViewModel {
   Future<void> _markLogged() async {
     final id = _accountId;
     final p = plan;
-    if (futureViewDate != null) return;
+    if (savedViewDate != null) return;
     final start = p?.startDate ?? _today;
     final end = p == null ? _now() : p.endDate.add(const Duration(hours: 23, minutes: 59));
     if (id != null) {
@@ -777,6 +779,7 @@ class DietPlanViewModel extends BaseViewModel {
       p,
       day,
       ctx,
+      suggestEdits: !isPastSavedDay(day),
       eatenOutside: Nutrients.sum(outside.map((m) => m.totals)),
       outsideExtras: outside
           .expand((m) => m.items)
@@ -998,7 +1001,7 @@ class DietPlanViewModel extends BaseViewModel {
     final p = _manualDraft(meals.map((m) => m.carriedOver()).toList(), day: day);
     if (await _mealRepo.savePlan(p) is Failure) return const [Messages.dbUnavailable];
     if (day != null) {
-      _showFuture(day, p);
+      _showSavedPlan(day, p);
       notifyListeners();
     } else {
       plan = p;

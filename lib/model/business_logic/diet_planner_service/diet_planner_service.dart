@@ -42,7 +42,9 @@ class DietPlannerService {
     final length =
         DateTime.utc(end.year, end.month, end.day).difference(DateTime.utc(start.year, start.month, start.day)).inDays +
         1;
-    if (length < 1 || length > 31) return const Failure('Choose a period of 1 to 31 days.');
+    if (length < 1 || length > AppConstants.maxFuturePlanDays) {
+      return const Failure('Choose a period of 1 to ${AppConstants.maxFuturePlanDays} days.');
+    }
     final meals = <PlannedMeal>[];
     var version = '';
     for (var offset = 0; offset < length;) {
@@ -373,6 +375,7 @@ class DietPlannerService {
     DietContext ctx, {
     Nutrients eatenOutside = Nutrients.zero,
     FoodExtras outsideExtras = FoodExtras.zero,
+    bool suggestEdits = true,
   }) {
     final t = p.totalsFor(day) + eatenOutside;
     final x = extrasFor(p, day) + outsideExtras;
@@ -381,7 +384,8 @@ class DietPlannerService {
       if (t.energyKcal < ctx.dailyEnergyKcal * 0.75)
         PlanNote(
           'Too little energy for this day: ${_n(t.energyKcal)} of your ${_n(ctx.dailyEnergyKcal)} kcal target '
-          '(below 75%). Add food or increase a portion. You can still save your choices.',
+          '(below 75%).'
+          '${suggestEdits ? ' Add food or increase a portion. You can still save your choices.' : ''}',
           warn: true,
         ),
       if (needs['protein_g_min'] case final n? when t.proteinG < n)

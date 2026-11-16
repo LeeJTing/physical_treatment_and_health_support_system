@@ -142,8 +142,8 @@ void main() {
         expect(saved.endDate, end);
         expect(saved.days(), hasLength(length));
         expect(saved.days().every((d) => saved.mealsFor(d).map((m) => m.mealSlot).toSet().length == 4), isTrue);
-        expect(vm.futureViewDate, start);
-        expect(await vm.openFutureDate(end), isTrue);
+        expect(vm.savedViewDate, start);
+        expect(await vm.openSavedDate(end), isTrue);
         expect(vm.plan!.dietPlanId, saved.dietPlanId);
       }
       expect((await meals.planFor(accountId, PlanType.daily, today)).dataOrNull, isNull);
@@ -178,10 +178,19 @@ void main() {
       expect(await vm.generateFuture(tomorrow, end), isTrue);
       final picked = PlannedMeal.of(food('oats'), tomorrow, MealSlot.breakfast, 120);
       expect(await vm.saveManualMeals([picked], day: tomorrow), isEmpty);
-      expect(await vm.openFutureDate(tomorrow), isTrue);
+      expect(await vm.openSavedDate(tomorrow), isTrue);
       expect(vm.plan!.planType, PlanType.daily);
       expect(vm.plan!.meals.single.portionSizeG, 120);
       expect((await meals.planFor(accountId, PlanType.daily, today)).dataOrNull, isNull);
+    });
+
+    test('looking up an unscheduled past day leaves the repository untouched', () async {
+      final past = DateTime(today.year, today.month, today.day - 1);
+      expect(await vm.openSavedDate(past), isTrue);
+      expect(vm.savedViewDate, past);
+      expect(vm.plan, isNull);
+      expect(requests, isEmpty);
+      expect(meals.plans, isEmpty);
     });
   });
 

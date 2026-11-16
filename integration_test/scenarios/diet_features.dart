@@ -161,7 +161,10 @@ void runDietFeatureTests({
         endDate: offset(4),
         modelVersion: 'test-week',
         generatedAt: offset(-2),
-        meals: [PlannedMeal.of(fixtureFood, offset(0), MealSlot.lunch, 100)],
+        meals: [
+          PlannedMeal.of(fixtureFood, offset(0), MealSlot.lunch, 100),
+          PlannedMeal.of(fixtureFood, offset(-2), MealSlot.lunch, 100),
+        ],
       ),
     );
     await t.pumpWidget(
@@ -181,9 +184,28 @@ void runDietFeatureTests({
       ChoiceChip,
       'Today, ${const ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][now.weekday - 1]} ${now.day}/${now.month}',
     );
-    expect(t.widget<ChoiceChip>(todayChip).selected, isTrue);
-    await t.tap(find.text('Add future plan'));
-    await t.pumpAndSettle();
+    Future<void> expectTodaySelected() async {
+      await t.scrollUntilVisible(
+        todayChip,
+        140,
+        scrollable: find.byType(Scrollable),
+      );
+      expect(t.widget<ChoiceChip>(todayChip).selected, isTrue);
+    }
+
+    Future<void> tapAddFuturePlan() async {
+      final add = find.text('Add future plan');
+      await t.scrollUntilVisible(
+        add,
+        -140,
+        scrollable: find.byType(Scrollable),
+      );
+      await t.tap(add);
+      await t.pumpAndSettle();
+    }
+
+    await expectTodaySelected();
+    await tapAddFuturePlan();
     await t.tap(find.text('OK'));
     await t.pumpAndSettle();
     await t.tap(find.text('1 week'));
@@ -197,8 +219,48 @@ void runDietFeatureTests({
     await capture?.call(t, 'future-week-plan');
     await t.tap(find.text('Back to today'));
     await t.pumpAndSettle();
-    expect(t.widget<ChoiceChip>(todayChip).selected, isTrue);
+    await expectTodaySelected();
     expect(vm.plan!.dietPlanId, 'started-two-days-ago');
+
+    Future<void> enterDate(DateTime date) async {
+      final localizations = MaterialLocalizations.of(
+        t.element(find.byType(DatePickerDialog)),
+      );
+      await t.tap(find.byTooltip(localizations.inputDateModeButtonLabel));
+      await t.pumpAndSettle();
+      await t.enterText(
+        find.byType(TextField),
+        localizations.formatCompactDate(date),
+      );
+      await t.tap(find.text('OK'));
+      await t.pumpAndSettle();
+    }
+
+    await tapAddFuturePlan();
+    await enterDate(offset(8));
+    await t.tap(find.text('Choose end date'));
+    await t.pumpAndSettle();
+    await enterDate(offset(11));
+    await t.tap(find.text('Generate plan'));
+    await t.pumpAndSettle();
+    expect(vm.plan!.days(), [for (var i = 8; i <= 11; i++) offset(i)]);
+    expect(env.meals.plans, hasLength(3));
+    await capture?.call(t, 'custom-future-plan');
+
+    await t.tap(find.text('View saved plan'));
+    await t.pumpAndSettle();
+    await enterDate(offset(-2));
+    expect(find.text('Previous Plan'), findsOneWidget);
+    expect(find.text('Previous plan · View only'), findsOneWidget);
+    expect(vm.plan!.dietPlanId, 'started-two-days-ago');
+    expect(vm.plan!.mealsFor(offset(-2)), hasLength(1));
+    expect(vm.canEditDay(offset(-2)), isFalse);
+    expect(env.meals.plans, hasLength(3));
+    await capture?.call(t, 'previous-diet-plan');
+
+    await t.tap(find.text('Back to today'));
+    await t.pumpAndSettle();
+    await expectTodaySelected();
   });
 
   Future<void> showReview(

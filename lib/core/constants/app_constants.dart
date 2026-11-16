@@ -10,6 +10,9 @@ class AppConstants {
   static const int portionMinG = 10;
   static const int portionMaxG = 1000;
 
+  /// Maximum number of days in one scheduled diet plan, including both dates.
+  static const int maxFuturePlanDays = 31;
+
   // ---- AI server (FastAPI) --------------------------------------------------
   /// The AI server on the laptop (Cloudflare tunnel). The tunnel address changes each time it
   /// starts: set the new one in the app (Profile > AI server), or build with
