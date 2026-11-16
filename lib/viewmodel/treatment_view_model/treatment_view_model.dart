@@ -5,6 +5,9 @@ import 'package:physical_treatment_and_health_support_system/viewmodel/base_view
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/constants/exercise_evidence.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/link_service/link_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/progress_projection/progress_projection.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/pose_estimation_service/pose_estimation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/recommendation_service/recommendation.dart';
@@ -53,6 +56,7 @@ class TreatmentViewModel extends BaseViewModel {
   final INotificationRepository? _notifications;
   final LocalNotificationService? _reminders;
   final RiskAssessmentService? _risk;
+  final LinkService _links;
 
   TreatmentViewModel(
     this._repo,
@@ -61,7 +65,8 @@ class TreatmentViewModel extends BaseViewModel {
     this._notifications,
     this._reminders,
     this._risk,
-  ]);
+    LinkService? links,
+  ]) : _links = links ?? LinkService();
 
   List<PlanIssue> _planIssues = const [];
 
@@ -554,6 +559,57 @@ class TreatmentViewModel extends BaseViewModel {
 
   UiState<void> _saving = const Idle();
   UiState<void> get saving => _saving;
+
+  PostureResult? get _result => switch (_analysis) {
+    UiSuccess(:final data) => data,
+    _ => null,
+  };
+
+  /// What research found for the exercise of the result on screen (posture result, 10 Nov).
+  /// Null after a possible fall: safety comes first then.
+  EvidenceGroup? get resultEvidence {
+    final r = _result;
+    if (r == null || r.safetyAlert != null) return null;
+    return ExerciseEvidence.forExercise(_current?.exerciseName);
+  }
+
+  /// The outlook for the result on screen: the scores of the plan so far with this try, the
+  /// estimated finish date and the trend. Null after a possible fall, in testing mode (nothing
+  /// is saved) and without a plan.
+  ProgressProjection? get resultOutlook {
+    final r = _result;
+    final plan = activePlan;
+    if (r == null || r.safetyAlert != null || _testing || plan == null) {
+      return null;
+    }
+    final now = clock();
+    return ProgressProjection.compute(
+      past: [
+        for (final s in _sessions)
+          if (s.postureAccuracy != null && s.completedAt != null)
+            (at: s.completedAt!, accuracy: s.postureAccuracy!),
+        // Below 80% the try is saved on Continue, so it is not in the list yet; 80% or more
+        // was saved already (autoAdvanced).
+        if (!_autoAdvanced) (at: now, accuracy: r.accuracy),
+      ],
+      completedExercises: plan.completedStages,
+      totalExercises: plan.plan.exercises.length,
+      sessionsPerWeek: plan.plan.frequencyPerWeek,
+      now: now,
+      maxTries: AppConstants.triesBeforeMovingOn,
+    );
+  }
+
+  /// Opens the study behind [resultEvidence] in the phone's browser; the message to show when
+  /// no browser took it, else null.
+  Future<String?> openStudy() async {
+    final url = resultEvidence?.source.url;
+    if (url == null) return null;
+    return switch (await _links.open(url)) {
+      Failure(:final message) => message,
+      _ => null,
+    };
+  }
 
   /// The saved tries below 80% of this exercise in a row, counting [s] (1 after the first);
   /// 0 when [s] passed.

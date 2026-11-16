@@ -30,6 +30,7 @@ dependencies:
   health: ^13.1.0
   # M700: check and reduce the meal photo before upload (UC800 C3, C4), pure Dart
   image: ^4.3.0
+  url_launcher: ^6.3.3
 
 dev_dependencies:
   flutter_test:

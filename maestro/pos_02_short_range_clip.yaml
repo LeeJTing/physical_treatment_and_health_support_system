@@ -20,7 +20,17 @@ name: PostureModule_AnalyseExercise_TC002
 - assertVisible: '[\s\S]*Your plan moves on when you score 80% or more, or after 3 tries below 80%\.[\s\S]*'
 - assertVisible: Retry exercise
 - assertVisible: Continue
+- assertVisible: '[\s\S]*0 of 4 exercises done[\s\S]*'
 - takeScreenshot: evidence/pos_02_result
+# The outlook, then the research card, which says why good form matters below 80%
+- scrollUntilVisible:
+    element: '[\s\S]*not a medical prediction[\s\S]*'
+    direction: DOWN
+- takeScreenshot: evidence/pos_02_outlook
+- scrollUntilVisible:
+    element: '[\s\S]*Fix the form first[\s\S]*'
+    direction: DOWN
+- takeScreenshot: evidence/pos_02_research
 - tapOn: Retry exercise
 - extendedWaitUntil:
     visible: Record exercise

@@ -95,6 +95,11 @@
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
         </intent>
+        <!-- Research links on the posture result (url_launcher): Android 11+ must be allowed to find a browser. -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
         <!-- Spoken exercise cues (flutter_tts): Android 11+ must be allowed to find the TTS engine. -->
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE"/>

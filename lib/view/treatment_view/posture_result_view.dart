@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/view/treatment_view/widgets/result_outlook.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/view/planning_view/widgets/planning_widgets.dart';
@@ -80,6 +81,11 @@ class PostureResultView extends StatelessWidget {
         : vm.retriesInARow >= 2
         ? 'You have tried this a few times. Rest now and try again tomorrow.'
         : 'Rest for a minute before you try again.';
+    // Research and outlook (Elwin, 10 Nov): worked out by the ViewModel; null after a possible
+    // fall, and the outlook also in testing mode.
+    final evidence = vm.resultEvidence;
+    final outlook = vm.resultOutlook;
+    final plan = vm.activePlan;
     final page = Scaffold(
       backgroundColor: AppTokens.background,
       body: SafeArea(
@@ -123,6 +129,7 @@ class PostureResultView extends StatelessWidget {
                     track: passing
                         ? AppTokens.goodContainer
                         : AppTokens.cautionContainer,
+                    animate: true,
                   ),
                   const SizedBox(height: 14),
                   Container(
@@ -173,6 +180,15 @@ class PostureResultView extends StatelessWidget {
                       color: AppTokens.textMuted,
                     ),
                   ),
+                  // The reward and the place in the plan, right under the score (15 Nov).
+                  if (!fell && !vm.testing && plan != null) ...[
+                    const SizedBox(height: 16),
+                    PlanProgressDots(
+                      done: plan.completedStages,
+                      total: plan.plan.exercises.length,
+                      celebrate: passing,
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -249,53 +265,56 @@ class PostureResultView extends StatelessWidget {
                 style: const TextStyle(fontSize: 15, color: AppTokens.textBody),
               ),
             ],
-            const SizedBox(height: 20),
-            Row(
-              children: [
-                if (!fell) ...[
-                  Expanded(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        minHeight: AppTokens.minTarget,
-                      ),
-                      child: FilledButton(
-                        onPressed: saving is Loading
-                            ? null
-                            : () => _retry(context),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppTokens.action,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                              AppTokens.radiusButton,
-                            ),
-                          ),
-                          textStyle: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        child: const Text('Retry exercise'),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                ],
+            if (outlook != null) ...[
+              const SizedBox(height: AppTokens.gap),
+              OutlookCard(
+                projection: outlook,
+                sessionsPerWeek: plan!.plan.frequencyPerWeek,
+                planStart: plan.selectedAt,
+                group: evidence,
+              ),
+            ],
+            if (evidence != null) ...[
+              const SizedBox(height: AppTokens.gap),
+              EvidenceCard(
+                group: evidence,
+                passing: passing,
+                onOpenStudy: vm.openStudy,
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+      // Retry and Continue stay at the bottom of the screen (10 Nov): the research and outlook
+      // cards made the page longer, and saving must never need a scroll.
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: AppTokens.background,
+            border: Border(top: BorderSide(color: AppTokens.border)),
+          ),
+          padding: const EdgeInsets.fromLTRB(
+            AppTokens.gutter,
+            12,
+            AppTokens.gutter,
+            12,
+          ),
+          child: Row(
+            children: [
+              if (!fell) ...[
                 Expanded(
                   child: ConstrainedBox(
                     constraints: const BoxConstraints(
                       minHeight: AppTokens.minTarget,
                     ),
-                    child: OutlinedButton(
+                    child: FilledButton(
                       onPressed: saving is Loading
                           ? null
-                          : () => _continue(context),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppTokens.primary,
-                        side: const BorderSide(
-                          color: AppTokens.primary,
-                          width: 1.5,
-                        ),
+                          : () => _retry(context),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTokens.action,
+                        foregroundColor: Colors.white,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                             AppTokens.radiusButton,
@@ -306,19 +325,49 @@ class PostureResultView extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      child: saving is Loading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text('Continue'),
+                      child: const Text('Retry exercise'),
                     ),
                   ),
                 ),
+                const SizedBox(width: 10),
               ],
-            ),
-          ],
+              Expanded(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minHeight: AppTokens.minTarget,
+                  ),
+                  child: OutlinedButton(
+                    onPressed: saving is Loading
+                        ? null
+                        : () => _continue(context),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppTokens.primary,
+                      side: const BorderSide(
+                        color: AppTokens.primary,
+                        width: 1.5,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(
+                          AppTokens.radiusButton,
+                        ),
+                      ),
+                      textStyle: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    child: saving is Loading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Continue'),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
