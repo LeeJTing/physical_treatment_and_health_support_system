@@ -142,6 +142,7 @@ class SupabaseMealRepository implements IMealRepository {
             .eq('plan_type', type.db)
             .lte('start_date', d)
             .gte('end_date', d)
+            .order('start_date', ascending: false)
             .order('generated_at', ascending: false)
             .limit(1)
             .maybeSingle();

@@ -25,3 +25,9 @@ tags: [JT, M700]
 - takeScreenshot: jt-07-photo-review
 - tapOn: Save
 - assertVisible: '(?s)Diet.*Tab 4.*'
+- tapOn: History
+- tapOn: View full meal photo
+- assertVisible: Close photo preview
+- takeScreenshot: jt-07-full-meal-photo
+- tapOn: Close photo preview
+- assertVisible: Dietary history

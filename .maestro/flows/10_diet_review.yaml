@@ -1,5 +1,5 @@
 appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
-name: ACD weekly review and withheld associations
+name: ACD seeded weekly review and meal-reading patterns
 tags: [ACD, M700]
 ---
 - launchApp:
@@ -13,9 +13,14 @@ tags: [ACD, M700]
     direction: DOWN
 - tapOn: '(?s).*Diet review.*'
 - assertVisible: Your recorded week
-- assertVisible: '(?s).*0 of.*elapsed days.*'
+- assertVisible: '(?s).*[1-7] of.*elapsed days.*'
 - takeScreenshot: acd-weekly-review
 - tapOn: Meal & readings
 - assertVisible: Patterns in your records
-- assertVisible: '(?s).*0 paired records.*'
-- takeScreenshot: acd-withheld-patterns
+- assertVisible: '(?s).*Rank association:.*'
+- takeScreenshot: acd-post-meal-pattern
+- scrollUntilVisible:
+    element:
+      text: Recorded sodium and next-morning pressure
+    direction: DOWN
+- takeScreenshot: acd-next-morning-pressure

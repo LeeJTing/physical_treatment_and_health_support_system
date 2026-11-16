@@ -78,7 +78,10 @@ class FakeMealRepository implements IMealRepository {
               !d.isAfter(p.endDate),
         )
         .toList()
-      ..sort((a, b) => a.generatedAt.compareTo(b.generatedAt));
+      ..sort((a, b) {
+        final start = a.startDate.compareTo(b.startDate);
+        return start == 0 ? a.generatedAt.compareTo(b.generatedAt) : start;
+      });
     return Success(match.lastOrNull);
   }
 

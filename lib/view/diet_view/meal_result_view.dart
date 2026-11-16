@@ -167,7 +167,7 @@ class _MealResultViewState extends State<MealResultView> {
           Padding(
             padding: const EdgeInsets.only(top: 10),
             child: Text(
-              keepGroups('Identified with ${(r.confidence * 100).round()}% confidence · model ${r.modelVersion}'),
+              keepGroups('Identified with ${(r.confidence * 100).round()}% confidence'),
               style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
             ),
           ),
@@ -307,8 +307,12 @@ class _ItemCard extends StatelessWidget {
           const SizedBox(height: 8),
           Row(
             children: [
-              const OneLineText('Portion', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
-              const Spacer(),
+              Expanded(
+                child: OneLineText(
+                  item.recognitionDetails == null ? 'Portion' : 'Total weight',
+                  style: const TextStyle(fontSize: 15, color: AppTokens.inkMuted),
+                ),
+              ),
               IconButton.filledTonal(
                 tooltip: 'Smaller portion',
                 onPressed: item.portionSizeG - step < AppConstants.portionMinG
@@ -320,7 +324,9 @@ class _ItemCard extends StatelessWidget {
               SizedBox(
                 width: 104,
                 child: TextButton(
-                  onPressed: () => _typeGrams(context, vm, item),
+                  onPressed: () => item.recognitionDetails == null
+                      ? _typeGrams(context, vm, item)
+                      : MealQuantityDialog.show(context, vm, item),
                   style: TextButton.styleFrom(foregroundColor: AppTokens.ink, padding: EdgeInsets.zero),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -328,7 +334,7 @@ class _ItemCard extends StatelessWidget {
                       Flexible(
                         child: OneLineText(
                           '${item.portionSizeG.round()} g',
-                          semanticsLabel: '${item.portionSizeG.round()} grams, tap to type the weight',
+                          semanticsLabel: '${item.portionSizeG.round()} grams total, tap to edit the weight',
                           alignment: Alignment.center,
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                         ),
@@ -348,10 +354,11 @@ class _ItemCard extends StatelessWidget {
               ),
             ],
           ),
-          OneLineText(
-            'One serving is ${item.food.baseServingG.round()} g · tap the weight to type it',
-            style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted),
-          ),
+          if (item.recognitionDetails == null)
+            OneLineText(
+              'Standard serving: ${item.food.baseServingG.round()} g',
+              style: const TextStyle(fontSize: 12, color: AppTokens.inkMuted),
+            ),
           const SizedBox(height: 8),
           NutrientTable(item.nutrients),
           for (final r in item.verdicts.where((x) => x.verdict != Verdict.suitable))

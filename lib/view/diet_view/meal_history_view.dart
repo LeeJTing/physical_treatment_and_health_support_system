@@ -118,7 +118,7 @@ class _MealHistoryViewState extends State<MealHistoryView> {
             for (final m in e.value)
               MealCard(
                 meal: m,
-                photo: MealPhoto(vm: vm, meal: m),
+                photo: MealPhoto(vm: vm, meal: m, previewOnTap: true),
                 onTap: () => MealDetailsSheet.show(context, vm, m),
                 onDelete: () => _delete(vm, m),
               ),

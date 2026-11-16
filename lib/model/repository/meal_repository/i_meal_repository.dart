@@ -26,6 +26,7 @@ abstract interface class IMealRepository {
   Future<Result<void>> savePlan(DietPlan p);
 
   /// The newest plan of [type] that covers [day], with its planned meals.
+  /// For overlapping ranges, use the latest start date. A newer version wins on the same start.
   Future<Result<DietPlan?>> planFor(String accountId, PlanType type, DateTime day);
 
   /// Saves changed planned meals (locked, replaced, logged) and the plan's adherence rate.

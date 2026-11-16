@@ -39,7 +39,10 @@ Future<DemoEnvironment> startDemo({bool signedIn = true}) async {
     throw StateError('Use --dart-define=E2E_TESTING=true for this isolated test entry point.');
   }
   WidgetsFlutterBinding.ensureInitialized();
-  final env = await DemoEnvironment.create(signedIn: signedIn);
+  final env = await DemoEnvironment.create(
+    signedIn: signedIn,
+    dietFeatures: const bool.fromEnvironment('E2E_MULTI_FOOD'),
+  );
   final authRepo = env.auth, profileRepo = env.profiles;
   final treatmentRepo = env.treatments;
   final notificationRepo = env.notifications;

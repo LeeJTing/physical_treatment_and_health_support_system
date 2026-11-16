@@ -16,7 +16,15 @@ class MealPhoto extends StatefulWidget {
   final MealLog meal;
   final double size;
   final double? height;
-  const MealPhoto({super.key, required this.vm, required this.meal, this.size = 64, this.height});
+  final bool previewOnTap;
+  const MealPhoto({
+    super.key,
+    required this.vm,
+    required this.meal,
+    this.size = 64,
+    this.height,
+    this.previewOnTap = false,
+  });
 
   @override
   State<MealPhoto> createState() => _MealPhotoState();
@@ -44,15 +52,43 @@ class _MealPhotoState extends State<MealPhoto> {
     final Uint8List? bytes = widget.vm.photoOf(widget.meal);
     final radius = BorderRadius.circular(w >= 120 ? 20 : 14);
     if (bytes != null) {
-      return ClipRRect(
-        borderRadius: radius,
-        child: Image.memory(
-          bytes,
-          width: w,
-          height: h,
-          fit: BoxFit.cover,
-          gaplessPlayback: true,
-          semanticLabel: 'Photo of this meal',
+      final photo = Image.memory(
+        bytes,
+        width: w,
+        height: h,
+        fit: BoxFit.cover,
+        gaplessPlayback: true,
+        semanticLabel: 'Photo of this meal',
+        excludeFromSemantics: widget.previewOnTap,
+      );
+      if (!widget.previewOnTap) {
+        return ClipRRect(borderRadius: radius, child: photo);
+      }
+      return Semantics(
+        container: true,
+        button: true,
+        label: 'View full meal photo',
+        child: Material(
+          type: MaterialType.transparency,
+          borderRadius: radius,
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: () => _showPhoto(context, bytes),
+            child: Stack(
+              children: [
+                photo,
+                const Positioned(
+                  right: 4,
+                  bottom: 4,
+                  child: CircleAvatar(
+                    radius: 11,
+                    backgroundColor: Colors.black87,
+                    child: Icon(Icons.zoom_in, size: 16, color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       );
     }
@@ -71,6 +107,43 @@ class _MealPhotoState extends State<MealPhoto> {
           : Icon(Icons.restaurant, size: w * 0.45, color: AppTokens.brandDeepAccent),
     );
   }
+
+  Future<void> _showPhoto(BuildContext context, Uint8List bytes) => showDialog<void>(
+    context: context,
+    useSafeArea: false,
+    builder: (dialogContext) => Dialog.fullscreen(
+      backgroundColor: Colors.black,
+      child: SafeArea(
+        child: Column(
+          children: [
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: IconButton(
+                tooltip: 'Close photo preview',
+                onPressed: () => Navigator.pop(dialogContext),
+                icon: const Icon(Icons.close, color: Colors.white),
+              ),
+            ),
+            Expanded(
+              child: InteractiveViewer(
+                maxScale: 4,
+                child: SizedBox.expand(
+                  child: Image.memory(
+                    bytes,
+                    fit: BoxFit.contain,
+                    semanticLabel: 'Full meal photo',
+                    errorBuilder: (_, _, _) => const Center(
+                      child: Text('Photo could not be opened.', style: TextStyle(color: Colors.white)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 /// A logged meal in full: its photo, each food with its portion and verdict, and the meal's
@@ -111,7 +184,9 @@ class MealDetailsSheet {
                   const SizedBox(height: 12),
                   if (vm.hasPhoto(meal))
                     LayoutBuilder(
-                      builder: (ctx, c) => MealPhoto(vm: vm, meal: meal, size: c.maxWidth, height: 240),
+                      builder: (ctx, c) => MealPhoto(
+                        vm: vm, meal: meal, size: c.maxWidth, height: 240, previewOnTap: true,
+                      ),
                     )
                   else
                     const Text(
