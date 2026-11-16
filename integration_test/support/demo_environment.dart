@@ -9,7 +9,6 @@ import 'package:physical_treatment_and_health_support_system/device_platform/loc
 import 'package:physical_treatment_and_health_support_system/device_platform/notification_scheduler/notification_scheduler.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
-import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/reminder.dart';
