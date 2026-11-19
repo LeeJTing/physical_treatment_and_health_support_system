@@ -59,4 +59,3 @@ provided the render used for layout checks.
 ![diet comparison summary](evidence/diet-comparison-summary.png)
 
 ![diet comparison week](evidence/diet-comparison-week.png)
-
