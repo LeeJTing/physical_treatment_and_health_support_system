@@ -223,7 +223,8 @@ class _WatchImportViewState extends State<WatchImportView> {
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
                 title: const Text('Automatically sync this watch'),
-                subtitle: const Text('Checks every minute while HealthGuide is open and when you return to the app.'),
+                subtitle: const Text('Checks every 15 seconds while HealthGuide is open and when you return to the app. '
+                    'New readings are saved as soon as a check returns them.'),
                 value: _automatic,
                 onChanged: disabled ? null : (value) => setState(() => _automatic = value),
               ),

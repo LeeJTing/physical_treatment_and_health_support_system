@@ -86,6 +86,22 @@ class FakeMealRepository implements IMealRepository {
   }
 
   @override
+  Future<Result<List<DietPlan>>> plansForPeriod(
+    String accountId,
+    DateTime from,
+    DateTime to,
+  ) async => Success(
+    plans
+        .where(
+          (p) =>
+              p.accountId == accountId &&
+              !p.startDate.isAfter(to) &&
+              !p.endDate.isBefore(from),
+        )
+        .toList(),
+  );
+
+  @override
   Future<Result<void>> updatePlan(DietPlan p) async {
     final i = plans.indexWhere((x) => x.dietPlanId == p.dietPlanId);
     if (i >= 0) plans[i] = p;

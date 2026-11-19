@@ -38,14 +38,15 @@ class SupabaseBiometricRepository implements IBiometricRepository {
           keep.add(r);
         }
         if (keep.isEmpty) return 0;
-        await _sb
+        final inserted = await _sb
             .from('biometric_reading')
             .upsert(
               keep.map((r) => r.toJson()).toList(),
               onConflict: 'account_id,metric_type,recorded_at',
               ignoreDuplicates: true,
-            );
-        return keep.length;
+            )
+            .select('reading_id');
+        return inserted.length;
       });
 
   @override

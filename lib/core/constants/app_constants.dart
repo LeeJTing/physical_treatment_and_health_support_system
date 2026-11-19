@@ -171,6 +171,8 @@ class AppConstants {
   /// While the app is open, Health Connect is checked this often for new readings, and again each
   /// time the app comes back to the front, so the patient never has to press Import readings.
   static const Duration autoSyncEvery = Duration(minutes: 1);
+  /// Poll saved watch history while foregrounded; concurrent checks are skipped.
+  static const Duration watchSyncEvery = Duration(seconds: 15);
 
   /// Default and selectable trend ranges (UC700 C1, C13).
   static const int defaultRangeDays = 30;

@@ -78,3 +78,35 @@ is embedded under WATCH-05 in report v27's Actual result cell. Local artifacts:
 rotation settings were restored. No additional physical watch model was tested;
 compatible models require their own acceptance runs. Set `WATCH_TEST_NAME` to the
 exact authorised test watch name when running the native target for another model.
+
+## Tracking inspection, zoom and new imports on 20 November 2026
+
+All **673 Flutter host tests passed**. The graph phone Integration Test passed in
+19 seconds on the HONOR LLY-NX1 with the production Tracking view and disposable
+fixtures. It covered blood pressure, glucose and weight, measured/import dates,
+per-metric reading/import counts, clearing details in gaps, pinch zoom/reset,
+unknown import dates on legacy records and a date range without readings.
+
+Maestro `13_tracking_graph.yaml` passed in 49 seconds. It captured reading detail
+popups for all three metrics, the cleared gap and a zoomed view. An earlier run
+matched a zoom label merged into the accessibility parent; the zoom level now has
+its own semantic container and spoken label. Rotation was restored to 1 / 0.
+Artifacts are local under `build/e2e/tracking-graph-final-2026-11-20/`.
+Phone logs: `build/tracking-graph-device.log`; final host log:
+`build/tracking-graph-full-tests-final.log`. Table 5.22 in report v28 embeds the
+pressure popup and zoom screenshots in the related Actual result cells.
+
+The watch source is polled every 15 seconds while foregrounded, with overlapping
+checks skipped. A simulated-source test returned a new record during scheduled
+checks, verified immediate saving of the returned data, preserved the original
+import time on duplicates and kept the selected past date range. Existing native
+history communication remains covered by the earlier physical-watch runs; this
+graph acceptance used synthetic records and did not establish real new-record
+push delivery or real account cloud persistence.
+
+Migration `20261119130555_biometric_import_time` added nullable `imported_at`;
+existing records retain unknown dates. The remote column, constraint and RLS were
+verified. Repository tests check counts from rows actually returned by the insert,
+including a duplicate race returning zero, and confirm import metadata is omitted
+from analysis inputs. Security advisors remained at the same two pre-existing
+notices. No measurement-accuracy or closed-app background-sync claim is made.

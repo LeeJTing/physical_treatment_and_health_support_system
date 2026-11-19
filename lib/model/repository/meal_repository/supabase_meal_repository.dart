@@ -154,6 +154,36 @@ class SupabaseMealRepository implements IMealRepository {
         return DietPlan.fromJson(row, meals);
       });
 
+  @override
+  Future<Result<List<DietPlan>>> plansForPeriod(
+    String accountId,
+    DateTime from,
+    DateTime to,
+  ) => supabaseGuard(() async {
+    final plans = <DietPlan>[];
+    const pageSize = 200;
+    for (var offset = 0; ; offset += pageSize) {
+      final rows = await _sb
+          .from('diet_plan')
+          .select('*, planned_meal(*, $_foodColumns)')
+          .eq('account_id', accountId)
+          .lte('start_date', to.toIso8601String().substring(0, 10))
+          .gte('end_date', from.toIso8601String().substring(0, 10))
+          .order('start_date', ascending: false)
+          .order('generated_at', ascending: false)
+          .order('diet_plan_id', ascending: true)
+          .range(offset, offset + pageSize - 1);
+      for (final row in rows) {
+        final meals = ((row['planned_meal'] as List?) ?? const []).map((m) {
+          final value = Map<String, dynamic>.from(m as Map);
+          return PlannedMeal.fromJson(value, _food(value['food_item'] as Map));
+        }).toList();
+        plans.add(DietPlan.fromJson(row, meals));
+      }
+      if (rows.length < pageSize) return plans;
+    }
+  });
+
   /// Replaces the plan's planned meals with the current list and updates the adherence rate.
   @override
   Future<Result<void>> updatePlan(DietPlan p) => supabaseGuard(() async {

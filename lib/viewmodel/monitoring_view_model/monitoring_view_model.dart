@@ -260,19 +260,24 @@ class MonitoringViewModel extends BaseViewModel {
   }
 
   Timer? _autoSync;
+  Timer? _watchPoll;
 
   /// Keeps the connected health sources in step while the app is open: an import every
   /// [AppConstants.autoSyncEvery] and one at once (call [syncNow] again when the app returns to
   /// the front). Quiet: a SnackBar only when new readings arrived. Started by the app shell.
-  void startAutoSync({Duration every = AppConstants.autoSyncEvery}) {
+  void startAutoSync({Duration every = AppConstants.autoSyncEvery, Duration watchEvery = AppConstants.watchSyncEvery}) {
     _autoSync?.cancel();
+    _watchPoll?.cancel();
     _autoSync = Timer.periodic(every, (_) => syncNow());
+    _watchPoll = Timer.periodic(watchEvery, (_) => syncWatch());
     syncNow();
   }
 
   void stopAutoSync() {
     _autoSync?.cancel();
     _autoSync = null;
+    _watchPoll?.cancel();
+    _watchPoll = null;
   }
 
   /// One quiet import from each connected health source.
@@ -347,7 +352,7 @@ class MonitoringViewModel extends BaseViewModel {
         return 0;
       }
       final since = lastSync?.subtract(const Duration(minutes: 5)) ?? _now().subtract(const Duration(days: 90));
-      final read = await _healthSource.readRecords(id, since, until: _now());
+      final read = await _healthSource.readRecords(id, since, until: _now(), importedAt: _now());
       if (read is Failure) {
         _message = Messages.importFailed; // E3
         return 0;
@@ -367,7 +372,7 @@ class MonitoringViewModel extends BaseViewModel {
             : 'Imported $n reading${n == 1 ? '' : 's'} from Health Connect.';
       }
       // The trend only changes when something new came in (auto sync runs every minute).
-      if (n > 0 || !quiet) await loadRange(rangeStart, _now(), days: rangeDays);
+      if (n > 0 || !quiet) await loadRange(rangeStart, rangeDays == null ? rangeEnd : _now(), days: rangeDays);
       return n;
     } finally {
       importing = false;
@@ -387,6 +392,7 @@ class MonitoringViewModel extends BaseViewModel {
     importing = true;
     notifyListeners();
     try {
+      final importedAt = _now();
       final readings = <BiometricReading>[
         for (final row in history.readings)
           if (row.metric == MetricType.bloodPressure.db ||
@@ -402,6 +408,7 @@ class MonitoringViewModel extends BaseViewModel {
               source: ReadingSource.imported,
               sourceDevice: history.deviceName,
               recordedAt: row.at,
+              importedAt: importedAt,
             ),
       ].where((r) => r.isPlausible() && r.isValidBloodPressure() && !r.isFutureDated(_now())).toList();
       final result = await _repo.insertBatch(readings);
@@ -415,7 +422,7 @@ class MonitoringViewModel extends BaseViewModel {
             ? 'No new watch readings to import.'
             : 'Imported $count watch reading${count == 1 ? '' : 's'}.';
       }
-      if (count > 0 || !quiet) await loadRange(rangeStart, _now(), days: rangeDays);
+      if (count > 0 || !quiet) await loadRange(rangeStart, rangeDays == null ? rangeEnd : _now(), days: rangeDays);
       return count;
     } finally {
       importing = false;
@@ -467,11 +474,12 @@ class MonitoringViewModel extends BaseViewModel {
   Future<void> syncWatch({bool quiet = true}) async {
     if (watchSyncing || watchSetupOpen || importing || isDisposed) return;
     final id = _accountId;
-    if (id == null || (await _auth.currentAccount()).dataOrNull?.accountId != id) return;
+    if (id == null) return;
     watchSyncing = true;
     final generation = _watchGeneration;
     notifyListeners();
     try {
+      if ((await _auth.currentAccount()).dataOrNull?.accountId != id) return;
       await restoreWatch();
       final connection = watchConnection;
       if (connection == null || isDisposed || generation != _watchGeneration) return;

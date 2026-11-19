@@ -30,8 +30,11 @@ void main() {
     expect(await vm.importWatchHistory(history), 2);
     final saved = env.biometrics.readings.first;
     expect(BiometricReading.fromJson(saved.toJson()).sourceDevice, 'KS02 Pro');
+    expect(saved.importedAt, isNotNull);
+    expect(BiometricReading.fromJson(saved.toJson()).importedAt, saved.importedAt);
     expect(await vm.importWatchHistory(history), 0);
     expect(env.biometrics.readings, hasLength(2));
+    expect(env.biometrics.readings.first.importedAt, saved.importedAt);
     expect(env.biometrics.sources, isEmpty);
     await env.auth.signOut();
     expect(await vm.importWatchHistory(history), isNull);
@@ -95,6 +98,54 @@ void main() {
     expect(source.connections, isEmpty);
   });
 
+  test('watch polling imports new records with their first import time and never overlaps reads', () async {
+    final env = await DemoEnvironment.create();
+    env.biometrics.readings.clear();
+    var clock = DateTime.now();
+    final measured = clock.subtract(const Duration(hours: 1));
+    final original = WatchHistory('Demo watch', [HealthRecord('BLOOD_GLUCOSE', 5.8, measured)]);
+    final source = _WatchSource(original);
+    final vm = MonitoringViewModel(
+      env.biometrics,
+      HealthConnectService(env.health),
+      env.auth,
+      env.treatments,
+      null,
+      () => clock,
+      source,
+    );
+    addTearDown(vm.dispose);
+    await vm.load();
+    await vm.enableWatchSync(const WatchDevice('AA:BB:CC:DD:EE:FF', 'Demo watch'), '0000', original);
+    final firstImport = env.biometrics.readings.single.importedAt;
+    await vm.loadRange(clock.subtract(const Duration(days: 3)), clock.subtract(const Duration(days: 2)));
+    final selectedEnd = vm.rangeEnd;
+    source.pending = Completer<WatchHistory>();
+    vm.startAutoSync(every: const Duration(hours: 1), watchEvery: const Duration(milliseconds: 5));
+    await Future<void>.delayed(const Duration(milliseconds: 30));
+    expect(source.reads, 1);
+    final inFlight = source.pending!;
+    source.pending = null;
+    inFlight.complete(original);
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    clock = clock.add(const Duration(minutes: 1));
+    source.history = WatchHistory('Demo watch', [
+      ...original.readings,
+      HealthRecord('BLOOD_GLUCOSE', 6.1, measured.add(const Duration(minutes: 15))),
+    ]);
+    await Future<void>.delayed(const Duration(milliseconds: 35));
+    vm.stopAutoSync();
+    expect(env.biometrics.readings, hasLength(2));
+    expect(env.biometrics.readings.first.importedAt, firstImport);
+    expect(env.biometrics.readings.last.importedAt, clock);
+    expect(vm.rangeEnd, selectedEnd);
+    expect(vm.data!.readings, isEmpty);
+    expect(vm.watchSyncing, isFalse);
+    final reads = source.reads;
+    await Future<void>.delayed(const Duration(milliseconds: 15));
+    expect(source.reads, reads);
+  });
+
   test('disconnecting during a read discards the late response', () async {
     final env = await DemoEnvironment.create();
     env.biometrics.readings.clear();
@@ -127,7 +178,7 @@ void main() {
 }
 
 class _WatchSource extends VeepooWatchSource {
-  final WatchHistory history;
+  WatchHistory history;
   final connections = <String, WatchConnection>{};
   int reads = 0;
   bool failNext = false;
