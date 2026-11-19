@@ -159,9 +159,6 @@ class AppConstants {
     MetricType.bodyWeight => (bodyWeightMin, bodyWeightMax),
   };
 
-  /// An imported reading within 5 minutes of a stored one is a duplicate (UC700 C11).
-  static const Duration duplicateWindow = Duration(minutes: 5);
-
   /// No successful import for this long: the patient is told (UC700 C12, FR200_013).
   static const Duration importOverdueAfter = Duration(hours: 24);
 

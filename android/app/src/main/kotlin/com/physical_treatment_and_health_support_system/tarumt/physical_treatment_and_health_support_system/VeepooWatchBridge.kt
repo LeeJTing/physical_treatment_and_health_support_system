@@ -260,6 +260,9 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
             return
         }
         val rows = linkedMapOf<String, Map<String, Any>>()
+        var originRows = 0
+        var manualPressureRows = 0
+        var manualGlucoseRows = 0
         fun add(at: Long, systolic: Int, diastolic: Int) {
             if (systolic <= 0 || diastolic <= 0) return
             rows["BLOOD_PRESSURE:$at"] = mapOf("at" to at, "metric" to "BLOOD_PRESSURE", "value" to systolic, "secondary" to diastolic)
@@ -269,6 +272,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
             rows["BLOOD_GLUCOSE:$at"] = mapOf("at" to at, "metric" to "BLOOD_GLUCOSE", "value" to value)
         }
         fun addOrigin(data: OriginData) {
+            originRows++
             try {
                 val time = data.getmTime()
                 val at = LocalDate.parse(data.date).atTime(time.hour, time.minute)
@@ -282,6 +286,14 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
         }
         fun finish() = complete(mapOf(
             "deviceName" to name,
+            "diagnostics" to mapOf(
+                "manualHistorySupported" to info.isSupportReadDeviceManual,
+                "manualTypes" to if (info.isSupportReadDeviceManual) info.supportReadDeviceManual.map { it.name } else emptyList<String>(),
+                "originProtocolVersion" to info.originProtocolVersion,
+                "originRows" to originRows,
+                "manualPressureRows" to manualPressureRows,
+                "manualGlucoseRows" to manualGlucoseRows
+            ),
             "readings" to rows.values.sortedBy { it["at"] as Long },
             "supportedTypes" to buildList {
                 if (info.isSupportBp) add("BLOOD_PRESSURE")
@@ -305,6 +317,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
                 override fun onBloodPressureDataChange(data: MutableList<BloodPressureManualData>) {
                     handler.post {
                         if (current == generation && pending != null) {
+                            manualPressureRows += data.size
                             for (row in data) add(row.timeStamp.toLong() * 1000, row.systolic, row.diastolic)
                         }
                     }
@@ -312,6 +325,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
                 override fun onBloodGlucoseDataChange(data: MutableList<BloodGlucoseManualData>) {
                     handler.post {
                         if (current == generation && pending != null) {
+                            manualGlucoseRows += data.size
                             for (row in data) addGlucose(row.timeStamp.toLong() * 1000, row.bloodGlucoseValue.toDouble())
                         }
                     }

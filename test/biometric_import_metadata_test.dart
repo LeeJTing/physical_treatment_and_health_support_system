@@ -63,7 +63,7 @@ void main() {
         inserted,
         reason: result is Failure<int> ? '${result.cause} (requests: ${requests.length})' : null,
       );
-      expect(requests.map((r) => r.method), ['GET', 'POST']);
+      expect(requests.map((r) => r.method), ['POST']);
     });
   }
 }

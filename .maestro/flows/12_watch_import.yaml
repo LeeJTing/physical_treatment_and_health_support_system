@@ -42,7 +42,7 @@ tags: [M200, LiveWatch]
 - takeScreenshot: watch-auto-connected
 - tapOn: Sync watch now
 - extendedWaitUntil:
-    visible: '(?s).*(Up to date[.]|Synced [1-9][0-9]* new readings?[.]).*'
+    visible: '(?s).*(No new saved watch records[.]|Synced [1-9][0-9]* new readings?[.]).*'
     timeout: 100000
 - takeScreenshot: watch-auto-synced
 - scrollUntilVisible:

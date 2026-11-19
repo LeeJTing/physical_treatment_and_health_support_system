@@ -131,7 +131,7 @@ void main() {
     clock = clock.add(const Duration(minutes: 1));
     source.history = WatchHistory('Demo watch', [
       ...original.readings,
-      HealthRecord('BLOOD_GLUCOSE', 6.1, measured.add(const Duration(minutes: 15))),
+      HealthRecord('BLOOD_GLUCOSE', 6.1, measured.add(const Duration(minutes: 1))),
     ]);
     await Future<void>.delayed(const Duration(milliseconds: 35));
     vm.stopAutoSync();
