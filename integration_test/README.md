@@ -91,7 +91,7 @@ The watch import screen requests Nearby devices access on Android 12 and later.
 In Tracking, choose **Import from watch**, **Find my watch**, then your watch.
 Review the saved dates and values, then tap **Connect and sync automatically**.
 HealthGuide remembers the connection for the signed-in account, checks every
-minute while the app is open and checks again when the app returns to the
+15 seconds while the app is open and checks again when the app returns to the
 foreground. The watch PIN is kept in an encrypted Android Keystore connection
 store. **Disconnect watch** stops future automatic checks for that account.
 The record list identifies the source watch and labels its values as watch estimates.
@@ -117,3 +117,26 @@ It verifies direct SDK communication, restoration of the saved connection,
 scheduled automatic reconnection and duplicate rejection. A synthetic weight
 record checks the Health Connect path in the same test. The native screen journey is in `12_watch_import.yaml` and
 should be run explicitly with the physical watch available.
+
+### Tracking graph inspection and zoom
+
+The graph acceptance target uses the production Tracking view with disposable
+blood pressure, glucose and weight records. Each metric has three dated readings,
+two imported with a known import time and one manual entry. It checks the value
+popup, clearing it in a gap, switching metrics, pinch zoom/reset, legacy unknown
+import times and an empty date range. It does not read the real watch or cloud.
+
+```powershell
+flutter test integration_test/tracking_graph_test.dart -d YOUR_DEVICE --dart-define=E2E_TESTING=true
+flutter build apk --debug -t tool/e2e_tracking_graph_app.dart --dart-define=E2E_TESTING=true
+# Install only the verified .e2e APK, then run this explicit flow:
+maestro --device YOUR_DEVICE test .maestro/flows/13_tracking_graph.yaml --driver-host-port 7001
+```
+
+The Maestro flow records pressure/glucose/weight detail popups, a cleared gap and
+the zoomed graph. It is excluded from the default flows because it needs this
+separate graph fixture target. New-record polling, serialization and preserving
+the first import time on duplicate checks are covered by `watch_import_test.dart`.
+The app checks saved watch history every 15 seconds while foregrounded, serializes
+reads and saves new returned records immediately. This is polling, without an
+instant blood-pressure/glucose push notification or closed-app background service.

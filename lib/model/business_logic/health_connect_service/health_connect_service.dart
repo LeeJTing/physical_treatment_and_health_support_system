@@ -89,6 +89,7 @@ class HealthConnectService {
     String accountId,
     DateTime since, {
     DateTime? until,
+    DateTime? importedAt,
   }) async {
     try {
       if (!await _source.hasRead()) {
@@ -96,6 +97,7 @@ class HealthConnectService {
       }
       final recs = await _source.read(since, until ?? DateTime.now());
       final out = <BiometricReading>[];
+      final imported = importedAt ?? DateTime.now();
       for (final r in recs) {
         final m = MetricType.fromDb(r.metric);
         final reading = BiometricReading(
@@ -108,6 +110,7 @@ class HealthConnectService {
           measurementContext: m == MetricType.bloodGlucose ? MeasurementContext.random : null,
           source: ReadingSource.imported,
           recordedAt: r.at.toLocal(),
+          importedAt: imported,
         );
         if (reading.isPlausible() && reading.isValidBloodPressure() && !reading.isFutureDated()) {
           out.add(reading);
