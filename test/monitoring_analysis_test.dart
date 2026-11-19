@@ -95,8 +95,9 @@ void main() {
       expect(bp(now, 128, 82).display(), '128/82 mmHg');
     });
 
-    test('an import within 5 minutes of a stored reading is a duplicate (C11)', () {
-      expect(bp(now, 120, 80).duplicates(bp(now.add(const Duration(minutes: 4)), 121, 80)), isTrue);
+    test('imports retain nearby measurements and reject only the same original timestamp', () {
+      expect(bp(now, 120, 80).duplicates(bp(now, 120, 80)), isTrue);
+      expect(bp(now, 120, 80).duplicates(bp(now.add(const Duration(minutes: 4)), 121, 80)), isFalse);
       expect(bp(now, 120, 80).duplicates(bp(now.add(const Duration(minutes: 6)), 121, 80)), isFalse);
     });
 
@@ -151,13 +152,14 @@ void main() {
     test('Health Connect import: permission, duplicates discarded, sync time recorded (FR200_009 to FR200_012)', () async {
       await readings.insert(bp(now.subtract(const Duration(hours: 2)), 130, 85));
       source.records.addAll([
-        HealthRecord('BLOOD_PRESSURE', 131, now.subtract(const Duration(hours: 2, minutes: 3)), secondary: 86), // duplicate
+        HealthRecord('BLOOD_PRESSURE', 131, now.subtract(const Duration(hours: 2, minutes: 3)), secondary: 86), // separate measurement
+        HealthRecord('BLOOD_PRESSURE', 131, now.subtract(const Duration(hours: 2, minutes: 3)), secondary: 86), // exact retry
         HealthRecord('BLOOD_PRESSURE', 125, now.subtract(const Duration(hours: 30)), secondary: 80),
         HealthRecord('BODY_WEIGHT', 71.2, now.subtract(const Duration(hours: 5))),
         HealthRecord('BODY_WEIGHT', 900, now.subtract(const Duration(hours: 6))), // implausible
       ]);
       expect(await vm.connect(), isTrue);
-      expect(readings.readings.where((r) => r.source == ReadingSource.imported), hasLength(2));
+      expect(readings.readings.where((r) => r.source == ReadingSource.imported), hasLength(3));
       expect(vm.connected, isTrue);
       expect(vm.lastSync, now);
     });

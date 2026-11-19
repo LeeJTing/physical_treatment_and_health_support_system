@@ -63,13 +63,12 @@ class BiometricReading {
 
   /// Account, metric and timestamp: an import with the same key is a duplicate (FR200_011).
   String duplicateKey() =>
-      '$accountId|${metricType.db}|${recordedAt.toUtc().millisecondsSinceEpoch}';
+      '$accountId|${metricType.db}|${recordedAt.toUtc().microsecondsSinceEpoch}';
 
-  /// Within 5 minutes of [other] for the same metric (UC700 C11).
+  /// A retry of the same account, metric and original measurement timestamp.
+  /// Nearby measurements remain separate, even when their values are identical.
   bool duplicates(BiometricReading other) =>
-      other.metricType == metricType &&
-      other.recordedAt.difference(recordedAt).abs() <=
-          AppConstants.duplicateWindow;
+      duplicateKey() == other.duplicateKey();
 
   /// Formatted value with units, e.g. "128/82 mmHg".
   String display() => switch (metricType) {

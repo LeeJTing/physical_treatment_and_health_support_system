@@ -497,7 +497,7 @@ class MonitoringViewModel extends BaseViewModel {
       await watchSource.markSynced(id, at);
       if (!isDisposed && generation == _watchGeneration) {
         watchConnection = WatchConnection(connection.device, at);
-        watchSyncMessage = count == 0 ? 'Up to date.' : 'Synced $count new reading${count == 1 ? '' : 's'}.';
+        watchSyncMessage = count == 0 ? 'No new saved watch records.' : 'Synced $count new reading${count == 1 ? '' : 's'}.';
       }
     } catch (_) {
       if (!isDisposed && generation == _watchGeneration) {

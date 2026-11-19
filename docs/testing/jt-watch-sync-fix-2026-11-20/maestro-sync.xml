@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="AWJC6R4B05000630" tests="1" failures="0" time="45.998" timestamp="2026-11-20T02:05:33">
+    <testcase id="Watch sync fix" name="Watch sync fix" classname="Watch sync fix" file="build\watch-sync-diagnostic-2026-11-20\verify-normal-watch.yaml" time="45.988" timestamp="2026-11-20T02:05:33" status="SUCCESS"/>
+  </testsuite>
+</testsuites>

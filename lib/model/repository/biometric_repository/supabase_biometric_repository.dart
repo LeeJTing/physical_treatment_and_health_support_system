@@ -16,32 +16,20 @@ class SupabaseBiometricRepository implements IBiometricRepository {
     await _sb.from('biometric_reading').insert(r.toJson());
   });
 
-  /// The unique index on (account, metric, recorded_at) rejects an exact duplicate; readings within
-  /// 5 minutes of a stored one are dropped here first (UC700 C11).
+  /// The unique index on (account, metric, recorded_at) makes retries idempotent.
+  /// A new timestamp is a separate measurement, not a five-minute duplicate.
   @override
   Future<Result<int>> insertBatch(List<BiometricReading> rs) =>
       supabaseGuard(() async {
         if (rs.isEmpty) return 0;
-        final sorted = [...rs]..sort((a, b) => a.recordedAt.compareTo(b.recordedAt));
-        final from = sorted.first.recordedAt.subtract(const Duration(minutes: 5));
-        final to = sorted.last.recordedAt.add(const Duration(minutes: 5));
-        final stored = (await _sb
-                .from('biometric_reading')
-                .select()
-                .gte('recorded_at', from.toUtc().toIso8601String())
-                .lte('recorded_at', to.toUtc().toIso8601String()))
-            .map(BiometricReading.fromJson)
-            .toList();
-        final keep = <BiometricReading>[];
-        for (final r in sorted) {
-          if (stored.any(r.duplicates) || keep.any(r.duplicates)) continue;
-          keep.add(r);
+        final unique = <String, BiometricReading>{};
+        for (final r in rs) {
+          unique.putIfAbsent(r.duplicateKey(), () => r);
         }
-        if (keep.isEmpty) return 0;
         final inserted = await _sb
             .from('biometric_reading')
             .upsert(
-              keep.map((r) => r.toJson()).toList(),
+              unique.values.map((r) => r.toJson()).toList(),
               onConflict: 'account_id,metric_type,recorded_at',
               ignoreDuplicates: true,
             )
