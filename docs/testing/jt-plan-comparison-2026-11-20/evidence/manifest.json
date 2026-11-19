@@ -1,0 +1,32 @@
+[
+  {
+    "file": "diet-comparison-meal-details.png",
+    "sha256": "a080e3b8b306739e6c6adaebd9359409ce0f0ee13781ffd9654543226b903dc7",
+    "source": "build\\e2e\\plan-comparison-final6-2026-11-20\\maestro\\2026-11-20_012517\\Planned meals compared with food logs\\takeScreenshot\\diet-comparison-meal-details.png"
+  },
+  {
+    "file": "diet-comparison-nutrients.png",
+    "sha256": "7ff59ba0e7ac5eca09eda82d04f43dd4123b1d401021d0c9bf8b1c18a6ad77f5",
+    "source": "build\\e2e\\plan-comparison-final6-2026-11-20\\maestro\\2026-11-20_012517\\Planned meals compared with food logs\\takeScreenshot\\diet-comparison-nutrients.png"
+  },
+  {
+    "file": "diet-comparison-patterns.png",
+    "sha256": "b5a18c1ca53d6ffd1ffc8265d42d30c04e9588ef909c21fdb09c0b44de2d6ade",
+    "source": "build\\e2e\\plan-comparison-final6-2026-11-20\\maestro\\2026-11-20_012517\\Planned meals compared with food logs\\takeScreenshot\\diet-comparison-patterns.png"
+  },
+  {
+    "file": "diet-comparison-previous-week.png",
+    "sha256": "15435bdf1608217e266d74defbc128788605b3864de6724a0511ffaa1c68c634",
+    "source": "build\\e2e\\plan-comparison-final6-2026-11-20\\maestro\\2026-11-20_012517\\Planned meals compared with food logs\\takeScreenshot\\diet-comparison-previous-week.png"
+  },
+  {
+    "file": "diet-comparison-summary.png",
+    "sha256": "3498b11e9544ffb5dabb0c844d84e2f7dac169afcfeb019d6b6dbf7282670da3",
+    "source": "build\\e2e\\plan-comparison-final6-2026-11-20\\maestro\\2026-11-20_012517\\Planned meals compared with food logs\\takeScreenshot\\diet-comparison-summary.png"
+  },
+  {
+    "file": "diet-comparison-week.png",
+    "sha256": "fc20cb74c74c684aaa9e40173e79281518b9c23989c270b20c5609583db873a7",
+    "source": "build\\e2e\\plan-comparison-final6-2026-11-20\\maestro\\2026-11-20_012517\\Planned meals compared with food logs\\takeScreenshot\\diet-comparison-week.png"
+  }
+]

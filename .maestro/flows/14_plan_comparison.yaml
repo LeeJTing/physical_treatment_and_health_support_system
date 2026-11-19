@@ -1,0 +1,64 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: Planned meals compared with food logs
+tags: [M700, PlanComparison]
+---
+# Requires tool/e2e_plan_comparison_app.dart with E2E_TESTING=true.
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- tapOn: '(?s).*Plan comparison.*'
+- assertVisible: '(?s).*14 meals compared.*'
+- assertVisible: '(?s).*4 close to plan · 10 with changes.*'
+- takeScreenshot: diet-comparison-summary
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Plan vs log.*'
+    direction: DOWN
+    centerElement: true
+- scrollUntilVisible:
+    element:
+      text: Show all 6 nutrients
+    direction: DOWN
+- takeScreenshot: diet-comparison-nutrients
+- tapOn: Show all 6 nutrients
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Protein.*'
+    direction: DOWN
+- assertVisible: '(?s).*Fat.*'
+- scrollUntilVisible:
+    element:
+      id: compare-day-1
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: compare-day-1
+- assertVisible:
+    id: comparison-day-values
+- takeScreenshot: diet-comparison-week
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Added: Teh tarik · 5 compared meals..*'
+    direction: DOWN
+- assertVisible: '(?s).*Added: Teh tarik · 5 compared meals..*'
+- takeScreenshot: diet-comparison-patterns
+- scrollUntilVisible:
+    element:
+      text: '(?s)Dinner.*'
+    direction: DOWN
+- tapOn: '(?s)Dinner.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*Added Teh tarik: 250 g..*'
+    direction: DOWN
+    centerElement: true
+- assertVisible: '(?s).*Tofu was planned but is not in this log..*'
+- assertVisible: '(?s).*Logged − planned.*'
+- takeScreenshot: diet-comparison-meal-details
+- tapOn: Previous week
+- waitForAnimationToEnd
+- extendedWaitUntil:
+    visible: '(?s).*21 meals compared.*'
+    timeout: 15000
+- takeScreenshot: diet-comparison-previous-week

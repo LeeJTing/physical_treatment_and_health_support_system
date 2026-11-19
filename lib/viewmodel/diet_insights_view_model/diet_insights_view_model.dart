@@ -1,10 +1,10 @@
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_insights_service/diet_insights_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_insights_service/plan_comparison_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/diet_insights.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/diet_plan.dart';
-import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/safety_limit.dart';
@@ -78,20 +78,16 @@ class DietInsightsViewModel extends BaseViewModel {
       ).subtract(const Duration(microseconds: 1));
       final end = now.isBefore(weekEnd) ? now : weekEnd;
       final from = DateTime(end.year, end.month, end.day - 27);
-      final jobs = [
-        for (var i = 0; i < 7; i++)
-          for (final type in [PlanType.daily, PlanType.weekly])
-            (
-              date: DateTime(selected.year, selected.month, selected.day + i),
-              type: type,
-            ),
-      ];
+      final planFrom = DateTime(
+        selected.year,
+        selected.month,
+        selected.day - 7,
+      );
       final results = await Future.wait<Object>([
         _meals.findMeals(account.accountId, from, end),
         _readings.findBetween(account.accountId, from, end),
         _risk.retrieve(),
-        for (final job in jobs)
-          _meals.planFor(account.accountId, job.type, job.date),
+        _meals.plansForPeriod(account.accountId, planFrom, weekEnd),
       ]);
       if (isDisposed || request != _generation) return;
       // A response started for a previous session must never be displayed after an account change.
@@ -112,13 +108,16 @@ class DietInsightsViewModel extends BaseViewModel {
           ? DietContext(limit: SafetyLimit.mostRestrictive(), failSafe: true)
           : DietContext.from(profile.dataOrNull!);
       final plans = <DateTime, DietPlan>{};
-      var plansAvailable = true;
-      for (var i = 0; i < jobs.length; i += 2) {
-        final daily = results[i + 3] as Result<DietPlan?>,
-            weekly = results[i + 4] as Result<DietPlan?>;
-        if (daily is Failure || weekly is Failure) plansAvailable = false;
-        final p = daily.dataOrNull ?? weekly.dataOrNull;
-        if (p != null) plans[jobs[i].date] = p;
+      final savedPlans = results[3] as Result<List<DietPlan>>;
+      final plansAvailable = savedPlans is Success;
+      for (var i = 0; i < 14; i++) {
+        final date = DateTime(planFrom.year, planFrom.month, planFrom.day + i);
+        final p = PlanComparisonService.selectPlan(
+          savedPlans.dataOrNull ?? [],
+          account.accountId,
+          date,
+        );
+        if (p != null) plans[date] = p;
       }
       notices = [
         'Only recorded meals are included. No log does not mean no food was eaten; days with fewer than three main meals may be incomplete.',

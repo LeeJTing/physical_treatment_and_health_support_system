@@ -140,3 +140,27 @@ the first import time on duplicate checks are covered by `watch_import_test.dart
 The app checks saved watch history every 15 seconds while foregrounded, serializes
 reads and saves new returned records immediately. This is polling, without an
 instant blood-pressure/glucose push notification or closed-app background service.
+
+### Planned and logged meal comparison
+
+The comparison fixture uses the production Diet review with disposable plans and
+meal logs for 9–22 November 2026. Its current week has 14 comparable meal slots:
+four close matches, five portion changes and five food changes. One missing log,
+six future slots and an extra snack remain separate. The previous week has 21
+compared meals. The report does not infer intake from missing records.
+
+```powershell
+flutter test test/plan_comparison_test.dart test/plan_comparison_repository_test.dart test/plan_comparison_widget_test.dart
+flutter test integration_test/plan_comparison_test.dart -d YOUR_DEVICE --dart-define=E2E_TESTING=true
+flutter build apk --debug -t tool/e2e_plan_comparison_app.dart --dart-define=E2E_TESTING=true
+# Verify the built package ends in .e2e before installing it.
+maestro --device YOUR_DEVICE test .maestro/flows/14_plan_comparison.yaml --driver-host-port 7001
+```
+
+Flow 14 needs its own fixture target and is excluded from the default suite.
+It captures the matching diagram, nutrient bars, selected-day graph, repeated
+changes, meal details and previous week. Core comparison values use saved
+snapshots; planned macros use current catalogue estimates. Plans saved after
+any log in a slot are reference only. Existing plan edits are not versioned.
+The queries reuse existing authenticated Supabase access; there is no new
+analysis provider or database migration.
