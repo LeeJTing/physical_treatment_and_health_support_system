@@ -56,4 +56,10 @@ flutter {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
+    implementation(fileTree("libs/veepoo") { include("*.aar") })
+    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("no.nordicsemi.android.support.v18:scanner:1.4.2")
+    implementation("no.nordicsemi.android:mcumgr-core:2.7.4")
+    implementation("no.nordicsemi.android:mcumgr-ble:2.7.4")
+    implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
 }

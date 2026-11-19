@@ -81,3 +81,21 @@ the device date on each new launch.
 
 All readings, meals and photo results in this APK are synthetic. The sample photo
 exercises the review and save flow with a scripted response.
+
+### Test a real K202 Pro or KS02 Pro
+
+Close H Band and keep the watch close to the phone. The isolated test app can read
+the watch over Bluetooth and save reviewed records in its disposable repositories.
+The watch import screen requests Nearby devices access on Android 12 and later.
+In Tracking, choose **Import from watch**, **Find my watch**, then your watch.
+Review the saved dates and blood pressure values before tapping **Import these readings**.
+The record list identifies the source watch and labels its values as watch estimates.
+
+```powershell
+flutter test integration_test/watch_device_test.dart -d YOUR_DEVICE --dart-define=E2E_TESTING=true --reporter expanded
+```
+
+This acceptance test requires at least one valid stored blood pressure reading.
+It verifies direct SDK communication, source labels and rejection of a second
+identical import. The native screen journey is in `12_watch_import.yaml` and
+should be run explicitly with the physical watch available.

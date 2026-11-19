@@ -1,0 +1,34 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: KS02 Pro live Bluetooth history and review
+tags: [M200, LiveWatch]
+---
+# Run only with the real KS02/K202 nearby, H Band closed and Nearby devices allowed.
+- launchApp
+- tapOn: '(?s)Tracking.*'
+- scrollUntilVisible:
+    element:
+      text: Import from watch
+    direction: DOWN
+- tapOn: Import from watch
+- assertVisible: K202 Pro / KS02 Pro
+- takeScreenshot: watch-import-start
+- tapOn: Find my watch
+- extendedWaitUntil:
+    visible: '(?s)KS02 Pro.*'
+    timeout: 20000
+- tapOn: '(?s)KS02 Pro.*'
+- extendedWaitUntil:
+    visible: '(?s).* · [1-9][0-9]* saved records'
+    timeout: 100000
+- takeScreenshot: watch-blood-pressure-preview
+- scrollUntilVisible:
+    element:
+      text: Import these readings
+    direction: DOWN
+- tapOn: Import these readings
+- assertVisible: '(?s).*Imported [1-9].*watch reading.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*KS02 Pro.*Watch estimate.*'
+    direction: DOWN
+- takeScreenshot: watch-imported-history

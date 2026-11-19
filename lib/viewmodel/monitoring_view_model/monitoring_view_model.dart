@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:physical_treatment_and_health_support_system/device_platform/wearable/veepoo_watch_source.dart';
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/health_connect_service/health_connect_service.dart';
@@ -357,6 +358,46 @@ class MonitoringViewModel extends BaseViewModel {
       // The trend only changes when something new came in (auto sync runs every minute).
       if (n > 0 || !quiet) await loadRange(rangeStart, _now(), days: rangeDays);
       return n;
+    } finally {
+      importing = false;
+      notifyListeners();
+    }
+  }
+
+  /// Saves reviewed watch records through the same validation and duplicate checks as imports.
+  Future<int?> importWatchHistory(WatchHistory history) async {
+    if (importing) return null;
+    final id = _accountId;
+    if (id == null || (await _auth.currentAccount()).dataOrNull?.accountId != id) {
+      _message = Messages.sessionExpired;
+      notifyListeners();
+      return null;
+    }
+    importing = true;
+    notifyListeners();
+    try {
+      final readings = [
+        for (final row in history.readings)
+          BiometricReading(
+            readingId: newId(),
+            accountId: id,
+            metricType: MetricType.bloodPressure,
+            primaryValue: row.systolic,
+            secondaryValue: row.diastolic,
+            source: ReadingSource.imported,
+            sourceDevice: history.deviceName,
+            recordedAt: row.at,
+          ),
+      ].where((r) => r.isPlausible() && r.isValidBloodPressure() && !r.isFutureDated(_now())).toList();
+      final result = await _repo.insertBatch(readings);
+      if (result is Failure) {
+        _message = Messages.importFailed;
+        return null;
+      }
+      final count = result.dataOrNull ?? 0;
+      _message = count == 0 ? 'No new watch readings to import.' : 'Imported $count watch reading${count == 1 ? '' : 's'}.';
+      await loadRange(rangeStart, _now(), days: rangeDays);
+      return count;
     } finally {
       importing = false;
       notifyListeners();

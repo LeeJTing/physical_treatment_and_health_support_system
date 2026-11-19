@@ -19,6 +19,7 @@ class BiometricReading {
   final MeasurementContext? measurementContext;
   final ReadingSource source;
   final DateTime recordedAt;
+  final String? sourceDevice;
 
   const BiometricReading({
     required this.readingId,
@@ -29,6 +30,7 @@ class BiometricReading {
     this.measurementContext,
     this.source = ReadingSource.manual,
     required this.recordedAt,
+    this.sourceDevice,
   });
 
   /// Whether every value falls inside the plausible range for its metric (UC700 C7, FR200_004).
@@ -87,6 +89,7 @@ class BiometricReading {
     'secondary_value': secondaryValue,
     'measurement_context': measurementContext?.db,
     'source': source.db,
+    if (sourceDevice != null) 'source_device': sourceDevice,
     'recorded_at': recordedAt.toUtc().toIso8601String(),
   };
 
@@ -111,6 +114,7 @@ class BiometricReading {
     ),
     source: ReadingSource.fromDb(j['source'] as String?),
     recordedAt: DateTime.parse(j['recorded_at'] as String).toLocal(),
+    sourceDevice: j['source_device'] as String?,
   );
 }
 

@@ -10,6 +10,7 @@ import 'package:physical_treatment_and_health_support_system/view/common/trend_c
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/monitoring_view/add_reading_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/monitoring_view/watch_import_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
@@ -194,6 +195,17 @@ class _MonitoringViewState extends State<MonitoringView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ConnectionCard(vm: vm),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: vm.importing ? null : () async {
+                  await Navigator.of(context).push<bool>(MaterialPageRoute(
+                    builder: (_) => WatchImportView(viewModel: vm),
+                  ));
+                  if (mounted) _showMessage(vm);
+                },
+                icon: const Icon(Icons.watch),
+                label: const Text('Import from watch'),
+              ),
               const SizedBox(height: 16),
               _RangeChips(vm: vm, onCustom: () => _customRange(vm)),
               const SizedBox(height: 8),
@@ -380,7 +392,7 @@ class _MonitoringViewState extends State<MonitoringView> {
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTokens.ink),
         ),
         subtitle: Text(
-          [when, ?ctx, r.source.label].join(' · '),
+          [when, ?ctx, r.sourceDevice == null ? r.source.label : '${r.sourceDevice} · Watch estimate'].join(' · '),
           style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
         ),
         trailing: IconButton(
