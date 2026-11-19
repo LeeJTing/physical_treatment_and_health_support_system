@@ -57,7 +57,12 @@ class _WatchImportViewState extends State<WatchImportView> {
     } on MissingPluginException {
       if (mounted) setState(() => _error = 'Direct watch import is available on Android.');
     } catch (_) {
-      if (mounted) setState(() => _error = 'Unable to read the watch. Try again with H Band closed.');
+      if (mounted) {
+        setState(
+          () => _error =
+              'Unable to read the watch. Disconnect it from its companion app first, then try Bluetooth again.',
+        );
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -75,7 +80,9 @@ class _WatchImportViewState extends State<WatchImportView> {
       _devices = devices;
       _history = null;
       if (devices.isEmpty) {
-        _error = 'No K202 Pro or KS02 Pro found. Close H Band, keep the watch nearby and scan again.';
+        _error =
+            'No compatible watch found. Disconnect your watch from its companion app, keep it nearby and scan again. '
+            'For other wearables, use Health Connect in Tracking.';
       }
     });
   });
@@ -144,11 +151,16 @@ class _WatchImportViewState extends State<WatchImportView> {
         body: ListView(
           padding: const EdgeInsets.all(20),
           children: [
-            const Text('K202 Pro / KS02 Pro', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
+            const Text('Connect a wearable watch', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700)),
             const SizedBox(height: 12),
             const Text(
-              'Close H Band while importing so HealthGuide can connect to your watch. '
-              'Keep the watch near this phone with Bluetooth on.',
+              'Disconnect your watch from its companion app first. Then turn on Bluetooth and tap Find my watch '
+              'to connect here. Keep your watch near this phone.',
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Direct Bluetooth works with compatible watches. If your watch does not appear, use Health Connect '
+              'in Tracking to import readings shared by its companion app.',
             ),
             const SizedBox(height: 12),
             const Text(

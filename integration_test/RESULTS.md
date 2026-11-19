@@ -55,3 +55,26 @@ background service. BP and glucose remain watch estimates. Weight comes from a
 compatible Health Connect source or manual entry; the watch profile weight is
 excluded. These tests establish app behavior and device communication, without
 establishing measurement accuracy or real account cloud persistence.
+
+## Broader wearable discovery on 19 November 2026
+
+The Bluetooth scanner now uses the Veepoo SDK's compatible-device discovery
+instead of accepting only KS02/K202 advertised names. UI guidance asks users to
+disconnect from the companion app before connecting through Bluetooth and explains
+the Health Connect path for other wearable protocols. This does not establish
+universal watch compatibility.
+
+The updated native Integration Test passed in 1m 30s with the physical KS02 Pro:
+11 blood pressure and 12 numerical glucose records returned, 18 saved after
+validation and duplicate filtering, zero added on repeat, saved connection
+restored and scheduled sync completed. The Health Connect weight fixture passed
+again. Log: `build/watch-compatible-device.log`. Three targeted host watch tests
+passed and changed-file analysis found no issues. The preceding full 665-test
+suite remains the full-suite baseline.
+
+Maestro passed the revised screen journey in 1m 26s. The new guidance screenshot
+is embedded under WATCH-05 in report v27's Actual result cell. Local artifacts:
+`build/e2e/watch-compatible-2026-11-19/`. Test storage was isolated and phone
+rotation settings were restored. No additional physical watch model was tested;
+compatible models require their own acceptance runs. Set `WATCH_TEST_NAME` to the
+exact authorised test watch name when running the native target for another model.

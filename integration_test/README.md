@@ -82,9 +82,10 @@ the device date on each new launch.
 All readings, meals and photo results in this APK are synthetic. The sample photo
 exercises the review and save flow with a scripted response.
 
-### Test a real K202 Pro or KS02 Pro
+### Test a compatible wearable watch
 
-Close H Band and keep the watch close to the phone. The isolated test app can read
+Disconnect the watch from its companion app first, then keep Bluetooth on and the
+watch close to the phone. The isolated test app can read
 the watch over Bluetooth and save reviewed records in its disposable repositories.
 The watch import screen requests Nearby devices access on Android 12 and later.
 In Tracking, choose **Import from watch**, **Find my watch**, then your watch.
@@ -100,8 +101,15 @@ by the firmware. Zero or absent glucose values remain absent. Weight readings
 come from Health Connect or manual entry. The watch's profile weight is a setup
 value and is excluded from measured history.
 
+Bluetooth discovery uses the Veepoo SDK's compatible-device scanner without a
+KS02/K202 name filter. KS02 Pro is the physically tested model; other compatible
+models require their own acceptance pass. For wearables using another protocol,
+use Tracking's Health Connect connection when their companion app shares the
+supported records. Bluetooth pairing alone does not expose every vendor's health data.
+
 ```powershell
 flutter test integration_test/watch_device_test.dart -d YOUR_DEVICE --dart-define=E2E_TESTING=true --reporter expanded
+# For another authorised test watch, also pass --dart-define=WATCH_TEST_NAME="Exact watch name".
 ```
 
 This acceptance test requires at least one valid stored watch reading.

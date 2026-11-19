@@ -493,7 +493,8 @@ class MonitoringViewModel extends BaseViewModel {
       }
     } catch (_) {
       if (!isDisposed && generation == _watchGeneration) {
-        watchSyncMessage = 'Watch unavailable. Keep it nearby with H Band closed. Syncing will retry.';
+        watchSyncMessage =
+            'Watch unavailable. Disconnect it from its companion app first and keep Bluetooth on. Syncing will retry.';
       }
     } finally {
       watchSyncing = false;

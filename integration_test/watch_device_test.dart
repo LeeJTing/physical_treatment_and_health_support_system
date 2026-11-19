@@ -11,7 +11,7 @@ import 'package:physical_treatment_and_health_support_system/device_platform/hea
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Read the nearby KS02 or K202 and reject a repeated import', (t) async {
+  testWidgets('Discover a compatible wearable and reject a repeated import', (t) async {
     if (!const bool.fromEnvironment('E2E_TESTING')) throw StateError('Use the isolated E2E_TESTING package.');
     final env = await DemoEnvironment.create();
     await t.pumpWidget(const MaterialApp(home: Scaffold(body: Text('Testing automatic watch sync'))));
@@ -23,8 +23,17 @@ void main() {
     await vm.load();
     await t.pumpAndSettle();
     final devices = await source.scan();
-    expect(devices, isNotEmpty, reason: 'Close H Band and keep the watch nearby.');
-    final history = await source.read(devices.first);
+    const testName = String.fromEnvironment('WATCH_TEST_NAME', defaultValue: 'KS02 Pro');
+    final matches = devices.where((device) => device.name == testName).toList();
+    expect(
+      matches,
+      hasLength(1),
+      reason:
+          'Disconnect the test watch from its companion app and keep it nearby. '
+          'Set WATCH_TEST_NAME to the exact advertised name of your authorised test watch.',
+    );
+    final device = matches.single;
+    final history = await source.read(device);
     expect(history.deviceName.contains('\u0000'), isFalse);
     debugPrint(
       'WATCH_ACCEPTANCE device=${history.deviceName} supported=${history.supportedTypes} '
@@ -33,7 +42,7 @@ void main() {
     );
     expect(history.readings, isNotEmpty, reason: 'Record blood pressure on the watch before the test.');
     addTearDown(() => source.forget(env.accountId));
-    final saved = await vm.enableWatchSync(devices.first, '0000', history);
+    final saved = await vm.enableWatchSync(device, '0000', history);
     expect(saved, greaterThan(0), reason: vm.takeMessage());
     expect(env.biometrics.readings.every((r) => r.sourceDevice == history.deviceName), isTrue);
     expect(await vm.importWatchHistory(history), 0);

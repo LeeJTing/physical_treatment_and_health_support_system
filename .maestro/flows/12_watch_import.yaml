@@ -13,7 +13,7 @@ tags: [M200, LiveWatch]
       text: Import from watch
     direction: DOWN
 - tapOn: Import from watch
-- assertVisible: K202 Pro / KS02 Pro
+- assertVisible: Connect a wearable watch
 - takeScreenshot: watch-import-start
 - tapOn: Find my watch
 - extendedWaitUntil:

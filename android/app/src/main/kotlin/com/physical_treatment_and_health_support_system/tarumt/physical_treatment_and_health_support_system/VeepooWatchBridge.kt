@@ -2,8 +2,6 @@ package com.physical_treatment_and_health_support_system.tarumt.physical_treatme
 
 import android.Manifest
 import android.bluetooth.BluetoothManager
-import android.bluetooth.le.ScanCallback
-import android.bluetooth.le.ScanResult
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
@@ -12,6 +10,8 @@ import android.text.format.DateFormat
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.inuker.bluetooth.library.Code
+import com.inuker.bluetooth.library.search.SearchResult
+import com.inuker.bluetooth.library.search.response.SearchResponse
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.*
@@ -33,7 +33,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
     private var pending: MethodChannel.Result? = null
     private var permissionAction: (() -> Unit)? = null
     private var generation = 0
-    private var scanCallback: ScanCallback? = null
+    private var scanning = false
     private var initialized = false
     private var reading = false
     private var watchDays = 3
@@ -88,7 +88,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
             } catch (_: SecurityException) {
                 fail("permission", "Allow Nearby devices access in your phone's app settings.")
             } catch (_: Exception) {
-                fail("watch_error", "The watch could not be read. Close H Band and try again.")
+                fail("watch_error", "The watch could not be read. Disconnect it from its companion app first, then try Bluetooth again.")
             } catch (_: LinkageError) {
                 fail("sdk_error", "The watch integration could not start on this device.")
             }
@@ -149,31 +149,38 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
     }
 
     private fun scan() {
-        val scanner = activity.getSystemService(BluetoothManager::class.java).adapter.bluetoothLeScanner
+        initSdk()
         val found = linkedMapOf<String, Map<String, Any>>()
         val current = generation
-        val callback = object : ScanCallback() {
-            override fun onScanResult(type: Int, result: ScanResult) {
-                val name = result.scanRecord?.deviceName?.trimEnd('\u0000')?.trim() ?: return
-                if (!name.contains("K202", true) && !name.contains("KS02", true)) return
+        fun finish() {
+            if (generation == current && pending != null) complete(found.values.toList())
+        }
+        scanning = true
+        // The vendor scanner recognises compatible advertisements across model names.
+        // A name whitelist would hide other watches using the same supported protocol.
+        manager.startScanDevice(8, object : SearchResponse {
+            override fun onSearchStarted() {}
+            override fun onDeviceFounded(result: SearchResult) {
                 handler.post {
                     if (generation == current && pending != null) {
-                        found[result.device.address] = mapOf("address" to result.device.address, "name" to name)
+                        val address = result.address
+                        val name = result.name?.trimEnd('\u0000')?.trim()?.take(80)
+                            ?.takeIf { it.isNotBlank() } ?: "Wearable ${address.takeLast(5)}"
+                        found[address] = mapOf("address" to address, "name" to name)
                     }
                 }
             }
-            override fun onScanFailed(errorCode: Int) {
-                handler.post { if (generation == current) fail("scan_failed", "Bluetooth scan failed. Try again.") }
-            }
+            override fun onSearchStopped() { handler.post { finish() } }
+            override fun onSearchCanceled() { handler.post { finish() } }
+        })
+        handler.postDelayed({ finish() }, 10000)
+    }
+
+    private fun initSdk() {
+        if (!initialized) {
+            manager.init(activity.applicationContext)
+            initialized = true
         }
-        scanCallback = callback
-        scanner.startScan(callback)
-        handler.postDelayed({
-            if (generation == current && pending != null) {
-                stopScan()
-                complete(found.values.toList())
-            }
-        }, 8000)
     }
 
     private fun read(call: MethodCall) {
@@ -184,21 +191,18 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
             fail("invalid_watch", "Select a watch and enter its four-digit PIN.")
             return
         }
-        if (!initialized) {
-            manager.init(activity.applicationContext)
-            initialized = true
-        }
+        initSdk()
         reading = true
         val current = generation
         handler.postDelayed({
             if (current == generation && pending != null) {
-                fail("timeout", "The watch did not finish responding. Close H Band, keep the watch nearby and try again.")
+                fail("timeout", "The watch did not finish responding. Disconnect it from its companion app, keep it nearby and try Bluetooth again.")
             }
         }, 90000)
         manager.connectDevice(address, name, { code, _, isOta ->
             handler.post {
                 if (current == generation && pending != null && (code != Code.REQUEST_SUCCESS || isOta)) {
-                    fail("connection", "Could not connect to the watch. Close H Band and try again.")
+                    fail("connection", "Could not connect to the watch. Disconnect it from its companion app first, then try Bluetooth again.")
                 }
             }
         }, { code ->
@@ -353,16 +357,15 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
     private fun writeResponse(current: Int) = object : IBleWriteResponse {
         override fun onResponse(code: Int) {
             if (code != Code.REQUEST_SUCCESS) handler.post {
-                if (current == generation) fail("watch_write", "The watch did not accept the history request. Close H Band and try again.")
+                if (current == generation) fail("watch_write", "The watch did not accept the history request. Disconnect it from its companion app first, then try Bluetooth again.")
             }
         }
     }
 
     private fun stopScan() {
-        try {
-            scanCallback?.let { activity.getSystemService(BluetoothManager::class.java).adapter.bluetoothLeScanner?.stopScan(it) }
-        } catch (_: Exception) {}
-        scanCallback = null
+        if (!scanning) return
+        scanning = false
+        try { manager.stopScanDevice() } catch (_: Exception) {}
     }
 
     private fun release() {
