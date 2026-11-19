@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/device_platform/wearable/veepoo_watch_source.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 
 class WatchImportView extends StatefulWidget {
   final MonitoringViewModel viewModel;
@@ -17,7 +18,7 @@ class WatchImportView extends StatefulWidget {
 }
 
 class _WatchImportViewState extends State<WatchImportView> {
-  late final _source = widget.source ?? VeepooWatchSource();
+  late final _source = widget.source ?? widget.viewModel.watchSource;
   final _pin = TextEditingController(text: '0000');
   List<WatchDevice> _devices = const [];
   WatchHistory? _history;
@@ -25,10 +26,19 @@ class _WatchImportViewState extends State<WatchImportView> {
   String? _error;
   bool _busy = false;
   bool _saving = false;
+  bool _automatic = true;
+  WatchDevice? _selectedDevice;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.viewModel.watchSetupOpen = true;
+  }
 
   @override
   void dispose() {
     unawaited(_source.cancel());
+    widget.viewModel.watchSetupOpen = false;
     _pin.dispose();
     super.dispose();
   }
@@ -75,9 +85,14 @@ class _WatchImportViewState extends State<WatchImportView> {
       setState(() => _error = 'Enter the watch’s four-digit PIN.');
       return;
     }
-    await _run('Reading saved blood pressure records. Confirm on your watch if asked...', () async {
+    await _run('Reading saved health records. Confirm on your watch if asked...', () async {
       final history = await _source.read(device, pin: _pin.text);
-      if (mounted) setState(() => _history = history);
+      if (mounted) {
+        setState(() {
+          _history = history;
+          _selectedDevice = device;
+        });
+      }
     });
   }
 
@@ -86,7 +101,9 @@ class _WatchImportViewState extends State<WatchImportView> {
     if (history == null || _busy || _saving) return;
     setState(() => _saving = true);
     try {
-      final count = await widget.viewModel.importWatchHistory(history);
+      final count = _automatic
+          ? await widget.viewModel.enableWatchSync(_selectedDevice!, _pin.text, history)
+          : await widget.viewModel.importWatchHistory(history);
       if (!mounted) return;
       if (count != null) {
         Navigator.pop(context, true);
@@ -111,6 +128,19 @@ class _WatchImportViewState extends State<WatchImportView> {
           backgroundColor: AppTokens.brandDeep,
           foregroundColor: Colors.white,
         ),
+        bottomNavigationBar: history != null && (history.readings.isNotEmpty || _automatic)
+            ? SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: FilledButton(
+                    onPressed: disabled ? null : _save,
+                    child: _saving
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : Text(_automatic ? 'Connect and sync automatically' : 'Import these readings'),
+                  ),
+                ),
+              )
+            : null,
         body: ListView(
           padding: const EdgeInsets.all(20),
           children: [
@@ -122,8 +152,8 @@ class _WatchImportViewState extends State<WatchImportView> {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Watch blood pressure values are estimates. Compare them with a validated upper-arm monitor. '
-              'Review the dates and values before importing.',
+              'Watch blood pressure and glucose values are estimates. Review the dates and values before importing. '
+              'Use clinical devices for medical decisions.',
             ),
             const SizedBox(height: 16),
             TextField(
@@ -161,7 +191,7 @@ class _WatchImportViewState extends State<WatchImportView> {
                   child: ListTile(
                     leading: const Icon(Icons.watch),
                     title: Text(device.name),
-                    subtitle: const Text('Read stored blood pressure'),
+                    subtitle: const Text('Read supported health records'),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: disabled ? null : () => _read(device),
                   ),
@@ -172,29 +202,43 @@ class _WatchImportViewState extends State<WatchImportView> {
                 '${history.deviceName} · ${history.readings.length} saved records',
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
+              const SizedBox(height: 12),
+              for (final metric in [MetricType.bloodPressure, MetricType.bloodGlucose])
+                Text(
+                  '${metric.label} · ${history.supportedTypes.contains(metric.db) ? 'Supported by this watch' : 'Use Health Connect or manual entry'}',
+                ),
+              const Text('Weight · Use Health Connect with a scale, or add a weight reading manually.'),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text('Automatically sync this watch'),
+                subtitle: const Text('Checks every minute while HealthGuide is open and when you return to the app.'),
+                value: _automatic,
+                onChanged: disabled ? null : (value) => setState(() => _automatic = value),
+              ),
               if (history.readings.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 12),
                   child: Text(
-                    'The watch returned no saved blood pressure records. Record blood pressure on the watch, '
+                    'The watch returned no saved health records. Record a supported reading on the watch, '
                     'then try again. The watch may keep only a few days of history.',
                   ),
                 ),
               for (final row in history.readings)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text('${row.systolic.round()}/${row.diastolic.round()} mmHg'),
-                  subtitle: Text('${DateFormat('d MMM yyyy, HH:mm').format(row.at)} · Watch estimate'),
+                Semantics(
+                  container: true,
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(
+                      row.metric == 'BLOOD_PRESSURE'
+                          ? 'Blood pressure · ${row.value.round()}/${row.secondary?.round()} mmHg'
+                          : 'Blood glucose · ${row.value.toStringAsFixed(1)} mmol/L',
+                    ),
+                    subtitle: Text('${DateFormat('d MMM yyyy, HH:mm').format(row.at)} · Watch estimate'),
+                  ),
                 ),
-              if (history.readings.isNotEmpty) ...[
+              if (history.readings.isNotEmpty || _automatic) ...[
                 const Text('Invalid, future-dated and duplicate readings are skipped when importing.'),
                 const SizedBox(height: 12),
-                FilledButton(
-                  onPressed: disabled ? null : _save,
-                  child: _saving
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Import these readings'),
-                ),
               ],
             ],
           ],

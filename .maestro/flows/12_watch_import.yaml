@@ -1,9 +1,12 @@
 appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
-name: KS02 Pro live Bluetooth history and review
+name: KS02 Pro automatic sync and health readings
 tags: [M200, LiveWatch]
 ---
 # Run only with the real KS02/K202 nearby, H Band closed and Nearby devices allowed.
-- launchApp
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
 - tapOn: '(?s)Tracking.*'
 - scrollUntilVisible:
     element:
@@ -20,13 +23,28 @@ tags: [M200, LiveWatch]
 - extendedWaitUntil:
     visible: '(?s).* · [1-9][0-9]* saved records'
     timeout: 100000
-- takeScreenshot: watch-blood-pressure-preview
+- takeScreenshot: watch-health-preview
 - scrollUntilVisible:
     element:
-      text: Import these readings
+      text: '(?s)Blood glucose · [0-9]+\.[0-9] mmol/L.*'
     direction: DOWN
-- tapOn: Import these readings
+- takeScreenshot: watch-glucose-preview
+- scrollUntilVisible:
+    element:
+      text: Connect and sync automatically
+    direction: DOWN
+- tapOn: Connect and sync automatically
 - assertVisible: '(?s).*Imported [1-9].*watch reading.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*KS02 Pro.*Automatic sync.*'
+    direction: UP
+- takeScreenshot: watch-auto-connected
+- tapOn: Sync watch now
+- extendedWaitUntil:
+    visible: '(?s).*(Up to date[.]|Synced [1-9][0-9]* new readings?[.]).*'
+    timeout: 100000
+- takeScreenshot: watch-auto-synced
 - scrollUntilVisible:
     element:
       text: '(?s).*KS02 Pro.*Watch estimate.*'

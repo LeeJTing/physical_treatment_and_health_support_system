@@ -60,9 +60,13 @@ class MainShellState extends State<MainShell> with WidgetsBindingObserver {
   /// once instead of waiting for the next minute.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state != AppLifecycleState.resumed) return;
     final c = _inner;
-    if (c != null && c.mounted) c.read<MonitoringViewModel>().syncNow();
+    if (c == null || !c.mounted) return;
+    if (state == AppLifecycleState.resumed) {
+      c.read<MonitoringViewModel>().startAutoSync();
+    } else if (state == AppLifecycleState.paused || state == AppLifecycleState.detached) {
+      c.read<MonitoringViewModel>().stopAutoSync();
+    }
   }
 
   /// Opens a tab (Home's quick actions).

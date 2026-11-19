@@ -25,12 +25,10 @@ class MonitoringData {
 
   bool get isEmpty => readings.isEmpty && sessions.isEmpty;
 
-  List<BiometricReading> of(MetricType m) =>
-      readings.where((r) => r.metricType == m).toList();
+  List<BiometricReading> of(MetricType m) => readings.where((r) => r.metricType == m).toList();
 
   /// Newest first, as the Monitoring Screen lists them (UI Design).
-  List<BiometricReading> get recentFirst =>
-      [...readings]..sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
+  List<BiometricReading> get recentFirst => [...readings]..sort((a, b) => b.recordedAt.compareTo(a.recordedAt));
 }
 
 /// Biometric entry, import, and the history and trend state (Table 4.70; UC700 Track Health).
@@ -41,6 +39,7 @@ class MonitoringViewModel extends BaseViewModel {
   final ITreatmentRepository _treatments;
   final LocalNotificationService? _notifications;
   final DateTime Function() _now;
+  final VeepooWatchSource watchSource;
 
   MonitoringViewModel(
     this._repo,
@@ -49,7 +48,9 @@ class MonitoringViewModel extends BaseViewModel {
     this._treatments, [
     this._notifications,
     DateTime Function()? now,
-  ]) : _now = now ?? DateTime.now;
+    VeepooWatchSource? watchSource,
+  ]) : _now = now ?? DateTime.now,
+       watchSource = watchSource ?? VeepooWatchSource();
 
   String? _accountId;
   String? get accountId => _accountId;
@@ -61,9 +62,7 @@ class MonitoringViewModel extends BaseViewModel {
   bool reloading = false;
 
   /// Selected period; rejected when the start is after the end (FR200_020).
-  late DateTime rangeStart = _dayStart(
-    _now().subtract(const Duration(days: AppConstants.defaultRangeDays - 1)),
-  );
+  late DateTime rangeStart = _dayStart(_now().subtract(const Duration(days: AppConstants.defaultRangeDays - 1)));
   late DateTime rangeEnd = _now();
 
   /// 7, 30, 90 or null for a custom range (UC700 C13).
@@ -73,6 +72,12 @@ class MonitoringViewModel extends BaseViewModel {
   bool connected = false;
   DateTime? lastSync;
   bool importing = false;
+  WatchConnection? watchConnection;
+  bool watchSyncing = false;
+  String? watchSyncMessage;
+  bool watchSetupOpen = false;
+  bool _syncing = false;
+  int _watchGeneration = 0;
   bool _overdueTold = false;
 
   /// One-off message for a SnackBar (M5, M14, M15, ...); read with [takeMessage].
@@ -101,6 +106,7 @@ class MonitoringViewModel extends BaseViewModel {
       notifyListeners();
       return;
     }
+    await restoreWatch();
     final src = (await _repo.healthSourceState(id)).dataOrNull;
     connected = src?.connected ?? false;
     lastSync = src?.lastSync;
@@ -110,8 +116,7 @@ class MonitoringViewModel extends BaseViewModel {
       await importFromHealthSource(quiet: true);
       final after = lastSync;
       // FR200_013: told once per app session when nothing was imported for 24 hours.
-      if (!_overdueTold &&
-          (after == null || _now().difference(after) >= AppConstants.importOverdueAfter)) {
+      if (!_overdueTold && (after == null || _now().difference(after) >= AppConstants.importOverdueAfter)) {
         _overdueTold = true;
         _message = Messages.importOverdue;
         await _notifications?.importOverdue(id);
@@ -163,8 +168,7 @@ class MonitoringViewModel extends BaseViewModel {
   }
 
   /// Aggregate for the selected period (FR200_019).
-  PeriodSummary summary() =>
-      data?.summary ?? PeriodSummary.of(const [], const []);
+  PeriodSummary summary() => data?.summary ?? PeriodSummary.of(const [], const []);
 
   /// Checks a reading before it is saved: every required field (M4), the plausible ranges (M6),
   /// systolic above diastolic and no future time. Null when it may be saved.
@@ -257,7 +261,7 @@ class MonitoringViewModel extends BaseViewModel {
 
   Timer? _autoSync;
 
-  /// Keeps Health Connect in step while the app is open: an import every
+  /// Keeps the connected health sources in step while the app is open: an import every
   /// [AppConstants.autoSyncEvery] and one at once (call [syncNow] again when the app returns to
   /// the front). Quiet: a SnackBar only when new readings arrived. Started by the app shell.
   void startAutoSync({Duration every = AppConstants.autoSyncEvery}) {
@@ -271,24 +275,32 @@ class MonitoringViewModel extends BaseViewModel {
     _autoSync = null;
   }
 
-  /// One quiet import if Health Connect is connected; nothing otherwise.
+  /// One quiet import from each connected health source.
   Future<void> syncNow() async {
-    if (importing || isDisposed) return;
-    _accountId ??= (await _auth.currentAccount()).dataOrNull?.accountId;
-    final id = _accountId;
-    if (id == null) return;
-    if (!connected) {
-      final src = (await _repo.healthSourceState(id)).dataOrNull;
-      connected = src?.connected ?? false;
-      lastSync = src?.lastSync ?? lastSync;
-      if (!connected) return;
+    if (importing || isDisposed || _syncing) return;
+    _syncing = true;
+    try {
+      final current = (await _auth.currentAccount()).dataOrNull?.accountId;
+      if (current == null || (_accountId != null && current != _accountId)) return;
+      _accountId = current;
+      final id = current;
+      if (!connected) {
+        final src = (await _repo.healthSourceState(id)).dataOrNull;
+        connected = src?.connected ?? false;
+        lastSync = src?.lastSync ?? lastSync;
+      }
+      if (connected) await importFromHealthSource(quiet: true);
+      await syncWatch();
+    } finally {
+      _syncing = false;
     }
-    await importFromHealthSource(quiet: true);
   }
 
   @override
   void dispose() {
+    _watchGeneration++;
     stopAutoSync();
+    if (watchSyncing) unawaited(watchSource.cancel());
     super.dispose();
   }
 
@@ -334,8 +346,7 @@ class MonitoringViewModel extends BaseViewModel {
         if (!quiet) _message = Messages.healthPermissionRequired;
         return 0;
       }
-      final since = lastSync?.subtract(const Duration(minutes: 5)) ??
-          _now().subtract(const Duration(days: 90));
+      final since = lastSync?.subtract(const Duration(minutes: 5)) ?? _now().subtract(const Duration(days: 90));
       final read = await _healthSource.readRecords(id, since, until: _now());
       if (read is Failure) {
         _message = Messages.importFailed; // E3
@@ -365,7 +376,7 @@ class MonitoringViewModel extends BaseViewModel {
   }
 
   /// Saves reviewed watch records through the same validation and duplicate checks as imports.
-  Future<int?> importWatchHistory(WatchHistory history) async {
+  Future<int?> importWatchHistory(WatchHistory history, {bool quiet = false}) async {
     if (importing) return null;
     final id = _accountId;
     if (id == null || (await _auth.currentAccount()).dataOrNull?.accountId != id) {
@@ -376,32 +387,128 @@ class MonitoringViewModel extends BaseViewModel {
     importing = true;
     notifyListeners();
     try {
-      final readings = [
+      final readings = <BiometricReading>[
         for (final row in history.readings)
-          BiometricReading(
-            readingId: newId(),
-            accountId: id,
-            metricType: MetricType.bloodPressure,
-            primaryValue: row.systolic,
-            secondaryValue: row.diastolic,
-            source: ReadingSource.imported,
-            sourceDevice: history.deviceName,
-            recordedAt: row.at,
-          ),
+          if (row.metric == MetricType.bloodPressure.db ||
+              row.metric == MetricType.bloodGlucose.db ||
+              row.metric == MetricType.bodyWeight.db)
+            BiometricReading(
+              readingId: newId(),
+              accountId: id,
+              metricType: MetricType.fromDb(row.metric),
+              primaryValue: row.value,
+              secondaryValue: row.secondary,
+              measurementContext: row.metric == MetricType.bloodGlucose.db ? MeasurementContext.random : null,
+              source: ReadingSource.imported,
+              sourceDevice: history.deviceName,
+              recordedAt: row.at,
+            ),
       ].where((r) => r.isPlausible() && r.isValidBloodPressure() && !r.isFutureDated(_now())).toList();
       final result = await _repo.insertBatch(readings);
       if (result is Failure) {
-        _message = Messages.importFailed;
+        if (!quiet) _message = Messages.importFailed;
         return null;
       }
       final count = result.dataOrNull ?? 0;
-      _message = count == 0 ? 'No new watch readings to import.' : 'Imported $count watch reading${count == 1 ? '' : 's'}.';
-      await loadRange(rangeStart, _now(), days: rangeDays);
+      if (!quiet || count > 0) {
+        _message = count == 0
+            ? 'No new watch readings to import.'
+            : 'Imported $count watch reading${count == 1 ? '' : 's'}.';
+      }
+      if (count > 0 || !quiet) await loadRange(rangeStart, _now(), days: rangeDays);
       return count;
     } finally {
       importing = false;
       notifyListeners();
     }
+  }
+
+  Future<void> restoreWatch() async {
+    final id = _accountId;
+    if (id == null) return;
+    final generation = _watchGeneration;
+    try {
+      final saved = await watchSource.connection(id);
+      if (!isDisposed && generation == _watchGeneration) watchConnection = saved;
+    } catch (_) {
+      if (!isDisposed && generation == _watchGeneration) {
+        watchSyncMessage = 'Reconnect your watch to restore automatic syncing.';
+      }
+    }
+  }
+
+  Future<int?> enableWatchSync(WatchDevice device, String pin, WatchHistory history) async {
+    final id = _accountId;
+    if (id == null || (await _auth.currentAccount()).dataOrNull?.accountId != id) return null;
+    try {
+      _watchGeneration++;
+      await watchSource.remember(id, device, pin);
+      watchConnection = WatchConnection(device, null);
+      final count = await importWatchHistory(history);
+      if (count != null) {
+        final at = _now();
+        await watchSource.markSynced(id, at);
+        watchConnection = WatchConnection(device, at);
+        watchSyncMessage = 'Automatic syncing is on.';
+        _message = count == 0
+            ? 'Watch connected. Automatic syncing is on.'
+            : 'Imported $count watch reading${count == 1 ? '' : 's'}. Automatic syncing is on.';
+      }
+      return count;
+    } catch (_) {
+      _message = 'Automatic syncing could not be enabled. Try connecting your watch again.';
+      return null;
+    } finally {
+      if (!isDisposed) notifyListeners();
+    }
+  }
+
+  /// Reconnects to the saved watch without showing a permission prompt or requiring a scan.
+  Future<void> syncWatch({bool quiet = true}) async {
+    if (watchSyncing || watchSetupOpen || importing || isDisposed) return;
+    final id = _accountId;
+    if (id == null || (await _auth.currentAccount()).dataOrNull?.accountId != id) return;
+    watchSyncing = true;
+    final generation = _watchGeneration;
+    notifyListeners();
+    try {
+      await restoreWatch();
+      final connection = watchConnection;
+      if (connection == null || isDisposed || generation != _watchGeneration) return;
+      final history = await watchSource.readConnected(id);
+      if (isDisposed || generation != _watchGeneration || (await _auth.currentAccount()).dataOrNull?.accountId != id) {
+        return;
+      }
+      final count = await importWatchHistory(history, quiet: quiet);
+      if (isDisposed || generation != _watchGeneration) return;
+      if (count == null) {
+        watchSyncMessage = 'Watch readings could not be saved. Syncing will retry automatically.';
+        return;
+      }
+      final at = _now();
+      await watchSource.markSynced(id, at);
+      if (!isDisposed && generation == _watchGeneration) {
+        watchConnection = WatchConnection(connection.device, at);
+        watchSyncMessage = count == 0 ? 'Up to date.' : 'Synced $count new reading${count == 1 ? '' : 's'}.';
+      }
+    } catch (_) {
+      if (!isDisposed && generation == _watchGeneration) {
+        watchSyncMessage = 'Watch unavailable. Keep it nearby with H Band closed. Syncing will retry.';
+      }
+    } finally {
+      watchSyncing = false;
+      if (!isDisposed) notifyListeners();
+    }
+  }
+
+  Future<void> disconnectWatch() async {
+    final id = _accountId;
+    if (id == null) return;
+    _watchGeneration++;
+    await watchSource.forget(id);
+    watchConnection = null;
+    watchSyncMessage = null;
+    if (!isDisposed) notifyListeners();
   }
 
   /// Deletes one entry after the View's confirmation (FR200_022, FR200_023). UI first: the entry

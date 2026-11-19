@@ -88,14 +88,24 @@ Close H Band and keep the watch close to the phone. The isolated test app can re
 the watch over Bluetooth and save reviewed records in its disposable repositories.
 The watch import screen requests Nearby devices access on Android 12 and later.
 In Tracking, choose **Import from watch**, **Find my watch**, then your watch.
-Review the saved dates and blood pressure values before tapping **Import these readings**.
+Review the saved dates and values, then tap **Connect and sync automatically**.
+HealthGuide remembers the connection for the signed-in account, checks every
+minute while the app is open and checks again when the app returns to the
+foreground. The watch PIN is kept in an encrypted Android Keystore connection
+store. **Disconnect watch** stops future automatic checks for that account.
 The record list identifies the source watch and labels its values as watch estimates.
+
+The adapter reads blood pressure and numerical glucose records when supported
+by the firmware. Zero or absent glucose values remain absent. Weight readings
+come from Health Connect or manual entry. The watch's profile weight is a setup
+value and is excluded from measured history.
 
 ```powershell
 flutter test integration_test/watch_device_test.dart -d YOUR_DEVICE --dart-define=E2E_TESTING=true --reporter expanded
 ```
 
-This acceptance test requires at least one valid stored blood pressure reading.
-It verifies direct SDK communication, source labels and rejection of a second
-identical import. The native screen journey is in `12_watch_import.yaml` and
+This acceptance test requires at least one valid stored watch reading.
+It verifies direct SDK communication, restoration of the saved connection,
+scheduled automatic reconnection and duplicate rejection. A synthetic weight
+record checks the Health Connect path in the same test. The native screen journey is in `12_watch_import.yaml` and
 should be run explicitly with the physical watch available.

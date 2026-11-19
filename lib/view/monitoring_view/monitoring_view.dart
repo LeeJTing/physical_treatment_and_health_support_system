@@ -195,9 +195,53 @@ class _MonitoringViewState extends State<MonitoringView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ConnectionCard(vm: vm),
+              if (vm.watchConnection case final connection?) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTokens.successContainer,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppTokens.cardBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${connection.device.name} · Automatic sync',
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600)),
+                      const SizedBox(height: 6),
+                      Text(vm.watchSyncing ? 'Syncing watch readings...' : vm.watchSyncMessage ?? 'Checks automatically while HealthGuide is open.'),
+                      if (connection.lastSync case final at?)
+                        Text('Last synced ${at.day}/${at.month} ${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}'),
+                      Wrap(
+                        children: [
+                          TextButton.icon(
+                            onPressed: vm.watchSyncing || vm.importing ? null : () => vm.syncWatch(quiet: false),
+                            icon: const Icon(Icons.sync),
+                            label: const Text('Sync watch now'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              try {
+                                await vm.disconnectWatch();
+                              } catch (_) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Could not disconnect the watch. Try again.')),
+                                );
+                              }
+                            },
+                            child: const Text('Disconnect watch'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: 8),
               OutlinedButton.icon(
-                onPressed: vm.importing ? null : () async {
+                onPressed: vm.importing || vm.watchSyncing ? null : () async {
                   await Navigator.of(context).push<bool>(MaterialPageRoute(
                     builder: (_) => WatchImportView(viewModel: vm),
                   ));

@@ -24,6 +24,7 @@ import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import java.time.LocalDate
 import java.time.ZoneId
+import org.json.JSONObject
 
 /** One bounded scan or read at a time. Device records are returned for review before saving. */
 class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodChannel.MethodCallHandler {
@@ -36,6 +37,8 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
     private var initialized = false
     private var reading = false
     private var watchDays = 3
+    private val connections = WatchConnectionStore(activity)
+    private var activeAccount: String? = null
     private val permissions = activity.registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
         val action = permissionAction
         permissionAction = null
@@ -49,7 +52,11 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
             result.success(null)
             return
         }
-        if (call.method != "scan" && call.method != "readBloodPressure") {
+        if (call.method in listOf("connection", "remember", "markSynced", "forget")) {
+            connectionSetting(call, result)
+            return
+        }
+        if (call.method !in listOf("scan", "readBloodPressure", "readHistory", "readConnected")) {
             result.notImplemented()
             return
         }
@@ -59,6 +66,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
         }
         pending = result
         generation++
+        activeAccount = call.argument<String>("accountId")
         val action = {
             try {
                 val bluetooth = activity.getSystemService(BluetoothManager::class.java).adapter
@@ -67,7 +75,15 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
                 } else if (call.method == "scan") {
                     scan()
                 } else {
-                    read(call)
+                    if (call.method == "readConnected") {
+                        val saved = connections.read(activeAccount!!)
+                        if (saved == null) fail("not_connected", "Connect your watch to enable automatic syncing.")
+                        else read(MethodCall("readHistory", mapOf(
+                            "address" to saved.getString("address"),
+                            "name" to saved.getString("name"),
+                            "pin" to saved.getString("pin")
+                        )))
+                    } else read(call)
                 }
             } catch (_: SecurityException) {
                 fail("permission", "Allow Nearby devices access in your phone's app settings.")
@@ -77,9 +93,50 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
                 fail("sdk_error", "The watch integration could not start on this device.")
             }
         }
-        if (hasPermissions()) action() else {
+        if (hasPermissions()) action() else if (call.method == "readConnected") {
+            fail("permission", "Allow Nearby devices access, then reconnect your watch.")
+        } else {
             permissionAction = action
             permissions.launch(requiredPermissions())
+        }
+    }
+
+    private fun connectionSetting(call: MethodCall, result: MethodChannel.Result) {
+        try {
+            val account = call.argument<String>("accountId") ?: throw IllegalArgumentException()
+            when (call.method) {
+                "connection" -> {
+                    val saved = connections.read(account)
+                    result.success(saved?.let { mapOf(
+                        "address" to it.getString("address"),
+                        "name" to it.getString("name"),
+                        "lastSync" to if (it.has("lastSync")) it.getLong("lastSync") else null
+                    ) })
+                }
+                "remember" -> {
+                    val address = call.argument<String>("address") ?: ""
+                    val name = call.argument<String>("name") ?: ""
+                    val pin = call.argument<String>("pin") ?: ""
+                    require(android.bluetooth.BluetoothAdapter.checkBluetoothAddress(address))
+                    require(name.isNotBlank() && name.length <= 80 && !name.contains('\u0000'))
+                    require(pin.matches(Regex("[0-9]{4}")))
+                    connections.save(account, JSONObject(mapOf("address" to address, "name" to name, "pin" to pin)))
+                    result.success(null)
+                }
+                "markSynced" -> {
+                    val saved = connections.read(account) ?: throw IllegalStateException()
+                    saved.put("lastSync", call.argument<Number>("at")!!.toLong())
+                    connections.save(account, saved)
+                    result.success(null)
+                }
+                "forget" -> {
+                    if (activeAccount == account) close()
+                    connections.forget(account)
+                    result.success(null)
+                }
+            }
+        } catch (_: Exception) {
+            result.error("connection_storage", "The saved watch connection could not be opened. Disconnect and reconnect your watch.", null)
         }
     }
 
@@ -193,21 +250,28 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
 
     private fun readHistory(current: Int, name: String) {
         val info = VpSpGetUtil.getVpSpVariInstance(activity)
-        if (!info.isSupportBp) {
-            fail("unsupported", "This watch firmware does not report support for blood pressure records.")
+        val supportsGlucose = info.isSupportBloodGlucoseDetect || info.isSupportBloodGlucose
+        if (!info.isSupportBp && !supportsGlucose) {
+            fail("unsupported", "This firmware does not support the readings used by HealthGuide.")
             return
         }
-        val rows = linkedMapOf<Long, Map<String, Any>>()
+        val rows = linkedMapOf<String, Map<String, Any>>()
         fun add(at: Long, systolic: Int, diastolic: Int) {
             if (systolic <= 0 || diastolic <= 0) return
-            rows[at] = mapOf("at" to at, "systolic" to systolic, "diastolic" to diastolic)
+            rows["BLOOD_PRESSURE:$at"] = mapOf("at" to at, "metric" to "BLOOD_PRESSURE", "value" to systolic, "secondary" to diastolic)
+        }
+        fun addGlucose(at: Long, value: Double) {
+            if (!supportsGlucose || !value.isFinite() || value <= 0) return
+            rows["BLOOD_GLUCOSE:$at"] = mapOf("at" to at, "metric" to "BLOOD_GLUCOSE", "value" to value)
         }
         fun addOrigin(data: OriginData) {
             try {
                 val time = data.getmTime()
                 val at = LocalDate.parse(data.date).atTime(time.hour, time.minute)
                     .atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-                add(at, data.highValue, data.lowValue)
+                if (info.isSupportBp) add(at, data.highValue, data.lowValue)
+                // Veepoo's OriginData3 and manual glucose values are documented in mmol/L.
+                if (data is OriginData3) addGlucose(at, data.bloodGlucose.toDouble())
             } catch (_: Exception) {
                 // A missing device timestamp cannot be assigned to a trustworthy date.
             }
@@ -215,11 +279,21 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
         fun finish() = complete(mapOf(
             "deviceName" to name,
             "readings" to rows.values.sortedBy { it["at"] as Long },
-            "storedDays" to watchDays
+            "supportedTypes" to buildList {
+                if (info.isSupportBp) add("BLOOD_PRESSURE")
+                if (supportsGlucose) add("BLOOD_GLUCOSE")
+            }
         ))
         fun readManual() {
-            val types = listOf(DeviceManualDataType.BLOOD_PRESSURE)
-            if (!info.isSupportReadDeviceManual || !info.supportReadDeviceManual.contains(DeviceManualDataType.BLOOD_PRESSURE)) {
+            if (!info.isSupportReadDeviceManual) {
+                finish()
+                return
+            }
+            val types = info.supportReadDeviceManual.filter {
+                (it == DeviceManualDataType.BLOOD_PRESSURE && info.isSupportBp) ||
+                    (it == DeviceManualDataType.BLOOD_GLUCOSE && supportsGlucose)
+            }
+            if (types.isEmpty()) {
                 finish()
                 return
             }
@@ -228,6 +302,13 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
                     handler.post {
                         if (current == generation && pending != null) {
                             for (row in data) add(row.timeStamp.toLong() * 1000, row.systolic, row.diastolic)
+                        }
+                    }
+                }
+                override fun onBloodGlucoseDataChange(data: MutableList<BloodGlucoseManualData>) {
+                    handler.post {
+                        if (current == generation && pending != null) {
+                            for (row in data) addGlucose(row.timeStamp.toLong() * 1000, row.bloodGlucoseValue.toDouble())
                         }
                     }
                 }
@@ -288,6 +369,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
         generation++
         handler.removeCallbacksAndMessages(null)
         permissionAction = null
+        activeAccount = null
         stopScan()
         if (reading) {
             reading = false
@@ -306,6 +388,7 @@ class VeepooWatchBridge(private val activity: FlutterFragmentActivity) : MethodC
 
     private fun fail(code: String, message: String) {
         val result = pending ?: return
+        android.util.Log.w("HealthGuideWatch", "Watch operation failed: $code")
         pending = null
         release()
         result.error(code, message, null)
