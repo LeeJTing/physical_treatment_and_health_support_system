@@ -52,6 +52,15 @@ void runJtFlows() {
     await settle(t);
   }
 
+  /// The Edit beside a part of the profile (17 Nov: each part has its own Edit and page).
+  Future<void> editPart(WidgetTester t, String key) async {
+    final f = find.byKey(Key(key));
+    await t.ensureVisible(f);
+    await settle(t);
+    await t.tap(f);
+    await settle(t);
+  }
+
   Future<void> hideKeyboard(WidgetTester t) async {
     // Close the editing client before hiding the Android IME, so a delayed native edit cannot
     // restore the previous value after tester.enterText replaces an already-focused field.
@@ -94,8 +103,11 @@ void runJtFlows() {
   testWidgets('JT-M100-02 profile validates age and asks before updating diet plans', (t) async {
     await boot(t);
     await tap(t, 'Profile');
-    await tap(t, 'Edit');
+    await editPart(t, 'edit_conditions');
     expect(find.text('Other condition (not listed)'), findsNothing);
+    await t.pageBack();
+    await settle(t);
+    await editPart(t, 'edit_body');
     await t.enterText(find.byType(TextFormField).first, '999');
     await hideKeyboard(t);
     expect(find.textContaining('range'), findsWidgets);
@@ -357,7 +369,7 @@ void runJtFlows() {
   testWidgets('JT-M100-04 accepting profile refresh saves a plan under the updated profile', (t) async {
     await boot(t);
     await tap(t, 'Profile');
-    await tap(t, 'Edit');
+    await editPart(t, 'edit_body');
     await t.enterText(find.byType(TextFormField).first, '61');
     await hideKeyboard(t);
     await tap(t, 'Save');

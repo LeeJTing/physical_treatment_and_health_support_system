@@ -38,7 +38,6 @@ enum BenefitKind {
   standing,
   falls,
   movement,
-  hand,
   practice,
   daily,
 }
@@ -191,31 +190,6 @@ abstract final class ExerciseEvidence {
     ),
   );
 
-  static const hand = EvidenceGroup(
-    id: 'hand',
-    title: 'Hand and wrist',
-    benefits: [
-      (kind: BenefitKind.pain, text: 'A little less hand pain'),
-      (kind: BenefitKind.hand, text: 'Less finger stiffness'),
-      (kind: BenefitKind.practice, text: 'Short-term: keep practising'),
-    ],
-    facts: [
-      (value: '−0.5', label: 'pain\n(of 10)'),
-      (value: 'Less', label: 'finger\nstiffness'),
-    ],
-    finding:
-        'A Cochrane review of exercise for hand osteoarthritis found small benefits in the short '
-        'term: pain about half a point lower on a 0 to 10 scale and less finger stiffness. The '
-        'benefit was not shown to last, so regular practice matters.',
-    outcome: 'slightly less pain and stiffness',
-    source: EvidenceSource(
-      citation: 'Østerås et al. (2017)',
-      title: 'Exercise for hand osteoarthritis',
-      journal: 'Cochrane Database of Systematic Reviews, CD010388',
-      url: 'https://doi.org/10.1002/14651858.CD010388.pub2',
-    ),
-  );
-
   static const back = EvidenceGroup(
     id: 'back',
     title: 'Core and back',
@@ -257,8 +231,6 @@ abstract final class ExerciseEvidence {
     'Seated Marching': balance,
     'Shoulder Abduction': shoulder,
     'Shoulder Flexion': shoulder,
-    'Wrist Extension': hand,
-    'Hand Open and Close': hand,
     'Bird Dog': back,
     'Glute Bridge': back,
   };

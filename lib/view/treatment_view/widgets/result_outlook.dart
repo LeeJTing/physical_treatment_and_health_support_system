@@ -14,7 +14,6 @@ IconData _benefitIcon(BenefitKind kind) => switch (kind) {
   BenefitKind.standing => Icons.chair_outlined,
   BenefitKind.falls => Icons.shield_outlined,
   BenefitKind.movement => Icons.open_with,
-  BenefitKind.hand => Icons.back_hand_outlined,
   BenefitKind.practice => Icons.repeat,
   BenefitKind.daily => Icons.accessibility_new,
 };

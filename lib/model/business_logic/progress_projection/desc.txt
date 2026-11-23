@@ -1,0 +1,1 @@
+ProgressProjection: the outlook on the posture result (no repository or server): the pace so far (tries per exercise at the plan's frequency), the estimated finish date of the plan and a straight-line trend of the last five posture scores. Used by TreatmentViewModel.resultOutlook.
