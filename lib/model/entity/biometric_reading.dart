@@ -133,12 +133,22 @@ class ActivityRecord {
   final String exerciseName;
   final int durationSec;
   final DateTime completedAt;
+  final String? planName;
+  final int? repetitions;
+  final double? postureAccuracy;
+  final bool durationRecorded;
+  final bool isDemo;
 
   const ActivityRecord({
     required this.sessionId,
     required this.exerciseName,
     required this.durationSec,
     required this.completedAt,
+    this.planName,
+    this.repetitions,
+    this.postureAccuracy,
+    this.durationRecorded = true,
+    this.isDemo = false,
   });
 
   Map<String, dynamic> toAnalysisJson() => {

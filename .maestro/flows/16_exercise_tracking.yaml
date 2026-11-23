@@ -1,0 +1,51 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: Exercise sessions use the tracking graph
+tags: [M200, ExerciseTracking]
+---
+# Requires isolated tool/e2e_tracking_graph_app.dart. No live records are used.
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- scrollUntilVisible:
+    element:
+      text: Exercise
+    direction: DOWN
+- tapOn: Exercise
+- assertVisible: '3 completed sessions · 2 days'
+- scrollUntilVisible:
+    element:
+      id: tracking-exercise-chart
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: tracking-exercise-chart
+    point: '14%,50%'
+- assertVisible:
+    id: chart-reading-details
+- assertVisible: '2 min 0 sec'
+- takeScreenshot: exercise-session-details
+- tapOn:
+    id: tracking-exercise-chart
+    point: '35%,50%'
+- assertNotVisible:
+    id: chart-reading-details
+- tapOn: Zoom in
+- assertVisible: 'Zoom level 2.0 times'
+- takeScreenshot: exercise-zoomed
+- tapOn: Reset zoom
+- scrollUntilVisible:
+    element:
+      text: Daily total
+    direction: UP
+- tapOn: Daily total
+- scrollUntilVisible:
+    element:
+      id: tracking-exercise-chart
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: tracking-exercise-chart
+    point: '97%,50%'
+- assertVisible: '2 completed sessions · 4.0 recorded minutes'
+- takeScreenshot: exercise-daily-total

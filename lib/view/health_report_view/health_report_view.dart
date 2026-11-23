@@ -65,6 +65,19 @@ class _HealthReportViewState extends State<HealthReportView> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(AppTokens.gutter, 16, AppTokens.gutter, 32),
                 children: [
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.insights),
+                      title: const Text('Explore health insights'),
+                      subtitle: const Text(
+                        'Timeline, weekly report, data quality and recovery diary',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => Navigator.of(
+                        context,
+                      ).pushNamed(Routes.healthInsights),
+                    ),
+                  ),
                   if (vm.running) const _Updating(),
                   if (vm.notice != null) _Notice(vm.notice!),
                   _ScoreCard(analysis: vm.analysis, comparison: vm.analysis?.periodComparison),

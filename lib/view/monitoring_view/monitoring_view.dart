@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
@@ -11,6 +12,7 @@ import 'package:physical_treatment_and_health_support_system/view/common/trend_c
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/monitoring_view/add_reading_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/monitoring_view/exercise_tracking_panel.dart';
 import 'package:physical_treatment_and_health_support_system/view/monitoring_view/watch_import_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
@@ -30,6 +32,7 @@ class MonitoringView extends StatefulWidget {
 
 class _MonitoringViewState extends State<MonitoringView> {
   MetricType _metric = MetricType.bloodPressure;
+  bool _exerciseSelected = false;
 
   @override
   void initState() {
@@ -126,9 +129,12 @@ class _MonitoringViewState extends State<MonitoringView> {
                     shape: const StadiumBorder(),
                     textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                  onPressed: () => _add(vm),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Add Reading'),
+                  onPressed: _exerciseSelected ? () async {
+                    await Navigator.of(context).pushNamed(Routes.physicalTreatment);
+                    if(mounted)await vm.load();
+                  } : () => _add(vm),
+                  icon: Icon(_exerciseSelected ? Icons.accessibility_new : Icons.add),
+                  label: Text(_exerciseSelected ? 'Open treatment' : 'Add Reading',style:const TextStyle(fontFamily:'Roboto')),
                 ),
               ),
             ),
@@ -282,35 +288,25 @@ class _MonitoringViewState extends State<MonitoringView> {
                     children: [
                       // No tick on the chosen one, and each name on one line: with the tick, the last
                       // letter of "Pressure" or "Glucose" dropped onto a second line (phone, 9 Nov).
-                      SegmentedButton<MetricType>(
-                        showSelectedIcon: false,
-                        segments: const [
-                          ButtonSegment(
-                            value: MetricType.bloodPressure,
-                            label: OneLineText('Pressure', alignment: Alignment.center),
-                          ),
-                          ButtonSegment(
-                            value: MetricType.bloodGlucose,
-                            label: OneLineText('Glucose', alignment: Alignment.center),
-                          ),
-                          ButtonSegment(
-                            value: MetricType.bodyWeight,
-                            label: OneLineText('Weight', alignment: Alignment.center),
-                          ),
-                        ],
-                        selected: {_metric},
-                        onSelectionChanged: (s) => setState(() => _metric = s.first),
-                      ),
+                      Wrap(spacing:8,runSpacing:8,children:[
+                        for(final (metric,label) in [(MetricType.bloodPressure,'Pressure'),(MetricType.bloodGlucose,'Glucose'),(MetricType.bodyWeight,'Weight')])
+                          ChoiceChip(showCheckmark:false,label:OneLineText(label,alignment:Alignment.center),
+                            selected:!_exerciseSelected && _metric==metric,
+                            onSelected:(_)=>setState((){_exerciseSelected=false;_metric=metric;})),
+                        ChoiceChip(showCheckmark:false,label:const OneLineText('Exercise',alignment:Alignment.center),
+                          selected:_exerciseSelected,onSelected:(_)=>setState(()=>_exerciseSelected=true)),
+                      ]),
                       const SizedBox(height: 14),
-                      _metricChart(d, vm),
+                      if(_exerciseSelected)ExerciseTrackingPanel(sessions:d.sessions,from:vm.rangeStart,to:vm.rangeEnd,
+                        available:d.sessionsAvailable,onRetry:vm.load)
+                      else _metricChart(d, vm),
                     ],
                   ),
                 ),
                 const SizedBox(height: 12),
-                _card(_exercise(d)),
-                const SizedBox(height: 12),
-                _card(_summary(d.summary)),
+                _card(_summary(d.summary,sessionsAvailable:d.sessionsAvailable)),
                 const SizedBox(height: 20),
+                if(!_exerciseSelected)...[
                 const Text(
                   'Recent readings',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTokens.ink),
@@ -329,6 +325,7 @@ class _MonitoringViewState extends State<MonitoringView> {
                   )
                 else
                   for (final r in d.recentFirst.take(30)) _readingTile(vm, r),
+                ],
               ],
             ],
           ),
@@ -441,39 +438,8 @@ class _MonitoringViewState extends State<MonitoringView> {
     ],
   );
 
-  /// Completed exercise sessions as a trend: minutes per day (FR200_018).
-  Widget _exercise(MonitoringData d) {
-    final byDay = <DateTime, double>{};
-    for (final s in d.sessions) {
-      final k = DateTime(s.completedAt.year, s.completedAt.month, s.completedAt.day);
-      byDay[k] = (byDay[k] ?? 0) + s.durationSec / 60;
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Exercise sessions',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
-        ),
-        const SizedBox(height: 10),
-        if (byDay.isEmpty)
-          const Text(Messages.noData, style: TextStyle(fontSize: 15, color: AppTokens.inkMuted))
-        else
-          TrendChart(
-            height: 150,
-            unit: 'minutes',
-            series: [
-              ChartSeries('Minutes of exercise', [
-                for (final e in byDay.entries) ChartPoint(e.key, e.value),
-              ], AppTokens.progress),
-            ],
-          ),
-      ],
-    );
-  }
-
   /// Period summary (UC700 C2, FR200_019).
-  Widget _summary(PeriodSummary s) {
+  Widget _summary(PeriodSummary s,{bool sessionsAvailable=true}) {
     Widget row(String l, String v) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
@@ -496,8 +462,8 @@ class _MonitoringViewState extends State<MonitoringView> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
         ),
         const SizedBox(height: 6),
-        row('Exercise sessions completed', '${s.sessions}'),
-        row('Total exercise time', '${s.exerciseMinutes} min'),
+        row('Exercise sessions completed', sessionsAvailable?'${s.sessions}':'Unavailable'),
+        row('Total exercise time', sessionsAvailable?'${s.exerciseMinutes} min':'Unavailable'),
         row('Readings recorded', '${s.readings}'),
         for (final m in MetricType.values) row('Average ${m.label.toLowerCase()}', s.means[m] ?? '--'),
       ],

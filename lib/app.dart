@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:physical_treatment_and_health_support_system/view/health_insights_view/health_insights_view.dart';
+import 'package:physical_treatment_and_health_support_system/viewmodel/health_insights_view_model/health_insights_view_model.dart';
+
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -193,6 +196,18 @@ class MainApp extends StatelessWidget {
           Routes.dietInsights: (_) => ChangeNotifierProvider(
             create: (c) => DietInsightsViewModel(c.read(), c.read(), c.read(), c.read())..load(),
             child: const DietInsightsView(),
+          ),
+          Routes.healthInsights: (ctx) => ChangeNotifierProvider(
+            create: (c) => HealthInsightsViewModel(
+              c.read(),
+              c.read(),
+              c.read(),
+              c.read(),
+              c.read(),
+            )..load(),
+            child: HealthInsightsView(
+              initialTab: ModalRoute.of(ctx)?.settings.arguments as int? ?? 0,
+            ),
           ),
           Routes.healthReport: (_) => ChangeNotifierProvider(
             create: _analysis,

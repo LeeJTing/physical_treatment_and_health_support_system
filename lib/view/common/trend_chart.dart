@@ -281,7 +281,7 @@ class _TrendChartState extends State<TrendChart> {
                                   child: SingleChildScrollView(
                                     padding: const EdgeInsets.all(10),
                                     child: DefaultTextStyle(
-                                      style: const TextStyle(fontSize: 13, color: AppTokens.ink),
+                                      style: const TextStyle(fontSize: 13, color: AppTokens.ink, fontFamily:'Roboto'),
                                       child:
                                           widget.inspectionBuilder?.call(selected) ??
                                           _defaultInspection(selected, shown),
@@ -317,10 +317,10 @@ class _TrendChartState extends State<TrendChart> {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Text(
+                  Flexible(child:Text(
                     s.forecast ? '${s.label} (forecast)' : s.label,
                     style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
-                  ),
+                  )),
                 ],
               ),
             if (widget.guide != null && widget.guideLabel != null)
@@ -497,7 +497,7 @@ class _ChartPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: s,
-        style: TextStyle(fontSize: size, color: AppTokens.inkMuted),
+        style: TextStyle(fontSize: size, color: AppTokens.inkMuted, fontFamily:'Roboto'),
       ),
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: 60);

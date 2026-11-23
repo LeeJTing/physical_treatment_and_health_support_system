@@ -335,6 +335,18 @@ class _DietViewState extends State<DietView> {
                     ),
                   ),
                   const DietDisclaimer(),
+                  Card(
+                    child: ListTile(
+                      leading: const Icon(Icons.timeline),
+                      title: const Text('Health insights'),
+                      subtitle: const Text(
+                        'Weekly progress, timeline and data quality',
+                      ),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () =>
+                          Navigator.pushNamed(context, Routes.healthInsights),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -19,10 +19,18 @@ extension ActivityRecords on ITreatmentRepository {
     final out = <ActivityRecord>[];
     final seen = <String>{};
     for (final p in plans.dataOrNull!) {
-      final sessions = (await getSessions(p.patientPlanId)).dataOrNull ?? const <ExerciseSession>[];
+      if (p.accountId != accountId) continue;
+      final result = await getSessions(p.patientPlanId);
+      if (result case Failure(:final message, :final code, :final cause)) {
+        return Failure(message, code: code, cause: cause);
+      }
+      final sessions = result.dataOrNull ?? const <ExerciseSession>[];
       for (final s in sessions) {
         final at = s.completedAt?.toLocal();
-        if (!s.isCompleted() || at == null || at.isBefore(from) || at.isAfter(to)) continue;
+        if (s.accountId != accountId || s.patientPlanId != p.patientPlanId ||
+            !s.isCompleted() || at == null || at.isBefore(from) || at.isAfter(to)) {
+          continue;
+        }
         if (!seen.add(s.sessionId)) continue;
         final name = p.plan.exercises
                 .where((e) => e.exercise.exerciseId == s.exerciseId)
@@ -34,8 +42,13 @@ extension ActivityRecords on ITreatmentRepository {
           ActivityRecord(
             sessionId: s.sessionId,
             exerciseName: name,
-            durationSec: s.durationSec ?? 0,
+            durationSec: s.durationSec != null && s.durationSec! >= 0 ? s.durationSec! : 0,
             completedAt: at,
+            planName: p.plan.planName,
+            repetitions: s.repetitionsCompleted,
+            postureAccuracy: s.postureAccuracy,
+            durationRecorded: s.durationSec != null && s.durationSec! >= 0,
+            isDemo: (s.modelVersion ?? '').startsWith('presentation-demo'),
           ),
         );
       }
