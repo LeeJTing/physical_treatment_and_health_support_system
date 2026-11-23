@@ -20,8 +20,9 @@ class MonitoringData {
   final List<BiometricReading> readings;
   final List<ActivityRecord> sessions;
   final PeriodSummary summary;
+  final bool sessionsAvailable;
 
-  const MonitoringData(this.readings, this.sessions, this.summary);
+  const MonitoringData(this.readings, this.sessions, this.summary, {this.sessionsAvailable = true});
 
   bool get isEmpty => readings.isEmpty && sessions.isEmpty;
 
@@ -160,7 +161,7 @@ class MonitoringViewModel extends BaseViewModel {
     }
     final readings = r.dataOrNull!;
     final sessions = s.dataOrNull ?? const <ActivityRecord>[];
-    final d = MonitoringData(readings, sessions, PeriodSummary.of(readings, sessions));
+    final d = MonitoringData(readings, sessions, PeriodSummary.of(readings, sessions), sessionsAvailable: s is Success);
     _cache = d;
     state = UiSuccess(d);
     notifyListeners();
