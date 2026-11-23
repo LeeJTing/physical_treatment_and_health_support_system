@@ -163,6 +163,16 @@ class _TreatmentTabViewState extends State<TreatmentTabView> {
                   ),
                   const SizedBox(height: AppTokens.gap),
                 ],
+                _NavCard(
+                  icon: Icons.self_improvement,
+                  title: 'Recovery diary and insights',
+                  subtitle:
+                      'Track pain, stiffness and difficulty alongside your exercise history.',
+                  onTap: () => Navigator.of(
+                    context,
+                  ).pushNamed(Routes.healthInsights, arguments: 3),
+                ),
+                const SizedBox(height: AppTokens.gap),
                 // First load: wait for the plan instead of showing "No plan yet" before it is known
                 // (10 Nov). Later refreshes keep the cards, so this shows only once.
                 if (vm.plan is Loading || vm.plan is Idle)

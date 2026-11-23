@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:physical_treatment_and_health_support_system/viewmodel/health_insights_view_model/meal_simulation_view_model.dart';
 
 import 'package:flutter/services.dart' show PlatformException;
 
@@ -71,6 +72,29 @@ class MealLogViewModel extends BaseViewModel {
 
   /// Today's logged meals, newest first, and their running totals (FR700_013, C9).
   List<MealLog> today = const [];
+  MealSimulationViewModel createSimulation() =>
+      MealSimulationViewModel(draft?.items ?? [], dailyTotals, ctx);
+  bool applySimulation(String mealId, List<MealItem> proposed) {
+    final d = draft;
+    if (d == null || d.mealId != mealId || step != MealStep.review) {
+      return false;
+    }
+    final items = MealItem.mergeDuplicates(proposed);
+    if (items.isEmpty ||
+        items.any(
+          (i) =>
+              !i.portionSizeG.isFinite ||
+              i.portionSizeG < AppConstants.portionMinG ||
+              i.portionSizeG > AppConstants.portionMaxG,
+        )) {
+      return false;
+    }
+    draft = d.copyWith(items: items.map(_judge).toList());
+    _message = 'Proposal added to your meal draft. Review it before saving.';
+    notifyListeners();
+    return true;
+  }
+
   Nutrients dailyTotals = Nutrients.zero;
 
   /// Meal awaiting confirmation (FR700_009).

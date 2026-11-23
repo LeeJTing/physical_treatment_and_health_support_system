@@ -12,6 +12,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/meal_l
 import 'package:physical_treatment_and_health_support_system/view/common/future_sheet.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/food_search_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_simulation_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/meal_quantity_dialog.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/recognition_photo.dart';
 import 'package:physical_treatment_and_health_support_system/view/diet_view/widgets/diet_widgets.dart';
@@ -194,6 +195,23 @@ class _MealResultViewState extends State<MealResultView> {
           ),
         ),
         const SizedBox(height: 12),
+        if (d.items.isNotEmpty)
+          OutlinedButton.icon(
+            key: const ValueKey('open-meal-simulation'),
+            onPressed: () async {
+              final items = await Navigator.of(context).push<List<MealItem>>(
+                MaterialPageRoute(
+                  builder: (_) => ChangeNotifierProvider(
+                    create: (_) => vm.createSimulation(),
+                    child: MealSimulationView(search: vm.searchFoods),
+                  ),
+                ),
+              );
+              if (items != null) vm.applySimulation(d.mealId, items);
+            },
+            icon: const Icon(Icons.compare_arrows),
+            label: const Text('What if I change this meal?'),
+          ),
         if (d.items.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(14),

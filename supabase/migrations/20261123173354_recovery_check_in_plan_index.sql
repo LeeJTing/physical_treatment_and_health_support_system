@@ -1,0 +1,1 @@
+create index recovery_check_in_patient_plan on public.recovery_check_in(patient_plan_id);

@@ -497,7 +497,7 @@ class _ChartPainter extends CustomPainter {
     final tp = TextPainter(
       text: TextSpan(
         text: s,
-        style: TextStyle(fontSize: size, color: AppTokens.inkMuted),
+        style: TextStyle(fontSize: size, color: AppTokens.inkMuted, fontFamily:'Roboto'),
       ),
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: 60);

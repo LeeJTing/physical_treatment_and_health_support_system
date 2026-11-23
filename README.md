@@ -196,3 +196,7 @@ The default is `gemini-3.1-flash-lite`; local fallback cannot estimate piece cou
 The [presentation data guide](docs/testing/presentation-demo-2026-11-24/README.md) describes
 the three synthetic October comparison weeks, the preparation helpers and verified limits.
 Account snapshots, generated SQL and raw readings stay in ignored local build output.
+
+**Health insights** adds a shared timeline, weekly progress PDF, data-quality dashboard and
+recovery diary. Meal review also offers **What if I change this meal?** to preview food and
+portion changes before saving. [Implementation and test evidence](docs/testing/jt-health-insights-2026-11-24/README.md).

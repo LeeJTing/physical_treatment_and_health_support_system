@@ -1,0 +1,26 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: Timeline weekly report data quality and recovery
+tags: [M400, M700, HealthInsights]
+---
+# Isolated target tool/e2e_health_insights_app.dart only. No live account records.
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- assertVisible: Health insights
+- assertVisible: Include presentation data
+- takeScreenshot: insights-timeline
+- tapOn: Weekly report
+- assertVisible: 14 meals compared
+- assertVisible: Export / print PDF
+- takeScreenshot: insights-weekly-report
+- tapOn: Data quality
+- assertVisible: Understand your data
+- takeScreenshot: insights-data-quality
+- tapOn: Recovery
+- assertVisible: How recovery feels
+- tapOn: Add recovery check-in
+- assertVisible: Save check-in
+- takeScreenshot: insights-recovery-check-in
+- tapOn: Save check-in
+- assertVisible: How recovery feels

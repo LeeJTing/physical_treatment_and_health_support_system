@@ -2,6 +2,10 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/recovery_repository/i_recovery_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/recovery_repository/fake_recovery_repository.dart';
+import 'package:physical_treatment_and_health_support_system/model/repository/recovery_repository/supabase_recovery_repository.dart';
+
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/app.dart';
@@ -72,6 +76,7 @@ Future<void> main() async {
   final IAnalysisRepository analysisRepo;
   final IFoodRepository foodRepo;
   final IMealRepository mealRepo;
+  final IRecoveryRepository recoveryRepo;
   final String? Function() tokenProvider;
 
   if (AppConstants.useFakes) {
@@ -87,6 +92,7 @@ Future<void> main() async {
       await rootBundle.loadString('assets/seed/food_catalogue.json'),
     );
     mealRepo = FakeMealRepository();
+    recoveryRepo = FakeRecoveryRepository();
     tokenProvider = () => 'dev-token';
   } else {
     if (AppConstants.supabaseUrl.isEmpty ||
@@ -107,6 +113,7 @@ Future<void> main() async {
     analysisRepo = SupabaseAnalysisRepository(provider);
     foodRepo = SupabaseFoodRepository(provider);
     mealRepo = SupabaseMealRepository(provider);
+    recoveryRepo = SupabaseRecoveryRepository(provider);
     // The AI server checks this Supabase token (JWKS) on every call.
     tokenProvider = () => provider.accessToken;
   }
@@ -163,6 +170,7 @@ Future<void> main() async {
         // M200, M400, M700 services (Jun Ting)
         Provider<HealthConnectService>.value(value: HealthConnectService(healthSource)),
         Provider<ForecastService>.value(value: ForecastService(api)),
+        Provider<IRecoveryRepository>.value(value: recoveryRepo),
         Provider<AnomalyDetectionService>.value(
           value: AnomalyDetectionService(api, analysisRepo),
         ),
