@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<testsuites>
+  <testsuite name="Test Suite" device="AWJC6R4B05000630" tests="1" failures="0" time="72.659" timestamp="2026-11-20T01:25:22">
+    <testcase id="Planned meals compared with food logs" name="Planned meals compared with food logs" classname="Planned meals compared with food logs" file=".maestro\flows\14_plan_comparison.yaml" time="72.634" timestamp="2026-11-20T01:25:22" status="SUCCESS">
+      <properties>
+        <property name="tags" value="M700, PlanComparison"/>
+      </properties>
+    </testcase>
+  </testsuite>
+</testsuites>

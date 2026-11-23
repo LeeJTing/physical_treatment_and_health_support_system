@@ -19,6 +19,10 @@ class BiometricReading {
   final MeasurementContext? measurementContext;
   final ReadingSource source;
   final DateTime recordedAt;
+  final String? sourceDevice;
+
+  /// When this imported record was first saved in HealthGuide; absent for legacy records.
+  final DateTime? importedAt;
 
   const BiometricReading({
     required this.readingId,
@@ -29,6 +33,8 @@ class BiometricReading {
     this.measurementContext,
     this.source = ReadingSource.manual,
     required this.recordedAt,
+    this.sourceDevice,
+    this.importedAt,
   });
 
   /// Whether every value falls inside the plausible range for its metric (UC700 C7, FR200_004).
@@ -51,18 +57,18 @@ class BiometricReading {
       (secondaryValue != null && primaryValue > secondaryValue!);
 
   /// Later than the device clock (FR200_006). One minute of slack for the time picker.
-  bool isFutureDated([DateTime? now]) =>
-      recordedAt.isAfter((now ?? DateTime.now()).add(const Duration(minutes: 1)));
+  bool isFutureDated([DateTime? now]) => recordedAt.isAfter(
+    (now ?? DateTime.now()).add(const Duration(minutes: 1)),
+  );
 
   /// Account, metric and timestamp: an import with the same key is a duplicate (FR200_011).
   String duplicateKey() =>
-      '$accountId|${metricType.db}|${recordedAt.toUtc().millisecondsSinceEpoch}';
+      '$accountId|${metricType.db}|${recordedAt.toUtc().microsecondsSinceEpoch}';
 
-  /// Within 5 minutes of [other] for the same metric (UC700 C11).
+  /// A retry of the same account, metric and original measurement timestamp.
+  /// Nearby measurements remain separate, even when their values are identical.
   bool duplicates(BiometricReading other) =>
-      other.metricType == metricType &&
-      other.recordedAt.difference(recordedAt).abs() <=
-          AppConstants.duplicateWindow;
+      duplicateKey() == other.duplicateKey();
 
   /// Formatted value with units, e.g. "128/82 mmHg".
   String display() => switch (metricType) {
@@ -87,6 +93,9 @@ class BiometricReading {
     'secondary_value': secondaryValue,
     'measurement_context': measurementContext?.db,
     'source': source.db,
+    if (sourceDevice != null) 'source_device': sourceDevice,
+    if (importedAt != null)
+      'imported_at': importedAt!.toUtc().toIso8601String(),
     'recorded_at': recordedAt.toUtc().toIso8601String(),
   };
 
@@ -111,6 +120,10 @@ class BiometricReading {
     ),
     source: ReadingSource.fromDb(j['source'] as String?),
     recordedAt: DateTime.parse(j['recorded_at'] as String).toLocal(),
+    sourceDevice: j['source_device'] as String?,
+    importedAt: j['imported_at'] == null
+        ? null
+        : DateTime.parse(j['imported_at'] as String).toLocal(),
   );
 }
 
@@ -158,7 +171,8 @@ class PeriodSummary {
     for (final m in MetricType.values) {
       final rs = readings.where((r) => r.metricType == m).toList();
       if (rs.isEmpty) continue;
-      final p = rs.map((r) => r.primaryValue).reduce((a, b) => a + b) / rs.length;
+      final p =
+          rs.map((r) => r.primaryValue).reduce((a, b) => a + b) / rs.length;
       if (m == MetricType.bloodPressure) {
         final ds = rs.where((r) => r.secondaryValue != null).toList();
         final d = ds.isEmpty

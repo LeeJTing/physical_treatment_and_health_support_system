@@ -159,9 +159,6 @@ class AppConstants {
     MetricType.bodyWeight => (bodyWeightMin, bodyWeightMax),
   };
 
-  /// An imported reading within 5 minutes of a stored one is a duplicate (UC700 C11).
-  static const Duration duplicateWindow = Duration(minutes: 5);
-
   /// No successful import for this long: the patient is told (UC700 C12, FR200_013).
   static const Duration importOverdueAfter = Duration(hours: 24);
 
@@ -171,6 +168,8 @@ class AppConstants {
   /// While the app is open, Health Connect is checked this often for new readings, and again each
   /// time the app comes back to the front, so the patient never has to press Import readings.
   static const Duration autoSyncEvery = Duration(minutes: 1);
+  /// Poll saved watch history while foregrounded; concurrent checks are skipped.
+  static const Duration watchSyncEvery = Duration(seconds: 15);
 
   /// Default and selectable trend ranges (UC700 C1, C13).
   static const int defaultRangeDays = 30;

@@ -1,0 +1,64 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: Tracking graph inspection zoom and import details
+tags: [M200, TrackingGraph]
+---
+# Requires tool/e2e_tracking_graph_app.dart, built with E2E_TESTING=true.
+- launchApp:
+    clearState: true
+    permissions:
+      all: deny
+- scrollUntilVisible:
+    element:
+      id: tracking-metric-chart
+    direction: DOWN
+    centerElement: true
+- assertVisible: '3 readings · 2 imported'
+- takeScreenshot: tracking-graph-overview
+- tapOn:
+    id: tracking-metric-chart
+    point: '14%,50%'
+- assertVisible:
+    id: chart-reading-details
+- assertVisible: '(?s).*Blood pressure: 120/80 mmHg.*'
+- takeScreenshot: tracking-pressure-details
+- tapOn:
+    id: tracking-metric-chart
+    point: '35%,50%'
+- assertNotVisible:
+    id: chart-reading-details
+- takeScreenshot: tracking-gap-cleared
+- tapOn: Zoom in
+- assertVisible: 'Zoom level 2.0 times'
+- takeScreenshot: tracking-zoomed
+- tapOn: Reset zoom
+- assertVisible: 'Zoom level 1.0 times'
+- scrollUntilVisible:
+    element:
+      text: Glucose
+    direction: UP
+- tapOn: Glucose
+- scrollUntilVisible:
+    element:
+      id: tracking-metric-chart
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: tracking-metric-chart
+    point: '97%,50%'
+- assertVisible: '(?s).*Blood glucose: 6.1 mmol/L.*'
+- takeScreenshot: tracking-glucose-details
+- scrollUntilVisible:
+    element:
+      text: Weight
+    direction: UP
+- tapOn: Weight
+- scrollUntilVisible:
+    element:
+      id: tracking-metric-chart
+    direction: DOWN
+    centerElement: true
+- tapOn:
+    id: tracking-metric-chart
+    point: '14%,50%'
+- assertVisible: '(?s).*Body weight: 65.0 kg.*'
+- takeScreenshot: tracking-weight-details

@@ -11,11 +11,15 @@ import io.flutter.plugin.common.MethodChannel
 // FlutterFragmentActivity: the health plugin's Health Connect permission request needs a
 // ComponentActivity (M200).
 class MainActivity : FlutterFragmentActivity() {
+    private var watchBridge: VeepooWatchBridge? = null
     // Opens HealthGuide's notification settings (Reminders > "Turn on notifications"): after two
     // refusals Android no longer shows its permission dialog, so Settings is the only way back.
     // Used by PluginScheduler.openSettings() in lib/device_platform.
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        val bridge = VeepooWatchBridge(this)
+        watchBridge = bridge
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "apths/veepoo").setMethodCallHandler(bridge)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "apths/settings")
             .setMethodCallHandler { call, result ->
                 if (call.method == "openHealthConnectPermissions") {
@@ -39,6 +43,12 @@ class MainActivity : FlutterFragmentActivity() {
                     result.success(false)
                 }
             }
+    }
+
+    override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
+        watchBridge?.close()
+        watchBridge = null
+        super.cleanUpFlutterEngine(flutterEngine)
     }
 
     // Health Connect's page where HealthGuide's read access can be allowed again (M200): on

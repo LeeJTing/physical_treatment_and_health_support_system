@@ -7,8 +7,8 @@ abstract interface class IBiometricRepository {
   /// Writes one reading (FR200_024).
   Future<Result<void>> insert(BiometricReading r);
 
-  /// Bulk import; a reading within 5 minutes of a stored one of the same metric is discarded
-  /// (FR200_011). Returns how many were stored.
+  /// Bulk import; repeat account/metric/original timestamps are ignored (FR200_011).
+  /// Distinct nearby measurements are retained. Returns how many were stored.
   Future<Result<int>> insertBatch(List<BiometricReading> rs);
 
   /// Readings recorded between [a] and [b], oldest first (FR200_017).

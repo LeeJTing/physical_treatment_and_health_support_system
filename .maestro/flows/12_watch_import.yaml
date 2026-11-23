@@ -1,0 +1,52 @@
+appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatment_and_health_support_system.e2e
+name: KS02 Pro automatic sync and health readings
+tags: [M200, LiveWatch]
+---
+# Run only with the real KS02/K202 nearby, H Band closed and Nearby devices allowed.
+- launchApp:
+    clearState: true
+    permissions:
+      all: allow
+- tapOn: '(?s)Tracking.*'
+- scrollUntilVisible:
+    element:
+      text: Import from watch
+    direction: DOWN
+- tapOn: Import from watch
+- assertVisible: Connect a wearable watch
+- takeScreenshot: watch-import-start
+- tapOn: Find my watch
+- extendedWaitUntil:
+    visible: '(?s)KS02 Pro.*'
+    timeout: 20000
+- tapOn: '(?s)KS02 Pro.*'
+- extendedWaitUntil:
+    visible: '(?s).* · [1-9][0-9]* saved records'
+    timeout: 100000
+- takeScreenshot: watch-health-preview
+- scrollUntilVisible:
+    element:
+      text: '(?s)Blood glucose · [0-9]+\.[0-9] mmol/L.*'
+    direction: DOWN
+- takeScreenshot: watch-glucose-preview
+- scrollUntilVisible:
+    element:
+      text: Connect and sync automatically
+    direction: DOWN
+- tapOn: Connect and sync automatically
+- assertVisible: '(?s).*Imported [1-9].*watch reading.*'
+- scrollUntilVisible:
+    element:
+      text: '(?s).*KS02 Pro.*Automatic sync.*'
+    direction: UP
+- takeScreenshot: watch-auto-connected
+- tapOn: Sync watch now
+- extendedWaitUntil:
+    visible: '(?s).*(No new saved watch records[.]|Synced [1-9][0-9]* new readings?[.]).*'
+    timeout: 100000
+- takeScreenshot: watch-auto-synced
+- scrollUntilVisible:
+    element:
+      text: '(?s).*KS02 Pro.*Watch estimate.*'
+    direction: DOWN
+- takeScreenshot: watch-imported-history

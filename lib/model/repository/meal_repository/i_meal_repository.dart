@@ -29,6 +29,13 @@ abstract interface class IMealRepository {
   /// For overlapping ranges, use the latest start date. A newer version wins on the same start.
   Future<Result<DietPlan?>> planFor(String accountId, PlanType type, DateTime day);
 
+  /// Saved plan versions overlapping the period, for a single consistent review load.
+  Future<Result<List<DietPlan>>> plansForPeriod(
+    String accountId,
+    DateTime from,
+    DateTime to,
+  );
+
   /// Saves changed planned meals (locked, replaced, logged) and the plan's adherence rate.
   Future<Result<void>> updatePlan(DietPlan p);
 }

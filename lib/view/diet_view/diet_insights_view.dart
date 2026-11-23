@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/diet_insights.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/diet_insights_view_model/diet_insights_view_model.dart';
+import 'plan_comparison_panel.dart';
 
 class DietInsightsView extends StatefulWidget {
   const DietInsightsView({super.key});
@@ -20,7 +21,7 @@ class _DietInsightsViewState extends State<DietInsightsView> {
     final vm = context.watch<DietInsightsViewModel>();
     final data = vm.insights;
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         backgroundColor: AppTokens.screenBackground,
         appBar: AppBar(
@@ -28,11 +29,14 @@ class _DietInsightsViewState extends State<DietInsightsView> {
           backgroundColor: AppTokens.brandDeep,
           foregroundColor: Colors.white,
           bottom: const TabBar(
+            labelPadding: EdgeInsets.symmetric(horizontal: 4),
+            labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white70,
             indicatorColor: Colors.white,
             tabs: [
               Tab(text: 'Weekly review'),
+              Tab(text: 'Plan comparison'),
               Tab(text: 'Meal & readings'),
             ],
           ),
@@ -309,6 +313,13 @@ class _DietInsightsViewState extends State<DietInsightsView> {
                         ],
                       ),
                     ),
+                    if (data.comparison case final comparison?)
+                      PlanComparisonPanel(
+                        report: comparison,
+                        onRefresh: () => vm.load(),
+                      )
+                    else
+                      const Center(child: Text('No comparison available.')),
                     RefreshIndicator(
                       onRefresh: () => vm.load(),
                       child: ListView(

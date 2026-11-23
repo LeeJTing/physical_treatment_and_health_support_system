@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
@@ -10,6 +11,7 @@ import 'package:physical_treatment_and_health_support_system/view/common/trend_c
 import 'package:physical_treatment_and_health_support_system/view/common/user_guide.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_report_view/health_report_view.dart';
 import 'package:physical_treatment_and_health_support_system/view/monitoring_view/add_reading_sheet.dart';
+import 'package:physical_treatment_and_health_support_system/view/monitoring_view/watch_import_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/analysis_view_model/analysis_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/monitoring_view_model/monitoring_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
@@ -109,10 +111,7 @@ class _MonitoringViewState extends State<MonitoringView> {
       child: Column(
         children: [
           Expanded(
-            child: RefreshIndicator(
-              onRefresh: vm.load,
-              child: _content(vm),
-            ),
+            child: RefreshIndicator(onRefresh: vm.load, child: _content(vm)),
           ),
           SafeArea(
             top: false,
@@ -194,6 +193,71 @@ class _MonitoringViewState extends State<MonitoringView> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _ConnectionCard(vm: vm),
+              if (vm.watchConnection case final connection?) ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppTokens.successContainer,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppTokens.cardBorder),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${connection.device.name} · Automatic sync',
+                        style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        vm.watchSyncing
+                            ? 'Syncing watch readings...'
+                            : vm.watchSyncMessage ?? 'Checks automatically while HealthGuide is open.',
+                      ),
+                      if (connection.lastSync case final at?)
+                        Text(
+                          'Last checked ${_importDate(at)}',
+                        ),
+                      Wrap(
+                        children: [
+                          TextButton.icon(
+                            onPressed: vm.watchSyncing || vm.importing ? null : () => vm.syncWatch(quiet: false),
+                            icon: const Icon(Icons.sync),
+                            label: const Text('Sync watch now'),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              try {
+                                await vm.disconnectWatch();
+                              } catch (_) {
+                                if (!mounted) return;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Could not disconnect the watch. Try again.')),
+                                );
+                              }
+                            },
+                            child: const Text('Disconnect watch'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: vm.importing || vm.watchSyncing
+                    ? null
+                    : () async {
+                        await Navigator.of(
+                          context,
+                        ).push<bool>(MaterialPageRoute(builder: (_) => WatchImportView(viewModel: vm)));
+                        if (mounted) _showMessage(vm);
+                      },
+                icon: const Icon(Icons.watch),
+                label: const Text('Import from watch'),
+              ),
               const SizedBox(height: 16),
               _RangeChips(vm: vm, onCustom: () => _customRange(vm)),
               const SizedBox(height: 8),
@@ -205,8 +269,7 @@ class _MonitoringViewState extends State<MonitoringView> {
                     : null,
               ),
               const SizedBox(height: 8),
-              if (vm.state case UiError(:final message))
-                _Banner(message, onRetry: vm.load),
+              if (vm.state case UiError(:final message)) _Banner(message, onRetry: vm.load),
               if (d == null && vm.state is Loading)
                 const Padding(
                   padding: EdgeInsets.all(32),
@@ -230,13 +293,16 @@ class _MonitoringViewState extends State<MonitoringView> {
                             value: MetricType.bloodGlucose,
                             label: OneLineText('Glucose', alignment: Alignment.center),
                           ),
-                          ButtonSegment(value: MetricType.bodyWeight, label: OneLineText('Weight', alignment: Alignment.center)),
+                          ButtonSegment(
+                            value: MetricType.bodyWeight,
+                            label: OneLineText('Weight', alignment: Alignment.center),
+                          ),
                         ],
                         selected: {_metric},
                         onSelectionChanged: (s) => setState(() => _metric = s.first),
                       ),
                       const SizedBox(height: 14),
-                      _metricChart(d),
+                      _metricChart(d, vm),
                     ],
                   ),
                 ),
@@ -255,7 +321,8 @@ class _MonitoringViewState extends State<MonitoringView> {
                     icon: Icons.monitor_heart,
                     badge: Icons.add,
                     title: 'No readings in this period',
-                    message: 'Add your blood pressure, blood glucose or weight, or connect Health Connect '
+                    message:
+                        'Add your blood pressure, blood glucose or weight, or connect Health Connect '
                         'to bring them in from your watch.',
                     actionLabel: 'Add a reading',
                     onAction: () => _add(vm),
@@ -272,10 +339,8 @@ class _MonitoringViewState extends State<MonitoringView> {
 
   void _openReport() => Navigator.of(context).push(
     MaterialPageRoute<void>(
-      builder: (_) => ChangeNotifierProvider.value(
-        value: context.read<AnalysisViewModel>(),
-        child: const HealthReportView(),
-      ),
+      builder: (_) =>
+          ChangeNotifierProvider.value(value: context.read<AnalysisViewModel>(), child: const HealthReportView()),
     ),
   );
 
@@ -289,28 +354,92 @@ class _MonitoringViewState extends State<MonitoringView> {
     child: child,
   );
 
-  Widget _metricChart(MonitoringData d) {
+  Widget _metricChart(MonitoringData d, MonitoringViewModel vm) {
     final rs = d.of(_metric);
     if (rs.isEmpty) {
       return const SizedBox(
         height: 120,
         child: Center(
-          child: Text(Messages.noData, textAlign: TextAlign.center, style: TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
+          child: Text(
+            Messages.noData,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16, color: AppTokens.inkMuted),
+          ),
         ), // A4 M8
       );
     }
     final series = _metric == MetricType.bloodPressure
         ? [
             ChartSeries('Systolic', [for (final r in rs) ChartPoint(r.recordedAt, r.primaryValue)], AppTokens.cta),
-            ChartSeries(
-              'Diastolic',
-              [for (final r in rs) if (r.secondaryValue != null) ChartPoint(r.recordedAt, r.secondaryValue!)],
-              AppTokens.brandDeepAccent,
-            ),
+            ChartSeries('Diastolic', [
+              for (final r in rs)
+                if (r.secondaryValue != null) ChartPoint(r.recordedAt, r.secondaryValue!),
+            ], AppTokens.brandDeepAccent),
           ]
-        : [ChartSeries(_metric.label, [for (final r in rs) ChartPoint(r.recordedAt, r.primaryValue)], AppTokens.brandDeepAccent)];
-    return TrendChart(series: series, unit: _metric.unit);
+        : [
+            ChartSeries(_metric.label, [
+              for (final r in rs) ChartPoint(r.recordedAt, r.primaryValue),
+            ], AppTokens.brandDeepAccent),
+          ];
+    final imported = rs.where((r) => r.source == ReadingSource.imported).toList();
+    final importTimes = imported.map((r) => r.importedAt).whereType<DateTime>().toList()..sort();
+    final latestImport = importTimes.isEmpty ? null : importTimes.last;
+    final latestCount = latestImport == null ? 0 : imported.where((r) => r.importedAt == latestImport).length;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Semantics(
+          container: true,
+          identifier: 'tracking-reading-count',
+          child: Text(
+            '${rs.length} reading${rs.length == 1 ? '' : 's'} · ${imported.length} imported',
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+        ),
+        if (latestImport != null)
+          Text(
+            'Latest import shown: ${_importDate(latestImport)} · $latestCount reading${latestCount == 1 ? '' : 's'}',
+            style: const TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+          )
+        else if (imported.isNotEmpty)
+          const Text(
+            'Import time not recorded for these older readings.',
+            style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+          ),
+        const SizedBox(height: 8),
+        const Text(
+          'Tap a reading for details. Pinch to zoom; drag to move when zoomed.',
+          style: TextStyle(fontSize: 13, color: AppTokens.inkMuted),
+        ),
+        const SizedBox(height: 8),
+        TrendChart(
+          key: ValueKey('tracking-${_metric.db}-${vm.rangeStart}-${DateFormat('yyyy-MM-dd').format(vm.rangeEnd)}'),
+          series: series,
+          unit: _metric.unit,
+          height: 260,
+          inspectable: true,
+          zoomable: true,
+          interactionId: 'tracking-metric-chart',
+          inspectionBuilder: (at) => _graphReading(rs.firstWhere((r) => r.recordedAt == at)),
+        ),
+      ],
+    );
   }
+
+  String _importDate(DateTime at) => DateFormat('d MMM yyyy, HH:mm:ss').format(at.toLocal());
+
+  Widget _graphReading(BiometricReading r) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text('${r.metricType.label}: ${r.display()}', style: const TextStyle(fontWeight: FontWeight.w700)),
+      const SizedBox(height: 4),
+      Text('Recorded: ${DateFormat('d MMM yyyy, HH:mm').format(r.recordedAt)}'),
+      if (r.measurementContext case final context?) Text(context.label),
+      Text(r.sourceDevice == null ? r.source.label : '${r.sourceDevice} · Watch estimate'),
+      if (r.source == ReadingSource.imported)
+        Text(r.importedAt == null ? 'Import time not recorded' : 'Imported: ${_importDate(r.importedAt!)}'),
+    ],
+  );
 
   /// Completed exercise sessions as a trend: minutes per day (FR200_018).
   Widget _exercise(MonitoringData d) {
@@ -322,7 +451,10 @@ class _MonitoringViewState extends State<MonitoringView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Exercise sessions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+        const Text(
+          'Exercise sessions',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
+        ),
         const SizedBox(height: 10),
         if (byDay.isEmpty)
           const Text(Messages.noData, style: TextStyle(fontSize: 15, color: AppTokens.inkMuted))
@@ -331,7 +463,9 @@ class _MonitoringViewState extends State<MonitoringView> {
             height: 150,
             unit: 'minutes',
             series: [
-              ChartSeries('Minutes of exercise', [for (final e in byDay.entries) ChartPoint(e.key, e.value)], AppTokens.progress),
+              ChartSeries('Minutes of exercise', [
+                for (final e in byDay.entries) ChartPoint(e.key, e.value),
+              ], AppTokens.progress),
             ],
           ),
       ],
@@ -344,15 +478,23 @@ class _MonitoringViewState extends State<MonitoringView> {
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
         children: [
-          Expanded(child: Text(l, style: const TextStyle(fontSize: 16, color: AppTokens.inkMuted))),
-          Text(v, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink)),
+          Expanded(
+            child: Text(l, style: const TextStyle(fontSize: 16, color: AppTokens.inkMuted)),
+          ),
+          Text(
+            v,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTokens.ink),
+          ),
         ],
       ),
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Summary of this period', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink)),
+        const Text(
+          'Summary of this period',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppTokens.ink),
+        ),
         const SizedBox(height: 6),
         row('Exercise sessions completed', '${s.sessions}'),
         row('Total exercise time', '${s.exerciseMinutes} min'),
@@ -364,7 +506,8 @@ class _MonitoringViewState extends State<MonitoringView> {
 
   Widget _readingTile(MonitoringViewModel vm, BiometricReading r) {
     final t = r.recordedAt;
-    final when = '${t.day}/${t.month}/${t.year} ${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
+    final when =
+        '${t.day}/${t.month}/${t.year} ${t.hour.toString().padLeft(2, '0')}:${t.minute.toString().padLeft(2, '0')}';
     final ctx = r.measurementContext?.label;
     return Card(
       elevation: 0,
@@ -380,7 +523,14 @@ class _MonitoringViewState extends State<MonitoringView> {
           style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600, color: AppTokens.ink),
         ),
         subtitle: Text(
-          [when, ?ctx, r.source.label].join(' · '),
+          [
+                'Recorded $when',
+                ?ctx,
+                r.sourceDevice == null ? r.source.label : '${r.sourceDevice} · Watch estimate',
+              ].join(' · ') +
+              (r.source == ReadingSource.imported
+                  ? '\n${r.importedAt == null ? 'Import time not recorded' : 'Imported: ${_importDate(r.importedAt!)}'}'
+                  : ''),
           style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted),
         ),
         trailing: IconButton(
@@ -503,7 +653,9 @@ class _Banner extends StatelessWidget {
     decoration: BoxDecoration(color: AppTokens.warnContainer, borderRadius: BorderRadius.circular(16)),
     child: Row(
       children: [
-        Expanded(child: Text(text, style: const TextStyle(color: AppTokens.onWarn, fontSize: 15))),
+        Expanded(
+          child: Text(text, style: const TextStyle(color: AppTokens.onWarn, fontSize: 15)),
+        ),
         TextButton(onPressed: onRetry, child: const Text('Try again')),
       ],
     ),

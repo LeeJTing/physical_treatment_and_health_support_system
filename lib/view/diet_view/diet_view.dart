@@ -329,7 +329,7 @@ class _DietViewState extends State<DietView> {
                     child: ListTile(
                       leading: const Icon(Icons.insights, color: AppTokens.brandDeep),
                       title: const Text('Diet review'),
-                      subtitle: const Text('Weekly nutrition and meal / reading patterns'),
+                      subtitle: const Text('Plan comparisons, nutrition and meal / reading patterns'),
                       trailing: const Icon(Icons.chevron_right),
                       onTap: () => Navigator.pushNamed(context, Routes.dietInsights),
                     ),
