@@ -192,3 +192,7 @@ Keep `GEMINI_API_KEY` only in the server's ignored `.env` and restart the server
 The default is `gemini-3.1-flash-lite`; local fallback cannot estimate piece counts.
 
 [Implementation, checks and screenshot evidence](docs/testing/jt-diet-insights-2026-11-10/README.md).
+
+The [presentation data guide](docs/testing/presentation-demo-2026-11-24/README.md) describes
+the three synthetic October comparison weeks, the preparation helpers and verified limits.
+Account snapshots, generated SQL and raw readings stay in ignored local build output.
