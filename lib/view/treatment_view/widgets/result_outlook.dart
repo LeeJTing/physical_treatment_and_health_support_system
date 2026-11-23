@@ -55,43 +55,25 @@ const _small = TextStyle(
   color: AppTokens.textMuted,
 );
 
-/// Under the score (15 Nov): where the patient is in the plan, as dots, with "Well done!" when
-/// the exercise was passed. The reward and the progress come before anything else.
+/// Where the patient is in the plan, as dots with the count underneath (15 Nov).
 class PlanProgressDots extends StatelessWidget {
   final int done;
   final int total;
-  final bool celebrate;
-  const PlanProgressDots({
-    super.key,
-    required this.done,
-    required this.total,
-    this.celebrate = false,
-  });
+  const PlanProgressDots({super.key, required this.done, required this.total});
 
   @override
   Widget build(BuildContext context) => Semantics(
-    label: celebrate
-        ? 'Well done! $done of $total exercises done'
-        : '$done of $total exercises done',
+    label: '$done of $total exercises done',
     child: ExcludeSemantics(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (celebrate) ...[
-            const Text(
-              'Well done!',
-              key: Key('result_well_done'),
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.w700,
-                color: AppTokens.good,
-              ),
-            ),
-            const SizedBox(height: 8),
-          ],
           // Dots for a plan of up to eight exercises (every plan in the catalogue); a bar beyond.
           if (total <= 8)
             Wrap(
               spacing: 8,
+              runSpacing: 6,
+              alignment: WrapAlignment.center,
               children: [
                 for (var i = 0; i < total; i++)
                   Container(
@@ -118,15 +100,12 @@ class PlanProgressDots extends StatelessWidget {
                 backgroundColor: AppTokens.border,
               ),
             ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           Text(
             '$done of $total exercises done',
             key: const Key('result_plan_progress'),
-            style: const TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-              color: AppTokens.text,
-            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 13, color: AppTokens.textMuted),
           ),
         ],
       ),
@@ -173,6 +152,8 @@ class _EvidenceCardState extends State<EvidenceCard> {
     final passing = widget.passing;
     return TreatmentCard(
       key: const Key('evidence_card'),
+      radius: 22,
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -300,84 +281,130 @@ class _EvidenceCardState extends State<EvidenceCard> {
   }
 }
 
-/// "Your outlook": the plan's finish date as the key number, the projected score (once there is
-/// a trend) and the exercises left; the graph of the patient's scores with the projection; the
-/// study result in one line (Elwin, 10, 11 and 15 Nov).
+/// "Your outlook" (Elwin, 10 to 16 Nov): when the plan should be finished, as one sentence and a
+/// journey line from the exercises already passed, through today's, to the finish; under it the
+/// graph of the patient's scores once there are two. One muted line says what it is based on.
+/// The study result is not repeated here: it is in "Why it helps".
 class OutlookCard extends StatelessWidget {
   final ProgressProjection projection;
   final int sessionsPerWeek;
   final DateTime planStart;
+
+  /// Exercises in the plan (the journey line has one stop for each).
+  final int totalExercises;
   final EvidenceGroup? group;
   const OutlookCard({
     super.key,
     required this.projection,
     required this.sessionsPerWeek,
     required this.planStart,
+    required this.totalExercises,
     this.group,
   });
 
   @override
   Widget build(BuildContext context) {
     final p = projection;
-    final done = p.remainingExercises == 0;
+    final left = p.remainingExercises;
+    final finished = left == 0;
+    final passed = (totalExercises - left).clamp(0, totalExercises);
     final trend = p.past.length >= 2;
     final g = group;
     final studyWeek = g?.weeks == null
         ? null
         : planStart.add(Duration(days: g!.weeks! * 7));
-    final tries = p.triesPerExercise <= 1.05
-        ? '1 try'
-        : '${p.triesPerExercise.toStringAsFixed(1)} tries';
     return TreatmentCard(
       key: const Key('outlook_card'),
+      radius: 22,
+      padding: const EdgeInsets.all(18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(Icons.insights_outlined, size: 20, color: AppTokens.accent),
-              SizedBox(width: 8),
-              Expanded(child: Text('Your outlook', style: _heading)),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // The one number in the accent colour: when the plan should be finished.
-              Expanded(
-                child: _Tile(
-                  done ? 'Done' : _day(p.finishDate),
-                  'plan\nfinish',
-                  key: const Key('outlook_finish'),
-                  emphasis: true,
-                ),
+          const Text('Your outlook', style: _heading),
+          const SizedBox(height: 8),
+          // The one thing to take away, as a sentence with the date in bold.
+          Text.rich(
+            key: const Key('outlook_finish'),
+            TextSpan(
+              style: const TextStyle(
+                fontSize: 18,
+                height: 1.3,
+                color: AppTokens.text,
               ),
-              // No empty tile: the projected score appears once there is a trend.
-              if (trend) ...[
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _Tile(
-                    '${p.projectedAtFinish.round()}%',
-                    'score\nby then',
-                    key: const Key('outlook_score'),
+              children: finished
+                  ? const [
+                      TextSpan(
+                        text: 'You have passed every exercise.',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ]
+                  : [
+                      const TextSpan(text: 'On track to finish around '),
+                      TextSpan(
+                        text: _day(p.finishDate),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: AppTokens.primary,
+                        ),
+                      ),
+                    ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Semantics(
+            label: finished
+                ? 'All $totalExercises exercises passed'
+                : '$passed of $totalExercises exercises passed, $left to go',
+            child: ExcludeSemantics(
+              child: Column(
+                children: [
+                  _Journey(passed: passed, total: totalExercises),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          finished
+                              ? 'Plan complete'
+                              // "Next", not "Today": after a pass the next exercise is
+                              // tomorrow's (laptop check, 23 Nov).
+                              : 'Next: exercise ${passed + 1} of $totalExercises',
+                          style: _small,
+                        ),
+                      ),
+                      if (!finished)
+                        Text(
+                          _day(p.finishDate),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppTokens.primary,
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-              ],
-              const SizedBox(width: 8),
-              Expanded(
-                child: _Tile('${p.remainingExercises}', 'exercises\nleft'),
+                ],
               ),
-            ],
+            ),
           ),
-          const SizedBox(height: 12),
           if (trend) ...[
+            const SizedBox(height: 18),
+            const Text(
+              'Your scores so far',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: AppTokens.text,
+              ),
+            ),
+            const SizedBox(height: 8),
             Semantics(
               label:
                   'Posture scores in this plan: ${p.past.length} so far, the latest '
                   '${p.past.last.accuracy.round()}%, projected '
                   '${p.projectedAtFinish.round()}% by ${_day(p.finishDate)}',
               child: SizedBox(
+                key: const Key('outlook_graph'),
                 height: 150,
                 width: double.infinity,
                 child: CustomPaint(
@@ -403,32 +430,19 @@ class OutlookCard extends StatelessWidget {
                 ),
               ],
             ),
-          ] else
-            const _Line(
-              Icons.timeline,
-              'One more try shows your trend.',
-              key: Key('outlook_need_more'),
-            ),
-          if (p.reachesPassMark != null)
-            _Line(
-              Icons.flag_outlined,
-              '80% by about ${_day(p.reachesPassMark!)}',
-            ),
-          if (g != null)
-            _Line(
-              Icons.menu_book_outlined,
-              g.weeks != null
-                  ? 'Studies: ${g.outcome} by week ${g.weeks}'
-                  : 'Studies: ${g.outcome}',
-              key: const Key('outlook_study'),
-            ),
-          _Line(
-            Icons.speed_outlined,
-            'Pace: $tries per exercise · $sessionsPerWeek× a week',
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            'Estimate from your scores, not a medical prediction.',
+            if (p.reachesPassMark != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'At this rate you reach 80% around ${_day(p.reachesPassMark!)}.',
+                style: const TextStyle(fontSize: 14, color: AppTokens.text),
+              ),
+            ],
+          ],
+          const SizedBox(height: 14),
+          Text(
+            'Based on $sessionsPerWeek sessions a week and your scores so far. '
+            'An estimate, not a medical prediction.',
+            key: const Key('outlook_basis'),
             style: _small,
           ),
         ],
@@ -437,21 +451,103 @@ class OutlookCard extends StatelessWidget {
   }
 }
 
-/// A key number: the value large, its label small underneath. Neutral by default; [emphasis]
-/// gives the one number that matters most the accent colour.
+/// The plan as a line of stops: passed exercises filled, today's as a ring, the rest hollow, and
+/// a flag at the end.
+class _Journey extends StatelessWidget {
+  final int passed;
+  final int total;
+  const _Journey({required this.passed, required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final n = total.clamp(1, 12);
+    Widget stop(int i) {
+      final last = i == n - 1;
+      if (i < passed) {
+        return Container(
+          width: 18,
+          height: 18,
+          decoration: const BoxDecoration(
+            color: AppTokens.progress,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.check, size: 12, color: Colors.white),
+        );
+      }
+      if (i == passed) {
+        // Today's exercise.
+        return Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: AppTokens.surface,
+            shape: BoxShape.circle,
+            border: Border.all(color: AppTokens.primary, width: 3),
+          ),
+          child: Center(
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: const BoxDecoration(
+                color: AppTokens.primary,
+                shape: BoxShape.circle,
+              ),
+            ),
+          ),
+        );
+      }
+      if (last) {
+        return Container(
+          width: 26,
+          height: 26,
+          decoration: const BoxDecoration(
+            color: AppTokens.accentContainer,
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(Icons.flag, size: 15, color: AppTokens.primary),
+        );
+      }
+      return Container(
+        width: 14,
+        height: 14,
+        decoration: BoxDecoration(
+          color: AppTokens.surface,
+          shape: BoxShape.circle,
+          border: Border.all(color: AppTokens.border, width: 2),
+        ),
+      );
+    }
+
+    return Row(
+      children: [
+        for (var i = 0; i < n; i++) ...[
+          if (i > 0)
+            Expanded(
+              child: Container(
+                height: 3,
+                color: i <= passed ? AppTokens.progress : AppTokens.border,
+              ),
+            ),
+          stop(i),
+        ],
+      ],
+    );
+  }
+}
+
+/// A key number of a study: the value large, its label small underneath.
 class _Tile extends StatelessWidget {
   final String value;
   final String label;
-  final bool emphasis;
-  const _Tile(this.value, this.label, {super.key, this.emphasis = false});
+  const _Tile(this.value, this.label);
 
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
     decoration: BoxDecoration(
-      color: emphasis ? AppTokens.primary : AppTokens.background,
+      color: AppTokens.background,
       borderRadius: BorderRadius.circular(12),
-      border: emphasis ? null : Border.all(color: AppTokens.border),
+      border: Border.all(color: AppTokens.border),
     ),
     child: Column(
       children: [
@@ -460,10 +556,10 @@ class _Tile extends StatelessWidget {
           child: Text(
             value,
             maxLines: 1,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: emphasis ? Colors.white : AppTokens.text,
+              color: AppTokens.text,
             ),
           ),
         ),
@@ -471,10 +567,10 @@ class _Tile extends StatelessWidget {
         Text(
           label,
           textAlign: TextAlign.center,
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 12,
             height: 1.25,
-            color: emphasis ? AppTokens.onPrimaryMuted : AppTokens.textBody,
+            color: AppTokens.textBody,
           ),
         ),
       ],
@@ -500,31 +596,6 @@ class _Chip extends StatelessWidget {
         fontWeight: FontWeight.w600,
         color: AppTokens.primary,
       ),
-    ),
-  );
-}
-
-/// One short fact with an icon.
-class _Line extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  const _Line(this.icon, this.text, {super.key});
-
-  @override
-  Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 3),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: AppTokens.textBody),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 14, color: AppTokens.text),
-          ),
-        ),
-      ],
     ),
   );
 }

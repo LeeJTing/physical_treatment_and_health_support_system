@@ -8,7 +8,7 @@ import 'package:physical_treatment_and_health_support_system/view/profile_view/w
 import 'package:physical_treatment_and_health_support_system/viewmodel/server_settings_view_model/server_settings_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/ui_state.dart';
 
-/// Profile > AI server. The AI server runs on the team's laptop; its address is typed here and
+/// Profile > AI server. The AI server runs on the team's computer; its address is typed here and
 /// checked with Test connection, so a new Wi-Fi network or tunnel address needs no new build.
 class ServerSettingsView extends StatefulWidget {
   const ServerSettingsView({super.key});
@@ -47,7 +47,7 @@ class _ServerSettingsViewState extends State<ServerSettingsView> {
           children: [
             const Text(
               'Food recognition, diet plans, health analysis, treatment plans, the chatbot and the '
-              'posture check run on the AI server on the laptop.',
+              'posture check run on the AI server, on the team\'s computer.',
               style: TextStyle(fontSize: 16, color: AppTokens.inkMuted),
             ),
             const SizedBox(height: 20),
@@ -105,10 +105,10 @@ class _ServerSettingsViewState extends State<ServerSettingsView> {
             const SectionTitle('Which address?'),
             const SizedBox(height: 8),
             const Text(
-              'Same Wi-Fi as the laptop: the address run_server.ps1 -Lan prints, for example '
-              'http://192.168.1.20:8000 (test builds only).\n\n'
-              'Anywhere, also on mobile data: the https://….trycloudflare.com address run_tunnel.ps1 '
-              'prints. It changes each time the tunnel starts, so save the new one here.',
+              'Anywhere, also on mobile data: the https address of the server, for example '
+              'https://api.elwinjtfyp.me.\n\n'
+              'Same Wi-Fi as the computer that runs the server: the address run_server.ps1 -Lan '
+              'prints, for example http://192.168.1.20:8000 (test builds only).',
               style: TextStyle(fontSize: 15, color: AppTokens.ink),
             ),
           ],
