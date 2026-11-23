@@ -1,0 +1,1 @@
+LinkService: opens a web address (the study behind a benefit on the posture result) in the phone's browser through LinkOpener; a Failure with the address when no browser takes it.

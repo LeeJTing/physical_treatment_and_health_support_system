@@ -21,14 +21,15 @@ name: PostureModule_AnalyseExercise_TC001
 - assertVisible: '[\s\S]*repetitions counted[\s\S]*'
 - assertVisible: 'Score 80% or more: your progress has been saved\.'
 # The reward and the place in the plan, under the score (15 Nov)
-- assertVisible: '[\s\S]*Well done! 1 of 4 exercises done[\s\S]*'
+- assertVisible: '[\s\S]*Well done![\s\S]*'
+- assertVisible: '[\s\S]*1 of 4 exercises done[\s\S]*'
 - takeScreenshot: evidence/pos_01_result
-# The outlook: finish date, exercises left, the study result
+# The outlook: the finish date in one sentence and the journey line (16 Nov)
 - scrollUntilVisible:
     element: '[\s\S]*not a medical prediction[\s\S]*'
     direction: DOWN
-- assertVisible: '[\s\S]*plan\sfinish[\s\S]*'
-- assertVisible: '[\s\S]*exercises\sleft[\s\S]*'
+- assertVisible: '[\s\S]*On track to finish around[\s\S]*'
+- assertVisible: '[\s\S]*1 of 4 exercises passed, 3 to go[\s\S]*'
 - takeScreenshot: evidence/pos_01_outlook
 # Why it helps: the benefits in plain words, then the source of the research
 - scrollUntilVisible:

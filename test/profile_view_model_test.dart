@@ -7,9 +7,9 @@ import 'package:physical_treatment_and_health_support_system/core/constants/app_
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/auth_repository/fake_auth_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/repository/profile_repository/fake_profile_repository.dart';
-import 'package:physical_treatment_and_health_support_system/view/profile_view/profile_view.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/profile_view_model/profile_view_model.dart';
 import 'package:physical_treatment_and_health_support_system/view/profile_view/widgets/profile_widgets.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
@@ -299,6 +299,102 @@ void main() {
       ); // was still ringing until another screen synced
     },
   );
+
+  group('one part at a time (17 Nov)', () {
+    test('the search finds a condition by any word of its name, or by its code', () {
+      expect(
+        vm.conditionsMatching('kidney').map((c) => c.conditionCode),
+        ['KIDNEY_DISEASE'],
+      );
+      // "Hypertension" is on the chip; the list's name is "High blood pressure".
+      expect(
+        vm.conditionsMatching('hypertension').map((c) => c.conditionCode),
+        ['HYPERTENSION'],
+      );
+      expect(
+        vm.conditionsMatching('BLOOD high').map((c) => c.conditionCode),
+        ['HYPERTENSION'],
+      );
+      expect(vm.conditionsMatching('  '), hasLength(16)); // nothing typed: all of them
+      expect(vm.conditionsMatching('zzz'), isEmpty);
+    });
+
+    test('the food search keeps the headings that still have a food', () {
+      final found = vm.restrictionGroupsMatching('pork');
+      expect(found, hasLength(1));
+      expect(found.single.$1, 'Meat, fish and seafood');
+      expect(found.single.$2.map((r) => r.restrictionCode), ['PORK', 'LARD']);
+      expect(vm.restrictionGroupsMatching(''), hasLength(3));
+      expect(vm.restrictionGroupsMatching('zzz'), isEmpty);
+    });
+
+    test('foods read last-first from the database are shown in the screen order', () async {
+      final reversed = ProfileViewModel(
+        _ReversedLists(),
+        auth,
+        RiskAssessmentService(auth, profiles),
+      );
+      await reversed.loadProfile();
+      expect(
+        reversed.restrictions.map((r) => r.restrictionCode),
+        LookupSeed.restrictions.map((r) => r.restrictionCode),
+      );
+    });
+
+    test('Next checks only its own part of the first-time setup', () async {
+      expect(vm.isSetup, isTrue);
+      expect(await vm.checkSection(ProfileSection.body), isFalse);
+      expect((vm.saveState as UiError).message, Messages.requiredFieldsEmpty);
+      fillValid();
+      expect(await vm.checkSection(ProfileSection.body), isTrue);
+      expect(vm.saveState, isA<Idle<void>>());
+
+      vm.toggleCondition(1); // high blood pressure: its question is not answered yet
+      expect(await vm.checkSection(ProfileSection.conditions), isFalse);
+      expect(
+        (vm.saveState as UiError).message,
+        Messages.conditionQuestionUnanswered,
+      );
+      // The body details are in order although the conditions are not.
+      expect(await vm.checkSection(ProfileSection.body), isTrue);
+      vm.setConditionControlled(1, true);
+      expect(await vm.checkSection(ProfileSection.conditions), isTrue);
+      expect(await vm.checkSection(ProfileSection.limitations), isTrue);
+      expect(await vm.checkSection(ProfileSection.foods), isTrue);
+      expect(vm.profile, isNull); // nothing is saved before the last step
+    });
+
+    test('Discard in the first-time setup starts it again empty', () {
+      fillValid();
+      vm.toggleLimitation(3);
+      expect(vm.hasUnsavedChanges, isTrue);
+      vm.cancelEdit();
+      expect(vm.isSetup, isTrue);
+      expect(vm.hasUnsavedChanges, isFalse);
+      expect(vm.draft!.age, isNull);
+      expect(vm.draft!.limitations, isEmpty);
+    });
+
+    test('a limitation or food that is not in the list is ignored, not an error', () {
+      vm.toggleLimitation(999);
+      vm.toggleRestriction(999);
+      expect(vm.draft!.limitations, isEmpty);
+      expect(vm.draft!.restrictions, isEmpty);
+    });
+
+    test('the message of a refused Next is cleared when the setup goes back', () async {
+      expect(await vm.checkSection(ProfileSection.body), isFalse);
+      vm.clearSaveMessage();
+      expect(vm.saveState, isA<Idle<void>>());
+    });
+  });
+}
+
+/// The food list as the database gave it before 17 Nov: last id first.
+class _ReversedLists extends FakeProfileRepository {
+  @override
+  getRestrictions() async =>
+      Success(LookupSeed.restrictions.reversed.toList());
 }
 
 /// Delegates to the fake but fails every save.

@@ -18,6 +18,22 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
 
   SupabaseTreatmentRepository(this._sb);
 
+  /// Longest text exercise_session.model_version takes (core schema: varchar(20)).
+  static const modelVersionLimit = 20;
+
+  /// The model version as it is stored. The AI server names the rules and the trained model,
+  /// e.g. "rules-1.0+shoulder_flexion_v6" (29 characters), which the column refused, so no try
+  /// at an exercise with a trained model could be saved (Elwin's phone, 16 Nov). The exercise is
+  /// already on the session row, so the model is stored by kind and version: "rules-1.0+gru-v6".
+  static String? dbModelVersion(String? version) {
+    if (version == null || version.length <= modelVersionLimit) return version;
+    final m = RegExp(r'^(.*)\+.+_v(\d+)$').firstMatch(version);
+    final short = m == null ? version : '${m[1]}+gru-v${m[2]}';
+    return short.length <= modelVersionLimit
+        ? short
+        : short.substring(0, modelVersionLimit);
+  }
+
   @override
   Future<Result<List<PatientTreatmentPlan>>> getActivePlans(String accountId) =>
       supabaseGuard(
@@ -155,7 +171,7 @@ class SupabaseTreatmentRepository implements ITreatmentRepository {
         'p_repetitions_completed': s.repetitionsCompleted,
         'p_posture_accuracy': s.postureAccuracy,
         'p_posture_feedback': s.postureFeedback,
-        'p_model_version': s.modelVersion,
+        'p_model_version': dbModelVersion(s.modelVersion),
         if (advancedPlan != null)
           'p_new_progress': advancedPlan.progressPercentage,
         if (advancedPlan != null) 'p_new_plan_status': advancedPlan.status.db,

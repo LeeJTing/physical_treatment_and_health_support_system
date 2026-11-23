@@ -88,7 +88,7 @@ appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatmen
 - tapOn: "I give my explicit consent.*"
 - tapOn: Agree and continue
 
-# Health profile
+# Health profile: step 1 of 4, body details
 - extendedWaitUntil:
     visible: ".*complete your health profile.*"
     timeout: 15000
@@ -119,6 +119,12 @@ appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatmen
 - waitForAnimationToEnd:
     timeout: 2000
 - assertVisible: "158"
+# The first profile is filled in one part at a step (17 Nov): body details, health conditions,
+# physical limitations, foods. Next checks the step; the last step saves.
+- tapOn: Next
+- extendedWaitUntil:
+    visible: ".*Step 2 of 4.*"
+    timeout: 10000
 # A condition is ticked only for the High-risk patient; with none ticked the risk is Low.
 - runFlow:
     when:
@@ -132,9 +138,14 @@ appId: com.physical_treatment_and_health_support_system.tarumt.physical_treatmen
           element: "Yes"
           direction: DOWN
       - tapOn: "Yes"
-- scrollUntilVisible:
-    element: Save
-    direction: DOWN
+- tapOn: Next
+- extendedWaitUntil:
+    visible: ".*Step 3 of 4.*"
+    timeout: 10000
+- tapOn: Next
+- extendedWaitUntil:
+    visible: ".*Step 4 of 4.*"
+    timeout: 10000
 - tapOn: Save
 - extendedWaitUntil:
     visible: ".*risk.*"

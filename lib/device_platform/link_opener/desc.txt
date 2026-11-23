@@ -1,0 +1,1 @@
+LinkOpener: opens a web address in the phone's browser (url_launcher). Used only by LinkService (the research links on the posture result).

@@ -16,6 +16,10 @@ import 'package:physical_treatment_and_health_support_system/model/repository/pr
 import 'package:physical_treatment_and_health_support_system/model/repository/terms_repository/i_terms_repository.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/terms_acceptance.dart';
 
+/// The parts of the health profile. Each has its own card on the profile screen and its own
+/// page to change it (Elwin, 17 Nov); the first-time setup goes through them in this order.
+enum ProfileSection { body, conditions, limitations, foods }
+
 /// View and edit the health profile (UC300 Manage Profile; Table 4.51).
 /// The saved profile and the editable draft are kept apart so Cancel restores
 /// the saved values (FR100_052).
@@ -84,6 +88,47 @@ class ProfileViewModel extends BaseViewModel {
     final ungrouped = restrictions.where((r) => r.foodGroup == null).toList();
     if (ungrouped.isNotEmpty) out.add((null, ungrouped));
     return out;
+  }
+
+  /// No saved profile yet: the screen shows the first-time setup, one part at a time.
+  bool get isSetup => profile == null && draft != null;
+
+  /// Every word typed is found somewhere in one of [texts], whatever the case ("blood high"
+  /// finds "High blood pressure").
+  static bool _found(String query, Iterable<String> texts) {
+    final hay = texts.join(' ').toLowerCase();
+    return query
+        .toLowerCase()
+        .split(RegExp(r'\s+'))
+        .where((w) => w.isNotEmpty)
+        .every(hay.contains);
+  }
+
+  /// The conditions the search box leaves on the selection page. The code is searched too, so
+  /// "hypertension" finds "High blood pressure".
+  List<HealthCondition> conditionsMatching(String query) => [
+    for (final c in conditions)
+      if (_found(query, [c.conditionName, c.conditionCode.replaceAll('_', ' ')])) c,
+  ];
+
+  /// [restrictionGroups] with only the food names the search box leaves; a heading without any
+  /// is dropped.
+  List<(String?, List<DietaryRestriction>)> restrictionGroupsMatching(String query) => [
+    for (final (group, items) in restrictionGroups)
+      if (items.where((r) => _found(query, [r.restrictionName])).toList() case final left
+          when left.isNotEmpty)
+        (group, left),
+  ];
+
+  /// The food names in the order of the profile screen (pork, lard, beef, ...), which is not
+  /// the order of their ids; a name the app does not know yet goes last.
+  static List<DietaryRestriction> _inScreenOrder(List<DietaryRestriction> list) {
+    final place = {
+      for (final (i, r) in LookupSeed.restrictions.indexed) r.restrictionCode: i,
+    };
+    int of(DietaryRestriction r) =>
+        place[r.restrictionCode] ?? LookupSeed.restrictions.length + r.restrictionId;
+    return [...list]..sort((a, b) => of(a).compareTo(of(b)));
   }
 
   /// Health Connect state (FR100_064).
@@ -167,7 +212,7 @@ class ProfileViewModel extends BaseViewModel {
     final r = (results[3] as Result<List<DietaryRestriction>>).dataOrNull
         ?.where((x) => x.isActive)
         .toList();
-    restrictions = r == null || r.isEmpty ? LookupSeed.restrictions : r;
+    restrictions = r == null || r.isEmpty ? LookupSeed.restrictions : _inScreenOrder(r);
     final src = await _biometrics?.healthSourceState(account!.accountId);
     healthConnected = src?.dataOrNull?.connected ?? account!.healthSourceConnected;
     healthLastSync = src?.dataOrNull?.lastSync ?? account!.healthSourceLastSync;
@@ -252,6 +297,7 @@ class ProfileViewModel extends BaseViewModel {
     if (list.contains(c)) {
       list.remove(c);
       unansweredConditions.remove(id);
+      _clearAnsweredMessage();
     } else {
       list.add(c);
       // A condition with a question waits for the answer (no default).
@@ -284,14 +330,28 @@ class ProfileViewModel extends BaseViewModel {
         for (final c in d.conditions) c.conditionId == id ? change(c) : c,
       ],
     );
-    if (answered) unansweredConditions.remove(id);
+    if (answered) {
+      unansweredConditions.remove(id);
+      _clearAnsweredMessage();
+    }
     notifyListeners();
+  }
+
+  /// "Please answer the question under each health condition" goes once every question is
+  /// answered (or its condition unticked), not only at the next Save or Next (laptop check,
+  /// 23 Nov: it stayed above the buttons after the answer).
+  void _clearAnsweredMessage() {
+    if (unansweredConditions.isNotEmpty) return;
+    if (saveState case UiError(message: Messages.conditionQuestionUnanswered)) {
+      saveState = const Idle();
+    }
   }
 
   void toggleLimitation(int id) {
     final d = draft;
     if (d == null || !isEditing) return;
-    final l = limitations.firstWhere((l) => l.limitationId == id);
+    final l = limitations.where((l) => l.limitationId == id).firstOrNull;
+    if (l == null) return;
     final list = [...d.limitations];
     list.contains(l) ? list.remove(l) : list.add(l);
     draft = d.copyWith(limitations: list);
@@ -302,7 +362,8 @@ class ProfileViewModel extends BaseViewModel {
   void toggleRestriction(int id) {
     final d = draft;
     if (d == null || !isEditing) return;
-    final r = restrictions.firstWhere((r) => r.restrictionId == id);
+    final r = restrictions.where((r) => r.restrictionId == id).firstOrNull;
+    if (r == null) return;
     final list = [...d.restrictions];
     list.contains(r) ? list.remove(r) : list.add(r);
     draft = d.copyWith(restrictions: list);
@@ -361,9 +422,19 @@ class ProfileViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  /// Discards the draft (FR100_052). A patient without any saved profile stays in edit mode.
+  /// Discards the draft (FR100_052). A patient without any saved profile stays in the
+  /// first-time setup, which starts again empty.
   void cancelEdit() {
-    if (profile == null) return;
+    if (profile == null) {
+      final id = account?.accountId;
+      if (id == null) return;
+      draft = HealthProfile.empty(id);
+      unansweredConditions = {};
+      invalidFields = const [];
+      saveState = const Idle();
+      notifyListeners();
+      return;
+    }
     unansweredConditions = {};
     draft = null;
     isEditing = false;
@@ -387,38 +458,31 @@ class ProfileViewModel extends BaseViewModel {
     }
   }
 
-  Future<bool> _save() async {
-    final d = draft;
-    if (d == null) return false;
-    // Every question answered, and the "Other" condition named (11 Oct).
-    final conditionProblem = unansweredConditions.isNotEmpty
-        ? Messages.conditionQuestionUnanswered
-        : d.conditions.any((c) => c.isOther && (c.note ?? '').isEmpty)
-        ? Messages.otherConditionNote
-        : null;
-    if (conditionProblem != null) {
-      saveState = UiError(conditionProblem);
-      notifyListeners();
-      return false;
-    }
+  /// What is wrong with the answers under the conditions, else null: every question answered,
+  /// and the "Other" condition named (11 Oct).
+  String? _conditionProblem(HealthProfile d) => unansweredConditions.isNotEmpty
+      ? Messages.conditionQuestionUnanswered
+      : d.conditions.any((c) => c.isOther && (c.note ?? '').isEmpty)
+      ? Messages.otherConditionNote
+      : null;
+
+  /// What is wrong with age, gender, weight and height, else null; marks the fields
+  /// ([invalidFields]) and whether the Terms must be reviewed for the age.
+  Future<String?> _bodyProblem(HealthProfile d) async {
     final errors = d.validate();
     ageReviewNeeded = false;
     final bmi = d.calculateBmi();
     if (errors.isEmpty &&
         (bmi < AppConstants.bmiMin || bmi > AppConstants.bmiMax)) {
       invalidFields = const ['weight', 'height'];
-      saveState = const UiError(Messages.weightHeightMismatch);
-      notifyListeners();
-      return false;
+      return Messages.weightHeightMismatch;
     }
     if (errors.isEmpty) {
       final mismatch = await _ageGroupMismatch(d.age!);
       if (mismatch != null) {
         invalidFields = const ['age'];
         ageReviewNeeded = true;
-        saveState = UiError(mismatch);
-        notifyListeners();
-        return false;
+        return mismatch;
       }
     }
     if (errors.isNotEmpty) {
@@ -428,9 +492,41 @@ class ProfileViewModel extends BaseViewModel {
           d.gender == null ||
           d.weightKg == null ||
           d.heightCm == null;
-      saveState = UiError(
-        missing ? Messages.requiredFieldsEmpty : Messages.valueOutOfRange,
-      ); // FR100_049, FR100_051
+      // FR100_049, FR100_051
+      return missing ? Messages.requiredFieldsEmpty : Messages.valueOutOfRange;
+    }
+    invalidFields = const [];
+    return null;
+  }
+
+  /// A step of the first-time setup is left with Next only when it is in order: the same
+  /// checks as Save, for that part alone. The message is in [saveState] when it is not.
+  Future<bool> checkSection(ProfileSection section) async {
+    final d = draft;
+    if (d == null) return false;
+    final problem = switch (section) {
+      ProfileSection.body => await _bodyProblem(d),
+      ProfileSection.conditions => _conditionProblem(d),
+      ProfileSection.limitations || ProfileSection.foods => null,
+    };
+    saveState = problem == null ? const Idle() : UiError(problem);
+    notifyListeners();
+    return problem == null;
+  }
+
+  /// The message of a refused Save or Next is taken away (the setup goes back a step).
+  void clearSaveMessage() {
+    if (saveState is! UiError) return;
+    saveState = const Idle();
+    notifyListeners();
+  }
+
+  Future<bool> _save() async {
+    final d = draft;
+    if (d == null) return false;
+    final problem = _conditionProblem(d) ?? await _bodyProblem(d);
+    if (problem != null) {
+      saveState = UiError(problem);
       notifyListeners();
       return false;
     }

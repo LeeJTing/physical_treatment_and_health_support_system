@@ -4,6 +4,140 @@ import 'package:flutter/services.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/enums.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/lookups.dart';
+
+/// Short names from the Figma ("Left Leg Mobility", "Hypertension").
+String conditionLabel(HealthCondition c) =>
+    c.conditionCode == 'HYPERTENSION' ? 'Hypertension' : c.conditionName;
+
+String limitationLabel(PhysicalLimitation l) =>
+    l.limitationName.replaceAll(' Limitation', '');
+
+/// Under a condition that needs a doctor's OK and is answered "No".
+const plansWaitForDoctor = 'New exercise plans wait until your doctor agrees.';
+
+/// "Discard your unsaved changes?", "Log out?": Cancel, or [yes] (red when [danger]).
+Future<bool> confirmProfileAction(
+  BuildContext context,
+  String message,
+  String yes, {
+  bool danger = false,
+}) async =>
+    await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        content: Text(message, style: const TextStyle(fontSize: 17)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(c, true),
+            child: Text(
+              yes,
+              style: TextStyle(
+                color: danger ? AppTokens.cta : AppTokens.brandDeepAccent,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ) ??
+    false;
+
+/// A part of the profile on the profile screen: its title and, beside it, its own Edit, which
+/// opens the page to change that part (Elwin, 17 Nov). [what] completes the screen reader's
+/// "Edit ...", so the four buttons are told apart.
+class SectionHeader extends StatelessWidget {
+  final String title;
+  final String what;
+  final VoidCallback onEdit;
+  final Key? editKey;
+  const SectionHeader(
+    this.title, {
+    super.key,
+    required this.what,
+    required this.onEdit,
+    this.editKey,
+  });
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(child: SectionTitle(title)),
+      TextButton(
+        key: editKey,
+        style: TextButton.styleFrom(
+          minimumSize: const Size(48, AppTokens.minTarget),
+        ),
+        onPressed: onEdit,
+        child: Text(
+          'Edit',
+          semanticsLabel: 'Edit $what',
+          style: const TextStyle(
+            color: AppTokens.brandDeepAccent,
+            fontSize: 17,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+/// White card under a [SectionHeader] with what the patient declared.
+class DeclaredCard extends StatelessWidget {
+  final Widget child;
+  const DeclaredCard({super.key, required this.child});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: double.infinity,
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: AppTokens.surface,
+      borderRadius: BorderRadius.circular(20),
+      border: Border.all(color: AppTokens.cardBorder),
+    ),
+    child: child,
+  );
+}
+
+/// "None declared" in a [DeclaredCard].
+class NoneDeclared extends StatelessWidget {
+  final String text;
+  const NoneDeclared(this.text, {super.key});
+
+  @override
+  Widget build(BuildContext context) => Text(
+    text,
+    style: const TextStyle(color: AppTokens.inkMuted, fontSize: 16),
+  );
+}
+
+/// Something the patient declared, as a label: not a button, so it has no outline.
+class ProfileTag extends StatelessWidget {
+  final String label;
+  const ProfileTag(this.label, {super.key});
+
+  @override
+  Widget build(BuildContext context) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+    decoration: BoxDecoration(
+      color: AppTokens.tint,
+      borderRadius: BorderRadius.circular(20),
+    ),
+    child: Text(
+      label,
+      style: const TextStyle(
+        color: AppTokens.ink,
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+      ),
+    ),
+  );
+}
 
 class SectionTitle extends StatelessWidget {
   final String text;
