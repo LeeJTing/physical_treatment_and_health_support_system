@@ -14,6 +14,28 @@ import 'package:physical_treatment_and_health_support_system/shared_client/supab
 
 /// The Supabase repository against a stand-in for the REST API: what it sends to patient_plan.
 void main() {
+  // Elwin's phone, 16 Nov: "value too long for type character varying(20)" on every try at an
+  // exercise judged by a trained model, so Continue could not save it.
+  test(
+    'the model version sent to the database fits its 20-character column',
+    () {
+      String? fit(String? v) => SupabaseTreatmentRepository.dbModelVersion(v);
+      expect(fit(null), isNull);
+      expect(fit('rules-1.0'), 'rules-1.0'); // rules only: unchanged
+      expect(fit('rules-1.0+shoulder_flexion_v6'), 'rules-1.0+gru-v6');
+      expect(fit('rules-1.0+sit_to_stand_v4'), 'rules-1.0+gru-v4');
+      expect(fit('rules-1.0+shoulder_abduction_v12'), 'rules-1.0+gru-v12');
+      for (final v in [
+        'rules-1.0+shoulder_flexion_v6',
+        'rules-1.0+hip_abduction_v6',
+        'rules-1.0+knee_extension_v4',
+        'an-unexpected-and-very-long-version-name',
+      ]) {
+        expect(fit(v)!.length, lessThanOrEqualTo(20), reason: v);
+      }
+    },
+  );
+
   final plan = TreatmentPlan.fromJson(
     ((jsonDecode(File('assets/seed/catalogue.json').readAsStringSync())
                     as Map<String, dynamic>)['plans']

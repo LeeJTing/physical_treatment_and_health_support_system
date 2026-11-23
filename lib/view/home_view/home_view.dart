@@ -512,6 +512,12 @@ class _SessionCard extends StatelessWidget {
         'View plan',
         onStart,
       ),
+      final PatientTreatmentPlan p when data.retryToday => (
+        p.plan.planName,
+        "Today's try was saved below 80%. You can try again now or next time.",
+        'Try again',
+        onStart,
+      ),
       final PatientTreatmentPlan p when data.doneToday => (
         p.plan.planName,
         data.planCount > 1

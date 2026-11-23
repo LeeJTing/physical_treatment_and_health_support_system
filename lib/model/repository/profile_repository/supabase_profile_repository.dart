@@ -164,10 +164,12 @@ class SupabaseProfileRepository implements IProfileRepository {
         return row == null ? null : SafetyLimit.fromJson(row);
       });
 
+  // The lists below are read in the order of their ids: order() alone sorts downwards
+  // (postgrest 2.9: ascending = false), which showed them last-first on the phone (17 Nov).
   @override
   Future<Result<List<HealthCondition>>> getConditions() => supabaseGuard(
     () async =>
-        (await _sb.from('health_condition').select().order('condition_id'))
+        (await _sb.from('health_condition').select().order('condition_id', ascending: true))
             .map(HealthCondition.fromJson)
             .toList(),
   );
@@ -175,7 +177,7 @@ class SupabaseProfileRepository implements IProfileRepository {
   @override
   Future<Result<List<PhysicalLimitation>>> getLimitations() => supabaseGuard(
     () async =>
-        (await _sb.from('physical_limitation').select().order('limitation_id'))
+        (await _sb.from('physical_limitation').select().order('limitation_id', ascending: true))
             .map(PhysicalLimitation.fromJson)
             .toList(),
   );
@@ -183,7 +185,7 @@ class SupabaseProfileRepository implements IProfileRepository {
   @override
   Future<Result<List<DietaryRestriction>>> getRestrictions() => supabaseGuard(
     () async =>
-        (await _sb.from('dietary_restriction').select().eq('is_active', true).order('food_group').order('restriction_id'))
+        (await _sb.from('dietary_restriction').select().eq('is_active', true).order('food_group', ascending: true).order('restriction_id', ascending: true))
             .map(DietaryRestriction.fromJson)
             .toList(),
   );

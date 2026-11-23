@@ -1,2 +1,5 @@
-ProfileView (health profile, risk level, account settings). widgets/ = profile-only widgets.
-server_settings_view.dart: Profile > AI server (address of the AI server on the laptop, Test connection, Save).
+ProfileView (health profile, risk level, account settings): one card for each part of the profile, showing only what the patient declared, each with its own Edit. widgets/ = profile-only widgets.
+profile_section_view.dart: the page behind a card's Edit (body details, health conditions, physical limitations, foods), with its own Cancel and Save.
+profile_setup_view.dart: a patient without a profile goes through the four parts one step at a time (Next, Back, Save on the last step).
+widgets/profile_editors.dart: the editor of each part (the long lists have a search box), used by both of the above.
+server_settings_view.dart: Profile > AI server (address of the AI server, Test connection, Save).

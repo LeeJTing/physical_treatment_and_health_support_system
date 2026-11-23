@@ -717,6 +717,41 @@ void main() {
       },
     );
 
+    // Elwin's phone, 16 Nov: a saved 76% try showed "Today's exercise is done" above its own
+    // Try again button and "0 of 3 done".
+    testWidgets(
+      'a try saved below 80% says saved but not passed, with the try number',
+      (tester) async {
+        final h = Harness();
+        h.server.accuracy = 76;
+        await tester.runAsync(() async {
+          await h.setUp(tmp);
+          await h.recordFirst();
+          await h.vm.acceptResult(); // Continue
+        });
+        await tester.pumpWidget(
+          MaterialApp(
+            home: ChangeNotifierProvider.value(
+              value: h.vm,
+              child: const TreatmentView(),
+            ),
+          ),
+        );
+        await tester.pump();
+        expect(h.vm.todayNeedsRetry, isTrue);
+        expect(find.text('0 of 3 done'), findsOneWidget);
+        expect(
+          find.text(
+            'Saved, but not passed yet: 76% is below 80%. '
+            'Try again now or next time (try 1 of 3).',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text(TreatmentViewModel.nextUnlocksTomorrow), findsNothing);
+        expect(find.text('Try again'), findsOneWidget);
+      },
+    );
+
     testWidgets('result screen shows the score, guidance and both buttons', (
       tester,
     ) async {
@@ -883,7 +918,7 @@ void main() {
     });
 
     testWidgets(
-      'the outlook comes before the research; one attempt has no empty tile (15 Nov)',
+      'the outlook comes before the research: a sentence and a journey line (16 Nov)',
       (tester) async {
         await resultScreen(tester);
         final outlook = find.byKey(const Key('outlook_card'));
@@ -895,29 +930,23 @@ void main() {
           ),
         );
         // Early Knee Recovery: 3 exercises, none passed yet, 3 times a week.
-        expect(find.text('plan\nfinish'), findsOneWidget);
-        expect(find.text('exercises\nleft'), findsOneWidget);
-        expect(
-          find.descendant(of: outlook, matching: find.text('3')),
-          findsOneWidget,
+        final finish = tester.widget<Text>(
+          find.byKey(const Key('outlook_finish')),
         );
-        // A single attempt has no trend: no "score by then" tile and a hint instead of a graph.
-        expect(find.byKey(const Key('outlook_score')), findsNothing);
-        expect(find.text('–'), findsNothing);
-        expect(find.byKey(const Key('outlook_need_more')), findsOneWidget);
         expect(
-          find.text('Pace: 1 try per exercise · 3× a week'),
-          findsOneWidget,
+          finish.textSpan!.toPlainText(),
+          startsWith('On track to finish around '),
         );
-        final study = tester.widget<Text>(
-          find.descendant(
-            of: find.byKey(const Key('outlook_study')),
-            matching: find.byType(Text),
+        expect(find.text('Next: exercise 1 of 3'), findsOneWidget);
+        // No tiles, no bullet lines and no empty graph: one sentence, the journey line, the basis.
+        expect(find.text('plan\nfinish'), findsNothing);
+        expect(find.byKey(const Key('outlook_graph')), findsNothing);
+        expect(find.textContaining('One more try'), findsNothing);
+        expect(
+          find.text(
+            'Based on 3 sessions a week and your scores so far. '
+            'An estimate, not a medical prediction.',
           ),
-        );
-        expect(study.data, 'Studies: less knee pain, better function');
-        expect(
-          find.text('Estimate from your scores, not a medical prediction.'),
           findsOneWidget,
         );
       },
@@ -945,8 +974,8 @@ void main() {
         ),
       );
       await tester.pump();
-      expect(find.byKey(const Key('outlook_need_more')), findsNothing);
-      expect(find.byKey(const Key('outlook_score')), findsOneWidget);
+      expect(find.byKey(const Key('outlook_graph')), findsOneWidget);
+      expect(find.text('Your scores so far'), findsOneWidget);
       expect(find.text('Your scores'), findsOneWidget);
       expect(find.text('Projected'), findsOneWidget);
     });

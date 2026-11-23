@@ -75,12 +75,16 @@ class TreatmentCard extends StatelessWidget {
   final double borderWidth;
   final EdgeInsetsGeometry padding;
 
+  /// Corner radius; the posture result uses the rounder cards of Home (16 Nov).
+  final double radius;
+
   const TreatmentCard({
     super.key,
     required this.child,
     this.border = AppTokens.border,
     this.borderWidth = 1,
     this.padding = const EdgeInsets.all(16),
+    this.radius = AppTokens.radiusCard,
   });
 
   @override
@@ -89,7 +93,7 @@ class TreatmentCard extends StatelessWidget {
     padding: padding,
     decoration: BoxDecoration(
       color: AppTokens.surface,
-      borderRadius: BorderRadius.circular(AppTokens.radiusCard),
+      borderRadius: BorderRadius.circular(radius),
       border: Border.all(color: border, width: borderWidth),
     ),
     child: child,

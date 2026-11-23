@@ -21,6 +21,9 @@ class HomeData {
   final PatientTreatmentPlan? plan;
   final PlanExercise? nextStage;
   final bool doneToday;
+
+  /// Today's try at the card's exercise was saved below 80%: it can be tried again.
+  final bool retryToday;
   final int unread;
 
   /// Plans being followed and how many have had their exercise today.
@@ -43,6 +46,7 @@ class HomeData {
     this.plan,
     this.nextStage,
     this.doneToday = false,
+    this.retryToday = false,
     this.unread = 0,
     this.planCount = 0,
     this.plansDoneToday = 0,
@@ -118,12 +122,26 @@ class HomeViewModel extends BaseViewModel {
         const <PatientTreatmentPlan>[];
     final today = _now();
     final done = <String, bool>{};
+    final retry = <String>{};
     var restDay = false;
     for (final a in plans) {
       final sessions =
           (await _treatments.getSessions(a.patientPlanId)).dataOrNull ??
           const <ExerciseSession>[];
-      done[a.patientPlanId] = ExerciseSession.anyCompletedOn(sessions, today);
+      // A try below 80% at the plan's current exercise can be tried again today, as the
+      // pathway offers (TreatmentViewModel.canStart), so the plan is not "done" (laptop check,
+      // 23 Nov: Home said "Today's exercise is done" after a 73% try).
+      final current = a.currentExercise()?.exerciseId;
+      final todayAtCurrent = [
+        for (final s in sessions)
+          if (s.exerciseId == current && s.completedOn(today)) s,
+      ];
+      final canRetry =
+          todayAtCurrent.isNotEmpty &&
+          !todayAtCurrent.any((s) => s.postureIsPassing());
+      if (canRetry) retry.add(a.patientPlanId);
+      done[a.patientPlanId] =
+          ExerciseSession.anyCompletedOn(sessions, today) && !canRetry;
       restDay =
           restDay ||
           sessions.any((s) => s.completedOn(today) && s.hadFallAlert());
@@ -155,6 +173,8 @@ class HomeViewModel extends BaseViewModel {
         plan: plan,
         nextStage: plan?.currentStage(),
         doneToday: doneToday,
+        retryToday:
+            !restDay && plan != null && retry.contains(plan.patientPlanId),
         unread: unread,
         planCount: plans.length,
         plansDoneToday: done.values.where((d) => d).length,

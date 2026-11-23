@@ -7,19 +7,23 @@ tags: [JT, M100]
     permissions:
       all: deny
 - tapOn: '(?s)Profile.*'
-- tapOn: Edit
+# Each part of the profile has its own Edit and page (17 Nov); the body details are the first.
+- tapOn: Edit body details
 - tapOn:
     id: profile-age
 - eraseText: 2
 - inputText: '61'
-- scrollUntilVisible:
-    element:
-      text: Save
-    direction: DOWN
-    timeout: 60000
+# The keyboard's Enter closes it; Save is in the bar at the bottom of the page.
+- pressKey: Enter
+- waitForAnimationToEnd:
+    timeout: 2000
 - tapOn: Save
 - assertVisible: Update your diet plan?
 - takeScreenshot: jt-01-profile-refresh-consent
 - tapOn: Not now
-- assertVisible: Edit
+- assertVisible: Edit body details
+# The conditions are chosen on their own page; "Other" is not offered there.
+- tapOn: Edit health conditions
+- assertVisible: Search conditions
 - assertNotVisible: Other condition \(not listed\)
+- tapOn: Back

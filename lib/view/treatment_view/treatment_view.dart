@@ -237,11 +237,13 @@ class _TreatmentViewState extends State<TreatmentView> {
                       ),
                     ]
                     // One exercise per plan per day, the same rule as Home.
-                    else if (vm.doneToday &&
-                        plan.completedStages < plan.plan.exercises.length) ...[
+                    // A try below 80% is saved but not passed: said so, not "done" (16 Nov).
+                    else if (vm.todayNote case final note?) ...[
                       const SizedBox(height: AppTokens.gap),
-                      const NoticeBanner(
-                        TreatmentViewModel.nextUnlocksTomorrow,
+                      NoticeBanner(
+                        note,
+                        key: const Key('today_note'),
+                        warning: vm.todayNeedsRetry,
                       ),
                     ],
                     for (final stage in vm.pathway) ...[
@@ -317,7 +319,7 @@ class _NoPlan extends StatelessWidget {
             color: AppTokens.primary,
             onPressed: () => Navigator.of(
               context,
-            ).pushReplacementNamed(Routes.treatmentPlanning),
+            ).pushNamed(Routes.treatmentPlanning),
           ),
         ] else ...[
           const NoticeBanner(
@@ -329,7 +331,7 @@ class _NoPlan extends StatelessWidget {
             color: AppTokens.action,
             onPressed: () => Navigator.of(
               context,
-            ).pushReplacementNamed(Routes.treatmentPlanning),
+            ).pushNamed(Routes.treatmentPlanning),
           ),
         ],
         const Spacer(),

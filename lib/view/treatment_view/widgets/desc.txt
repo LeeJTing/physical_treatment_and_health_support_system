@@ -1,0 +1,1 @@
+Widgets used only by the treatment screens. treatment_widgets.dart: cards, banners, the score ring, the progress block. result_outlook.dart: the posture result's plan progress dots, "Why it helps" (benefits and the study behind them) and "Your outlook" (finish date, trend graph).

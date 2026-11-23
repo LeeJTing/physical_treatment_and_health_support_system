@@ -262,7 +262,9 @@ class TreatmentViewModel extends BaseViewModel {
       await _reminders?.sync(
         account.accountId,
       ); // refresh the device schedule (M600.1)
-      if (data != null && _notifications != null) {
+      // Paused from 65: the exercise reminders were taken off the phone, so none is shown
+      // (laptop check, 23 Nov: the card still said "Tomorrow, 8:30 AM").
+      if (data != null && _notifications != null && _restriction == null) {
         final reminders =
             (await _notifications.getReminders(account.accountId)).dataOrNull ??
             const <Reminder>[];
@@ -332,6 +334,34 @@ class TreatmentViewModel extends BaseViewModel {
   /// One exercise per day: a COMPLETED attempt was saved today (the shared
   /// ExerciseSession rule that Home and the reminder also use).
   bool get doneToday => ExerciseSession.anyCompletedOn(_sessions, clock());
+
+  /// Today's attempt at the current exercise was saved below 80%, so it can be tried again.
+  bool get todayNeedsRetry {
+    final p = activePlan;
+    final id = p?.currentExercise()?.exerciseId;
+    return id != null && doneToday && canStart(id);
+  }
+
+  /// What the pathway says once an attempt was saved today, or null. A try below 80% used to
+  /// show "Today's exercise is done" above its own Try again button and "0 of 3 done" (Elwin's
+  /// phone, 16 Nov); it now says the try is saved but not passed, and which try it was.
+  String? get todayNote {
+    final p = activePlan;
+    if (p == null ||
+        !doneToday ||
+        p.completedStages >= p.plan.exercises.length) {
+      return null;
+    }
+    if (!todayNeedsRetry) return nextUnlocksTomorrow;
+    final id = p.currentExercise()!.exerciseId;
+    final last = _sessions.lastWhere(
+      (s) => s.exerciseId == id && s.completedOn(clock()),
+    );
+    return 'Saved, but not passed yet: '
+        '${ExerciseSession.shownPercent(last.postureAccuracy ?? 0)}% is below 80%. '
+        'Try again now or next time '
+        '(try ${triesBelowPass(_sessions, last)} of ${AppConstants.triesBeforeMovingOn}).';
+  }
 
   /// Whether [exerciseId] may be started now. Before today's exercise is done,
   /// anything the pathway offers; afterwards only today's own exercise, and

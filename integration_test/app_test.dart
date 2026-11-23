@@ -153,12 +153,21 @@ Future<void> fillProfile(WidgetTester t, {String age = '58'}) async {
       'Please complete your health profile to receive personalised guidance.',
     ),
   );
+  // Step 1 of 4: body details
   await enter(t, fields().at(0), age);
   await tap(t, find.text('Female'));
   await enter(t, fields().at(1), '62');
   await enter(t, fields().at(2), '158');
+  await tapText(t, 'Next');
+  // Step 2: health conditions, each ticked one with its question answered
+  await waitFor(t, find.text('Step 2 of 4: Health conditions'));
   await tap(t, find.text('Hypertension'));
   await tap(t, find.text('Yes'));
+  await tapText(t, 'Next');
+  // Steps 3 and 4: no physical limitation, no food left out
+  await waitFor(t, find.text('Step 3 of 4: Physical limitations'));
+  await tapText(t, 'Next');
+  await waitFor(t, find.text('Step 4 of 4: Foods I cannot eat'));
   await tapText(t, 'Save');
 }
 
@@ -346,15 +355,13 @@ void main() {
         await tapText(t, 'Profile');
         await waitFor(t, find.text('Risk level: High'));
         expect(find.text('24.8'), findsOneWidget);
-        await t.scrollUntilVisible(
-          find.textContaining('please consult a healthcare professional'),
-          400,
-          scrollable: find.byType(Scrollable).first,
-        );
+        // The advice is right under the risk level; only the declared condition is listed.
         expect(
           find.textContaining('please consult a healthcare professional'),
           findsOneWidget,
         );
+        expect(find.text('Hypertension'), findsOneWidget);
+        expect(find.text('Stroke'), findsNothing);
       },
     );
 
@@ -376,13 +383,14 @@ void main() {
         await tap(t, find.text('Female'));
         await enter(t, fields().at(1), '62');
         await enter(t, fields().at(2), '158');
-        await tapText(t, 'Save');
+        await tapText(t, 'Next');
         expect(
           find.text(
             'The value entered is outside the accepted range. Please check your entry.',
           ),
           findsWidgets,
         );
+        expect(find.text('Step 1 of 4: Body details'), findsOneWidget); // not moved on
         expect(find.text('62'), findsOneWidget);
         expect(find.text('158'), findsOneWidget);
       },
@@ -394,10 +402,17 @@ void main() {
         await patientOnHome(t);
         await tapText(t, 'Profile');
         await waitFor(t, find.text('Risk level: High'));
-        await tapText(t, 'Edit');
+        // The conditions have their own Edit and page.
+        await tap(t, find.byKey(const Key('edit_conditions')));
+        await waitFor(t, find.text('1 selected'));
         await tap(t, find.text('Hypertension'));
+        await waitFor(t, find.text('None selected'));
         await tapText(t, 'Save');
-        // The risk level is at the top of the page; the condition chips are further down.
+        await waitFor(t, find.text('Update your diet plan?'));
+        await tapText(t, 'Not now');
+        expect(find.text('Hypertension'), findsNothing);
+        expect(find.text('None declared'), findsNWidgets(2)); // conditions and foods
+        // The risk level is at the top of the page, above the part that was edited.
         await t.fling(
           find.byType(Scrollable).first,
           const Offset(0, 3000),
