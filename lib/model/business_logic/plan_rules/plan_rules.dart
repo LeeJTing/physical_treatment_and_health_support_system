@@ -82,8 +82,6 @@ class PlanRules {
     'shoulder_flexion': ['shoulder'],
     'elbow_flexion': ['elbow'],
     'wall_push_up': ['elbow'],
-    'wrist_extension': ['wrist_hand'],
-    'hand_open_close': ['wrist_hand'],
     'hip_abduction': ['hip'],
     'seated_marching': ['hip'],
     'march_in_place': ['hip'],
@@ -125,9 +123,10 @@ class PlanRules {
   }
 
   /// From this joint overlap up, two plans "work the same joints". On the
-  /// catalogue: Shoulder Mobility Starter vs Hand and Wrist Recovery 0.2 (no
-  /// clash); the two balance plans 0.67, the two endurance plans 0.87 and the
-  /// two leg-strength plans 0.98 (clash).
+  /// catalogue: the two balance plans 0.67, the two endurance plans 0.87 and
+  /// the two leg-strength plans 0.98 (clash). (Shoulder Mobility Starter vs
+  /// Hand and Wrist Recovery was 0.2, no clash, until the hand plan was removed
+  /// on 24 Nov.)
   static const sameJoints = 0.5;
 
   /// Same body area (overlapping) AND the same goal AND mostly the same joints.

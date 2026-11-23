@@ -114,21 +114,22 @@ void main() {
       expect(PlanRules.areasOverlap('CORE', 'BOTH_LEGS'), isFalse);
     });
     test('clash also needs mostly the same joints (Elwin, 9 Oct)', () {
-      // Catalogue plans (assets/seed/catalogue.json), both BOTH_ARMS + MOBILITY.
+      // Both BOTH_ARMS + MOBILITY. The catalogue's own example (Hand and Wrist Recovery) was
+      // removed on 24 Nov, so the second plan is made up: elbows only.
       final shoulder = posePlan('shoulder', 'BOTH_ARMS', 'MOBILITY', [
         'shoulder_flexion',
         'shoulder_abduction',
         'elbow_flexion',
       ]);
-      final hand = posePlan('hand', 'BOTH_ARMS', 'MOBILITY', [
-        'wrist_extension',
-        'hand_open_close',
+      final elbows = posePlan('elbows', 'BOTH_ARMS', 'MOBILITY', [
         'elbow_flexion',
+        'wall_push_up',
       ]);
-      expect(PlanRules.jointOverlap(shoulder, hand), closeTo(0.2, 1e-9));
-      expect(PlanRules.clashes(shoulder, hand), isFalse);
+      // {shoulder: 2, elbow: 1} against {elbow: 2}: 2 / (sqrt 5 x 2) = 0.447.
+      expect(PlanRules.jointOverlap(shoulder, elbows), closeTo(0.447, 1e-3));
+      expect(PlanRules.clashes(shoulder, elbows), isFalse);
       expect(
-        codes(check(hand, [shoulder])),
+        codes(check(elbows, [shoulder])),
         allOf(contains('same_area'), isNot(contains('clash'))),
       );
 
@@ -443,7 +444,7 @@ void main() {
       for (final m in RegExp(r'"(\w+)": \(([^)]*)\)').allMatches(block))
         m[1]!: {for (final j in RegExp(r'"(\w+)"').allMatches(m[2]!)) j[1]!: 1},
     };
-    expect(server, hasLength(17));
+    expect(server, hasLength(15)); // wrist and hand removed (24 Nov)
     for (final MapEntry(key: poseKey, value: joints) in server.entries) {
       final p = posePlan(poseKey, 'BOTH_LEGS', 'STRENGTH', [poseKey]);
       expect(PlanRules.jointCounts(p), joints, reason: poseKey);

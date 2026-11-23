@@ -76,7 +76,7 @@ void main() {
         area(['front_right_shoulder', 'back_right_upper_arm']),
         'RIGHT_ARM',
       );
-      expect(area(['front_left_hand', 'front_right_forearm']), 'BOTH_ARMS');
+      expect(area(['front_left_elbow', 'front_right_forearm']), 'BOTH_ARMS');
     });
     test('legs only, buttocks and hips count as legs', () {
       expect(area(['front_left_knee']), 'LEFT_LEG');
@@ -97,11 +97,23 @@ void main() {
       expect(area(['front_neck', 'front_right_elbow']), 'RIGHT_ARM');
       expect(area(['front_neck', 'back_upper_back']), 'CORE');
     });
-    test('only the two neck regions are unavailable', () {
-      expect([
-        for (final x in BodyRegions.byId.values)
-          if (!x.available) x.id,
-      ], unorderedEquals(['front_neck', 'back_neck']));
+    test('only the neck, wrist and hand regions are unavailable', () {
+      expect(
+        [
+          for (final x in BodyRegions.byId.values)
+            if (!x.available) x.id,
+        ],
+        unorderedEquals([
+          'front_neck',
+          'back_neck',
+          'front_right_hand',
+          'front_left_hand',
+        ]),
+      );
+      // 24 Nov: no wrist or hand exercises, so the hands say so like the neck.
+      expect(r('front_left_hand').unavailableNote, BodyRegions.handNote);
+      expect(area(['front_left_hand']), isNull);
+      expect(area(['front_right_hand', 'front_right_elbow']), 'RIGHT_ARM');
     });
     test('two or more groups give full body', () {
       expect(area(['front_left_knee', 'front_left_elbow']), 'FULL_BODY');
@@ -131,8 +143,8 @@ void main() {
     List<String> parts(List<String> ids) =>
         BodyRegions.focusParts([for (final id in ids) r(id)]);
     test('each region gives its body parts', () {
-      expect(parts(['front_right_hand']), ['wrist_hand']);
-      expect(parts(['front_left_forearm']), ['wrist_hand']);
+      expect(parts(['front_right_hand']), isEmpty); // greyed out since 24 Nov
+      expect(parts(['front_left_forearm']), ['elbow']);
       expect(parts(['back_right_shoulder']), ['shoulder']);
       expect(parts(['front_left_upper_arm']), ['elbow', 'shoulder']);
       expect(parts(['back_left_heel', 'front_right_knee']), [
@@ -141,20 +153,15 @@ void main() {
       ]);
       expect(parts(['back_lower_back', 'front_abdomen']), ['back']);
     });
-    test('the neck adds nothing, both sides count once', () {
+    test('the neck and the hands add nothing, both sides count once', () {
       expect(parts(['front_neck', 'back_neck']), isEmpty);
-      expect(parts(['front_left_hand', 'front_right_hand']), ['wrist_hand']);
+      expect(parts(['front_left_hand', 'front_right_hand']), isEmpty);
+      expect(parts(['front_left_shoulder', 'front_right_shoulder']), [
+        'shoulder',
+      ]);
     });
     test('every available region has at least one known part', () {
-      const known = {
-        'shoulder',
-        'elbow',
-        'wrist_hand',
-        'hip',
-        'knee',
-        'ankle_foot',
-        'back',
-      };
+      const known = {'shoulder', 'elbow', 'hip', 'knee', 'ankle_foot', 'back'};
       for (final x in BodyRegions.byId.values.where((x) => x.available)) {
         expect(BodyRegions.focusParts([x]), isNotEmpty, reason: x.id);
         expect(known.containsAll(BodyRegions.focusParts([x])), isTrue);
@@ -170,12 +177,11 @@ void main() {
       'front_right_upper_arm',
       'front_right_elbow',
       'front_right_forearm',
-      'front_right_hand',
     ];
     test('places on one limb form one group, in a fixed order', () {
       final g = groups([...rightArm, 'front_left_knee', 'front_chest']);
       expect([for (final c in g) c.title], ['Right arm', 'Trunk', 'Left leg']);
-      expect(g.first.regions, hasLength(5));
+      expect(g.first.regions, hasLength(4));
     });
     test('chip text names the parts, or the region when alone', () {
       expect(groups(['front_left_knee']).single.summary, 'Left knee');
@@ -185,7 +191,7 @@ void main() {
       );
       expect(
         groups(rightArm).single.summary,
-        'Right arm: shoulder, upper arm and 3 more',
+        'Right arm: shoulder, upper arm and 2 more',
       );
     });
     test('map label: own name, two trunk names, or a count', () {
@@ -193,7 +199,7 @@ void main() {
           RegionCluster.mapLabel(groups(ids).single);
       expect(label(['front_left_shoulder']), 'Left shoulder');
       expect(label(['front_chest', 'front_abdomen']), 'Chest, abdomen');
-      expect(label(rightArm), 'Right arm (5)');
+      expect(label(rightArm), 'Right arm (4)');
     });
     test('the neck never forms a group', () {
       expect(groups(['front_neck', 'back_neck']), isEmpty);
@@ -294,9 +300,15 @@ void main() {
       phone(t);
       var sel = <String>{};
       await t.pumpWidget(host(() => sel, (s) => sel = s));
-      // 15 logical px below the hand centre is outside the drawn hand at this scale.
-      await tapRegion(t, 'front_right_hand', shift: const Offset(0, 15));
-      expect(sel, {'front_right_hand'});
+      // 15 logical px beside the foot centre is outside the drawn foot at this scale.
+      await tapRegion(t, 'front_right_foot', shift: const Offset(-15, 0));
+      expect(sel, {'front_right_foot'});
+      // The hands are greyed out (24 Nov): a tap shows why and selects nothing.
+      sel = <String>{};
+      await t.pumpWidget(host(() => sel, (s) => sel = s));
+      await tapRegion(t, 'front_right_hand');
+      expect(sel, isEmpty);
+      expect(find.text(BodyRegions.handNote), findsOneWidget);
     });
 
     testWidgets('chips remove a part and Clear removes all', (t) async {
@@ -419,8 +431,8 @@ void main() {
         await t.pumpAndSettle();
         final labels = [
           for (final text in [
-            'Right arm (5)',
-            'Left arm (5)',
+            'Right arm (4)',
+            'Left arm (4)',
             'Chest, abdomen',
             'Right leg (5)',
             'Left leg (5)',
@@ -670,7 +682,10 @@ void main() {
       await t.pumpAndSettle();
       await reveal(t, find.text('Early'));
       final early = t.widget<ChoiceCard>(
-        find.ancestor(of: find.text('Early'), matching: find.byType(ChoiceCard)),
+        find.ancestor(
+          of: find.text('Early'),
+          matching: find.byType(ChoiceCard),
+        ),
       );
       expect(early.selected, isTrue); // before: a new, empty questionnaire
     },
@@ -703,8 +718,8 @@ void main() {
         expect(BodyRegions.areaFor(got), e.key);
       }
       final full = BodyMapThumbnail(area: 'FULL_BODY').highlighted;
-      // Everything but the neck.
-      expect(full.length, BodyRegions.front.length - 1);
+      // Everything but the neck and the two hands.
+      expect(full.length, BodyRegions.front.length - 3);
       for (final a in [...expected.keys, 'FULL_BODY']) {
         for (final v in BodyView.values) {
           expect(
@@ -744,6 +759,8 @@ void main() {
       ...BodyRegions.front,
       ...BodyRegions.back,
     ]);
-    expect(sent.toSet(), server);
+    // The server still accepts "wrist_hand" (older app builds send it), but since 24 Nov the
+    // hands are greyed out and no plan trains them, so the map never sends it.
+    expect(sent.toSet(), server.difference({'wrist_hand'}));
   });
 }

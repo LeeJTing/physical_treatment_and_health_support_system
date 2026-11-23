@@ -202,23 +202,6 @@ void main() {
       expect(e.steps, 'Sit upright on a chair. Lift one knee.');
     });
 
-    test('hand exercises are recorded at a table, not as a whole body', () {
-      Exercise keyed(String? k) => Exercise(
-        exerciseId: 'e',
-        exerciseName: 'X',
-        instructionText: 'x',
-        targetBodyArea: 'BOTH_ARMS',
-        intensityLevel: ExerciseIntensity.low,
-        defaultRepetitions: 10,
-        defaultDurationSec: 60,
-        poseKey: k,
-      );
-      expect(keyed('wrist_extension').recordsHands, isTrue);
-      expect(keyed('hand_open_close').recordsHands, isTrue);
-      expect(keyed('shoulder_abduction').recordsHands, isFalse);
-      expect(keyed(null).recordsHands, isFalse);
-    });
-
     test('text without a camera sentence is unchanged', () {
       final e = withText('Sit upright on a chair.');
       expect(e.cameraTip, isNull);

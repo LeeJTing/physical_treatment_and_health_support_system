@@ -16,7 +16,7 @@ void main() {
       .where((f) => f.path.endsWith('.json'))
       .toList();
 
-  test('every catalogue exercise has an animation (Wrist Extension waits for clips)', () {
+  test('every catalogue exercise has an animation', () {
     final catalogue =
         jsonDecode(File('assets/seed/catalogue.json').readAsStringSync())
             as Map<String, dynamic>;
@@ -27,7 +27,7 @@ void main() {
     final have = {
       for (final f in files) f.uri.pathSegments.last.replaceAll('.json', ''),
     };
-    expect(keys.difference(have), {'wrist_extension'});
+    expect(keys.difference(have), isEmpty);
   });
 
   test('each animation is a closed loop of points inside the unit box', () {
@@ -50,17 +50,28 @@ void main() {
       if (!d.hold) {
         // Last frame back at the first: the loop does not jump.
         for (var k = 0; k < d.names.length; k++) {
-          expect((d.frames.last[k] - d.frames.first[k]).distance, lessThan(0.02),
-              reason: '${f.path} ${d.names[k]}');
+          expect(
+            (d.frames.last[k] - d.frames.first[k]).distance,
+            lessThan(0.02),
+            reason: '${f.path} ${d.names[k]}',
+          );
         }
       }
     }
   });
 
-  testWidgets('plays in a card; nothing is shown for an exercise without one', (tester) async {
+  testWidgets('plays in a card; nothing is shown for an exercise without one', (
+    tester,
+  ) async {
     await tester.runAsync(() async {
-      expect(await GuideAnimationData.load(rootBundle, 'sit_to_stand'), isNotNull);
-      expect(await GuideAnimationData.load(rootBundle, 'no_such_exercise'), isNull);
+      expect(
+        await GuideAnimationData.load(rootBundle, 'sit_to_stand'),
+        isNotNull,
+      );
+      expect(
+        await GuideAnimationData.load(rootBundle, 'no_such_exercise'),
+        isNull,
+      );
     });
     await tester.pumpWidget(
       const MaterialApp(
@@ -80,10 +91,15 @@ void main() {
     );
     // The cached loads were made in real time (runAsync above), so the
     // widget's await resumes on the real event loop: let it run once.
-    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 900));
-    expect(find.bySemanticsLabel('Animation showing how to do the exercise'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Animation showing how to do the exercise'),
+      findsOneWidget,
+    );
     expect(find.text('none'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

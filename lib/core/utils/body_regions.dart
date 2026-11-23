@@ -120,12 +120,19 @@ class BodyRegions {
       "Neck problems need a doctor or physiotherapist to guide the exercises, "
       "so this app doesn't include neck exercises.";
 
+  /// No wrist or hand exercises (24 Nov, Elwin): the two that were added on 9 Oct were never
+  /// tested on a real person's video, so they were taken out of the catalogue.
+  static const handNote =
+      "This app doesn't have wrist or hand exercises yet. Ask a doctor or "
+      "physiotherapist about exercises for your wrist and hand.";
+
   static List<BodyRegion> _paired(
     String name,
     String template, {
     required String shape,
     required BodyView view,
     required BodyGroup group,
+    String? unavailableNote,
   }) => [
     for (final side in [BodySide.right, BodySide.left])
       BodyRegion(
@@ -135,6 +142,7 @@ class BodyRegions {
         view: view,
         side: side,
         group: group,
+        unavailableNote: unavailableNote,
       ),
   ];
 
@@ -198,6 +206,7 @@ class BodyRegions {
       shape: 'hand',
       view: BodyView.front,
       group: BodyGroup.arm,
+      unavailableNote: BodyRegions.handNote,
     ),
     ..._paired(
       'hip',
@@ -355,7 +364,7 @@ class BodyRegions {
   ///  - legs only: LEFT_LEG, RIGHT_LEG or BOTH_LEGS
   ///  - core only: CORE
   ///  - two or more of arms, legs and core: FULL_BODY
-  /// Regions that cannot be chosen (the neck) are ignored.
+  /// Regions that cannot be chosen (the neck, wrists and hands) are ignored.
   static String? areaFor(Iterable<BodyRegion> regions) {
     regions = [
       for (final r in regions)
@@ -374,13 +383,13 @@ class BodyRegions {
 
   /// Body parts of a region shape, as the recommender's focus block names
   /// them (ai_server engine.FOCUS_PARTS). A segment between two joints
-  /// counts for both; the neck has none.
+  /// counts for both; the neck and the hands have none.
   static const _shapeParts = {
     'shoulder': ['shoulder'],
     'upperArm': ['shoulder', 'elbow'],
     'elbow': ['elbow'],
-    'forearm': ['wrist_hand'],
-    'hand': ['wrist_hand'],
+    // No wrist exercises since 24 Nov; Elbow Flexion works the forearm.
+    'forearm': ['elbow'],
     'torsoUpper': ['back'],
     'torsoLower': ['back'],
     'hip': ['hip'],

@@ -50,23 +50,6 @@
       }
     }
   },
-  "hand_open_close": {
-    "view": "front",
-    "mistakes": {
-      "low_range": {
-        "feedback": "Open your fingers a little wider, only as far as is comfortable.",
-        "meaning": "the movement did not go as far as the exercise asks"
-      },
-      "not_closed": {
-        "feedback": "Between openings, close your hand into a gentle fist.",
-        "meaning": "your hand did not close into a fist between openings"
-      },
-      "fingers_not_spread": {
-        "feedback": "Spread your fingers wide as you open your hand, only as far as is comfortable.",
-        "meaning": "your fingers stayed close together when your hand opened"
-      }
-    }
-  },
   "heel_raise": {
     "view": "side",
     "mistakes": {
@@ -315,15 +298,6 @@
       },
       "low_range": {
         "feedback": "Bend your elbows a little more to bring your chest closer to the wall, only as far as is comfortable.",
-        "meaning": "the movement did not go as far as the exercise asks"
-      }
-    }
-  },
-  "wrist_extension": {
-    "view": "side",
-    "mistakes": {
-      "low_range": {
-        "feedback": "Lift your hand a little higher, only as far as is comfortable, keeping your forearm resting on the table.",
         "meaning": "the movement did not go as far as the exercise asks"
       }
     }
