@@ -247,17 +247,15 @@ class _RecordingViewState extends State<RecordingView>
     _timer = null;
   }
 
-  /// Record: count the patient in first, so they can walk to their place (10 s; 5 s at a
-  /// table). Tapping again during the count cancels it.
+  /// Record: count the patient in first, so they can walk to their place (10 s). Tapping
+  /// again during the count cancels it.
   void _startCountdown() {
     if (_countdown != null) {
       _cancelCountdown();
       _say('Cancelled.');
       return;
     }
-    final hands =
-        context.read<TreatmentViewModel>().current?.recordsHands ?? false;
-    final start = hands ? 5 : 10;
+    const start = 10;
     setState(() => _countdown = start);
     _hideGuide();
     _say('Get into position. Recording starts in $start seconds.');
@@ -402,7 +400,6 @@ class _RecordingViewState extends State<RecordingView>
   void _help() {
     final current = context.read<TreatmentViewModel>().current;
     final tip = current?.cameraTip;
-    final hands = current?.recordsHands ?? false;
     // Where the phone goes: the guide's own rule (audit, 24 Oct: the help said waist height for
     // every exercise while the guide puts it on the floor for bird dog and glute bridge).
     final place = current == null
@@ -430,15 +427,11 @@ class _RecordingViewState extends State<RecordingView>
               const SizedBox(height: 8),
             ],
             Text(
-              hands
-                  ? '• Sit at a table. Put the phone on a stand at table height, about half a metre to 1 metre away.\n'
-                        '• Keep your forearm and your whole hand inside the frame.\n'
-                        '• Use good light in front of you.\n'
-                  : '• $phone\n'
-                        '• Keep your whole body, head to feet, inside the frame.\n'
-                        '• Use good light in front of you.\n'
-                        '• Record 10 to 30 seconds: do the repetitions slowly.\n'
-                        '• If the upload fails, check the video is MP4 or MOV, 10 to 30 seconds and under 100 MB.',
+              '• $phone\n'
+              '• Keep your whole body, head to feet, inside the frame.\n'
+              '• Use good light in front of you.\n'
+              '• Record 10 to 30 seconds: do the repetitions slowly.\n'
+              '• If the upload fails, check the video is MP4 or MOV, 10 to 30 seconds and under 100 MB.',
             ),
           ],
         ),
@@ -459,7 +452,6 @@ class _RecordingViewState extends State<RecordingView>
   Widget build(BuildContext context) {
     final vm = context.watch<TreatmentViewModel>();
     final name = vm.current?.exerciseName ?? '';
-    final hands = vm.current?.recordsHands ?? false;
     final c = _controller;
     final page = Scaffold(
       backgroundColor: AppTokens.background,
@@ -660,13 +652,11 @@ class _RecordingViewState extends State<RecordingView>
                                   (_recording ? _cue : null) ??
                                   (_countdown == null && !_recording
                                       ? 'Tap Record, then go to your place: you have '
-                                            '${hands ? 5 : 10} seconds.'
+                                            '10 seconds.'
                                       : null) ??
                                   // The set-up of this exercise (side view, on the floor, ...).
                                   vm.current?.cameraTip ??
-                                  (hands
-                                      ? 'Keep your forearm and your whole hand inside the frame.'
-                                      : 'Step back until your whole body, head to feet, fits inside the frame.'),
+                                  'Step back until your whole body, head to feet, fits inside the frame.',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 15,

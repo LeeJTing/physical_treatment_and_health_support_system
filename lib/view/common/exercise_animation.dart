@@ -11,7 +11,6 @@ import 'package:physical_treatment_and_health_support_system/view/common/exercis
 /// `assets/guides/<pose_key>.json`, 11 Oct). Points are in a unit box, y down.
 class GuideAnimationData {
   final String view; // front | side
-  final bool hand;
   final bool hold;
   final String? near; // side view: the body side nearest the camera
   final double durationSec;
@@ -23,7 +22,6 @@ class GuideAnimationData {
 
   GuideAnimationData({
     required this.view,
-    required this.hand,
     required this.hold,
     required this.near,
     required this.durationSec,
@@ -42,7 +40,6 @@ class GuideAnimationData {
   factory GuideAnimationData.fromJson(Map<String, dynamic> j) =>
       GuideAnimationData(
         view: j['view'] as String? ?? 'front',
-        hand: j['kind'] == 'hand',
         hold: j['hold'] as bool? ?? false,
         near: j['near'] as String?,
         durationSec: (j['duration_sec'] as num?)?.toDouble() ?? 3,
@@ -402,8 +399,8 @@ class _GuidePainter extends CustomPainter {
 
     final pts = _frameAt(phase);
     final i = {for (var k = 0; k < d.names.length; k++) d.names[k]: k};
-    // Coached: a fuller, body-shaped person (23 Oct); the hand guides keep thin lines.
-    final body = coaching != null && !d.hand;
+    // Coached: a fuller, body-shaped person (23 Oct).
+    final body = coaching != null;
     final limb = body ? width * 1.9 : width;
     final near = Paint()
       ..color = color

@@ -13,7 +13,7 @@ import 'package:physical_treatment_and_health_support_system/view/common/exercis
 /// the phone behind you" (Elwin, 23 Oct).
 class SetupScene extends StatelessWidget {
   final GuideAnimationData? data;
-  final bool hands;
+
   /// The phone goes on the floor (floor exercises), not at waist height.
   final bool floor;
 
@@ -23,18 +23,15 @@ class SetupScene extends StatelessWidget {
   const SetupScene({
     super.key,
     required this.data,
-    required this.hands,
     this.floor = false,
     this.distance,
   });
 
   @override
   Widget build(BuildContext context) {
-    final side = !hands && data?.view == 'side';
-    final distance = hands ? '0.5 to 1 m' : this.distance ?? '2.5 to 3 m';
-    final above = hands
-        ? 'Seen from above: the phone on the table, facing your hand.'
-        : side
+    final side = data?.view == 'side';
+    final distance = this.distance ?? '2.5 to 3 m';
+    final above = side
         ? 'Seen from above: turn sideways, so your side faces the phone.'
         : 'Seen from above: face the phone.';
     const caption = TextStyle(
@@ -54,16 +51,12 @@ class SetupScene extends StatelessWidget {
                 image: true,
                 label:
                     '$above The phone is $distance away'
-                    '${hands ? '' : floor ? ', on the floor' : ', at waist height'}.',
+                    '${floor ? ', on the floor' : ', at waist height'}.',
                 child: AspectRatio(
                   aspectRatio: 0.8,
                   child: CustomPaint(
                     key: const Key('setup_from_above'),
-                    painter: _FromAbove(
-                      side: side,
-                      hands: hands,
-                      distance: distance,
-                    ),
+                    painter: _FromAbove(side: side, distance: distance),
                   ),
                 ),
               ),
@@ -81,10 +74,9 @@ class SetupScene extends StatelessWidget {
               Semantics(
                 container: true,
                 image: true,
-                label: hands
-                    ? 'The phone screen shows your forearm and whole hand inside the box.'
-                    : 'The phone screen shows your whole body, head to feet, inside the box'
-                          '${side ? ', from the side' : ''}.',
+                label:
+                    'The phone screen shows your whole body, head to feet, inside the box'
+                    '${side ? ', from the side' : ''}.',
                 child: AspectRatio(
                   aspectRatio: 0.8,
                   child: CustomPaint(
@@ -137,9 +129,8 @@ void _dash(Canvas canvas, Offset a, Offset b, Paint p, {double step = 8}) {
 /// A plan of the room: the phone at the bottom looking up, the person at the top.
 class _FromAbove extends CustomPainter {
   final bool side;
-  final bool hands;
   final String distance;
-  _FromAbove({required this.side, required this.hands, required this.distance});
+  _FromAbove({required this.side, required this.distance});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -188,56 +179,37 @@ class _FromAbove extends CustomPainter {
     ph.paint(canvas, Offset(phone.dx - ph.width / 2, phone.dy + h * 0.04));
 
     final ink = Paint()..color = AppTokens.primary;
-    if (hands) {
-      // The table and a hand on it.
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(center: person, width: w * 0.8, height: h * 0.3),
-          const Radius.circular(6),
-        ),
-        Paint()..color = AppTokens.border,
-      );
-      canvas.drawOval(
-        Rect.fromCenter(center: person, width: w * 0.16, height: h * 0.2),
-        ink,
-      );
-    } else {
-      // The person from above: shoulders, head, and a nose showing which way they face.
-      // Side-on, their shoulders point at the phone; facing it, they are across its view.
-      canvas.save();
-      canvas.translate(person.dx, person.dy);
-      canvas.rotate(
-        side ? 0 : math.pi / 2,
-      ); // 0: faces right; pi/2: faces the phone
-      canvas.drawOval(
-        Rect.fromCenter(center: Offset.zero, width: w * 0.16, height: w * 0.42),
-        ink,
-      );
-      final head = w * 0.085;
-      canvas.drawCircle(
-        Offset.zero,
-        head,
-        Paint()..color = AppTokens.brandDeep,
-      );
-      canvas.drawPath(
-        Path()
-          ..moveTo(head + w * 0.05, 0)
-          ..lineTo(head - w * 0.01, -w * 0.035)
-          ..lineTo(head - w * 0.01, w * 0.035)
-          ..close(),
-        Paint()..color = AppTokens.brandDeep,
-      );
-      // An arrow: the way the person faces.
-      final arrow = Paint()
-        ..color = AppTokens.cta
-        ..strokeWidth = 3
-        ..strokeCap = StrokeCap.round;
-      final from = Offset(w * 0.18, 0), to = Offset(w * 0.32, 0);
-      canvas.drawLine(from, to, arrow);
-      canvas.drawLine(to, to + const Offset(-8, -6), arrow);
-      canvas.drawLine(to, to + const Offset(-8, 6), arrow);
-      canvas.restore();
-    }
+    // The person from above: shoulders, head, and a nose showing which way they face.
+    // Side-on, their shoulders point at the phone; facing it, they are across its view.
+    canvas.save();
+    canvas.translate(person.dx, person.dy);
+    canvas.rotate(
+      side ? 0 : math.pi / 2,
+    ); // 0: faces right; pi/2: faces the phone
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset.zero, width: w * 0.16, height: w * 0.42),
+      ink,
+    );
+    final head = w * 0.085;
+    canvas.drawCircle(Offset.zero, head, Paint()..color = AppTokens.brandDeep);
+    canvas.drawPath(
+      Path()
+        ..moveTo(head + w * 0.05, 0)
+        ..lineTo(head - w * 0.01, -w * 0.035)
+        ..lineTo(head - w * 0.01, w * 0.035)
+        ..close(),
+      Paint()..color = AppTokens.brandDeep,
+    );
+    // An arrow: the way the person faces.
+    final arrow = Paint()
+      ..color = AppTokens.cta
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round;
+    final from = Offset(w * 0.18, 0), to = Offset(w * 0.32, 0);
+    canvas.drawLine(from, to, arrow);
+    canvas.drawLine(to, to + const Offset(-8, -6), arrow);
+    canvas.drawLine(to, to + const Offset(-8, 6), arrow);
+    canvas.restore();
 
     // The distance between them.
     final top = Offset(w * 0.12, person.dy + h * 0.14);
@@ -259,7 +231,7 @@ class _FromAbove extends CustomPainter {
 
   @override
   bool shouldRepaint(_FromAbove old) =>
-      old.side != side || old.hands != hands || old.distance != distance;
+      old.side != side || old.distance != distance;
 }
 
 /// The phone's screen: the person (the guide's first frame, with the chair, wall or step)

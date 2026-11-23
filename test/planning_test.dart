@@ -198,11 +198,11 @@ void main() {
           recoveryStage: RecoveryStage.early,
           mobilityLevel: MobilityLevel.low,
           goal: 'MOBILITY',
-          focusParts: ['wrist_hand'],
+          focusParts: ['shoulder'],
         ),
       );
       final body = h.server.lastBody!;
-      expect(body['focus_parts'], ['wrist_hand']);
+      expect(body['focus_parts'], ['shoulder']);
       expect(body.containsKey('pace'), isFalse); // skipped: no pace block
       // Not inside rehab: RehabInfo.toJson keeps the four FR500_03 answers.
       expect((body['rehab'] as Map).containsKey('focus_parts'), isFalse);
@@ -228,7 +228,7 @@ void main() {
               as Map)['exercise']['pose_key'],
           isNotNull,
         );
-        // Every catalogue plan is sent (11 since 608b5ce added Hand and Wrist Recovery).
+        // Every catalogue plan is sent (10 since Hand and Wrist Recovery was removed, 24 Nov).
         expect(
           (body['plans'] as List).length,
           (jsonDecode(catalogueJson)['plans'] as List).length,
@@ -449,14 +449,20 @@ void main() {
       },
     );
 
-    test('Select tapped twice at once assigns the plan once (23 Oct)', () async {
-      final h = Harness();
-      await h.signIn();
-      await h.vm.recommend(rehab);
-      final plan = h.vm.candidates.first;
-      final results = await Future.wait([h.vm.select(plan), h.vm.select(plan)]);
-      expect(results.where((ok) => ok), hasLength(1));
-    });
+    test(
+      'Select tapped twice at once assigns the plan once (23 Oct)',
+      () async {
+        final h = Harness();
+        await h.signIn();
+        await h.vm.recommend(rehab);
+        final plan = h.vm.candidates.first;
+        final results = await Future.wait([
+          h.vm.select(plan),
+          h.vm.select(plan),
+        ]);
+        expect(results.where((ok) => ok), hasLength(1));
+      },
+    );
 
     test(
       'select saves the plan and a reminder for its weekly frequency (FR500_09, FR500_11)',

@@ -12,8 +12,8 @@ class RehabInfo {
   /// One of STRENGTH, MOBILITY, BALANCE, PAIN_RELIEF, ENDURANCE.
   final String goal;
 
-  /// Finer body parts tapped on the body map (shoulder, elbow, wrist_hand,
-  /// hip, knee, ankle_foot, back). Empty when the list fallback was used.
+  /// Finer body parts tapped on the body map (shoulder, elbow, hip, knee,
+  /// ankle_foot, back; wrists and hands are greyed out since 24 Nov). Empty when the list fallback was used.
   /// Sent next to `rehab` as focus_parts, not part of [toJson].
   final List<String> focusParts;
 

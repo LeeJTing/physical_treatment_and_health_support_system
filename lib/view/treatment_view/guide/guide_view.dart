@@ -112,18 +112,13 @@ class _GuideViewState extends State<GuideView> {
         : 'about ${place.metres} metres';
     return [
       ...c.setup,
-      if (e.recordsHands) ...[
-        'Sit at a table. Prop the phone up at table height, half a metre to one metre away.',
-        'Keep your forearm and your whole hand inside the box on the screen.',
-      ] else ...[
-        place.floor
-            ? 'Put the phone on the floor, propped up so it looks at you.'
-            : 'Prop the phone up at about waist height, on a stand or against something steady.',
-        '${place.floor ? 'Be' : 'Stand'} $away away, ${side ? 'with your side towards the phone, not your back' : 'facing the phone'}.',
-        'Your whole body, head to feet, must fit inside the box on the screen.',
-      ],
+      place.floor
+          ? 'Put the phone on the floor, propped up so it looks at you.'
+          : 'Prop the phone up at about waist height, on a stand or against something steady.',
+      '${place.floor ? 'Be' : 'Stand'} $away away, ${side ? 'with your side towards the phone, not your back' : 'facing the phone'}.',
+      'Your whole body, head to feet, must fit inside the box on the screen.',
       'Have good light in front of you, not behind you.',
-      'After you tap Record you have ${e.recordsHands ? 5 : 10} seconds to get into place.',
+      'After you tap Record you have 10 seconds to get into place.',
     ];
   }
 
@@ -251,7 +246,9 @@ class _GuideViewState extends State<GuideView> {
                     if (_page > 0) ...[
                       Expanded(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(minHeight: AppTokens.minTarget + 4),
+                          constraints: const BoxConstraints(
+                            minHeight: AppTokens.minTarget + 4,
+                          ),
                           child: OutlinedButton(
                             onPressed: () => _go(_page - 1, pages.length),
                             child: const Text(
@@ -266,7 +263,9 @@ class _GuideViewState extends State<GuideView> {
                     Expanded(
                       flex: 2,
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(minHeight: AppTokens.minTarget + 4),
+                        constraints: const BoxConstraints(
+                          minHeight: AppTokens.minTarget + 4,
+                        ),
                         child: FilledButton(
                           key: const Key('guide_next'),
                           style: FilledButton.styleFrom(
@@ -377,7 +376,6 @@ class _GuideViewState extends State<GuideView> {
     const SizedBox(height: 12),
     SetupScene(
       data: _data,
-      hands: e.recordsHands,
       floor: GuideView.phonePlace(e).floor,
       distance: GuideView.phonePlace(e).metres == null
           ? null
