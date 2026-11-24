@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_insights_service/diet_food_guidance_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_insights_service/plan_comparison_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_planner_service/diet_planner_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
@@ -277,6 +278,14 @@ class DietInsightsService {
         ),
       );
     }
+    final comparison = const PlanComparisonService().build(
+      accountId: accountId,
+      start: start,
+      now: now,
+      meals: meals,
+      plans: plans,
+      plansAvailable: plansAvailable,
+    );
     return DietInsights(
       WeeklyDietReview(
         start: start,
@@ -308,13 +317,14 @@ class DietInsightsService {
           readingError,
         ),
       ],
-      comparison: const PlanComparisonService().build(
-        accountId: accountId,
-        start: start,
-        now: now,
+      comparison: comparison,
+      foodGuidance: const DietFoodGuidanceService().build(
+        comparison: comparison,
         meals: meals,
-        plans: plans,
-        plansAvailable: plansAvailable,
+        plans: plans.values,
+        accountId: accountId,
+        now: now,
+        context: context,
       ),
     );
   }

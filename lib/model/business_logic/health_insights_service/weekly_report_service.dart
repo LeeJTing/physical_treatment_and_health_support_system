@@ -2,8 +2,9 @@ import 'dart:typed_data';
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:physical_treatment_and_health_support_system/model/business_logic/health_insights_service/report_explanation_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/health_insights.dart';
-import 'package:physical_treatment_and_health_support_system/model/entity/plan_comparison.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/report_explanation.dart';
 import 'package:physical_treatment_and_health_support_system/model/result.dart';
 
 class WeeklyReportService {
@@ -18,6 +19,7 @@ class WeeklyReportService {
     String safe(String s) => s
         .replaceAll('’', "'")
         .replaceAll('–', '-')
+        .replaceAll('—', '-')
         .replaceAll('·', ' / ')
         .replaceAll('→', 'to');
     pw.Widget heading(String s) => pw.Padding(
@@ -31,18 +33,43 @@ class WeeklyReportService {
       text: safe(s),
       style: const pw.TextStyle(fontSize: 10, lineSpacing: 3),
     );
-    pw.Widget footer(pw.Context c) => pw.Row(
-      mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-      children: [
-        pw.Text(
-          'HealthGuide / Personal progress summary',
-          style: const pw.TextStyle(fontSize: 8),
+    const explanations = ReportExplanationService();
+    List<pw.Widget> explain(
+      String title,
+      ReportExplanation e, {
+      List<DateTime> evidenceDays = const [],
+    }) => [
+      pw.Inseparable(
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            heading(title),
+            text('Conclusion: ${e.conclusion}'),
+            text('Analysis: ${e.analysis}'),
+            text('Suggested next step: ${e.suggestion}'),
+            if (evidenceDays.isNotEmpty)
+              text(
+                'Evidence dates: ${evidenceDays.map((d) => DateFormat('d MMM').format(d)).join(', ')}',
+              ),
+          ],
         ),
-        pw.Text(
-          '${c.pageNumber} / ${c.pagesCount}',
-          style: const pw.TextStyle(fontSize: 8),
-        ),
-      ],
+      ),
+    ];
+    pw.Widget footer(pw.Context c) => pw.Padding(
+      padding: const pw.EdgeInsets.only(top: 12),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            'HealthGuide / Personal progress summary',
+            style: const pw.TextStyle(fontSize: 8),
+          ),
+          pw.Text(
+            '${c.pageNumber} / ${c.pagesCount}',
+            style: const pw.TextStyle(fontSize: 8),
+          ),
+        ],
+      ),
     );
     final max = data.comparison.days.fold<double>(1, (v, d) {
       final high = d.planned.energyKcal > d.logged.energyKcal
@@ -74,81 +101,117 @@ class WeeklyReportService {
                 : 'Presentation data excluded or none found in the loaded history.',
           ),
           ...data.notices.map((n) => text('Data notice: $n')),
+          ...explain(
+            'Weekly conclusion and next steps',
+            explanations.weekly(data),
+          ),
+          if (data.foodGuidance case final guidance?) ...[
+            heading('Weekly food priorities'),
+            text(guidance.basis),
+            if (guidance.priorities.isEmpty)
+              text(
+                'No supported food change identified. Review daily coverage before changing portions.',
+              ),
+            for (final p in guidance.priorities)
+              pw.Inseparable(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    heading(p.title),
+                    text(p.detail),
+                    text(
+                      'Evidence: ${p.dates.map((d) => DateFormat('d MMM').format(d)).join(', ')}',
+                    ),
+                  ],
+                ),
+              ),
+            for (final d in guidance.days)
+              pw.Inseparable(
+                child: pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    if (d == guidance.days.first) heading('Daily food review'),
+                    heading(DateFormat('EEE, d MMM').format(d.date)),
+                    text(d.conclusion),
+                    for (final a in d.actions)
+                      text('${a.label}: ${a.portion}. ${a.reason}'),
+                  ],
+                ),
+              ),
+          ],
           ...data.facts
               .take(3)
               .expand(
                 (f) => [
-                  heading(f.title),
-                  text(f.text),
-                  text(
-                    'Evidence dates: ${f.evidenceDays.map((d) => DateFormat('d MMM').format(d)).join(', ')}',
+                  ...explain(
+                    f.title,
+                    explanations.fact(data, f),
+                    evidenceDays: f.evidenceDays,
                   ),
                 ],
               ),
-          heading('Daily recorded energy against the saved plan'),
-          text(
-            'Blue: saved plan. Green: recorded food. A missing log remains unknown. Planned amounts are reference values; later-created plans cannot establish adherence.',
-          ),
-          for (final d in data.comparison.days)
-            pw.Padding(
-              padding: const pw.EdgeInsets.only(bottom: 8),
-              child: pw.Row(
-                children: [
-                  pw.SizedBox(
-                    width: 58,
-                    child: pw.Text(
-                      DateFormat('EEE d').format(d.date),
-                      style: const pw.TextStyle(fontSize: 10),
-                    ),
-                  ),
-                  pw.Expanded(
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
+          pw.Inseparable(
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                heading('Daily recorded energy against the saved plan'),
+                text(
+                  'Blue: saved plan. Green: recorded food. A missing log remains unknown. Planned amounts are reference values; later-created plans cannot establish adherence.',
+                ),
+                for (final d in data.comparison.days)
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.only(bottom: 8),
+                    child: pw.Row(
                       children: [
-                        if (d.hasPlan)
-                          pw.Container(
-                            height: 7,
-                            width: 340 * d.planned.energyKcal / max,
-                            color: blue,
+                        pw.SizedBox(
+                          width: 58,
+                          child: pw.Text(
+                            DateFormat('EEE d').format(d.date),
+                            style: const pw.TextStyle(fontSize: 10),
                           ),
-                        pw.SizedBox(height: 3),
-                        if (d.hasLogs)
-                          pw.Container(
-                            height: 7,
-                            width: 340 * d.logged.energyKcal / max,
-                            color: teal,
+                        ),
+                        pw.Expanded(
+                          child: pw.Column(
+                            crossAxisAlignment: pw.CrossAxisAlignment.start,
+                            children: [
+                              if (d.hasPlan)
+                                pw.Container(
+                                  height: 7,
+                                  width: 340 * d.planned.energyKcal / max,
+                                  color: blue,
+                                ),
+                              pw.SizedBox(height: 3),
+                              if (d.hasLogs)
+                                pw.Container(
+                                  height: 7,
+                                  width: 340 * d.logged.energyKcal / max,
+                                  color: teal,
+                                ),
+                            ],
                           ),
+                        ),
+                        pw.SizedBox(
+                          width: 110,
+                          child: pw.Text(
+                            '${d.hasPlan ? d.planned.energyKcal.round() : 'No plan'} / ${d.hasLogs ? d.logged.energyKcal.round() : 'No log'}',
+                            style: const pw.TextStyle(fontSize: 9),
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                  pw.SizedBox(
-                    width: 110,
-                    child: pw.Text(
-                      '${d.hasPlan ? d.planned.energyKcal.round() : 'No plan'} / ${d.hasLogs ? d.logged.energyKcal.round() : 'No log'}',
-                      style: const pw.TextStyle(fontSize: 9),
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
-        ],
-      ),
-    );
-    doc.addPage(
-      pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(36),
-        footer: footer,
-        build: (c) => [
+          ),
           heading('Observations and next steps'),
           ...data.facts
               .skip(3)
               .expand(
                 (f) => [
-                  heading(f.title),
-                  text(f.text),
-                  text(
-                    'Evidence dates: ${f.evidenceDays.map((d) => DateFormat('d MMM').format(d)).join(', ')}',
+                  ...explain(
+                    f.title,
+                    explanations.fact(data, f),
+                    evidenceDays: f.evidenceDays,
                   ),
                 ],
               ),
@@ -156,17 +219,17 @@ class WeeklyReportService {
           text(
             'Symptoms are self-reported. Posture scores assess recorded movements. Neither proves recovery or changes prescribed treatment.',
           ),
-          for (final r in data.recovery.where((r) => r.checkIns.isNotEmpty))
-            text(
-              '${r.planName}: ${r.checkIns.length} check-ins. Latest pain ${r.checkIns.last.pain}/10; stiffness ${r.checkIns.last.stiffness}/10; difficulty ${r.checkIns.last.difficulty}/5. ${r.painChange == null ? 'More than one check-in is needed for change.' : 'Pain change from first to last: ${r.painChange! >= 0 ? '+' : ''}${r.painChange!.round()} points.'}',
-            ),
+          for (final r in data.recovery.where(
+            (r) => r.checkIns.isNotEmpty || r.sessions.isNotEmpty,
+          ))
+            ...explain(r.planName, explanations.recovery(r)),
           if (data.recovery.every((r) => r.checkIns.isEmpty))
             text(
               'No recovery check-ins in the loaded 28-day period. Missing entries are unknown.',
             ),
-          heading('Data coverage and interpretation'),
-          text(
-            '${data.loggedDays}/${data.elapsedDays} elapsed days have meal logs; ${data.completeMealDays} days have all three main meals recorded. ${data.invalidReadings} invalid readings excluded. ${data.comparison.count(MealComparisonStatus.close)} meals close to plan out of ${data.comparison.compared.length} comparable meals.',
+          ...explain(
+            'Data coverage and interpretation',
+            explanations.quality(data),
           ),
           text(
             'Reading sources in the 120-day history ending at the selected period:',

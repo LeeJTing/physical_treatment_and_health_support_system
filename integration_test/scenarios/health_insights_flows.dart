@@ -65,6 +65,31 @@ void runHealthInsightsFlows({
           .descendant(of: weeklyList, matching: find.byType(Scrollable))
           .first;
       await t.scrollUntilVisible(
+        find.text('Food choices for your next meals'),
+        250,
+        scrollable: scroll,
+      );
+      await t.pumpAndSettle();
+      await capture?.call(t, 'weekly-food-priorities');
+      final daily = find.byKey(
+        PageStorageKey('food-guidance-${DateTime(2026, 11, 16).toIso8601String()}'),
+      );
+      await t.scrollUntilVisible(daily, 250, scrollable: scroll);
+      final dailyTile = find
+          .descendant(of: daily, matching: find.byType(ListTile))
+          .first;
+      await Scrollable.ensureVisible(t.element(dailyTile), alignment: .02);
+      await t.pumpAndSettle();
+      await t.tap(dailyTile);
+      await t.pumpAndSettle();
+      expect(
+        find.textContaining('Only if replacing the 250 g Teh tarik'),
+        findsOneWidget,
+      );
+      await Scrollable.ensureVisible(t.element(dailyTile), alignment: .02);
+      await t.pumpAndSettle();
+      await capture?.call(t, 'daily-food-guidance');
+      await t.scrollUntilVisible(
         find.text('View supporting records'),
         280,
         scrollable: scroll,

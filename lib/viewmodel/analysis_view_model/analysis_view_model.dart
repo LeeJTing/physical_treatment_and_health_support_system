@@ -1,4 +1,6 @@
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/health_insights_service/report_explanation_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/report_explanation.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/anomaly_detection_service/anomaly_detection_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/forecast_service/forecast_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/local_notification_service/local_notification_service.dart';
@@ -103,6 +105,13 @@ class AnalysisViewModel extends BaseViewModel {
   String? notice;
   bool loaded = false;
   bool running = false;
+  ReportExplanation get reportExplanation => const ReportExplanationService().health(analysis, anomalyHistory);
+  ReportExplanation explainRisk(ConditionRisk risk) => const ReportExplanationService().risk(risk);
+  ReportExplanation explainForecast(MetricType metric) {
+    final f = forecasts[metric];
+    return const ReportExplanationService().forecast(metric, f?.forecast,
+        stale: f?.stale ?? false, insufficient: f?.insufficient ?? true);
+  }
 
   /// Reads the stored analysis, or the last one if the service is down (FR400_039), then runs the
   /// forecast and the analysis again (UC600 BF-2 to BF-30).

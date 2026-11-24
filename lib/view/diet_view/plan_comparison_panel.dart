@@ -1,4 +1,6 @@
 import 'dart:math' as math;
+import 'package:physical_treatment_and_health_support_system/model/entity/diet_food_guidance.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/diet_food_guidance.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:physical_treatment_and_health_support_system/core/themes/design_tokens.dart';
@@ -8,10 +10,12 @@ import 'package:physical_treatment_and_health_support_system/model/entity/plan_c
 /// All chart values have a text equivalent; missing logs never become zero intake.
 class PlanComparisonPanel extends StatefulWidget {
   final PlanComparisonReport report;
+  final DietFoodGuidance? foodGuidance;
   final Future<void> Function() onRefresh;
   const PlanComparisonPanel({
     super.key,
     required this.report,
+    this.foodGuidance,
     required this.onRefresh,
   });
   @override
@@ -50,11 +54,11 @@ class _PlanComparisonPanelState extends State<PlanComparisonPanel> {
     ),
   );
   Widget _card(Widget child) => Container(
-    margin: const EdgeInsets.only(bottom: 16),
-    padding: const EdgeInsets.all(18),
+    margin: const EdgeInsets.only(bottom: AppTokens.gap),
+    padding: const EdgeInsets.all(AppTokens.gutter),
     decoration: BoxDecoration(
       color: Colors.white,
-      borderRadius: BorderRadius.circular(22),
+      borderRadius: BorderRadius.circular(20),
       border: Border.all(color: AppTokens.cardBorder),
     ),
     child: child,
@@ -95,8 +99,10 @@ class _PlanComparisonPanelState extends State<PlanComparisonPanel> {
     return RefreshIndicator(
       onRefresh: widget.onRefresh,
       child: ListView(
-        key: PageStorageKey('diet-plan-comparison-${r.start.toIso8601String()}'),
-        padding: const EdgeInsets.all(18),
+        key: PageStorageKey(
+          'diet-plan-comparison-${r.start.toIso8601String()}',
+        ),
+        padding: const EdgeInsets.all(AppTokens.gutter),
         children: [
           Container(
             key: const ValueKey('comparison-summary'),
@@ -348,6 +354,8 @@ class _PlanComparisonPanelState extends State<PlanComparisonPanel> {
             'What changed at each meal',
             'Open a meal to compare foods, portions and nutrients.',
           ),
+          if (widget.foodGuidance case final guidance?)
+            _card(DietFoodGuidanceBody(guidance, selectedDay: _selected)),
           if (_selected != null)
             Row(
               children: [

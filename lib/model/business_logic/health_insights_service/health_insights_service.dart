@@ -8,6 +8,8 @@ import 'package:physical_treatment_and_health_support_system/model/entity/meal_l
 import 'package:physical_treatment_and_health_support_system/model/entity/patient_treatment_plan.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/plan_comparison.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/recovery_check_in.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/diet_insights_service/diet_food_guidance_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
 
 class HealthInsightsService {
   const HealthInsightsService();
@@ -36,6 +38,7 @@ class HealthInsightsService {
     bool plansAvailable = true,
     List<String> notices = const [],
     DateTime? lastSync,
+    DietContext? context,
   }) {
     final beginning = monday(start),
         end = monday(start).add(const Duration(days: 7));
@@ -370,6 +373,12 @@ class HealthInsightsService {
             '$name${context == null ? '' : ' · ${context.label}'}',
             'Average of daily means: ${first.toStringAsFixed(1)} → ${last.toStringAsFixed(1)} ${metric.unit} (${delta >= 0 ? '+' : ''}${delta.toStringAsFixed(1)}). Previous period has ${previous.length} recorded days; selected period has ${current.length}. Unequal coverage and source differences can affect the comparison. This does not show that diet or exercise caused the change.',
             current.keys.toList(),
+            conclusion:
+                '$name${context == null ? '' : ' (${context.label})'}: the average of daily means ${delta.toStringAsFixed(1) == '0.0' || delta.toStringAsFixed(1) == '-0.0'
+                    ? 'was unchanged at the displayed precision'
+                    : delta > 0
+                    ? 'was higher than in the previous period'
+                    : 'was lower than in the previous period'}. A measured direction alone does not establish health improvement or decline.',
           ),
         );
       }
@@ -408,6 +417,14 @@ class HealthInsightsService {
       facts: facts,
       recovery: recovery,
       comparison: comparison,
+      foodGuidance: const DietFoodGuidanceService().build(
+        comparison: comparison,
+        meals: usableMeals,
+        plans: availablePlans,
+        accountId: accountId,
+        now: asOf,
+        context: context,
+      ),
       sourceCounts: sources,
       notices: notices,
       demoCount: demoCount,

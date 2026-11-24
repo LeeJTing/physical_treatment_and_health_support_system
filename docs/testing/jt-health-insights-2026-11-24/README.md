@@ -1,5 +1,54 @@
 # Health insights and meal simulation
 
+## Food guidance and consistent UI follow-up
+
+Diet review → Plan comparison and Health insights → Weekly report now share
+daily food guidance and weekly priorities. Each option names the food and meal,
+recorded grams, the portion to review and a nutrient reason. Weekly priorities
+show affected dates, occurrence counts and the sum across those occurrences.
+These totals are not extra weekly allowances. The exported PDF uses the same
+guidance objects, including daily coverage and supporting dates.
+
+Examples in the synthetic fixture: five dinners contain 250 g teh tarik with
+30 g free sugars each. The report flags replacement against the current 25 g
+daily limit and identifies the missing planned 100 g tofu portion, providing
+approximately 5 g protein. Restoring tofu is explicitly conditional on replacing
+the teh tarik when the logged day is over a limit. It is not extra food on top.
+The weekly totals are 1,250 g to review for replacement and 500 g planned tofu
+across the five recorded occurrences, rather than a seven-day prescription.
+
+Current restrictions and portion suitability gate increases. Daily energy,
+sodium, sugar and applicable protein/saturated-fat/caffeine budgets are checked
+together. Kidney-sensitive increases are withheld. Missing or incomplete
+profiles withhold personalised amounts. Reference-only/later-created plans
+cannot generate restorative adherence advice. Missing logs remain unknown;
+partial days prompt completion before increasing intake. No logs or plans are
+automatically changed and no clinical deficiency is inferred.
+
+The new insights and simulator reuse the established green headers, white
+bordered cards, background, spacing, typography, orange primary actions and
+red warning surfaces. Daily cards have independent page-storage identifiers
+and Material surfaces so scrolling state and touch feedback work correctly.
+
+Evidence: [weekly food priorities](evidence/weekly-food-priorities.png),
+[expanded daily guidance](evidence/daily-food-guidance.png),
+[updated PDF](evidence/weekly-report-fixture.pdf). These are synthetic host
+captures, not phone or patient evidence. The shared host UI journeys pass,
+including 320 × 640 at 1.3 text scale. Seven new guidance calculation tests
+pass; final Flutter analysis has no issues. The full suite reports **733 passed
+and one existing app/server contract failure**: the current app expects 15
+posture exercise mappings while the separate local AI server still supplies
+17 (wrist/hand included). Neither catalogue was altered by this change.
+The final five-page fixture PDF was rendered and visually reviewed. Each daily
+review and weekly priority stays together, and the energy chart retains its
+heading and legend. The normal Android debug APK builds successfully. The
+architecture check retains 19 existing findings, with no new feature-layer
+violations.
+
+The guidance uses existing profile limits and suitability rules. General food
+principles were checked against [WHO healthy diet guidance](https://www.who.int/news-room/fact-sheets/detail/healthy-diet).
+No external AI provider, API key or meal-data upload is needed.
+
 Implemented all five selected extensions on 24 November 2026. Open **Health insights**
 from Diet or Health Report; Treatment also opens its Recovery tab. In the meal review,
 choose **What if I change this meal?** before saving.
@@ -14,6 +63,33 @@ choose **What if I change this meal?** before saving.
 
 These screenshots are **host-rendered Flutter widget captures with synthetic fixture
 data**, not Android screenshots or real patient evidence. No phone was connected.
+
+## Report explanations (24 November follow-up)
+
+Health Report now explains its score, each condition risk and each metric forecast
+with a **Conclusion**, **Analysis** and **Suggested next step**. The weekly report
+uses the same structure for its overview, saved-plan comparison, nutrition,
+exercise and reading changes. Data quality and each recovery plan also provide
+record-based interpretations. The exported PDF shares the weekly explanation
+service, keeps each explanation with its supporting dates, and reserves footer
+spacing. The earlier explanation-only sample PDF had four pages; the current
+fixture also includes the daily and weekly food guidance above.
+
+Explanations are generated locally from existing calculations, through the
+ViewModels for screens. They require no online AI provider or new upload. Missing
+data never becomes evidence of adherence or normal health; forecast direction
+is not labelled improvement; recovery includes difficulty as well as pain and
+stiffness and gives recent symptom increases precedence over longer-term change.
+Presentation data remains explicitly labelled.
+
+Earlier explanation follow-up verification: **32 focused tests passed**, including seven new
+interpretation tests, the existing insight screen journeys (including narrow
+screen and larger text), PDF generation and monitoring/analysis tests.
+`flutter analyze --no-pub` found no issues. Four final PDF pages and refreshed
+weekly/data-quality/recovery screen captures were visually inspected. The
+architecture checker reports 19 existing findings; the added explanation code
+introduces no new layer dependencies in Views. Phone installation and native
+print-dialog acceptance were not performed in this follow-up.
 
 ## Verification
 

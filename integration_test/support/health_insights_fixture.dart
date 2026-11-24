@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/health_profile.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/biometric_reading.dart';
@@ -20,6 +22,16 @@ class HealthInsightsFixture {
   HealthInsightsFixture(this.base, this.treatments, this.recovery, this.vm);
   static Future<HealthInsightsFixture> create() async {
     final base = await PlanComparisonFixture.create();
+    final profile = HealthProfile(
+      profileId: 'insights-fixture-profile',
+      accountId: base.account,
+      age: 21,
+      gender: Gender.male,
+      weightKg: 65,
+      heightCm: 180,
+      updatedAt: PlanComparisonFixture.now,
+    );
+    await base.profiles.saveProfile(profile, profile.generateSafetyLimit());
     final treatments = FakeTreatmentRepository.fromJson(
       await rootBundle.loadString('assets/seed/catalogue.json'),
     );
@@ -85,6 +97,7 @@ class HealthInsightsFixture {
       base.meals,
       treatments,
       recovery,
+      risk: RiskAssessmentService(base.auth, base.profiles),
       now: () => PlanComparisonFixture.now,
     );
     await vm.load();

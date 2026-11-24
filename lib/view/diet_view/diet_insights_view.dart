@@ -316,6 +316,7 @@ class _DietInsightsViewState extends State<DietInsightsView> {
                     if (data.comparison case final comparison?)
                       PlanComparisonPanel(
                         report: comparison,
+                        foodGuidance: data.foodGuidance,
                         onRefresh: () => vm.load(),
                       )
                     else

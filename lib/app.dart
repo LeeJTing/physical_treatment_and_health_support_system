@@ -204,6 +204,7 @@ class MainApp extends StatelessWidget {
               c.read(),
               c.read(),
               c.read(),
+              risk: c.read(),
             )..load(),
             child: HealthInsightsView(
               initialTab: ModalRoute.of(ctx)?.settings.arguments as int? ?? 0,

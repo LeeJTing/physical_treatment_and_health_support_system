@@ -3,6 +3,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/exerci
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/plan_comparison.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/recovery_check_in.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/diet_food_guidance.dart';
 
 enum TimelineKind { planned, meal, reading, exercise, recovery }
 
@@ -24,7 +25,13 @@ class HealthTimelineEvent {
 class InsightFact {
   final String title, text;
   final List<DateTime> evidenceDays;
-  const InsightFact(this.title, this.text, this.evidenceDays);
+  final String? conclusion;
+  const InsightFact(
+    this.title,
+    this.text,
+    this.evidenceDays, {
+    this.conclusion,
+  });
 }
 
 class ExerciseEvidence {
@@ -58,6 +65,7 @@ class RecoveryProgress {
 }
 
 class HealthInsights {
+  final DietFoodGuidance? foodGuidance;
   final String accountId;
   final DateTime start, end, asOf;
   final bool includesDemo;
@@ -97,5 +105,6 @@ class HealthInsights {
     required this.elapsedDays,
     required this.invalidReadings,
     this.lastSync,
+    this.foodGuidance,
   });
 }

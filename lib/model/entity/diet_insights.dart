@@ -1,6 +1,7 @@
 import 'package:physical_treatment_and_health_support_system/model/entity/food_item.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/meal_log.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/plan_comparison.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/diet_food_guidance.dart';
 
 class DietReviewDay {
   final DateTime date;
@@ -92,6 +93,7 @@ class MealHealthPattern {
 }
 
 class DietInsights {
+  final DietFoodGuidance? foodGuidance;
   final PlanComparisonReport? comparison;
   final WeeklyDietReview week;
   final DateTime patternFrom, patternTo;
@@ -102,5 +104,6 @@ class DietInsights {
     this.patternTo,
     this.patterns, {
     this.comparison,
+    this.foodGuidance,
   });
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/report_explanation.dart';
 
 import 'package:physical_treatment_and_health_support_system/core/constants/app_constants.dart';
 import 'package:physical_treatment_and_health_support_system/core/routes/routes.dart';
@@ -82,8 +83,8 @@ class _HealthReportViewState extends State<HealthReportView> {
                   if (vm.notice != null) _Notice(vm.notice!),
                   _ScoreCard(analysis: vm.analysis, comparison: vm.analysis?.periodComparison),
                   const SizedBox(height: 12),
-                  if (vm.analysis?.summaryText case final s?) _card(
-                    Text(s, style: const TextStyle(fontSize: 16, height: 1.4, color: AppTokens.ink)),
+                  _card(
+                    ReportExplanationBody(vm.reportExplanation),
                   ),
                   const SizedBox(height: 12),
                   _scoreTrend(vm),
@@ -97,7 +98,7 @@ class _HealthReportViewState extends State<HealthReportView> {
                     for (final a in vm.anomalyHistory.take(10)) _AnomalyTile(a),
                   const SizedBox(height: 20),
                   _title('Risk for your conditions'),
-                  ..._risks(vm.analysis),
+                  ..._risks(vm),
                   const SizedBox(height: 20),
                   _title('Forecast for the next 7 days'),
                   for (final m in MetricType.values) _forecastCard(vm, m),
@@ -170,7 +171,8 @@ class _HealthReportViewState extends State<HealthReportView> {
     ),
   );
 
-  List<Widget> _risks(HealthAnalysis? a) {
+  List<Widget> _risks(AnalysisViewModel vm) {
+    final a = vm.analysis;
     final risks = a?.risks() ?? const <ConditionRisk>[];
     if (risks.isEmpty) {
       return [
@@ -194,16 +196,7 @@ class _HealthReportViewState extends State<HealthReportView> {
                 ],
               ),
               const SizedBox(height: 6),
-              if (r.withheld)
-                Text(r.message ?? 'Not available yet.', style: const TextStyle(fontSize: 15, color: AppTokens.inkMuted)) // M9
-              else ...[
-                const Text('What contributes most:', style: TextStyle(fontSize: 15, color: AppTokens.inkMuted)),
-                for (final f in r.topFactors)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text('• $f', style: const TextStyle(fontSize: 15, color: AppTokens.ink)),
-                  ),
-              ],
+              ReportExplanationBody(vm.explainRisk(r)),
               const SizedBox(height: 8),
               const Text(Messages.analysisDisclaimer, style: TextStyle(fontSize: 12, color: AppTokens.inkMuted)),
             ],
@@ -227,6 +220,7 @@ class _HealthReportViewState extends State<HealthReportView> {
           if (usual != null)
             Text('Your usual range (30 days): $usual', style: const TextStyle(fontSize: 14, color: AppTokens.inkMuted)),
           const SizedBox(height: 10),
+          ReportExplanationBody(vm.explainForecast(m)),
           if (f == null || (f.insufficient && hist.isEmpty))
             const Text(Messages.insufficientData, style: TextStyle(fontSize: 15, color: AppTokens.inkMuted))
           else ...[

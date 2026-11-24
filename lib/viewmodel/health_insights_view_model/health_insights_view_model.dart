@@ -1,4 +1,8 @@
 import 'dart:typed_data';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/risk_assessment_service/risk_assessment_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/suitability_service/suitability_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/business_logic/health_insights_service/report_explanation_service.dart';
+import 'package:physical_treatment_and_health_support_system/model/entity/report_explanation.dart';
 import 'package:physical_treatment_and_health_support_system/core/utils/id_utils.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/health_insights_service/health_insights_service.dart';
 import 'package:physical_treatment_and_health_support_system/model/business_logic/health_insights_service/weekly_report_service.dart';
@@ -22,6 +26,7 @@ class HealthInsightsViewModel extends BaseViewModel {
   final IMealRepository _meals;
   final ITreatmentRepository _treatments;
   final IRecoveryRepository _recovery;
+  final RiskAssessmentService? risk;
   final DateTime Function() _now;
   int _request = 0;
   bool includeDemo = true, saving = false, exporting = false;
@@ -35,10 +40,19 @@ class HealthInsightsViewModel extends BaseViewModel {
     this._treatments,
     this._recovery, {
     DateTime Function()? now,
+    this.risk,
   }) : _now = now ?? DateTime.now {
     selectedWeek = HealthInsightsService.monday(_now());
   }
   DateTime get today => HealthInsightsService.day(_now());
+  ReportExplanation explainWeek(HealthInsights d) =>
+      const ReportExplanationService().weekly(d);
+  ReportExplanation explainFact(HealthInsights d, InsightFact fact) =>
+      const ReportExplanationService().fact(d, fact);
+  ReportExplanation explainQuality(HealthInsights d) =>
+      const ReportExplanationService().quality(d);
+  ReportExplanation explainRecovery(RecoveryProgress p) =>
+      const ReportExplanationService().recovery(p);
   Future<void> setIncludeDemo(bool value) async {
     includeDemo = value;
     await load();
@@ -144,7 +158,20 @@ class HealthInsightsViewModel extends BaseViewModel {
         return;
       }
       plans = ownedPlans;
+      final profile = await risk?.retrieve();
+      if (isDisposed || generation != _request) return;
+      final latestAccount = (await _auth.currentAccount()).dataOrNull;
+      if (isDisposed || generation != _request) return;
+      if (latestAccount?.accountId != id ||
+          (profile?.dataOrNull != null &&
+              profile!.dataOrNull!.accountId != id)) {
+        setError('Your session changed. Open insights again.');
+        return;
+      }
       data = const HealthInsightsService().build(
+        context: profile?.dataOrNull == null
+            ? null
+            : DietContext.from(profile!.dataOrNull!),
         accountId: id,
         start: selected,
         now: now,

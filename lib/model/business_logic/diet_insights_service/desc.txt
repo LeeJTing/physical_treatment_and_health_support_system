@@ -1,1 +1,2 @@
 Builds weekly dietary summaries and explicitly exploratory meal/reading associations from the account's recorded data. No external health-data upload or treatment decisions.
+DietFoodGuidanceService derives profile-checked daily portion options and weekly food priorities from comparable recorded meals. Missing logs remain unknown; any required replacement is explicit.

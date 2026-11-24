@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/insights_surface.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/diet_food_guidance.dart';
 import 'package:intl/intl.dart';
 import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
@@ -7,6 +9,7 @@ import 'package:physical_treatment_and_health_support_system/model/entity/enums.
 import 'package:physical_treatment_and_health_support_system/model/entity/health_insights.dart';
 import 'package:physical_treatment_and_health_support_system/model/entity/recovery_check_in.dart';
 import 'package:physical_treatment_and_health_support_system/view/common/trend_chart.dart';
+import 'package:physical_treatment_and_health_support_system/view/common/report_explanation.dart';
 import 'package:physical_treatment_and_health_support_system/view/health_insights_view/health_timeline.dart';
 import 'package:physical_treatment_and_health_support_system/viewmodel/health_insights_view_model/health_insights_view_model.dart';
 
@@ -43,20 +46,27 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
   }
 
   Widget card(Widget child) => Card(
-    margin: const EdgeInsets.only(bottom: 14),
+    margin: const EdgeInsets.only(bottom: AppTokens.gap),
     elevation: 0,
     color: Colors.white,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(20),
       side: const BorderSide(color: AppTokens.cardBorder),
     ),
-    child: Padding(padding: const EdgeInsets.all(18), child: child),
+    child: Padding(
+      padding: const EdgeInsets.all(AppTokens.gutter),
+      child: child,
+    ),
   );
   Widget title(String text) => Padding(
     padding: const EdgeInsets.only(bottom: 10),
     child: Text(
       text,
-      style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700),
+      style: const TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
+        color: AppTokens.ink,
+      ),
     ),
   );
   Widget note(String text) => Padding(
@@ -66,8 +76,10 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
       style: const TextStyle(height: 1.45, color: AppTokens.inkMuted),
     ),
   );
-  Widget list(List<Widget> children) =>
-      ListView(padding: const EdgeInsets.all(18), children: children);
+  Widget list(List<Widget> children) => ListView(
+    padding: const EdgeInsets.all(AppTokens.gutter),
+    children: children,
+  );
   Future<void> chooseWeek(HealthInsightsViewModel vm) async {
     final picked = await showDatePicker(
       context: context,
@@ -113,134 +125,160 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
           : vm.today;
       selectedEvent = null;
     }
-    return Scaffold(
-      backgroundColor: AppTokens.screenBackground,
-      appBar: AppBar(
-        title: const Text('Health insights'),
-        backgroundColor: AppTokens.brandDeep,
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            tooltip: 'Refresh insights',
-            onPressed: vm.isLoading ? null : () => vm.load(),
-            icon: const Icon(Icons.refresh),
-          ),
-          IconButton(
-            tooltip: 'Export weekly PDF',
-            onPressed: data == null || vm.exporting ? null : () => export(vm),
-            icon: vm.exporting
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.picture_as_pdf),
-          ),
-        ],
-        bottom: TabBar(
-          controller: tabs,
-          isScrollable: true,
-          tabAlignment: TabAlignment.start,
-          labelColor: Colors.white,
-          unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: 'Timeline'),
-            Tab(text: 'Weekly report'),
-            Tab(text: 'Data quality'),
-            Tab(text: 'Recovery'),
+    return InsightsSurface(
+      child: Scaffold(
+        backgroundColor: AppTokens.screenBackground,
+        appBar: AppBar(
+          title: const Text('Health insights'),
+          backgroundColor: AppTokens.brandDeep,
+          foregroundColor: Colors.white,
+          actions: [
+            IconButton(
+              tooltip: 'Refresh insights',
+              onPressed: vm.isLoading ? null : () => vm.load(),
+              icon: const Icon(Icons.refresh),
+            ),
+            IconButton(
+              tooltip: 'Export weekly PDF',
+              onPressed: data == null || vm.exporting ? null : () => export(vm),
+              icon: vm.exporting
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.picture_as_pdf),
+            ),
           ],
+          bottom: TabBar(
+            controller: tabs,
+            isScrollable: true,
+            tabAlignment: TabAlignment.start,
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white70,
+            indicatorColor: Colors.white,
+            dividerColor: Colors.transparent,
+            labelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+            unselectedLabelStyle: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+            tabs: const [
+              Tab(text: 'Timeline'),
+              Tab(text: 'Weekly report'),
+              Tab(text: 'Data quality'),
+              Tab(text: 'Recovery'),
+            ],
+          ),
         ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              child: Row(
-                children: [
-                  IconButton(
-                    tooltip: 'Previous insights week',
-                    onPressed: vm.isLoading
-                        ? null
-                        : () => vm.load(
-                            week: vm.selectedWeek.subtract(
-                              const Duration(days: 7),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                child: Row(
+                  children: [
+                    IconButton(
+                      tooltip: 'Previous insights week',
+                      onPressed: vm.isLoading
+                          ? null
+                          : () => vm.load(
+                              week: vm.selectedWeek.subtract(
+                                const Duration(days: 7),
+                              ),
                             ),
+                      icon: const Icon(Icons.chevron_left),
+                    ),
+                    Expanded(
+                      child: TextButton(
+                        onPressed: vm.isLoading ? null : () => chooseWeek(vm),
+                        child: Text(
+                          '${DateFormat('d MMM').format(vm.selectedWeek)} – ${DateFormat('d MMM yyyy').format(vm.selectedWeek.add(const Duration(days: 6)))}',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                            color: AppTokens.ink,
                           ),
-                    icon: const Icon(Icons.chevron_left),
-                  ),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: vm.isLoading ? null : () => chooseWeek(vm),
-                      child: Text(
-                        '${DateFormat('d MMM').format(vm.selectedWeek)} – ${DateFormat('d MMM yyyy').format(vm.selectedWeek.add(const Duration(days: 6)))}',
+                        ),
                       ),
                     ),
-                  ),
-                  IconButton(
-                    tooltip: 'Next insights week',
-                    onPressed:
-                        vm.isLoading ||
-                            !vm.selectedWeek
-                                .add(const Duration(days: 7))
-                                .isBefore(vm.today.add(const Duration(days: 1)))
-                        ? null
-                        : () => vm.load(
-                            week: vm.selectedWeek.add(const Duration(days: 7)),
-                          ),
-                    icon: const Icon(Icons.chevron_right),
-                  ),
-                ],
-              ),
-            ),
-            SwitchListTile(
-              dense: true,
-              key: const ValueKey('include-presentation-data'),
-              title: const Text('Include presentation data'),
-              subtitle: Text(
-                data == null
-                    ? 'Applies to these insights and the exported PDF.'
-                    : '${data.demoCount} synthetic records in loaded history. Filter applies here and in this PDF.',
-              ),
-              value: vm.includeDemo,
-              onChanged: vm.isLoading ? null : vm.setIncludeDemo,
-            ),
-            if (vm.isLoading) const LinearProgressIndicator(),
-            if (vm.errorMessage != null)
-              Padding(
-                padding: const EdgeInsets.all(12),
-                child: Text(
-                  vm.errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+                    IconButton(
+                      tooltip: 'Next insights week',
+                      onPressed:
+                          vm.isLoading ||
+                              !vm.selectedWeek
+                                  .add(const Duration(days: 7))
+                                  .isBefore(
+                                    vm.today.add(const Duration(days: 1)),
+                                  )
+                          ? null
+                          : () => vm.load(
+                              week: vm.selectedWeek.add(
+                                const Duration(days: 7),
+                              ),
+                            ),
+                      icon: const Icon(Icons.chevron_right),
+                    ),
+                  ],
                 ),
               ),
-            Expanded(
-              child: data == null
-                  ? Center(
-                      child: vm.isLoading
-                          ? const Text('Bringing your records together…')
-                          : FilledButton(
-                              onPressed: () => vm.load(),
-                              child: const Text('Try again'),
-                            ),
-                    )
-                  : TabBarView(
-                      controller: tabs,
-                      children: [
-                        timeline(data),
-                        KeyedSubtree(
-                          key: const ValueKey('weekly-insights-list'),
-                          child: weekly(data, vm),
-                        ),
-                        quality(data),
-                        recovery(data, vm),
-                      ],
-                    ),
-            ),
-          ],
+              SwitchListTile(
+                dense: true,
+                key: const ValueKey('include-presentation-data'),
+                title: const Text('Include presentation data'),
+                subtitle: Text(
+                  data == null
+                      ? 'Applies to these insights and the exported PDF.'
+                      : '${data.demoCount} synthetic records in loaded history. Filter applies here and in this PDF.',
+                ),
+                value: vm.includeDemo,
+                onChanged: vm.isLoading ? null : vm.setIncludeDemo,
+              ),
+              if (vm.isLoading) const LinearProgressIndicator(),
+              if (vm.errorMessage != null)
+                Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Text(
+                    vm.errorMessage!,
+                    style: const TextStyle(color: AppTokens.onDanger),
+                  ),
+                ),
+              Expanded(
+                child: data == null
+                    ? Center(
+                        child: vm.isLoading
+                            ? const Text('Bringing your records together…')
+                            : FilledButton(
+                                style: InsightsSurface.primaryButtonStyle,
+                                onPressed: () => vm.load(),
+                                child: const Text('Try again'),
+                              ),
+                      )
+                    : TabBarView(
+                        controller: tabs,
+                        children: [
+                          timeline(data),
+                          KeyedSubtree(
+                            key: const ValueKey('weekly-insights-list'),
+                            child: weekly(data, vm),
+                          ),
+                          quality(data, vm),
+                          recovery(data, vm),
+                        ],
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -408,6 +446,17 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
       Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          title('Weekly conclusion and next steps'),
+          ReportExplanationBody(vm.explainWeek(d)),
+        ],
+      ),
+    ),
+    if (d.foodGuidance case final guidance?)
+      card(DietFoodGuidanceBody(guidance)),
+    card(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
           title('Plan and recorded energy'),
           TrendChart(
             unit: 'kcal',
@@ -437,7 +486,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             title(fact.title),
-            Text(fact.text, style: const TextStyle(height: 1.5)),
+            ReportExplanationBody(vm.explainFact(d, fact)),
             if (fact.evidenceDays.isNotEmpty) ...[
               const SizedBox(height: 10),
               const Text('View supporting records'),
@@ -461,7 +510,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
       ),
     ),
   ]);
-  Widget quality(HealthInsights d) {
+  Widget quality(HealthInsights d, HealthInsightsViewModel vm) {
     final weekReadings = d.readings
         .where((r) => !r.recordedAt.isBefore(d.start))
         .toList();
@@ -478,6 +527,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
     final dates = batches.keys.toList()..sort((a, b) => b.compareTo(a));
     return list([
       title('Understand your data'),
+      card(ReportExplanationBody(vm.explainQuality(d))),
       card(
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -640,6 +690,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           title(p.planName),
+          ReportExplanationBody(vm.explainRecovery(p)),
           Text(
             '${p.checkIns.length} symptom check-ins · ${p.sessions.length} completed sessions',
           ),
@@ -647,7 +698,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
             Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
               padding: const EdgeInsets.all(12),
-              color: const Color(0xFFFFE7E4),
+              color: AppTokens.dangerContainer,
               child: const Text(
                 'Your latest check-in reports more pain or stiffness than the preceding check-in. Review this with your care team before increasing exercise.',
               ),
@@ -721,6 +772,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
                             final ok = await showDialog<bool>(
                               context: context,
                               builder: (c) => AlertDialog(
+                                backgroundColor: AppTokens.surface,
                                 title: const Text('Delete this check-in?'),
                                 content: const Text(
                                   'The diary entry will be removed. Your exercise sessions and treatment progress remain.',
@@ -731,6 +783,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
                                     child: const Text('Cancel'),
                                   ),
                                   FilledButton(
+                                    style: InsightsSurface.primaryButtonStyle,
                                     onPressed: () => Navigator.pop(c, true),
                                     child: const Text('Delete'),
                                   ),
@@ -769,6 +822,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
       barrierDismissible: false,
       builder: (outer) => StatefulBuilder(
         builder: (ctx, update) => AlertDialog(
+          backgroundColor: AppTokens.surface,
           title: Text(
             existing == null ? 'Recovery check-in' : 'Edit recovery check-in',
           ),
@@ -870,7 +924,10 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
                     ),
                   ),
                   if (error != null)
-                    Text(error!, style: const TextStyle(color: Colors.red)),
+                    Text(
+                      error!,
+                      style: const TextStyle(color: AppTokens.onDanger),
+                    ),
                 ],
               ),
             ),
@@ -881,6 +938,7 @@ class _HealthInsightsViewState extends State<HealthInsightsView>
               child: const Text('Cancel'),
             ),
             FilledButton(
+              style: InsightsSurface.primaryButtonStyle,
               onPressed: busy
                   ? null
                   : () async {
