@@ -1,0 +1,32 @@
+{
+  "review_date": "2026-11-25",
+  "application_baseline": "293dc9614ce7026d6be9249b154fb18a362c651a",
+  "ai_server_baseline": "e27e8eb",
+  "source_report": "RSW Lee Jun Ting-FYP Report (full v33).docx",
+  "source_sha256": "051b6d42b95453f84a7822869b7788885c4ee10be618000c973dcbb410855791",
+  "report": "RSW Lee Jun Ting-FYP Report (full v34).docx",
+  "report_sha256": "18963125aa7b60e74f11571e10a57c5a5988217d734768bb563b6deed5cbf74c",
+  "report_pages": 511,
+  "functional_requirements_total": 252,
+  "changed_existing_requirements": 35,
+  "added_requirements": 56,
+  "reviewed_use_cases": 14,
+  "class_specifications": 20,
+  "diagram_files": 38,
+  "source_paths_verified": true,
+  "standard": "Existing shall statements and Patient/System use-case structure; no external certification claim.",
+  "chapter_caption_counts": {
+    "Figure 3": 3,
+    "Table 3": 27,
+    "Table 4": 135,
+    "Figure 4": 72
+  },
+  "render_engine": "Installed Microsoft Word; all PDF pages rasterised with bundled Poppler for visual review",
+  "packaged_renderer_limitation": "LibreOffice soffice.exe unavailable; diagnosed before using installed Word",
+  "current_figure_captions_with_images": 44,
+  "historical_text_preserved_except_caption_refs": true,
+  "historical_evidence_images_preserved": 54,
+  "application_server_database_changes": false,
+  "runtime_tests_rerun": false,
+  "known_prior_limitation": "App has 15 posture mappings; separate server has 17. Documentation work does not resolve this pre-existing contract failure."
+}

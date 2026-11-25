@@ -1,0 +1,302 @@
+{
+  "reviewed_at": "2026-11-25 Asia/Kuala_Lumpur",
+  "app_commit": "293dc9614ce7026d6be9249b154fb18a362c651a",
+  "ai_commit": "e27e8eb",
+  "scope": "Update report Chapters 3 and 4 to observed workflows; retain historical test evidence and distinguish implementation limits.",
+  "changed_requirements": {
+    "FR100_047": "The system shall accept supported declared health conditions and their applicable status/clearance answers. Other condition shall not be offered as a new selection; existing saved declarations shall not be silently erased.",
+    "FR100_055": "The system shall derive exercise safety caps and dietary targets from the declared profile, body measurements, risk level and applicable condition rules.",
+    "FR100_063": "The system shall request read permission for supported Health Connect record types before import; refused required permissions shall leave stored readings unchanged.",
+    "FR100_065": "The system shall allow Health Connect access to be disconnected and shall stop its subsequent foreground checks without deleting previously saved readings.",
+    "FR200_006": "The system shall reject readings beyond the current device time using the configured one-minute entry tolerance; original imported measurement timestamps shall be retained.",
+    "FR200_009": "The system shall import available blood pressure, glucose and weight records through Health Connect or a supported direct-watch adapter; unsupported or absent metrics shall not be invented.",
+    "FR200_012": "The system shall retain the time of the most recent successful source check and the first-save import time for accepted records; a successful check may contain zero new records.",
+    "FR200_016": "The system shall expose completed exercise identifiers, exercise/plan names, original completion times, recorded durations and available repetitions/posture results. Missing duration shall remain unknown.",
+    "FR200_018": "The system shall display completed exercise activity with per-session and daily-total views over the selected date range.",
+    "FR400_026": "The system shall show a condition risk indication only for supported model/condition combinations; unsupported conditions and missing required inputs shall be explicitly withheld.",
+    "FR400_032": "The system shall explain recorded changes from a preceding equal-length period with coverage and direction stated; a higher or lower value alone shall not be labelled clinical improvement or deterioration.",
+    "FR400_036": "The system shall send only the required de-identified profile/features, readings, meal totals and activity features to the owned analysis API; the account identifier shall not be included in the analysis payload. Authentication remains in the request header.",
+    "FR700_003": "The system shall present all catalogue-mapped foods returned for a submitted meal image, with estimated counts/portions where available, and permit correction of missed or incorrect items.",
+    "FR700_004": "The system shall show progress during food recognition and allow an actionable review/manual-entry outcome after success, failure or the configured request timeout; a five-second result is not guaranteed for online recognition.",
+    "FR700_005": "The system shall require food review and offer manual search when confidence is below 0.60, no usable food is returned or the image is not recognised as food. Online model confidence shall be labelled an estimate.",
+    "FR700_007": "The system shall allow total edible grams to be reviewed within the configured 10–1000 g meal-entry range and shall keep displayed counts, unit weights and total grams consistent.",
+    "FR700_017": "The system shall retrieve declared conditions/status, food exclusions, physical limitations, body measurements, risk level and safety limits before evaluating diet options.",
+    "FR700_018": "The system shall explain sodium-related verdicts using the current profile and applicable item/daily limits, including the recorded portion; a generic population limit shall not override a stricter saved limit.",
+    "FR700_019": "The system shall explain free-sugar-related verdicts using the current profile and applicable item/daily limits, including the recorded portion.",
+    "FR700_024": "The system shall assign reproducible Suitable, Caution or Not Suitable verdicts using current condition, food-exclusion, limitation and portion rules, retaining a reason for each applicable rule.",
+    "FR700_029": "The system shall generate a daily plan covering breakfast, lunch, dinner and a snack, or the appropriate unlogged remainder of today.",
+    "FR700_030": "The system shall support a seven-day plan beginning at the current local date and scheduled future date ranges of 1–31 inclusive days.",
+    "FR700_031": "The system shall require each AI-generated day to meet configured lower nutrition targets and the current daily energy ceiling, counting actual logged food once when replanning today.",
+    "FR700_032": "The system shall validate each AI-generated day against current sodium/free-sugar and applicable saturated-fat, protein and caffeine limits plus profile-specific nutrient needs.",
+    "FR700_033": "The system shall require every AI-selected planned portion to pass the current suitability gate; locked or carried-over rows shall not exempt an unsuitable food.",
+    "FR700_038": "The system shall display plan-following information for the selected period and distinguish comparable logged meals, missing logs and later-created reference plans.",
+    "FR700_041": "The system shall retain saved generated or manually selected plans for date-based lookup until removed under the account/data lifecycle; opening an old date shall not automatically generate a new plan.",
+    "FR700_042": "The system shall validate received AI plans, reject unsafe or nutritionally inadequate candidates and retry up to three generation attempts. Exhaustion shall leave saved plans intact and explain why no new plan was saved.",
+    "FR700_044": "The system shall provide Build my own plan independently of planner availability. Patient-selected foods shall remain editable with red health/nutrition warnings; malformed portions, an empty selection or invalid dates shall block saving.",
+    "FR700_046": "The system shall include the prepared meal image and declared condition/exclusion/limitation codes in recognition requests; planning requests may also contain de-identified body measurements, targets and prior food choices. No account identifier shall be included in these payloads. An optional online image provider shall receive image/catalogue context without health-profile codes or session credentials.",
+    "FR700_048": "The system shall use the configured 30-second food-recognition network timeout and offer retry or manual logging after failure; upload and response phases are bounded separately by the HTTP client.",
+    "FR100_010": "The system shall discard unsaved registration input on cancellation and invoke the incomplete-account cleanup contract when signed-in Google setup is cancelled; unverified-account retention shall remain a backend-configured policy.",
+    "FR100_017": "The system shall support backend-configured cleanup of unverified/incomplete accounts; the mobile workflow shall not be described as a guaranteed automatic 24-hour deletion service.",
+    "FR100_025": "The system shall restore a usable authenticated session without repeated credentials, while still checking required account setup, current terms acceptance and profile completion before personalisation.",
+    "FR100_035": "The system shall route successful authentication through required current Terms/Privacy acceptance, then to mandatory profile setup or Home according to profile completeness."
+  },
+  "added_requirements": {
+    "M100": [
+      [
+        "FR100_066",
+        "The system shall explain unavailable Health Connect installation or permission states and provide the appropriate installation/settings action."
+      ],
+      [
+        "FR100_067",
+        "The system shall let the patient declare specific foods they cannot eat, grouped and searchable by food name; retired diet labels shall remain compatibility data rather than new selections."
+      ],
+      [
+        "FR100_068",
+        "The system shall ask whether to update today's and the saved weekly plan after a saved diet-affecting profile change; Not now shall retain saved plans and meal history."
+      ],
+      [
+        "FR100_069",
+        "The system shall use explicit condition-status/clearance answers and current body validation, including combined height/weight plausibility, when saving the profile."
+      ],
+      [
+        "FR100_070",
+        "The system shall allow the patient to configure and check the AI-server base address without exposing server-side API secrets."
+      ],
+      [
+        "FR100_071",
+        "The system shall request acceptance of the current terms/privacy version when required by the account or age declaration; refusal shall not grant access to personalised workflows."
+      ],
+      [
+        "FR100_072",
+        "The system shall provide confirmed account deletion through the authenticated account workflow and remove account-owned data through the configured backend lifecycle."
+      ]
+    ],
+    "M200": [
+      [
+        "FR200_026",
+        "The system shall discover and connect compatible supported wearable watches over Bluetooth; it shall not promise support for every brand or protocol."
+      ],
+      [
+        "FR200_027",
+        "The system shall report the metrics actually available from the selected source. Glucose/weight values that are absent, reference-only or not exposed by the device shall not become measurements."
+      ],
+      [
+        "FR200_028",
+        "The system shall check connected Health Connect sources about once per minute and saved watch history about every 15 seconds while the signed-in app is active, skipping overlapping checks and retrying after temporary failures."
+      ],
+      [
+        "FR200_029",
+        "The system shall retain the original measurement time, source/device and first-save imported_at timestamp for each newly accepted imported record."
+      ],
+      [
+        "FR200_030",
+        "The system shall distinguish a successful source check, the number of newly saved records and an unavailable source; zero new records shall not imply a failed check."
+      ],
+      [
+        "FR200_031",
+        "The system shall display a vertical selection line and details for an existing selected graph point and clear details when a gap has no matching record."
+      ],
+      [
+        "FR200_032",
+        "The system shall support graph zoom, horizontal inspection/panning where applicable and reset without changing stored data."
+      ],
+      [
+        "FR200_033",
+        "The system shall expose exact completion time and available duration, repetitions, posture result and plan name during exercise inspection, with daily buckets listing their contributing sessions."
+      ],
+      [
+        "FR200_034",
+        "The system shall label unknown exercise duration and exclude it from minute totals/plots; unavailable history shall offer retry rather than a zero count."
+      ],
+      [
+        "FR200_035",
+        "The system shall explain that watch-screen results can be imported only after the supported protocol exposes a saved record; immediate delivery shall not be guaranteed."
+      ],
+      [
+        "FR200_036",
+        "The system shall identify duplicates by account, metric and original timestamp while retaining distinct nearby measurements, even if their values match."
+      ],
+      [
+        "FR200_037",
+        "The system shall stop checks for a disconnected or forgotten source without deleting previously saved readings."
+      ]
+    ],
+    "M400": [
+      [
+        "FR400_040",
+        "The system shall combine planned meals, logged meals, biometric readings, completed exercises and recovery check-ins in the selectable daily Health insights timeline."
+      ],
+      [
+        "FR400_041",
+        "The system shall support timeline record-kind filters, horizontal zoom, a selected-time line, record details and clearly labelled nearby temporal observations."
+      ],
+      [
+        "FR400_042",
+        "The system shall compare applicable plans, recorded meals, coverage, activity and reading changes in weekly reports, using equal elapsed calendar windows for previous-period comparisons."
+      ],
+      [
+        "FR400_043",
+        "The system shall separate Conclusion, Analysis and Suggested next step in health reports/insights, grounded in available saved records and model outputs."
+      ],
+      [
+        "FR400_044",
+        "The system shall display per-metric coverage, source/import counts, stored sync status, invalid/unavailable data and forecast input minimums in Data quality without equating completeness with accuracy."
+      ],
+      [
+        "FR400_045",
+        "The system shall allow tagged presentation records to be excluded from Health insights and its PDF without deleting stored rows or silently altering existing Health Report forecast inputs."
+      ],
+      [
+        "FR400_046",
+        "The system shall create an offline weekly PDF from the same facts and food guidance shown on screen, retaining dates, coverage, presentation-data labels and uncertainty."
+      ],
+      [
+        "FR400_047",
+        "The system shall allow the patient to add, edit or confirm deletion of a daily recovery check-in for an owned treatment assignment."
+      ],
+      [
+        "FR400_048",
+        "The system shall validate recovery pain/stiffness 0–10, difficulty 1–5, notes at most 500 characters and a date from assignment start through today, storing at most one entry per account/assignment/date."
+      ],
+      [
+        "FR400_049",
+        "The system shall compare recovery symptoms within one assignment and posture results within one exercise, highlighting recent worsening for review."
+      ],
+      [
+        "FR400_050",
+        "The system shall leave treatment progress, exercise prescriptions and assigned plans unchanged when a symptom diary entry is saved."
+      ],
+      [
+        "FR400_051",
+        "The system shall exclude other-account and future recorded data from insights/PDF generation, guard delayed account changes and disclose retrieval failures."
+      ],
+      [
+        "FR400_052",
+        "The system shall withhold exploratory meal/reading associations below 12 pairs across 7 distinct days or without variation and label available associations as non-causal."
+      ]
+    ],
+    "M700": [
+      [
+        "FR700_051",
+        "The system shall allow review of multiple recognised foods/counts from one image and manual addition of missed foods such as small sides or biscuits."
+      ],
+      [
+        "FR700_052",
+        "The system shall keep count, unit, per-unit estimate and total grams consistent for counted foods; two 250 g cups shall correspond to 500 g total, subject to user correction."
+      ],
+      [
+        "FR700_053",
+        "The system shall merge repeated food selection within the same meal/date/slot into one portion and reject an invalid merged meal-entry quantity without losing the prior draft."
+      ],
+      [
+        "FR700_054",
+        "The system shall show pending state for add, modify, remove, generate and save operations, prevent conflicting repeat submissions and retain or restore prior state on failure."
+      ],
+      [
+        "FR700_055",
+        "The system shall open an entire-image dismissible viewer when the patient taps a saved meal-history photo."
+      ],
+      [
+        "FR700_056",
+        "The system shall enforce lower nutrition targets and upper/profile gates before AI-generated plan persistence, including locked foods and actual logged meals counted once."
+      ],
+      [
+        "FR700_057",
+        "The system shall show red food/total warnings for patient-selected additions/replacements in today's, weekly and manually built plans without prohibiting valid choices solely for a health conflict."
+      ],
+      [
+        "FR700_058",
+        "The system shall focus the current local date on opening Weekly plan and display the selected planned food/date's details when a food is tapped."
+      ],
+      [
+        "FR700_059",
+        "The system shall allow future start/end dates or day/week/month presets, with an inclusive maximum of 31 days and the start after today."
+      ],
+      [
+        "FR700_060",
+        "The system shall allow earlier saved plans to be opened by date and give a daily plan precedence over an overlapping weekly/multi-day plan."
+      ],
+      [
+        "FR700_061",
+        "The system shall save a future period only after every requested date passes generation checks; partial failure shall not replace an existing saved period."
+      ],
+      [
+        "FR700_062",
+        "The system shall briefly remind the patient to follow the saved diet plan during meal logging while allowing actual intake to be recorded."
+      ],
+      [
+        "FR700_063",
+        "The system shall keep a separate meal-change proposal; resetting or cancelling shall preserve the original draft and saved history."
+      ],
+      [
+        "FR700_064",
+        "The system shall show simulated changes in energy, carbohydrate, protein, fat, sodium and free sugars, plus daily totals/remaining allowances counted once."
+      ],
+      [
+        "FR700_065",
+        "The system shall return a proposal only by explicit Use in meal draft, target the matching unsaved meal, reassess warnings and retain normal review/save; warning proposals shall require acknowledgement."
+      ],
+      [
+        "FR700_066",
+        "The system shall distinguish close portions, changed portions, changed foods, no log, not due, no plan, reference-only and unavailable states in diet comparison."
+      ],
+      [
+        "FR700_067",
+        "The system shall compare account, local date, meal slot and food key using applicable-plan precedence; a plan saved after the meal shall be reference-only rather than adherence evidence."
+      ],
+      [
+        "FR700_068",
+        "The system shall show planned/logged food grams and nutrient differences, previous-week comparisons and supporting recorded dates without treating a missing meal as zero intake."
+      ],
+      [
+        "FR700_069",
+        "The system shall name foods/meal slots, recorded and review portions and specific nutrient reasons in daily food guidance using the current profile and comparable plan."
+      ],
+      [
+        "FR700_070",
+        "The system shall group observed daily food options into weekly priorities with occurrence counts, dates and gram differences, without extrapolating a seven-day prescription or extra allowance."
+      ],
+      [
+        "FR700_071",
+        "The system shall allow suggested increases only within current suitability and cumulative daily budgets, withholding unsupported increases for unavailable/incomplete profiles, later-created plans and kidney-sensitive cases."
+      ],
+      [
+        "FR700_072",
+        "The system shall name any required removal as a conditional food swap rather than extra food and prevent later options from silently depending on that hypothetical swap."
+      ],
+      [
+        "FR700_073",
+        "The system shall reuse daily/weekly food-guidance objects in the weekly PDF and state incomplete-log coverage and current-profile assumptions."
+      ],
+      [
+        "FR700_074",
+        "The system shall retain logged core nutrient snapshots and label comparisons using current catalogue extras such as fibre/calcium as estimates."
+      ]
+    ]
+  },
+  "nfr_changes": {
+    "NFR_04": "The new insights, comparison, simulator and recovery interfaces shall reuse established design tokens for colours, spacing, cards, text and primary actions; warnings shall use words as well as colour.",
+    "NFR_07": "Posture analysis shall execute on the AI server after video upload. Its client wait budget shall include the configured analysis timeout plus upload allowance; this is not a guarantee of on-device inference within ten seconds.",
+    "NFR_08": "Food recognition shall show progress and a review/manual fallback under the configured 30-second client phase timeout. Diet-plan requests use 20 seconds per request; retries and multi-date generation can take longer. Treatment recommendation retains its configured 30-second request budget. These are timeouts/targets, not measured service guarantees.",
+    "NFR_12": "During a temporary network failure the system shall retain an unsaved draft and display available loaded/cached data with explicit retry/unavailable states. Automatic durable offline write-queue synchronisation is not part of the current workflow.",
+    "NFR_15": "AI payloads shall minimise personal data. Account identifiers shall not be sent in analysis/food/planning payloads. Optional online food vision receives a prepared image/catalogue context without profile fields or authentication credentials; images may still contain personal content.",
+    "NFR_19": "The delivered and tested mobile workflow targets Android 8.0/API26 or later. Shared Flutter code supports future portability; direct-watch integration is Android-specific and an iOS feature-parity claim requires separate implementation/testing.",
+    "NFR_20": "AI inference shall run on supported server environments behind the documented API; on-device AI-model execution is not required by the current deployment."
+  },
+  "constraints": {
+    "DC000_02": "Network waits are configured per operation: recognition 30 seconds per client network phase, a plan API request 20 seconds, standard analysis/recommendation 30 seconds; retries, uploads and multi-date requests add elapsed time. Progress and recoverable failure paths remain visible.",
+    "DC000_03": "The FastAPI AI server is an internal deployed subsystem. Supabase/Google, Health Connect, compatible watches and an optional Gemini vision provider are external dependencies with separate availability boundaries. Public deployments use HTTPS; an explicitly configured local development endpoint can differ.",
+    "DC100_08": "Password hashing/authentication are delegated to Supabase Auth; the mobile client neither stores plaintext passwords nor implements its own hash comparison.",
+    "DC200_02": "Active-app/resume checks import available Health Connect data about once per minute and saved direct-watch history about every 15 seconds. Checks do not overlap. No operating-system background delivery or immediate watch-to-phone record is guaranteed.",
+    "DC400_01": "ForecastService sends de-identified metric readings to /forecast; the server returns a seven-day tree-ensemble projection/band when its minimum history is met.",
+    "DC400_02": "The forecast horizon is seven daily points. Missing/withheld results and the last saved projection remain distinguishable.",
+    "DC400_04": "The Health Score is calculated deterministically from available profile, reading, meal and activity factors, with missing-data/coverage handling. The narrative does not turn an unsupported factor into a healthy result.",
+    "DC400_05": "Supported risk outputs use the implemented server profile-model and reading-trend combination; unsupported declared conditions are not assessed.",
+    "DC400_06": "Predicted risk is informational and never rewrites declared conditions, profile safety limits or a treatment prescription.",
+    "DC400_07": "Risk explanations report available contributing factors and uncertainty; current implemented factors must not be described as a universal causal diagnosis or a model for every condition.",
+    "DC700_02": "The phone validates JPEG/PNG, maximum 10 MB and original sides at least 224 pixels, corrects orientation and prepares JPEG quality80 with at most1024 pixels on the long edge.",
+    "DC700_05": "Catalogue foods and confirmed edible grams determine displayed nutrients. Online vision proposes identities/counts/weights; local fallback uses standard servings. The provider does not author authoritative nutrient totals.",
+    "DC700_06": "Suitability is deterministic from declared exclusions, limitations, current condition rules and portion. AI plans pass a strict application-side gate; structurally valid patient choices remain advisory with red warnings.",
+    "DC700_07": "The server ranks only eligible catalogue candidates, while the application independently checks nutrition adequacy and safety. No suitable assembled result after three attempts means no new AI plan is saved."
+  }
+}

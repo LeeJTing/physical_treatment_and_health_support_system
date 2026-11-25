@@ -1,0 +1,697 @@
+[
+  {
+    "id": "UC100",
+    "title": "Register Account",
+    "description": "Create and verify a personal account by email/code or supported Google entry, complete any account setup and accept required current Terms/Privacy before personalised access.",
+    "pre": "The patient is not authenticated with a completed account, or is completing a new account's verification/setup.",
+    "post": "A verified account and required setup/terms acceptance allow Profile or Home routing. Cancelled or failed entry does not grant personalised access; backend retention is a separate configured policy.",
+    "flow": [
+      [
+        "Open Register and enter username, email, password and confirmation.",
+        "Validate required values and password/confirmation rules; keep invalid fields identifiable and submission protected from repeated taps."
+      ],
+      [
+        "Submit registration.",
+        "Request account creation and a six-digit verification email through the authentication repository; show progress or an actionable provider/service error."
+      ],
+      [
+        "Enter the received code, or request resend after the cooldown.",
+        "Verify through the authentication service and apply the client attempt policy; an accepted code activates the account."
+      ],
+      [
+        "Complete any required provider-account setup and read the current Terms/Privacy.",
+        "Check whether current-version acceptance, health-data consent or an age/guardian declaration is required before the personalisation route."
+      ],
+      [
+        "Accept the required declarations, or decline.",
+        "Persist a versioned acceptance when valid. Declining ends the entry without personalised access."
+      ],
+      [
+        "Continue to Profile or Home.",
+        "Open mandatory profile setup when incomplete, otherwise Home; restore account reminder scheduling without blocking navigation."
+      ]
+    ],
+    "alternatives": [
+      "A1: Google entry: check provider availability, open the browser flow and complete required username/password setup for a new provider account before the same terms/profile routing.",
+      "A2: Invalid/expired code or attempt limit: explain the error; allow the configured resend path instead of treating the account as activated.",
+      "A3: Cancel: discard unsaved form state. Cancelling incomplete Google setup invokes its signed-in incomplete-account cleanup; unverified-account retention remains backend-configured.",
+      "A4: A required guardian/age or health-data declaration is absent: retain the terms form and block continuation until corrected or declined."
+    ],
+    "exceptions": [
+      "E1: Authentication/email service failure or timeout: retain form state and offer retry.",
+      "E2: Google/browser cancellation or unavailable provider: return to account entry without a fabricated successful login.",
+      "E3: Acceptance persistence failure: keep the consent form and explain retry; do not treat the current version as accepted."
+    ],
+    "notes": [
+      "Username/password/code validation follows current AppConstants and authentication repository policies.",
+      "Supabase Auth handles password hashing and code verification; the mobile UI does not compare stored password hashes.",
+      "Six-digit email verification and provider verification are distinct from current-version terms/health-data consent.",
+      "Adult/minor declarations must be consistent with later profile age; the current account flow handles the required guardian form.",
+      "Scheduled cleanup jobs are backend deployment configuration, not a guaranteed phone background action."
+    ],
+    "requirements": "FR100_001–023, FR100_035, FR100_071",
+    "sources": [
+      "lib/viewmodel/auth_view_model/auth_view_model.dart",
+      "lib/model/repository/auth_repository/i_auth_repository.dart",
+      "lib/model/entity/terms_acceptance.dart"
+    ]
+  },
+  {
+    "id": "UC200",
+    "title": "Login Account",
+    "description": "Authenticate by email/password, restored session or enabled Google entry, then finish required setup/current terms before routing to Profile or Home.",
+    "pre": "The patient is at account entry or the application is restoring a saved session.",
+    "post": "A permitted authenticated session reaches Profile/Home after required entry checks; invalid, cancelled or declined entry does not enter personalised workflows.",
+    "flow": [
+      [
+        "Open the application or Login and enter valid credentials when requested.",
+        "Check a stored session and local inactivity policy, or validate login fields and request authentication."
+      ],
+      [
+        "Submit login or choose an enabled Google entry.",
+        "Handle unverified/provider/lockout states through the relevant verification/provider flow rather than assuming every failure is an incorrect password."
+      ],
+      [
+        "Complete any required provider setup or verification.",
+        "Resolve the authenticated account and determine whether the current Terms/Privacy version or age/guardian declaration requires review."
+      ],
+      [
+        "Accept required terms and explicit health-data consent, or decline.",
+        "Save a valid acceptance before navigation; declining clears account entry and personalised access."
+      ],
+      [
+        "Continue into the application.",
+        "Route incomplete profiles to Profile and complete profiles to Home; synchronise reminders for the signed-in account."
+      ]
+    ],
+    "alternatives": [
+      "A1: Valid restored session: skip credential re-entry but still perform required account-setup/current-terms/profile checks.",
+      "A2: Forgotten password: request/verify the reset code, set a valid new password and return to Login; use the same account-existence-neutral confirmation.",
+      "A3: Unverified email: offer code verification/resend before activated access.",
+      "A4: Google unavailable/cancelled: retain a usable email/password entry path.",
+      "A5: Current Terms/Privacy or age declaration changed: review it before Profile/Home; declining does not bypass the gate."
+    ],
+    "exceptions": [
+      "E1: Invalid credentials/field or temporary lockout: explain the relevant state and retain usable entry values.",
+      "E2: Authentication service unavailable or timeout: show retry without creating a session.",
+      "E3: Terms acceptance write failure or session change: keep or restart the appropriate entry state; never route another account's delayed result."
+    ],
+    "notes": [
+      "The app's local inactivity policy is three days since use/renewal; underlying authentication-token expiry remains provider-managed.",
+      "Provider linking/setup follows the authentication backend contract, not an assumption that any typed email proves ownership.",
+      "Current-version consent precedes personalisation; saved history is not altered by opening or declining the entry forms."
+    ],
+    "requirements": "FR100_018–043, FR100_071",
+    "sources": [
+      "lib/viewmodel/auth_view_model/auth_view_model.dart",
+      "lib/core/utils/session_policy.dart",
+      "lib/model/repository/auth_repository/supabase_auth_repository.dart"
+    ]
+  },
+  {
+    "id": "UC300",
+    "title": "Manage Profile",
+    "description": "Complete or update body measurements, supported conditions/status, physical limitations and specific foods to avoid; derive risk/safety limits and optionally refresh diet plans.",
+    "pre": "An authenticated account is available. Terms/age declarations must be consistent with the account workflow.",
+    "post": "An accepted profile/version and derived limits are stored. Diet plans change only if the patient agrees to refresh and generation succeeds; logged history is retained.",
+    "flow": [
+      [
+        "Open Profile and choose a section to edit.",
+        "Retrieve the stored profile, lookup lists and current connection state; preserve unsaved section values."
+      ],
+      [
+        "Enter age, gender, weight and height.",
+        "Validate configured ranges and combined BMI plausibility; display calculated BMI."
+      ],
+      [
+        "Select supported conditions/status answers, limitations and foods to avoid.",
+        "Search/group the choices; hide Other as a new condition and retain legacy saved declarations without silently clearing them."
+      ],
+      [
+        "Save the section/profile.",
+        "Validate mandatory values and age/terms consistency; recompute risk and safety limits and persist the new profile version."
+      ],
+      [
+        "Choose Update plans or Not now when a diet-affecting change is saved.",
+        "Ask before replacing today's and the saved weekly plan. On consent open the update workflow; otherwise retain plans and history."
+      ]
+    ],
+    "alternatives": [
+      "A1 Invalid/incomplete input: identify the field and retain the draft until corrected or cancelled.",
+      "A2 Cancel editing: discard that unsaved section; the stored profile remains unchanged.",
+      "A3 Account settings: change password, confirm logout, configure/check AI-server address, or complete confirmed account deletion.",
+      "A4 Health Connect: check availability, grant required read permissions, display connection/sync status, open install/settings when needed, or disconnect without deleting readings.",
+      "A5 High risk/clearance concern: display the relevant advisory and treatment restrictions derived from declared data."
+    ],
+    "exceptions": [
+      "E1 Profile retrieval failure: display an unavailable/retry state; dependent diet evaluation applies its documented conservative handling.",
+      "E2 Save failure: retain entered values and previous stored profile/limits; offer retry.",
+      "E3 Diet refresh failure after a successful profile save: keep the new profile, preserve any plan not successfully replaced and explain the partial/failure result."
+    ],
+    "notes": [
+      "Required body fields: age, gender, weight and height. Current input bounds: age13–120, weight20–635 kg, height80–272 cm and combined BMI7–200.",
+      "Selectable conditions and food exclusions come from current lookup data. OTHER and retired dietary labels remain compatibility records, not new selections.",
+      "Risk is derived from declared conditions/status and limitations. Predicted risk does not rewrite this profile.",
+      "Connect watch is accessed from Tracking; Health Connect account settings and direct-watch pairing are separate sources."
+    ],
+    "requirements": "FR100_044–072; FR700_017, FR700_056",
+    "sources": [
+      "lib/view/profile_view/profile_view.dart",
+      "lib/viewmodel/profile_view_model/profile_view_model.dart",
+      "lib/model/entity/health_profile.dart"
+    ]
+  },
+  {
+    "id": "UC600",
+    "title": "View Health Report",
+    "description": "Review saved health-score factors, supported condition-risk indications, metric forecasts, anomalies and explanations, with access to Health insights and reminders.",
+    "pre": "The patient is authenticated. The report may open with no data; each calculation checks its own required inputs.",
+    "post": "Available results and alerts are displayed; withheld, unavailable and older saved results remain distinguishable. No treatment or declared safety limit is changed.",
+    "flow": [
+      [
+        "Open Health Report or refresh it.",
+        "Load account-owned profile, readings, meals, exercise history and saved analyses; show progress."
+      ],
+      [
+        "Review score and factor cards.",
+        "Calculate/request applicable results; show missing-data reasons when coverage is insufficient."
+      ],
+      [
+        "Open a condition or metric forecast.",
+        "Request only supported risk outputs and forecasts with at least14 readings for the metric; preserve model versions and explain missing inputs."
+      ],
+      [
+        "Inspect an alert or trend.",
+        "Display measured values, recorded dates, forecast uncertainty and the Conclusion/Analysis/Suggested next step; route high-severity alerts through the existing warning flow."
+      ],
+      [
+        "Open Health insights, reminders or notification history.",
+        "Navigate to the selected workflow; preserve the original report's forecast-input scope."
+      ]
+    ],
+    "alternatives": [
+      "A1 Insufficient/unsupported data: withhold that score, risk or forecast and name the missing input rather than inventing a healthy result.",
+      "A2 View historical/saved result: identify its date and stale state when a refresh has failed.",
+      "A3 High-severity alert: display the warning and existing advice to consult a healthcare professional.",
+      "A4 Manage reminders/history: create/edit/disable/delete reminders and inspect persistent notification history through their existing screens.",
+      "A5 Advanced summaries: enter UC610, UC620, UC630 or UC640 from Health insights."
+    ],
+    "exceptions": [
+      "E1 Retrieval failure: retain available loaded/saved results and mark missing sections; offer retry.",
+      "E2 AI-server timeout/error: show the last available result as saved/stale where available; do not create a fresh forecast.",
+      "E3 Session change: discard delayed results belonging to the previous account."
+    ],
+    "notes": [
+      "Forecast horizon7days; metric minimum14readings. These are application/model prerequisites, not clinical validation.",
+      "Analysis requests contain de-identified features and an authentication header, without an account identifier in the payload.",
+      "Risk is assessed only for supported condition/model combinations. A direction or score band does not establish a diagnosis or recovery.",
+      "Health-insights demo exclusion applies to that hub and its PDF, not automatically to the existing forecast inputs.",
+      "Reminder delivery depends on device permission/platform scheduling; persistent alert history remains separately available."
+    ],
+    "requirements": "FR400_001–052; FR600_001–017",
+    "sources": [
+      "lib/viewmodel/analysis_view_model/analysis_view_model.dart",
+      "lib/view/health_report_view/health_report_view.dart",
+      "lib/model/business_logic/forecast_service/forecast_service.dart"
+    ]
+  },
+  {
+    "id": "UC700",
+    "title": "Track Health",
+    "description": "Enter or import supported measurements and inspect biometric/exercise history, source times, counts and interactive graphs.",
+    "pre": "The patient is authenticated. Manual entry needs no wearable; Health Connect/direct-watch import additionally needs available source permissions/connectivity.",
+    "post": "Accepted records are stored with original measurement/source metadata; counts/graphs refresh. Duplicate, invalid and unavailable records are not reported as new measurements.",
+    "flow": [
+      [
+        "Open Tracking and select Pressure, Glucose, Weight or Exercise.",
+        "Load the default30-day account history, summary, source state and completed-session history; restore the saved watch selection where available."
+      ],
+      [
+        "Choose an existing graph point, period or zoom control.",
+        "Render the selected range; show a vertical line and point details only for an actual matched record."
+      ],
+      [
+        "Choose Add reading and enter values, context and time.",
+        "Validate required values, configured plausibility and future-date tolerance; preserve the form on failure."
+      ],
+      [
+        "Save the reading.",
+        "Persist the manual source, refresh history/summary and expose the updated data to analysis."
+      ],
+      [
+        "Connect/import a health source or leave the signed-in app active.",
+        "Read only supported available saved records, validate/deduplicate, store original recorded_at plus first imported_at, and display new-record counts and successful-check state."
+      ]
+    ],
+    "alternatives": [
+      "A1 Health Connect: request supported read permissions and import returned records. Initial lookback is90days; later reads overlap the last successful check by5minutes to catch delayed inserts. The overlap does not subtract5minutes from measurement time.",
+      "A2 Direct watch: disconnect competing companion-app ownership first, keep Bluetooth on, scan/select a supported device and read available saved history. Do not assume every visible watch value is stored/exposed.",
+      "A3 Active-app sync: check Health Connect about once/minute and direct-watch saved history about every15seconds; resume triggers a check. Skip overlapping checks and retry after temporary failures.",
+      "A4 Exercise: choose By session or Daily total; inspect sessions, exact completion times and available metadata. Unknown durations are labelled and excluded from minute plots/totals.",
+      "A5 Change period: use7/30/90days or a valid custom range, then zoom/pan/reset; touching a gap clears selected details.",
+      "A6 Delete a reading: confirm removal; refresh on success and restore the visible row on write failure.",
+      "A7 Disconnect a source: stop future checks without deleting stored measurements."
+    ],
+    "exceptions": [
+      "E1 Source/permission unavailable: show install/settings or disconnect-first guidance; keep existing history and manual entry available.",
+      "E2 No new saved watch record: report a successful zero-new-record check rather than promise immediate delivery.",
+      "E3 Save/import failure: retain previous records and form/draft state; do not report rejected/duplicate rows as imported.",
+      "E4 Exercise retrieval failure: show Unavailable and Retry rather than zero completed sessions."
+    ],
+    "notes": [
+      "Metrics: blood pressure, glucose and weight only when the selected adapter actually exposes measured records.",
+      "Duplicate key: account + metric + original UTC timestamp. Nearby equal-valued readings remain separate.",
+      "Record time and first import time are distinct; last successful source check can advance with zero new rows.",
+      "No continuous OS background sync or guaranteed watch latency is implemented.",
+      "Exercise history is read from owned completed treatment sessions; manual biometric entry does not fabricate exercise completions."
+    ],
+    "requirements": "FR200_001–037; FR100_062–066",
+    "sources": [
+      "lib/viewmodel/monitoring_view_model/monitoring_view_model.dart",
+      "lib/device_platform/wearable/veepoo_watch_source.dart",
+      "lib/model/business_logic/health_connect_service/health_connect_service.dart",
+      "lib/view/common/trend_chart.dart"
+    ]
+  },
+  {
+    "id": "UC800",
+    "title": "View Food Information and Log Meal",
+    "description": "Build a meal from a camera/gallery image or manual catalogue search, review every food/quantity, inspect advice and explicitly save what was eaten.",
+    "pre": "The patient is authenticated. Camera/gallery permission is needed only for that image source; manual logging remains available.",
+    "post": "On successful Save, the meal, nutrient snapshots, reviewed recognition metadata and optional photo are stored. Daily totals and plan comparison refresh; a cancelled/failed draft is not silently saved.",
+    "flow": [
+      [
+        "Select Log meal and choose camera, gallery or manual entry.",
+        "Retrieve current diet context and show the brief saved-plan reminder."
+      ],
+      [
+        "Capture/select a photo, or search a catalogue food.",
+        "Validate a photo as JPEG/PNG≤10MB with original sides≥224px; prepare orientation-corrected JPEG quality80 at most1024px on the long edge. Manual entry skips photo permission and recognition."
+      ],
+      [
+        "Wait for recognition or choose foods manually.",
+        "Call the authenticated owned server with image/codes. Map returned foods to catalogue entries; show multiple items, estimated counts/total grams, warnings and review state. Auto/local fallback follows server configuration."
+      ],
+      [
+        "Correct foods, add missed sides, change count/total grams or remove an item.",
+        "Merge identical foods within this meal; reject invalid combined meal-entry portions, recalculate catalogue nutrients and reassess current-profile verdicts. Keep count × unit estimate consistent with total grams."
+      ],
+      [
+        "Optionally explore What if I change this meal? and return a proposal.",
+        "Run UC810 without altering saved history or silently saving the draft."
+      ],
+      [
+        "Review the actual meal and press Save.",
+        "Store the photo only with the confirmed meal, retain historical core nutrient snapshots and recognition metadata, update totals and refresh plan-related feedback."
+      ]
+    ],
+    "alternatives": [
+      "A1 Low confidence/non-food/empty result: explain the limitation and continue through manual catalogue search.",
+      "A2 Online vision unavailable: when configured auto mode can use local recognition, state that local portions are standard servings and require review; otherwise offer retry/manual entry.",
+      "A3 Count/weight review: edit total edible grams in10–1000g and optional supported count; e.g. two250g cups imply500g total before user correction.",
+      "A4 Duplicate add: merge the same food's grams and re-evaluate warnings rather than append a duplicate line.",
+      "A5 History: filter dates, open full meal details, tap a photo for an entire-image viewer, or confirm meal/photo deletion.",
+      "A6 Cancel: discard the unsaved image/draft; successful saved history remains unchanged.",
+      "A7 Health conflict: display the reason/red warning while allowing the patient to log actual intake."
+    ],
+    "exceptions": [
+      "E1 Invalid/unreadable image or permission refusal: explain the problem and allow another source/manual entry.",
+      "E2 Recognition timeout/provider failure: stop the waiting state and offer retry/manual logging; do not fabricate detections or amounts.",
+      "E3 Meal/photo persistence failure: undo the optimistic visible save, retain the review draft and allow retry.",
+      "E4 Session/draft changes during asynchronous work: ignore outdated results instead of attaching them to another account or meal."
+    ],
+    "notes": [
+      "Nutrition comes from catalogue food rows × confirmed grams; image weights/counts remain estimates.",
+      "Local model confidence uses the0.60 review threshold. Online confidence is an uncalibrated estimate and never a measured portion.",
+      "An owned-server request carries image and declared codes; the optional external vision provider receives only prepared image/catalogue context, not profile codes or account/session identifiers.",
+      "The recognition client uses a30-second configured timeout per network phase; a5-second online result is not guaranteed.",
+      "Model version is retained as provenance; no model name needs to be shown in the patient UI.",
+      "Confirming Save marks review metadata as reviewed; it does not verify the image estimate as a measured quantity."
+    ],
+    "requirements": "FR700_001–028, FR700_046–055, FR700_062–065",
+    "sources": [
+      "lib/viewmodel/meal_log_view_model/meal_log_view_model.dart",
+      "lib/model/business_logic/food_recognition_service/food_recognition_service.dart",
+      "lib/model/entity/food_recognition_details.dart",
+      "ai_server/app/food/vision.py"
+    ]
+  },
+  {
+    "id": "UC900",
+    "title": "View Food Recommendation and Manage Diet Plan",
+    "description": "Review food suitability and plan rationale; load, generate or edit today's/weekly/future plans while keeping AI validation separate from patient-choice warnings.",
+    "pre": "The patient is authenticated. Current profile/limits are retrieved; unavailable data invokes conservative handling and limits confidence in personalised advice.",
+    "post": "Only a fully validated AI result is newly saved. Structurally valid patient choices can be saved with warnings. Existing plans/logged history survive cancelled or failed generation.",
+    "flow": [
+      [
+        "Open Today's plan or Weekly plan.",
+        "Load the applicable saved plan; weekly view initially focuses today's local date. Display date, food details, target coverage and red warnings."
+      ],
+      [
+        "Select Generate, Replan or Plan the rest of today.",
+        "Retrieve current profile, locked rows, logged meals and food history; show progress and send a de-identified planning request."
+      ],
+      [
+        "Wait for the proposed plan.",
+        "Check every AI-chosen portion, all requested dates, lower nutrition needs and upper/profile gates. Count today's actual logged intake once; reject and retry up to3attempts if invalid."
+      ],
+      [
+        "Review the resulting foods and reasons.",
+        "Save only after all generation gates pass; display shortfalls/conflicts and retain an explanatory no-new-plan outcome when no candidate passes."
+      ],
+      [
+        "Add, replace, resize, remove or lock a chosen food.",
+        "Show that food/date's own details. Patient-selected choices are advisory: merge repeated food portions and highlight health conflicts in red; malformed portions/dates remain blocking."
+      ],
+      [
+        "Choose a previous date or a future start/end period.",
+        "Open saved history without automatic generation, or generate1–31future inclusive days in validated blocks and save the assembled period only when every block succeeds."
+      ]
+    ],
+    "alternatives": [
+      "A1 Build my own plan: use the same food-card/slot layout and catalogue search independently of AI availability; show nutrition/profile warnings and reject only structural errors/empty choices.",
+      "A2 Future plan: choose1day,1week,1month preset or explicit dates; require start after today and at most31inclusive days.",
+      "A3 Earlier plan: daily plan takes precedence over overlapping weekly/multi-day plans; keep the chosen date visible.",
+      "A4 Profile update prompt: regenerate current/saved weekly plans only after the patient's consent from UC300; keep logs and any plan not successfully replaced.",
+      "A5 Locked food conflict: locks survive normal regeneration but do not bypass current-profile AI validation; explain why a locked configuration cannot be generated.",
+      "A6 Compare adherence: open UC910 for recorded food/portion differences and daily/weekly next-meal options.",
+      "A7 Alternative suggestion: offer suitable catalogue choices, while still allowing the patient to select another food with advisory warnings."
+    ],
+    "exceptions": [
+      "E1 AI unavailable/timeout or3invalid attempts: keep the saved plan and offer retry/manual building.",
+      "E2 Future generation block failure: do not persist a partial requested period or replace saved plans with it.",
+      "E3 Invalid structural edit or failed write: retain the draft/previous plan and explain the specific failure.",
+      "E4 Profile unavailable: state conservative limits and uncertainty; never claim full personalised suitability."
+    ],
+    "notes": [
+      "AI generation must satisfy75% minimum energy coverage plus applicable nutrient needs and current upper limits; patient choices can remain saved with a visible shortfall warning.",
+      "All planned dates use device-local calendar days. Future scheduling is1–31inclusive days, not an unbounded annual planner.",
+      "A20-second timeout applies per plan API request; retries and future blocks add elapsed time.",
+      "Weekly/default plans are seven days; multi-day scheduled plans reuse the existing daily/weekly storage type with explicit start/end dates.",
+      "Limited catalogue/exclusion combinations can prevent an adequate varied plan. Failure is explicit rather than a guaranteed promise of a completely different menu.",
+      "Manual choices, even Build my own plan, are advisory in the current application; older strict-manual descriptions are superseded."
+    ],
+    "requirements": "FR700_029–049, FR700_056–061; FR100_068",
+    "sources": [
+      "lib/viewmodel/diet_plan_view_model/diet_plan_view_model.dart",
+      "lib/model/business_logic/diet_planner_service/diet_planner_service.dart",
+      "lib/view/diet_view/diet_plan_view.dart"
+    ]
+  },
+  {
+    "id": "UC1000",
+    "title": "Retrieve Profile Information",
+    "description": "Return the authenticated account's profile, declared conditions/status, food exclusions, limitations and derived limits with an explicit availability/completeness status.",
+    "pre": "An including workflow needs account-scoped profile context. Without a current authenticated account the request fails.",
+    "post": "The including workflow receives the correct account's snapshot/status or a conservative unavailable result; missing values are not invented.",
+    "flow": [
+      [
+        "",
+        "The use case begins when an including workflow requests profile context. Resolve the authenticated account internally; do not accept another patient's arbitrary identifier."
+      ],
+      [
+        "",
+        "Read the profile and required saved limits; identify absent/incomplete/error states."
+      ],
+      [
+        "",
+        "Return complete or stale profile/limits, or available fields with conservative limits for missing/incomplete data."
+      ],
+      [
+        "",
+        "The caller uses status appropriately: explain conservative handling and withhold personalised food increases where a usable profile is unavailable."
+      ]
+    ],
+    "alternatives": [
+      "A1 No profile: return NOT_CONFIGURED and conservative limits; the UI directs the patient to setup.",
+      "A2 Incomplete profile: return existing fields and conservative limits with INCOMPLETE; do not fill demographics with guessed values.",
+      "A3 Stale profile: return the stored profile with STALE after182days and allow the caller to request review."
+    ],
+    "exceptions": [
+      "E1 No active session: return authentication failure and no other account's data.",
+      "E2 Repository failure: return ERROR/conservative limits. This service does not promise a cached profile or a profile-access audit-log write.",
+      "E3 Account changes during a calling workflow: the ViewModel discards the delayed result and requests sign-in/reload."
+    ],
+    "notes": [
+      "Returned data includes account-scoped profile/version/update time, supported declarations and safety limits; account identifiers stay in the application/backend ownership boundary.",
+      "RiskAssessmentService is the shared implementation. It does not create a separate profile-access-log record.",
+      "Complete and stale snapshots use stored limits or regenerate them from the saved profile when needed; missing/incomplete/error snapshots use conservative limits.",
+      "Included by profile, meal, planning, diet-review and health-analysis workflows as their required context."
+    ],
+    "requirements": "FR100_044–069; FR700_017, FR700_071",
+    "sources": [
+      "lib/model/business_logic/risk_assessment_service/risk_assessment_service.dart"
+    ]
+  },
+  {
+    "id": "UC610",
+    "title": "Review Health Timeline",
+    "description": "Inspect plans, logged meals, readings, exercises and symptom diary entries on a shared local-day timeline.",
+    "pre": "An authenticated account is available; the screen can open with empty or partially unavailable history.",
+    "post": "Selected records/nearby observations are displayed without changing saved records.",
+    "flow": [
+      [
+        "Open Health insights > Timeline and select a week/day.",
+        "Load account-owned records and build dated events with demo/availability labels."
+      ],
+      [
+        "Filter lanes, zoom or select a marker.",
+        "Draw a selected-time line, display original event details and show available nearby readings as temporal observations."
+      ],
+      [
+        "Change the presentation-data switch or day.",
+        "Rebuild the visible events for the chosen scope without deleting stored rows."
+      ]
+    ],
+    "alternatives": [
+      "A1 A plan's suggested meal time or a diary noon marker is a display position, not a measurement timestamp.",
+      "A2 Empty day: display a clear no-records state, not zero intake or zero symptoms."
+    ],
+    "exceptions": [
+      "E1 Missing source: show notices and available events; offer refresh.",
+      "E2 Session change: discard delayed data from the prior account."
+    ],
+    "notes": [
+      "Original measurement/completion times are retained.",
+      "The demo filter affects Health insights and its PDF only.",
+      "Temporal proximity does not prove a dietary or treatment effect."
+    ],
+    "requirements": "FR400_040,041,045,051",
+    "sources": [
+      "lib/view/health_insights_view/health_timeline.dart",
+      "lib/model/business_logic/health_insights_service/health_insights_service.dart"
+    ]
+  },
+  {
+    "id": "UC620",
+    "title": "Review and Export Weekly Progress",
+    "description": "Review the selected week's conclusions, evidence and food guidance and export an offline PDF.",
+    "pre": "An authenticated account is available; enough logged evidence is needed only for the individual comparisons that require it.",
+    "post": "A PDF is prepared from the same loaded facts when export succeeds; cancelling the native dialog changes no records.",
+    "flow": [
+      [
+        "Open Weekly report and select an elapsed week.",
+        "Build applicable-plan comparisons, coverage, diet/activity facts and context-separated reading changes."
+      ],
+      [
+        "Expand food advice or supporting dates.",
+        "Show daily portions, weekly occurrence totals and current-profile assumptions; supporting dates open matching timeline evidence."
+      ],
+      [
+        "Choose Export / print PDF.",
+        "Generate local PDF bytes from the same snapshot and invoke the device print/export UI."
+      ]
+    ],
+    "alternatives": [
+      "A1 No comparable meals: state what is missing and omit a fabricated adherence percentage.",
+      "A2 Incomplete days/different coverage: qualify averages and comparisons; missing logs remain unknown.",
+      "A3 Cancel the system dialog: retain the weekly screen and stored records."
+    ],
+    "exceptions": [
+      "E1 PDF/native dialog unavailable: show a retry message; do not claim an export was completed.",
+      "E2 Partial history retrieval: include the same notices in screen and PDF."
+    ],
+    "notes": [
+      "Previous-period summaries use equal elapsed calendar windows and daily means for reading changes; glucose contexts stay separate.",
+      "Presentation records remain labelled and can be excluded locally.",
+      "No online narrative service is required for these deterministic explanations."
+    ],
+    "requirements": "FR400_042–046,051; FR700_069–074",
+    "sources": [
+      "lib/viewmodel/health_insights_view_model/health_insights_view_model.dart",
+      "lib/model/business_logic/health_insights_service/weekly_report_service.dart"
+    ]
+  },
+  {
+    "id": "UC630",
+    "title": "Review Data Quality",
+    "description": "Inspect available readings, import provenance, coverage gaps and input minimums.",
+    "pre": "The patient is authenticated; no readings are required to open the dashboard.",
+    "post": "Source/check/coverage information is shown; no measurement or forecast is fabricated.",
+    "flow": [
+      [
+        "Open Health insights > Data quality.",
+        "Load selected-week and supporting history with saved source/sync metadata."
+      ],
+      [
+        "Inspect a metric, import group or missing date.",
+        "Display counts, original/import times, latest per-metric data and missing coverage."
+      ],
+      [
+        "Toggle presentation inclusion or refresh.",
+        "Recalculate this hub/PDF scope without modifying stored data or existing Health Report inputs."
+      ]
+    ],
+    "alternatives": [
+      "A1 No readings for a metric: state unavailable/missing rather than normal health.",
+      "A2 A successful source check with0newrecords remains distinct from failure."
+    ],
+    "exceptions": [
+      "E1 Source state/history retrieval fails: show a notice and mark completeness uncertain."
+    ],
+    "notes": [
+      "Input minimums describe availability, not guaranteed predictive accuracy.",
+      "Watch records depend on actual supported source capability."
+    ],
+    "requirements": "FR400_044,045,051; FR200_029,030",
+    "sources": [
+      "lib/view/health_insights_view/health_insights_view.dart",
+      "lib/model/business_logic/health_insights_service/health_insights_service.dart"
+    ]
+  },
+  {
+    "id": "UC640",
+    "title": "Manage Recovery Check In",
+    "description": "Record daily patient-reported pain, stiffness and exercise difficulty alongside an owned treatment assignment.",
+    "pre": "The patient is authenticated and has an owned treatment assignment for the selected diary date.",
+    "post": "One account/assignment/date entry is saved or an explicitly confirmed entry is deleted; treatment progress remains unchanged.",
+    "flow": [
+      [
+        "Open Recovery and choose Add recovery check-in or an existing date.",
+        "Load owned assignments and existing diary values."
+      ],
+      [
+        "Choose date and enter pain/stiffness/difficulty/optional notes.",
+        "Validate date from assignment start through today, score ranges and500-character note limit."
+      ],
+      [
+        "Save the check-in.",
+        "Insert or update the same logical account/assignment/date row using the repository and backend ownership checks."
+      ],
+      [
+        "Review symptoms and completed exercise evidence.",
+        "Compare diary values within that assignment, highlight recent worsening and group posture results by the same exercise."
+      ]
+    ],
+    "alternatives": [
+      "A1 Existing date: edit the same entry rather than create a duplicate.",
+      "A2 Delete: require confirmation before repository deletion.",
+      "A3 No diary or too few dates: state insufficient evidence; do not infer symptom improvement."
+    ],
+    "exceptions": [
+      "E1 Invalid score/date/notes: identify the issue and preserve input.",
+      "E2 Retrieval/write/ownership failure: retain prior state, show the failure and offer retry."
+    ],
+    "notes": [
+      "Pain/stiffness0–10; difficulty1–5; notes≤500characters.",
+      "Database uniqueness: account_id + patient_plan_id + check_in_date; backend dates use Asia/Kuala_Lumpur.",
+      "Symptoms are self-reports; neither symptom trends nor posture results automatically advance treatment."
+    ],
+    "requirements": "FR400_047–051",
+    "sources": [
+      "lib/model/entity/recovery_check_in.dart",
+      "lib/model/repository/recovery_repository/i_recovery_repository.dart",
+      "supabase/migrations/20261123172147_recovery_check_ins.sql"
+    ]
+  },
+  {
+    "id": "UC810",
+    "title": "Simulate Meal Changes",
+    "description": "Preview catalogue food/portion changes in an isolated proposal before applying it to the unsaved meal draft.",
+    "pre": "The patient has an unsaved meal draft in review and current diet context is available or explicitly conservative.",
+    "post": "The original stays unchanged until Use in meal draft; applying returns a reviewed proposal, not a saved meal.",
+    "flow": [
+      [
+        "Choose What if I change this meal? from meal review.",
+        "Copy the original items into a separate proposal and display original/proposed nutrient values."
+      ],
+      [
+        "Add/replace/remove foods or edit grams.",
+        "Merge duplicate foods, validate meal-entry quantities, recalculate6nutrients and recorded-day totals once, and display suitability/allowance warnings."
+      ],
+      [
+        "Choose Reset, Cancel or Use in meal draft.",
+        "Reset/cancel preserve the original; explicit Use returns items only to the matching still-open draft."
+      ],
+      [
+        "Acknowledge a warning proposal when prompted.",
+        "Retain the normal review/save action and reassess verdicts in the original workflow."
+      ]
+    ],
+    "alternatives": [
+      "A1 Search suggests currently suitable catalogue foods at standard portions; a changed portion is assessed again.",
+      "A2 Reset restores the proposal to its original copy."
+    ],
+    "exceptions": [
+      "E1 Invalid/nonfinite quantity: reject the change and keep the previous proposal.",
+      "E2 Original draft/session changed: refuse stale application rather than overwrite another meal."
+    ],
+    "notes": [
+      "The simulator calculates nutrition; it does not predict glucose/BP response.",
+      "Warnings do not silently save or edit meal history."
+    ],
+    "requirements": "FR700_063–065",
+    "sources": [
+      "lib/model/business_logic/health_insights_service/meal_simulation_service.dart",
+      "lib/viewmodel/health_insights_view_model/meal_simulation_view_model.dart"
+    ]
+  },
+  {
+    "id": "UC910",
+    "title": "Compare Planned and Logged Meals",
+    "description": "Explain meal differences and derive specific daily and weekly food options from current profile rules and recorded evidence.",
+    "pre": "The patient is authenticated. A fair adherence comparison needs an applicable plan saved before the relevant logged meal; the screen can still show missing/reference states.",
+    "post": "The selected week/day shows food grams, nutrient differences, coverage and supported options; no historical log or plan is automatically changed.",
+    "flow": [
+      [
+        "Open Diet review > Plan comparison and choose a week/day.",
+        "Load account meals and saved plans, select the applicable daily/overlapping multi-day plan and match local date/meal slot/food key."
+      ],
+      [
+        "Inspect a day, meal or nutrient.",
+        "Show close/portion/food-change, missing/not-due, unplanned, reference-only or unavailable status; expose planned/logged quantities and deltas."
+      ],
+      [
+        "Read daily food review and weekly priorities.",
+        "Name foods and review portions with nutrient reasons, affected dates/counts and current-profile suitability checks."
+      ],
+      [
+        "Open a supporting record or meal simulation.",
+        "Show the source record/isolated proposal; retain explicit review and Save control."
+      ]
+    ],
+    "alternatives": [
+      "A1 Plan generated after the logged meal: display reference-only; exclude it from adherence evidence.",
+      "A2 Missing/partial meals: mark unknown coverage and avoid diagnosing deficiency from sparse logs.",
+      "A3 Repeated choices: sum occurrences/grams actually observed, without extrapolating an extra weekly allowance.",
+      "A4 Exploratory meal/reading patterns: show only when12pairs across7days and variation criteria pass; label the association non-causal."
+    ],
+    "exceptions": [
+      "E1 Plans unavailable or invalid amounts: show Cannot compare and retry instead of a false denominator.",
+      "E2 Missing/incomplete profile: withhold personalised increases; retain recorded comparisons.",
+      "E3 Unsafe increase or unsupported kidney-sensitive advice: withhold the option; a required replacement must be explicit and self-contained."
+    ],
+    "notes": [
+      "Daily plans precede weekly plans, then latest start/generated time resolves overlap.",
+      "Changed portions differ by more than10% of planned grams, with the configured small rounding tolerance.",
+      "Core logged nutrients remain snapshots; catalogue extras are labelled estimates.",
+      "Up to4daily options and6weekly groups keep the guidance bounded. Options are not a deficiency diagnosis or an automatic prescription."
+    ],
+    "requirements": "FR700_066–074; FR400_052",
+    "sources": [
+      "lib/model/business_logic/diet_insights_service/plan_comparison_service.dart",
+      "lib/model/business_logic/diet_insights_service/diet_food_guidance_service.dart",
+      "lib/model/business_logic/diet_insights_service/diet_insights_service.dart"
+    ]
+  }
+]

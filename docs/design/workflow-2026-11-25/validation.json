@@ -1,0 +1,9 @@
+{
+  "changed_existing_requirements": 35,
+  "added_requirements": 56,
+  "reviewed_use_cases": 14,
+  "class_specifications": 20,
+  "diagram_files": 38,
+  "source_paths_verified": true,
+  "standard": "Existing shall statements and Patient/System use-case structure; no external certification claim."
+}

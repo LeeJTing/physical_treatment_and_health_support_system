@@ -1,0 +1,493 @@
+[
+  [
+    "TermsAcceptance",
+    "Append-only account record of current-version terms, explicit health-data consent and age/guardian declaration.",
+    [
+      ["acceptanceId / accountId / termsVersion", "String", "+", "Record identity, owner and accepted content version."],
+      ["acceptedAt / language", "DateTime / String", "+", "Acceptance time and English/Malay content language."],
+      ["healthDataConsent / ageGroup", "bool / TermsAgeGroup", "+", "Explicit consent and adult/minor declaration."],
+      ["guardianName / guardianRelationship", "String?", "+", "Required accompanying declaration for a minor entry."],
+      ["toJson() / fromJson()", "Map / TermsAcceptance", "+", "Map the append-only repository contract; a later version creates a new record."]
+    ]
+  ],
+  [
+    "FoodRecognitionDetails",
+    "Review metadata for proposed image quantities; nutrients still use the catalogue and reviewed edible grams.",
+    [
+      [
+        "count / unit / unitWeightG",
+        "int? / String? / double?",
+        "+",
+        "Optional counted-unit proposal and per-unit estimate."
+      ],
+      [
+        "estimated / confirmed / modelEstimate",
+        "bool",
+        "+",
+        "Distinguish estimated, reviewed and online-model confidence metadata."
+      ],
+      [
+        "boxes",
+        "List<List<double>>",
+        "+",
+        "Normalised image regions, not measured food volume."
+      ],
+      [
+        "reviewed() / toJson()",
+        "FoodRecognitionDetails / Map",
+        "+",
+        "Return consistent reviewed metadata and persist its JSON representation."
+      ]
+    ]
+  ],
+  [
+    "ActivityRecord",
+    "Read model of an owned completed exercise session, not a fabricated wearable metric.",
+    [
+      [
+        "sessionId / exerciseName / completedAt",
+        "String / String / DateTime",
+        "+",
+        "Stable identity, exercise and original completion time."
+      ],
+      [
+        "durationSec / durationRecorded",
+        "int / bool",
+        "+",
+        "Recorded duration; false marks unknown duration excluded from minute plots."
+      ],
+      [
+        "planName / repetitions / postureAccuracy",
+        "String? / int? / double?",
+        "+",
+        "Optional session detail for graph inspection."
+      ],
+      [
+        "isDemo",
+        "bool",
+        "+",
+        "Presentation-data provenance."
+      ],
+      [
+        "toAnalysisJson()",
+        "Map<String,dynamic>",
+        "+",
+        "Emit only completion time and duration for analysis."
+      ]
+    ]
+  ],
+  [
+    "VeepooWatchSource",
+    "Android method-channel adapter for compatible supported watch protocols and saved history.",
+    [
+      [
+        "scan() / read()",
+        "Future<List<WatchDevice>> / Future<WatchHistory>",
+        "+",
+        "Discover a supported source and read exposed history/capabilities."
+      ],
+      [
+        "connection() / remember()",
+        "Future<WatchConnection?> / Future<void>",
+        "+",
+        "Restore/store the per-account selected device and protected PIN."
+      ],
+      [
+        "readConnected() / markSynced()",
+        "Future<WatchHistory> / Future<void>",
+        "+",
+        "Read saved records and retain successful-check time."
+      ],
+      [
+        "forget() / cancel()",
+        "Future<void>",
+        "+",
+        "Forget selection or cancel a pending native request without deleting readings."
+      ]
+    ]
+  ],
+  [
+    "PlanComparisonReport",
+    "Derived applicable-plan comparison over the current and preceding weekly windows.",
+    [
+      [
+        "start / end / days",
+        "DateTime / DateTime / List<ComparisonDay>",
+        "+",
+        "Local-date period and meal statuses."
+      ],
+      [
+        "previousMeals / plansAvailable",
+        "List<MealPlanComparison> / bool",
+        "+",
+        "Supporting previous evidence and retrieval availability."
+      ],
+      [
+        "compared / repeatedChanges",
+        "List<MealPlanComparison> / List<RepeatedFoodChange>",
+        "+",
+        "Exclude missing/reference/unavailable states from the comparable denominator."
+      ],
+      [
+        "plannedAverage / loggedAverage",
+        "Nutrients",
+        "+",
+        "Per-compared-meal averages rather than assumed whole-day intake."
+      ]
+    ]
+  ],
+  [
+    "DietFoodGuidance",
+    "Shared daily food options and weekly observed priorities.",
+    [
+      [
+        "basis",
+        "String",
+        "+",
+        "Current-profile and incomplete-log assumptions."
+      ],
+      [
+        "days",
+        "List<DailyFoodGuidance>",
+        "+",
+        "Date, conclusion and up to four priority FoodGuidanceAction options."
+      ],
+      [
+        "priorities",
+        "List<WeeklyFoodPriority>",
+        "+",
+        "Up to six food/slot groups with occurrence totals and evidence dates."
+      ],
+      [
+        "FoodGuidanceAction fields",
+        "Food/slot/kind/grams/reason/summary",
+        "+",
+        "Names the food, recorded and review portions, reason and any required conditional swap."
+      ]
+    ]
+  ],
+  [
+    "MealSimulation",
+    "Immutable preview of a separate meal proposal.",
+    [
+      [
+        "items",
+        "List<MealItem>",
+        "+",
+        "Merged proposed foods; original items remain separate."
+      ],
+      [
+        "original / proposed / delta",
+        "Nutrients",
+        "+",
+        "Six nutrient totals and calculated difference."
+      ],
+      [
+        "afterDay / remaining",
+        "Nutrients",
+        "+",
+        "Recorded food plus proposal counted once and remaining limits."
+      ],
+      [
+        "warnings",
+        "List<String>",
+        "+",
+        "Current-profile, portion and daily-limit warnings."
+      ]
+    ]
+  ],
+  [
+    "RecoveryCheckIn",
+    "A patient-reported daily symptom record for an owned treatment assignment.",
+    [
+      [
+        "checkInId / accountId / patientPlanId",
+        "String",
+        "+",
+        "Identity, owner and assigned treatment."
+      ],
+      [
+        "date / updatedAt",
+        "DateTime",
+        "+",
+        "Local diary date and server-derived update time."
+      ],
+      [
+        "pain / stiffness / difficulty",
+        "int",
+        "+",
+        "Pain/stiffness0–10 and difficulty1–5."
+      ],
+      [
+        "notes / isDemo",
+        "String / bool",
+        "+",
+        "Optional note at most500characters and presentation label."
+      ],
+      [
+        "valid() / toJson() / fromJson()",
+        "bool / Map / RecoveryCheckIn",
+        "+",
+        "Validate entry bounds and map repository data."
+      ]
+    ]
+  ],
+  [
+    "HealthInsights",
+    "Loaded snapshot shared by Health insights screens and weekly PDF generation.",
+    [
+      [
+        "accountId / start / end / asOf",
+        "String / DateTime",
+        "+",
+        "Account and evidence window."
+      ],
+      [
+        "meals / readings / sessions",
+        "Lists of owned record entities",
+        "+",
+        "Filtered evidence, with ExerciseEvidence linking plan/exercise names."
+      ],
+      [
+        "timeline / facts / recovery",
+        "Lists of derived insight entities",
+        "+",
+        "Dated events, explanations and assignment-specific recovery."
+      ],
+      [
+        "comparison / foodGuidance",
+        "PlanComparisonReport / DietFoodGuidance?",
+        "+",
+        "The same meal comparisons and food options used on screen and in PDF."
+      ],
+      [
+        "sourceCounts / notices / coverage fields",
+        "Map / List<String> / int fields",
+        "+",
+        "Provenance, invalid/missing data and day coverage."
+      ],
+      [
+        "includesDemo / demoCount / lastSync",
+        "bool / int / DateTime?",
+        "+",
+        "Visible presentation filter and stored source-check metadata."
+      ]
+    ]
+  ],
+  [
+    "ReportExplanation",
+    "Plain-language interpretation of existing calculations, not a new prediction.",
+    [
+      [
+        "conclusion / analysis / suggestion",
+        "String",
+        "+",
+        "Three sections used by Health Report, insights and PDF."
+      ]
+    ]
+  ],
+  [
+    "DietInsightsViewModel",
+    "Loads a selected dietary review week and supporting meal/reading/plan/profile data.",
+    [
+      [
+        "selectedWeek / insights / notices",
+        "DateTime / DietInsights? / List<String>",
+        "+",
+        "Chosen period, result and unavailable-source messages."
+      ],
+      [
+        "load() / previousWeek() / nextWeek()",
+        "Future<void>",
+        "+",
+        "Load account-scoped data; guard older requests and session changes."
+      ]
+    ]
+  ],
+  [
+    "HealthInsightsViewModel",
+    "Coordinates the four insight tabs, diary commands and PDF generation.",
+    [
+      [
+        "data / selectedWeek / includeDemo",
+        "HealthInsights? / DateTime / bool",
+        "+",
+        "Loaded snapshot and selected inclusion scope."
+      ],
+      [
+        "load() / setIncludeDemo()",
+        "Future<void>",
+        "+",
+        "Read repository interfaces and build a guarded snapshot."
+      ],
+      [
+        "saveCheckIn() / deleteCheckIn()",
+        "Future<bool>",
+        "+",
+        "Validate an owned diary command and reload after success."
+      ],
+      [
+        "exportReport()",
+        "Future<Uint8List?>",
+        "+",
+        "Generate PDF from the loaded snapshot with busy/failure state."
+      ],
+      [
+        "explainWeek/Fact/Quality/Recovery()",
+        "ReportExplanation",
+        "+",
+        "Delegate screen narratives to ReportExplanationService."
+      ]
+    ]
+  ],
+  [
+    "MealSimulationViewModel",
+    "Owns proposal edits independently of the original unsaved meal.",
+    [
+      [
+        "context / proposed / result",
+        "DietContext / List<MealItem> / MealSimulation",
+        "+",
+        "Current context, separate proposal and recomputed preview."
+      ],
+      [
+        "add() / replace() / remove() / resize()",
+        "Commands; resize returns bool",
+        "+",
+        "Edit valid quantities, merge duplicates and re-evaluate warnings."
+      ],
+      [
+        "reset() / suitable()",
+        "void / bool",
+        "+",
+        "Restore original proposal; gate standard-portion search suggestions."
+      ]
+    ]
+  ],
+  [
+    "PlanComparisonService",
+    "Pure account/date/slot/food matching with fair adherence evidence.",
+    [
+      [
+        "selectPlan()",
+        "DietPlan?",
+        "+",
+        "Daily precedence, then latest start/generation and deterministic identity tie-break."
+      ],
+      [
+        "build()",
+        "PlanComparisonReport",
+        "+",
+        "Build current/previous windows and explicit missing/reference/unavailable states."
+      ]
+    ]
+  ],
+  [
+    "DietFoodGuidanceService",
+    "Pure, bounded daily/weekly food guidance from current profile rules and saved evidence.",
+    [
+      [
+        "build()",
+        "DietFoodGuidance",
+        "+",
+        "Validate owned nonfuture logs, match plan foods and derive explained options."
+      ],
+      [
+        "increase/swap gates",
+        "Internal calculations",
+        "-",
+        "Check current portion suitability and cumulative daily budgets; keep a required swap explicit and self-contained."
+      ]
+    ]
+  ],
+  [
+    "HealthInsightsService",
+    "Pure assembly of timeline events, weekly facts, coverage and recovery evidence.",
+    [
+      [
+        "build()",
+        "HealthInsights",
+        "+",
+        "Join account-owned records, apply demo filtering and attach shared comparisons/food guidance."
+      ],
+      [
+        "monday() / day()",
+        "DateTime",
+        "+",
+        "Calendar bucketing for the report window."
+      ],
+      [
+        "demoMeal() / demoReading()",
+        "bool",
+        "+",
+        "Identify presentation provenance without deleting history."
+      ]
+    ]
+  ],
+  [
+    "MealSimulationService",
+    "Pure nutrient comparison of original and separate proposed food lists.",
+    [
+      [
+        "compare()",
+        "MealSimulation",
+        "+",
+        "Merge proposals, calculate six nutrients and daily allowances once, and assess warnings."
+      ]
+    ]
+  ],
+  [
+    "WeeklyReportService",
+    "Offline PDF rendering of the same loaded weekly snapshot.",
+    [
+      [
+        "create()",
+        "Future<Result<Uint8List>>",
+        "+",
+        "Render conclusions, daily/weekly food options, chart, evidence dates, recovery and data notices."
+      ]
+    ]
+  ],
+  [
+    "ReportExplanationService",
+    "Deterministic narrative of existing facts and model outputs.",
+    [
+      [
+        "weekly() / fact() / quality() / recovery()",
+        "ReportExplanation",
+        "+",
+        "Explain the selected records, coverage and review action."
+      ],
+      [
+        "health() / risk() / forecast()",
+        "ReportExplanation",
+        "+",
+        "Interpret existing score/risk/forecast with withholding, uncertainty and stale-data states."
+      ]
+    ]
+  ],
+  [
+    "IRecoveryRepository",
+    "Persistence contract for account-owned symptom diary rows.",
+    [
+      [
+        "findBetween()",
+        "Future<Result<List<RecoveryCheckIn>>>",
+        "+",
+        "Read account/date-scoped diary entries."
+      ],
+      [
+        "save()",
+        "Future<Result<void>>",
+        "+",
+        "Insert/update a validated logical account/assignment/date entry."
+      ],
+      [
+        "delete()",
+        "Future<Result<void>>",
+        "+",
+        "Delete an identified owned entry. Live/fake implementations preserve the interface."
+      ]
+    ]
+  ]
+]

@@ -1,0 +1,1 @@
+Requirements and use-case content checked against app JT 293dc96 and the separate AI-server checkout on 25 November 2026. Diagram sources and rendered images support report v34. No application, server or database behaviour is changed here.
